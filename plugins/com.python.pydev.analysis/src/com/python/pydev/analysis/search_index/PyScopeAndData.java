@@ -18,7 +18,7 @@ public class PyScopeAndData {
 
     public static List<IPythonNature> getPythonNatures(ScopeAndData scopeAndData) {
         if (scopeAndData.scope == SearchIndexData.SCOPE_PROJECTS) {
-            IMatcher matcher = PySearchResultsViewerFilter.createMatcher(scopeAndData.scopeData);
+            IMatcher matcher = PySearchResultsViewerFilter.createMatcher(scopeAndData.scopeData, true);
             ArrayList<IPythonNature> ret = new ArrayList<>();
             IWorkspace workspace = ResourcesPlugin.getWorkspace();
             for (IProject project : workspace.getRoot().getProjects()) {
@@ -39,7 +39,7 @@ public class PyScopeAndData {
         if (scopeAndData.scope == SearchIndexData.SCOPE_MODULES) {
             ArrayList<IPythonNature> ret = new ArrayList<>();
 
-            IMatcher matcher = PySearchResultsViewerFilter.createMatcher(scopeAndData.scopeData);
+            IMatcher matcher = PySearchResultsViewerFilter.createMatcher(scopeAndData.scopeData, true);
 
             List<IPythonNature> allPythonNatures = PythonNature.getAllPythonNatures();
             for (IPythonNature nature : allPythonNatures) {

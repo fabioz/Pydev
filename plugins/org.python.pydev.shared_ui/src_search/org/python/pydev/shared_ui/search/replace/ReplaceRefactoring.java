@@ -408,7 +408,8 @@ public class ReplaceRefactoring extends Refactoring {
     }
 
     private Pattern createSearchPattern(ICustomSearchQuery query) {
-        return PatternConstructor.createPattern(query.getSearchString(), true, true, query.isCaseSensitive(), false);
+        return PatternConstructor.createPattern(query.getSearchString(), true, true, query.isCaseSensitive(),
+                query.isWholeWord());
     }
 
     private String computeReplacementString(Pattern pattern, String originalText, String replacementText,

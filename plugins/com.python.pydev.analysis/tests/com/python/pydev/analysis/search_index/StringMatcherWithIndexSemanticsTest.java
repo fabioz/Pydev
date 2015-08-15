@@ -20,7 +20,7 @@ import junit.framework.TestCase;
 public class StringMatcherWithIndexSemanticsTest extends TestCase {
 
     public void testStringMatcherWithIndexSemantics() throws Exception {
-        StringMatcherWithIndexSemantics matcher = new StringMatcherWithIndexSemantics("a", true);
+        StringMatcherWithIndexSemantics matcher = new StringMatcherWithIndexSemantics("a", true, true);
         Position find = matcher.find("a", 0);
         assertEquals(find.start, 0);
         assertEquals(find.end, 1);
@@ -34,7 +34,7 @@ public class StringMatcherWithIndexSemanticsTest extends TestCase {
     }
 
     public void testStringMatcherWithIndexSemantics2() throws Exception {
-        StringMatcherWithIndexSemantics matcher = new StringMatcherWithIndexSemantics("ab", true);
+        StringMatcherWithIndexSemantics matcher = new StringMatcherWithIndexSemantics("ab", true, true);
         Position find = matcher.find("ab", 0);
         assertEquals(find.start, 0);
         assertEquals(find.end, 2);
@@ -48,14 +48,14 @@ public class StringMatcherWithIndexSemanticsTest extends TestCase {
     }
 
     public void testStringMatcherWithIndexSemantics3() throws Exception {
-        StringMatcherWithIndexSemantics matcher = new StringMatcherWithIndexSemantics("*ab*", true);
+        StringMatcherWithIndexSemantics matcher = new StringMatcherWithIndexSemantics("*ab*", true, true);
         Position find = matcher.find("ab", 0);
         assertEquals(find.start, 0);
         assertEquals(find.end, 2);
     }
 
     public void testStringMatcherWithIndexSemantics3a() throws Exception {
-        StringMatcherWithIndexSemantics matcher = new StringMatcherWithIndexSemantics("ab", true);
+        StringMatcherWithIndexSemantics matcher = new StringMatcherWithIndexSemantics("ab", true, true);
         Position find = matcher.find("aab", 0);
         assertNull(find);
     }
@@ -75,49 +75,49 @@ public class StringMatcherWithIndexSemanticsTest extends TestCase {
     }
 
     public void testStringMatcher4a() throws Exception {
-        StringMatcherWithIndexSemantics matcher = new StringMatcherWithIndexSemantics("\\*ab*", true);
+        StringMatcherWithIndexSemantics matcher = new StringMatcherWithIndexSemantics("\\*ab*", true, true);
         StringMatcherWithIndexSemantics.Position find = matcher.find("*ab", 0);
         assertEquals(find.getStart(), 0);
         assertEquals(find.getEnd(), 3);
     }
 
     public void testStringMatcher4ab() throws Exception {
-        StringMatcherWithIndexSemantics matcher = new StringMatcherWithIndexSemantics("\\?ab*", true);
+        StringMatcherWithIndexSemantics matcher = new StringMatcherWithIndexSemantics("\\?ab*", true, true);
         StringMatcherWithIndexSemantics.Position find = matcher.find("?ab", 0);
         assertEquals(find.getStart(), 0);
         assertEquals(find.getEnd(), 3);
     }
 
     public void testStringMatcher5a() throws Exception {
-        StringMatcherWithIndexSemantics matcher = new StringMatcherWithIndexSemantics("\\*ab\\*", true);
+        StringMatcherWithIndexSemantics matcher = new StringMatcherWithIndexSemantics("\\*ab\\*", true, true);
         StringMatcherWithIndexSemantics.Position find = matcher.find("*ab*", 0);
         assertEquals(find.getStart(), 0);
         assertEquals(find.getEnd(), 4);
     }
 
     public void testStringMatcher5b() throws Exception {
-        StringMatcherWithIndexSemantics matcher = new StringMatcherWithIndexSemantics("*ab.", true);
+        StringMatcherWithIndexSemantics matcher = new StringMatcherWithIndexSemantics("*ab.", true, true);
         StringMatcherWithIndexSemantics.Position find = matcher.find("ab.", 0);
         assertEquals(find.getStart(), 0);
         assertEquals(find.getEnd(), 3);
     }
 
     public void testStringMatcherMatch() throws Exception {
-        StringMatcherWithIndexSemantics matcher = new StringMatcherWithIndexSemantics("*ab.", true);
+        StringMatcherWithIndexSemantics matcher = new StringMatcherWithIndexSemantics("*ab.", true, true);
         assertTrue(matcher.match("ab."));
         assertTrue(matcher.match("cab."));
         assertFalse(matcher.match("cab.x"));
     }
 
     public void testStringMatcherMatch2() throws Exception {
-        StringMatcherWithIndexSemantics matcher = new StringMatcherWithIndexSemantics("*ab.*", true);
+        StringMatcherWithIndexSemantics matcher = new StringMatcherWithIndexSemantics("*ab.*", true, true);
         assertTrue(matcher.match("ab."));
         assertTrue(matcher.match("cab."));
         assertTrue(matcher.match("cab.x"));
     }
 
     public void testStringMatcherMatch3() throws Exception {
-        StringMatcherWithIndexSemantics matcher = new StringMatcherWithIndexSemantics("ab.*", true);
+        StringMatcherWithIndexSemantics matcher = new StringMatcherWithIndexSemantics("ab.*", true, true);
         assertTrue(matcher.match("ab."));
         assertFalse(matcher.match("cab."));
         assertFalse(matcher.match("cab.x"));
@@ -125,10 +125,20 @@ public class StringMatcherWithIndexSemanticsTest extends TestCase {
     }
 
     public void testStringMatcherMatch4() throws Exception {
-        StringMatcherWithIndexSemantics matcher = new StringMatcherWithIndexSemantics("ab.", true);
+        StringMatcherWithIndexSemantics matcher = new StringMatcherWithIndexSemantics("ab.", true, true);
         assertTrue(matcher.match("ab."));
         assertFalse(matcher.match("cab."));
         assertFalse(matcher.match("cab.x"));
         assertFalse(matcher.match("ab.x"));
+    }
+
+    public void testStringMatcherNotWholeWord() throws Exception {
+        StringMatcherWithIndexSemantics matcher = new StringMatcherWithIndexSemantics("ab", true, false);
+        assertTrue(matcher.match("cabx"));
+    }
+
+    public void testStringMatcherNotWholeWord2() throws Exception {
+        StringMatcherWithIndexSemantics matcher = new StringMatcherWithIndexSemantics("**ab**", true, false);
+        assertTrue(matcher.match("cabx"));
     }
 }

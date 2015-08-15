@@ -6,6 +6,9 @@
  */
 package org.python.pydev.shared_ui.search;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.search.ui.ISearchQuery;
 import org.python.pydev.shared_core.string.StringUtils;
 
@@ -17,6 +20,8 @@ public abstract class AbstractSearchIndexQuery implements ISearchQuery, ICustomS
 
     private boolean caseSensitive = true;
 
+    private boolean wholeWord = true;
+
     public AbstractSearchIndexQuery(String text) {
         this.text = text;
         this.scopeAndData = new ScopeAndData(SearchIndexData.SCOPE_WORKSPACE, "");
@@ -25,6 +30,7 @@ public abstract class AbstractSearchIndexQuery implements ISearchQuery, ICustomS
     public AbstractSearchIndexQuery(SearchIndexData data) {
         this.text = data.textPattern;
         this.caseSensitive = data.isCaseSensitive;
+        this.wholeWord = data.isWholeWord;
         this.scopeAndData = new ScopeAndData(data.scope, data.scopeData);
     }
 
@@ -40,6 +46,11 @@ public abstract class AbstractSearchIndexQuery implements ISearchQuery, ICustomS
     @Override
     public boolean isCaseSensitive() {
         return this.caseSensitive;
+    }
+
+    @Override
+    public boolean isWholeWord() {
+        return this.wholeWord;
     }
 
     /**
@@ -70,8 +81,26 @@ public abstract class AbstractSearchIndexQuery implements ISearchQuery, ICustomS
 
     public StringMatcherWithIndexSemantics createStringMatcher() {
         boolean ignoreCase = getIgnoreCase();
-        StringMatcherWithIndexSemantics stringMatcher = new StringMatcherWithIndexSemantics(text, ignoreCase);
+        StringMatcherWithIndexSemantics stringMatcher = new StringMatcherWithIndexSemantics(
+                text, ignoreCase, wholeWord);
         return stringMatcher;
     }
 
+    protected Set<String> makeTextFieldPatternsToSearchFromText() {
+        Set<String> split = new HashSet<>();
+        for (String s : StringUtils.splitForIndexMatching(this.text)) {
+            // We need to search in lowercase (we only index case-insensitive).
+            String lowerCase = s.toLowerCase();
+            if (!this.isWholeWord()) {
+                if (!lowerCase.startsWith("*")) {
+                    lowerCase = '*' + lowerCase;
+                }
+                if (!lowerCase.endsWith("*")) {
+                    lowerCase = lowerCase + '*';
+                }
+            }
+            split.add(lowerCase);
+        }
+        return split;
+    }
 }

@@ -32,8 +32,8 @@ public class PySearchIndexResultPage extends AbstractSearchIndexResultPage {
     }
 
     @Override
-    protected AbstractSearchResultsViewerFilter createFilterFilter(String text) {
-        return new PySearchResultsViewerFilter(text);
+    protected AbstractSearchResultsViewerFilter createFilterFilter(String text, boolean wholeWord) {
+        return new PySearchResultsViewerFilter(text, wholeWord);
     };
 
     @Override

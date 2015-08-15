@@ -31,7 +31,7 @@ public class PySearchIndexPage extends AbstractSearchIndexPage {
     public boolean performAction() {
         ScopeAndData scopeAndData = getScopeAndData();
         SearchIndexData data = new SearchIndexData(fPattern.getText(), fIsCaseSensitiveCheckbox.getSelection(),
-                scopeAndData.scope, scopeAndData.scopeData, "*"); // filenamePattern is always * for Python searches (we'll always be searching the whole index).
+                fIsWholeWordCheckbox.getSelection(), scopeAndData.scope, scopeAndData.scopeData, "*"); // filenamePattern is always * for Python searches (we'll always be searching the whole index).
         PySearchIndexQuery query = new PySearchIndexQuery(data);
         NewSearchUI.runQueryInBackground(query);
         searchIndexDataHistory.add(data);

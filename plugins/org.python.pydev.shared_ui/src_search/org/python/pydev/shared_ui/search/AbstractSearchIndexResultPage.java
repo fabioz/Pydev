@@ -200,7 +200,7 @@ public abstract class AbstractSearchIndexResultPage extends AbstractTextSearchVi
                         if (input != null) {
                             if (!text.isEmpty()) {
                                 ViewerFilter[] filters = new ViewerFilter[] {
-                                        createFilterFilter(text)
+                                        createFilterFilter(text, false)
                                 };
                                 getViewer().setFilters(filters);
                                 TreeViewer viewer = (TreeViewer) getViewer();
@@ -219,7 +219,7 @@ public abstract class AbstractSearchIndexResultPage extends AbstractTextSearchVi
         return refreshJob;
     }
 
-    protected abstract AbstractSearchResultsViewerFilter createFilterFilter(String text);
+    protected abstract AbstractSearchResultsViewerFilter createFilterFilter(String text, boolean wholeWord);
 
     protected static final String[] SHOW_IN_TARGETS = new String[] { IPageLayout.ID_RES_NAV };
     protected static final IShowInTargetList SHOW_IN_TARGET_LIST = new IShowInTargetList() {

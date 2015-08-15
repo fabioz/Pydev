@@ -25,21 +25,29 @@ public class StringMatcherWithIndexSemantics {
     private boolean startsWithWildCard;
     private boolean endsWithWildCard;
 
-    public StringMatcherWithIndexSemantics(String text, boolean ignoreCase) {
+    public StringMatcherWithIndexSemantics(String text, boolean ignoreCase, boolean wholeWord) {
         FastStringBuffer buf = new FastStringBuffer();
         FastStringBuffer finalRegexp = new FastStringBuffer();
 
         boolean skipLeftSep = false;
         boolean skipRightSep = false;
 
-        if (text.startsWith("*")) {
+        if (!wholeWord) {
+            skipLeftSep = true;
+        }
+        while (text.startsWith("*")) {
             skipLeftSep = true;
             text = text.substring(1);
         }
-        if (text.endsWith("*") && !text.endsWith("\\*")) {
+
+        if (!wholeWord) {
+            skipRightSep = true;
+        }
+        while (text.endsWith("*") && !text.endsWith("\\*")) {
             skipRightSep = true;
             text = text.substring(0, text.length() - 1);
         }
+
         int length = text.length();
         for (int i = 0; i < length; i++) {
             char c = text.charAt(i);

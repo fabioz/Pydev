@@ -7,7 +7,6 @@
 package com.python.pydev.analysis.search_index;
 
 import java.io.File;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -67,11 +66,7 @@ public class PySearchIndexQuery extends AbstractSearchIndexQuery {
         if (moduleNamesFilter != null && !moduleNamesFilter.isEmpty()) {
             fieldNameToValues.put(IReferenceSearches.FIELD_MODULE_NAME, moduleNamesFilter);
         }
-        Set<String> split = new HashSet<>();
-        for (String s : StringUtils.splitForIndexMatching(this.text)) {
-            // We need to search in lowercase (we only index case-insensitive).
-            split.add(s.toLowerCase());
-        }
+        Set<String> split = makeTextFieldPatternsToSearchFromText();
         fieldNameToValues.put(IReferenceSearches.FIELD_CONTENTS, split);
 
         final List<IPythonNature> pythonNatures = PyScopeAndData.getPythonNatures(scopeAndData);

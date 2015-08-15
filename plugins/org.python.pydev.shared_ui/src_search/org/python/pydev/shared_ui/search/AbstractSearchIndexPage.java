@@ -20,7 +20,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.DialogPage;
-import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
@@ -56,6 +55,7 @@ public abstract class AbstractSearchIndexPage extends DialogPage implements ISea
     protected boolean fFirstTime = true;
 
     protected Button fIsCaseSensitiveCheckbox;
+    protected Button fIsWholeWordCheckbox;
 
     // Scope
     protected Button fModulesScopeRadio;
@@ -86,7 +86,7 @@ public abstract class AbstractSearchIndexPage extends DialogPage implements ISea
 
         // Line 1
         createLabel(composite, SWT.LEAD,
-                "&Text  (* = any string, ? = any character, \\\\ = escape). Exact match by default. Add * to begin/end for sub-matches (slower).",
+                "&Text  (* = any string, ? = any character, \\\\ = escape).",
                 10);
 
         createComponents(composite);
@@ -155,6 +155,10 @@ public abstract class AbstractSearchIndexPage extends DialogPage implements ISea
         // ((GridData) fHistory.getLayoutData()).widthHint = 25;
 
         fIsCaseSensitiveCheckbox = createButton(composite, SWT.CHECK, SearchMessages.SearchPage_caseSensitive, 5);
+
+        // Line 2 (part 2)
+        createLabel(composite, SWT.NONE, "", 5);
+        fIsWholeWordCheckbox = createButton(composite, SWT.CHECK, SearchMessages.SearchPage_wholeWord, 5);
 
         // Line 3
         createLabel(composite, SWT.LEAD, "Scope", 1);
@@ -241,6 +245,10 @@ public abstract class AbstractSearchIndexPage extends DialogPage implements ISea
 
                 // Load settings from last activation
                 SearchIndexData last = initializeFromLast();
+                if (last != null) {
+                    this.fIsCaseSensitiveCheckbox.setSelection(last.isCaseSensitive);
+                    this.fIsWholeWordCheckbox.setSelection(last.isWholeWord);
+                }
 
                 // Override some settings from the current selection
                 initializeFromSelection(last);
@@ -278,39 +286,41 @@ public abstract class AbstractSearchIndexPage extends DialogPage implements ISea
                 && ((ITextSelection) selection).getLength() > 0) {
             boolean regularPath = true;
 
-            if (selection instanceof TextSelection) {
-                // If we got a substring, add * as needed before/after.
-                TextSelection tx = (TextSelection) selection;
-                IDocument doc = getDocument(tx);
-                if (doc != null) {
-                    int offset = tx.getOffset();
-                    int length = tx.getLength();
-                    try {
-                        String txt = doc.get(offset, length);
-                        if (!txt.startsWith("*")) {
-                            if (offset > 0) {
-                                char c = doc.getChar(offset - 1);
-                                if (Character.isJavaIdentifierPart(c)) {
-                                    txt = '*' + txt;
-                                }
-                            }
-                        }
+            // As we have a checkbox for whole word now, the code below shouldn't be needed anymore.
 
-                        if (!txt.endsWith("*")) {
-                            if (doc.getLength() > offset + length) {
-                                char c = doc.getChar(offset + length);
-                                if (Character.isJavaIdentifierPart(c)) {
-                                    txt = txt + '*';
-                                }
-                            }
-                        }
-                        fPattern.setText(txt);
-                        regularPath = false;
-                    } catch (BadLocationException e) {
-                        // Ignore
-                    }
-                }
-            }
+            // if (selection instanceof TextSelection) {
+            //    // If we got a substring, add * as needed before/after.
+            //    TextSelection tx = (TextSelection) selection;
+            //    IDocument doc = getDocument(tx);
+            //    if (doc != null) {
+            //        int offset = tx.getOffset();
+            //        int length = tx.getLength();
+            //        try {
+            //            String txt = doc.get(offset, length);
+            //            if (!txt.startsWith("*")) {
+            //                if (offset > 0) {
+            //                    char c = doc.getChar(offset - 1);
+            //                    if (Character.isJavaIdentifierPart(c)) {
+            //                        txt = '*' + txt;
+            //                    }
+            //                }
+            //            }
+            //
+            //            if (!txt.endsWith("*")) {
+            //                if (doc.getLength() > offset + length) {
+            //                    char c = doc.getChar(offset + length);
+            //                    if (Character.isJavaIdentifierPart(c)) {
+            //                        txt = txt + '*';
+            //                    }
+            //                }
+            //            }
+            //            fPattern.setText(txt);
+            //            regularPath = false;
+            //        } catch (BadLocationException e) {
+            //            // Ignore
+            //        }
+            //    }
+            // }
 
             if (regularPath) {
                 String text = ((ITextSelection) selection).getText();
@@ -408,6 +418,7 @@ public abstract class AbstractSearchIndexPage extends DialogPage implements ISea
                 this.fProjectsScopeRadio.setSelection(true);
                 return true;
         }
+
         return false;
     }
 

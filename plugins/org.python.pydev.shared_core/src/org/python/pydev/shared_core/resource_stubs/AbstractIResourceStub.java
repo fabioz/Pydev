@@ -7,6 +7,7 @@
 package org.python.pydev.shared_core.resource_stubs;
 
 import java.net.URI;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.resources.IContainer;
@@ -175,11 +176,11 @@ public class AbstractIResourceStub implements IResource {
     }
 
     public Map<QualifiedName, Object> getSessionProperties() throws CoreException {
-        throw new RuntimeException("Not implemented");
+        return new HashMap<>();
     }
 
     public Object getSessionProperty(QualifiedName key) throws CoreException {
-        throw new RuntimeException("Not implemented");
+        return null;
     }
 
     public int getType() {
@@ -195,7 +196,7 @@ public class AbstractIResourceStub implements IResource {
     }
 
     public boolean isDerived() {
-        throw new RuntimeException("Not implemented");
+        return false;
     }
 
     public boolean isDerived(int options) {

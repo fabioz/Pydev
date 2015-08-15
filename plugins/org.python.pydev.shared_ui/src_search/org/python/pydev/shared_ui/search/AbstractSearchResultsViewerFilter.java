@@ -24,8 +24,8 @@ public abstract class AbstractSearchResultsViewerFilter extends ViewerFilter {
     private Map<Object, Boolean> foundAnyCache = new HashMap<>();
     private Map<Object, Object[]> cache = new HashMap<>();
 
-    public AbstractSearchResultsViewerFilter(String text) {
-        stringMatcher = createMatcher(text);
+    public AbstractSearchResultsViewerFilter(String text, boolean wholeWord) {
+        stringMatcher = createMatcher(text, wholeWord);
     }
 
     @Override
@@ -91,7 +91,7 @@ public abstract class AbstractSearchResultsViewerFilter extends ViewerFilter {
 
     public abstract boolean isLeafMatch(Viewer viewer, Object element);
 
-    public static IMatcher createMatcher(String text) {
+    public static IMatcher createMatcher(String text, boolean wholeWord) {
         List<String> split = StringUtils.split(text, ',');
         ArrayList<StringMatcherWithIndexSemantics> includes = new ArrayList<>(split.size());
         ArrayList<StringMatcherWithIndexSemantics> excludes = new ArrayList<>(split.size());
@@ -101,10 +101,11 @@ public abstract class AbstractSearchResultsViewerFilter extends ViewerFilter {
             if (string.length() > 0) {
                 if (string.startsWith("!")) {
                     StringMatcherWithIndexSemantics matcher = new StringMatcherWithIndexSemantics(string.substring(1),
-                            true);
+                            true, wholeWord);
                     excludes.add(matcher);
                 } else {
-                    StringMatcherWithIndexSemantics matcher = new StringMatcherWithIndexSemantics(string, true);
+                    StringMatcherWithIndexSemantics matcher = new StringMatcherWithIndexSemantics(string, true,
+                            wholeWord);
                     includes.add(matcher);
                 }
             }

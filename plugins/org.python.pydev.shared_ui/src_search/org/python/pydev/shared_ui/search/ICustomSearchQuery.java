@@ -14,6 +14,8 @@ public interface ICustomSearchQuery extends ISearchQuery {
 
     boolean isCaseSensitive();
 
+    boolean isWholeWord();
+
     boolean isRegexSearch();
 
 }

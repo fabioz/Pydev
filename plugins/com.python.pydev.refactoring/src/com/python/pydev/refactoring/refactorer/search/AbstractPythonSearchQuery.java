@@ -21,7 +21,7 @@ import com.python.pydev.refactoring.refactorer.search.copied.SearchResultUpdater
 public abstract class AbstractPythonSearchQuery implements ISearchQuery, ICustomSearchQuery {
 
     public AbstractPythonSearchQuery(String searchText) {
-        this(searchText, false, true, null);
+        this(searchText, false, true, true, null);
     }
 
     public boolean canRerun() {
@@ -48,12 +48,14 @@ public abstract class AbstractPythonSearchQuery implements ISearchQuery, ICustom
     private final boolean fIsCaseSensitive;
 
     private PythonFileSearchResult fResult;
+    private boolean fIsWholeWord;
 
-    public AbstractPythonSearchQuery(String searchText, boolean isRegEx, boolean isCaseSensitive,
+    public AbstractPythonSearchQuery(String searchText, boolean isRegEx, boolean isCaseSensitive, boolean isWholeWord,
             FileTextSearchScope scope) {
         fSearchText = searchText;
         fIsRegEx = isRegEx;
         fIsCaseSensitive = isCaseSensitive;
+        fIsWholeWord = isWholeWord;
         fScope = scope;
     }
 
@@ -68,7 +70,12 @@ public abstract class AbstractPythonSearchQuery implements ISearchQuery, ICustom
     }
 
     protected Pattern getSearchPattern() {
-        return PatternConstructor.createPattern(fSearchText, fIsCaseSensitive, fIsRegEx);
+        return PatternConstructor.createPattern(fSearchText, fIsRegEx, true, fIsCaseSensitive, fIsWholeWord);
+    }
+
+    @Override
+    public boolean isWholeWord() {
+        return fIsWholeWord;
     }
 
     public boolean isFileNameSearch() {

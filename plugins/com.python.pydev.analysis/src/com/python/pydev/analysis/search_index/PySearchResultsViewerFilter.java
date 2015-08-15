@@ -5,8 +5,8 @@ import org.python.pydev.shared_core.structure.TreeNode;
 import org.python.pydev.shared_ui.search.AbstractSearchResultsViewerFilter;
 
 public class PySearchResultsViewerFilter extends AbstractSearchResultsViewerFilter {
-    public PySearchResultsViewerFilter(String text) {
-        super(text);
+    public PySearchResultsViewerFilter(String text, boolean wholeWord) {
+        super(text, wholeWord);
     }
 
     @Override
