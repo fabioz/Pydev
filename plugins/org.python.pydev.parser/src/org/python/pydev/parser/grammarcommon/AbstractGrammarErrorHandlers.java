@@ -15,7 +15,7 @@ import org.python.pydev.parser.jython.Token;
 
 /**
  * This class contains the error-handling utilities.
- * 
+ *
  * @author Fabio
  */
 public abstract class AbstractGrammarErrorHandlers extends AbstractGrammarWalkHelpers {
@@ -35,7 +35,7 @@ public abstract class AbstractGrammarErrorHandlers extends AbstractGrammarWalkHe
 
     /**
      * This method should be called when the current token marks a compound statement start
-     * E.g.: right after an if, for, while, etc. 
+     * E.g.: right after an if, for, while, etc.
      */
     protected final void markLastAsSuiteStart() {
         Token currentToken = this.getCurrentToken();
@@ -212,10 +212,10 @@ public abstract class AbstractGrammarErrorHandlers extends AbstractGrammarWalkHe
 
     /**
      * Called when there was an error trying to indent.
-     * 
+     *
      * Actually creates a name so that the parsing can continue.
      */
-    protected final Token handleErrorInName(ParseException e) throws ParseException {
+    protected Token handleErrorInName(ParseException e) throws ParseException {
         addAndReport(e, "Handle name");
         Token currentToken = getCurrentToken();
 

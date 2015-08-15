@@ -98,6 +98,19 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
 
     }
 
+    @Override
+    protected Token handleErrorInName(ParseException e) throws ParseException {
+        try {
+            return jj_consume_token(ASYNC);
+        } catch (ParseException e1) {
+            try {
+                return jj_consume_token(AWAIT);
+            } catch (ParseException e2) {
+                return super.handleErrorInName(e);
+            }
+        }
+    }
+
 //file_input: (NEWLINE | stmt)* ENDMARKER
   final public modType file_input() throws ParseException {
                        /*@bgen(jjtree) file_input */
@@ -1269,7 +1282,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     }
   }
 
-//small_stmt: expr_stmt | del_stmt | pass_stmt | flow_stmt | import_stmt | global_stmt | nonlocal_stmt | assert_stmt 
+//small_stmt: expr_stmt | del_stmt | pass_stmt | flow_stmt | import_stmt | global_stmt | nonlocal_stmt | assert_stmt
   final public void small_stmt() throws ParseException {
                           SimpleNode simpleNode;Token spStr;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -7235,7 +7248,7 @@ else
   }
 
 //arglist: (argument ',')* (argument [',']
-//                         |'*' test (',' argument)* [',' '**' test] 
+//                         |'*' test (',' argument)* [',' '**' test]
 //                         |'**' test)
   final public void arglist() throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -8098,45 +8111,6 @@ else
     try { return !jj_3_33(); }
     catch(LookaheadSuccess ls) { return true; }
     finally { jj_save(32, xla); }
-  }
-
-  private boolean jj_3_16() {
-    if (jj_scan_token(POWER)) return true;
-    if (jj_3R_62()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_148() {
-    if (jj_scan_token(RETURN)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_50() {
-    if (jj_3R_80()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_141() {
-    if (jj_3R_148()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_135() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(76)) jj_scanpos = xsp;
-    if (jj_3R_144()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_132() {
-    if (jj_3R_143()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_131() {
-    if (jj_3R_142()) return true;
-    return false;
   }
 
   private boolean jj_3R_130() {
@@ -9182,6 +9156,45 @@ else
 
   private boolean jj_3R_142() {
     if (jj_3R_100()) return true;
+    return false;
+  }
+
+  private boolean jj_3_16() {
+    if (jj_scan_token(POWER)) return true;
+    if (jj_3R_62()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_148() {
+    if (jj_scan_token(RETURN)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_50() {
+    if (jj_3R_80()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_141() {
+    if (jj_3R_148()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_135() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(76)) jj_scanpos = xsp;
+    if (jj_3R_144()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_132() {
+    if (jj_3R_143()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_131() {
+    if (jj_3R_142()) return true;
     return false;
   }
 

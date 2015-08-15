@@ -770,4 +770,20 @@ public class PyParser30Test extends PyParserTestBase {
         parseLegalDocStr(s);
         parseLegalDocStrWithoutTree(s);
     }
+
+    public void testAsyncNotKeyword() throws Exception {
+        String s = ""
+                + "class async(object):\n"
+                + "    pass";
+        parseLegalDocStr(s);
+        parseLegalDocStrWithoutTree(s);
+    }
+
+    public void testAwaitNotKeyword() throws Exception {
+        String s = ""
+                + "class await(object):\n"
+                + "    pass";
+        parseLegalDocStr(s);
+        parseLegalDocStrWithoutTree(s);
+    }
 }
