@@ -143,6 +143,18 @@ Companies have the option of sponsoring PyDev through corporate sponsorship. See
 
 
 
+Release 4.3.0
+==========================
+
+* Fixed parser for Python 3.x to support async and await as regular names too (PyDev-593).
+
+* The new search dialog now has a 'whole word' option which automatically adds `*` to the search
+
+* Search backend updated to Lucene 5.2.1.
+
+* When bringing up the search dialog the search text is initially selected.
+
+
 Release 4.2.0
 ==========================
 
