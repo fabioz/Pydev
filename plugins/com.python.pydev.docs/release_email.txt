@@ -1,23 +1,15 @@
-PyDev 4.2.0 Released
+PyDev 4.3.0 Released
 
 Release Highlights:
 -------------------------------
 
-* New search page for Python contents
+* Fixed parser for Python 3.x to support async and await as regular names too (PyDev-593).
 
-	* Text-searches using a Lucene index allows for fast matches.
-	* Matches can be flattened and grouped by project, folders and modules.
-	* Results page allows additional filtering based on module name.
+* The new search dialog now has a 'whole word' option which automatically adds `*` to the search
 
-* Further improvements on code completion unpacking compound types.
+* Search backend updated to Lucene 5.2.1.
 
-* Not adding auto 'import' token in cython files (to accept cimport).
-
-* PyDev Mylyn integration no longer depends on a specific PyDev release.
-
-* Fixed halting condition when unable to create native file watches.
-
-* Vertical indent guide no longer slows down the editor on Linux (PyDev-582).
+* When bringing up the search dialog the search text is initially selected.
 
 
 What is PyDev?
