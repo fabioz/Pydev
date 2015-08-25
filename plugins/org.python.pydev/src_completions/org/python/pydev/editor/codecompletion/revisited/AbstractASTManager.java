@@ -76,7 +76,7 @@ import org.python.pydev.shared_core.structure.Tuple3;
 
 public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
-    private static final IToken[] EMPTY_ITOKEN_ARRAY = new IToken[0];
+    public static final IToken[] EMPTY_ITOKEN_ARRAY = new IToken[0];
 
     private static final boolean DEBUG_CACHE = false;
 
@@ -785,39 +785,11 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
                 if (lookForArgumentCompletion && localScope != null) {
 
-                    //now, if we have to look for arguments and search things in the local scope, let's also
-                    //check for assert (isinstance...) in this scope with the given variable.
-                    List<String> lookForClass = localScope.getPossibleClassesForActivationToken(state
-                            .getActivationToken());
-                    if (lookForClass.size() > 0) {
-                        List<String> lst = new ArrayList<>(lookForClass.size());
-                        for (String s : lookForClass) {
-                            lst.add(NodeUtils.getPackedTypeFromDocstring(s));
-                        }
-                        lookForClass = lst;
-                        HashSet<IToken> hashSet = new HashSet<IToken>();
-
-                        getCompletionsForClassInLocalScope(module, state, searchSameLevelMods,
-                                lookForArgumentCompletion, lookForClass, hashSet);
-
-                        if (hashSet.size() > 0) {
-                            return hashSet.toArray(EMPTY_ITOKEN_ARRAY);
-                        } else {
-                            //Give a chance to find it without the scope
-                            //Try to deal with some token that's not imported
-                            IToken[] ret = getCompletionsFromTypeRepresentation(state, lookForClass, module);
-                            if (ret != null && ret.length > 0) {
-                                return ret;
-                            }
-                        }
-                    }
-
-                    //ok, didn't find in assert isinstance... keep going
-                    //if there was no assert for the class, get from extensions / local scope interface
-                    tokens = CompletionParticipantsHelper.getCompletionsForMethodParameter(state, localScope).toArray(
-                            EMPTY_ITOKEN_ARRAY);
-                    if (tokens != null && tokens.length > 0) {
-                        return tokens;
+                    IToken[] ret = getCompletionsFromTokenInLocalScope(module, state, searchSameLevelMods,
+                            lookForArgumentCompletion,
+                            localScope);
+                    if (ret != null && ret.length > 0) {
+                        return ret;
                     }
                 }
 
@@ -830,6 +802,47 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         }
 
         return EMPTY_ITOKEN_ARRAY;
+    }
+
+    public IToken[] getCompletionsFromTokenInLocalScope(IModule module, ICompletionState state,
+            boolean searchSameLevelMods, boolean lookForArgumentCompletion, ILocalScope localScope)
+                    throws CompletionRecursionException {
+        IToken[] tokens;
+        //now, if we have to look for arguments and search things in the local scope, let's also
+        //check for assert (isinstance...) in this scope with the given variable.
+        List<String> lookForClass = localScope.getPossibleClassesForActivationToken(state
+                .getActivationToken());
+        if (lookForClass.size() > 0) {
+            List<String> lst = new ArrayList<>(lookForClass.size());
+            for (String s : lookForClass) {
+                lst.add(NodeUtils.getPackedTypeFromDocstring(s));
+            }
+            lookForClass = lst;
+            HashSet<IToken> hashSet = new HashSet<IToken>();
+
+            getCompletionsForClassInLocalScope(module, state, searchSameLevelMods,
+                    lookForArgumentCompletion, lookForClass, hashSet);
+
+            if (hashSet.size() > 0) {
+                return hashSet.toArray(EMPTY_ITOKEN_ARRAY);
+            } else {
+                //Give a chance to find it without the scope
+                //Try to deal with some token that's not imported
+                IToken[] ret = getCompletionsFromTypeRepresentation(state, lookForClass, module);
+                if (ret != null && ret.length > 0) {
+                    return ret;
+                }
+            }
+        }
+
+        //ok, didn't find in assert isinstance... keep going
+        //if there was no assert for the class, get from extensions / local scope interface
+        tokens = CompletionParticipantsHelper.getCompletionsForMethodParameter(state, localScope).toArray(
+                EMPTY_ITOKEN_ARRAY);
+        if (tokens != null && tokens.length > 0) {
+            return tokens;
+        }
+        return null;
     }
 
     @SuppressWarnings("unchecked")
@@ -1428,7 +1441,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     private IToken[] getAssignCompletions(IModule module, ICompletionState state, boolean lookForArgumentCompletion,
             ILocalScope localScope) throws CompletionRecursionException {
         state.checkMaxTimeForCompletion();
-        AssignCompletionInfo assignCompletions = assignAnalysis.getAssignCompletions(this, module, state);
+        AssignCompletionInfo assignCompletions = assignAnalysis.getAssignCompletions(this, module, state, localScope);
 
         boolean useExtensions = assignCompletions.completions.size() == 0;
 

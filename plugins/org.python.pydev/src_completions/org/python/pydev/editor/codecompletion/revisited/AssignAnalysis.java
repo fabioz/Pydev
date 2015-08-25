@@ -18,6 +18,7 @@ import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.UnpackInfo;
@@ -28,6 +29,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
+import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Call;
@@ -61,9 +63,10 @@ public class AssignAnalysis {
      *
      * so, first thing is discovering in which scope we are (Storing previous scopes so
      * that we can search in other scopes as well).
+     * @param localScope
      */
     public AssignCompletionInfo getAssignCompletions(ICodeCompletionASTManager manager, IModule module,
-            ICompletionState state) {
+            ICompletionState state, ILocalScope localScope) {
         int assignLevel = state.pushAssign();
         try {
             ArrayList<IToken> ret = new ArrayList<IToken>();
@@ -73,45 +76,58 @@ public class AssignAnalysis {
 
                 try {
                     defs = s.findDefinition(state, state.getLine() + 1, state.getCol() + 1, state.getNature());
-                    for (int i = 0; i < defs.length; i++) {
-                        //go through all definitions found and make a merge of it...
-                        Definition definition = defs[i];
-                        if (state.getAlreadySearchedInAssign(definition.line, definition.col, definition.module,
-                                definition.value,
-                                state.getActivationToken())) {
-                            // It's possible that we have many assigns where it may be normal to have loops
-                            // i.e.: cp = self.x[:] ... self.x = cp, so, let's mark those places so that we don't recurse.
-                            // System.out.println("Skip: " + definition);
-                            continue;
-                        }
+                    if (defs.length > 0) {
+                        for (int i = 0; i < defs.length; i++) {
+                            //go through all definitions found and make a merge of it...
+                            Definition definition = defs[i];
+                            if (state.getAlreadySearchedInAssign(definition.line, definition.col, definition.module,
+                                    definition.value,
+                                    state.getActivationToken())) {
+                                // It's possible that we have many assigns where it may be normal to have loops
+                                // i.e.: cp = self.x[:] ... self.x = cp, so, let's mark those places so that we don't recurse.
+                                // System.out.println("Skip: " + definition);
+                                continue;
+                            }
 
-                        if (state.getLine() == definition.line && state.getCol() == definition.col) {
-                            //Check the module
-                            if (definition.module != null && definition.module.equals(s)) {
-                                //initial and final are the same
-                                if (state.checkFoudSameDefinition(definition.line, definition.col, definition.module)) {
-                                    //We found the same place we found previously (so, we're recursing here... Just go on)
-                                    continue;
+                            if (state.getLine() == definition.line && state.getCol() == definition.col) {
+                                //Check the module
+                                if (definition.module != null && definition.module.equals(s)) {
+                                    //initial and final are the same
+                                    if (state.checkFoudSameDefinition(definition.line, definition.col,
+                                            definition.module)) {
+                                        //We found the same place we found previously (so, we're recursing here... Just go on)
+                                        continue;
+                                    }
                                 }
                             }
-                        }
 
-                        AssignDefinition assignDefinition = null;
-                        if (definition instanceof AssignDefinition) {
-                            assignDefinition = (AssignDefinition) definition;
-                        }
+                            AssignDefinition assignDefinition = null;
+                            if (definition instanceof AssignDefinition) {
+                                assignDefinition = (AssignDefinition) definition;
+                            }
 
-                        if (definition.ast instanceof FunctionDef) {
-                            List<IToken> found = addFunctionDefCompletionsFromReturn(manager, state, s, definition);
-                            ret.addAll(found);
-                        } else {
-                            List<IToken> found = getNonFunctionDefCompletionsFromAssign(manager, state, s, definition,
-                                    assignDefinition);
-                            //String spaces = new FastStringBuffer().appendN(' ', assignLevel).toString();
-                            //System.out.println(spaces + "Tok: " + state.getActivationToken());
-                            //System.out.println(spaces + "Def: " + definition);
-                            //System.out.println(spaces + "Adding: " + found.size());
-                            ret.addAll(found);
+                            if (definition.ast instanceof FunctionDef) {
+                                List<IToken> found = addFunctionDefCompletionsFromReturn(manager, state, s, definition);
+                                ret.addAll(found);
+                            } else {
+                                List<IToken> found = getNonFunctionDefCompletionsFromAssign(manager, state, s,
+                                        definition,
+                                        assignDefinition);
+                                //String spaces = new FastStringBuffer().appendN(' ', assignLevel).toString();
+                                //System.out.println(spaces + "Tok: " + state.getActivationToken());
+                                //System.out.println(spaces + "Def: " + definition);
+                                //System.out.println(spaces + "Adding: " + found.size());
+                                ret.addAll(found);
+                            }
+                        }
+                    } else {
+                        if (localScope != null) {
+                            IToken[] tokens = searchInLocalTokens(manager, state, true, state.getLine() + 1,
+                                    state.getCol() + 1,
+                                    module, localScope, state.getActivationToken());
+                            if (tokens != null) {
+                                ret.addAll(Arrays.asList(tokens));
+                            }
                         }
                     }
 
@@ -209,7 +225,7 @@ public class AssignAnalysis {
      *
      * @param ret the place where the completions should be added
      * @param assignDefinition may be null if it was not actually found as an assign
-     * @return 
+     * @return
      */
     private List<IToken> getNonFunctionDefCompletionsFromAssign(ICodeCompletionASTManager manager,
             ICompletionState state,
@@ -251,24 +267,13 @@ public class AssignAnalysis {
                     }
                 }
 
-                if (lookForAssign && assignDefinition.foundAsGlobal) {
-                    //it may be declared as a global with a class defined in the local scope
-                    IToken[] allLocalTokens = assignDefinition.scope.getAllLocalTokens();
-                    for (IToken token : allLocalTokens) {
-                        if (token.getRepresentation().equals(assignDefinition.value)) {
-                            if (token instanceof SourceToken) {
-                                SourceToken srcToken = (SourceToken) token;
-                                if (srcToken.getAst() instanceof ClassDef) {
-                                    List<IToken> classToks = ((SourceModule) assignDefinition.module).getClassToks(
-                                            state, manager, srcToken.getAst());
-                                    if (classToks.size() > 0) {
-                                        lookForAssign = false;
-                                        ret.addAll(classToks);
-                                        break;
-                                    }
-                                }
-                            }
-                        }
+                if (lookForAssign) {
+                    IToken[] tokens = searchInLocalTokens(manager, state, lookForAssign,
+                            definition.line, definition.col, definition.module, assignDefinition.scope,
+                            assignDefinition.value);
+                    if (tokens != null && tokens.length > 0) {
+                        ret.addAll(Arrays.asList(tokens));
+                        lookForAssign = false;
                     }
                 }
             }
@@ -298,7 +303,7 @@ public class AssignAnalysis {
                 boolean unpackBackwards = false;
                 if (assignDefinition != null) {
                     unpackPos = assignDefinition.unpackPos;
-                    // Let's see if we have 
+                    // Let's see if we have
                     if (definition.ast instanceof Assign) {
                         Assign assign = (Assign) definition.ast;
                         if (assign.value instanceof Subscript) {
@@ -339,12 +344,58 @@ public class AssignAnalysis {
                         ret.addAll(Arrays.asList(tks));
                     }
                 } else {
-                    IToken[] tks = manager.getCompletionsForModule(module, copy);
+                    IToken[] tks = manager.getCompletionsForModule(module, copy, true, true);
                     ret.addAll(Arrays.asList(tks));
                 }
             }
         }
         return ret;
+    }
+
+    /**
+     *
+     * @param manager
+     * @param state
+     * @param lookForAssign
+     * @param line starts at 1
+     * @param col starts at 1
+     * @param module
+     * @param scope
+     * @return
+     * @throws CompletionRecursionException
+     */
+    public IToken[] searchInLocalTokens(ICodeCompletionASTManager manager, ICompletionState state,
+            boolean lookForAssign, int line, int col, IModule module, ILocalScope scope, String activationToken)
+                    throws CompletionRecursionException {
+        //it may be declared as a global with a class defined in the local scope
+        IToken[] allLocalTokens = scope.getAllLocalTokens();
+        for (IToken token : allLocalTokens) {
+            if (token.getRepresentation().equals(activationToken)) {
+                if (token instanceof SourceToken) {
+                    SourceToken srcToken = (SourceToken) token;
+                    SimpleNode ast = srcToken.getAst();
+                    if (ast instanceof ClassDef && module instanceof SourceModule) {
+                        List<IToken> classToks = ((SourceModule) module).getClassToks(
+                                state, manager, ast);
+                        if (classToks.size() > 0) {
+                            return classToks.toArray(new IToken[0]);
+                        }
+                    }
+                }
+            }
+        }
+        ICompletionState copy = state.getCopy();
+
+        copy.setLine(line);
+        copy.setCol(col);
+        copy.setActivationToken(activationToken);
+
+        IToken[] tokens = manager.getCompletionsFromTokenInLocalScope(module, copy, false, false,
+                scope);
+        if (tokens != null && tokens.length > 0) {
+            return tokens;
+        }
+        return null;
     }
 
 }

@@ -75,7 +75,8 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
         throw new RuntimeException("Not implemented");
     }
 
-    public IToken[] getCompletionsForModule(IModule module, ICompletionState state) throws CompletionRecursionException {
+    public IToken[] getCompletionsForModule(IModule module, ICompletionState state)
+            throws CompletionRecursionException {
         return new IToken[] { new SourceToken(new Name("True", Name.Store, true), "True", "", "", "__builtin__"),
                 new SourceToken(new Name("False", Name.Store, true), "False", "", "", "__builtin__"), };
     }
@@ -145,7 +146,7 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
 
     public void getCompletionsForClassInLocalScope(IModule module, ICompletionState state, boolean searchSameLevelMods,
             boolean lookForArgumentCompletion, List<String> lookForClass, HashSet<IToken> hashSet)
-            throws CompletionRecursionException {
+                    throws CompletionRecursionException {
         throw new RuntimeException("Not implemented");
     }
 
@@ -186,6 +187,13 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
     @Override
     public IToken[] getCompletionsUnpackingObject(IModule module, ICompletionState copy, ILocalScope scope,
             UnpackInfo unpackPos) throws CompletionRecursionException {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public IToken[] getCompletionsFromTokenInLocalScope(IModule module, ICompletionState state,
+            boolean searchSameLevelMods, boolean lookForArgumentCompletion, ILocalScope localScope)
+                    throws CompletionRecursionException {
         throw new RuntimeException("Not implemented");
     }
 

@@ -30,6 +30,7 @@ import org.python.pydev.parser.jython.ast.Assert;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Str;
@@ -392,6 +393,7 @@ public class LocalScope implements ILocalScope {
      * TODO: This should be made public to the user...
      */
     public static final Map<String, Integer> ISINSTANCE_POSSIBILITIES = new HashMap<String, Integer>();
+
     static {
         ISINSTANCE_POSSIBILITIES.put("isinstance".toLowerCase(), 2);
         ISINSTANCE_POSSIBILITIES.put("IsImplementation".toLowerCase(), 2);
@@ -424,7 +426,7 @@ public class LocalScope implements ILocalScope {
         Iterator<ASTEntry> iterator = visitor.getIterator();
         ArrayList<Object> lst = new ArrayList<Object>();
 
-        Name nameDefinition = null;
+        Object nameDefinition = null;
 
         while (iterator.hasNext()) {
             ASTEntry entry = iterator.next();
@@ -444,6 +446,15 @@ public class LocalScope implements ILocalScope {
                     if (name.ctx == Name.Load) {
                         if (actTok.equals(name.id)) {
                             nameDefinition = name;
+                        }
+                    }
+                }
+                if (entry.node instanceof Expr) {
+                    Expr expr = (Expr) entry.node;
+                    if (expr.value instanceof Attribute) {
+                        Attribute attribute = (Attribute) expr.value;
+                        if (actTok.equals(NodeUtils.getFullRepresentationString(attribute))) {
+                            nameDefinition = attribute;
                         }
                     }
                 }

@@ -1918,7 +1918,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         String s;
         s = ""
                 + "class F:\n"
-                + "  def bar():\n"
+                + "  def bar(self):\n"
                 + "    self.n #: :type self.n: F\n"
                 + "    self.n."
                 + "";
@@ -2949,6 +2949,41 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
                 new String[] { "run()" });
         assertTrue(comps.length > 10);
+    }
+
+    public void testCodeCompletionFromInstanceGivenParameterType() throws Exception {
+        String s;
+        s = "" +
+                "class Foo:\n" +
+                "    def m1(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "class Person(object):\n" +
+                "    def __init__(self, foo):\n" +
+                "        '''\n" +
+                "        :type foo: Foo\n" +
+                "        '''\n" +
+                "        self.foo = foo\n" +
+                "        self.foo.";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionFromInstanceGivenVariableType() throws Exception {
+        String s;
+        s = "" +
+                "class Foo:\n" +
+                "    def m1(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "class Person(object):\n" +
+                "    def __init__(self):\n" +
+                "        self.foo = foo #: :type foo: Foo\n" +
+                "        self.foo.";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "m1()" });
+        assertEquals(1, comps.length);
     }
 
 }
