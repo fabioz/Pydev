@@ -48,6 +48,7 @@ import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.PlatformUI;
@@ -86,6 +87,8 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.structure.TreeNode;
+import org.python.pydev.shared_ui.SharedUiPlugin;
+import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.outline.IParsedItem;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
@@ -531,7 +534,12 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
         } else if (parentElement instanceof IWorkspaceRoot) {
             switch (topLevelChoice.getRootMode()) {
                 case TopLevelProjectsOrWorkingSetChoice.WORKING_SETS:
-                    return PlatformUI.getWorkbench().getWorkingSetManager().getWorkingSets();
+                    IWorkingSet[] workingSets = PlatformUI.getWorkbench().getWorkingSetManager().getWorkingSets();
+                    if (workingSets == null || workingSets.length == 0) {
+                        TreeNode noWorkingSets = createErrorNoWorkingSetsDefined(parentElement);
+                        return new Object[] { noWorkingSets };
+                    }
+                    return workingSets;
                 case TopLevelProjectsOrWorkingSetChoice.PROJECTS:
                     //Just go on...
             }
@@ -540,6 +548,9 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
             if (parentElement instanceof IWorkingSet) {
                 IWorkingSet workingSet = (IWorkingSet) parentElement;
                 childrenToReturn = workingSet.getElements();
+                if (childrenToReturn == null || childrenToReturn.length == 0) {
+                    childrenToReturn = new Object[] { createErrorWorkingSetWithoutChildren(workingSet) };
+                }
             }
 
         } else if (parentElement instanceof TreeNode<?>) {
@@ -554,6 +565,28 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
             System.out.println("getChildren RETURN: " + childrenToReturn);
         }
         return childrenToReturn;
+    }
+
+    private TreeNode<LabelAndImage> createErrorWorkingSetWithoutChildren(IWorkingSet parentElement) {
+        Image img = SharedUiPlugin.getImageCache().get(UIConstants.WARNING);
+        TreeNode<LabelAndImage> root = new TreeNode<LabelAndImage>(parentElement,
+                new LabelAndImage("Warning: working set: " + parentElement.getName() + " does not have any contents.",
+                        img));
+        new TreeNode<>(root, new LabelAndImage(
+                "Access the menu (Ctrl+F10) to edit the working set.", null));
+        new TreeNode<>(root, new LabelAndImage(
+                "Or select the working set in the tree and use Alt+Enter.", null));
+        return root;
+    }
+
+    public TreeNode<LabelAndImage> createErrorNoWorkingSetsDefined(Object parentElement) {
+        Image img = SharedUiPlugin.getImageCache().get(UIConstants.WARNING);
+        TreeNode<LabelAndImage> root = new TreeNode<LabelAndImage>(parentElement,
+                new LabelAndImage("Warning: Top level elements set to working sets but no working sets are defined.",
+                        img));
+        new TreeNode<>(root, new LabelAndImage(
+                "Access the menu (Ctrl+F10) to change to show projects or create a working set.", null));
+        return root;
     }
 
     /**
@@ -916,7 +949,7 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
         HashSet<IWorkspace> set = new HashSet<IWorkspace>();
 
         for (IAdaptable adaptable : elements) {
-            IResource adapter = (IResource) adaptable.getAdapter(IResource.class);
+            IResource adapter = adaptable.getAdapter(IResource.class);
             if (adapter != null) {
                 IWorkspace workspace = adapter.getWorkspace();
                 set.add(workspace);
