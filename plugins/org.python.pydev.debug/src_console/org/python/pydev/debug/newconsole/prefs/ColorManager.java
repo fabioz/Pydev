@@ -48,23 +48,23 @@ public class ColorManager {
      */
     protected Map<RGB, Color> fColorTable = new HashMap<RGB, Color>(10);
 
-    public static final RGB dimBlack = new RGB(0.00f, 0.00f, 0.00f);
-    public static final RGB dimRed = new RGB(0.000f, 1.000f, 0.502f);
-    public static final RGB dimGreen = new RGB(0.333f, 1.000f, 0.502f);
-    public static final RGB dimYellow = new RGB(0.167f, 1.000f, 0.502f);
-    public static final RGB dimBlue = new RGB(0.667f, 1.000f, 0.502f);
-    public static final RGB dimMagenta = new RGB(0.833f, 1.000f, 0.502f);
-    public static final RGB dimCyan = new RGB(0.500f, 1.000f, 0.502f);
-    public static final RGB dimWhite = new RGB(0.000f, 0.000f, 0.753f);
+    public static final RGB dimBlack = new RGB(0, 0, 0);
+    public static final RGB dimRed = new RGB(205, 0, 0);
+    public static final RGB dimGreen = new RGB(0, 205, 0);
+    public static final RGB dimYellow = new RGB(205, 205, 0);
+    public static final RGB dimBlue = new RGB(0, 0, 238);
+    public static final RGB dimMagenta = new RGB(205, 0, 205);
+    public static final RGB dimCyan = new RGB(0, 205, 205);
+    public static final RGB dimWhite = new RGB(229, 229, 229);
 
-    public static final RGB brightBlack = new RGB(0.000f, 0.000f, 0.502f);
-    public static final RGB brightRed = new RGB(0.000f, 1.000f, 1.000f);
-    public static final RGB brightGreen = new RGB(0.333f, 1.000f, 1.000f);
-    public static final RGB brightYellow = new RGB(0.167f, 1.000f, 1.000f);
-    public static final RGB brightBlue = new RGB(0.667f, 1.000f, 1.000f);
-    public static final RGB brightMagenta = new RGB(0.833f, 1.000f, 1.000f);
-    public static final RGB brightCyan = new RGB(0.500f, 1.000f, 1.000f);
-    public static final RGB brightWhite = new RGB(0.000f, 0.000f, 1.000f);
+    public static final RGB brightBlack = new RGB(127, 127, 127);
+    public static final RGB brightRed = new RGB(255, 0, 0);
+    public static final RGB brightGreen = new RGB(0, 252, 0);
+    public static final RGB brightYellow = new RGB(255, 255, 0);
+    public static final RGB brightBlue = new RGB(0, 0, 252);
+    public static final RGB brightMagenta = new RGB(255, 0, 255);
+    public static final RGB brightCyan = new RGB(0, 255, 255);
+    public static final RGB brightWhite = new RGB(255, 255, 255);
 
     /**
      * Receives a string such as:
@@ -230,18 +230,18 @@ public class ColorManager {
 
     /*[[[cog
     import cog
-
+    
     template = '''
     public TextAttribute get%sTextAttribute() {
         Color color = getPreferenceColor(PydevConsoleConstants.%s_COLOR);
         return new TextAttribute(color, null, 0);
     }'''
-
+    
     for s in (
         'console_error', 'console_output', 'console_input', 'console_prompt'):
-
+    
         cog.outl(template % (s.title().replace('_', ''), s.upper()))
-
+    
     ]]]*/
 
     public TextAttribute getConsoleErrorTextAttribute() {

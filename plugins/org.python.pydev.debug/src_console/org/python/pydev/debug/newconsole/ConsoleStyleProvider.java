@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.text.TextAttribute;
+import org.eclipse.swt.graphics.Color;
 import org.python.pydev.debug.newconsole.prefs.ColorManager;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -41,7 +42,9 @@ public final class ConsoleStyleProvider implements IConsoleStyleProvider {
 
     private ScriptStyleRange getIt(String content, int offset, TextAttribute attr, int scriptStyle) {
         //background is the default (already set)
-        return new ScriptStyleRange(offset, content.length(), attr.getForeground(), null, scriptStyle, attr.getStyle());
+        Color background = attr.getBackground();
+        return new ScriptStyleRange(offset, content.length(), attr.getForeground(), background, scriptStyle,
+                attr.getStyle());
     }
 
     public Tuple<List<ScriptStyleRange>, String> createInterpreterStdStyle(String content, int offset,
