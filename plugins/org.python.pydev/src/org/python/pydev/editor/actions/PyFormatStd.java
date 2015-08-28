@@ -194,7 +194,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
     public void applyFormatAction(IPyFormatStdProvider pyEdit, PySelection ps, int[] regionsToFormat,
             boolean throwSyntaxError,
             ISelectionProvider selectionProvider)
-            throws BadLocationException, SyntaxErrorException {
+                    throws BadLocationException, SyntaxErrorException {
         final IFormatter participant = getFormatter();
         final IDocument doc = ps.getDoc();
         final SelectionKeeper selectionKeeper = new SelectionKeeper(ps);
@@ -254,8 +254,21 @@ public class PyFormatStd extends PyAction implements IFormatter {
         //        formatter.formatSelection(doc, startLine, endLineIndex, edit, ps);
 
         if (formatStd.formatWithAutopep8) {
+            // get a copy of formatStd to avoid being overwritten by settings
+            FormatStd formatStdNew = (FormatStd) (edit != null ? edit.getFormatStd() : getFormat(null));
+            // no need to remember old values, as they'll always be created from scratch
             try {
-                formatAll(doc, edit, null, true, true);
+                // assume it's a continuous region
+                if (regionsForSave.length > 0) { // at least one line selected
+                    int firstSelectedLine = regionsForSave[0] + 1;
+                    int lastSelectedLine = regionsForSave[regionsForSave.length - 1] + 1;
+                    // hack, use global settings to pass down argument to formatStr
+                    // that possibly overwrites other --range options, but that's highly unlikely
+                    // autopep8 says that it accepts line-range, but then it complains in runtime
+                    // so range is used instead
+                    formatStdNew.autopep8Parameters += " --range " + firstSelectedLine + " " + lastSelectedLine;
+                }
+                formatAll(doc, edit, true, formatStdNew, true);
             } catch (SyntaxErrorException e) {
             }
             return;
@@ -320,7 +333,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
      */
     public void formatAll(IDocument doc, IPyFormatStdProvider edit, IFile f, boolean isOpenedFile,
             boolean throwSyntaxError)
-            throws SyntaxErrorException {
+                    throws SyntaxErrorException {
         //        Formatter formatter = new Formatter();
         //        formatter.formatAll(doc, edit);
 
@@ -813,7 +826,8 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @param c current char
      * @return the new index after handling the operator
      */
-    private int handleOperator(FormatStd std, char[] cs, FastStringBuffer buf, ParsingUtils parsingUtils, int i, char c) {
+    private int handleOperator(FormatStd std, char[] cs, FastStringBuffer buf, ParsingUtils parsingUtils, int i,
+            char c) {
         //let's discover if it's an unary operator (~ + -)
         boolean isUnaryWithContents = true;
 
@@ -962,7 +976,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
      */
     private int formatForPar(final ParsingUtils parsingUtils, final char[] cs, final int i, final FormatStd std,
             final FastStringBuffer buf, final int parensLevel, final String delimiter, boolean throwSyntaxError)
-            throws SyntaxErrorException {
+                    throws SyntaxErrorException {
         char c = ' ';
         FastStringBuffer locBuf = new FastStringBuffer();
 
@@ -986,7 +1000,8 @@ public class PyFormatStd extends PyAction implements IFormatter {
                     locBuf.append(cs, start, end - start);
                     start = end;
                 }
-                j = formatForPar(parsingUtils, cs, j - 1, std, locBuf, parensLevel + 1, delimiter, throwSyntaxError) + 1;
+                j = formatForPar(parsingUtils, cs, j - 1, std, locBuf, parensLevel + 1, delimiter, throwSyntaxError)
+                        + 1;
                 start = j;
 
             } else {
