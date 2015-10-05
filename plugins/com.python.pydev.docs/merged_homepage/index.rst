@@ -142,6 +142,19 @@ Companies have the option of sponsoring PyDev through corporate sponsorship. See
 .. _`Getting started guide`: manual_101_root.html
 
 
+Release 4.4.0
+==========================
+
+* Improved PyDev Package Explorer to give more information when all elements are filtered.
+
+* Code completion improvements: when parameter is typed in the docstring, assigning it to an instance gives proper code-completion results whe accessing the instance.
+
+* Fixed issues dealing with ansi colors in the interactive console.
+
+* When autopep8 is applied as the code formatting engine, the region selected is used to specify the lines for formatting.
+
+* Minor improvements in the debugger.
+
 
 Release 4.3.0
 ==========================
