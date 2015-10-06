@@ -1,15 +1,17 @@
-PyDev 4.3.0 Released
+PyDev 4.4.0 Released
 
 Release Highlights:
 -------------------------------
 
-* Fixed parser for Python 3.x to support async and await as regular names too (PyDev-593).
+* Improved PyDev Package Explorer to give more information when all elements are filtered.
 
-* The new search dialog now has a 'whole word' option which automatically adds `*` to the search
+* Code completion improvements: when parameter is typed in the docstring, assigning it to an instance gives proper code-completion results whe accessing the instance.
 
-* Search backend updated to Lucene 5.2.1.
+* Fixed issues dealing with ansi colors in the interactive console.
 
-* When bringing up the search dialog the search text is initially selected.
+* When autopep8 is applied as the code formatting engine, the region selected is used to specify the lines for formatting.
+
+* Minor improvements in the debugger.
 
 
 What is PyDev?
