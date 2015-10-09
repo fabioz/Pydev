@@ -89,10 +89,10 @@ public abstract class PasteAction extends SelectionListenerAction {
      * @return the actual target of the paste action
      */
     private IResource getTarget() {
-        List selectedResources = getSelectedResources();
+        List<? extends IResource> selectedResources = getSelectedResources();
 
         for (int i = 0; i < selectedResources.size(); i++) {
-            IResource resource = (IResource) selectedResources.get(i);
+            IResource resource = selectedResources.get(i);
 
             if (resource instanceof IProject && !((IProject) resource).isOpen()) {
                 return null;
@@ -270,7 +270,7 @@ public abstract class PasteAction extends SelectionListenerAction {
      * Returns the container to hold the pasted resources.
      */
     private IContainer getContainer() {
-        List selection = getSelectedResources();
+        List<? extends IResource> selection = getSelectedResources();
         if (selection.get(0) instanceof IFile) {
             return ((IFile) selection.get(0)).getParent();
         }
@@ -330,10 +330,10 @@ public abstract class PasteAction extends SelectionListenerAction {
 
         // can paste files and folders to a single selection (file, folder, 
         // open project) or multiple file selection with the same parent
-        List selectedResources = getSelectedResources();
+        List<? extends IResource> selectedResources = getSelectedResources();
         if (selectedResources.size() > 1) {
             for (int i = 0; i < selectedResources.size(); i++) {
-                IResource resource = (IResource) selectedResources.get(i);
+                IResource resource = selectedResources.get(i);
                 if (resource.getType() != IResource.FILE) {
                     return false;
                 }
