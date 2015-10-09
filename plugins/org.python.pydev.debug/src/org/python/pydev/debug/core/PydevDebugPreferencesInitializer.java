@@ -34,7 +34,7 @@ public class PydevDebugPreferencesInitializer extends AbstractPreferenceInitiali
 
     @Override
     public void initializeDefaultPreferences() {
-        Preferences node = new DefaultScope().getNode("org.python.pydev.debug");
+        Preferences node = DefaultScope.INSTANCE.getNode("org.python.pydev.debug");
 
         //py unit view
         node.putBoolean(PyUnitView.PYUNIT_VIEW_SHOW_ONLY_ERRORS, PyUnitView.PYUNIT_VIEW_DEFAULT_SHOW_ONLY_ERRORS);

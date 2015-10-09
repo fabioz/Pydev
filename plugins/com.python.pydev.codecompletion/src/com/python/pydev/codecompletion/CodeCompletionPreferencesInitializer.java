@@ -42,7 +42,7 @@ public class CodeCompletionPreferencesInitializer extends AbstractPreferenceInit
 
     @Override
     public void initializeDefaultPreferences() {
-        Preferences node = new DefaultScope().getNode(DEFAULT_SCOPE);
+        Preferences node = DefaultScope.INSTANCE.getNode(DEFAULT_SCOPE);
 
         node.putBoolean(USE_KEYWORDS_CODE_COMPLETION, DEFAULT_USE_KEYWORDS_CODE_COMPLETION);
         node.putBoolean(ADD_SPACE_WHEN_NEEDED, DEFAULT_ADD_SPACES_WHEN_NEEDED);
