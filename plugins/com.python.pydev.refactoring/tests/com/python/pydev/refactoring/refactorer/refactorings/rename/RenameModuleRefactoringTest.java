@@ -88,8 +88,8 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
                         + "\n"
                         + "reflib.renamemodule.mod1\n"
                         + "  ASTEntryWithSourceModule<Module (Module L=0 C=0)>\n"
-                        + "\n"
-                , asStr);
+                        + "\n",
+                asStr);
 
     }
 
@@ -139,8 +139,8 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
                         + "\n"
                         + "reflib.renamemodule.mod1\n"
                         + "  ASTEntryWithSourceModule<Module (Module L=0 C=0)>\n"
-                        + "\n"
-                , asStr);
+                        + "\n",
+                asStr);
 
     }
 
@@ -184,7 +184,8 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
                         + "reflib.renamemodule.mod1.submod1\n"
                         + "  ASTEntryWithSourceModule<Module (Module L=0 C=0)>\n"
                         + "\n"
-                        + "", asStr);
+                        + "",
+                asStr);
     }
 
     public void testRenameModuleInWorkspace4() throws Exception {
@@ -213,7 +214,8 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
                         + "  ImportFromModPartRenameAstEntry<from reflib.renamemodule2.mod_ren1 import Mod1 (ImportFrom L=1 C=6)>\n"
                         + "    Line: 0  from reflib.renamemodule2.mod_ren1 import Mod1 --> from new_mod_name import Mod1\n"
                         + "\n"
-                        + "", asStr);
+                        + "",
+                asStr);
     }
 
     public void testRenameModuleInWorkspace5() throws Exception {
@@ -236,7 +238,8 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
                         + "  ImportFromRenameAstEntry<import reflib.renamemodule3.pack1 (Import L=2 C=8)>\n"
                         + "    Line: 1  import reflib.renamemodule3.pack1 --> import new_mod.pack1\n"
                         + "\n"
-                        + "", asStr);
+                        + "",
+                asStr);
     }
 
     public void testRenameModuleInWorkspace6() throws Exception {
@@ -259,7 +262,8 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
                         + "  ImportFromRenameAstEntry<import reflib.renamemodule3.pack1 (Import L=2 C=8)>\n"
                         + "    Line: 1  import reflib.renamemodule3.pack1 --> import my.new.mod.pack1\n"
                         + "\n"
-                        + "", asStr);
+                        + "",
+                asStr);
     }
 
     public void testRenameModuleInWorkspace7() throws Exception {
@@ -282,7 +286,8 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
                         + "  ImportFromModPartRenameAstEntry<from renamemodule_root import mod_in_root2 (ImportFrom L=1 C=6)>\n"
                         + "    Line: 0  from renamemodule_root import mod_in_root2 --> from p2.bar import mod_in_root2\n"
                         + "\n"
-                        + "", asStr);
+                        + "",
+                asStr);
     }
 
     public void testRenameModuleInWorkspace8() throws Exception {
@@ -307,7 +312,8 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
                         + "  ImportFromRenameAstEntry<from renamemodule_root import mod_in_root2 (ImportFrom L=1 C=6)>\n"
                         + "    Line: 0  from renamemodule_root import mod_in_root2 --> import p2\n"
                         + "\n"
-                        + "", asStr);
+                        + "",
+                asStr);
     }
 
     public void testRenameModuleInWorkspace9() throws Exception {
@@ -328,7 +334,8 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
                         + "  ImportFromRenameAstEntry<import reflib.renamemodule4 (Import L=5 C=12)>\n"
                         + "    Line: 4      import reflib.renamemodule4 -->     import p2\n"
                         + "\n"
-                        + "", asStr);
+                        + "",
+                asStr);
     }
 
     public void testRenameModuleInWorkspace10() throws Exception {
@@ -345,7 +352,8 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
                         + "  ImportFromModPartRenameAstEntry<from renamemodule5._tests.foo import RenameModule5 (ImportFrom L=3 C=6)>\n"
                         + "    Line: 2  from renamemodule5._tests.foo import RenameModule5 --> from p2._tests.foo import RenameModule5\n"
                         + "\n"
-                        + "", asStr);
+                        + "",
+                asStr);
     }
 
     public void testRenameModuleInWorkspace11() throws Exception {
@@ -362,7 +370,8 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
                         + "  ImportFromModPartRenameAstEntry<from renamemodule5._tests.foo import RenameModule5 (ImportFrom L=3 C=6)>\n"
                         + "    Line: 2  from renamemodule5._tests.foo import RenameModule5 --> from p2 import RenameModule5\n"
                         + "\n"
-                        + "", asStr);
+                        + "",
+                asStr);
     }
 
     public void testRenameModuleInWorkspace12() throws Exception {
@@ -379,7 +388,8 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
                         + "reflib.renamemodule6.scene\n"
                         + "  ASTEntryWithSourceModule<Module (Module L=1 C=1)>\n"
                         + "\n"
-                        + "", asStr);
+                        + "",
+                asStr);
     }
 
     public void testRenameModuleInWorkspace13() throws Exception {
@@ -392,9 +402,29 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
                 ""
                         + "testpkg._imp\n"
                         + "  ASTEntryWithSourceModule<Module (Module L=1 C=1)>\n"
-                        + "\n"
-                , asStr);
+                        + "\n",
+                asStr);
 
+    }
+
+    public void testRenameModuleInWorkspace14() throws Exception {
+
+        Map<Tuple<String, File>, HashSet<ASTEntry>> referencesForModuleRename = getReferencesForModuleRename(
+                "refname2", "reflib.refname3", false);
+        String asStr = asStr(referencesForModuleRename);
+        assertEquals(
+                ""
+                        + "refname\n"
+                        + "  FixedInputStringASTEntry<refname2 (Name L=2 C=1)>\n"
+                        + "    Line: 1  refname2.check() --> refname3.check()\n"
+                        + "  ImportFromRenameAstEntry<import refname2 (Import L=1 C=8)>\n"
+                        + "    Line: 0  import refname2 --> from reflib import refname3\n"
+                        + "\n"
+                        + "refname2\n"
+                        + "  ASTEntryWithSourceModule<Module (Module L=1 C=1)>\n"
+                        + "\n"
+                        + "",
+                asStr);
     }
 
     protected Map<Tuple<String, File>, HashSet<ASTEntry>> getReferencesForModuleRename(String moduleName,

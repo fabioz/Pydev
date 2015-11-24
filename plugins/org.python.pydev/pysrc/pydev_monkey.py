@@ -66,7 +66,7 @@ def is_python(path):
 
 def patch_args(args):
     try:
-        log_debug("Patching args: %s" % str(args))
+        log_debug("Patching args: %s"% str(args))
 
         import sys
         new_args = []
@@ -88,6 +88,26 @@ def patch_args(args):
                     new_args[indC + 1] = _get_python_c_args(host, port, indC, args)
                     return new_args
             else:
+                # Check for Python ZIP Applications and don't patch the args for them.
+                # Assumes the first non `-<flag>` argument is what we need to check.
+                # There's probably a better way to determine this but it works for most cases.
+                continue_next = False
+                for i in range(1, len(args)):
+                    if continue_next:
+                        continue_next = False
+                        continue
+
+                    arg = args[i]
+                    if arg.startswith('-'):
+                        # Skip the next arg too if this flag expects a value.
+                        continue_next = arg in ['-m', '-W', '-X']
+                        continue
+
+                    if arg.rsplit('.')[-1] in ['zip', 'pyz', 'pyzw']:
+                        pydev_log.debug('Executing a PyZip, returning')
+                        return args
+                    break
+
                 new_args.append(args[0])
         else:
             log_debug("Process is not python, returning.")
@@ -101,7 +121,7 @@ def patch_args(args):
                 break
             i += 1
 
-        if _is_managed_arg(args[i]):  # no need to add pydevd twice
+        if i < len(args) and _is_managed_arg(args[i]):  # no need to add pydevd twice
             return args
 
         for x in sys.original_argv:
@@ -227,7 +247,6 @@ def patch_arg_str_win(arg_str):
     log_debug("New args: %s" % arg_str)
     return arg_str
 
-
 def monkey_patch_module(module, funcname, create_func):
     if hasattr(module, funcname):
         original_name = 'original_' + funcname
@@ -255,7 +274,6 @@ def create_warn_multiproc(original_name):
 
         return getattr(os, original_name)(*args)
     return new_warn_multiproc
-
 
 def create_execl(original_name):
     def new_execl(path, *args):
@@ -470,6 +488,17 @@ class _NewThreadStartupWithTrace:
 
     def __call__(self):
         _on_set_trace_for_new_thread()
+        from pydevd_comm import GetGlobalDebugger
+        global_debugger = GetGlobalDebugger()
+
+        if global_debugger is not None and global_debugger.thread_analyser is not None:
+            # we can detect start_new_thread only here
+            try:
+                from pydevd_concurrency_analyser.pydevd_concurrency_logger import log_new_thread
+                log_new_thread(global_debugger)
+            except:
+                sys.stderr.write("Failed to detect new thread for visualization")
+
         return self.original_func(*self.args, **self.kwargs)
 
 

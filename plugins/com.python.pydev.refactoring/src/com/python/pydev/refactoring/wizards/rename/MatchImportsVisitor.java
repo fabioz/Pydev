@@ -292,7 +292,8 @@ public class MatchImportsVisitor extends VisitorBase {
     private String lastPart;
     private FastStack<SimpleNode> stack = new FastStack<>(10);
 
-    public MatchImportsVisitor(IPythonNature nature, String initialName, SourceModule module, IProgressMonitor monitor) {
+    public MatchImportsVisitor(IPythonNature nature, String initialName, SourceModule module,
+            IProgressMonitor monitor) {
         this.nature = nature;
         this.initialModuleName = getWithoutInit(initialName);
         this.currentModule = module;
@@ -489,10 +490,11 @@ public class MatchImportsVisitor extends VisitorBase {
                     }
 
                     if (aliasType.asname == null) {
-                        boolean partialInImportStatement = node instanceof Import && startsWith;
-                        String checkName = partialInImportStatement ? initialModuleName : nameInImport;
+                        boolean forceFull = node instanceof Import && startsWith
+                                && full.contains(".");
+                        String checkName = forceFull ? initialModuleName : nameInImport;
 
-                        findOccurrences(partialInImportStatement, checkName);
+                        findOccurrences(forceFull, checkName);
                     }
                     handled = true;
                 } else {
@@ -515,17 +517,18 @@ public class MatchImportsVisitor extends VisitorBase {
         return handled;
     }
 
-    protected void findOccurrences(boolean partialInImportStatement, String checkName) {
+    protected void findOccurrences(boolean forceFull, String checkName) {
         List<ASTEntry> localOccurrences = ScopeAnalysis.getLocalOccurrences(checkName,
                 stack.peek());
         for (ASTEntry astEntry : localOccurrences) {
             if ((astEntry.node instanceof NameTok)
-                    && (((NameTok) astEntry.node).ctx == NameTok.ImportName || ((NameTok) astEntry.node).ctx == NameTok.ImportModule)) {
+                    && (((NameTok) astEntry.node).ctx == NameTok.ImportName
+                            || ((NameTok) astEntry.node).ctx == NameTok.ImportModule)) {
                 //i.e.: skip if it's an import as we already handle those!
                 continue;
             } else {
                 occurrences.add(new PyRenameImportProcess.FixedInputStringASTEntry(checkName,
-                        null, astEntry.node, partialInImportStatement));
+                        null, astEntry.node, forceFull));
             }
         }
     }
