@@ -1,4 +1,5 @@
 # encoding: utf-8
+# @PydevCodeAnalysisIgnore
 
 """
 Enable wxPython to be used interacive by setting PyOS_InputHook.
