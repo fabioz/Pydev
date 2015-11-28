@@ -1,3 +1,10 @@
+'''
+Entry point module (keep at root):
+
+Used to run with tests with unittest/pytest/nose.
+'''
+
+
 import os
 
 def main():
@@ -23,9 +30,9 @@ def main():
 
 
     # Here we'll run either with nose or with the pydev_runfiles.
-    import pydev_runfiles
+    from _pydev_runfiles import pydev_runfiles
     from _pydev_runfiles import pydev_runfiles_xml_rpc
-    import pydevd_constants
+    from _pydevd_bundle import pydevd_constants
     from pydevd_file_utils import _NormFile
 
     DEBUG = 0
@@ -189,7 +196,7 @@ def main():
                 # Workaround bug in py.test: if we pass the full path it ends up importing conftest
                 # more than once (so, always work with relative paths).
                 if os.path.isfile(arg) or os.path.isdir(arg):
-                    from pydev_imports import relpath
+                    from _pydev_bundle.pydev_imports import relpath
                     try:
                         # May fail if on different drives
                         arg = relpath(arg)

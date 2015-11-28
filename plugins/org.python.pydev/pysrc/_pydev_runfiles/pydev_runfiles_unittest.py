@@ -1,13 +1,13 @@
 try:
-    import unittest2 as python_unittest
+    import unittest2 as python_unittest  # @UnresolvedImport
 except:
     import unittest as python_unittest
 
 from _pydev_runfiles import pydev_runfiles_xml_rpc
 import time
-import pydevd_io
+from _pydevd_bundle import pydevd_io
 import traceback
-from pydevd_constants import * #@UnusedWildImport
+from _pydevd_bundle.pydevd_constants import * #@UnusedWildImport
 
 
 #=======================================================================================================================

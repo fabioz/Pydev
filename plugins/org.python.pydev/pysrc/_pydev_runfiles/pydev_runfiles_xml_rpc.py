@@ -2,10 +2,10 @@ import threading
 import traceback
 import warnings
 
-from _pydev_filesystem_encoding import getfilesystemencoding
-from pydev_imports import xmlrpclib, _queue
+from _pydev_bundle._pydev_filesystem_encoding import getfilesystemencoding
+from _pydev_bundle.pydev_imports import xmlrpclib, _queue
 Queue = _queue.Queue
-from pydevd_constants import *
+from _pydevd_bundle.pydevd_constants import *
 
 #This may happen in IronPython (in Python it shouldn't happen as there are
 #'fast' replacements that are used in xmlrpclib.py)
@@ -103,7 +103,7 @@ class ServerComm(threading.Thread):
         self.finished = False
         self.notifications_queue = notifications_queue
 
-        import pydev_localhost
+        from _pydev_bundle import pydev_localhost
 
         # It is necessary to specify an encoding, that matches
         # the encoding of all bytes-strings passed into an

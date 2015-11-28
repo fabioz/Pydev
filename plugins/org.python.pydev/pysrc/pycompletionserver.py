@@ -1,5 +1,6 @@
-#@PydevCodeAnalysisIgnore
 '''
+Entry-point module to start the code-completion server for PyDev.
+
 @author Fabio Zadrozny
 '''
 IS_PYTHON3K = 0
@@ -17,18 +18,18 @@ except NameError:
     setattr(__builtin__, 'True', 1)  # Python 3.0 does not accept __builtin__.True = 1 in its syntax
     setattr(__builtin__, 'False', 0)
 
-from pydevd_constants import IS_JYTHON
+from _pydevd_bundle.pydevd_constants import IS_JYTHON
 
 if IS_JYTHON:
-    import java.lang
+    import java.lang  # @UnresolvedImport
     SERVER_NAME = 'jycompletionserver'
-    import _pydev_jy_imports_tipper  # as _pydev_imports_tipper #changed to be backward compatible with 1.5
+    from _pydev_bundle import _pydev_jy_imports_tipper
     _pydev_imports_tipper = _pydev_jy_imports_tipper
 
 else:
     # it is python
     SERVER_NAME = 'pycompletionserver'
-    import _pydev_imports_tipper
+    from _pydev_bundle import _pydev_imports_tipper
 
 
 from _pydev_imps import _pydev_socket as socket
@@ -82,7 +83,7 @@ def dbg(s, prior):
 #        print_ >> f, s
 #        f.close()
 
-import pydev_localhost
+from _pydev_bundle import pydev_localhost
 HOST = pydev_localhost.get_localhost() # Symbolic name meaning the local host
 
 MSG_KILL_SERVER = '@@KILL_SERVER_END@@'
@@ -246,7 +247,7 @@ class CompletionServer:
     def run(self):
         # Echo server program
         try:
-            import _pydev_log
+            from _pydev_bundle import _pydev_log
             log = _pydev_log.Log()
 
             dbg(SERVER_NAME + ' connecting to java server on %s (%s)' % (HOST, self.port) , INFO1)

@@ -1,8 +1,10 @@
-
+'''
+Entry point module to run a file in the interactive console.
+'''
 from pydevconsole import *
 
-import pydev_imports
-from pydevd_utils import save_main_module
+from _pydev_bundle import pydev_imports
+from _pydevd_bundle.pydevd_utils import save_main_module
 
 
 def run_file(file, globals=None, locals=None):
@@ -44,7 +46,7 @@ if __name__ == '__main__':
 
     del sys.argv[0]
 
-    import pydev_localhost
+    from _pydev_bundle import pydev_localhost
 
     if int(port) == 0 and int(client_port) == 0:
         (h, p) = pydev_localhost.get_socket_name()

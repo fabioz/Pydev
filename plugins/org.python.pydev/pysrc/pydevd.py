@@ -1,16 +1,22 @@
+'''
+Entry point module (keep at root):
+
+This module starts the debugger.
+'''
+
 #IMPORTANT: pydevd_constants must be the 1st thing defined because it'll keep a reference to the original sys._getframe
 from __future__ import nested_scopes # Jython 2.1 support
 
-import pydevd_utils
-from pydevd_utils import save_main_module
+from _pydevd_bundle import pydevd_utils
+from _pydevd_bundle.pydevd_utils import save_main_module
 
 import traceback
 
-from pydevd_frame_utils import add_exception_to_frame
-import pydev_imports
-from pydevd_breakpoints import * #@UnusedWildImport
-import fix_getpass
-from pydevd_comm import  CMD_CHANGE_VARIABLE, \
+from _pydevd_bundle.pydevd_frame_utils import add_exception_to_frame
+from _pydev_bundle import pydev_imports
+from _pydevd_bundle.pydevd_breakpoints import * #@UnusedWildImport
+from _pydev_bundle import fix_getpass
+from _pydevd_bundle.pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          CMD_EVALUATE_EXPRESSION, \
                          CMD_EXEC_EXPRESSION, \
                          CMD_GET_COMPLETIONS, \
@@ -77,18 +83,18 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
 
 from pydevd_file_utils import NormFileToServer, GetFilenameAndBase
 import pydevd_file_utils
-import pydevd_vars
-import pydevd_vm_type
-import pydevd_tracing
-import pydevd_io
-from pydevd_additional_thread_info import PyDBAdditionalThreadInfo
-from pydevd_custom_frames import CustomFramesContainer, CustomFramesContainerInit
-import pydevd_dont_trace
-import pydevd_traceproperty
+from _pydevd_bundle import pydevd_vars
+from _pydevd_bundle import pydevd_vm_type
+from _pydevd_bundle import pydevd_tracing
+from _pydevd_bundle import pydevd_io
+from _pydevd_bundle.pydevd_additional_thread_info import PyDBAdditionalThreadInfo
+from _pydevd_bundle.pydevd_custom_frames import CustomFramesContainer, CustomFramesContainerInit
+from _pydevd_bundle import pydevd_dont_trace
+from _pydevd_bundle import pydevd_traceproperty
 
 from _pydev_imps import _pydev_time as time, _pydev_thread
 
-import _pydev_threading as threading
+from _pydev_imps import _pydev_threading as threading
 from pydevd_concurrency_analyser.pydevd_thread_wrappers import wrap_threads
 from pydevd_concurrency_analyser.pydevd_concurrency_logger import ThreadingLogger, AsyncioLogger, send_message, cur_time
 
@@ -98,7 +104,7 @@ import atexit
 SUPPORT_PLUGINS = not IS_JYTH_LESS25
 PluginManager = None
 if SUPPORT_PLUGINS:
-    from pydevd_plugin_utils import PluginManager
+    from _pydevd_bundle.pydevd_plugin_utils import PluginManager
 
 if IS_PY3K:
     import pkgutil
@@ -133,7 +139,6 @@ DONT_TRACE = {
 
               #things from pydev that we don't want to trace
               '_pydev_execfile.py':PYDEV_FILE,
-              '_pydev_jython_execfile.py':PYDEV_FILE,
               '_pydev_threading':PYDEV_FILE,
               '_pydev_Queue':PYDEV_FILE,
               'django_debug.py':PYDEV_FILE,
@@ -184,7 +189,7 @@ bufferStdOutToServer = False
 bufferStdErrToServer = False
 remote = False
 
-from _pydev_filesystem_encoding import getfilesystemencoding
+from _pydev_bundle._pydev_filesystem_encoding import getfilesystemencoding
 file_system_encoding = getfilesystemencoding()
 
 
@@ -503,7 +508,7 @@ class PyDB:
 
     def init_matplotlib_in_debug_console(self):
         # import hook and patches for matplotlib support in debug console
-        from pydev_import_hook import import_hook_manager
+        from _pydev_bundle.pydev_import_hook import import_hook_manager
         for module in DictKeys(self.mpl_modules_for_patching):
             import_hook_manager.add_module_name(module, DictPop(self.mpl_modules_for_patching, module))
 
@@ -1707,7 +1712,7 @@ class PyDB:
         except:
             pass
 
-        from pydev_monkey import patch_thread_modules
+        from _pydev_bundle.pydev_monkey import patch_thread_modules
         patch_thread_modules()
 
     def get_fullname(self, mod_name):
@@ -1800,11 +1805,11 @@ class PyDB:
 
     def wait_for_commands(self, globals):
         thread = threading.currentThread()
-        import pydevd_frame_utils
+        from _pydevd_bundle import pydevd_frame_utils
         frame = pydevd_frame_utils.Frame(None, -1, pydevd_frame_utils.FCode("Console",
                                                                             os.path.abspath(os.path.dirname(__file__))), globals, globals)
         thread_id = GetThreadId(thread)
-        import pydevd_vars
+        from _pydevd_bundle import pydevd_vars
         pydevd_vars.addAdditionalFrameById(thread_id, {id(frame): frame})
 
         cmd = self.cmdFactory.makeShowConsoleMessage(thread_id, frame)
@@ -1821,7 +1826,7 @@ def set_debug(setup):
 
 
 def enable_qt_support():
-    import pydev_monkey_qt
+    from _pydev_bundle import pydev_monkey_qt
     pydev_monkey_qt.patch_qt()
 
 
@@ -1999,14 +2004,14 @@ def _locked_settrace(
     ):
     if patch_multiprocessing:
         try:
-            import pydev_monkey #Jython 2.1 can't use it...
+            from _pydev_bundle import pydev_monkey
         except:
             pass
         else:
             pydev_monkey.patch_new_process_functions()
 
     if host is None:
-        import pydev_localhost
+        from _pydev_bundle import pydev_localhost
         host = pydev_localhost.get_localhost()
 
     global connected
@@ -2108,7 +2113,7 @@ def stoptrace():
         except:
             pass
 
-        from pydev_monkey import undo_patch_thread_modules
+        from _pydev_bundle.pydev_monkey import undo_patch_thread_modules
         undo_patch_thread_modules()
 
         debugger = GetGlobalDebugger()
@@ -2184,7 +2189,7 @@ def settrace_forked():
     '''
     host, port = dispatch()
 
-    import pydevd_tracing
+    from _pydevd_bundle import pydevd_tracing
     pydevd_tracing.RestoreSysSetTraceFunc()
 
     if port is not None:
@@ -2254,7 +2259,7 @@ if __name__ == '__main__':
     debugger = PyDB()
 
     try:
-        import pydev_monkey
+        from _pydev_bundle import pydev_monkey
     except:
         pass #Not usable on jython 2.1
     else:
@@ -2334,7 +2339,7 @@ if __name__ == '__main__':
         # pydevd_stackless.patch_stackless()
         #
         # itself to be able to benefit from seeing the tasklets created before the remote debugger is attached.
-        import pydevd_stackless
+        from _pydevd_bundle import pydevd_stackless
         pydevd_stackless.patch_stackless()
     except:
         pass  # It's ok not having stackless there...
@@ -2367,7 +2372,7 @@ if __name__ == '__main__':
             pass  # that's ok, no need to mock psyco if it's not available anyways
         else:
             # if it's available, let's change it for a stub (pydev already made use of it)
-            import pydevd_psyco_stub
+            from _pydevd_bundle import pydevd_psyco_stub
             sys.modules['psyco'] = pydevd_psyco_stub
 
         if setup['save-signatures']:
@@ -2375,7 +2380,7 @@ if __name__ == '__main__':
                 sys.stderr.write("Collecting run-time type information is not supported for Jython\n")
             else:
                 # Only import it if we're going to use it!
-                from pydevd_signature import SignatureFactory
+                from _pydevd_bundle.pydevd_signature import SignatureFactory
                 debugger.signature_factory = SignatureFactory()
         if setup['qt-support']:
             enable_qt_support()

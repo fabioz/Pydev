@@ -16,14 +16,16 @@ sys.path.insert(0, desired_runfiles_path)
 
 from _pydev_runfiles import pydev_runfiles_unittest
 from _pydev_runfiles import pydev_runfiles_xml_rpc
-import pydevd_io
+from _pydevd_bundle import pydevd_io
 
 #remove existing pydev_runfiles from modules (if any), so that we can be sure we have the correct version
 if 'pydev_runfiles' in sys.modules:
     del sys.modules['pydev_runfiles']
+if '_pydev_runfiles.pydev_runfiles' in sys.modules:
+    del sys.modules['_pydev_runfiles.pydev_runfiles']
 
 
-import pydev_runfiles
+from _pydev_runfiles import pydev_runfiles
 import unittest
 import tempfile
 import re
@@ -37,7 +39,7 @@ except:
 orig_syspath = sys.path
 a_file = pydev_runfiles.__file__
 pydev_runfiles.PydevTestRunner(pydev_runfiles.Configuration(files_or_dirs=[a_file]))
-file_dir = os.path.dirname(a_file)
+file_dir = os.path.dirname(os.path.dirname(a_file))
 assert file_dir in sys.path
 sys.path = orig_syspath[:]
 

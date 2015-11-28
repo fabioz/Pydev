@@ -4,7 +4,7 @@ try:
     import Queue
 except:
     import queue as Queue #@UnresolvedImport
-from pydevd_constants import * #@UnusedWildImport
+from _pydevd_bundle.pydevd_constants import * #@UnusedWildImport
 from _pydev_runfiles import pydev_runfiles_xml_rpc
 import time
 import os
@@ -47,7 +47,7 @@ def ExecuteTestsInParallel(tests, jobs, split, verbosity, coverage_files, covera
         It may also return False if in debug mode (in which case, multi-processes are not accepted)
     '''
     try:
-        from pydevd_comm import GetGlobalDebugger
+        from _pydevd_bundle.pydevd_comm import GetGlobalDebugger
         if GetGlobalDebugger() is not None:
             return False
     except:
@@ -157,7 +157,7 @@ class CommunicationThread(threading.Thread):
         self.setDaemon(True)
         self.queue = tests_queue
         self.finished = False
-        from pydev_imports import SimpleXMLRPCServer
+        from _pydev_bundle.pydev_imports import SimpleXMLRPCServer
 
 
         # This is a hack to patch slow socket.getfqdn calls that
@@ -178,7 +178,7 @@ class CommunicationThread(threading.Thread):
 
         # Create server
 
-        import pydev_localhost
+        from _pydev_bundle import pydev_localhost
         server = SimpleXMLRPCServer((pydev_localhost.get_localhost(), 0), logRequests=False)
         server.register_function(self.GetTestsToRun)
         server.register_function(self.notifyStartTest)

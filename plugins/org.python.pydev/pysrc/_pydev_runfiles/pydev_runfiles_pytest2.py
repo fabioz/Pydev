@@ -232,7 +232,7 @@ def pytest_runtest_makereport(item, call):
 
 
 @pytest.mark.tryfirst
-def pytest_runtest_setup(item):
+def pytest_runtest_setup(item):  # @DuplicatedSignature
     '''
     Skips tests. With xdist will be on a secondary process.
     '''
