@@ -4,27 +4,27 @@ try:
     import Queue
 except:
     import queue as Queue #@UnresolvedImport
-from pydevd_constants import * #@UnusedWildImport
+from _pydevd_bundle.pydevd_constants import * #@UnusedWildImport
 from _pydev_runfiles import pydev_runfiles_xml_rpc
 import time
 import os
 
 #=======================================================================================================================
-# FlattenTestSuite
+# flatten_test_suite
 #=======================================================================================================================
-def FlattenTestSuite(test_suite, ret):
+def flatten_test_suite(test_suite, ret):
     if isinstance(test_suite, unittest.TestSuite):
         for t in test_suite._tests:
-            FlattenTestSuite(t, ret)
+            flatten_test_suite(t, ret)
 
     elif isinstance(test_suite, unittest.TestCase):
         ret.append(test_suite)
 
 
 #=======================================================================================================================
-# ExecuteTestsInParallel
+# execute_tests_in_parallel
 #=======================================================================================================================
-def ExecuteTestsInParallel(tests, jobs, split, verbosity, coverage_files, coverage_include):
+def execute_tests_in_parallel(tests, jobs, split, verbosity, coverage_files, coverage_include):
     '''
     @param tests: list(PydevTestSuite)
         A list with the suites to be run
@@ -47,8 +47,8 @@ def ExecuteTestsInParallel(tests, jobs, split, verbosity, coverage_files, covera
         It may also return False if in debug mode (in which case, multi-processes are not accepted)
     '''
     try:
-        from pydevd_comm import GetGlobalDebugger
-        if GetGlobalDebugger() is not None:
+        from _pydevd_bundle.pydevd_comm import get_global_debugger
+        if get_global_debugger() is not None:
             return False
     except:
         pass #Ignore any error here.
@@ -63,7 +63,7 @@ def ExecuteTestsInParallel(tests, jobs, split, verbosity, coverage_files, covera
         module_to_tests = {}
         for test in tests:
             lst = []
-            FlattenTestSuite(test, lst)
+            flatten_test_suite(test, lst)
             for test in lst:
                 key = (test.__pydev_pyfile__, test.__pydev_module_name__)
                 module_to_tests.setdefault(key, []).append(test)
@@ -78,7 +78,7 @@ def ExecuteTestsInParallel(tests, jobs, split, verbosity, coverage_files, covera
     elif split == 'tests':
         for test in tests:
             lst = []
-            FlattenTestSuite(test, lst)
+            flatten_test_suite(test, lst)
             for test in lst:
                 queue_elements.append([test])
 
@@ -157,7 +157,7 @@ class CommunicationThread(threading.Thread):
         self.setDaemon(True)
         self.queue = tests_queue
         self.finished = False
-        from pydev_imports import SimpleXMLRPCServer
+        from _pydev_bundle.pydev_imports import SimpleXMLRPCServer
 
 
         # This is a hack to patch slow socket.getfqdn calls that
@@ -178,7 +178,7 @@ class CommunicationThread(threading.Thread):
 
         # Create server
 
-        import pydev_localhost
+        from _pydev_bundle import pydev_localhost
         server = SimpleXMLRPCServer((pydev_localhost.get_localhost(), 0), logRequests=False)
         server.register_function(self.GetTestsToRun)
         server.register_function(self.notifyStartTest)

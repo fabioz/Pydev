@@ -30,7 +30,7 @@ def connect_to_server_for_communication_to_xml_rpc_on_xdist():
         if not port:
             sys.stderr.write('Error: no PYDEV_PYTEST_SERVER environment variable defined.\n')
         else:
-            pydev_runfiles_xml_rpc.InitializeServer(int(port), daemon=True)
+            pydev_runfiles_xml_rpc.initialize_server(int(port), daemon=True)
 
 PY2 = sys.version_info[0] <= 2
 PY3 = not PY2
@@ -232,7 +232,7 @@ def pytest_runtest_makereport(item, call):
 
 
 @pytest.mark.tryfirst
-def pytest_runtest_setup(item):
+def pytest_runtest_setup(item):  # @DuplicatedSignature
     '''
     Skips tests. With xdist will be on a secondary process.
     '''

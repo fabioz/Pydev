@@ -3,7 +3,7 @@ from nose.plugins.base import Plugin  # @UnresolvedImport
 import sys
 from _pydev_runfiles import pydev_runfiles_xml_rpc
 import time
-from _pydev_runfiles.pydev_runfiles_coverage import StartCoverageSupport
+from _pydev_runfiles.pydev_runfiles_coverage import start_coverage_support
 
 #=======================================================================================================================
 # PydevPlugin
@@ -18,7 +18,7 @@ class PydevPlugin(Plugin):
     def begin(self):
         # Called before any test is run (it's always called, with multiprocess or not)
         self.start_time = time.time()
-        self.coverage_files, self.coverage = StartCoverageSupport(self.configuration)
+        self.coverage_files, self.coverage = start_coverage_support(self.configuration)
 
 
     def finalize(self, result):
@@ -37,7 +37,7 @@ class PydevPlugin(Plugin):
     #===================================================================================================================
 
 
-    def reportCond(self, cond, test, captured_output, error=''):
+    def report_cond(self, cond, test, captured_output, error=''):
         '''
         @param cond: fail, error, ok
         '''
@@ -67,7 +67,7 @@ class PydevPlugin(Plugin):
             sys.stderr.write("\n\n\n")
             address = '?', '?'
 
-        error_contents = self.getIoFromError(error)
+        error_contents = self.get_io_from_error(error)
         try:
             time_str = '%.2f' % (time.time() - test._pydev_start_time)
         except:
@@ -87,7 +87,7 @@ class PydevPlugin(Plugin):
         pydev_runfiles_xml_rpc.notifyStartTest(file, test)
 
 
-    def getIoFromError(self, err):
+    def get_io_from_error(self, err):
         if type(err) == type(()):
             if len(err) != 3:
                 if len(err) == 2:
@@ -103,41 +103,41 @@ class PydevPlugin(Plugin):
         return err
 
 
-    def getCapturedOutput(self, test):
+    def get_captured_output(self, test):
         if hasattr(test, 'capturedOutput') and test.capturedOutput:
             return test.capturedOutput
         return ''
 
 
     def addError(self, test, err):
-        self.reportCond(
+        self.report_cond(
             'error',
             test,
-            self.getCapturedOutput(test),
+            self.get_captured_output(test),
             err,
         )
 
 
     def addFailure(self, test, err):
-        self.reportCond(
+        self.report_cond(
             'fail',
             test,
-            self.getCapturedOutput(test),
+            self.get_captured_output(test),
             err,
         )
 
 
     def addSuccess(self, test):
-        self.reportCond(
+        self.report_cond(
             'ok',
             test,
-            self.getCapturedOutput(test),
+            self.get_captured_output(test),
             '',
         )
 
 
 PYDEV_NOSE_PLUGIN_SINGLETON = None
-def StartPydevNosePluginSingleton(configuration):
+def start_pydev_nose_plugin_singleton(configuration):
     global PYDEV_NOSE_PLUGIN_SINGLETON
     PYDEV_NOSE_PLUGIN_SINGLETON = PydevPlugin(configuration)
     return PYDEV_NOSE_PLUGIN_SINGLETON
@@ -147,9 +147,9 @@ def StartPydevNosePluginSingleton(configuration):
 
 original = MultiProcessTestRunner.consolidate
 #=======================================================================================================================
-# NewConsolidate
+# new_consolidate
 #=======================================================================================================================
-def NewConsolidate(self, result, batch_result):
+def new_consolidate(self, result, batch_result):
     '''
     Used so that it can work with the multiprocess plugin.
     Monkeypatched because nose seems a bit unsupported at this time (ideally
@@ -159,7 +159,7 @@ def NewConsolidate(self, result, batch_result):
 
     parent_frame = sys._getframe().f_back
     # addr is something as D:\pytesting1\src\mod1\hello.py:TestCase.testMet4
-    # so, convert it to what reportCond expects
+    # so, convert it to what report_cond expects
     addr = parent_frame.f_locals['addr']
     i = addr.rindex(':')
     addr = [addr[:i], addr[i + 1:]]
@@ -167,14 +167,14 @@ def NewConsolidate(self, result, batch_result):
     output, testsRun, failures, errors, errorClasses = batch_result
     if failures or errors:
         for failure in failures:
-            PYDEV_NOSE_PLUGIN_SINGLETON.reportCond('fail', addr, output, failure)
+            PYDEV_NOSE_PLUGIN_SINGLETON.report_cond('fail', addr, output, failure)
 
         for error in errors:
-            PYDEV_NOSE_PLUGIN_SINGLETON.reportCond('error', addr, output, error)
+            PYDEV_NOSE_PLUGIN_SINGLETON.report_cond('error', addr, output, error)
     else:
-        PYDEV_NOSE_PLUGIN_SINGLETON.reportCond('ok', addr, output)
+        PYDEV_NOSE_PLUGIN_SINGLETON.report_cond('ok', addr, output)
 
 
     return ret
 
-MultiProcessTestRunner.consolidate = NewConsolidate
+MultiProcessTestRunner.consolidate = new_consolidate

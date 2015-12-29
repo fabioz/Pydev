@@ -1,4 +1,15 @@
+'''
+Entry point module (keep at root):
+
+Used to run with tests with unittest/pytest/nose.
+'''
+
+
 import os
+try:
+    xrange
+except:
+    xrange = range
 
 def main():
     import sys
@@ -23,9 +34,9 @@ def main():
 
 
     # Here we'll run either with nose or with the pydev_runfiles.
-    import pydev_runfiles
+    from _pydev_runfiles import pydev_runfiles
     from _pydev_runfiles import pydev_runfiles_xml_rpc
-    import pydevd_constants
+    from _pydevd_bundle import pydevd_constants
     from pydevd_file_utils import _NormFile
 
     DEBUG = 0
@@ -40,7 +51,7 @@ def main():
     except:
         sys.stderr.write('Command line received: %s\n' % (sys.argv,))
         raise
-    pydev_runfiles_xml_rpc.InitializeServer(configuration.port)  # Note that if the port is None, a Null server will be initialized.
+    pydev_runfiles_xml_rpc.initialize_server(configuration.port)  # Note that if the port is None, a Null server will be initialized.
 
     NOSE_FRAMEWORK = 1
     PY_TEST_FRAMEWORK = 2
@@ -142,7 +153,7 @@ def main():
                 sys.stdout.write('Final test framework args: %s\n' % (argv[1:],))
 
             from _pydev_runfiles import pydev_runfiles_nose
-            PYDEV_NOSE_PLUGIN_SINGLETON = pydev_runfiles_nose.StartPydevNosePluginSingleton(configuration)
+            PYDEV_NOSE_PLUGIN_SINGLETON = pydev_runfiles_nose.start_pydev_nose_plugin_singleton(configuration)
             argv.append('--with-pydevplugin')
             # Return 'not' because it will return 'success' (so, exit == 0 if success)
             return not nose.run(argv=argv, addplugins=[PYDEV_NOSE_PLUGIN_SINGLETON])
@@ -151,13 +162,6 @@ def main():
             if DEBUG:
                 sys.stdout.write('Final test framework args: %s\n' % (argv,))
                 sys.stdout.write('py_test_accept_filter: %s\n' % (py_test_accept_filter,))
-
-            import os
-
-            try:
-                xrange
-            except:
-                xrange = range
 
             def dotted(p):
                 # Helper to convert path to have dots instead of slashes
@@ -189,7 +193,7 @@ def main():
                 # Workaround bug in py.test: if we pass the full path it ends up importing conftest
                 # more than once (so, always work with relative paths).
                 if os.path.isfile(arg) or os.path.isdir(arg):
-                    from pydev_imports import relpath
+                    from _pydev_bundle.pydev_imports import relpath
                     try:
                         # May fail if on different drives
                         arg = relpath(arg)
@@ -236,7 +240,7 @@ if __name__ == '__main__':
         try:
             # The server is not a daemon thread, so, we have to ask for it to be killed!
             from _pydev_runfiles import pydev_runfiles_xml_rpc
-            pydev_runfiles_xml_rpc.forceServerKill()
+            pydev_runfiles_xml_rpc.force_server_kill()
         except:
             pass  # Ignore any errors here
 
