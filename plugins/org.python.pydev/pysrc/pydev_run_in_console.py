@@ -58,11 +58,11 @@ if __name__ == '__main__':
 
     #replace exit (see comments on method)
     #note that this does not work in jython!!! (sys method can't be replaced).
-    sys.exit = DoExit
+    sys.exit = do_exit
 
     interpreter = InterpreterInterface(host, int(client_port), threading.currentThread())
 
-    server_thread = threading.Thread(target=start_server,
+    server_thread = threading.Thread(target=start_console_server,
                                      name='ServerThread',
                                      args=(host, int(port), interpreter))
     server_thread.setDaemon(True)
@@ -70,6 +70,6 @@ if __name__ == '__main__':
 
     globals = run_file(file, None, None)
 
-    interpreter.getNamespace().update(globals)
+    interpreter.get_namespace().update(globals)
 
     process_exec_queue(interpreter)

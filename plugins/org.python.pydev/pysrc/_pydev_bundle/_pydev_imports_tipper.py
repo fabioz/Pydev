@@ -2,7 +2,7 @@ import os.path
 import inspect
 import sys
 
-from _pydev_bundle._pydev_tipper_common import DoFind
+from _pydev_bundle._pydev_tipper_common import do_find
 
 try:
     xrange
@@ -25,15 +25,15 @@ def _imp(name, log=None):
             sub = name[0:name.rfind('.')]
 
             if log is not None:
-                log.AddContent('Unable to import', name, 'trying with', sub)
-                log.AddException()
+                log.add_content('Unable to import', name, 'trying with', sub)
+                log.add_exception()
 
             return _imp(sub, log)
         else:
             s = 'Unable to import module: %s - sys.path: %s' % (str(name), sys.path)
             if log is not None:
-                log.AddContent(s)
-                log.AddException()
+                log.add_content(s)
+                log.add_exception()
 
             raise ImportError(s)
 
@@ -62,7 +62,7 @@ if sys.platform == 'cli':
 
 
 
-def GetFile(mod):
+def get_file(mod):
     f = None
     try:
         f = inspect.getsourcefile(mod) or inspect.getfile(mod)
@@ -84,7 +84,7 @@ def Find(name, log=None):
     foundAs = ''
 
     if inspect.ismodule(mod):
-        f = GetFile(mod)
+        f = get_file(mod)
 
     components = name.split('.')
 
@@ -100,7 +100,7 @@ def Find(name, log=None):
                 raise
 
         if inspect.ismodule(mod):
-            f = GetFile(mod)
+            f = get_file(mod)
         else:
             if len(foundAs) > 0:
                 foundAs = foundAs + '.'
@@ -110,7 +110,7 @@ def Find(name, log=None):
 
     return f, mod, parent, foundAs
 
-def Search(data):
+def search_definition(data):
     '''@return file, line, col
     '''
 
@@ -119,28 +119,28 @@ def Search(data):
         data = data.rstrip('.')
     f, mod, parent, foundAs = Find(data)
     try:
-        return DoFind(f, mod), foundAs
+        return do_find(f, mod), foundAs
     except:
-        return DoFind(f, parent), foundAs
+        return do_find(f, parent), foundAs
 
 
-def GenerateTip(data, log=None):
+def generate_tip(data, log=None):
     data = data.replace('\n', '')
     if data.endswith('.'):
         data = data.rstrip('.')
 
     f, mod, parent, foundAs = Find(data, log)
     #print_ >> open('temp.txt', 'w'), f
-    tips = GenerateImportsTipForModule(mod)
+    tips = generate_imports_tip_for_module(mod)
     return f, tips
 
 
-def CheckChar(c):
+def check_char(c):
     if c == '-' or c == '.':
         return '_'
     return c
 
-def GenerateImportsTipForModule(obj_to_complete, dirComps=None, getattr=getattr, filter=lambda name:True):
+def generate_imports_tip_for_module(obj_to_complete, dirComps=None, getattr=getattr, filter=lambda name:True):
     '''
         @param obj_to_complete: the object from where we should get the completions
         @param dirComps: if passed, we should not 'dir' the object and should just iterate those passed as a parameter
@@ -295,7 +295,7 @@ def GenerateImportsTipForModule(obj_to_complete, dirComps=None, getattr=getattr,
                                                         if i == 0 or i == l:
                                                             r.append(args[i])
                                                         else:
-                                                            r.append(CheckChar(args[i]))
+                                                            r.append(check_char(args[i]))
 
                                                     args = ''.join(r)
 

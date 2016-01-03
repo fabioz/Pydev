@@ -12,7 +12,7 @@ from _pydev_imps import _pydev_threading as threading
 
 threadingCurrentThread = threading.currentThread
 
-from _pydevd_bundle.pydevd_comm import GetGlobalDebugger
+from _pydevd_bundle.pydevd_comm import get_global_debugger
 
 class ExceptionBreakpoint:
 
@@ -69,7 +69,7 @@ def get_exception_breakpoint(exctype, exceptions):
         try:
             return exceptions[exception_full_qname]
         except KeyError:
-            for exception_breakpoint in DictIterValues(exceptions):
+            for exception_breakpoint in dict_iter_values(exceptions):
                 if exception_breakpoint.type is not None and issubclass(exctype, exception_breakpoint.type):
                     if exc is None or issubclass(exception_breakpoint.type, exc.type):
                         exc = exception_breakpoint
@@ -98,7 +98,7 @@ def _excepthook(exctype, value, tb):
         return
 
     frames = []
-    debugger = GetGlobalDebugger()
+    debugger = get_global_debugger()
     user_frame = None
 
     while tb:
@@ -114,15 +114,14 @@ def _excepthook(exctype, value, tb):
         frame = user_frame
     else:
         frame = frames[-1]
-    thread.additionalInfo.exception = (exctype, value, tb)
-    thread.additionalInfo.pydev_force_stop_at_exception = (frame, frames_byid)
-    thread.additionalInfo.message = exception_breakpoint.qname
+    exception = (exctype, value, tb)
+    thread.additional_info.pydev_message = exception_breakpoint.qname
 
     pydevd_tracing.SetTrace(None) #no tracing from here
 
-    pydev_log.debug('Handling post-mortem stop on exception breakpoint %s'% exception_breakpoint.qname)
+    pydev_log.debug('Handling post-mortem stop on exception breakpoint %s' % exception_breakpoint.qname)
 
-    debugger.handle_post_mortem_stop(thread.additionalInfo, thread)
+    debugger.handle_post_mortem_stop(thread, frame, frames_byid, exception)
 
 #=======================================================================================================================
 # _set_pm_excepthook
@@ -165,4 +164,4 @@ def _get_class( kls ):
     try:
         return eval(kls)
     except:
-        return pydevd_import_class.ImportName(kls)
+        return pydevd_import_class.import_name(kls)

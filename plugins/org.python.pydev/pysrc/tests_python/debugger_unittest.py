@@ -7,12 +7,15 @@ import threading
 import time
 from _pydev_bundle import pydev_localhost
 import subprocess
+import sys
 
 CMD_SET_PROPERTY_TRACE, CMD_EVALUATE_CONSOLE_EXPRESSION, CMD_RUN_CUSTOM_OPERATION, CMD_ENABLE_DONT_TRACE = 133, 134, 135, 141
 
-SHOW_WRITES_AND_READS = False
-SHOW_OTHER_DEBUG_INFO = False
-SHOW_STDOUT = False
+# Always True (because otherwise when we do have an error, it's hard to diagnose).
+# Note: set to False because we seem to be using too much memory (and subprocess uses fork which can throw an error on travis).
+SHOW_WRITES_AND_READS = True
+SHOW_OTHER_DEBUG_INFO = True
+SHOW_STDOUT = True
 
 import pydevd
 PYDEVD_FILE = pydevd.__file__
@@ -37,7 +40,8 @@ class ReaderThread(threading.Thread):
         threading.Thread.__init__(self)
         self.setDaemon(True)
         self.sock = sock
-        self.lastReceived = ''
+        self.last_received = ''
+        self.all_received = []
 
     def run(self):
         last_printed = None
@@ -47,16 +51,19 @@ class ReaderThread(threading.Thread):
                 l = self.sock.recv(1024)
                 if IS_PY3K:
                     l = l.decode('utf-8')
+                self.all_received.append(l)
                 buf += l
 
-                if '\n' in buf:
-                    self.lastReceived = buf
-                    buf = ''
+                while '\n' in buf:
+                    # Print each part...
+                    i = buf.index('\n')+1
+                    self.last_received = buf[:i]
+                    buf = buf[i:]
 
-                if SHOW_WRITES_AND_READS:
-                    if last_printed != self.lastReceived.strip():
-                        last_printed = self.lastReceived.strip()
-                        print('Test Reader Thread Received %s' % last_printed)
+                    if SHOW_WRITES_AND_READS:
+                        if last_printed != self.last_received.strip():
+                            last_printed = self.last_received.strip()
+                            print('Test Reader Thread Received %s' % last_printed)
         except:
             pass  # ok, finished it
 
@@ -67,17 +74,17 @@ class ReaderThread(threading.Thread):
 class DebuggerRunner(object):
 
     def get_command_line(self):
+        '''
+        Returns the base command line (i.e.: ['python.exe', '-u'])
+        '''
         raise NotImplementedError
 
-    def check_case(self, writer_thread_class):
-        port = get_free_port()
-        writer_thread = writer_thread_class(port)
-        writer_thread.start()
-        time.sleep(1)
+    def add_command_line_args(self, args):
+        writer_thread = self.writer_thread
+        port = int(writer_thread.port)
 
         localhost = pydev_localhost.get_localhost()
-        args = self.get_command_line()
-        args += [
+        return args + [
             PYDEVD_FILE,
             '--DEBUG_RECORD_SOCKET_READS',
             '--qt-support',
@@ -86,17 +93,31 @@ class DebuggerRunner(object):
             '--port',
             str(port),
             '--file',
-            writer_thread.TEST_FILE,
-        ]
+        ] + writer_thread.get_command_line_args()
+        return args
+
+    def check_case(self, writer_thread_class):
+        writer_thread = writer_thread_class()
+        writer_thread.start()
+        while not hasattr(writer_thread, 'port'):
+            time.sleep(.01)
+        self.writer_thread = writer_thread
+
+        args = self.get_command_line()
+
+        args = self.add_command_line_args(args)
 
         if SHOW_OTHER_DEBUG_INFO:
             print('executing', ' '.join(args))
 
         return self.run_process(args, writer_thread)
 
-    def run_process(self, args, writer_thread):
+    def create_process(self, args):
         process = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=os.path.dirname(PYDEVD_FILE))
+        return process
 
+    def run_process(self, args, writer_thread):
+        process = self.create_process(args)
         stdout = []
         stderr = []
 
@@ -106,7 +127,7 @@ class DebuggerRunner(object):
                     line = line.decode('utf-8')
 
                 if SHOW_STDOUT:
-                    print(line)
+                    sys.stdout.write('stdout: %s' % (line,))
                 buffer.append(line)
 
         start_new_thread(read, (process.stdout, stdout))
@@ -124,29 +145,35 @@ class DebuggerRunner(object):
             else:
                 if writer_thread is not None:
                     if not writer_thread.isAlive():
+                        if writer_thread.FORCE_KILL_PROCESS_WHEN_FINISHED_OK:
+                            process.kill()
+                            continue
+
                         check += 1
                         if check == 20:
                             print('Warning: writer thread exited and process still did not.')
                         if check == 100:
+                            process.kill()
+                            time.sleep(.2)
                             self.fail_with_message(
                                 "The other process should've exited but still didn't (timeout for process to exit).",
                                 stdout, stderr, writer_thread
                             )
             time.sleep(.2)
 
+        if not writer_thread.FORCE_KILL_PROCESS_WHEN_FINISHED_OK:
+            poll = process.poll()
+            if poll < 0:
+                self.fail_with_message(
+                    "The other process exited with error code: " + str(poll), stdout, stderr, writer_thread)
 
-        poll = process.poll()
-        if poll < 0:
-            self.fail_with_message(
-                "The other process exited with error code: " + str(poll), stdout, stderr, writer_thread)
 
+            if stdout is None:
+                self.fail_with_message(
+                    "The other process may still be running -- and didn't give any output.", stdout, stderr, writer_thread)
 
-        if stdout is None:
-            self.fail_with_message(
-                "The other process may still be running -- and didn't give any output.", stdout, stderr, writer_thread)
-
-        if 'TEST SUCEEDED' not in ''.join(stdout):
-            self.fail_with_message("TEST SUCEEDED not found in stdout.", stdout, stderr, writer_thread)
+            if 'TEST SUCEEDED' not in ''.join(stdout):
+                self.fail_with_message("TEST SUCEEDED not found in stdout.", stdout, stderr, writer_thread)
 
         if writer_thread is not None:
             for i in xrange(100):
@@ -172,24 +199,27 @@ class DebuggerRunner(object):
 #=======================================================================================================================
 class AbstractWriterThread(threading.Thread):
 
-    def __init__(self, port):
+    FORCE_KILL_PROCESS_WHEN_FINISHED_OK = False
+
+    def __init__(self):
         threading.Thread.__init__(self)
         self.setDaemon(True)
         self.finished_ok = False
         self._next_breakpoint_id = 0
         self.log = []
-        self.port = port
 
+    def get_command_line_args(self):
+        return [self.TEST_FILE]
 
     def do_kill(self):
-        if hasattr(self, 'readerThread'):
+        if hasattr(self, 'reader_thread'):
             # if it's not created, it's not there...
-            self.readerThread.do_kill()
+            self.reader_thread.do_kill()
         self.sock.close()
 
     def write(self, s):
 
-        last = self.readerThread.lastReceived
+        last = self.reader_thread.last_received
         if SHOW_WRITES_AND_READS:
             print('Test Writer Thread Written %s' % (s,))
         msg = s + '\n'
@@ -199,7 +229,7 @@ class AbstractWriterThread(threading.Thread):
         time.sleep(0.2)
 
         i = 0
-        while last == self.readerThread.lastReceived and i < 10:
+        while last == self.reader_thread.last_received and i < 10:
             i += 1
             time.sleep(0.1)
 
@@ -209,7 +239,8 @@ class AbstractWriterThread(threading.Thread):
             print('start_socket')
 
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.bind(('', self.port))
+        s.bind(('', 0))
+        self.port = s.getsockname()[1]
         s.listen(1)
         if SHOW_WRITES_AND_READS:
             print('Waiting in socket.accept()')
@@ -217,8 +248,8 @@ class AbstractWriterThread(threading.Thread):
         if SHOW_WRITES_AND_READS:
             print('Test Writer Thread Socket:', newSock, addr)
 
-        readerThread = self.readerThread = ReaderThread(newSock)
-        readerThread.start()
+        reader_thread = self.reader_thread = ReaderThread(newSock)
+        reader_thread.start()
         self.sock = newSock
 
         self._sequence = -1
@@ -238,14 +269,14 @@ class AbstractWriterThread(threading.Thread):
     def wait_for_new_thread(self):
         i = 0
         # wait for hit breakpoint
-        while not '<xml><thread name="' in self.readerThread.lastReceived or '<xml><thread name="pydevd.' in self.readerThread.lastReceived:
+        while not '<xml><thread name="' in self.reader_thread.last_received or '<xml><thread name="pydevd.' in self.reader_thread.last_received:
             i += 1
             time.sleep(1)
             if i >= 15:
                 raise AssertionError('After %s seconds, a thread was not created.' % i)
 
         # we have something like <xml><thread name="MainThread" id="12103472" /></xml>
-        splitted = self.readerThread.lastReceived.split('"')
+        splitted = self.reader_thread.last_received.split('"')
         threadId = splitted[3]
         return threadId
 
@@ -258,11 +289,11 @@ class AbstractWriterThread(threading.Thread):
         self.log.append('Start: wait_for_breakpoint_hit')
         i = 0
         # wait for hit breakpoint
-        last = self.readerThread.lastReceived
+        last = self.reader_thread.last_received
         while not ('stop_reason="%s"' % reason) in last:
             i += 1
             time.sleep(1)
-            last = self.readerThread.lastReceived
+            last = self.reader_thread.last_received
             if i >= 10:
                 raise AssertionError('After %s seconds, a break with reason: %s was not hit. Found: %s' % \
                     (i, reason, last))
@@ -273,7 +304,11 @@ class AbstractWriterThread(threading.Thread):
         frameId = splitted[7]
         if get_line:
             self.log.append('End(0): wait_for_breakpoint_hit')
-            return threadId, frameId, int(splitted[13])
+            try:
+                return threadId, frameId, int(splitted[13])
+            except:
+                raise AssertionError('Error with: %s, %s, %s.\nLast: %s.\n\nAll: %s\n\nSplitted: %s' % (
+                    threadId, frameId, splitted[13], last, '\n'.join(self.reader_thread.all_received), splitted))
 
         self.log.append('End(1): wait_for_breakpoint_hit')
         return threadId, frameId
@@ -282,12 +317,12 @@ class AbstractWriterThread(threading.Thread):
         i = 0
         # wait for custom operation response, the response is double encoded
         expectedEncoded = quote(quote_plus(expected))
-        while not expectedEncoded in self.readerThread.lastReceived:
+        while not expectedEncoded in self.reader_thread.last_received:
             i += 1
             time.sleep(1)
             if i >= 10:
                 raise AssertionError('After %s seconds, the custom operation not received. Last found:\n%s\nExpected (encoded)\n%s' %
-                    (i, self.readerThread.lastReceived, expectedEncoded))
+                    (i, self.reader_thread.last_received, expectedEncoded))
 
         return True
 
@@ -298,12 +333,12 @@ class AbstractWriterThread(threading.Thread):
     def wait_for_vars(self, expected):
         i = 0
         # wait for hit breakpoint
-        while not expected in self.readerThread.lastReceived:
+        while not expected in self.reader_thread.last_received:
             i += 1
             time.sleep(1)
             if i >= 10:
                 raise AssertionError('After %s seconds, the vars were not found. Last found:\n%s' %
-                    (i, self.readerThread.lastReceived))
+                    (i, self.reader_thread.last_received))
 
         return True
 
@@ -321,7 +356,7 @@ class AbstractWriterThread(threading.Thread):
         i = 0
         found = False
         while not found:
-            last = self.readerThread.lastReceived
+            last = self.reader_thread.last_received
             for e in expected:
                 if e in last:
                     found = True
@@ -349,7 +384,7 @@ class AbstractWriterThread(threading.Thread):
         # wait for hit breakpoint
         while True:
             for expected in expected_vars:
-                if expected not in self.readerThread.lastReceived:
+                if expected not in self.reader_thread.last_received:
                     break  # Break out of loop (and don't get to else)
             else:
                 return True
@@ -358,7 +393,7 @@ class AbstractWriterThread(threading.Thread):
             time.sleep(1)
             if i >= 10:
                 raise AssertionError('After %s seconds, the vars were not found. Last found:\n%s' %
-                    (i, self.readerThread.lastReceived))
+                    (i, self.reader_thread.last_received))
 
         return True
 
@@ -377,6 +412,10 @@ class AbstractWriterThread(threading.Thread):
         self.write("111\t%s\t%s\t%s\t%s\t%s\t%s\tNone\tNone" % (self.next_seq(), breakpoint_id, 'python-line', self.TEST_FILE, line, func))
         self.log.append('write_add_breakpoint: %s line: %s func: %s' % (breakpoint_id, line, func))
         return breakpoint_id
+
+    def write_add_exception_breakpoint(self, exception):
+        self.write("122\t%s\t%s" % (self.next_seq(), exception))
+        self.log.append('write_add_exception_breakpoint: %s' % (exception,))
 
     def write_remove_breakpoint(self, breakpoint_id):
         self.write("112\t%s\t%s\t%s\t%s" % (self.next_seq(), 'python-line', self.TEST_FILE, breakpoint_id))

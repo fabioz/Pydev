@@ -26,9 +26,9 @@ class _ServerHolder:
 
 
 #=======================================================================================================================
-# SetServer
+# set_server
 #=======================================================================================================================
-def SetServer(server):
+def set_server(server):
     _ServerHolder.SERVER = server
 
 
@@ -42,7 +42,7 @@ class ParallelNotification(object):
         self.method = method
         self.args = args
 
-    def ToTuple(self):
+    def to_tuple(self):
         return self.method, self.args
 
 
@@ -134,7 +134,7 @@ class ServerComm(threading.Thread):
                 kill_found = True
             else:
                 assert isinstance(command, ParallelNotification)
-                commands.append(command.ToTuple())
+                commands.append(command.to_tuple())
 
             try:
                 while True:
@@ -143,7 +143,7 @@ class ServerComm(threading.Thread):
                         kill_found = True
                     else:
                         assert isinstance(command, ParallelNotification)
-                        commands.append(command.ToTuple())
+                        commands.append(command.to_tuple())
             except:
                 pass #That's OK, we're getting it until it becomes empty so that we notify multiple at once.
 
@@ -161,9 +161,9 @@ class ServerComm(threading.Thread):
 
 
 #=======================================================================================================================
-# InitializeServer
+# initialize_server
 #=======================================================================================================================
-def InitializeServer(port, daemon=False):
+def initialize_server(port, daemon=False):
     if _ServerHolder.SERVER is None:
         if port is not None:
             notifications_queue = Queue()
@@ -275,7 +275,7 @@ def notifyTestRunFinished(total_time):
 
 
 #=======================================================================================================================
-# forceServerKill
+# force_server_kill
 #=======================================================================================================================
-def forceServerKill():
+def force_server_kill():
     _ServerHolder.SERVER_COMM.notifications_queue.put_nowait(KillServer())

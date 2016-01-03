@@ -29,7 +29,7 @@ class PydevTestResult(_PythonTextTestResult):
 
     def startTest(self, test):
         _PythonTextTestResult.startTest(self, test)
-        self.buf = pydevd_io.StartRedirect(keep_original_redirection=True, std='both')
+        self.buf = pydevd_io.start_redirect(keep_original_redirection=True, std='both')
         self.start_time = time.time()
         self._current_errors_stack = []
         self._current_failures_stack = []
@@ -46,7 +46,7 @@ class PydevTestResult(_PythonTextTestResult):
 
 
 
-    def getTestName(self, test):
+    def get_test_name(self, test):
         try:
             try:
                 test_name = test.__class__.__name__ + "." + test._testMethodName
@@ -65,14 +65,14 @@ class PydevTestResult(_PythonTextTestResult):
 
     def stopTest(self, test):
         end_time = time.time()
-        pydevd_io.EndRedirect(std='both')
+        pydevd_io.end_redirect(std='both')
 
         _PythonTextTestResult.stopTest(self, test)
 
         captured_output = self.buf.getvalue()
         del self.buf
         error_contents = ''
-        test_name = self.getTestName(test)
+        test_name = self.get_test_name(test)
 
 
         diff_time = '%.2f' % (end_time - self.start_time)
@@ -124,7 +124,7 @@ class PydevTestResult(_PythonTextTestResult):
         #Support for class/module exceptions (test is instance of _ErrorHolder)
         if not hasattr(self, '_current_errors_stack') or test.__class__.__name__ == '_ErrorHolder':
             #Not in start...end, so, report error now (i.e.: django pre/post-setup)
-            self._reportErrors([self.errors[-1]], [], '', self.getTestName(test))
+            self._reportErrors([self.errors[-1]], [], '', self.get_test_name(test))
         else:
             self._current_errors_stack.append(self.errors[-1])
 
@@ -133,7 +133,7 @@ class PydevTestResult(_PythonTextTestResult):
         _PythonTextTestResult.addFailure(self, test, err)
         if not hasattr(self, '_current_failures_stack'):
             #Not in start...end, so, report error now (i.e.: django pre/post-setup)
-            self._reportErrors([], [self.failures[-1]], '', self.getTestName(test))
+            self._reportErrors([], [self.failures[-1]], '', self.get_test_name(test))
         else:
             self._current_failures_stack.append(self.failures[-1])
 

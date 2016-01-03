@@ -2,10 +2,13 @@
 This module holds the constants used for specifying the states of the debugger.
 '''
 from __future__ import nested_scopes
+
 STATE_RUN = 1
 STATE_SUSPEND = 2
 
 PYTHON_SUSPEND = 1
+DJANGO_SUSPEND = 2
+JINJA2_SUSPEND = 3
 
 try:
     __setFalse = False
@@ -22,15 +25,12 @@ class DebugInfoHolder:
     DEBUG_TRACE_LEVEL = -1
     DEBUG_TRACE_BREAKPOINTS = -1
 
-#Optimize with psyco? This gave a 50% speedup in the debugger in tests
-USE_PSYCO_OPTIMIZATION = True
-
 #Hold a reference to the original _getframe (because psyco will change that as soon as it's imported)
 import sys #Note: the sys import must be here anyways (others depend on it)
 try:
-    GetFrame = sys._getframe
+    get_frame = sys._getframe
 except AttributeError:
-    def GetFrame():
+    def get_frame():
         raise AssertionError('sys._getframe not available (possible causes: enable -X:Frames on IronPython?)')
 
 #Used to determine the maximum size of each variable passed to eclipse -- having a big value here may make
@@ -42,7 +42,7 @@ import os
 
 from _pydevd_bundle import pydevd_vm_type
 
-IS_JYTHON = pydevd_vm_type.GetVmType() == pydevd_vm_type.PydevdVmType.JYTHON
+IS_JYTHON = pydevd_vm_type.get_vm_type() == pydevd_vm_type.PydevdVmType.JYTHON
 
 IS_JYTH_LESS25 = False
 if IS_JYTHON:
@@ -53,26 +53,20 @@ if IS_JYTHON:
 # Python 3?
 #=======================================================================================================================
 IS_PY3K = False
+IS_PY34_OLDER = False
 IS_PY27 = False
 IS_PY24 = False
 try:
     if sys.version_info[0] >= 3:
         IS_PY3K = True
+        if (sys.version_info[0] == 3 and sys.version_info[1] >= 4) or sys.version_info[0] > 3:
+            IS_PY34_OLDER = True
     elif sys.version_info[0] == 2 and sys.version_info[1] == 7:
         IS_PY27 = True
     elif sys.version_info[0] == 2 and sys.version_info[1] == 4:
         IS_PY24 = True
 except AttributeError:
     pass  #Not all versions have sys.version_info
-
-try:
-    IS_64_BITS = sys.maxsize > 2 ** 32
-except AttributeError:
-    try:
-        import struct
-        IS_64_BITS = struct.calcsize("P") * 8 > 32
-    except:
-        IS_64_BITS = False
 
 try:
     SUPPORT_GEVENT = os.getenv('GEVENT_SUPPORT', 'False') == 'True'
@@ -90,24 +84,24 @@ _nextThreadIdLock = _pydev_thread.allocate_lock()
 # Jython?
 #=======================================================================================================================
 try:
-    DictContains = dict.has_key
+    dict_contains = dict.has_key
 except:
     try:
         #Py3k does not have has_key anymore, and older versions don't have __contains__
-        DictContains = dict.__contains__
+        dict_contains = dict.__contains__
     except:
         try:
-            DictContains = dict.has_key
+            dict_contains = dict.has_key
         except NameError:
-            def DictContains(d, key):
+            def dict_contains(d, key):
                 return d.has_key(key)
 try:
-    DictPop = dict.pop
+    dict_pop = dict.pop
 except:
     #=======================================================================================================================
     # Jython 2.1
     #=======================================================================================================================
-    def DictPop(d, key, default=None):
+    def dict_pop(d, key, default=None):
         try:
             ret = d[key]
             del d[key]
@@ -117,49 +111,49 @@ except:
 
 
 if IS_PY3K:
-    def DictKeys(d):
+    def dict_keys(d):
         return list(d.keys())
 
-    def DictValues(d):
+    def dict_values(d):
         return list(d.values())
 
-    DictIterValues = dict.values
+    dict_iter_values = dict.values
 
-    def DictIterItems(d):
+    def dict_iter_items(d):
         return d.items()
 
-    def DictItems(d):
+    def dict_items(d):
         return list(d.items())
 
 else:
     try:
-        DictKeys = dict.keys
+        dict_keys = dict.keys
     except:
-        def DictKeys(d):
+        def dict_keys(d):
             return d.keys()
-    
+
     try:
-        DictIterValues = dict.itervalues
+        dict_iter_values = dict.itervalues
     except:
         try:
-            DictIterValues = dict.values #Older versions don't have the itervalues
+            dict_iter_values = dict.values #Older versions don't have the itervalues
         except:
-            def DictIterValues(d):
+            def dict_iter_values(d):
                 return d.values()
 
     try:
-        DictValues = dict.values
+        dict_values = dict.values
     except:
-        def DictValues(d):
+        def dict_values(d):
             return d.values()
 
-    def DictIterItems(d):
+    def dict_iter_items(d):
         try:
             return d.iteritems()
         except:
             return d.items()
 
-    def DictItems(d):
+    def dict_items(d):
         return d.items()
 
 
@@ -168,7 +162,7 @@ try:
 except:
     #Python 3k does not have it
     xrange = range
-    
+
 try:
     import itertools
     izip = itertools.izip
@@ -180,6 +174,11 @@ try:
 except NameError:
     class object:
         pass
+
+    import __builtin__
+
+    setattr(__builtin__, 'object', object)
+
 
 try:
     enumerate
@@ -202,48 +201,54 @@ except:
 
 
 #=======================================================================================================================
-# NextId
+# get_pid
 #=======================================================================================================================
-class NextId:
-
-    def __init__(self):
-        self._id = 0
-
-    def __call__(self):
-        #No need to synchronize here
-        self._id += 1
-        return self._id
-
-_nextThreadId = NextId()
-
-#=======================================================================================================================
-# GetThreadId
-#=======================================================================================================================
-def GetThreadId(thread):
+def get_pid():
     try:
-        return thread.__pydevd_id__
+        return os.getpid()
+    except AttributeError:
+        try:
+            #Jython does not have it!
+            import java.lang.management.ManagementFactory  #@UnresolvedImport -- just for jython
+            pid = java.lang.management.ManagementFactory.getRuntimeMXBean().getName()
+            return pid.replace('@', '_')
+        except:
+            #ok, no pid available (will be unable to debug multiple processes)
+            return '000001'
+
+def clear_cached_thread_id(thread):
+    try:
+        del thread.__pydevd_id__
+    except AttributeError:
+        pass
+
+#=======================================================================================================================
+# get_thread_id
+#=======================================================================================================================
+def get_thread_id(thread):
+    try:
+        tid = thread.__pydevd_id__
+        if tid is None:
+            # Fix for https://sw-brainwy.rhcloud.com/tracker/PyDev/645
+            # if __pydevd_id__ is None, recalculate it... also, use an heuristic
+            # that gives us always the same id for the thread (using thread.ident or id(thread)).
+            raise AttributeError()
     except AttributeError:
         _nextThreadIdLock.acquire()
         try:
             #We do a new check with the lock in place just to be sure that nothing changed
-            if not hasattr(thread, '__pydevd_id__'):
+            tid = getattr(thread, '__pydevd_id__', None)
+            if tid is None:
+                pid = get_pid()
                 try:
-                    pid = os.getpid()
-                except AttributeError:
-                    try:
-                        #Jython does not have it!
-                        import java.lang.management.ManagementFactory  #@UnresolvedImport -- just for jython
-                        pid = java.lang.management.ManagementFactory.getRuntimeMXBean().getName()
-                        pid = pid.replace('@', '_')
-                    except:
-                        #ok, no pid available (will be unable to debug multiple processes)
-                        pid = '000001'
-
-                thread.__pydevd_id__ = 'pid%s_seq%s' % (pid, _nextThreadId())
+                    tid = thread.__pydevd_id__ = 'pid_%s_id_%s' % (pid, thread.ident)
+                except:
+                    # thread.ident isn't always there... (use id(thread) instead if it's not there).
+                    tid = thread.__pydevd_id__ = 'pid_%s_id_%s' % (pid, id(thread))
         finally:
             _nextThreadIdLock.release()
 
-    return thread.__pydevd_id__
+    return tid
 
 #===============================================================================
 # Null

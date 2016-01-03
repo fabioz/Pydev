@@ -131,7 +131,7 @@ class BaseInterpreterInterface:
         self.exec_queue = _queue.Queue(0)
         self.buffer = None
 
-    def needMoreForCode(self, source):
+    def need_more_for_code(self, source):
         # PyDev-502: PyDev 3.9 F2 doesn't support backslash continuations
 
         # Strangely even the IPython console is_complete said it was complete
@@ -153,18 +153,18 @@ class BaseInterpreterInterface:
         # Case 3
         return False
 
-    def needMore(self, code_fragment):
+    def need_more(self, code_fragment):
         if self.buffer is None:
             self.buffer = code_fragment
         else:
             self.buffer.append(code_fragment)
 
-        return self.needMoreForCode(self.buffer.text)
+        return self.need_more_for_code(self.buffer.text)
 
-    def createStdIn(self):
+    def create_std_in(self):
         return StdIn(self, self.host, self.client_port)
 
-    def addExec(self, code_fragment):
+    def add_exec(self, code_fragment):
         original_in = sys.stdin
         try:
             help = None
@@ -182,7 +182,7 @@ class BaseInterpreterInterface:
 
         more = False
         try:
-            sys.stdin = self.createStdIn()
+            sys.stdin = self.create_std_in()
             try:
                 if help is not None:
                     #This will enable the help() function to work.
@@ -200,18 +200,18 @@ class BaseInterpreterInterface:
                             traceback.print_exc()
 
                 try:
-                    self.startExec()
+                    self.start_exec()
                     if hasattr(self, 'debugger'):
                         from _pydevd_bundle import pydevd_tracing
                         pydevd_tracing.SetTrace(self.debugger.trace_dispatch)
 
-                    more = self.doAddExec(code_fragment)
+                    more = self.do_add_exec(code_fragment)
 
                     if hasattr(self, 'debugger'):
                         from _pydevd_bundle import pydevd_tracing
                         pydevd_tracing.SetTrace(None)
 
-                    self.finishExec(more)
+                    self.finish_exec(more)
                 finally:
                     if help is not None:
                         try:
@@ -232,7 +232,7 @@ class BaseInterpreterInterface:
         return more
 
 
-    def doAddExec(self, codeFragment):
+    def do_add_exec(self, codeFragment):
         '''
         Subclasses should override.
 
@@ -241,7 +241,7 @@ class BaseInterpreterInterface:
         raise NotImplementedError()
 
 
-    def getNamespace(self):
+    def get_namespace(self):
         '''
         Subclasses should override.
 
@@ -255,14 +255,14 @@ class BaseInterpreterInterface:
             obj = None
             if '.' not in text:
                 try:
-                    obj = self.getNamespace()[text]
+                    obj = self.get_namespace()[text]
                 except KeyError:
                     return ''
 
             else:
                 try:
                     splitted = text.split('.')
-                    obj = self.getNamespace()[splitted[0]]
+                    obj = self.get_namespace()[splitted[0]]
                     for t in splitted[1:]:
                         obj = getattr(obj, t)
                 except:
@@ -282,7 +282,7 @@ class BaseInterpreterInterface:
                         ret = ''
                         if is_method:
                             for info in infos:
-                                ret += info.getAsDoc()
+                                ret += info.get_as_doc()
                             return ret
 
                     else:
@@ -310,10 +310,10 @@ class BaseInterpreterInterface:
             return ''
 
 
-    def doExecCode(self, code, is_single_line):
+    def do_exec_code(self, code, is_single_line):
         try:
             code_fragment = CodeFragment(code, is_single_line)
-            more = self.needMore(code_fragment)
+            more = self.need_more(code_fragment)
             if not more:
                 code_fragment = self.buffer
                 self.buffer = None
@@ -325,15 +325,15 @@ class BaseInterpreterInterface:
             return False
 
     def execLine(self, line):
-        return self.doExecCode(line, True)
+        return self.do_exec_code(line, True)
 
 
     def execMultipleLines(self, lines):
         if IS_JYTHON:
             for line in lines.split('\n'):
-                self.doExecCode(line, True)
+                self.do_exec_code(line, True)
         else:
-            return self.doExecCode(lines, False)
+            return self.do_exec_code(lines, False)
 
 
     def interrupt(self):
@@ -387,7 +387,7 @@ class BaseInterpreterInterface:
     def close(self):
         sys.exit(0)
 
-    def startExec(self):
+    def start_exec(self):
         self.interruptable = True
 
     def get_server(self):
@@ -398,7 +398,7 @@ class BaseInterpreterInterface:
 
     server = property(get_server)
 
-    def finishExec(self, more):
+    def finish_exec(self, more):
         self.interruptable = False
 
         server = self.get_server()
@@ -410,21 +410,21 @@ class BaseInterpreterInterface:
 
     def getFrame(self):
         xml = "<xml>"
-        xml += pydevd_xml.frameVarsToXML(self.getNamespace())
+        xml += pydevd_xml.frame_vars_to_xml(self.get_namespace())
         xml += "</xml>"
 
         return xml
 
     def getVariable(self, attributes):
         xml = "<xml>"
-        valDict = pydevd_vars.resolveVar(self.getNamespace(), attributes)
+        valDict = pydevd_vars.resolve_var(self.get_namespace(), attributes)
         if valDict is None:
             valDict = {}
 
         keys = valDict.keys()
 
         for k in keys:
-            xml += pydevd_vars.varToXML(valDict[k], to_string(k))
+            xml += pydevd_vars.var_to_xml(valDict[k], to_string(k))
 
         xml += "</xml>"
 
@@ -433,7 +433,7 @@ class BaseInterpreterInterface:
     def getArray(self, attr, roffset, coffset, rows, cols, format):
         xml = "<xml>"
         name = attr.split("\t")[-1]
-        array = pydevd_vars.evalInContext(name, self.getNamespace(), self.getNamespace())
+        array = pydevd_vars.eval_in_context(name, self.get_namespace(), self.get_namespace())
 
         array, metaxml, r, c, f = pydevd_vars.array_to_meta_xml(array, name, format)
         xml += metaxml
@@ -448,9 +448,9 @@ class BaseInterpreterInterface:
 
     def evaluate(self, expression):
         xml = "<xml>"
-        result = pydevd_vars.evalInContext(expression, self.getNamespace(), self.getNamespace())
+        result = pydevd_vars.eval_in_context(expression, self.get_namespace(), self.get_namespace())
 
-        xml += pydevd_vars.varToXML(result, expression)
+        xml += pydevd_vars.var_to_xml(result, expression)
 
         xml += "</xml>"
 
@@ -458,7 +458,7 @@ class BaseInterpreterInterface:
 
     def changeVariable(self, attr, value):
         def do_change_variable():
-            Exec('%s=%s' % (attr, value), self.getNamespace(), self.getNamespace())
+            Exec('%s=%s' % (attr, value), self.get_namespace(), self.get_namespace())
 
         # Important: it has to be really enabled in the main thread, so, schedule
         # it to run in the main thread.
@@ -474,10 +474,10 @@ class BaseInterpreterInterface:
         if thread_id == VIRTUAL_CONSOLE_ID and frame_id == VIRTUAL_FRAME_ID:
             f = FakeFrame()
             f.f_globals = {} #As globals=locals here, let's simply let it empty (and save a bit of network traffic).
-            f.f_locals = self.getNamespace()
+            f.f_locals = self.get_namespace()
             return f
         else:
-            return self.orig_findFrame(thread_id, frame_id)
+            return self.orig_find_frame(thread_id, frame_id)
 
     def connectToDebugger(self, debuggerPort):
         '''
@@ -498,13 +498,13 @@ class BaseInterpreterInterface:
             from _pydev_bundle import pydev_localhost
             threading.currentThread().__pydevd_id__ = "console_main"
 
-            self.orig_findFrame = pydevd_vars.findFrame
-            pydevd_vars.findFrame = self._findFrame
+            self.orig_find_frame = pydevd_vars.find_frame
+            pydevd_vars.find_frame = self._findFrame
 
             self.debugger = pydevd.PyDB()
             try:
                 self.debugger.connect(pydev_localhost.get_localhost(), debuggerPort)
-                self.debugger.prepareToRun()
+                self.debugger.prepare_to_run()
                 from _pydevd_bundle import pydevd_tracing
                 pydevd_tracing.SetTrace(None)
             except:
@@ -515,7 +515,7 @@ class BaseInterpreterInterface:
             self.debugrunning = False
             try:
                 import pydevconsole
-                pydevconsole.set_debug_hook(self.debugger.processInternalCommands)
+                pydevconsole.set_debug_hook(self.debugger.process_internal_commands)
             except:
                 traceback.print_exc()
                 sys.stderr.write('Version of Python does not support debuggable Interactive Console.\n')

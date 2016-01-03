@@ -2,7 +2,7 @@ from __future__ import nested_scopes
 
 import fnmatch
 import os.path
-from _pydev_runfiles.pydev_runfiles_coverage import StartCoverageSupport
+from _pydev_runfiles.pydev_runfiles_coverage import start_coverage_support
 from _pydevd_bundle.pydevd_constants import * #@UnusedWildImport
 import re
 import time
@@ -223,7 +223,7 @@ def parse_cmdline(argv=None):
                         file_and_test = line.split('|')
                         if len(file_and_test) == 2:
                             file, test = file_and_test
-                            if DictContains(files_to_tests, file):
+                            if dict_contains(files_to_tests, file):
                                 files_to_tests[file].append(test)
                             else:
                                 files_to_tests[file] = [test]
@@ -473,14 +473,14 @@ class PydevTestRunner(object):
             if print_exception:
                 from _pydev_runfiles import pydev_runfiles_xml_rpc
                 from _pydevd_bundle import pydevd_io
-                buf_err = pydevd_io.StartRedirect(keep_original_redirection=True, std='stderr')
-                buf_out = pydevd_io.StartRedirect(keep_original_redirection=True, std='stdout')
+                buf_err = pydevd_io.start_redirect(keep_original_redirection=True, std='stderr')
+                buf_out = pydevd_io.start_redirect(keep_original_redirection=True, std='stdout')
                 try:
                     import traceback;traceback.print_exc()
                     sys.stderr.write('ERROR: Module: %s could not be imported (file: %s).\n' % (modname, pyfile))
                 finally:
-                    pydevd_io.EndRedirect('stderr')
-                    pydevd_io.EndRedirect('stdout')
+                    pydevd_io.end_redirect('stderr')
+                    pydevd_io.end_redirect('stdout')
 
                 pydev_runfiles_xml_rpc.notifyTest(
                     'error', buf_out.getvalue(), buf_err.getvalue(), pyfile, modname, 0)
@@ -537,7 +537,7 @@ class PydevTestRunner(object):
             testFnNames = []
             className = testCaseClass.__name__
 
-            if DictContains(self.accepted_classes, className):
+            if dict_contains(self.accepted_classes, className):
                 for attrname in dir(testCaseClass):
                     #If a class is chosen, we select all the 'test' methods'
                     if attrname.startswith('test') and hasattr(getattr(testCaseClass, attrname), '__call__'):
@@ -546,7 +546,7 @@ class PydevTestRunner(object):
             else:
                 for attrname in dir(testCaseClass):
                     #If we have the class+method name, we must do a full check and have an exact match.
-                    if DictContains(self.accepted_methods, className + '.' + attrname):
+                    if dict_contains(self.accepted_methods, className + '.' + attrname):
                         if hasattr(getattr(testCaseClass, attrname), '__call__'):
                             testFnNames.append(attrname)
 
@@ -757,7 +757,7 @@ class PydevTestRunner(object):
 
 
         if handle_coverage:
-            coverage_files, coverage = StartCoverageSupport(self.configuration)
+            coverage_files, coverage = start_coverage_support(self.configuration)
 
         file_and_modules_and_module_name = self.find_modules_from_files(files)
         sys.stdout.write("done.\n")
@@ -778,9 +778,9 @@ class PydevTestRunner(object):
                 from _pydev_runfiles import pydev_runfiles_parallel
 
                 #What may happen is that the number of jobs needed is lower than the number of jobs requested
-                #(e.g.: 2 jobs were requested for running 1 test) -- in which case ExecuteTestsInParallel will
+                #(e.g.: 2 jobs were requested for running 1 test) -- in which case execute_tests_in_parallel will
                 #return False and won't run any tests.
-                executed_in_parallel = pydev_runfiles_parallel.ExecuteTestsInParallel(
+                executed_in_parallel = pydev_runfiles_parallel.execute_tests_in_parallel(
                     all_tests, self.jobs, self.split_jobs, self.verbosity, coverage_files, self.configuration.coverage_include)
 
             if not executed_in_parallel:

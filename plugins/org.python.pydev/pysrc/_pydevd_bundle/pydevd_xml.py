@@ -15,11 +15,11 @@ except:
 try:
     from xml.sax.saxutils import escape
 
-    def makeValidXmlValue(s):
+    def make_valid_xml_value(s):
         return escape(s, {'"': '&quot;'})
 except:
     #Simple replacement if it's not there.
-    def makeValidXmlValue(s):
+    def make_valid_xml_value(s):
         return s.replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;')
 
 class ExceptionOnEvaluate:
@@ -36,7 +36,7 @@ def _update_type_map():
     if not sys.platform.startswith("java"):
         _TYPE_MAP = [
                 #None means that it should not be treated as a compound variable
-    
+
                 #isintance does not accept a tuple on some versions of python, so, we must declare it expanded
                 (type(None), None,),
                 (int, None),
@@ -47,33 +47,33 @@ def _update_type_map():
                 (list, pydevd_resolver.tupleResolver),
                 (dict, pydevd_resolver.dictResolver),
         ]
-    
+
         try:
             _TYPE_MAP.append((long, None))
         except:
             pass #not available on all python versions
-    
+
         try:
             _TYPE_MAP.append((unicode, None))
         except:
             pass #not available on all python versions
-    
+
         try:
             _TYPE_MAP.append((set, pydevd_resolver.setResolver))
         except:
             pass #not available on all python versions
-    
+
         try:
             _TYPE_MAP.append((frozenset, pydevd_resolver.setResolver))
         except:
             pass #not available on all python versions
-    
+
         try:
             import numpy
             _TYPE_MAP.append((numpy.ndarray, pydevd_resolver.ndarrayResolver))
         except:
             pass  #numpy may not be installed
-    
+
         try:
             from django.utils.datastructures import MultiValueDict
             _TYPE_MAP.insert(0, (MultiValueDict, pydevd_resolver.multiValueDictResolver))
@@ -89,8 +89,8 @@ def _update_type_map():
 
         if frame_type is not None:
             _TYPE_MAP.append((frame_type, pydevd_resolver.frameResolver))
-    
-    
+
+
     else: #platform is java
         from org.python import core #@UnresolvedImport
         _TYPE_MAP = [
@@ -105,13 +105,13 @@ def _update_type_map():
                 (core.PyDictionary, pydevd_resolver.dictResolver),
                 (core.PyStringMap, pydevd_resolver.dictResolver),
         ]
-    
+
         if hasattr(core, 'PyJavaInstance'):
             #Jython 2.5b3 removed it.
             _TYPE_MAP.append((core.PyJavaInstance, pydevd_resolver.instanceResolver))
 
 
-def getType(o):
+def get_type(o):
     """ returns a triple (typeObject, typeString, resolver
         resolver != None means that variable is a container,
         and should be displayed as a hierarchy.
@@ -146,7 +146,7 @@ def getType(o):
     #no match return default
     return (type_object, type_name, pydevd_resolver.defaultResolver)
 
-def frameVarsToXML(frame_f_locals):
+def frame_vars_to_xml(frame_f_locals):
     """ dumps frame variables to XML
     <var name="var_name" scope="local" type="type" value="value"/>
     """
@@ -161,7 +161,7 @@ def frameVarsToXML(frame_f_locals):
     for k in keys:
         try:
             v = frame_f_locals[k]
-            xml += varToXML(v, str(k))
+            xml += var_to_xml(v, str(k))
         except Exception:
             traceback.print_exc()
             pydev_log.error("Unexpected error, recovered safely.\n")
@@ -169,7 +169,7 @@ def frameVarsToXML(frame_f_locals):
     return xml
 
 
-def varToXML(val, name, doTrim=True, additionalInXml=''):
+def var_to_xml(val, name, doTrim=True, additionalInXml=''):
     """ single variable or dictionary to xml representation """
 
     is_exception_on_eval = isinstance(val, ExceptionOnEvaluate)
@@ -179,13 +179,13 @@ def varToXML(val, name, doTrim=True, additionalInXml=''):
     else:
         v = val
 
-    _type, typeName, resolver = getType(v)
+    _type, typeName, resolver = get_type(v)
 
     try:
         if hasattr(v, '__class__'):
             if v.__class__ == frame_type:
-                value = pydevd_resolver.frameResolver.getFrameName(v)
-                
+                value = pydevd_resolver.frameResolver.get_frame_name(v)
+
             elif v.__class__ in (list, tuple):
                 if len(v) > 300:
                     value = '%s: %s' % (str(v.__class__), '<Too big to print. Len: %s>' % (len(v),))
@@ -217,7 +217,7 @@ def varToXML(val, name, doTrim=True, additionalInXml=''):
         name = quote(name, '/>_= ') #TODO: Fix PY-5834 without using quote
     except:
         pass
-    xml = '<var name="%s" type="%s"' % (makeValidXmlValue(name), makeValidXmlValue(typeName))
+    xml = '<var name="%s" type="%s"' % (make_valid_xml_value(name), make_valid_xml_value(typeName))
 
     if value:
         #cannot be too big... communication may not handle it.
@@ -236,7 +236,7 @@ def varToXML(val, name, doTrim=True, additionalInXml=''):
         except TypeError: #in java, unicode is a function
             pass
 
-        xmlValue = ' value="%s"' % (makeValidXmlValue(quote(value, '/>_= ')))
+        xmlValue = ' value="%s"' % (make_valid_xml_value(quote(value, '/>_= ')))
     else:
         xmlValue = ''
 
@@ -250,11 +250,3 @@ def varToXML(val, name, doTrim=True, additionalInXml=''):
 
     return ''.join((xml, xmlValue, xmlCont, additionalInXml, ' />\n'))
 
-if USE_PSYCO_OPTIMIZATION:
-    try:
-        import psyco
-
-        varToXML = psyco.proxy(varToXML)
-    except ImportError:
-        if hasattr(sys, 'exc_clear'): #jython does not have it
-            sys.exc_clear() #don't keep the traceback -- clients don't want to see it

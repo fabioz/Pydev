@@ -5,7 +5,7 @@ import pickle
 from _pydevd_bundle.pydevd_constants import * #@UnusedWildImport
 from types import * #@UnusedWildImport
 
-from _pydevd_bundle.pydevd_custom_frames import getCustomFrame
+from _pydevd_bundle.pydevd_custom_frames import get_custom_frame
 from _pydevd_bundle.pydevd_xml import *
 from _pydev_imps import _pydev_thread
 
@@ -43,7 +43,7 @@ class VariableError(RuntimeError):pass
 
 class FrameNotFoundError(RuntimeError):pass
 
-def iterFrames(initialFrame):
+def _iter_frames(initialFrame):
     '''NO-YIELD VERSION: Iterates through all the frames starting at the specified frame (which will be the first returned item)'''
     #cannot use yield
     frames = []
@@ -54,13 +54,13 @@ def iterFrames(initialFrame):
 
     return frames
 
-def dumpFrames(thread_id):
+def dump_frames(thread_id):
     sys.stdout.write('dumping frames\n')
-    if thread_id != GetThreadId(threading.currentThread()):
-        raise VariableError("findFrame: must execute on same thread")
+    if thread_id != get_thread_id(threading.currentThread()):
+        raise VariableError("find_frame: must execute on same thread")
 
-    curFrame = GetFrame()
-    for frame in iterFrames(curFrame):
+    curFrame = get_frame()
+    for frame in _iter_frames(curFrame):
         sys.stdout.write('%s\n' % pickle.dumps(frame))
 
 
@@ -72,44 +72,52 @@ class AdditionalFramesContainer:
     additional_frames = {} #dict of dicts
 
 
-def addAdditionalFrameById(thread_id, frames_by_id):
+def add_additional_frame_by_id(thread_id, frames_by_id):
     AdditionalFramesContainer.additional_frames[thread_id] = frames_by_id
+addAdditionalFrameById = add_additional_frame_by_id # Backward compatibility
 
 
-def removeAdditionalFrameById(thread_id):
+def remove_additional_frame_by_id(thread_id):
     del AdditionalFramesContainer.additional_frames[thread_id]
+removeAdditionalFrameById = remove_additional_frame_by_id  # Backward compatibility
 
 
+def has_additional_frames_by_id(thread_id):
+    return dict_contains(AdditionalFramesContainer.additional_frames, thread_id)
 
 
-def findFrame(thread_id, frame_id):
+def get_additional_frames_by_id(thread_id):
+    return AdditionalFramesContainer.additional_frames.get(thread_id)
+
+
+def find_frame(thread_id, frame_id):
     """ returns a frame on the thread that has a given frame_id """
     try:
-        curr_thread_id = GetThreadId(threading.currentThread())
+        curr_thread_id = get_thread_id(threading.currentThread())
         if thread_id != curr_thread_id :
             try:
-                return getCustomFrame(thread_id, frame_id)  #I.e.: thread_id could be a stackless frame id + thread_id.
+                return get_custom_frame(thread_id, frame_id)  #I.e.: thread_id could be a stackless frame id + thread_id.
             except:
                 pass
 
-            raise VariableError("findFrame: must execute on same thread (%s != %s)" % (thread_id, curr_thread_id))
+            raise VariableError("find_frame: must execute on same thread (%s != %s)" % (thread_id, curr_thread_id))
 
         lookingFor = int(frame_id)
 
         if AdditionalFramesContainer.additional_frames:
-            if DictContains(AdditionalFramesContainer.additional_frames, thread_id):
+            if dict_contains(AdditionalFramesContainer.additional_frames, thread_id):
                 frame = AdditionalFramesContainer.additional_frames[thread_id].get(lookingFor)
 
                 if frame is not None:
                     return frame
 
-        curFrame = GetFrame()
+        curFrame = get_frame()
         if frame_id == "*":
             return curFrame  # any frame is specified with "*"
 
         frameFound = None
 
-        for frame in iterFrames(curFrame):
+        for frame in _iter_frames(curFrame):
             if lookingFor == id(frame):
                 frameFound = frame
                 del frame
@@ -129,7 +137,7 @@ def findFrame(thread_id, frame_id):
             msgFrames = ''
             i = 0
 
-            for frame in iterFrames(GetFrame()):
+            for frame in _iter_frames(get_frame()):
                 i += 1
                 msgFrames += str(id(frame))
                 if i % 5 == 0:
@@ -137,7 +145,7 @@ def findFrame(thread_id, frame_id):
                 else:
                     msgFrames += '  -  '
 
-            errMsg = '''findFrame: frame not found.
+            errMsg = '''find_frame: frame not found.
     Looking for thread_id:%s, frame_id:%s
     Current     thread_id:%s, available frames:
     %s\n
@@ -167,7 +175,7 @@ def getVariable(thread_id, frame_id, scope, attrs):
            not the frame (as we don't care about the frame in this case).
     """
     if scope == 'BY_ID':
-        if thread_id != GetThreadId(threading.currentThread()) :
+        if thread_id != get_thread_id(threading.currentThread()) :
             raise VariableError("getVariable: must execute on same thread")
 
         try:
@@ -182,7 +190,7 @@ def getVariable(thread_id, frame_id, scope, attrs):
                     if attrs is not None:
                         attrList = attrs.split('\t')
                         for k in attrList:
-                            _type, _typeName, resolver = getType(var)
+                            _type, _typeName, resolver = get_type(var)
                             var = resolver.resolve(var, k)
 
                     return var
@@ -191,7 +199,7 @@ def getVariable(thread_id, frame_id, scope, attrs):
         sys.stderr.write('Unable to find object with id: %s\n' % (frame_id,))
         return None
 
-    frame = findFrame(thread_id, frame_id)
+    frame = find_frame(thread_id, frame_id)
     if frame is None:
         return {}
 
@@ -207,9 +215,9 @@ def getVariable(thread_id, frame_id, scope, attrs):
         for count in xrange(len(attrList)):
             if count == 0:
                 # An Expression can be in any scope (globals/locals), therefore it needs to evaluated as an expression
-                var = evaluateExpression(thread_id, frame_id, attrList[count], False)
+                var = evaluate_expression(thread_id, frame_id, attrList[count], False)
             else:
-                _type, _typeName, resolver = getType(var)
+                _type, _typeName, resolver = get_type(var)
                 var = resolver.resolve(var, attrList[count])
     else:
         if scope == "GLOBAL":
@@ -222,42 +230,42 @@ def getVariable(thread_id, frame_id, scope, attrs):
             var.update(frame.f_locals)
 
         for k in attrList:
-            _type, _typeName, resolver = getType(var)
+            _type, _typeName, resolver = get_type(var)
             var = resolver.resolve(var, k)
 
     return var
 
 
-def resolveCompoundVariable(thread_id, frame_id, scope, attrs):
+def resolve_compound_variable(thread_id, frame_id, scope, attrs):
     """ returns the value of the compound variable as a dictionary"""
 
     var = getVariable(thread_id, frame_id, scope, attrs)
 
     try:
-        _type, _typeName, resolver = getType(var)
-        return resolver.getDictionary(var)
+        _type, _typeName, resolver = get_type(var)
+        return resolver.get_dictionary(var)
     except:
         sys.stderr.write('Error evaluating: thread_id: %s\nframe_id: %s\nscope: %s\nattrs: %s\n' % (
             thread_id, frame_id, scope, attrs,))
         traceback.print_exc()
 
 
-def resolveVar(var, attrs):
+def resolve_var(var, attrs):
     attrList = attrs.split('\t')
 
     for k in attrList:
-        type, _typeName, resolver = getType(var)
+        type, _typeName, resolver = get_type(var)
 
         var = resolver.resolve(var, k)
 
     try:
-        type, _typeName, resolver = getType(var)
-        return resolver.getDictionary(var)
+        type, _typeName, resolver = get_type(var)
+        return resolver.get_dictionary(var)
     except:
         traceback.print_exc()
 
 
-def customOperation(thread_id, frame_id, scope, attrs, style, code_or_file, operation_fn_name):
+def custom_operation(thread_id, frame_id, scope, attrs, style, code_or_file, operation_fn_name):
     """
     We'll execute the code_or_file and then search in the namespace the operation_fn_name to execute with the given var.
 
@@ -267,7 +275,7 @@ def customOperation(thread_id, frame_id, scope, attrs, style, code_or_file, oper
     expressionValue = getVariable(thread_id, frame_id, scope, attrs)
 
     try:
-        namespace = {'__name__': '<customOperation>'}
+        namespace = {'__name__': '<custom_operation>'}
         if style == "EXECFILE":
             namespace['__file__'] = code_or_file
             execfile(code_or_file, namespace, namespace)
@@ -280,7 +288,7 @@ def customOperation(thread_id, frame_id, scope, attrs, style, code_or_file, oper
         traceback.print_exc()
 
 
-def evalInContext(expression, globals, locals):
+def eval_in_context(expression, globals, locals):
     result = None
     try:
         result = eval(expression, globals, locals)
@@ -317,11 +325,11 @@ def evalInContext(expression, globals, locals):
     return result
 
 
-def evaluateExpression(thread_id, frame_id, expression, doExec):
+def evaluate_expression(thread_id, frame_id, expression, doExec):
     '''returns the result of the evaluated expression
     @param doExec: determines if we should do an exec or an eval
     '''
-    frame = findFrame(thread_id, frame_id)
+    frame = find_frame(thread_id, frame_id)
     if frame is None:
         return
 
@@ -350,16 +358,16 @@ def evaluateExpression(thread_id, frame_id, expression, doExec):
             return
 
         else:
-            return evalInContext(expression, updated_globals, frame.f_locals)
+            return eval_in_context(expression, updated_globals, frame.f_locals)
     finally:
         #Should not be kept alive if an exception happens and this frame is kept in the stack.
         del updated_globals
         del frame
 
-def changeAttrExpression(thread_id, frame_id, attr, expression, dbg):
+def change_attr_expression(thread_id, frame_id, attr, expression, dbg):
     '''Changes some attribute in a given frame.
     '''
-    frame = findFrame(thread_id, frame_id)
+    frame = find_frame(thread_id, frame_id)
     if frame is None:
         return
 
@@ -436,7 +444,7 @@ def array_to_xml(array, roffset, coffset, rows, cols, format):
             else:
                 value = array[row][col]
             value = format % value
-            xml += varToXML(value, '')
+            xml += var_to_xml(value, '')
     return xml
 
 

@@ -10,15 +10,15 @@ def _imp(name, log=None):
             sub = name[0:name.rfind('.')]
             
             if log is not None:
-                log.AddContent('Unable to import', name, 'trying with', sub)
-                log.AddException()
+                log.add_content('Unable to import', name, 'trying with', sub)
+                log.add_exception()
             
             return _imp(sub, log)
         else:
             s = 'Unable to import module: %s - sys.path: %s' % (str(name), sys.path)
             if log is not None:
-                log.AddContent(s)
-                log.AddException()
+                log.add_content(s)
+                log.add_exception()
             
             raise ImportError(s)
         
@@ -46,7 +46,7 @@ if sys.platform == 'cli':
         return _old_imp(initial_name, log)
     
 
-def ImportName(name, log=None):
+def import_name(name, log=None):
     mod = _imp(name, log)
 
     components = name.split('.')

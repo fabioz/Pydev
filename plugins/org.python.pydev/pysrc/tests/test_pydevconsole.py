@@ -21,13 +21,13 @@ except NameError:
 #=======================================================================================================================
 class Test(unittest.TestCase):
 
-    def testConsoleHello(self):
+    def test_console_hello(self):
         self.original_stdout = sys.stdout
         sys.stdout = StringIO()
 
         try:
-            client_port, _server_port = self.getFreeAddresses()
-            client_thread = self.startClientThread(client_port)  #@UnusedVariable
+            client_port, _server_port = self.get_free_addresses()
+            client_thread = self.start_client_thread(client_port)  #@UnusedVariable
             import time
             time.sleep(.3)  #let's give it some time to start the threads
 
@@ -40,13 +40,13 @@ class Test(unittest.TestCase):
             sys.stdout = self.original_stdout
 
 
-    def testConsoleRequests(self):
+    def test_console_requests(self):
         self.original_stdout = sys.stdout
         sys.stdout = StringIO()
 
         try:
-            client_port, _server_port = self.getFreeAddresses()
-            client_thread = self.startClientThread(client_port)  #@UnusedVariable
+            client_port, _server_port = self.get_free_addresses()
+            client_thread = self.start_client_thread(client_port)  #@UnusedVariable
             import time
             time.sleep(.3)  #let's give it some time to start the threads
 
@@ -55,12 +55,12 @@ class Test(unittest.TestCase):
 
             interpreter = pydevconsole.InterpreterInterface(pydev_localhost.get_localhost(), client_port, threading.currentThread())
             sys.stdout = StringIO()
-            interpreter.addExec(CodeFragment('class Foo:\n    CONSTANT=1\n'))
-            interpreter.addExec(CodeFragment('foo=Foo()'))
-            interpreter.addExec(CodeFragment('foo.__doc__=None'))
-            interpreter.addExec(CodeFragment('val = %s()' % (raw_input_name,)))
-            interpreter.addExec(CodeFragment('50'))
-            interpreter.addExec(CodeFragment('print (val)'))
+            interpreter.add_exec(CodeFragment('class Foo:\n    CONSTANT=1\n'))
+            interpreter.add_exec(CodeFragment('foo=Foo()'))
+            interpreter.add_exec(CodeFragment('foo.__doc__=None'))
+            interpreter.add_exec(CodeFragment('val = %s()' % (raw_input_name,)))
+            interpreter.add_exec(CodeFragment('50'))
+            interpreter.add_exec(CodeFragment('print (val)'))
             found = sys.stdout.getvalue().split()
             try:
                 self.assertEqual(['50', 'input_request'], found)
@@ -100,7 +100,7 @@ class Test(unittest.TestCase):
             comps = interpreter.getCompletions('va', 'va')
             self.assert_(('val', '', '', '3') in comps or ('val', '', '', '4') in comps)
 
-            interpreter.addExec(CodeFragment('s = "mystring"'))
+            interpreter.add_exec(CodeFragment('s = "mystring"'))
 
             desc = interpreter.getDescription('val')
             self.assert_(desc.find('str(object) -> string') >= 0 or
@@ -127,7 +127,7 @@ class Test(unittest.TestCase):
             sys.stdout = self.original_stdout
 
 
-    def startClientThread(self, client_port):
+    def start_client_thread(self, client_port):
         class ClientThread(threading.Thread):
             def __init__(self, client_port):
                 threading.Thread.__init__(self)
@@ -159,7 +159,7 @@ class Test(unittest.TestCase):
         return client_thread
 
 
-    def startDebuggerServerThread(self, debugger_port, socket_code):
+    def start_debugger_server_thread(self, debugger_port, socket_code):
         class DebuggerServerThread(threading.Thread):
             def __init__(self, debugger_port, socket_code):
                 threading.Thread.__init__(self)
@@ -179,7 +179,7 @@ class Test(unittest.TestCase):
         return debugger_thread
 
 
-    def getFreeAddresses(self):
+    def get_free_addresses(self):
         import socket
         s = socket.socket()
         s.bind(('', 0))
@@ -210,11 +210,11 @@ class Test(unittest.TestCase):
         return port0, port1
 
 
-    def testServer(self):
+    def test_server(self):
         self.original_stdout = sys.stdout
         sys.stdout = StringIO()
         try:
-            client_port, server_port = self.getFreeAddresses()
+            client_port, server_port = self.get_free_addresses()
             class ServerThread(threading.Thread):
                 def __init__(self, client_port, server_port):
                     threading.Thread.__init__(self)
@@ -223,12 +223,12 @@ class Test(unittest.TestCase):
 
                 def run(self):
                     from _pydev_bundle import pydev_localhost
-                    pydevconsole.StartServer(pydev_localhost.get_localhost(), self.server_port, self.client_port)
+                    pydevconsole.start_server(pydev_localhost.get_localhost(), self.server_port, self.client_port)
             server_thread = ServerThread(client_port, server_port)
             server_thread.setDaemon(True)
             server_thread.start()
 
-            client_thread = self.startClientThread(client_port)  #@UnusedVariable
+            client_thread = self.start_client_thread(client_port)  #@UnusedVariable
 
             import time
             time.sleep(.3)  #let's give it some time to start the threads

@@ -34,12 +34,12 @@ class InterpreterInterface(BaseInterpreterInterface):
     def get_greeting_msg(self):
         return self.interpreter.get_greeting_msg()
 
-    def doAddExec(self, codeFragment):
+    def do_add_exec(self, codeFragment):
         self.notify_about_magic()
         if (codeFragment.text.rstrip().endswith('??')):
             print('IPython-->')
         try:
-            res = bool(self.interpreter.addExec(codeFragment.text))
+            res = bool(self.interpreter.add_exec(codeFragment.text))
         finally:
             if (codeFragment.text.rstrip().endswith('??')):
                 print('<--IPython')
@@ -47,8 +47,8 @@ class InterpreterInterface(BaseInterpreterInterface):
         return res
 
 
-    def getNamespace(self):
-        return self.interpreter.getNamespace()
+    def get_namespace(self):
+        return self.interpreter.get_namespace()
 
 
     def getCompletions(self, text, act_tok):

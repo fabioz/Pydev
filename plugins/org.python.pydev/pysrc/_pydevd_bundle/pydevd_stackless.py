@@ -1,13 +1,16 @@
 from __future__ import nested_scopes
-from _pydevd_bundle.pydevd_constants import *  # @UnusedWildImport
-import stackless  # @UnresolvedImport
-from pydevd_tracing import SetTrace
-from _pydevd_bundle.pydevd_custom_frames import updateCustomFrame, removeCustomFrame, addCustomFrame
-from _pydevd_bundle.pydevd_comm import GetGlobalDebugger
+
 import weakref
-from pydevd_file_utils import GetFilenameAndBase
-from pydevd import DONT_TRACE
-from _pydevd_bundle.pydevd_constants import DictItems
+import sys
+
+from _pydevd_bundle.pydevd_comm import get_global_debugger
+from _pydevd_bundle.pydevd_constants import threading, dict_contains, call_only_once
+from _pydevd_bundle.pydevd_constants import dict_items
+from _pydevd_bundle.pydevd_custom_frames import update_custom_frame, remove_custom_frame, add_custom_frame
+from _pydevd_bundle.pydevd_dont_trace_files import DONT_TRACE
+from pydevd_file_utils import get_abs_path_real_path_and_base_from_frame
+from pydevd_tracing import SetTrace
+import stackless  # @UnresolvedImport
 
 
 # Used so that we don't loose the id (because we'll remove when it's not alive and would generate a new id for the
@@ -181,7 +184,7 @@ def _schedule_callback(prev, next):
             register_tasklet_info(next)
 
             # Ok, making next runnable: set the tracing facility in it.
-            debugger = GetGlobalDebugger()
+            debugger = get_global_debugger()
             if debugger is not None:
                 next.trace_function = debugger.trace_dispatch
                 frame = next.frame
@@ -196,7 +199,7 @@ def _schedule_callback(prev, next):
             register_tasklet_info(prev)
 
         try:
-            for tasklet_ref, tasklet_info in DictItems(_weak_tasklet_registered_to_info):  # Make sure it's a copy!
+            for tasklet_ref, tasklet_info in dict_items(_weak_tasklet_registered_to_info):  # Make sure it's a copy!
                 tasklet = tasklet_ref()
                 if tasklet is None or not tasklet.alive:
                     # Garbage-collected already!
@@ -205,7 +208,7 @@ def _schedule_callback(prev, next):
                     except KeyError:
                         pass
                     if tasklet_info.frame_id is not None:
-                        removeCustomFrame(tasklet_info.frame_id)
+                        remove_custom_frame(tasklet_info.frame_id)
                 else:
                     is_running = stackless.get_thread_info(tasklet.thread_id)[1] is tasklet
                     if tasklet is prev or (tasklet is not next and not is_running):
@@ -216,20 +219,20 @@ def _schedule_callback(prev, next):
                         if frame is current_frame:
                             frame = frame.f_back
                         if frame is not None:
-                            _filename, base = GetFilenameAndBase(frame)
+                            base = get_abs_path_real_path_and_base_from_frame(frame)[-1]
                             # print >>sys.stderr, "SchedCB: %r, %d, '%s', '%s'" % (tasklet, frame.f_lineno, _filename, base)
-                            is_file_to_ignore = DictContains(DONT_TRACE, base)
+                            is_file_to_ignore = dict_contains(DONT_TRACE, base)
                             if not is_file_to_ignore:
                                 tasklet_info.update_name()
                                 if tasklet_info.frame_id is None:
-                                    tasklet_info.frame_id = addCustomFrame(frame, tasklet_info.tasklet_name, tasklet.thread_id)
+                                    tasklet_info.frame_id = add_custom_frame(frame, tasklet_info.tasklet_name, tasklet.thread_id)
                                 else:
-                                    updateCustomFrame(tasklet_info.frame_id, frame, tasklet.thread_id, name=tasklet_info.tasklet_name)
+                                    update_custom_frame(tasklet_info.frame_id, frame, tasklet.thread_id, name=tasklet_info.tasklet_name)
 
                     elif tasklet is next or is_running:
                         if tasklet_info.frame_id is not None:
                             # Remove info about stackless suspended when it starts to run.
-                            removeCustomFrame(tasklet_info.frame_id)
+                            remove_custom_frame(tasklet_info.frame_id)
                             tasklet_info.frame_id = None
 
 
@@ -260,7 +263,7 @@ if not hasattr(stackless.tasklet, "trace_function"):
                 register_tasklet_info(next)
 
                 # Ok, making next runnable: set the tracing facility in it.
-                debugger = GetGlobalDebugger()
+                debugger = get_global_debugger()
                 if debugger is not None and next.frame:
                     if hasattr(next.frame, 'f_trace'):
                         next.frame.f_trace = debugger.trace_dispatch
@@ -270,7 +273,7 @@ if not hasattr(stackless.tasklet, "trace_function"):
                 register_tasklet_info(prev)
 
             try:
-                for tasklet_ref, tasklet_info in DictItems(_weak_tasklet_registered_to_info):  # Make sure it's a copy!
+                for tasklet_ref, tasklet_info in dict_items(_weak_tasklet_registered_to_info):  # Make sure it's a copy!
                     tasklet = tasklet_ref()
                     if tasklet is None or not tasklet.alive:
                         # Garbage-collected already!
@@ -279,23 +282,23 @@ if not hasattr(stackless.tasklet, "trace_function"):
                         except KeyError:
                             pass
                         if tasklet_info.frame_id is not None:
-                            removeCustomFrame(tasklet_info.frame_id)
+                            remove_custom_frame(tasklet_info.frame_id)
                     else:
                         if tasklet.paused or tasklet.blocked or tasklet.scheduled:
                             if tasklet.frame and tasklet.frame.f_back:
                                 f_back = tasklet.frame.f_back
-                                _filename, base = GetFilenameAndBase(f_back)
-                                is_file_to_ignore = DictContains(DONT_TRACE, base)
+                                base = get_abs_path_real_path_and_base_from_frame(f_back)[-1]
+                                is_file_to_ignore = dict_contains(DONT_TRACE, base)
                                 if not is_file_to_ignore:
                                     if tasklet_info.frame_id is None:
-                                        tasklet_info.frame_id = addCustomFrame(f_back, tasklet_info.tasklet_name, tasklet.thread_id)
+                                        tasklet_info.frame_id = add_custom_frame(f_back, tasklet_info.tasklet_name, tasklet.thread_id)
                                     else:
-                                        updateCustomFrame(tasklet_info.frame_id, f_back, tasklet.thread_id)
+                                        update_custom_frame(tasklet_info.frame_id, f_back, tasklet.thread_id)
 
                         elif tasklet.is_current:
                             if tasklet_info.frame_id is not None:
                                 # Remove info about stackless suspended when it starts to run.
-                                removeCustomFrame(tasklet_info.frame_id)
+                                remove_custom_frame(tasklet_info.frame_id)
                                 tasklet_info.frame_id = None
 
             finally:
@@ -323,7 +326,7 @@ if not hasattr(stackless.tasklet, "trace_function"):
         f = self.tempval
         def new_f(old_f, args, kwargs):
 
-            debugger = GetGlobalDebugger()
+            debugger = get_global_debugger()
             if debugger is not None:
                 SetTrace(debugger.trace_dispatch)
 
@@ -363,7 +366,7 @@ if not hasattr(stackless.tasklet, "trace_function"):
     # run
     #=======================================================================================================================
     def run(*args, **kwargs):
-        debugger = GetGlobalDebugger()
+        debugger = get_global_debugger()
         if debugger is not None:
             SetTrace(debugger.trace_dispatch)
         debugger = None

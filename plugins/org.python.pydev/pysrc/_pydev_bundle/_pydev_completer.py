@@ -21,7 +21,7 @@ except ImportError:
     from _pydev_bundle import _pydev_imports_tipper
 
 from _pydevd_bundle import pydevd_vars
-dir2 = _pydev_imports_tipper.GenerateImportsTipForModule
+dir2 = _pydev_imports_tipper.generate_imports_tip_for_module
 
 
 #=======================================================================================================================
@@ -156,9 +156,9 @@ class Completer:
         
     
 #=======================================================================================================================
-# GenerateCompletionsAsXML
+# generate_completions_as_xml
 #=======================================================================================================================
-def GenerateCompletionsAsXML(frame, act_tok):
+def generate_completions_as_xml(frame, act_tok):
     if frame is None:
         return '<xml></xml>'
 
@@ -176,7 +176,7 @@ def GenerateCompletionsAsXML(frame, act_tok):
         #list(tuple(name, descr, parameters, type))
         completions = completer.complete(act_tok)
 
-    valid_xml = pydevd_vars.makeValidXmlValue
+    valid_xml = pydevd_vars.make_valid_xml_value
     quote = pydevd_vars.quote
 
     msg = ["<xml>"]

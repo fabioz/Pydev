@@ -4,7 +4,7 @@ from java.lang import StringBuffer #@UnresolvedImport
 from java.lang import String #@UnresolvedImport
 import java.lang #@UnresolvedImport
 import sys
-from _pydev_bundle._pydev_tipper_common import DoFind
+from _pydev_bundle._pydev_tipper_common import do_find
 
 
 try:
@@ -85,7 +85,7 @@ def Find(name):
 
     return f, mod, parent, foundAs
 
-def formatParamClassName(paramClassName):
+def format_param_class_name(paramClassName):
     if paramClassName.startswith('['):
         if paramClassName == '[C':
             paramClassName = 'char[]'
@@ -102,13 +102,13 @@ def formatParamClassName(paramClassName):
     return paramClassName
 
 
-def GenerateTip(data, log=None):
+def generate_tip(data, log=None):
     data = data.replace('\n', '')
     if data.endswith('.'):
         data = data.rstrip('.')
 
     f, mod, parent, foundAs = Find(data)
-    tips = GenerateImportsTipForModule(mod)
+    tips = generate_imports_tip_for_module(mod)
     return f, tips
 
 
@@ -125,7 +125,7 @@ class Info:
         self.kwargs = kwargs.get('kwargs', None) #string
         self.ret = kwargs.get('ret', None) #string
 
-    def basicAsStr(self):
+    def basic_as_str(self):
         '''@returns this class information as a string (just basic format)
         '''
 
@@ -134,7 +134,7 @@ class Info:
         return s
 
 
-    def getAsDoc(self):
+    def get_as_doc(self):
         s = str(self.name)
         if self.doc:
             s += '\n@doc %s\n' % str(self.doc)
@@ -142,7 +142,7 @@ class Info:
         if self.args:
             s += '\n@params '
             for arg in self.args:
-                s += str(formatParamClassName(arg))
+                s += str(format_param_class_name(arg))
                 s += '  '
 
         if self.varargs:
@@ -155,7 +155,7 @@ class Info:
 
         if self.ret:
             s += '\n@return '
-            s += str(formatParamClassName(str(self.ret)))
+            s += str(format_param_class_name(str(self.ret)))
 
         return str(s)
 
@@ -260,7 +260,7 @@ def ismethod(func):
                                 paramClassName = repr(paramTypesClass) #just in case something else happens... it will at least be visible
                         #if the parameter equals [C, it means it it a char array, so, let's change it
 
-                        a = formatParamClassName(paramClassName)
+                        a = format_param_class_name(paramClassName)
                         #a = a.replace('[]','Array')
                         #a = a.replace('Object', 'obj')
                         #a = a.replace('String', 's')
@@ -271,7 +271,7 @@ def ismethod(func):
 
 
                     info = Info(name, args=args, ret=ret)
-                    #print_ info.basicAsStr()
+                    #print_ info.basic_as_str()
                     infos.append(info)
 
             return 1, infos
@@ -291,7 +291,7 @@ def ismodule(mod):
     return isinstance(mod, core.PyModule)
 
 
-def dirObj(obj):
+def dir_obj(obj):
     ret = []
     found = java.util.HashMap()
     original = obj
@@ -361,7 +361,7 @@ def dirObj(obj):
     return ret
 
 
-def formatArg(arg):
+def format_arg(arg):
     '''formats an argument to be shown
     '''
 
@@ -380,7 +380,7 @@ def formatArg(arg):
 
 
 
-def Search(data):
+def search_definition(data):
     '''@return file, line, col
     '''
 
@@ -389,12 +389,12 @@ def Search(data):
         data = data.rstrip('.')
     f, mod, parent, foundAs = Find(data)
     try:
-        return DoFind(f, mod), foundAs
+        return do_find(f, mod), foundAs
     except:
-        return DoFind(f, parent), foundAs
+        return do_find(f, parent), foundAs
 
 
-def GenerateImportsTipForModule(obj_to_complete, dirComps=None, getattr=getattr, filter=lambda name:True):
+def generate_imports_tip_for_module(obj_to_complete, dirComps=None, getattr=getattr, filter=lambda name:True):
     '''
         @param obj_to_complete: the object from where we should get the completions
         @param dirComps: if passed, we should not 'dir' the object and should just iterate those passed as a parameter
@@ -406,7 +406,7 @@ def GenerateImportsTipForModule(obj_to_complete, dirComps=None, getattr=getattr,
     ret = []
 
     if dirComps is None:
-        dirComps = dirObj(obj_to_complete)
+        dirComps = dir_obj(obj_to_complete)
 
     for d in dirComps:
 
@@ -461,12 +461,12 @@ def GenerateImportsTipForModule(obj_to_complete, dirComps=None, getattr=getattr,
                 info = isMet[1][0]
                 try:
                     args, vargs, kwargs = info.args, info.varargs, info.kwargs
-                    doc = info.getAsDoc()
+                    doc = info.get_as_doc()
                     r = ''
                     for a in (args):
                         if len(r) > 0:
                             r += ', '
-                        r += formatArg(a)
+                        r += format_arg(a)
                     args = '(%s)' % (r)
                 except TypeError:
                     traceback.print_exc()

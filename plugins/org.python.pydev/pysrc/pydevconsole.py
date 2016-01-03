@@ -18,7 +18,7 @@ from _pydev_imps import _pydev_threading as threading
 
 import traceback
 from _pydev_bundle import fix_getpass
-fix_getpass.fixGetpass()
+fix_getpass.fix_getpass()
 
 from _pydevd_bundle import pydevd_vars
 
@@ -116,13 +116,13 @@ class InterpreterInterface(BaseInterpreterInterface):
         self._input_error_printed = False
 
 
-    def doAddExec(self, codeFragment):
+    def do_add_exec(self, codeFragment):
         command = Command(self.interpreter, codeFragment)
         command.run()
         return command.more
 
 
-    def getNamespace(self):
+    def get_namespace(self):
         return self.namespace
 
 
@@ -209,7 +209,7 @@ def process_exec_queue(interpreter):
                 # thread can be put in the queue for later execution).
                 code_fragment()
             else:
-                more = interpreter.addExec(code_fragment)
+                more = interpreter.add_exec(code_fragment)
         except KeyboardInterrupt:
             interpreter.buffer = None
             continue
@@ -248,7 +248,7 @@ except:
 #=======================================================================================================================
 # _DoExit
 #=======================================================================================================================
-def DoExit(*args):
+def do_exit(*args):
     '''
         We have to override the exit because calling sys.exit will only actually exit the main thread,
         and as we're in a Xml-rpc server, that won't work.
@@ -270,9 +270,9 @@ def handshake():
 
 
 #=======================================================================================================================
-# StartServer
+# start_console_server
 #=======================================================================================================================
-def start_server(host, port, interpreter):
+def start_console_server(host, port, interpreter):
     if port == 0:
         host = ''
 
@@ -290,7 +290,7 @@ def start_server(host, port, interpreter):
         raise
 
     # Tell UMD the proper default namespace
-    _set_globals_function(interpreter.getNamespace)
+    _set_globals_function(interpreter.get_namespace)
 
     server.register_function(interpreter.execLine)
     server.register_function(interpreter.execMultipleLines)
@@ -339,14 +339,14 @@ def start_server(host, port, interpreter):
     return server
 
 
-def StartServer(host, port, client_port):
+def start_server(host, port, client_port):
     #replace exit (see comments on method)
     #note that this does not work in jython!!! (sys method can't be replaced).
-    sys.exit = DoExit
+    sys.exit = do_exit
 
     interpreter = InterpreterInterface(host, client_port, threading.currentThread())
 
-    start_new_thread(start_server,(host, port, interpreter))
+    start_new_thread(start_console_server,(host, port, interpreter))
 
     process_exec_queue(interpreter)
 
@@ -376,12 +376,12 @@ def exec_code(code, globals, locals):
     interpreterInterface = get_interpreter()
     interpreterInterface.interpreter.update(globals, locals)
 
-    res = interpreterInterface.needMore(code)
+    res = interpreterInterface.need_more(code)
 
     if res:
         return True
 
-    interpreterInterface.addExec(code)
+    interpreterInterface.add_exec(code)
 
     return False
 
@@ -441,10 +441,10 @@ class ConsoleWriter(InteractiveInterpreter):
             tblist = tb = None
         sys.stderr.write(''.join(lines))
 
-def consoleExec(thread_id, frame_id, expression):
+def console_exec(thread_id, frame_id, expression):
     """returns 'False' in case expression is partially correct
     """
-    frame = pydevd_vars.findFrame(thread_id, frame_id)
+    frame = pydevd_vars.find_frame(thread_id, frame_id)
 
     expression = str(expression.replace('@LINE@', '\n'))
 
@@ -502,4 +502,4 @@ if __name__ == '__main__':
 
         client_port = p
 
-    pydevconsole.StartServer(pydev_localhost.get_localhost(), int(port), int(client_port))
+    pydevconsole.start_server(pydev_localhost.get_localhost(), int(port), int(client_port))

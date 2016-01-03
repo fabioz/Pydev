@@ -31,9 +31,10 @@ class Signature(object):
 class SignatureFactory(object):
     def __init__(self):
         self._caller_cache = {}
+        self._ignore_module_name = ('__main__', '__builtin__', 'builtins')
 
     def is_in_scope(self, filename):
-        return pydevd_utils.is_in_project_roots(filename)
+        return not pydevd_utils.not_in_project_roots(filename)
 
     def create_signature(self, frame):
         try:
@@ -49,7 +50,7 @@ class SignatureFactory(object):
                     tp = locals[name].__class__
                     class_name = tp.__name__
 
-                if hasattr(tp, '__module__') and tp.__module__ and tp.__module__ != '__main__':
+                if hasattr(tp, '__module__') and tp.__module__ and tp.__module__ not in self._ignore_module_name:
                     class_name = "%s.%s"%(tp.__module__, class_name)
 
                 res.add_arg(name, class_name)
@@ -111,18 +112,18 @@ class SignatureFactory(object):
 def create_signature_message(signature):
     cmdTextList = ["<xml>"]
 
-    cmdTextList.append('<call_signature file="%s" name="%s">' % (pydevd_vars.makeValidXmlValue(signature.file), pydevd_vars.makeValidXmlValue(signature.name)))
+    cmdTextList.append('<call_signature file="%s" name="%s">' % (pydevd_vars.make_valid_xml_value(signature.file), pydevd_vars.make_valid_xml_value(signature.name)))
 
     for arg in signature.args:
-        cmdTextList.append('<arg name="%s" type="%s"></arg>' % (pydevd_vars.makeValidXmlValue(arg[0]), pydevd_vars.makeValidXmlValue(arg[1])))
+        cmdTextList.append('<arg name="%s" type="%s"></arg>' % (pydevd_vars.make_valid_xml_value(arg[0]), pydevd_vars.make_valid_xml_value(arg[1])))
 
     cmdTextList.append("</call_signature></xml>")
     cmdText = ''.join(cmdTextList)
     return NetCommand(CMD_SIGNATURE_CALL_TRACE, 0, cmdText)
 
-def sendSignatureCallTrace(dbg, frame, filename):
+def send_signature_call_trace(dbg, frame, filename):
     if dbg.signature_factory.is_in_scope(filename):
-        dbg.writer.addCommand(create_signature_message(dbg.signature_factory.create_signature(frame)))
+        dbg.writer.add_command(create_signature_message(dbg.signature_factory.create_signature(frame)))
 
 
 

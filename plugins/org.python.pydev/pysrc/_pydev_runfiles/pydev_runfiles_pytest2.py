@@ -30,7 +30,7 @@ def connect_to_server_for_communication_to_xml_rpc_on_xdist():
         if not port:
             sys.stderr.write('Error: no PYDEV_PYTEST_SERVER environment variable defined.\n')
         else:
-            pydev_runfiles_xml_rpc.InitializeServer(int(port), daemon=True)
+            pydev_runfiles_xml_rpc.initialize_server(int(port), daemon=True)
 
 PY2 = sys.version_info[0] <= 2
 PY3 = not PY2
@@ -129,7 +129,7 @@ def pytest_runtest_makereport(item, call):
 
     if not call.excinfo:
         evalxfail = getattr(item, '_evalxfail', None)
-        if evalxfail and report_when == 'call':
+        if evalxfail and report_when == 'call' and (not hasattr(evalxfail, 'expr') or evalxfail.expr):
             # I.e.: a method marked with xfail passed... let the user know.
             report_outcome = "failed"
             report_longrepr = "XFAIL: Unexpected pass"
@@ -146,7 +146,7 @@ def pytest_runtest_makereport(item, call):
             call.excinfo.errisinstance(pytest.xfail.Exception)):
             evalxfail = getattr(item, '_evalxfail', None)
             # Something which had an xfail failed: this is expected.
-            if evalxfail:
+            if evalxfail and (not hasattr(evalxfail, 'expr') or evalxfail.expr):
                 report_outcome = "passed"
                 report_longrepr = None
                 handled = True

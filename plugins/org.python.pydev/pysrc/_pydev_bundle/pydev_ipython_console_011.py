@@ -376,7 +376,7 @@ class _PyDevFrontEnd:
             _line, ipython_completions = self.complete(text)
 
             from _pydev_bundle._pydev_completer import Completer
-            completer = Completer(self.getNamespace(), None)
+            completer = Completer(self.get_namespace(), None)
             ret = completer.complete(act_tok)
             append = ret.append
             ip = self.ipython
@@ -406,13 +406,13 @@ class _PyDevFrontEnd:
             return []
 
 
-    def getNamespace(self):
+    def get_namespace(self):
         return self.ipython.user_ns
 
-    def clearBuffer(self):
+    def clear_buffer(self):
         del self._curr_exec_lines[:]
 
-    def addExec(self, line):
+    def add_exec(self, line):
         if self._curr_exec_lines:
             self._curr_exec_lines.append(line)
 
@@ -451,7 +451,7 @@ class _PyDevFrontEnd:
 # in IPython to redirect to PyDev's version. This is essential to make
 # %gui in 0.11 work (0.12+ fixes it by calling self.enable_gui, which is implemented
 # above, instead of inputhook.enable_gui).
-# See testGui (test_pydev_ipython_011.TestRunningCode) which fails on 0.11 without
+# See test_gui (test_pydev_ipython_011.TestRunningCode) which fails on 0.11 without
 # this patch
 import IPython.lib.inputhook
 import pydev_ipython.inputhook

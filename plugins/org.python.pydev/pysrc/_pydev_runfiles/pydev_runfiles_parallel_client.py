@@ -2,7 +2,7 @@ from _pydevd_bundle.pydevd_constants import * #@UnusedWildImport
 from _pydev_bundle.pydev_imports import xmlrpclib, _queue
 Queue = _queue.Queue
 import traceback
-from _pydev_runfiles.pydev_runfiles_coverage import StartCoverageSupportFromParams
+from _pydev_runfiles.pydev_runfiles_coverage import start_coverage_support_from_params
 
 
 
@@ -16,7 +16,7 @@ class ParallelNotification(object):
         self.args = args
         self.kwargs = kwargs
 
-    def ToTuple(self):
+    def to_tuple(self):
         return self.method, self.args, self.kwargs
 
 
@@ -56,7 +56,7 @@ class ServerComm(threading.Thread):
                 kill_found = True
             else:
                 assert isinstance(command, ParallelNotification)
-                commands.append(command.ToTuple())
+                commands.append(command.to_tuple())
 
             try:
                 while True:
@@ -65,7 +65,7 @@ class ServerComm(threading.Thread):
                         kill_found = True
                     else:
                         assert isinstance(command, ParallelNotification)
-                        commands.append(command.ToTuple())
+                        commands.append(command.to_tuple())
             except:
                 pass #That's OK, we're getting it until it becomes empty so that we notify multiple at once.
 
@@ -132,7 +132,7 @@ def run_client(job_id, port, verbosity, coverage_output_file, coverage_include):
         server_facade = ServerFacade(server_comm.notifications_queue)
         from _pydev_runfiles import pydev_runfiles
         from _pydev_runfiles import pydev_runfiles_xml_rpc
-        pydev_runfiles_xml_rpc.SetServer(server_facade)
+        pydev_runfiles_xml_rpc.set_server(server_facade)
 
         #Starts None and when the 1st test is gotten, it's started (because a server may be initiated and terminated
         #before receiving any test -- which would mean a different process got all the tests to run).
@@ -153,7 +153,7 @@ def run_client(job_id, port, verbosity, coverage_output_file, coverage_include):
                     break
 
                 if coverage is None:
-                    _coverage_files, coverage = StartCoverageSupportFromParams(
+                    _coverage_files, coverage = start_coverage_support_from_params(
                         None, coverage_output_file, 1, coverage_include)
 
 

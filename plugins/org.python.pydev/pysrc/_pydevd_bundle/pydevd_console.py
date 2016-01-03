@@ -5,8 +5,8 @@ import sys
 import traceback
 
 from _pydev_bundle import _pydev_completer
-from _pydevd_bundle.pydevd_tracing import GetExceptionTracebackStr
-from _pydevd_bundle.pydevd_vars import makeValidXmlValue
+from _pydevd_bundle.pydevd_tracing import get_exception_traceback_str
+from _pydevd_bundle.pydevd_vars import make_valid_xml_value
 from _pydev_bundle.pydev_imports import Exec
 from _pydevd_bundle.pydevd_io import IOBuf
 from _pydev_bundle.pydev_console_utils import BaseInterpreterInterface, BaseStdIn
@@ -41,7 +41,7 @@ class ConsoleMessage:
         """
         self.more = more
 
-    def toXML(self):
+    def to_xml(self):
         """Create an XML for console message_list, error and more (true/false)
         <xml>
             <message_list>console message_list</message_list>
@@ -49,7 +49,7 @@ class ConsoleMessage:
             <more>true/false</more>
         </xml>
         """
-        makeValid = makeValidXmlValue
+        makeValid = make_valid_xml_value
 
         xml = '<xml><more>%s</more>' % (self.more)
 
@@ -79,8 +79,8 @@ class DebugConsole(InteractiveConsole, BaseInterpreterInterface):
     errors and outputs to the debug console
     """
 
-    overrides(BaseInterpreterInterface.createStdIn)
-    def createStdIn(self):
+    overrides(BaseInterpreterInterface.create_std_in)
+    def create_std_in(self):
         try:
             if not self.__buffer_output:
                 return sys.stdin
@@ -113,9 +113,9 @@ class DebugConsole(InteractiveConsole, BaseInterpreterInterface):
                 if buffer_output:
                     out = sys.stdout = IOBuf()
                     err = sys.stderr = IOBuf()
-                more = self.addExec(line)
+                more = self.add_exec(line)
             except Exception:
-                exc = GetExceptionTracebackStr()
+                exc = get_exception_traceback_str()
                 if buffer_output:
                     err.buflist.append("Internal Error: %s" % (exc,))
                 else:
@@ -134,8 +134,8 @@ class DebugConsole(InteractiveConsole, BaseInterpreterInterface):
             return more, [], []
 
 
-    overrides(BaseInterpreterInterface.doAddExec)
-    def doAddExec(self, line):
+    overrides(BaseInterpreterInterface.do_add_exec)
+    def do_add_exec(self, line):
         return InteractiveConsole.push(self, line)
 
 
@@ -222,7 +222,7 @@ def get_completions(frame, act_tok):
     """ fetch all completions, create xml for the same
     return the completions xml
     """
-    return _pydev_completer.GenerateCompletionsAsXML(frame, act_tok)
+    return _pydev_completer.generate_completions_as_xml(frame, act_tok)
 
 
 

@@ -15,14 +15,14 @@ import sys
 
 try:
     import os.path
-    def fullyNormalizePath(path):
+    def fully_normalize_path(path):
         '''fixes the path so that the format of the path really reflects the directories in the system
         '''
         return os.path.normpath(path)
     join = os.path.join
 except:  # ImportError or AttributeError.
     # See: http://stackoverflow.com/questions/10254353/error-while-installing-jython-for-pydev
-    def fullyNormalizePath(path):
+    def fully_normalize_path(path):
         '''fixes the path so that the format of the path really reflects the directories in the system
         '''
         return path
@@ -57,12 +57,12 @@ if sys.platform == "cygwin":
         sys.path.append(join(sys.path[0], 'third_party/wrapped_for_pydev'))
         import ctypes
 
-    def nativePath(path):
+    def native_path(path):
         MAX_PATH = 512  # On cygwin NT, its 260 lately, but just need BIG ENOUGH buffer
         '''Get the native form of the path, like c:\\Foo for /cygdrive/c/Foo'''
 
         retval = ctypes.create_string_buffer(MAX_PATH)
-        path = fullyNormalizePath(path)
+        path = fully_normalize_path(path)
         path = tobytes(path)
         CCP_POSIX_TO_WIN_A = 0
         ctypes.cdll.cygwin1.cygwin_conv_path(CCP_POSIX_TO_WIN_A, path, retval, MAX_PATH)
@@ -70,8 +70,8 @@ if sys.platform == "cygwin":
         return retval.value
 
 else:
-    def nativePath(path):
-        return fullyNormalizePath(path)
+    def native_path(path):
+        return fully_normalize_path(path)
 
 
 
@@ -172,7 +172,7 @@ if __name__ == '__main__':
         pass
 
     try:
-        executable = tounicode(nativePath(sys.executable))
+        executable = tounicode(native_path(sys.executable))
     except:
         executable = tounicode(sys.executable)
 
@@ -201,7 +201,7 @@ if __name__ == '__main__':
     # this is the new implementation to get the system folders
     # (still need to check if it works in linux)
     # (previously, we were getting the executable dir, but that is not always correct...)
-    prefix = tounicode(nativePath(sys.prefix))
+    prefix = tounicode(native_path(sys.prefix))
     # print_ 'prefix is', prefix
 
 
@@ -214,7 +214,7 @@ if __name__ == '__main__':
         pass  # just ignore it...
 
     for p in path_used:
-        p = tounicode(nativePath(p))
+        p = tounicode(native_path(p))
 
         try:
             import string  # to be compatible with older versions
