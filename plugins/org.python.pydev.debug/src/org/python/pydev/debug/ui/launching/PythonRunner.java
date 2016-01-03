@@ -53,32 +53,32 @@ import org.python.pydev.shared_ui.debug.RelaunchConstants;
 /**
  * Launches Python process, and connects it to Eclipse's debugger.
  * Waits for process to complete.
- * 
+ *
  * Modeled after org.eclipse.jdt.internal.launching.StandardVMDebugger.
  */
 public class PythonRunner {
 
     /**
      * To listen to changes on PyUnit runs, one would do:
-     
+    
         ICallbackListener<IPyUnitServer> listener = new ICallbackListener<IPyUnitServer>() {
-            
+    
             public Object call(IPyUnitServer pyUnitServer) {
                 IPyUnitServerListener pyUnitViewServerListener = new IPyUnitServerListener() {
-                    
+    
                     public void notifyTestsCollected(String totalTestsCount) {
                     }
-                    
+    
                     public void notifyTest(String status, String location, String test, String capturedOutput, String errorContents,
                             String time) {
                     }
-                    
+    
                     public void notifyStartTest(String location, String test) {
                     }
-                    
+    
                     public void notifyFinished(String totalTimeInSecs) {
                     }
-                    
+    
                     public void notifyDispose() {
                     }
                 };
@@ -87,13 +87,13 @@ public class PythonRunner {
             }
         };
         PythonRunner.onPyUnitServerCreated.registerListener(listener);
-
+    
      */
     public static final CallbackWithListeners<IPyUnitServer> onPyUnitServerCreated = new CallbackWithListeners<IPyUnitServer>();
 
     /**
      * Launches the configuration
-     * 
+     *
      * The code is modeled after Ant launching example.
      */
     public static void run(final PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor)
@@ -130,9 +130,9 @@ public class PythonRunner {
 
     /**
      * Launches the config in the debug mode.
-     * 
+     *
      * Loosely modeled upon Ant launcher.
-     * @throws JDTNotAvailableException 
+     * @throws JDTNotAvailableException
      */
     private static void runDebug(final PythonRunnerConfig config, final ILaunch launch, IProgressMonitor monitor)
             throws CoreException, IOException, JDTNotAvailableException {
@@ -142,7 +142,7 @@ public class PythonRunner {
         IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 5);
         subMonitor.beginTask("Launching python", 1);
 
-        // Launch & connect to the debugger        
+        // Launch & connect to the debugger
         final RemoteDebugger debugger = new RemoteDebugger();
         final ListenConnector listenConnector = debugger.startConnect(subMonitor, config);
         subMonitor.subTask("Constructing command_line...");
@@ -155,7 +155,7 @@ public class PythonRunner {
 
         //Set the debug target before registering with the debug plugin (we want it before creating the console).
         PyDebugTarget t = new PyDebugTarget(launch, null, config.resource, debugger, config.project);
-        IProcess process;
+        final IProcess process;
         try {
             process = registerWithDebugPluginForProcessType(config.getRunningName(), launch, p, processAttributes,
                     config);
@@ -198,7 +198,8 @@ public class PythonRunner {
                     while (!launch.isTerminated() && !listenConnector.isDisposed()) {
                         Socket socket = listenConnector.waitForConnection();
                         if (socket != null && !socket.isClosed()) {
-                            PyDebugTarget t = new PyDebugTarget(launch, null, config.resource, debugger, config.project);
+                            PyDebugTarget t = new PyDebugTarget(launch, process, config.resource, debugger,
+                                    config.project);
                             try {
                                 t.startTransmission(socket); // this starts reading/writing from sockets
                                 t.initialize();
@@ -230,7 +231,7 @@ public class PythonRunner {
 
         subMonitor.beginTask("Launching python", 1);
 
-        // Launch & connect to the debugger        
+        // Launch & connect to the debugger
         subMonitor.subTask("Constructing command_line...");
         String commandLineAsString = SimpleRunner.getArgumentsAsStr(cmdLine);
         //System.out.println("running command line: "+commandLineAsString);

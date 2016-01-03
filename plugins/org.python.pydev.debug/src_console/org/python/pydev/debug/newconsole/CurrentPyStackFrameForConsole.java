@@ -2,6 +2,7 @@ package org.python.pydev.debug.newconsole;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.debug.core.model.IDebugTarget;
+import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.ui.console.IConsole;
 import org.python.pydev.debug.model.AbstractDebugTarget;
@@ -27,7 +28,8 @@ public class CurrentPyStackFrameForConsole extends AnyPyStackFrameSelected {
     protected boolean acceptsSelection(PyStackFrame stackFrame) {
         if (super.acceptsSelection(stackFrame)) {
             AbstractDebugTarget target = (AbstractDebugTarget) stackFrame.getAdapter(IDebugTarget.class);
-            if (DebugUITools.getConsole(target.getProcess()) == console) {
+            IProcess process = target.getProcess();
+            if (DebugUITools.getConsole(process) == console) {
                 return true;
             }
         }
