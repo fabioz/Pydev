@@ -28,6 +28,7 @@ import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.FastStack;
+import org.python.pydev.shared_core.structure.LowMemoryArrayList;
 import org.python.pydev.shared_core.structure.Tuple;
 
 /**
@@ -41,9 +42,59 @@ import org.python.pydev.shared_core.structure.Tuple;
  * classes, functions, class attributes, instance attributes -- basically the tokens that provide a
  * definition that can be 'globally' accessed.
  *
+ * This should work the following way:
+ *
+ * We should have a single stack where all the statements we find are added. When we find a column
+ * which indicates a new statement, we close any statement with a column > than the new statement
+ * and in the process add those statements to the parent statement as needed (or in some cases,
+ * discard it -- i.e.: method inside method is discarded, but attribute inside method is not).
+ *
+ * This means that we usually do not put the final element there, but a wrapper which has a body
+ * where we can add elements (i.e.: array list), which is converted to a body when its own scope ends.
+ *
  * @author Fabio
  */
 public final class FastDefinitionsParser {
+
+    private static class NodeEntry {
+
+        public final stmtType node;
+        public final List<SimpleNode> body = new LowMemoryArrayList<>();
+
+        public NodeEntry(Assign assign) {
+            this.node = assign;
+        }
+
+        public NodeEntry(ClassDef classDef) {
+            this.node = classDef;
+        }
+
+        public NodeEntry(FunctionDef functionDef) {
+            this.node = functionDef;
+        }
+
+        /**
+         * Assign the body if we have something.
+         */
+        public void onEndScope() {
+            if (body.size() > 0) {
+                stmtType[] array = body.toArray(new stmtType[body.size()]);
+                if (this.node instanceof ClassDef) {
+                    ClassDef classDef = (ClassDef) this.node;
+                    classDef.body = array;
+
+                } else if (this.node instanceof FunctionDef) {
+                    FunctionDef functionDef = (FunctionDef) this.node;
+                    functionDef.body = array;
+
+                } else {
+                    Log.log("Error: assign statement is not expected to have body!");
+                    return;
+                }
+            }
+        }
+
+    }
 
     /**
      * Set and kept in the constructor
@@ -88,12 +139,7 @@ public final class FastDefinitionsParser {
      * Holds a stack of classes so that we create a new one in each new scope to be filled and when the scope is ended,
      * it should have its body filled with the stackBody contents related to each
      */
-    private final FastStack<SimpleNode> stack = new FastStack<SimpleNode>(20);
-
-    /**
-     * For each item in the stack, there's a stackBody that has the contents to be added later to that class.
-     */
-    private final FastStack<List<stmtType>> stackBody = new FastStack<List<stmtType>>(20);
+    private final FastStack<NodeEntry> stack = new FastStack<NodeEntry>(10);
 
     /**
      * Buffer with the contents of a line.
@@ -255,7 +301,7 @@ public final class FastDefinitionsParser {
                             Assign assign = new Assign(targets.toArray(new exprType[targets.size()]), null);
                             assign.beginColumn = this.firstCharCol;
                             assign.beginLine = this.row;
-                            addToPertinentScope(assign);
+                            stack.push(new NodeEntry(assign));
                         }
                     }
                     //No default
@@ -263,7 +309,7 @@ public final class FastDefinitionsParser {
             lineBuffer.append(c);
         }
 
-        endScopesInStack();
+        endScopesInStack(0);
     }
 
     public void updateCountRow(int initialIndex, int currIndex) {
@@ -312,6 +358,10 @@ public final class FastDefinitionsParser {
             c = cs[currIndex];
         }
 
+        if (!Character.isWhitespace(c) && c != '#') {
+            endScopesInStack(col);
+        }
+
         if (c == 'c' && matchClass()) {
             int startClassCol = col;
             currIndex += 6;
@@ -323,6 +373,9 @@ public final class FastDefinitionsParser {
             startClass(getNextIdentifier(c), row, startClassCol);
 
         } else if (c == 'd' && matchFunction()) {
+            if (DEBUG) {
+                System.out.println("Found method");
+            }
             int startMethodCol = col;
             currIndex += 4;
             col += 4;
@@ -443,7 +496,8 @@ public final class FastDefinitionsParser {
             }
             c = this.cs[currIndex];
         }
-        return ObjectsInternPool.internLocal(interned, new String(this.cs, currClassNameCol, currIndex - currClassNameCol));
+        return ObjectsInternPool.internLocal(interned,
+                new String(this.cs, currClassNameCol, currIndex - currClassNameCol));
     }
 
     private final ObjectsPoolMap interned = new ObjectsPoolMap();
@@ -454,18 +508,12 @@ public final class FastDefinitionsParser {
      * @param startMethodCol the column where the scope should start
      */
     private void startMethod(String name, int startMethodRow, int startMethodCol) {
-        if (startMethodCol == 1) {
-            endScopesInStack();
-        }
         NameTok nameTok = new NameTok(name, NameTok.ClassName);
         FunctionDef functionDef = new FunctionDef(nameTok, null, null, null, null);
         functionDef.beginLine = startMethodRow;
         functionDef.beginColumn = startMethodCol;
 
-        addToPertinentScope(functionDef);
-        if (stack.size() == 0) {
-            stack.push(functionDef);
-        }
+        stack.push(new NodeEntry(functionDef));
     }
 
     /**
@@ -474,130 +522,48 @@ public final class FastDefinitionsParser {
      * @param startClassCol the column where the scope should start
      */
     private void startClass(String name, int startClassRow, int startClassCol) {
-        if (startClassCol == 1) {
-            endScopesInStack();
-        }
         NameTok nameTok = new NameTok(name, NameTok.ClassName);
         ClassDef classDef = new ClassDef(nameTok, null, null, null, null, null, null);
 
         classDef.beginLine = startClassRow;
         classDef.beginColumn = startClassCol;
 
-        stack.push(classDef);
-        stackBody.push(new ArrayList<stmtType>(10));
+        stack.push(new NodeEntry(classDef));
     }
 
-    private void endScopesInStack() {
+    private void endScopesInStack(int currCol) {
         while (stack.size() > 0) {
-            endScope();
-        }
-    }
+            NodeEntry peek = stack.peek();
+            if (peek.node.beginColumn < currCol) {
+                break;
+            }
+            NodeEntry currNode = stack.pop();
+            currNode.onEndScope();
 
-    /**
-     * Finish the current scope in the stack.
-     *
-     * May close many scopes in a single call depending on where the class should be added to.
-     */
-    private void endScope() {
-        SimpleNode pop = stack.pop();
-        if (!(pop instanceof ClassDef)) {
-            return;
-        }
-        ClassDef def = (ClassDef) pop;
-        List<stmtType> body = stackBody.pop();
-        def.body = body.toArray(new stmtType[body.size()]);
-        addToPertinentScope(def);
-    }
-
-    /**
-     * This is the definition to be added to a given scope.
-     *
-     * It'll find a correct scope based on the column it has to be added to.
-     *
-     * @param newStmt the definition to be added
-     */
-    private void addToPertinentScope(stmtType newStmt) {
-        //see where it should be added (global or class scope)
-        while (stack.size() > 0) {
-            SimpleNode parent = stack.peek();
-            if (parent.beginColumn < newStmt.beginColumn) {
-                if (parent instanceof FunctionDef) {
-                    return;
-                }
-                List<stmtType> peek = stackBody.peek();
-
-                if (newStmt instanceof FunctionDef) {
-                    int size = peek.size();
-                    if (size > 0) {
-                        stmtType existing = peek.get(size - 1);
-                        if (existing.beginColumn < newStmt.beginColumn) {
-                            //we don't want to add a method inside a method at this point.
-                            //all the items added should have the same column.
-                            return;
-                        }
-                    }
-                } else if (newStmt instanceof Assign) {
-                    Assign assign = (Assign) newStmt;
-                    exprType target = assign.targets[0];
-
-                    //an assign could be in a method or in a class depending on where we're right now...
-                    int size = peek.size();
-                    if (size > 0) {
-                        stmtType existing = peek.get(size - 1);
-                        if (existing.beginColumn < assign.beginColumn) {
-                            //add the assign to the correct place
-                            if (existing instanceof FunctionDef) {
-                                FunctionDef functionDef = (FunctionDef) existing;
-
-                                if (target instanceof Attribute) {
-                                    addAssignToFunctionDef(assign, functionDef);
+            if (stack.size() > 0) {
+                NodeEntry parentNode = stack.peek();
+                if (parentNode.node instanceof FunctionDef) {
+                    // Inside a function def, only deal with attributes (if func inside class)
+                    if (currNode.node instanceof Assign) {
+                        if (stack.size() > 1) {
+                            Assign assign = (Assign) currNode.node;
+                            exprType target = assign.targets[0];
+                            if (target instanceof Attribute) {
+                                NodeEntry parentParents = stack.peek(1);
+                                if (parentParents.node instanceof ClassDef) {
+                                    parentNode.body.add(currNode.node);
                                 }
-                                return;
                             }
                         }
                     }
-
-                    //if it still hasn't returned and it's a name, add it to the global scope.
-                    if (target instanceof Name) {
-
-                    }
+                } else if (parentNode.node instanceof ClassDef) {
+                    parentNode.body.add(currNode.node);
+                } else {
+                    Log.log("Did not expect to find tem below node: " + parentNode.node);
                 }
-                peek.add(newStmt);
-                return;
             } else {
-                endScope();
+                body.add(currNode.node);
             }
-        }
-        //if it still hasn't returned, add it to the global
-        this.body.add(newStmt);
-    }
-
-    /**
-     * Adds an assign statement to the given function definition.
-     *
-     * @param assign the assign to be added
-     * @param functionDef the function definition where it should be added
-     */
-    private void addAssignToFunctionDef(Assign assign, FunctionDef functionDef) {
-        //if it's an attribute at this point, it'll always start with self!
-        if (functionDef.body == null) {
-            if (functionDef.specialsAfter == null) {
-                functionDef.specialsAfter = new ArrayList<Object>(3);
-            }
-            functionDef.body = new stmtType[10];
-            functionDef.body[0] = assign;
-            functionDef.specialsAfter.add(1); //real len
-        } else {
-            //already exists... let's add it... as it's an array, we may have to reallocate it
-            Integer currLen = (Integer) functionDef.specialsAfter.get(0);
-            currLen += 1;
-            functionDef.specialsAfter.set(0, currLen);
-            if (functionDef.body.length < currLen) {
-                stmtType[] newBody = new stmtType[functionDef.body.length * 2];
-                System.arraycopy(functionDef.body, 0, newBody, 0, functionDef.body.length);
-                functionDef.body = newBody;
-            }
-            functionDef.body[currLen - 1] = assign;
         }
     }
 
