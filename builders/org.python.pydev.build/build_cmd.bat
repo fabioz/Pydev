@@ -60,6 +60,10 @@ git checkout %BRANCH%
 git pull origin %BRANCH%
 @echo If copied/pasted into cmd.exe, it will break here
 
+@echo Create builtin modules
+set PYTHONPATH=%BUILD_DIR%/Pydev/plugins/org.python.pydev/pysrc
+C:\tools\Miniconda32\envs\py27_32\python %BUILD_DIR%/Pydev/plugins/org.python.pydev/pysrc/build_tools/build_binaries_windows.py
+
 @echo to clean after the build: -DcleanAfter.set=true
 mvn -o install
 

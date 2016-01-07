@@ -142,6 +142,32 @@ Companies have the option of sponsoring PyDev through corporate sponsorship. See
 .. _`Getting started guide`: manual_101_root.html
 
 
+Release 4.5.0
+==========================
+
+* Debugger
+
+	* Cython speedup modules are now available for the debugger.
+
+	* It is considerably faster even without the speedup modules.
+
+	* When debugging multiple processes the console wasn't being updated to the selected stack in the debug view.
+
+	* Many bug-fixes.
+
+* Improved the search to always play safe and update the index so that the matches are always consistent (#PyDev-634).
+
+* Fixed issue renaming top-level module on refactoring.
+
+* Refactoring has option to rename variable to a standard case style.
+
+* Improved the parser that extracted the outline for global tokens to deal with async and consider declarations inside ifs.
+
+* Code completion of properties with @property no longer show "()" (#PyDev-453).
+
+* Preventing a freeze if some code-analysis takes too much time (#PyDev-636).
+
+
 Release 4.4.0
 ==========================
 
