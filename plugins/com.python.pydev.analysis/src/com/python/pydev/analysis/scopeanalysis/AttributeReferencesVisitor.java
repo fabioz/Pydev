@@ -9,6 +9,7 @@ package com.python.pydev.analysis.scopeanalysis;
 import java.util.Iterator;
 import java.util.List;
 
+import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -31,13 +32,37 @@ public class AttributeReferencesVisitor extends EasyAstIteratorBase {
 
     private int accept;
 
-    public AttributeReferencesVisitor(int accept) {
+    private final CompletionState completionState = new CompletionState();
+
+    private AttributeReferencesVisitor(int accept) {
         this.accept = accept;
     }
 
     private int inAttr = 0;
 
+    @Override
     protected Object unhandled_node(SimpleNode node) throws Exception {
+
+        // I.e.: #PyDev-636: PyDev freezes when using method chaining in Python code
+        // class Killer(object):
+        //
+        //     def a(self):
+        //         return self
+        //
+        //     def b(self):
+        //         return self
+        //
+        // if __name__ == '__main__':
+        //
+        //     killer = Killer()
+        //     test = killer.a().b() \
+        //     .a().b().a().b().a().b().a() \
+        //     .b().a().b().a().b() \
+        //     .a().b().a().b().a() \
+        //     .b().a().b().a().b() \
+        //     .a().b() <-- hover here will take an absurd amount of time to complete
+        completionState.checkMaxTimeForCompletion();
+
         //System.out.println("unhandled_node:"+node);
         if (inAttr > 0 || (accept & ACCEPT_IN_CLASS_DECL) != 0 && isInClassDecl()) {
             if (node instanceof Name || (node instanceof NameTok && ((NameTok) node).ctx != NameTok.ClassName)) {
@@ -84,7 +109,7 @@ public class AttributeReferencesVisitor extends EasyAstIteratorBase {
     }
 
     /**
-     * Creates the iterator and transverses the passed root so that the results can be gotten.
+     * Creates the iterator and traverses the passed root so that the results can be gotten.
      */
     public static AttributeReferencesVisitor create(SimpleNode root, int accept) {
         AttributeReferencesVisitor visitor = new AttributeReferencesVisitor(accept);
