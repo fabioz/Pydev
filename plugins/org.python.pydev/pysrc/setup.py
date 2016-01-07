@@ -34,20 +34,23 @@ data_files = []
 
 def accept_file(f):
     f = f.lower()
-    for ext in '.py .dll .so .dylib .txt .cpp .h .bat .c .sh'.split():
+    for ext in '.py .dll .so .dylib .txt .cpp .h .bat .c .sh .md .txt'.split():
         if f.endswith(ext):
             return True
 
-    return f in ['reamde', 'makefile']
+    return f in ['readme', 'makefile']
 
 data_files.append(('pydevd_attach_to_process', [os.path.join('pydevd_attach_to_process', f) for f in os.listdir('pydevd_attach_to_process') if accept_file(f)]))
 for root, dirs, files in os.walk("pydevd_attach_to_process"):
     for d in dirs:
         data_files.append((os.path.join(root, d), [os.path.join(root, d, f) for f in os.listdir(os.path.join(root, d)) if accept_file(f)]))
 
-setup(
+import pydevd
+version = pydevd.__version__
+
+args = dict(
     name='pydevd',
-    version='0.0.1',
+    version=version,
     description = 'PyDev.Debugger (used in PyDev and PyCharm)',
     author='Fabio Zadrozny and others',
     url='https://github.com/fabioz/PyDev.Debugger/',
@@ -84,7 +87,11 @@ setup(
         'Development Status :: 6 - Mature',
         'Environment :: Console',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: Eclipse Public License',
+
+        # It seems that the license is not recognized by Pypi, so, not categorizing it for now.
+        # https://bitbucket.org/pypa/pypi/issues/369/the-eclipse-public-license-superseeded
+        # 'License :: OSI Approved :: Eclipse Public License',
+
         'Operating System :: MacOS :: MacOS X',
         'Operating System :: Microsoft :: Windows',
         'Operating System :: POSIX',
@@ -95,13 +102,22 @@ setup(
     keywords=['pydev', 'pydevd', 'pydev.debugger'],
     include_package_data=True,
     zip_safe=False,
-    distclass=BinaryDistribution,
-    ext_modules=[
-        # In this setup, don't even m
-        Extension('_pydevd_bundle.pydevd_cython', ["_pydevd_bundle/pydevd_cython.c",])
-    ]
 )
 
 
 
-
+import sys
+try:
+    args_with_binaries = args.copy()
+    args_with_binaries.update(dict(
+        distclass=BinaryDistribution,
+        ext_modules=[
+            # In this setup, don't even try to compile with cython, just go with the .c file which should've
+            # been properly generated from a tested version.
+            Extension('_pydevd_bundle.pydevd_cython', ["_pydevd_bundle/pydevd_cython.c",])
+        ]
+    ))
+    setup(**args_with_binaries)
+except:
+    setup(**args)
+    sys.stdout.write('Plain-python version of pydevd installed (cython speedups not available).\n')
