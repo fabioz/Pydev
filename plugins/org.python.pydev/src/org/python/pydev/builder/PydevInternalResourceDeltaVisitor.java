@@ -70,8 +70,8 @@ public abstract class PydevInternalResourceDeltaVisitor extends PyDevBuilderVisi
                     memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, System.currentTimeMillis());
                     visitRemovedResource(resource, null, monitor);
                     break;
-            //for folders, we don't have to do anything if added or changed (we just treat their children, that should
-            //resolve for modules -- we do, however have to treat __init__.py differently).
+                //for folders, we don't have to do anything if added or changed (we just treat their children, that should
+                //resolve for modules -- we do, however have to treat __init__.py differently).
             }
 
         } else if (type == IResource.FILE) {

@@ -172,4 +172,14 @@ public class PythonNatureStub implements IPythonNature, IAdaptable {
             throws CoreException, MisconfigurationException {
         throw new RuntimeException("Not implemented");
     }
+
+    @Override
+    public void updateMtime() {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public long getMtime() {
+        throw new RuntimeException("Not implemented");
+    }
 }

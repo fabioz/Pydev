@@ -158,6 +158,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
 
             //and the nature...
             if (nature != null && nature.startRequests()) {
+                nature.updateMtime();
 
                 try {
                     IPythonPathNature pythonPathNature = nature.getPythonPathNature();

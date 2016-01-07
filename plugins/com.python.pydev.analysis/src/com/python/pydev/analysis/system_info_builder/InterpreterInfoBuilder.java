@@ -127,28 +127,32 @@ public class InterpreterInfoBuilder implements IInterpreterInfoBuilder {
                     }
                 }
             }
+            synchronized (additionalInfo.updateKeysLock) {
+                // Use a lock (if we have more than one builder updating we could get into a racing condition here).
 
-            // Important: do the diff only after the builtins are added (otherwise the modules manager may become wrong)!
-            Tuple<List<ModulesKey>, List<ModulesKey>> diffModules = modulesManager.diffModules(keysFound);
+                // Important: do the diff only after the builtins are added (otherwise the modules manager may become wrong)!
+                Tuple<List<ModulesKey>, List<ModulesKey>> diffModules = modulesManager.diffModules(keysFound);
 
-            if (diffModules.o1.size() > 0 || diffModules.o2.size() > 0) {
-                if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {
-                    Log.toLogFile(this, StringUtils.format(
-                            "Diff modules. Added: %s Removed: %s", diffModules.o1,
-                            diffModules.o2));
-                }
-
-                //Update the modules manager itself (just pass all the keys as that should be fast)
-                if (modulesManager instanceof SystemModulesManager) {
-                    ((SystemModulesManager) modulesManager).updateKeysAndSave(keysFound);
-                } else {
-                    for (ModulesKey newEntry : diffModules.o1) {
-                        modulesManager.addModule(newEntry);
+                if (diffModules.o1.size() > 0 || diffModules.o2.size() > 0) {
+                    if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {
+                        Log.toLogFile(this, StringUtils.format(
+                                "Diff modules. Added: %s Removed: %s", diffModules.o1,
+                                diffModules.o2));
                     }
-                    modulesManager.removeModules(diffModules.o2);
+
+                    //Update the modules manager itself (just pass all the keys as that should be fast)
+                    if (modulesManager instanceof SystemModulesManager) {
+                        ((SystemModulesManager) modulesManager).updateKeysAndSave(keysFound);
+                    } else {
+                        for (ModulesKey newEntry : diffModules.o1) {
+                            modulesManager.addModule(newEntry);
+                        }
+                        modulesManager.removeModules(diffModules.o2);
+                    }
                 }
+                additionalInfo.updateKeysIfNeededAndSave(keysFound, info, monitor);
             }
-            additionalInfo.updateKeysIfNeededAndSave(keysFound, info, monitor);
+
         } catch (Exception e) {
             Log.log(e);
         }

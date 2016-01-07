@@ -158,6 +158,8 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
      */
     public static final CallbackWithListeners modulesAddedAndRemoved = new CallbackWithListeners(1);
 
+    public final Object updateKeysLock = new Object(); // Calls to updateKeysIfNeededAndSave should be synchronized.
+
     /**
      * If info == null we're dealing with project info (otherwise we're dealing with interpreter info).
      *

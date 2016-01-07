@@ -40,6 +40,8 @@ import org.python.pydev.shared_core.index.IndexApi.IDocumentsVisitor;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.OrderedMap;
 
+import com.python.pydev.analysis.system_info_builder.InterpreterInfoBuilder;
+
 public class ReferenceSearchesLucene implements IReferenceSearches {
 
     private static final Object lock = new Object();
@@ -89,6 +91,8 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
         }
     }
 
+    private final Map<IProject, Long> projectToLastMtime = new HashMap<>();
+
     public synchronized List<ModulesKey> internalSearch(IProject project,
             final OrderedMap<String, Set<String>> fieldNameToValues, IProgressMonitor monitor)
                     throws OperationCanceledException {
@@ -106,6 +110,21 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
             Log.log("AbstractAdditionalDependencyInfo already collected!");
             return ret;
         }
+
+        Long lastMtime = projectToLastMtime.get(project);
+        if (lastMtime == null) {
+            lastMtime = 0L;
+        }
+        long currMtime = nature.getMtime();
+        // System.out.println("Curr mtime: " + currMtime);
+        if (lastMtime != currMtime) {
+            projectToLastMtime.put(project, currMtime);
+            // System.out.println("Start sync");
+            // Timer timer = new Timer();
+            new InterpreterInfoBuilder().syncInfoToPythonPath(monitor, nature);
+            // timer.printDiff("Sync time");
+        }
+
         boolean mustCommitChange = false;
 
         final String name = "Search modules with token in: " + abstractAdditionalDependencyInfo.getUIRepresentation();

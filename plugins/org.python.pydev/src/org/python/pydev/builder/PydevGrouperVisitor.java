@@ -80,6 +80,7 @@ public class PydevGrouperVisitor extends PydevInternalResourceDeltaVisitor {
         if (!nature.startRequests()) {
             return;
         }
+        nature.updateMtime();
 
         try {
 

@@ -12,8 +12,8 @@
 * Contributors:
 *     Fabio Zadrozny <fabiofz@gmail.com> - initial implementation
 ******************************************************************************/
-/* 
- * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler 
+/*
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
  */
 
 package org.python.pydev.refactoring.tests.adapter;
@@ -195,6 +195,16 @@ public class PythonNatureStub implements IPythonNature {
 
     public String resolveModuleOnlyInProjectSources(IResource fileAbsolutePath, boolean addExternal)
             throws CoreException {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public void updateMtime() {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public long getMtime() {
         throw new RuntimeException("Not implemented");
     }
 
