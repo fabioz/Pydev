@@ -362,6 +362,7 @@ public final class FastDefinitionsParser {
             endScopesInStack(col);
         }
 
+        int funcDefIndex = -1;
         if (c == 'c' && matchClass()) {
             int startClassCol = col;
             currIndex += 6;
@@ -372,13 +373,14 @@ public final class FastDefinitionsParser {
             }
             startClass(getNextIdentifier(c), row, startClassCol);
 
-        } else if (c == 'd' && matchFunction()) {
+        } else if ((c == 'd' && (funcDefIndex = matchFunction()) != -1) ||
+                (c == 'a' && (funcDefIndex = matchAsyncFunction()) != -1)) {
             if (DEBUG) {
                 System.out.println("Found method");
             }
             int startMethodCol = col;
-            currIndex += 4;
-            col += 4;
+            currIndex = funcDefIndex + 1;
+            col = funcDefIndex + 1;
 
             if (this.length <= currIndex) {
                 return;
@@ -581,12 +583,41 @@ public final class FastDefinitionsParser {
     /**
      * @return true if we have a match for 'def' in the current index (the 'd' must be already matched at this point)
      */
-    private boolean matchFunction() {
+    private int matchFunction() {
         if (currIndex + 3 >= this.length) {
-            return false;
+            return -1;
         }
-        return (this.cs[currIndex + 1] == 'e' && this.cs[currIndex + 2] == 'f' && Character
-                .isWhitespace(this.cs[currIndex + 3]));
+        if (this.cs[currIndex + 1] == 'e' && this.cs[currIndex + 2] == 'f' && Character
+                .isWhitespace(this.cs[currIndex + 3])) {
+            return currIndex + 3;
+        }
+        return -1;
+    }
+
+    /**
+     * @return true if we have a match for 'async def' in the current index (the 'a' must be already matched at this point)
+     */
+    private int matchAsyncFunction() {
+
+        if (currIndex + 5 >= this.length) {
+            return -1;
+        }
+        if (this.cs[currIndex + 1] == 's' && this.cs[currIndex + 2] == 'y'
+                && this.cs[currIndex + 3] == 'n' && this.cs[currIndex + 4] == 'c' && Character
+                        .isWhitespace(this.cs[currIndex + 5])) {
+            int i = currIndex + 6;
+            while (i < this.length && Character.isWhitespace(this.cs[i])) {
+                i += 1;
+            }
+            if (i + 3 >= this.length) {
+                return -1;
+            }
+            if (this.cs[i] == 'd' && this.cs[i + 1] == 'e' && this.cs[i + 2] == 'f' && Character
+                    .isWhitespace(this.cs[i + 3])) {
+                return i + 3;
+            }
+        }
+        return -1;
     }
 
     /**

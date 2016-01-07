@@ -1501,4 +1501,11 @@ public class FastDefinitionsParserTest extends TestCase {
 
     }
 
+    public void testAsyncDefinitions() {
+        Module m = (Module) FastDefinitionsParser.parse("async \t def \t method():\n    pass");
+        assertEquals(1, m.body.length);
+        FunctionDef d = (FunctionDef) m.body[0];
+        assertEquals("method", NodeUtils.getRepresentationString(d.name));
+    }
+
 }
