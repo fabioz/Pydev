@@ -2986,4 +2986,18 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals(1, comps.length);
     }
 
+    public void testCodeCompletionFromProperty() throws Exception {
+        String s;
+        s = "" +
+                "class Foo:\n" +
+                "    @property\n" +
+                "    def m1(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "Foo().";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "m1" });
+        assertEquals(1, comps.length);
+    }
+
 }
