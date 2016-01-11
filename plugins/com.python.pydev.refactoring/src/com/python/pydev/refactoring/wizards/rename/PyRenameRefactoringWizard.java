@@ -247,7 +247,7 @@ public class PyRenameRefactoringWizard extends RefactoringWizard {
 
                 });
                 GridData gridData = new GridData(GridData.FILL_HORIZONTAL);
-                gridData.horizontalSpan = 2;
+                gridData.horizontalSpan = 3;
                 resourceRename.setLayoutData(gridData);
                 updateReferencesButton.setVisible(!simpleResourceRenameBool);
                 if (simpleResourceRenameBool) {
@@ -276,7 +276,7 @@ public class PyRenameRefactoringWizard extends RefactoringWizard {
 
                 });
                 GridData gridData = new GridData(GridData.FILL_HORIZONTAL);
-                gridData.horizontalSpan = 2;
+                gridData.horizontalSpan = 3;
                 updateReferences.setLayoutData(gridData);
                 return updateReferences;
 
