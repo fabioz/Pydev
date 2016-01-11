@@ -46,7 +46,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
         try {
             AdditionalInterpreterInfoTest test = new AdditionalInterpreterInfoTest();
             test.setUp();
-            test.testCompleteIndex();
+            //            test.testCompleteIndex();
             test.tearDown();
 
             junit.textui.TestRunner.run(AdditionalInterpreterInfoTest.class);
