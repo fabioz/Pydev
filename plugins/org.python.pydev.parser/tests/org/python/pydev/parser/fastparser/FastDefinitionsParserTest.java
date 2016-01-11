@@ -29,6 +29,7 @@ public class FastDefinitionsParserTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        FastDefinitionsParser.throwErrorOnWarnings = true;
     }
 
     @Override
@@ -1506,6 +1507,19 @@ public class FastDefinitionsParserTest extends TestCase {
         assertEquals(1, m.body.length);
         FunctionDef d = (FunctionDef) m.body[0];
         assertEquals("method", NodeUtils.getRepresentationString(d.name));
+    }
+
+    public void testAssign() throws Exception {
+        Module m = (Module) FastDefinitionsParser.parse(""
+                + "def method(f): # 10 bytes\n" +
+                "    if expon == himant == lomant == 0:\n" +
+                "        f = 0.0\n" +
+                "    return sign * f\n" +
+                "");
+        assertEquals(1, m.body.length);
+        FunctionDef d = (FunctionDef) m.body[0];
+        assertEquals("method", NodeUtils.getRepresentationString(d.name));
+        assertNull(d.body);
     }
 
 }

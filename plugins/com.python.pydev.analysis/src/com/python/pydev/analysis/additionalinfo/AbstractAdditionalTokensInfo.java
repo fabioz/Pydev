@@ -28,8 +28,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.FullRepIterable;
@@ -258,7 +256,8 @@ public abstract class AbstractAdditionalTokensInfo {
             }
         } else {
             //no intern construct (locked in the loop that calls this method)
-            AttrInfo info = new AttrInfo(ObjectsInternPool.internUnsynched(FullRepIterable.getFirstPart(rep)), moduleName,
+            AttrInfo info = new AttrInfo(ObjectsInternPool.internUnsynched(FullRepIterable.getFirstPart(rep)),
+                    moduleName,
                     ObjectsInternPool.internUnsynched(path), false);
             add(info, doOn);
             return info;
@@ -349,7 +348,8 @@ public abstract class AbstractAdditionalTokensInfo {
                                 if (entry.node instanceof ClassDef) {
                                     //no intern construct (locked in this loop)
                                     ClassInfo info = new ClassInfo(
-                                            ObjectsInternPool.internUnsynched(((NameTok) ((ClassDef) entry.node).name).id),
+                                            ObjectsInternPool
+                                                    .internUnsynched(((NameTok) ((ClassDef) entry.node).name).id),
                                             key.name, null, false);
                                     add(info, TOP_LEVEL);
                                     infoCreated = info;
@@ -357,7 +357,8 @@ public abstract class AbstractAdditionalTokensInfo {
                                 } else if (entry.node instanceof FunctionDef) {
                                     //no intern construct (locked in this loop)
                                     FuncInfo info2 = new FuncInfo(
-                                            ObjectsInternPool.internUnsynched(((NameTok) ((FunctionDef) entry.node).name).id),
+                                            ObjectsInternPool
+                                                    .internUnsynched(((NameTok) ((FunctionDef) entry.node).name).id),
                                             key.name, null, false);
                                     add(info2, TOP_LEVEL);
                                     infoCreated = info2;
@@ -380,7 +381,8 @@ public abstract class AbstractAdditionalTokensInfo {
                                         if (entry.node instanceof ClassDef) {
                                             ClassInfo info = new ClassInfo(
                                                     ObjectsInternPool
-                                                            .internUnsynched(((NameTok) ((ClassDef) entry.node).name).id),
+                                                            .internUnsynched(
+                                                                    ((NameTok) ((ClassDef) entry.node).name).id),
                                                     key.name, ObjectsInternPool.internUnsynched(pathToRoot.o1), false);
                                             add(info, INNER);
                                             infoCreated = info;
@@ -389,7 +391,8 @@ public abstract class AbstractAdditionalTokensInfo {
                                             //FunctionDef
                                             FuncInfo info2 = new FuncInfo(
                                                     ObjectsInternPool
-                                                            .internUnsynched(((NameTok) ((FunctionDef) entry.node).name).id),
+                                                            .internUnsynched(
+                                                                    ((NameTok) ((FunctionDef) entry.node).name).id),
                                                     key.name, ObjectsInternPool.internUnsynched(pathToRoot.o1), false);
                                             add(info2, INNER);
                                             infoCreated = info2;
@@ -413,9 +416,9 @@ public abstract class AbstractAdditionalTokensInfo {
 
                         } //end while
 
-                    }//end lock ObjectsPool.lock
+                    } //end lock ObjectsPool.lock
 
-                }//end this.lock
+                } //end this.lock
 
             } catch (Exception e) {
                 Log.log(e);
@@ -812,14 +815,6 @@ public abstract class AbstractAdditionalTokensInfo {
             }
         }
     }
-
-    /**
-     * @param token the token we want to search for (must be an exact match). Only tokens which are valid identifiers
-     * may be searched (i.e.: no dots in it or anything alike).
-     *
-     * @return List<ModulesKey> a list with all the modules that contains the passed token.
-     */
-    public abstract List<ModulesKey> getModulesWithToken(IProject project, String token, IProgressMonitor monitor);
 
 }
 

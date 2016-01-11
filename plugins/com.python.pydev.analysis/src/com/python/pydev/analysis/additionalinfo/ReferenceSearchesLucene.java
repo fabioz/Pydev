@@ -39,6 +39,8 @@ import org.python.pydev.shared_core.index.IndexApi.DocumentInfo;
 import org.python.pydev.shared_core.index.IndexApi.IDocumentsVisitor;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.OrderedMap;
+import org.python.pydev.shared_core.utils.Timer;
+import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorWrapper;
 
 import com.python.pydev.analysis.system_info_builder.InterpreterInfoBuilder;
 
@@ -85,6 +87,9 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
             final OrderedMap<String, Set<String>> fieldNameToValues, IProgressMonitor monitor)
                     throws OperationCanceledException {
         try {
+            if (!(monitor instanceof AsynchronousProgressMonitorWrapper)) {
+                monitor = new AsynchronousProgressMonitorWrapper(monitor);
+            }
             return internalSearch(project, fieldNameToValues, monitor);
         } finally {
             monitor.done();
@@ -93,7 +98,7 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
 
     private final Map<IProject, Long> projectToLastMtime = new HashMap<>();
 
-    public synchronized List<ModulesKey> internalSearch(IProject project,
+    private synchronized List<ModulesKey> internalSearch(IProject project,
             final OrderedMap<String, Set<String>> fieldNameToValues, IProgressMonitor monitor)
                     throws OperationCanceledException {
 
@@ -116,13 +121,18 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
             lastMtime = 0L;
         }
         long currMtime = nature.getMtime();
-        // System.out.println("Curr mtime: " + currMtime);
         if (lastMtime != currMtime) {
             projectToLastMtime.put(project, currMtime);
-            // System.out.println("Start sync");
-            // Timer timer = new Timer();
+            Timer timer = null;
+            if (DEBUG) {
+                System.out.println("Curr mtime: " + currMtime + " last time: " + lastMtime);
+                System.out.println("Start sync: " + project);
+                timer = new Timer();
+            }
             new InterpreterInfoBuilder().syncInfoToPythonPath(monitor, nature);
-            // timer.printDiff("Sync time");
+            if (DEBUG) {
+                timer.printDiff("Sync time");
+            }
         }
 
         boolean mustCommitChange = false;

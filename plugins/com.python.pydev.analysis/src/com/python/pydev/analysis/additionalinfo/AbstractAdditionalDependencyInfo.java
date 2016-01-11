@@ -23,11 +23,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.OperationCanceledException;
 import org.python.pydev.core.FastBufferedReader;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
@@ -52,7 +49,6 @@ import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
-import org.python.pydev.shared_core.structure.OrderedMap;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
@@ -317,57 +313,6 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
 
     static interface IBufferFiller {
         void fillBuffer(FastStringBuffer buf);
-    }
-
-    /**
-     * Note: if it's a name with dots, we'll split it and search for each one.
-     */
-    @Override
-    public List<ModulesKey> getModulesWithToken(IProject project, String token, IProgressMonitor monitor)
-            throws OperationCanceledException {
-        NullProgressMonitor nullMonitor = new NullProgressMonitor();
-        if (monitor == null) {
-            monitor = nullMonitor;
-        }
-        int length = token.length();
-        if (token == null || length == 0) {
-            return new ArrayList<>();
-        }
-
-        for (int i = 0; i < length; i++) {
-            char c = token.charAt(i);
-            if (!Character.isJavaIdentifierPart(c) && c != '.') {
-                throw new RuntimeException(StringUtils.format(
-                        "Token: %s is not a valid token to search for.", token));
-            }
-        }
-
-        StringUtils.checkTokensValidForWildcardQuery(token);
-
-        OrderedMap<String, Set<String>> fieldNameToValues = new OrderedMap<>();
-        Set<String> split = new HashSet<>();
-        for (String s : StringUtils.splitForIndexMatching(token)) {
-            // We need to search in lowercase (we only index case-insensitive).
-            split.add(s.toLowerCase());
-        }
-        fieldNameToValues.put(IReferenceSearches.FIELD_CONTENTS, split);
-
-        List<ModulesKey> search = getReferenceSearches().search(project, fieldNameToValues, monitor);
-
-        //Checking consistency with old version
-        //List<ModulesKey> old = new ReferenceSearches(this).search(project, token, nullMonitor);
-        //System.out.println("Searching for: " + token);
-        //Collections.sort(search);
-        //Collections.sort(old);
-        //System.out.println("---- New ----");
-        //for (ModulesKey modulesKey : search) {
-        //    System.out.println(modulesKey);
-        //}
-        //System.out.println("---- Old ----");
-        //for (ModulesKey modulesKey : old) {
-        //    System.out.println(modulesKey);
-        //}
-        return search;
     }
 
     protected abstract String getUIRepresentation();

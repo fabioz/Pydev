@@ -12,6 +12,7 @@ import java.util.List;
 import org.python.pydev.core.ObjectsInternPool;
 import org.python.pydev.core.ObjectsInternPool.ObjectsPoolMap;
 import org.python.pydev.core.docutils.ParsingUtils;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -88,7 +89,14 @@ public final class FastDefinitionsParser {
                     functionDef.body = array;
 
                 } else {
-                    Log.log("Error: assign statement is not expected to have body!");
+                    String msg = "Assign statement is not expected to have body!";
+                    if (throwErrorOnWarnings) {
+                        throw new RuntimeException(msg);
+
+                    } else {
+                        Log.log(msg);
+
+                    }
                     return;
                 }
             }
@@ -146,13 +154,17 @@ public final class FastDefinitionsParser {
      */
     private final FastStringBuffer lineBuffer = new FastStringBuffer();
 
+    private final String moduleName;
+
+    public static boolean throwErrorOnWarnings = false;
+
     /**
      * Should we debug?
      */
     private final static boolean DEBUG = false;
 
-    private FastDefinitionsParser(char[] cs) {
-        this(cs, cs.length);
+    private FastDefinitionsParser(char[] cs, String moduleName) {
+        this(cs, cs.length, moduleName);
     }
 
     /**
@@ -161,9 +173,10 @@ public final class FastDefinitionsParser {
      * @param cs array of chars that should be considered.
      * @param len the number of chars to be used (usually cs.length).
      */
-    private FastDefinitionsParser(char[] cs, int len) {
+    private FastDefinitionsParser(char[] cs, int len, String moduleName) {
         this.cs = cs;
         this.length = len;
+        this.moduleName = moduleName;
     }
 
     /**
@@ -241,7 +254,8 @@ public final class FastDefinitionsParser {
                     break;
 
                 case '=':
-                    if (currIndex < length - 1 && cs[currIndex + 1] != '=') {
+                    if ((currIndex < length - 1 && cs[currIndex + 1] != '=' && currIndex > 0
+                            && cs[currIndex - 1] != '=')) {
                         //should not be ==
                         //other cases such as !=, +=, -= are already treated because they don't constitute valid
                         //chars for an identifier.
@@ -260,48 +274,52 @@ public final class FastDefinitionsParser {
                         updateCountRow(initialIndex, currIndex);
 
                         String equalsLine = lineBuffer.toString().trim();
-                        lineBuffer.clear();
+                        if (!PySelection.startsWithIndentToken(equalsLine)) {
 
-                        final List<String> splitted = StringUtils.split(equalsLine, '=');
-                        final int splittedLen = splitted.size();
-                        ArrayList<exprType> targets = new ArrayList<exprType>(2);
+                            lineBuffer.clear();
 
-                        for (int j = 0; j < splittedLen - 1 || (splittedLen == 1 && j == 0); j++) { //we don't want to get the last one.
-                            String lineContents = splitted.get(j).trim();
-                            if (lineContents.length() == 0) {
-                                continue;
-                            }
-                            boolean add = true;
-                            for (int i = 0; i < lineContents.length(); i++) {
-                                char lineC = lineContents.charAt(i);
-                                //can only be made of valid java chars (no spaces or similar things)
-                                if (lineC != '.' && !Character.isJavaIdentifierPart(lineC)) {
-                                    add = false;
-                                    break;
+                            final List<String> splitted = StringUtils.split(equalsLine, '=');
+                            final int splittedLen = splitted.size();
+                            ArrayList<exprType> targets = new ArrayList<exprType>(2);
+
+                            for (int j = 0; j < splittedLen - 1 || (splittedLen == 1 && j == 0); j++) { //we don't want to get the last one.
+                                String lineContents = splitted.get(j).trim();
+                                if (lineContents.length() == 0) {
+                                    continue;
                                 }
-                            }
-                            if (add) {
-                                //only add if it was something valid
-                                if (lineContents.indexOf('.') != -1) {
-                                    List<String> dotSplit = StringUtils.dotSplit(lineContents);
-                                    if (dotSplit.size() == 2 && dotSplit.get(0).equals("self")) {
-                                        Attribute attribute = new Attribute(new Name("self", Name.Load, false),
-                                                new NameTok(dotSplit.get(1), NameTok.Attrib), Attribute.Load);
-                                        targets.add(attribute);
+                                boolean add = true;
+                                int lineContentsLen = lineContents.length();
+                                for (int i = 0; i < lineContentsLen; i++) {
+                                    char lineC = lineContents.charAt(i);
+                                    //can only be made of valid java chars (no spaces or similar things)
+                                    if (lineC != '.' && !Character.isJavaIdentifierPart(lineC)) {
+                                        add = false;
+                                        break;
                                     }
+                                }
+                                if (add) {
+                                    //only add if it was something valid
+                                    if (lineContents.indexOf('.') != -1) {
+                                        List<String> dotSplit = StringUtils.dotSplit(lineContents);
+                                        if (dotSplit.size() == 2 && dotSplit.get(0).equals("self")) {
+                                            Attribute attribute = new Attribute(new Name("self", Name.Load, false),
+                                                    new NameTok(dotSplit.get(1), NameTok.Attrib), Attribute.Load);
+                                            targets.add(attribute);
+                                        }
 
-                                } else {
-                                    Name name = new Name(lineContents, Name.Store, false);
-                                    targets.add(name);
+                                    } else {
+                                        Name name = new Name(lineContents, Name.Store, false);
+                                        targets.add(name);
+                                    }
                                 }
                             }
-                        }
 
-                        if (targets.size() > 0) {
-                            Assign assign = new Assign(targets.toArray(new exprType[targets.size()]), null);
-                            assign.beginColumn = this.firstCharCol;
-                            assign.beginLine = this.row;
-                            stack.push(new NodeEntry(assign));
+                            if (targets.size() > 0) {
+                                Assign assign = new Assign(targets.toArray(new exprType[targets.size()]), null);
+                                assign.beginColumn = this.firstCharCol;
+                                assign.beginLine = this.row;
+                                stack.push(new NodeEntry(assign));
+                            }
                         }
                     }
                     //No default
@@ -561,7 +579,16 @@ public final class FastDefinitionsParser {
                 } else if (parentNode.node instanceof ClassDef) {
                     parentNode.body.add(currNode.node);
                 } else {
-                    Log.log("Did not expect to find tem below node: " + parentNode.node);
+                    String msg = "Did not expect to find item below node: " + parentNode.node + " (module: "
+                            + this.moduleName
+                            + ").";
+                    if (throwErrorOnWarnings) {
+                        throw new RuntimeException(msg);
+
+                    } else {
+                        Log.log(msg);
+
+                    }
                 }
             } else {
                 body.add(currNode.node);
@@ -644,7 +671,7 @@ public final class FastDefinitionsParser {
     }
 
     public static SimpleNode parse(char[] cs, String moduleName, int len) {
-        FastDefinitionsParser parser = new FastDefinitionsParser(cs, len);
+        FastDefinitionsParser parser = new FastDefinitionsParser(cs, len, moduleName);
         try {
             parser.extractBody();
         } catch (SyntaxErrorException e) {

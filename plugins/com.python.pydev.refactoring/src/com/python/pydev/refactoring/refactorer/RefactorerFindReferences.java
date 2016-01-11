@@ -118,9 +118,10 @@ public class RefactorerFindReferences {
                         try {
                             SubProgressMonitor sub = new SubProgressMonitor(request.getMonitor(), 1);
                             request.pushMonitor(sub);
-                            if (tuple.o1 != null && tuple.o2 != null) {
-                                List<ModulesKey> modulesWithToken = tuple.o1.getModulesWithToken(
-                                        request.nature.getProject(), initialName, sub);
+                            if (tuple.o1 instanceof AdditionalProjectInterpreterInfo && tuple.o2 != null) {
+                                AdditionalProjectInterpreterInfo info = (AdditionalProjectInterpreterInfo) tuple.o1;
+                                List<ModulesKey> modulesWithToken = info.getModulesWithToken(
+                                        initialName, sub);
 
                                 if (sub.isCanceled()) {
                                     break;
