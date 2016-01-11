@@ -58,12 +58,12 @@ END: Cython Metadata */
 #define CYTHON_FORMAT_SSIZE_T "z"
 #if PY_MAJOR_VERSION < 3
   #define __Pyx_BUILTIN_MODULE_NAME "__builtin__"
-  #define __Pyx_PyCode_New(a, k, l, s, f, code, c, n, v, fv, cell, fn, name, fline, lnos)\
+  #define __Pyx_PyCode_New(a, k, l, s, f, code, c, n, v, fv, cell, fn, name, fline, lnos) \
           PyCode_New(a+k, l, s, f, code, c, n, v, fv, cell, fn, name, fline, lnos)
   #define __Pyx_DefaultClassType PyClass_Type
 #else
   #define __Pyx_BUILTIN_MODULE_NAME "builtins"
-  #define __Pyx_PyCode_New(a, k, l, s, f, code, c, n, v, fv, cell, fn, name, fline, lnos)\
+  #define __Pyx_PyCode_New(a, k, l, s, f, code, c, n, v, fv, cell, fn, name, fline, lnos) \
           PyCode_New(a, k, l, s, f, code, c, n, v, fv, cell, fn, name, fline, lnos)
   #define __Pyx_DefaultClassType PyType_Type
 #endif
@@ -81,7 +81,7 @@ END: Cython Metadata */
 #endif
 #if PY_VERSION_HEX > 0x03030000 && defined(PyUnicode_KIND)
   #define CYTHON_PEP393_ENABLED 1
-  #define __Pyx_PyUnicode_READY(op)       (likely(PyUnicode_IS_READY(op)) ?\
+  #define __Pyx_PyUnicode_READY(op)       (likely(PyUnicode_IS_READY(op)) ? \
                                               0 : _PyUnicode_Ready((PyObject *)(op)))
   #define __Pyx_PyUnicode_GET_LENGTH(u)   PyUnicode_GET_LENGTH(u)
   #define __Pyx_PyUnicode_READ_CHAR(u, i) PyUnicode_READ_CHAR(u, i)
@@ -102,7 +102,7 @@ END: Cython Metadata */
   #define __Pyx_PyUnicode_ConcatSafe(a, b)  PyNumber_Add(a, b)
 #else
   #define __Pyx_PyUnicode_Concat(a, b)      PyUnicode_Concat(a, b)
-  #define __Pyx_PyUnicode_ConcatSafe(a, b)  ((unlikely((a) == Py_None) || unlikely((b) == Py_None)) ?\
+  #define __Pyx_PyUnicode_ConcatSafe(a, b)  ((unlikely((a) == Py_None) || unlikely((b) == Py_None)) ? \
       PyNumber_Add(a, b) : __Pyx_PyUnicode_Concat(a, b))
 #endif
 #if CYTHON_COMPILING_IN_PYPY && !defined(PyUnicode_Contains)
@@ -181,7 +181,7 @@ typedef struct {
     unaryfunc am_anext;
 } __Pyx_PyAsyncMethodsStruct;
 #define __Pyx_PyType_AsAsync(obj) ((__Pyx_PyAsyncMethodsStruct*) (Py_TYPE(obj)->tp_reserved))
-#else
+  #else
 #define __Pyx_PyType_AsAsync(obj) NULL
 #endif
 #ifndef CYTHON_RESTRICT
@@ -280,15 +280,15 @@ typedef struct {PyObject **p; char *s; const Py_ssize_t n; const char* encoding;
 #define __Pyx_PyObject_FromStringAndSize __Pyx_PyBytes_FromStringAndSize
 #define __Pyx_uchar_cast(c) ((unsigned char)c)
 #define __Pyx_long_cast(x) ((long)x)
-#define __Pyx_fits_Py_ssize_t(v, type, is_signed)  (\
-    (sizeof(type) < sizeof(Py_ssize_t))  ||\
-    (sizeof(type) > sizeof(Py_ssize_t) &&\
-          likely(v < (type)PY_SSIZE_T_MAX ||\
-                 v == (type)PY_SSIZE_T_MAX)  &&\
-          (!is_signed || likely(v > (type)PY_SSIZE_T_MIN ||\
-                                v == (type)PY_SSIZE_T_MIN)))  ||\
-    (sizeof(type) == sizeof(Py_ssize_t) &&\
-          (is_signed || likely(v < (type)PY_SSIZE_T_MAX ||\
+#define __Pyx_fits_Py_ssize_t(v, type, is_signed)  (    \
+    (sizeof(type) < sizeof(Py_ssize_t))  ||             \
+    (sizeof(type) > sizeof(Py_ssize_t) &&               \
+          likely(v < (type)PY_SSIZE_T_MAX ||            \
+                 v == (type)PY_SSIZE_T_MAX)  &&         \
+          (!is_signed || likely(v > (type)PY_SSIZE_T_MIN ||       \
+                                v == (type)PY_SSIZE_T_MIN)))  ||  \
+    (sizeof(type) == sizeof(Py_ssize_t) &&              \
+          (is_signed || likely(v < (type)PY_SSIZE_T_MAX ||        \
                                v == (type)PY_SSIZE_T_MAX)))  )
 #if defined (__cplusplus) && __cplusplus >= 201103L
     #include <cstdlib>
@@ -511,19 +511,19 @@ struct __pyx_obj_14_pydevd_bundle_13pydevd_cython_ThreadTracer {
   static __Pyx_RefNannyAPIStruct *__Pyx_RefNannyImportAPI(const char *modname);
   #define __Pyx_RefNannyDeclarations void *__pyx_refnanny = NULL;
 #ifdef WITH_THREAD
-  #define __Pyx_RefNannySetupContext(name, acquire_gil)\
-          if (acquire_gil) {\
-              PyGILState_STATE __pyx_gilstate_save = PyGILState_Ensure();\
-              __pyx_refnanny = __Pyx_RefNanny->SetupContext((name), __LINE__, __FILE__);\
-              PyGILState_Release(__pyx_gilstate_save);\
-          } else {\
-              __pyx_refnanny = __Pyx_RefNanny->SetupContext((name), __LINE__, __FILE__);\
+  #define __Pyx_RefNannySetupContext(name, acquire_gil) \
+          if (acquire_gil) { \
+              PyGILState_STATE __pyx_gilstate_save = PyGILState_Ensure(); \
+              __pyx_refnanny = __Pyx_RefNanny->SetupContext((name), __LINE__, __FILE__); \
+              PyGILState_Release(__pyx_gilstate_save); \
+          } else { \
+              __pyx_refnanny = __Pyx_RefNanny->SetupContext((name), __LINE__, __FILE__); \
           }
 #else
-  #define __Pyx_RefNannySetupContext(name, acquire_gil)\
+  #define __Pyx_RefNannySetupContext(name, acquire_gil) \
           __pyx_refnanny = __Pyx_RefNanny->SetupContext((name), __LINE__, __FILE__)
 #endif
-  #define __Pyx_RefNannyFinishContext()\
+  #define __Pyx_RefNannyFinishContext() \
           __Pyx_RefNanny->FinishContext(&__pyx_refnanny)
   #define __Pyx_INCREF(r)  __Pyx_RefNanny->INCREF(__pyx_refnanny, (PyObject *)(r), __LINE__)
   #define __Pyx_DECREF(r)  __Pyx_RefNanny->DECREF(__pyx_refnanny, (PyObject *)(r), __LINE__)
@@ -546,13 +546,13 @@ struct __pyx_obj_14_pydevd_bundle_13pydevd_cython_ThreadTracer {
   #define __Pyx_XGOTREF(r)
   #define __Pyx_XGIVEREF(r)
 #endif
-#define __Pyx_XDECREF_SET(r, v) do {\
-        PyObject *tmp = (PyObject *) r;\
-        r = v; __Pyx_XDECREF(tmp);\
+#define __Pyx_XDECREF_SET(r, v) do {                            \
+        PyObject *tmp = (PyObject *) r;                         \
+        r = v; __Pyx_XDECREF(tmp);                              \
     } while (0)
-#define __Pyx_DECREF_SET(r, v) do {\
-        PyObject *tmp = (PyObject *) r;\
-        r = v; __Pyx_DECREF(tmp);\
+#define __Pyx_DECREF_SET(r, v) do {                             \
+        PyObject *tmp = (PyObject *) r;                         \
+        r = v; __Pyx_DECREF(tmp);                               \
     } while (0)
 #define __Pyx_CLEAR(r)    do { PyObject* tmp = ((PyObject*)(r)); r = NULL; __Pyx_DECREF(tmp);} while(0)
 #define __Pyx_XCLEAR(r)   do { if((r) != NULL) {PyObject* tmp = ((PyObject*)(r)); r = NULL; __Pyx_DECREF(tmp);}} while(0)
@@ -606,8 +606,8 @@ static void __Pyx_Raise(PyObject *type, PyObject *value, PyObject *tb, PyObject 
 
 static void __Pyx_RaiseDoubleKeywordsError(const char* func_name, PyObject* kw_name);
 
-static int __Pyx_ParseOptionalKeywords(PyObject *kwds, PyObject **argnames[],\
-    PyObject *kwds2, PyObject *values[], Py_ssize_t num_pos_args,\
+static int __Pyx_ParseOptionalKeywords(PyObject *kwds, PyObject **argnames[], \
+    PyObject *kwds2, PyObject *values[], Py_ssize_t num_pos_args, \
     const char* function_name);
 
 #if CYTHON_COMPILING_IN_CPYTHON
@@ -627,20 +627,20 @@ static CYTHON_INLINE int __Pyx_PyObject_SetAttrStr(PyObject* obj, PyObject* attr
 #define __Pyx_PyObject_SetAttrStr(o,n,v) PyObject_SetAttr(o,n,v)
 #endif
 
-#define __Pyx_GetItemInt(o, i, type, is_signed, to_py_func, is_list, wraparound, boundscheck)\
-    (__Pyx_fits_Py_ssize_t(i, type, is_signed) ?\
-    __Pyx_GetItemInt_Fast(o, (Py_ssize_t)i, is_list, wraparound, boundscheck) :\
-    (is_list ? (PyErr_SetString(PyExc_IndexError, "list index out of range"), (PyObject*)NULL) :\
+#define __Pyx_GetItemInt(o, i, type, is_signed, to_py_func, is_list, wraparound, boundscheck) \
+    (__Pyx_fits_Py_ssize_t(i, type, is_signed) ? \
+    __Pyx_GetItemInt_Fast(o, (Py_ssize_t)i, is_list, wraparound, boundscheck) : \
+    (is_list ? (PyErr_SetString(PyExc_IndexError, "list index out of range"), (PyObject*)NULL) : \
                __Pyx_GetItemInt_Generic(o, to_py_func(i))))
-#define __Pyx_GetItemInt_List(o, i, type, is_signed, to_py_func, is_list, wraparound, boundscheck)\
-    (__Pyx_fits_Py_ssize_t(i, type, is_signed) ?\
-    __Pyx_GetItemInt_List_Fast(o, (Py_ssize_t)i, wraparound, boundscheck) :\
+#define __Pyx_GetItemInt_List(o, i, type, is_signed, to_py_func, is_list, wraparound, boundscheck) \
+    (__Pyx_fits_Py_ssize_t(i, type, is_signed) ? \
+    __Pyx_GetItemInt_List_Fast(o, (Py_ssize_t)i, wraparound, boundscheck) : \
     (PyErr_SetString(PyExc_IndexError, "list index out of range"), (PyObject*)NULL))
 static CYTHON_INLINE PyObject *__Pyx_GetItemInt_List_Fast(PyObject *o, Py_ssize_t i,
                                                               int wraparound, int boundscheck);
-#define __Pyx_GetItemInt_Tuple(o, i, type, is_signed, to_py_func, is_list, wraparound, boundscheck)\
-    (__Pyx_fits_Py_ssize_t(i, type, is_signed) ?\
-    __Pyx_GetItemInt_Tuple_Fast(o, (Py_ssize_t)i, wraparound, boundscheck) :\
+#define __Pyx_GetItemInt_Tuple(o, i, type, is_signed, to_py_func, is_list, wraparound, boundscheck) \
+    (__Pyx_fits_Py_ssize_t(i, type, is_signed) ? \
+    __Pyx_GetItemInt_Tuple_Fast(o, (Py_ssize_t)i, wraparound, boundscheck) : \
     (PyErr_SetString(PyExc_IndexError, "tuple index out of range"), (PyObject*)NULL))
 static CYTHON_INLINE PyObject *__Pyx_GetItemInt_Tuple_Fast(PyObject *o, Py_ssize_t i,
                                                               int wraparound, int boundscheck);
@@ -723,13 +723,13 @@ static PyTypeObject* __Pyx_FetchCommonType(PyTypeObject* type);
 #define __Pyx_CYFUNCTION_STATICMETHOD  0x01
 #define __Pyx_CYFUNCTION_CLASSMETHOD   0x02
 #define __Pyx_CYFUNCTION_CCLASS        0x04
-#define __Pyx_CyFunction_GetClosure(f)\
+#define __Pyx_CyFunction_GetClosure(f) \
     (((__pyx_CyFunctionObject *) (f))->func_closure)
-#define __Pyx_CyFunction_GetClassObj(f)\
+#define __Pyx_CyFunction_GetClassObj(f) \
     (((__pyx_CyFunctionObject *) (f))->func_classobj)
-#define __Pyx_CyFunction_Defaults(type, f)\
+#define __Pyx_CyFunction_Defaults(type, f) \
     ((type *)(((__pyx_CyFunctionObject *) (f))->defaults))
-#define __Pyx_CyFunction_SetDefaultsGetter(f, g)\
+#define __Pyx_CyFunction_SetDefaultsGetter(f, g) \
     ((__pyx_CyFunctionObject *) (f))->defaults_getter = (g)
 typedef struct {
     PyCFunctionObject func;
@@ -753,7 +753,7 @@ typedef struct {
     PyObject *func_annotations;
 } __pyx_CyFunctionObject;
 static PyTypeObject *__pyx_CyFunctionType = 0;
-#define __Pyx_CyFunction_NewEx(ml, flags, qualname, self, module, globals, code)\
+#define __Pyx_CyFunction_NewEx(ml, flags, qualname, self, module, globals, code) \
     __Pyx_CyFunction_New(__pyx_CyFunctionType, ml, flags, qualname, self, module, globals, code)
 static PyObject *__Pyx_CyFunction_New(PyTypeObject *, PyMethodDef *ml,
                                       int flags, PyObject* qualname,
@@ -4266,7 +4266,7 @@ static PyObject *__pyx_pf_14_pydevd_bundle_13pydevd_cython_9PyDBFrame_8should_st
               goto __pyx_L10;
             }
 
-            /* "_pydevd_bundle\pydevd_cython.pyx":299
+              /* "_pydevd_bundle\pydevd_cython.pyx":299
  *                                 flag = True
  *                             else:
  *                                 pydev_log.debug("Ignore exception %s in library %s" % (exception, frame.f_code.co_filename))             # <<<<<<<<<<<<<<
@@ -4353,7 +4353,7 @@ static PyObject *__pyx_pf_14_pydevd_bundle_13pydevd_cython_9PyDBFrame_8should_st
           goto __pyx_L8;
         }
 
-        /* "_pydevd_bundle\pydevd_cython.pyx":302
+          /* "_pydevd_bundle\pydevd_cython.pyx":302
  *                                 flag = False
  *                     else:
  *                         if not exception_breakpoint.notify_on_first_raise_only or just_raised(trace):             # <<<<<<<<<<<<<<
@@ -4488,7 +4488,7 @@ static PyObject *__pyx_pf_14_pydevd_bundle_13pydevd_cython_9PyDBFrame_8should_st
             goto __pyx_L11;
           }
 
-          /* "_pydevd_bundle\pydevd_cython.pyx":307
+            /* "_pydevd_bundle\pydevd_cython.pyx":307
  *                             flag = True
  *                         else:
  *                             flag = False             # <<<<<<<<<<<<<<
@@ -4512,7 +4512,7 @@ static PyObject *__pyx_pf_14_pydevd_bundle_13pydevd_cython_9PyDBFrame_8should_st
         goto __pyx_L7;
       }
 
-      /* "_pydevd_bundle\pydevd_cython.pyx":309
+        /* "_pydevd_bundle\pydevd_cython.pyx":309
  *                             flag = False
  *                 else:
  *                     try:             # <<<<<<<<<<<<<<
@@ -5109,7 +5109,7 @@ static PyObject *__pyx_pf_14_pydevd_bundle_13pydevd_cython_9PyDBFrame_10handle_e
       goto __pyx_L7;
     }
 
-    /* "_pydevd_bundle\pydevd_cython.pyx":339
+      /* "_pydevd_bundle\pydevd_cython.pyx":339
  *             else:
  *                 #Get the trace_obj from where the exception was raised...
  *                 while trace_obj.tb_next is not None:             # <<<<<<<<<<<<<<
@@ -5842,7 +5842,7 @@ static PyObject *__pyx_pf_14_pydevd_bundle_13pydevd_cython_9PyDBFrame_10handle_e
           goto __pyx_L38;
         }
 
-        /* "_pydevd_bundle\pydevd_cython.pyx":378
+          /* "_pydevd_bundle\pydevd_cython.pyx":378
  *                         merged.update(from_user_input)
  *                     else:
  *                         merged = lines_ignored             # <<<<<<<<<<<<<<
@@ -6146,7 +6146,7 @@ static PyObject *__pyx_pf_14_pydevd_bundle_13pydevd_cython_9PyDBFrame_10handle_e
  */
           }
 
-          /* "_pydevd_bundle\pydevd_cython.pyx":398
+            /* "_pydevd_bundle\pydevd_cython.pyx":398
  *                         else:
  *                             #Put in the cache saying not to ignore
  *                             lines_ignored[exc_lineno] = 0             # <<<<<<<<<<<<<<
@@ -6167,7 +6167,7 @@ static PyObject *__pyx_pf_14_pydevd_bundle_13pydevd_cython_9PyDBFrame_10handle_e
           goto __pyx_L39;
         }
 
-        /* "_pydevd_bundle\pydevd_cython.pyx":401
+          /* "_pydevd_bundle\pydevd_cython.pyx":401
  *                     else:
  *                         #Ok, dict has it already cached, so, let's check it...
  *                         if merged.get(exc_lineno, 0):             # <<<<<<<<<<<<<<
@@ -7931,7 +7931,7 @@ static PyObject *__pyx_pf_14_pydevd_bundle_13pydevd_cython_9PyDBFrame_12trace_di
       goto __pyx_L22;
     }
 
-    /* "_pydevd_bundle\pydevd_cython.pyx":494
+      /* "_pydevd_bundle\pydevd_cython.pyx":494
  *                 # Note: this is especially troublesome when we're skipping code with the
  *                 # @DontTrace comment.
  *                 if stop_frame is frame and event in ('return', 'exception') and step_cmd in (CMD_STEP_RETURN, CMD_STEP_OVER):             # <<<<<<<<<<<<<<
@@ -8308,7 +8308,7 @@ static PyObject *__pyx_pf_14_pydevd_bundle_13pydevd_cython_9PyDBFrame_12trace_di
  */
           }
 
-          /* "_pydevd_bundle\pydevd_cython.pyx":521
+            /* "_pydevd_bundle\pydevd_cython.pyx":521
  *                             return self.trace_exception
  *                         else:
  *                             return None             # <<<<<<<<<<<<<<
@@ -8341,7 +8341,7 @@ static PyObject *__pyx_pf_14_pydevd_bundle_13pydevd_cython_9PyDBFrame_12trace_di
         goto __pyx_L42;
       }
 
-      /* "_pydevd_bundle\pydevd_cython.pyx":525
+        /* "_pydevd_bundle\pydevd_cython.pyx":525
  *                 else:
  *                     #checks the breakpoint to see if there is a context match in some function
  *                     curr_func_name = frame.f_code.co_name             # <<<<<<<<<<<<<<
@@ -8572,7 +8572,7 @@ static PyObject *__pyx_pf_14_pydevd_bundle_13pydevd_cython_9PyDBFrame_12trace_di
  */
             }
 
-            /* "_pydevd_bundle\pydevd_cython.pyx":541
+              /* "_pydevd_bundle\pydevd_cython.pyx":541
  *                                 return self.trace_exception
  *                             else:
  *                                 return None             # <<<<<<<<<<<<<<
@@ -9457,7 +9457,7 @@ static PyObject *__pyx_pf_14_pydevd_bundle_13pydevd_cython_9PyDBFrame_12trace_di
  */
                   }
 
-                  /* "_pydevd_bundle\pydevd_cython.pyx":593
+                    /* "_pydevd_bundle\pydevd_cython.pyx":593
  *                                     return self.trace_dispatch
  *                                 else:
  *                                     stop = True             # <<<<<<<<<<<<<<
@@ -11027,7 +11027,7 @@ static PyObject *__pyx_pf_14_pydevd_bundle_13pydevd_cython_9PyDBFrame_12trace_di
               goto __pyx_L171;
             }
 
-            /* "_pydevd_bundle\pydevd_cython.pyx":660
+              /* "_pydevd_bundle\pydevd_cython.pyx":660
  *                             should_skip = self.should_skip = 1
  *                         else:
  *                             should_skip = self.should_skip = 0             # <<<<<<<<<<<<<<
@@ -11051,7 +11051,7 @@ static PyObject *__pyx_pf_14_pydevd_bundle_13pydevd_cython_9PyDBFrame_12trace_di
             goto __pyx_L170;
           }
 
-          /* "_pydevd_bundle\pydevd_cython.pyx":662
+            /* "_pydevd_bundle\pydevd_cython.pyx":662
  *                             should_skip = self.should_skip = 0
  *                     else:
  *                         should_skip = self.should_skip             # <<<<<<<<<<<<<<
@@ -12081,7 +12081,7 @@ static PyObject *__pyx_pf_14_pydevd_bundle_13pydevd_cython_9PyDBFrame_12trace_di
                 goto __pyx_L209;
               }
 
-              /* "_pydevd_bundle\pydevd_cython.pyx":723
+                /* "_pydevd_bundle\pydevd_cython.pyx":723
  *                                 stop = True
  *                             else:
  *                                 if frame.f_trace is None:             # <<<<<<<<<<<<<<
@@ -12178,7 +12178,7 @@ static PyObject *__pyx_pf_14_pydevd_bundle_13pydevd_cython_9PyDBFrame_12trace_di
           goto __pyx_L172;
         }
 
-        /* "_pydevd_bundle\pydevd_cython.pyx":730
+          /* "_pydevd_bundle\pydevd_cython.pyx":730
  * 
  *                 else:
  *                     stop = False             # <<<<<<<<<<<<<<
@@ -12384,7 +12384,7 @@ static PyObject *__pyx_pf_14_pydevd_bundle_13pydevd_cython_9PyDBFrame_12trace_di
             goto __pyx_L212;
           }
 
-          /* "_pydevd_bundle\pydevd_cython.pyx":739
+            /* "_pydevd_bundle\pydevd_cython.pyx":739
  *                         self.do_wait_suspend(thread, frame, event, arg)
  *                     else: #return event
  *                         back = frame.f_back             # <<<<<<<<<<<<<<
@@ -12832,7 +12832,7 @@ static PyObject *__pyx_pf_14_pydevd_bundle_13pydevd_cython_9PyDBFrame_12trace_di
               goto __pyx_L220;
             }
 
-            /* "_pydevd_bundle\pydevd_cython.pyx":769
+              /* "_pydevd_bundle\pydevd_cython.pyx":769
  *                         else:
  *                             #in jython we may not have a back frame
  *                             info.pydev_step_stop = None             # <<<<<<<<<<<<<<
@@ -14764,7 +14764,7 @@ static PyObject *__pyx_pf_14_pydevd_bundle_13pydevd_cython_12ThreadTracer_2__cal
           goto __pyx_L38;
         }
 
-        /* "_pydevd_bundle\pydevd_cython.pyx":911
+          /* "_pydevd_bundle\pydevd_cython.pyx":911
  *                 else:
  *                     # print('skipped: trace_dispatch', base, frame.f_lineno, event, frame.f_code.co_name, file_type)
  *                     return None             # <<<<<<<<<<<<<<
@@ -16235,7 +16235,7 @@ PyMODINIT_FUNC PyInit_pydevd_cython(void)
   }
   #endif
   __Pyx_RefNannySetupContext("PyMODINIT_FUNC PyInit_pydevd_cython(void)", 0);
-  if (__Pyx_check_binary_version() < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if ( __Pyx_check_binary_version() < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_empty_tuple = PyTuple_New(0); if (unlikely(!__pyx_empty_tuple)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_empty_bytes = PyBytes_FromStringAndSize("", 0); if (unlikely(!__pyx_empty_bytes)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   #ifdef __Pyx_CyFunction_USED
@@ -17470,7 +17470,7 @@ static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObjec
 #else
 static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObject *arg) {
     PyObject *result;
-    PyObject *args = PyTuple_Pack(1, arg);
+    PyObject* args = PyTuple_Pack(1, arg);
     if (unlikely(!args)) return NULL;
     result = __Pyx_PyObject_Call(func, args, NULL);
     Py_DECREF(args);
@@ -18368,16 +18368,16 @@ static PyObject *__Pyx_Import(PyObject *name, PyObject *from_list, int level) {
                 #else
                 module = PyImport_ImportModuleLevelObject(
                     name, global_dict, empty_dict, list, 1);
-                #endif
+#endif
                 if (!module) {
                     if (!PyErr_ExceptionMatches(PyExc_ImportError))
                         goto bad;
                     PyErr_Clear();
-                }
-            }
+}
+}
             level = 0;
-        }
-        #endif
+}
+#endif
         if (!module) {
             #if PY_VERSION_HEX < 0x03030000
             PyObject *py_level = PyInt_FromLong(level);
@@ -18386,11 +18386,11 @@ static PyObject *__Pyx_Import(PyObject *name, PyObject *from_list, int level) {
             module = PyObject_CallFunctionObjArgs(py_import,
                 name, global_dict, empty_dict, list, py_level, NULL);
             Py_DECREF(py_level);
-            #else
+#else
             module = PyImport_ImportModuleLevelObject(
                 name, global_dict, empty_dict, list, level);
-            #endif
-        }
+#endif
+}
     }
 bad:
     #if PY_VERSION_HEX < 0x03030000
@@ -19281,25 +19281,25 @@ bad:
     Py_XDECREF(py_frame);
 }
 
-#define __PYX_VERIFY_RETURN_INT(target_type, func_type, func_value)\
+#define __PYX_VERIFY_RETURN_INT(target_type, func_type, func_value)       \
     __PYX__VERIFY_RETURN_INT(target_type, func_type, func_value, 0)
 #define __PYX_VERIFY_RETURN_INT_EXC(target_type, func_type, func_value)\
     __PYX__VERIFY_RETURN_INT(target_type, func_type, func_value, 1)
 #define __PYX__VERIFY_RETURN_INT(target_type, func_type, func_value, exc)\
-    {\
-        func_type value = func_value;\
-        if (sizeof(target_type) < sizeof(func_type)) {\
-            if (unlikely(value != (func_type) (target_type) value)) {\
-                func_type zero = 0;\
+    {                                                                     \
+        func_type value = func_value;                                     \
+        if (sizeof(target_type) < sizeof(func_type)) {                    \
+            if (unlikely(value != (func_type) (target_type) value)) {     \
+                func_type zero = 0;                                       \
                 if (exc && unlikely(value == (func_type)-1 && PyErr_Occurred()))\
                     return (target_type) -1;\
-                if (is_unsigned && unlikely(value < zero))\
-                    goto raise_neg_overflow;\
-                else\
-                    goto raise_overflow;\
-            }\
-        }\
-        return (target_type) value;\
+                if (is_unsigned && unlikely(value < zero))                \
+                    goto raise_neg_overflow;                              \
+                else                                                      \
+                    goto raise_overflow;                                  \
+            }                                                             \
+        }                                                                 \
+        return (target_type) value;                                       \
     }
 
 static CYTHON_INLINE int __Pyx_PyInt_As_int(PyObject *x) {
@@ -19320,7 +19320,7 @@ static CYTHON_INLINE int __Pyx_PyInt_As_int(PyObject *x) {
 #endif
     if (likely(PyLong_Check(x))) {
         if (is_unsigned) {
-#if CYTHON_USE_PYLONG_INTERNALS
+ #if CYTHON_USE_PYLONG_INTERNALS
             const digit* digits = ((PyLongObject*)x)->ob_digit;
             switch (Py_SIZE(x)) {
                 case  0: return (int) 0;
@@ -19353,7 +19353,7 @@ static CYTHON_INLINE int __Pyx_PyInt_As_int(PyObject *x) {
                     }
                     break;
             }
-#endif
+ #endif
 #if CYTHON_COMPILING_IN_CPYTHON
             if (unlikely(Py_SIZE(x) < 0)) {
                 goto raise_neg_overflow;
@@ -19373,7 +19373,7 @@ static CYTHON_INLINE int __Pyx_PyInt_As_int(PyObject *x) {
                 __PYX_VERIFY_RETURN_INT_EXC(int, unsigned PY_LONG_LONG, PyLong_AsUnsignedLongLong(x))
             }
         } else {
-#if CYTHON_USE_PYLONG_INTERNALS
+ #if CYTHON_USE_PYLONG_INTERNALS
             const digit* digits = ((PyLongObject*)x)->ob_digit;
             switch (Py_SIZE(x)) {
                 case  0: return (int) 0;
@@ -19556,7 +19556,7 @@ static CYTHON_INLINE long __Pyx_PyInt_As_long(PyObject *x) {
 #endif
     if (likely(PyLong_Check(x))) {
         if (is_unsigned) {
-#if CYTHON_USE_PYLONG_INTERNALS
+ #if CYTHON_USE_PYLONG_INTERNALS
             const digit* digits = ((PyLongObject*)x)->ob_digit;
             switch (Py_SIZE(x)) {
                 case  0: return (long) 0;
@@ -19589,7 +19589,7 @@ static CYTHON_INLINE long __Pyx_PyInt_As_long(PyObject *x) {
                     }
                     break;
             }
-#endif
+ #endif
 #if CYTHON_COMPILING_IN_CPYTHON
             if (unlikely(Py_SIZE(x) < 0)) {
                 goto raise_neg_overflow;
@@ -19609,7 +19609,7 @@ static CYTHON_INLINE long __Pyx_PyInt_As_long(PyObject *x) {
                 __PYX_VERIFY_RETURN_INT_EXC(long, unsigned PY_LONG_LONG, PyLong_AsUnsignedLongLong(x))
             }
         } else {
-#if CYTHON_USE_PYLONG_INTERNALS
+ #if CYTHON_USE_PYLONG_INTERNALS
             const digit* digits = ((PyLongObject*)x)->ob_digit;
             switch (Py_SIZE(x)) {
                 case  0: return (long) 0;
@@ -19888,13 +19888,13 @@ static CYTHON_INLINE Py_ssize_t __Pyx_PyIndex_AsSsize_t(PyObject* b) {
 #if PY_MAJOR_VERSION < 3
   if (likely(PyInt_CheckExact(b))) {
     if (sizeof(Py_ssize_t) >= sizeof(long))
-        return PyInt_AS_LONG(b);
+      return PyInt_AS_LONG(b);
     else
         return PyInt_AsSsize_t(x);
   }
 #endif
   if (likely(PyLong_CheckExact(b))) {
-    #if CYTHON_USE_PYLONG_INTERNALS
+     #if CYTHON_USE_PYLONG_INTERNALS
     const digit* digits = ((PyLongObject*)b)->ob_digit;
     const Py_ssize_t size = Py_SIZE(b);
     if (likely(__Pyx_sst_abs(size) <= 1)) {
@@ -19934,7 +19934,7 @@ static CYTHON_INLINE Py_ssize_t __Pyx_PyIndex_AsSsize_t(PyObject* b) {
            }
            break;
       }
-    }
+       }
     #endif
     return PyLong_AsSsize_t(b);
   }
