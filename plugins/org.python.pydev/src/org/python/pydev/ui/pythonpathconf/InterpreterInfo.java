@@ -174,18 +174,19 @@ public class InterpreterInfo implements IInterpreterInfo {
         libs.addAll(libs0);
     }
 
-    /*default*/InterpreterInfo(String version, String exe, Collection<String> libs0, Collection<String> dlls) {
+    /*default*/ InterpreterInfo(String version, String exe, Collection<String> libs0, Collection<String> dlls) {
         this(version, exe, libs0);
     }
 
-    /*default*/InterpreterInfo(String version, String exe, List<String> libs0, List<String> dlls, List<String> forced) {
+    /*default*/ InterpreterInfo(String version, String exe, List<String> libs0, List<String> dlls,
+            List<String> forced) {
         this(version, exe, libs0, dlls, forced, null, null);
     }
 
     /**
      * Note: dlls is no longer used!
      */
-    /*default*/InterpreterInfo(String version, String exe, List<String> libs0, List<String> dlls, List<String> forced,
+    /*default*/ InterpreterInfo(String version, String exe, List<String> libs0, List<String> dlls, List<String> forced,
             List<String> envVars, Properties stringSubstitution) {
         this(version, exe, libs0, dlls);
         for (String s : forced) {
@@ -285,7 +286,8 @@ public class InterpreterInfo implements IInterpreterInfo {
      * @param userSpecifiedExecutable the path the the executable as specified by the user, or null to use that in received
      * @return new interpreter info
      */
-    public static InterpreterInfo fromString(String received, boolean askUserInOutPath, String userSpecifiedExecutable) {
+    public static InterpreterInfo fromString(String received, boolean askUserInOutPath,
+            String userSpecifiedExecutable) {
         if (received.toLowerCase().indexOf("executable") == -1) {
             throw new RuntimeException(
                     "Unable to recreate the Interpreter info (Its format changed. Please, re-create your Interpreter information).Contents found:"
@@ -883,6 +885,7 @@ public class InterpreterInfo implements IInterpreterInfo {
                 forcedLibs.add("OpenGL");
                 forcedLibs.add("wxPython");
                 forcedLibs.add("wx");
+                forcedLibs.add("gi"); // for gnome introspection
                 forcedLibs.add("numpy");
                 forcedLibs.add("scipy");
                 forcedLibs.add("Image"); //for PIL
