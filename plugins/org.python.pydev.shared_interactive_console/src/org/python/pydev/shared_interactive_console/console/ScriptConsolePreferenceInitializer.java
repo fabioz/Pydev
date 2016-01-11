@@ -16,7 +16,7 @@ public class ScriptConsolePreferenceInitializer extends AbstractPreferenceInitia
 
     @Override
     public void initializeDefaultPreferences() {
-        Preferences node = new DefaultScope().getNode(InteractiveConsolePlugin.PLUGIN_ID);
+        Preferences node = DefaultScope.INSTANCE.getNode(InteractiveConsolePlugin.PLUGIN_ID);
 
         //console history
         node.putInt(ScriptConsoleUIConstants.INTERACTIVE_CONSOLE_PERSISTENT_HISTORY_MAXIMUM_ENTRIES,

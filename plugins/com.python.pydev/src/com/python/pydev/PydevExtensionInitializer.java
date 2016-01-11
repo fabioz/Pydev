@@ -16,7 +16,7 @@ public class PydevExtensionInitializer extends AbstractPreferenceInitializer {
 
     @Override
     public void initializeDefaultPreferences() {
-        Preferences node = new DefaultScope().getNode(DEFAULT_SCOPE);
+        Preferences node = DefaultScope.INSTANCE.getNode(DEFAULT_SCOPE);
 
     }
 }

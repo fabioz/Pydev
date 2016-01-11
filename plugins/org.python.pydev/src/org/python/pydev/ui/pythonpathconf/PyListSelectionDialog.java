@@ -92,12 +92,14 @@ public class PyListSelectionDialog extends SelectionDialog {
                     "Select All not in Workspace", false);
 
             SelectionListener listenerNotInWorkspace = new SelectionAdapter() {
+                @Override
                 public void widgetSelected(SelectionEvent e) {
                     HashSet<IPath> rootPaths = InterpreterConfigHelpers.getRootPaths();
                     TableItem[] children = listViewer.getTable().getItems();
                     for (int i = 0; i < children.length; i++) {
                         TableItem item = children[i];
-                        item.setChecked(!InterpreterConfigHelpers.isChildOfRootPath((String) item.getData(), rootPaths));
+                        item.setChecked(
+                                !InterpreterConfigHelpers.isChildOfRootPath((String) item.getData(), rootPaths));
                     }
                 }
             };
@@ -107,6 +109,7 @@ public class PyListSelectionDialog extends SelectionDialog {
         Button selectButton = createButton(buttonComposite, IDialogConstants.SELECT_ALL_ID, "Select All", false);
 
         SelectionListener listener = new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 listViewer.setAllChecked(true);
             }
@@ -116,6 +119,7 @@ public class PyListSelectionDialog extends SelectionDialog {
         Button deselectButton = createButton(buttonComposite, IDialogConstants.DESELECT_ALL_ID, "Deselect All", false);
 
         listener = new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 listViewer.setAllChecked(false);
             }
@@ -128,7 +132,7 @@ public class PyListSelectionDialog extends SelectionDialog {
      * viewer.
      */
     private void checkInitialSelections() {
-        Iterator itemsToCheck = getInitialElementSelections().iterator();
+        Iterator<?> itemsToCheck = getInitialElementSelections().iterator();
 
         while (itemsToCheck.hasNext()) {
             listViewer.setChecked(itemsToCheck.next(), true);
@@ -138,6 +142,7 @@ public class PyListSelectionDialog extends SelectionDialog {
     /* (non-Javadoc)
      * Method declared on Dialog.
      */
+    @Override
     protected Control createDialogArea(Composite parent) {
         // page group
         Composite composite = (Composite) super.createDialogArea(parent);
@@ -190,6 +195,7 @@ public class PyListSelectionDialog extends SelectionDialog {
      * <code>Dialog</code> method builds a list of the selected elements for later
      * retrieval by the client and closes this dialog.
      */
+    @Override
     protected void okPressed() {
 
         // Get the input children.
@@ -197,7 +203,7 @@ public class PyListSelectionDialog extends SelectionDialog {
 
         // Build a list of selected children.
         if (children != null) {
-            ArrayList list = new ArrayList();
+            ArrayList<Object> list = new ArrayList<Object>();
             for (int i = 0; i < children.length; ++i) {
                 Object element = children[i];
                 if (listViewer.getChecked(element)) {

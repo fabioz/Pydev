@@ -19,7 +19,7 @@ public class PyCodeCompletionInitializer extends AbstractPreferenceInitializer {
 
     @Override
     public void initializeDefaultPreferences() {
-        Preferences node = new DefaultScope().getNode(PydevPlugin.DEFAULT_PYDEV_SCOPE);
+        Preferences node = DefaultScope.INSTANCE.getNode(PydevPlugin.DEFAULT_PYDEV_SCOPE);
 
         //use?
         node.putBoolean(PyCodeCompletionPreferencesPage.USE_CODECOMPLETION,

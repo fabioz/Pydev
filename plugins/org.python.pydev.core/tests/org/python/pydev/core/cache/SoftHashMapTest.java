@@ -6,9 +6,6 @@
  */
 package org.python.pydev.core.cache;
 
-import java.lang.ref.ReferenceQueue;
-import java.lang.ref.WeakReference;
-
 import junit.framework.TestCase;
 
 /**

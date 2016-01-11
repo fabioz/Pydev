@@ -18,7 +18,7 @@ public class PydevConsolePreferencesInitializer extends AbstractPreferenceInitia
 
     @Override
     public void initializeDefaultPreferences() {
-        Preferences node = new DefaultScope().getNode("org.python.pydev.debug");
+        Preferences node = DefaultScope.INSTANCE.getNode("org.python.pydev.debug");
 
         //text
         node.put(PydevConsoleConstants.PREF_CONTINUE_PROMPT, PydevConsoleConstants.DEFAULT_CONTINUE_PROMPT);
@@ -48,7 +48,8 @@ public class PydevConsolePreferencesInitializer extends AbstractPreferenceInitia
         node.put(PydevConsoleConstants.INTERACTIVE_CONSOLE_ENCODING,
                 PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_ENCODING);
 
-        node.put(PydevConsoleConstants.INITIAL_INTERPRETER_CMDS, PydevConsoleConstants.DEFAULT_INITIAL_INTERPRETER_CMDS);
+        node.put(PydevConsoleConstants.INITIAL_INTERPRETER_CMDS,
+                PydevConsoleConstants.DEFAULT_INITIAL_INTERPRETER_CMDS);
 
         node.put(PydevConsoleConstants.DJANGO_INTERPRETER_CMDS, PydevConsoleConstants.DEFAULT_DJANGO_INTERPRETER_CMDS);
 

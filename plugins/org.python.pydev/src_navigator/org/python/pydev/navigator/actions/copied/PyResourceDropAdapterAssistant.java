@@ -301,23 +301,22 @@ public class PyResourceDropAdapterAssistant extends ResourceDropAdapterAssistant
      * 
      * @return the resource selection from the LocalSelectionTransfer
      */
-    @SuppressWarnings("unchecked")
     private IResource[] getSelectedResources(IStructuredSelection selection) {
-        ArrayList selectedResources = new ArrayList();
+        ArrayList<Object> selectedResources = new ArrayList<Object>();
 
-        for (Iterator i = selection.iterator(); i.hasNext();) {
+        for (Iterator<?> i = selection.iterator(); i.hasNext();) {
             Object o = i.next();
             if (o instanceof IResource) {
                 selectedResources.add(o);
             } else if (o instanceof IAdaptable) {
                 IAdaptable a = (IAdaptable) o;
-                IResource r = (IResource) a.getAdapter(IResource.class);
+                IResource r = a.getAdapter(IResource.class);
                 if (r != null) {
                     selectedResources.add(r);
                 }
             }
         }
-        return (IResource[]) selectedResources.toArray(new IResource[selectedResources.size()]);
+        return selectedResources.toArray(new IResource[selectedResources.size()]);
     }
 
     /**

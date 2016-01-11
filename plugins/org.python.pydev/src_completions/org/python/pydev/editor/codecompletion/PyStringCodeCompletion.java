@@ -210,7 +210,8 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
                             if (str.startsWith(initial)) {
                                 ret.add(new PyLinkedModeCompletionProposal(str, request.documentOffset - request.qlen,
                                         request.qlen, str.length(), PyCodeCompletionImages
-                                                .getImageForType(IToken.TYPE_PARAM), null, null, "", 0,
+                                                .getImageForType(IToken.TYPE_PARAM),
+                                        null, null, "", 0,
                                         PyCompletionProposal.ON_APPLY_DEFAULT, ""));
                             }
                         }
@@ -226,7 +227,8 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
     /**
      * @param ret OUT: this is where the completions are stored
      */
-    private void fillWithEpydocFields(ITextViewer viewer, CompletionRequest request, ArrayList<ICompletionProposal> ret) {
+    private void fillWithEpydocFields(ITextViewer viewer, CompletionRequest request,
+            ArrayList<ICompletionProposal> ret) {
         try {
             Region region = new Region(request.documentOffset - request.qlen, request.qlen);
             Image image = PyCodeCompletionImages.getImageForType(IToken.TYPE_EPYDOC);

@@ -287,13 +287,13 @@ public class EditorUtils {
         }
 
         int length = files.length;
-        ArrayList existentFiles = new ArrayList(length);
+        ArrayList<IFile> existentFiles = new ArrayList<IFile>(length);
         for (int i = 0; i < length; i++) {
             if (files[i].exists()) {
                 existentFiles.add(files[i]);
             }
         }
-        return (IFile[]) existentFiles.toArray(new IFile[existentFiles.size()]);
+        return existentFiles.toArray(new IFile[existentFiles.size()]);
     }
 
     /**

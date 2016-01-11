@@ -18,7 +18,7 @@ public class PyLintPrefInitializer extends AbstractPreferenceInitializer {
 
     @Override
     public void initializeDefaultPreferences() {
-        Preferences node = new DefaultScope().getNode(PydevPlugin.DEFAULT_PYDEV_SCOPE);
+        Preferences node = DefaultScope.INSTANCE.getNode(PydevPlugin.DEFAULT_PYDEV_SCOPE);
 
         node.put(PyLintPrefPage.PYLINT_FILE_LOCATION, "");
         node.putBoolean(PyLintPrefPage.USE_PYLINT, PyLintPrefPage.DEFAULT_USE_PYLINT);

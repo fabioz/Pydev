@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.resources.IProject;
@@ -146,7 +147,6 @@ public class SimpleRunner {
     /**
      * @return a map with the env variables for the system
      */
-    @SuppressWarnings("unchecked")
     private static Map<String, String> getDefaultSystemEnv(DebugPlugin defaultPlugin, IPythonNature nature)
             throws CoreException {
         ILaunchManager launchManager = defaultPlugin.getLaunchManager();
@@ -157,15 +157,15 @@ public class SimpleRunner {
 
         // Add variables from config
         boolean win32 = PlatformUtils.isWindowsPlatform();
-        for (Iterator iter = env.entrySet().iterator(); iter.hasNext();) {
-            Map.Entry entry = (Map.Entry) iter.next();
-            String key = (String) entry.getKey();
+        for (Iterator<Map.Entry<String, String>> iter = env.entrySet().iterator(); iter.hasNext();) {
+            Entry<String, String> entry = iter.next();
+            String key = entry.getKey();
             if (win32) {
                 // Win32 vars are case insensitive. Uppercase everything so
                 // that (for example) "pAtH" will correctly replace "PATH"
                 key = key.toUpperCase();
             }
-            String value = (String) entry.getValue();
+            String value = entry.getValue();
             // translate any string substitution variables
             String translated = value;
             try {
@@ -273,7 +273,8 @@ public class SimpleRunner {
         return ProcessUtils.getMapEnvAsArray(env);
     }
 
-    public Tuple<Process, String> run(String[] cmdarray, File workingDir, IPythonNature nature, IProgressMonitor monitor) {
+    public Tuple<Process, String> run(String[] cmdarray, File workingDir, IPythonNature nature,
+            IProgressMonitor monitor) {
         return run(cmdarray, workingDir, nature, monitor, null);
     }
 
