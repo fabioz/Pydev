@@ -147,9 +147,9 @@ Release 4.5.0
 
 * Debugger
 
-	* Cython speedup modules are now available for the debugger.
+	* Cython speedup modules are now available for the debugger (see performance improvements at: https://www.speedtin.com/reports/7_pydevd_cython).
 
-	* It is considerably faster even without the speedup modules.
+	* It is considerably faster even without the speedup modules (see performance improvements at: https://www.speedtin.com/reports/8_pydevd_pure_python).
 
 	* When debugging multiple processes the console wasn't being updated to the selected stack in the debug view.
 
@@ -163,9 +163,11 @@ Release 4.5.0
 
 * Improved the parser that extracted the outline for global tokens to deal with async and consider declarations inside ifs.
 
-* Code completion of properties with @property no longer show "()" (#PyDev-453).
+* Code completion of properties with @property no longer shows arguments parenthesis (#PyDev-453).
 
 * Preventing a freeze if some code-analysis takes too much time (#PyDev-636).
+
+* Ctrl+1 can be used to wrap/unwrap the contents of brackets (patch by yohell).
 
 
 Release 4.4.0
