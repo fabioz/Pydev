@@ -19,7 +19,7 @@ set BUILD_DIR=X:\pydev_build\build_dir
 set DEPLOY_DIR=X:\pydev_build\deploy_dir
 set JAVA_HOME=C:\bin\jdk1.7.0_55
 set MAVEN_BIN=C:\bin\maven-3.2.1\bin
-set GIT_EXECUTABLE="C:\Program Files (x86)\Git\bin\git.exe"
+set GIT_EXECUTABLE="p:\git\bin\git.exe"
 set ECLIPSE_CLEAN=C:\bin\eclipse45final
 set LAUNCHER_PLUGIN=org.eclipse.equinox.launcher_1.3.100.v20150511-1540.jar
 set BUILDER_PLUGIN=org.eclipse.pde.build_3.9.100.v20150521-1524
@@ -36,11 +36,11 @@ set BASEARCH=x86
 
 set PATH=
 set PATH=C:\bin\Python27
-set PATH=C:\bin\FastCopy211;%PATH%
+set PATH=p:\FastCopy211;%PATH%
 set PATH=C:\Windows\system32;%PATH%
 set PATH=%MAVEN_BIN%;%PATH%
 set PATH=%JAVA_HOME%\bin;%PATH%
-set PATH=C:\Program Files (x86)\Git\bin;%PATH%
+set PATH=p:\git\bin;%PATH%
 set PATH=%ECLIPSE_CLEAN%\plugins\org.apache.ant_1.9.2.v201404171502\bin;%PATH%
 
 
