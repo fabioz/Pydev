@@ -16,33 +16,33 @@ Another (no wheels): https://jamie.curle.io/blog/my-first-experience-adding-pack
 
 New version: change version and then:
 
-rm dist\pydevd*
+rm dist/pydevd*
 
 C:\tools\Miniconda32\Scripts\activate py27_32
-python setup.py bdist_wheel sdist
+python setup.py sdist bdist_wheel
 deactivate
 
 C:\tools\Miniconda32\Scripts\activate py34_32
-python setup.py bdist_wheel sdist
+python setup.py sdist bdist_wheel
 deactivate
 
 C:\tools\Miniconda32\Scripts\activate py35_32
-python setup.py bdist_wheel sdist
+python setup.py sdist bdist_wheel
 deactivate
 
 C:\tools\Miniconda\Scripts\activate py27_64
-python setup.py bdist_wheel sdist
+python setup.py sdist bdist_wheel
 deactivate
 
 C:\tools\Miniconda\Scripts\activate py34_64
-python setup.py bdist_wheel sdist
+python setup.py sdist bdist_wheel
 deactivate
 
 C:\tools\Miniconda\Scripts\activate py35_64
-python setup.py bdist_wheel sdist
+python setup.py sdist bdist_wheel
 deactivate
 
-twine upload -s dist/pydevd*
+twine upload dist/pydevd*
 '''
 
 
