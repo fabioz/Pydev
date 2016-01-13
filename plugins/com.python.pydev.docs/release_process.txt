@@ -3,7 +3,7 @@ Update the version:
 
 x:
 cd x:\pydev
-python update_version.py 4.5.0
+python update_version.py 4.5.1
 
 X:\pydev\builders\org.python.pydev.build\build_cmd.bat
 C:\bin\Python27\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository -d https://api.bintray.com/content/fabioz/pydev/nightly/
@@ -56,9 +56,9 @@ copy X:\pydev_build\update_site_dir\updates\content.jar X:\pydev_build\build_dir
 
 x:\
 cd X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable
-"C:\Program Files\7-Zip\7z" a -tzip -r "PyDev 4.5.0.zip" features plugins
+"C:\Program Files\7-Zip\7z" a -tzip -r "PyDev 4.5.1.zip" features plugins
 cd X:\pydev_build\build_dir\pydev
-git archive -o "X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\PyDev 4.5.0-sources.zip" origin/development
+git archive -o "X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\PyDev 4.5.1-sources.zip" origin/development
 
 		** Copy zips from X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable to sourceforge:
 
@@ -70,7 +70,7 @@ p:\FileZilla\filezilla.exe sftp://fabioz,pydev@frs.sourceforge.net/home/pfs/proj
 Note: check pageant if it does not connect.
 
 Check if the main download button points to the proper place (not to the sources) --
-https://sourceforge.net/projects/pydev/files/pydev/PyDev 4.5.0/ -- choose file > file info > set default and give better name.
+https://sourceforge.net/projects/pydev/files/pydev/PyDev 4.5.1/ -- choose file > file info > set default and give better name.
 
 
 		** Add contents to the update site
@@ -78,18 +78,18 @@ https://sourceforge.net/projects/pydev/files/pydev/PyDev 4.5.0/ -- choose file >
 
 		** removed removed (no longer update all)  c:\bin\Python27\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository -d https://api.bintray.com/content/fabioz/pydev/all/
 
-Create "4.5.0" version in "https://bintray.com/fabioz/pydev/pydev/new/version"
-Add "4.5.0" in X:\release_tools\pydev_uploader_bintray.py
+Create "4.5.1" version in "https://bintray.com/fabioz/pydev/pydev/new/version"
+Add "4.5.1" in X:\release_tools\pydev_uploader_bintray.py
 
 cd X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\
 
-mkdir org.python.pydev.p2-repo-4.5.0-SNAPSHOT
+mkdir org.python.pydev.p2-repo-4.5.1-SNAPSHOT
 
-cd org.python.pydev.p2-repo-4.5.0-SNAPSHOT
+cd org.python.pydev.p2-repo-4.5.1-SNAPSHOT
 
-"C:\Program Files\7-Zip\7z" x ..\org.python.pydev.p2-repo-4.5.0-SNAPSHOT.zip
+"C:\Program Files\7-Zip\7z" x ..\org.python.pydev.p2-repo-4.5.1-SNAPSHOT.zip
 
-c:\bin\Python27\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-4.5.0-SNAPSHOT -d https://api.bintray.com/content/fabioz/pydev/4.5.0/
+c:\bin\Python27\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-4.5.1-SNAPSHOT -d https://api.bintray.com/content/fabioz/pydev/4.5.1/
 
 
 		** Update homepage:
@@ -97,14 +97,14 @@ c:\bin\Python27\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pyde
 robocopy X:\pydev\plugins\com.python.pydev.docs\merged_homepage\final X:\openshift\pydev.page2\ /xd .git /xd .openshift  /s
 cd /D X:\openshift\pydev.page2\
 mu st
-mu acp "Updated to 4.5.0"
+mu acp "Updated to 4.5.1"
 
 p:\FileZilla\filezilla.exe sftp://fabioz,pydev@frs.sourceforge.net/home/project-web/pydev/htdocs --local="x:\pydev\plugins\com.python.pydev.docs\merged_homepage\final"
 p:\FileZilla\filezilla.exe sftp://deploy@173.45.225.54/var/www --local="x:\pydev\plugins\com.python.pydev.docs\merged_homepage\final"
 
 
 		** Tag repository:
-		  git tag pydev_4_5_0 -a -m "PyDev 4.5.0"
+		  git tag pydev_4_5_1 -a -m "PyDev 4.5.1"
 		  git push --tags
 
 
