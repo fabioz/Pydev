@@ -142,7 +142,7 @@ Companies have the option of sponsoring PyDev through corporate sponsorship. See
 .. _`Getting started guide`: manual_101_root.html
 
 
-Release 4.5.0
+Release 4.5.1
 ==========================
 
 * Debugger
