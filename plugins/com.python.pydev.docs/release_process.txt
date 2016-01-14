@@ -78,8 +78,6 @@ https://sourceforge.net/projects/pydev/files/pydev/PyDev 4.5.1/ -- choose file >
 
 		** removed removed 							(no longer update all)  c:\bin\Python27\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository -d https://api.bintray.com/content/fabioz/pydev/all/
 
-Create "4.5.1" version in "https://bintray.com/fabioz/pydev/pydev/new/version"
-Add "4.5.1" in X:\release_tools\pydev_uploader_bintray.py
 
 cd X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\
 
@@ -89,6 +87,11 @@ cd org.python.pydev.p2-repo-4.5.1-SNAPSHOT
 
 "C:\Program Files\7-Zip\7z" x ..\org.python.pydev.p2-repo-4.5.1-SNAPSHOT.zip
 
+c:\bin\Python27\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-4.5.1-SNAPSHOT -d https://api.bintray.com/content/fabioz/pydev/nightly/
+Note: if unable to send: remove at https://bintray.com/fabioz/pydev/pydev/nightly/edit add back at https://bintray.com/fabioz/pydev/pydev/new/version
+
+Create "4.5.1" version in "https://bintray.com/fabioz/pydev/pydev/new/version"
+Add "4.5.1" in X:\release_tools\pydev_uploader_bintray.py
 c:\bin\Python27\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-4.5.1-SNAPSHOT -d https://api.bintray.com/content/fabioz/pydev/4.5.1/
 
 
