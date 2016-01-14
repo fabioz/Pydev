@@ -76,7 +76,7 @@ https://sourceforge.net/projects/pydev/files/pydev/PyDev 4.5.1/ -- choose file >
 		** Add contents to the update site
 
 
-		** removed removed (no longer update all)  c:\bin\Python27\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository -d https://api.bintray.com/content/fabioz/pydev/all/
+		** removed removed 							(no longer update all)  c:\bin\Python27\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository -d https://api.bintray.com/content/fabioz/pydev/all/
 
 Create "4.5.1" version in "https://bintray.com/fabioz/pydev/pydev/new/version"
 Add "4.5.1" in X:\release_tools\pydev_uploader_bintray.py
