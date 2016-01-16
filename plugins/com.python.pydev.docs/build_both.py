@@ -11,7 +11,7 @@ for arg in args:
         version = arg[len('--version='):]
         LAST_VERSION_TAG = version
 else:
-    LAST_VERSION_TAG = '4.5.0'  # Not specified (let's leave one there)
+    LAST_VERSION_TAG = '4.5.1'  # Not specified (let's leave one there)
 
 
 import build_python_code_block
@@ -125,6 +125,12 @@ if __name__ == '__main__':
     # Copy the update site redirections
     shutil.rmtree(os.path.join('final', 'updates'), ignore_errors=True)
     shutil.copytree('updates', os.path.join('final', 'updates'))
+
+    for filename in ('.htaccess', 'index.html'):
+        with open(os.path.join('final', 'updates', filename), 'r') as stream:
+            contents = stream.read()
+        with open(os.path.join('final', 'updates', filename), 'w') as stream:
+            stream.write(contents.replace('{version}', LAST_VERSION_TAG))
 
     shutil.rmtree(os.path.join('final', 'nightly'), ignore_errors=True)
     shutil.copytree('nightly', os.path.join('final', 'nightly'))

@@ -2,7 +2,7 @@ History For PyDev
 ~~~~~~~~~~~~~~~~~
 
 
-Release 4.5.0
+Release 4.5.1
 ==========================
 
 * Debugger

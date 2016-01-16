@@ -4,6 +4,12 @@
 		<h1>Development Info</h1>
 		<p><a class="reference external" href="http://pydev.blogspot.com/">PyDev Blog</a></p>
 		</div>
+
+    	<div class="section" id="about">
+		<h1>Contact, Issues</h1>
+		<p><a class="reference external" href="about.html">See About</a></p>
+		</div>
+
 		<div class="section" id="releases-history">
 		<h1>Releases History:</h1>
 		<p><a class="reference external" href="history_pydev.html">History for PyDev</a></p>
@@ -142,7 +148,7 @@ Companies have the option of sponsoring PyDev through corporate sponsorship. See
 .. _`Getting started guide`: manual_101_root.html
 
 
-Release 4.5.0
+Release 4.5.1
 ==========================
 
 * Debugger
@@ -221,33 +227,6 @@ Release 4.2.0
 
 * Vertical indent guide no longer slows down the editor on Linux (PyDev-582).
 
-
-Release 4.1.0
-==========================
-
-* **Code Completion**
-
-	* Improved unpacking of compound types on more situations (PyDev-573).
-
-* **Debugger**
-
-	* PyDev remote debugging no longer blocks running program to completion (PyDev-574).
-	* When there are too many referrers to some object, results are trimmed.
-
-* **Python 3 grammar**
-
-	* Accepting **@** as matrix multiplication operator.
-	* **async** and **await** are properly parsed.
-	* Fixed issue parsing 'list remainder' construct (PyDev-568).
-
-* **Others**
-
-	* Fixed issue showing editor title name when more than one dot was present in the filename.
-	* Support automatic folding elements when opening a file -- must be enabled in PyDev > Editor > Code Folding (patch by Andreas Pakulat).
-	* Fixed issue on search page.
-	* Included css to set default editor colors for PyDev for in Eclipse dark theme.
-	* Tab-stops on comments added and enabled by default (patch by jheiv).
-	* Fixed StackOverflowError on code-completion (PyDev-570)
 
 `View release notes for previous releases`_
 
