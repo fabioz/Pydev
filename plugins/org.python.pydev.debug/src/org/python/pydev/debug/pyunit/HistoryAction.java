@@ -83,10 +83,11 @@ public class HistoryAction extends Action {
             for (PyUnitTestRun pyUnitTestRun : allTestRuns) {
                 SetCurrentRunAction runAction = new SetCurrentRunAction(view, pyUnitTestRun);
                 runAction.setChecked(pyUnitTestRun == currentTestRun);
-                runAction.setText(pyUnitTestRun.name);
+                runAction.setText(pyUnitTestRun.getShortDescription());
                 actionsMenu.add(runAction);
             }
             actionsMenu.add(new ClearTerminatedAction(view));
+            actionsMenu.add(new ExportCurrentToClipboardAction(view));
         }
     }
 

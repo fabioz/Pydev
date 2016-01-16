@@ -61,7 +61,7 @@ public class PyUnitLaunch implements IPyUnitLaunch {
                 //if it's not, create a copy, as we don't want to screw with the original launch
                 workingCopy = configuration.copy(name + " [pyunit run]");
             }
-            //When running it, it'll put the contents we set in the buf string into a file and pass that 
+            //When running it, it'll put the contents we set in the buf string into a file and pass that
             //file to the actual unittest run.
             workingCopy.setAttribute(Constants.ATTR_UNITTEST_CONFIGURATION_FILE, buf.toString());
             ILaunchConfiguration newConf = workingCopy.doSave();
