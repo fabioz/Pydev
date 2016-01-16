@@ -198,11 +198,11 @@ public class PyUnitTestRun {
         buf.append("Tests: ");
         buf.append(this.getTotalNumberOfRuns());
         if (this.getNumberOfErrors() > 0) {
-            buf.append(" Err: ");
+            buf.append(" Errors: ");
             buf.append(this.getNumberOfErrors());
         }
         if (this.getNumberOfFailures() > 0) {
-            buf.append(" Fail: ");
+            buf.append(" Failures: ");
             buf.append(this.getNumberOfFailures());
         }
         buf.append(")");
