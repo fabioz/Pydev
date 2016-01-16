@@ -20,6 +20,7 @@ public class PinHistoryAction extends Action {
 
     private WeakReference<PyUnitView> view;
     private PyUnitTestRun currentTestRun;
+    private PyUnitTestRun lastPinned;
     public final CallbackWithListeners<PyUnitTestRun> onRunSelected;
 
     /**
@@ -31,6 +32,7 @@ public class PinHistoryAction extends Action {
         this.setImageDescriptor(PydevDebugPlugin.getImageCache().getDescriptor("icons/pin.png"));
         this.setChecked(false);
         this.currentTestRun = null;
+        this.lastPinned = null;
         this.onRunSelected = new CallbackWithListeners<PyUnitTestRun>();
     }
 
@@ -40,6 +42,10 @@ public class PinHistoryAction extends Action {
 
     public PyUnitTestRun getCurrentTestRun() {
         return currentTestRun;
+    }
+
+    public PyUnitTestRun getLastPinned() {
+        return lastPinned;
     }
 
     /* (non-Javadoc)
@@ -62,6 +68,7 @@ public class PinHistoryAction extends Action {
                     worked = true;
                     onRunSelected.call(currentTestRun);
                     this.currentTestRun = currentTestRun;
+                    this.lastPinned = currentTestRun;
                     this.setImageDescriptor(PydevDebugPlugin.getImageCache().getDescriptor("icons/pin_arrow.png"));
                     this.setToolTipText("Currently pin: " + currentTestRun.name + ". Click again to unpin.");
                 }

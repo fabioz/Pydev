@@ -175,6 +175,8 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
     private Composite fCounterComposite;
     private IPropertyChangeListener prefListener;
 
+    private PinHistoryAction fPinHistory = new PinHistoryAction(this);
+
     /**
      * Whether we should show only errors or not.
      */
@@ -402,9 +404,8 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
 
         toolBar.add(new Separator());
         toolBar.add(new HistoryAction(this));
-        PinHistoryAction pinHistory = new PinHistoryAction(this);
-        toolBar.add(pinHistory);
-        toolBar.add(new RestorePinHistoryAction(this, pinHistory));
+        toolBar.add(fPinHistory);
+        toolBar.add(new RestorePinHistoryAction(this, fPinHistory));
 
         addOrientationPreferences(menuManager);
     }
@@ -1013,6 +1014,10 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
         if (str.length() > 0) {
             new ClipboardHandler().putIntoClipboard(DND.CLIPBOARD, Display.getCurrent(), str);
         }
+    }
+
+    public PyUnitTestRun getLastPinned() {
+        return this.fPinHistory.getLastPinned();
     }
 
 }

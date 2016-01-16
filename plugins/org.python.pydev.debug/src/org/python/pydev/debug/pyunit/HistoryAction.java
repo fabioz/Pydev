@@ -80,6 +80,15 @@ public class HistoryAction extends Action {
             }
             PyUnitTestRun currentTestRun = pyUnitView.getCurrentTestRun();
             List<PyUnitTestRun> allTestRuns = pyUnitView.getAllTestRuns();
+
+            PyUnitTestRun lastPinned = pyUnitView.getLastPinned();
+            if (lastPinned != null) {
+                SetCurrentRunAction runAction = new SetCurrentRunAction(view, lastPinned);
+                runAction.setChecked(false);
+                runAction.setText("Last Pinned: " + lastPinned.getShortDescription());
+                actionsMenu.add(runAction);
+            }
+
             for (PyUnitTestRun pyUnitTestRun : allTestRuns) {
                 SetCurrentRunAction runAction = new SetCurrentRunAction(view, pyUnitTestRun);
                 runAction.setChecked(pyUnitTestRun == currentTestRun);
