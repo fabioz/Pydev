@@ -36,6 +36,7 @@ import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.string.WrapAndCaseUtils;
 import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 final class DialogNotifier extends Dialog {
 
@@ -43,8 +44,13 @@ final class DialogNotifier extends Dialog {
 
     public DialogNotifier(Shell shell) {
         super(shell);
-        setShellStyle(SWT.CLOSE | SWT.MODELESS | SWT.BORDER | SWT.TITLE | SWT.RESIZE | SWT.MAX);
-        setBlockOnOpen(false);
+        setShellStyle(SWT.CLOSE | SWT.MODELESS | SWT.BORDER | SWT.TITLE | SWT.RESIZE | SWT.MAX | getDefaultOrientation());
+        setBlockOnOpen(true);
+    }
+
+    @Override
+    protected boolean isResizable() {
+        return true;
     }
 
     @Override
@@ -97,7 +103,7 @@ final class DialogNotifier extends Dialog {
                     "p.s.: Sorry for the dialog. It won't be shown again in this workspace after you click the \"Read it\" button."
                     +
 
-                    "</body></html>";
+            "</body></html>";
             ToolBar navBar = new ToolBar(composite, SWT.NONE);
             //this is the place where it might fail
             final Browser browser = new Browser(composite, SWT.BORDER);
@@ -209,8 +215,8 @@ final class DialogNotifier extends Dialog {
 
     /**
      * @param composite
-     * @param labelMsg 
-     * @return 
+     * @param labelMsg
+     * @return
      */
     private Text createText(Composite composite, String labelMsg, int colSpan) {
         Text text = new Text(composite, SWT.BORDER | SWT.MULTI | SWT.READ_ONLY);
@@ -223,8 +229,8 @@ final class DialogNotifier extends Dialog {
 
     /**
      * @param composite
-     * @param labelMsg 
-     * @return 
+     * @param labelMsg
+     * @return
      */
     private Label createLabel(Composite composite, String labelMsg, int colSpan) {
         Label label = new Label(composite, SWT.NONE);
@@ -239,7 +245,7 @@ final class DialogNotifier extends Dialog {
 
 public class PydevShowBrowserMessage {
 
-    public static final String PYDEV_FUNDING_SHOWN = "PYDEV_FUNDING_SHOWN_2014";
+    public static final String PYDEV_FUNDING_SHOWN = "PYDEV_FUNDING_SHOWN_2016";
     private static boolean shownInSession = false;
 
     public static void show() {
@@ -257,15 +263,17 @@ public class PydevShowBrowserMessage {
         IPreferenceStore preferenceStore = PydevPrefs.getPreferenceStore();
         boolean shownOnce = preferenceStore.getBoolean(PYDEV_FUNDING_SHOWN);
         if (!shownOnce) {
-            Display disp = Display.getDefault();
-            disp.asyncExec(new Runnable() {
+            boolean runNowIfInUiThread = false;
+            RunInUiThread.async(new Runnable() {
+
+                @Override
                 public void run() {
                     Display disp = Display.getCurrent();
                     Shell shell = new Shell(disp);
                     DialogNotifier notifier = new DialogNotifier(shell);
                     notifier.open();
                 }
-            });
+            }, runNowIfInUiThread);
         }
 
     }
