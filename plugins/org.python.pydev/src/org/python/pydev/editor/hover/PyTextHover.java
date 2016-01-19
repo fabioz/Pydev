@@ -118,13 +118,13 @@ public class PyTextHover implements ITextHover, ITextHoverExtension {
     public String getHoverInfo(ITextViewer textViewer, IRegion hoverRegion) {
         FastStringBuffer buf = new FastStringBuffer();
 
-        if (!pythonCommentOrMultiline) {
-            if (textViewer instanceof PySourceViewer) {
-                PySourceViewer s = (PySourceViewer) textViewer;
-                PySelection ps = new PySelection(s.getDocument(), hoverRegion.getOffset() + hoverRegion.getLength());
+        if (textViewer instanceof PySourceViewer) {
+            PySourceViewer s = (PySourceViewer) textViewer;
+            PySelection ps = new PySelection(s.getDocument(), hoverRegion.getOffset() + hoverRegion.getLength());
 
-                List<IPyHoverParticipant> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_HOVER);
-                for (IPyHoverParticipant pyHoverParticipant : participants) {
+            List<IPyHoverParticipant> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_HOVER);
+            for (IPyHoverParticipant pyHoverParticipant : participants) {
+                if (!pythonCommentOrMultiline || pyHoverParticipant instanceof IPyHoverParticipant2) {
                     try {
                         String hoverText = pyHoverParticipant.getHoverText(hoverRegion, s, ps, textSelection);
                         if (hoverText != null && hoverText.trim().length() > 0) {
@@ -138,13 +138,14 @@ public class PyTextHover implements ITextHover, ITextHoverExtension {
                         Log.log(e);
                     }
                 }
-
+            }
+            if (!pythonCommentOrMultiline) {
                 getMarkerHover(hoverRegion, s, buf);
                 if (PyHoverPreferencesPage.getShowDocstringOnHover()) {
                     getDocstringHover(hoverRegion, s, ps, buf);
                 }
-
             }
+
         }
         return buf.toString();
     }
