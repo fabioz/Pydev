@@ -92,6 +92,11 @@ public class PyTextHover implements ITextHover, ITextHoverExtension {
     private final boolean pythonCommentOrMultiline;
 
     /**
+     * The type of the content we're hovering over.
+     */
+    private final String contentType;
+
+    /**
      * The text selected
      */
     private ITextSelection textSelection;
@@ -112,6 +117,7 @@ public class PyTextHover implements ITextHover, ITextHoverExtension {
             }
         }
         this.pythonCommentOrMultiline = pythonCommentOrMultiline;
+        this.contentType = contentType;
     }
 
     @SuppressWarnings("unchecked")
@@ -124,7 +130,12 @@ public class PyTextHover implements ITextHover, ITextHoverExtension {
 
             List<IPyHoverParticipant> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_HOVER);
             for (IPyHoverParticipant pyHoverParticipant : participants) {
-                if (!pythonCommentOrMultiline || pyHoverParticipant instanceof IPyHoverParticipant2) {
+                boolean contentTypeSupported = !pythonCommentOrMultiline;
+                if (pyHoverParticipant instanceof IPyHoverParticipant2) {
+                    contentTypeSupported = ((IPyHoverParticipant2) pyHoverParticipant)
+                            .isContentTypeSupported(this.contentType);
+                }
+                if (contentTypeSupported) {
                     try {
                         String hoverText = pyHoverParticipant.getHoverText(hoverRegion, s, ps, textSelection);
                         if (hoverText != null && hoverText.trim().length() > 0) {
