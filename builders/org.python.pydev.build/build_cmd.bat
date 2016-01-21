@@ -65,7 +65,7 @@ set PYTHONPATH=%BUILD_DIR%/Pydev/plugins/org.python.pydev/pysrc
 C:\tools\Miniconda32\envs\py27_32\python %BUILD_DIR%/Pydev/plugins/org.python.pydev/pysrc/build_tools/build_binaries_windows.py
 
 @echo to clean after the build: -DcleanAfter.set=true
-mvn -o install
+mvn install
 
 
 
