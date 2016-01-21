@@ -148,6 +148,28 @@ Companies have the option of sponsoring PyDev through corporate sponsorship. See
 .. _`Getting started guide`: manual_101_root.html
 
 
+Release 4.5.2
+==========================
+
+* Debugger
+
+	* Fixed issue in set next statement (#PyDev 651).
+	
+	* pydevd.settrace was stopping inside the debugger and not in user code (#PyDev 648). 
+	
+	* subprocess.Popen could crash when running non python executable (#PyDev 650).
+	
+* PyUnit view
+
+	* The last pinned test suite appears as the first entry in the history.
+	
+	* More information is shown on the test run history.
+	
+	* A string representation of the test suite can be saved in the clipboard (last item in the test run history).
+	
+* Indexing: fixed issue where the indexing and code-analysis could race with each other and one could become corrupt.
+
+
 Release 4.5.1
 ==========================
 
