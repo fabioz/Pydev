@@ -3,7 +3,7 @@ Update the version:
 
 x:
 cd x:\pydev
-python update_version.py 4.5.2
+python update_version.py 4.5.3
 
 X:\pydev\builders\org.python.pydev.build\build_cmd.bat
 C:\bin\Python27\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository -d https://api.bintray.com/content/fabioz/pydev/nightly/
@@ -24,6 +24,12 @@ C:\bin\Python27\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pyde
 		Commit everything
         Merge with master
 
+		Check that
+		 
+			C:\tools\Miniconda32\envs\py27_32\python -c "import pydevd"
+			
+		throws an exception (it cannot be installed in the environment)
+		
 		Execute in cmd.exe: X:\pydev\builders\org.python.pydev.build\build_cmd.bat
 
 		Copy features and plugins folders from X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository to X:\pydev_build\update_site_dir\updates
