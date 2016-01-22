@@ -15,11 +15,13 @@ import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.Launch;
+import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -33,6 +35,7 @@ import org.eclipse.ui.dialogs.SelectionDialog;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyStackFrame;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
@@ -48,7 +51,7 @@ import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.pythonpathconf.AbstractInterpreterPreferencesPage;
 
 /**
- * This class is used to create the given IProcess and get the console that is attached to that process. 
+ * This class is used to create the given IProcess and get the console that is attached to that process.
  */
 public class PydevIProcessFactory {
 
@@ -60,6 +63,7 @@ public class PydevIProcessFactory {
         public final PyStackFrame frame;
         public final String[] cmdLine;
         public final String[] env;
+        public final String encoding;
 
         /**
          * @param launch
@@ -67,11 +71,11 @@ public class PydevIProcessFactory {
          * @param clientPort
          * @param interpreter
          * @param frame
-         * @param env 
-         * @param cmdLine 
+         * @param env
+         * @param cmdLine
          */
         public PydevConsoleLaunchInfo(Launch launch, Process process, int clientPort, IInterpreterInfo interpreter,
-                PyStackFrame frame, String[] cmdLine, String[] env) {
+                PyStackFrame frame, String[] cmdLine, String[] env, String encoding) {
             this.launch = launch;
             this.process = process;
             this.clientPort = clientPort;
@@ -79,6 +83,7 @@ public class PydevIProcessFactory {
             this.frame = frame;
             this.cmdLine = cmdLine;
             this.env = env;
+            this.encoding = encoding;
         }
     }
 
@@ -99,15 +104,15 @@ public class PydevIProcessFactory {
 
     /**
      * Creates a launch (and its associated IProcess) for the xml-rpc server to be used in the interactive console.
-     * 
+     *
      * It'll ask the user how to create it:
      * - editor
      * - python interpreter
      * - jython interpreter
-     * 
+     *
      * @return the Launch, the Process created and the port that'll be used for the server to call back into
      * this client for requesting input.
-     * 
+     *
      * @throws UserCanceledException
      * @throws Exception
      */
@@ -125,10 +130,13 @@ public class PydevIProcessFactory {
         ChooseProcessTypeDialog dialog = new ChooseProcessTypeDialog(getShell(), edit);
         if (dialog.open() == ChooseProcessTypeDialog.OK) {
 
-            if (dialog.getSelectedFrame() != null) {
+            PyStackFrame selectedFrame = dialog.getSelectedFrame();
+            if (selectedFrame != null) {
                 // Interpreter not required for Debug Console
-                return new PydevConsoleLaunchInfo(null, null, 0, null, dialog.getSelectedFrame(),
-                        new String[] { "Debug connection (no command line)" }, null);
+                String encoding = getEncodingFromFrame(selectedFrame);
+
+                return new PydevConsoleLaunchInfo(null, null, 0, null, selectedFrame,
+                        new String[] { "Debug connection (no command line)" }, null, encoding);
             }
 
             IInterpreterManager interpreterManager = dialog.getInterpreterManager();
@@ -178,6 +186,42 @@ public class PydevIProcessFactory {
                     dialog.getNatures());
         }
         return null;
+    }
+
+    public static String getEncodingFromFrame(PyStackFrame selectedFrame) {
+        try {
+            IDebugTarget adapter = (IDebugTarget) selectedFrame.getAdapter(IDebugTarget.class);
+            if (adapter == null) {
+                return "UTF-8";
+            }
+            IProcess process = adapter.getProcess();
+            if (process == null) {
+                return "UTF-8";
+            }
+            ILaunch launch = process.getLaunch();
+            if (launch == null) {
+                Log.log("Unable to get launch for: " + process);
+                return "UTF-8";
+            }
+            return getEncodingFromLaunch(launch);
+        } catch (Exception e) {
+            Log.log(e);
+            return "UTF-8";
+        }
+    }
+
+    public static String getEncodingFromLaunch(ILaunch launch) {
+        try {
+            String encoding = launch.getAttribute(DebugPlugin.ATTR_CONSOLE_ENCODING);
+            if (encoding == null) {
+                Log.log("Unable to get: " + DebugPlugin.ATTR_CONSOLE_ENCODING + " from launch.");
+                return "UTF-8";
+            }
+            return encoding;
+        } catch (Exception e) {
+            Log.log(e);
+            return "UTF-8";
+        }
     }
 
     private static ILaunchConfiguration createLaunchConfig() {
@@ -244,6 +288,12 @@ public class PydevIProcessFactory {
         String[] cmdLine;
         String[] env;
 
+        String encoding = PydevDebugPlugin.getDefault().getPreferenceStore()
+                .getString(PydevConsoleConstants.INTERACTIVE_CONSOLE_ENCODING);
+        if (encoding.trim().length() == 0) {
+            encoding = "UTF-8"; //Default is utf-8
+        }
+
         if (interpreterManager.getInterpreterType() == IInterpreterManager.INTERPRETER_TYPE_JYTHON_ECLIPSE) {
             process = new JythonEclipseProcess(scriptWithinPySrc.getAbsolutePath(), port, clientPort);
             cmdLine = new String[] { "Internal Jython process (no command line)" };
@@ -253,9 +303,10 @@ public class PydevIProcessFactory {
             env = SimpleRunner.createEnvWithPythonpath(pythonpathEnv, interpreter.getExecutableOrJar(),
                     interpreterManager, nature);
             // Add in UMD settings
-            String[] s = new String[env.length + 3];
+            String[] s = new String[env.length + 4];
             System.arraycopy(env, 0, s, 0, env.length);
 
+            s[s.length - 4] = "PYTHONIOENCODING=" + encoding;
             s[s.length - 3] = "PYDEV_UMD_ENABLED="
                     + Boolean.toString(InteractiveConsoleUMDPrefs.isUMDEnabled());
             s[s.length - 2] = "PYDEV_UMD_NAMELIST="
@@ -268,11 +319,11 @@ public class PydevIProcessFactory {
             process = SimpleRunner.createProcess(commandLine, env, null);
         }
 
-        IProcess newProcess = new PydevSpawnedInterpreterProcess(launch, process, interpreter.getNameForUI(), null);
+        IProcess newProcess = new PydevSpawnedInterpreterProcess(launch, process, interpreter.getNameForUI(), encoding);
 
         launch.addProcess(newProcess);
 
-        return new PydevConsoleLaunchInfo(launch, process, clientPort, interpreter, null, cmdLine, env);
+        return new PydevConsoleLaunchInfo(launch, process, clientPort, interpreter, null, cmdLine, env, encoding);
     }
 
 }

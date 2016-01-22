@@ -41,7 +41,20 @@ public class PyProfilePreferences {
 
     // Non-volatile stuff
     public static String getPyVmMonitorUILocation() {
-        return getPermanentPreferenceStore().getString(PYVMMONITOR_UI_LOCATION);
+        String location = getPermanentPreferenceStore().getString(PYVMMONITOR_UI_LOCATION);
+        if (!new File(location).exists() || !new File(location).isFile()) {
+            if (PlatformUtils.isMacOsPlatform()) {
+                File f = new File(location, "Contents");
+                f = new File(f, "MacOS");
+                f = new File(f, "pyvmmonitor-ui");
+                if (f.exists()) {
+                    return FileUtils.getFileAbsolutePath(f);
+                }
+            }
+            //If it still didn't find it, let's see if we have a default location to use...
+            location = getDefaultLocation();
+        }
+        return location;
     }
 
     private static boolean firstCall = true;
@@ -53,30 +66,55 @@ public class PyProfilePreferences {
             synchronized (lock) {
                 if (firstCall) {
                     firstCall = false;
-
-                    //TODO: Cover other platforms!
-                    if (PlatformUtils.isWindowsPlatform()) {
-                        try {
-                            //It may not be available in all versions of windows, but if it is, let's use it...
-                            String env = System.getenv("LOCALAPPDATA");
-                            if (env != null && env.length() > 0 && new File(env).exists()) {
-                                File settings = new File(new File(env, "Brainwy"), "PyVmMonitor.ini");
-                                if (settings.exists()) {
-                                    Properties props = new Properties();
-                                    props.load(new FileInputStream(settings));
-                                    String property = props.getProperty("pyvmmonitor_ui_executable");
-                                    preferenceStore.setDefault(PYVMMONITOR_UI_LOCATION, property);
-                                }
-                            }
-                        } catch (Exception e) {
-                            Log.log(e);
-                        }
+                    String defaultLocation = getDefaultLocation();
+                    if (defaultLocation != null) {
+                        preferenceStore.setDefault(PYVMMONITOR_UI_LOCATION, defaultLocation);
                     }
                     preferenceStore.setDefault(PROFILE_MODE, PROFILE_MODE_LSPROF);
                 }
             }
         }
         return preferenceStore;
+    }
+
+    public static String getDefaultLocation() {
+        File settings = null;
+
+        try {
+            if (PlatformUtils.isMacOsPlatform()) {
+                settings = new File(System.getProperty("user.home"), "Library");
+                settings = new File(settings, "Application Support");
+                settings = new File(settings, "Brainwy");
+                settings = new File(settings, "PyVmMonitor.ini");
+
+            } else if (PlatformUtils.isLinuxPlatform()) {
+                settings = new File(System.getProperty("user.home"), ".config/Brainwy/pyvmmonitor.ini");
+
+            } else if (PlatformUtils.isWindowsPlatform()) {
+                //It may not be available in all versions of windows, but if it is, let's use it...
+                String env = System.getenv("LOCALAPPDATA");
+                if (env != null && env.length() > 0 && new File(env).exists()) {
+                    settings = new File(new File(env, "Brainwy"), "PyVmMonitor.ini");
+                }
+            }
+        } catch (Exception e) {
+            Log.log(e);
+        }
+        String defaultLocation = null;
+
+        try {
+            if (settings != null && settings.exists()) {
+                Properties props = new Properties();
+                props.load(new FileInputStream(settings));
+                String property = props.getProperty("pyvmmonitor_ui_executable");
+                if (property != null) {
+                    defaultLocation = property;
+                }
+            }
+        } catch (Exception e) {
+            Log.log(e);
+        }
+        return defaultLocation;
     }
 
     public static int getProfileMode() {

@@ -31,6 +31,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.MouseAdapter;
@@ -62,6 +63,7 @@ import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_interactive_console.console.ui.internal.ClipboardHandler;
 import org.python.pydev.shared_ui.tooltips.presenter.StyleRangeWithCustomData;
 import org.python.pydev.shared_ui.tooltips.presenter.ToolTipPresenterHandler;
 import org.python.pydev.shared_ui.utils.IViewWithControls;
@@ -73,9 +75,9 @@ import org.python.pydev.ui.ViewPartWithOrientation;
 
 /**
  * ViewPart that'll listen to the PyUnitServer and show what's happening (with a green/red bar).
- * 
+ *
  * Features:
- * 
+ *
  * - Red/green bar -- OK
  * - Relaunching the tests -- OK
  * - Relaunching only the tests that failed -- OK
@@ -97,27 +99,27 @@ import org.python.pydev.ui.ViewPartWithOrientation;
  * - Show current test(s) being run (handle parallel execution) -- OK
  * - Select some tests and make a new run with them. -- OK
  * - Show total time to run tests. -- OK
- * - Rerun tests on file changes -- OK 
- * 
- * 
+ * - Rerun tests on file changes -- OK
+ *
+ *
  * Nice to have:
- * - Hide or show output pane 
+ * - Hide or show output pane
  * - If a string was different, show an improved diff (as JDT)
  * - Save column order (tree.setColumnOrder(order))
  * - Hide columns
  * - Theming bug: when columns order change, the selected text for the last columns is not appearing
- * 
- * 
+ *
+ *
  * References:
- * 
+ *
  * http://www.eclipse.org/swt/snippets/
- * 
+ *
  * Notes on tree/table: http://www.eclipse.org/swt/R3_2/new_and_noteworthy.html (see links below)
- * 
+ *
  * Working: Sort table by column (applicable to tree: http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.swt.snippets/src/org/eclipse/swt/snippets/Snippet2.java?view=markup&content-type=text%2Fvnd.viewcvs-markup&revision=HEAD )
  * Working: Reorder columns by drag ( http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.swt.snippets/src/org/eclipse/swt/snippets/Snippet193.java?view=markup&content-type=text%2Fvnd.viewcvs-markup&revision=HEAD )
  * Working: Sort indicator in column header ( http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.swt.snippets/src/org/eclipse/swt/snippets/Snippet192.java?view=markup&content-type=text%2Fvnd.viewcvs-markup&revision=HEAD )
- * 
+ *
  * Based on org.eclipse.jdt.internal.junit.ui.TestRunnerViewPart (but it's really not meant to be reused)
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -141,7 +143,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
     public static final String PYUNIT_VIEW_BACKGROUND_RELAUNCH_SHOW_ONLY_ERRORS = "PYUNIT_VIEW_BACKGROUND_RELAUNCH_SHOW_ONLY_ERRORS";
     public static final boolean PYUNIT_VIEW_DEFAULT_BACKGROUND_RELAUNCH_SHOW_ONLY_ERRORS = false;
 
-    public static int MAX_RUNS_TO_KEEP = 15;
+    public static int MAX_RUNS_TO_KEEP = 20;
 
     private static final Object lockServerListeners = new Object();
     private static final List<PyUnitViewServerListener> serverListeners = new ArrayList<PyUnitViewServerListener>();
@@ -172,6 +174,8 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
     private Label fStatus;
     private Composite fCounterComposite;
     private IPropertyChangeListener prefListener;
+
+    private PinHistoryAction fPinHistory = new PinHistoryAction(this);
 
     /**
      * Whether we should show only errors or not.
@@ -400,9 +404,8 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
 
         toolBar.add(new Separator());
         toolBar.add(new HistoryAction(this));
-        PinHistoryAction pinHistory = new PinHistoryAction(this);
-        toolBar.add(pinHistory);
-        toolBar.add(new RestorePinHistoryAction(this, pinHistory));
+        toolBar.add(fPinHistory);
+        toolBar.add(new RestorePinHistoryAction(this, fPinHistory));
 
         addOrientationPreferences(menuManager);
     }
@@ -523,7 +526,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
     /**
      * Gets the py unit view. May only be called in the UI thread. If the view is not visible, shows it if the
      * preference to do that is set to true.
-     * 
+     *
      * Note that it may return null if the preference to show it is false and the view is not currently shown.
      */
     public static PyUnitView getView() {
@@ -582,7 +585,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
     }
 
     /**
-     * Used to update the number of tests available. 
+     * Used to update the number of tests available.
      */
     /*default*/void notifyTestsCollected(PyUnitTestRun testRun) {
         if (this.disposed) {
@@ -750,7 +753,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
 
     /**
      * Helper method to reset the bar to a state knowing only about if we have errors, runs and whether it's finished.
-     * 
+     *
      * Only really used if we have no errors or if we don't know how to collect the current number of test runs.
      */
     private void setShowBarWithError(boolean hasError, boolean hasRuns, boolean finished) {
@@ -914,7 +917,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
 
     /**
      * Sets the current run (updates the UI)
-     * 
+     *
      * Note that it can be called to update the current test run when changing whether only errors should be
      * shown or not (so, we don't check if it's the current or not, just go on and update all).
      */
@@ -999,6 +1002,22 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
 
     public ICallbackWithListeners getOnControlDisposed() {
         return onControlDisposed;
+    }
+
+    public void exportCurrentToClipboard() {
+        PyUnitTestRun curr = this.currentRun;
+        if (curr == null) {
+            return;
+        }
+
+        String str = curr.getExportToClipboard();
+        if (str.length() > 0) {
+            new ClipboardHandler().putIntoClipboard(DND.CLIPBOARD, Display.getCurrent(), str);
+        }
+    }
+
+    public PyUnitTestRun getLastPinned() {
+        return this.fPinHistory.getLastPinned();
     }
 
 }

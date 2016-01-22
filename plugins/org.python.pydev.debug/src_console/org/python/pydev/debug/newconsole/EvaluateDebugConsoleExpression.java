@@ -24,7 +24,7 @@ import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * Class to exectute console command in the debugging context
- * 
+ *
  * @author hussain.bohra
  * @author Fabio Zadrozny
  */
@@ -40,8 +40,8 @@ public class EvaluateDebugConsoleExpression implements ICommandResponseListener 
     }
 
     /**
-     * This method will get called from AbstractDebugTarget when 
-     * output arrives for the posted command 
+     * This method will get called from AbstractDebugTarget when
+     * output arrives for the posted command
      */
     public void commandComplete(AbstractDebuggerCommand cmd) {
         try {
@@ -53,13 +53,14 @@ public class EvaluateDebugConsoleExpression implements ICommandResponseListener 
 
     /**
      * Execute the line in selected frame context
-     * 
+     *
      * @param consoleId
      * @param command
      */
-    public void executeCommand(String command) {
+    public void executeCommand(String command, boolean bufferedOutput) {
         AbstractDebugTarget target = frame.getTarget();
-        String locator = getLocator(frame.getThreadId(), frame.getId(), "EVALUATE", command);
+        String locator = getLocator(frame.getThreadId(), frame.getId(), bufferedOutput ? "EVALUATE"
+                : "EVALUATE_UNBUFFERED", command);
         AbstractDebuggerCommand cmd = new EvaluateConsoleExpressionCommand(target, locator,
                 new ICommandResponseListener() {
 
@@ -73,7 +74,7 @@ public class EvaluateDebugConsoleExpression implements ICommandResponseListener 
 
     /**
      * Post the completions command
-     * 
+     *
      * @param consoleId
      * @param actTok
      * @param offset
@@ -110,8 +111,8 @@ public class EvaluateDebugConsoleExpression implements ICommandResponseListener 
     }
 
     /**
-     * join and return all locators with '\t' 
-     * 
+     * join and return all locators with '\t'
+     *
      * @param locators
      * @return
      */
@@ -120,8 +121,8 @@ public class EvaluateDebugConsoleExpression implements ICommandResponseListener 
     }
 
     /**
-     * This class represent the console message to be displayed in the debug console. 
-     * 
+     * This class represent the console message to be displayed in the debug console.
+     *
      * @author hussain.bohra
      *
      */

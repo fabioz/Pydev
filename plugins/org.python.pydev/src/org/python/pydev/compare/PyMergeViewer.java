@@ -38,12 +38,14 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.docutils.PyPartitionScanner;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.core.partition.PyPartitionScanner;
 import org.python.pydev.editor.IPySyntaxHighlightingAndCodeCompletionEditor;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.PyEditConfiguration;
@@ -100,9 +102,6 @@ public class PyMergeViewer extends TextMergeViewer {
             return null;
         }
         ICompareInput input = (ICompareInput) compareInput;
-        if (input == null) {
-            return null;
-        }
 
         IResourceProvider rp = null;
         ITypedElement te = input.getLeft();
@@ -260,6 +259,16 @@ public class PyMergeViewer extends TextMergeViewer {
 
             public IPythonNature getPythonNature() throws MisconfigurationException {
                 return PyMergeViewer.this.getPythonNature(PyMergeViewer.this.getInput());
+            }
+
+            @Override
+            public int getGrammarVersion() throws MisconfigurationException {
+                IPythonNature pythonNature = this.getPythonNature();
+                if (pythonNature == null) {
+                    Log.logInfo("Expected to get the PythonNature at this point...");
+                    return IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;
+                }
+                return pythonNature.getGrammarVersion();
             }
 
             public Object getAdapter(Class adapter) {

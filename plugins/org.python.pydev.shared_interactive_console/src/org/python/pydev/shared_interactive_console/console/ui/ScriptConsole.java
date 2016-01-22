@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.ListenerList;
+import org.eclipse.debug.internal.ui.views.console.ProcessConsole;
 import org.eclipse.debug.ui.console.IConsoleLineTracker;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.text.ITextHover;
@@ -38,6 +39,7 @@ import org.eclipse.ui.part.IPageBookViewPage;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.Reflection;
+import org.python.pydev.shared_interactive_console.console.IScriptConsoleCommunication;
 import org.python.pydev.shared_interactive_console.console.IScriptConsoleInterpreter;
 import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
 import org.python.pydev.shared_interactive_console.console.ScriptConsoleHistory;
@@ -70,11 +72,18 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
 
     public static final String DEFAULT_CONSOLE_TYPE = "org.python.pydev.debug.newconsole.PydevConsole";
 
+    public static final String SCRIPT_DEBUG_CONSOLE_IN_PROCESS_CONSOLE = "SCRIPT_DEBUG_CONSOLE_IN_PROCESS_CONSOLE";
+
+    // Backward-compatibility
+    public static ScriptConsole getActiveScriptConsole(String ignored) {
+        return getActiveScriptConsole();
+    }
+
     /**
-     * @param consoleType the console type we're searching for
-     * @return the currently active console.
+     * @return the currently active script console.
      */
-    public static ScriptConsole getActiveScriptConsole(String consoleType) {
+    @SuppressWarnings("restriction")
+    public static ScriptConsole getActiveScriptConsole() {
         IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
         if (window != null) {
             IWorkbenchPage page = window.getActivePage();
@@ -112,8 +121,22 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
                     if (view != null) {
                         IConsole console = view.getConsole();
 
-                        if (console instanceof ScriptConsole && console.getType().equals(consoleType)) {
+                        if (console instanceof ScriptConsole) {
                             return (ScriptConsole) console;
+                        } else {
+                            if (console instanceof ProcessConsole) {
+                                ProcessConsole processConsole = (ProcessConsole) console;
+                                Object scriptConsole = processConsole
+                                        .getAttribute(ScriptConsole.SCRIPT_DEBUG_CONSOLE_IN_PROCESS_CONSOLE);
+                                if (scriptConsole instanceof ScriptConsole) {
+                                    ScriptConsole scriptConsole2 = (ScriptConsole) scriptConsole;
+                                    IScriptConsoleCommunication consoleCommunication = scriptConsole2.getInterpreter()
+                                            .getConsoleCommunication();
+                                    if (consoleCommunication.isConnected()) {
+                                        return scriptConsole2;
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -203,6 +226,10 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
         this.interpreter = interpreter;
     }
 
+    public IScriptConsoleInterpreter getInterpreter() {
+        return interpreter;
+    }
+
     public ScriptConsolePrompt getPrompt() {
         return prompt;
     }
@@ -220,7 +247,7 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
         return page;
     }
 
-    protected abstract SourceViewerConfiguration createSourceViewerConfiguration();
+    public abstract SourceViewerConfiguration createSourceViewerConfiguration();
 
     /**
      * Clears the console
@@ -235,6 +262,16 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
         interpreter.setOnContentsReceivedCallback(onContentsReceived);
     }
 
+    @Override
+    public void beforeHandleCommand(String userInput, ICallback<Object, InterpreterResponse> onResponseReceived) {
+        final Object[] listeners = consoleListeners.getListeners();
+
+        //notify about the user request in the UI thread.
+        for (Object listener : listeners) {
+            ((IScriptConsoleListener) listener).userRequest(userInput, prompt);
+        }
+    }
+
     /**
      * Handles some command that the user entered
      *
@@ -242,11 +279,6 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
      */
     public void handleCommand(String userInput, final ICallback<Object, InterpreterResponse> onResponseReceived) {
         final Object[] listeners = consoleListeners.getListeners();
-
-        //notify about the user request
-        for (Object listener : listeners) {
-            ((IScriptConsoleListener) listener).userRequest(userInput, prompt);
-        }
 
         //executes the user input in the interpreter
         if (interpreter != null) {
@@ -257,7 +289,7 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
                     prompt.setMode(!response.more);
                     prompt.setNeedInput(response.need_input);
 
-                    //notify about the console answer
+                    //notify about the console answer (not in the UI thread).
                     for (Object listener : listeners) {
                         ((IScriptConsoleListener) listener).interpreterResponse(response, prompt);
                     }

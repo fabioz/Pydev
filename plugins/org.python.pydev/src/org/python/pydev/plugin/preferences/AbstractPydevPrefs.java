@@ -57,7 +57,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
      * - add what appears in the Preferences page at createAppearancePage()
      * - add the function to the org.python.pydev.editor.autoedit.IIndentPrefs interface
      * - probably add that function to org.python.pydev.editor.autoedit.DefaultIndentPrefs
-     * 
+     *
      */
 
     /**
@@ -75,6 +75,9 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
 
     public static final String GUESS_TAB_SUBSTITUTION = "GUESS_TAB_SUBSTITUTION";
     public static final boolean DEFAULT_GUESS_TAB_SUBSTITUTION = true;
+
+    public static final String TAB_STOP_IN_COMMENT = "TAB_STOP_IN_COMMENT";
+    public static final boolean DEFAULT_TAB_STOP_IN_COMMENT = true;
 
     public static final String USE_VERTICAL_INDENT_GUIDE = "USE_VERTICAL_INDENT_GUIDE";
     public static final boolean DEFAULT_USE_VERTICAL_INDENT_GUIDE = true;
@@ -118,7 +121,10 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     public static final RGB DEFAULT_SELF_COLOR = new RGB(0, 0, 0);
 
     public static final String STRING_COLOR = "STRING_COLOR";
-    public static final RGB DEFAULT_STRING_COLOR = new RGB(0, 170, 0);
+    public static final RGB DEFAULT_STRING_COLOR = new RGB(201, 128, 43);
+
+    public static final String UNICODE_COLOR = "UNICODE_COLOR";
+    public static final RGB DEFAULT_UNICODE_COLOR = new RGB(0, 170, 0);
 
     public static final String COMMENT_COLOR = "COMMENT_COLOR";
     public static final RGB DEFAULT_COMMENT_COLOR = new RGB(192, 192, 192);
@@ -152,7 +158,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     public static final boolean DEFAULT_DONT_TRACE_ENABLED = true;
 
     public static final String TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS = "TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS";
-    public static final boolean DEFAULT_TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS = true;
+    public static final boolean DEFAULT_TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS = false;
 
     public static final String DEBUG_MULTIPROCESSING_ENABLED = "DEBUG_MULTIPROCESSING_ENABLED";
     public static final boolean DEFAULT_DEBUG_MULTIPROCESSING_ENABLED = true;
@@ -182,6 +188,9 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     public static final String STRING_STYLE = "STRING_STYLE";
     public static final int DEFAULT_STRING_STYLE = SWT.ITALIC;
 
+    public static final String UNICODE_STYLE = "UNICODE_STYLE";
+    public static final int DEFAULT_UNICODE_STYLE = SWT.ITALIC;
+
     public static final String COMMENT_STYLE = "COMMENT_STYLE";
     public static final int DEFAULT_COMMENT_STYLE = SWT.NORMAL;
 
@@ -209,7 +218,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     protected final String[][] fAppearanceColorListModel = new String[][] { { "Code", CODE_COLOR, null },
             { "Decorators", DECORATOR_COLOR, null }, { "Numbers", NUMBER_COLOR, null },
             { "Matching brackets", MATCHING_BRACKETS_COLOR, null }, { "Keywords", KEYWORD_COLOR, null },
-            { "self", SELF_COLOR, null }, { "Strings", STRING_COLOR, null },
+            { "self", SELF_COLOR, null }, { "Bytes", STRING_COLOR, null }, { "Unicode", UNICODE_COLOR, null },
             { "Docstring markup", DOCSTRING_MARKUP_COLOR, null }, { "Comments", COMMENT_COLOR, null },
             { "Backquotes", BACKQUOTES_COLOR, null }, { "Class Name", CLASS_NAME_COLOR, null },
             { "Function Name", FUNC_NAME_COLOR, null }, { "(), [], {}", PARENS_COLOR, null },
@@ -218,7 +227,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     protected final String[][] fAppearanceFontListModel = new String[][] { { "Code", CODE_STYLE, null },
             { "Decorators", DECORATOR_STYLE, null }, { "Numbers", NUMBER_STYLE, null },
             { "Matching brackets", MATCHING_BRACKETS_STYLE, null }, { "Keywords", KEYWORD_STYLE, null },
-            { "self", SELF_STYLE, null }, { "Strings", STRING_STYLE, null },
+            { "self", SELF_STYLE, null }, { "Bytes", STRING_STYLE, null }, { "Unicode", UNICODE_STYLE, null },
             { "Docstring markup", DOCSTRING_MARKUP_STYLE, null }, { "Comments", COMMENT_STYLE, null },
             { "Backquotes", BACKQUOTES_STYLE, null }, { "Class Name", CLASS_NAME_STYLE, null },
             { "Function Name", FUNC_NAME_STYLE, null }, { "(), [], {}", PARENS_STYLE, null },
@@ -286,7 +295,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
 
     /**
      * List of master/slave listeners when there's a dependency.
-     * 
+     *
      * @see #createDependency(Button, String, Control)
      * @since 3.0
      */
@@ -296,16 +305,9 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
 
         java.util.List<OverlayPreferenceStore.OverlayKey> overlayKeys = new ArrayList<OverlayPreferenceStore.OverlayKey>();
 
-        //text
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, TAB_WIDTH));
-
         //matching
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, USE_MATCHING_BRACKETS));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, MATCHING_BRACKETS_COLOR));
-
-        //checkbox      
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, SUBSTITUTE_TABS));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, GUESS_TAB_SUBSTITUTION));
 
         //colors
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, CODE_COLOR));
@@ -314,6 +316,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, KEYWORD_COLOR));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, SELF_COLOR));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, STRING_COLOR));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, UNICODE_COLOR));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, COMMENT_COLOR));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, BACKQUOTES_COLOR));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, CLASS_NAME_COLOR));
@@ -329,6 +332,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, KEYWORD_STYLE));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, SELF_STYLE));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, STRING_STYLE));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, UNICODE_STYLE));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, COMMENT_STYLE));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, BACKQUOTES_STYLE));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, CLASS_NAME_STYLE));
@@ -551,7 +555,8 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
         doCreateDependency(master, masterKey, slave, true);
     }
 
-    private void doCreateDependency(final Button master, String masterKey, final Control slave, final boolean enableIf) {
+    private void doCreateDependency(final Button master, String masterKey, final Control slave,
+            final boolean enableIf) {
         indent(slave);
 
         boolean masterState = fOverlayStore.getBoolean(masterKey);
@@ -619,7 +624,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
 
     /**
      * Applies the status to the status line of a dialog page.
-     * 
+     *
      * @param page the dialog page
      * @param status the status
      */

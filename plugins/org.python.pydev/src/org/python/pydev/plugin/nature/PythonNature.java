@@ -6,7 +6,7 @@
  */
 /*
  * Created on Mar 11, 2004
- * 
+ *
  * @author Fabio Zadrozny
  * @author atotic
  */
@@ -71,11 +71,11 @@ import org.python.pydev.utils.JobProgressComunicator;
 
 /**
  * PythonNature is currently used as a marker class.
- * 
+ *
  * When python nature is present, project gets extra properties. Project gets assigned python nature when: - a python file is edited - a
  * python project wizard is created
- * 
- *  
+ *
+ *
  */
 public class PythonNature extends AbstractPythonNature implements IPythonNature {
 
@@ -104,7 +104,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
     /**
      * Constructor
-     * 
+     *
      * Adds the nature to the list of created natures.
      */
     public PythonNature() {
@@ -117,7 +117,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
     /**
      * This is the job that is used to rebuild the python nature modules.
-     * 
+     *
      * @author Fabio
      */
     protected class RebuildPythonNatureModules extends Job {
@@ -294,7 +294,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
     /**
      * This method is called only when the project has the nature added..
-     * 
+     *
      * @see org.eclipse.core.resources.IProjectNature#configure()
      */
     public void configure() throws CoreException {
@@ -308,7 +308,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
     /**
      * Returns the project
-     * 
+     *
      * @see org.eclipse.core.resources.IProjectNature#getProject()
      */
     public IProject getProject() {
@@ -317,7 +317,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
     /**
      * Sets this nature's project - called from the eclipse platform.
-     * 
+     *
      * @see org.eclipse.core.resources.IProjectNature#setProject(org.eclipse.core.resources.IProject)
      */
     public synchronized void setProject(final IProject project) {
@@ -336,7 +336,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
     public static IPythonNature addNature(IEditorInput element) {
         if (element instanceof FileEditorInput) {
-            IFile file = (IFile) ((FileEditorInput) element).getAdapter(IFile.class);
+            IFile file = ((FileEditorInput) element).getAdapter(IFile.class);
             if (file != null) {
                 try {
                     return PythonNature.addNature(file.getProject(), null, null, null, null, null, null);
@@ -413,14 +413,14 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
     /**
      * Utility routine to add PythonNature to the project
-     * 
+     *
      * @param projectPythonpath: @see {@link IPythonPathNature#setProjectSourcePath(String)}
      */
     public static IPythonNature addNature(
             //Only synchronized internally!
             IProject project, IProgressMonitor monitor, String version, String projectPythonpath,
             String externalProjectPythonpath, String projectInterpreter, Map<String, String> variableSubstitution)
-            throws CoreException {
+                    throws CoreException {
 
         if (project == null || !project.isOpen()) {
             return null;
@@ -442,7 +442,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             //Ok, there's some execution path already adding the nature. Let's simply wait a bit here and return
             //the nature that's there (this way we avoid any possible deadlock) -- in the worse case, null
             //will be returned here, but this is a part of the protocol anyways.
-            //Done because of: Deadlock acquiring PythonNature -- at setDescription() 
+            //Done because of: Deadlock acquiring PythonNature -- at setDescription()
             //https://sourceforge.net/tracker/?func=detail&aid=3478567&group_id=85796&atid=577329
             try {
                 Thread.sleep(50);
@@ -502,7 +502,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
     /**
      * Utility to know if the pydev builder is in one of the commands passed.
-     * 
+     *
      * @param commands
      */
     private static boolean hasBuilder(ICommand[] commands) {
@@ -516,12 +516,12 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
     /**
      * Initializes the python nature if it still has not been for this session.
-     * 
+     *
      * Actions includes restoring the dump from the code completion cache
      * @param projectPythonpath this is the project python path to be used (may be null)  -- if not null, this nature is being created
      * @param version this is the version (project type) to be used (may be null) -- if not null, this nature is being created
-     * @param monitor 
-     * @param interpreter 
+     * @param monitor
+     * @param interpreter
      */
     @SuppressWarnings("unchecked")
     private void init(String version, String projectPythonpath, String externalProjectPythonpath,
@@ -552,7 +552,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 this.getStore().endInit();
             }
         } else {
-            //Change: 1.3.10: it could be reloaded more than once... (when it shouldn't) 
+            //Change: 1.3.10: it could be reloaded more than once... (when it shouldn't)
             if (astManager != null) {
                 return; //already initialized...
             }
@@ -652,7 +652,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
     /**
      * Returns the directory that should store completions.
-     * 
+     *
      * @param p
      * @return
      */
@@ -684,7 +684,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
     /**
      * Can be called to refresh internal info (or after changing the path in the preferences).
-     * @throws CoreException 
+     * @throws CoreException
      */
     public void rebuildPath() {
         clearCaches(true);
@@ -725,7 +725,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     }
 
     /**
-     * @return all the python natures available in the workspace (for opened and existing projects) 
+     * @return all the python natures available in the workspace (for opened and existing projects)
      */
     public static List<IPythonNature> getAllPythonNatures() {
         List<IPythonNature> natures = new ArrayList<IPythonNature>();
@@ -752,7 +752,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     /**
      * @param project the project we want to know about (if it is null, null is returned)
      * @return the python nature for a project (or null if it does not exist for the project)
-     * 
+     *
      * @note: it's synchronized because more than 1 place could call getPythonNature at the same time and more
      * than one nature ended up being created from project.getNature().
      */
@@ -798,14 +798,14 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     private String interpreterPropertyCache = null;
 
     /**
-     * Returns the Python version of the Project. 
-     * 
-     * It's a String in the format "python 2.4", as defined by the constants PYTHON_VERSION_XX and 
+     * Returns the Python version of the Project.
+     *
+     * It's a String in the format "python 2.4", as defined by the constants PYTHON_VERSION_XX and
      * JYTHON_VERSION_XX in IPythonNature.
-     * 
+     *
      * @note it might have changed on disk (e.g. a repository update).
      * @return the python version for the project
-     * @throws CoreException 
+     * @throws CoreException
      */
     public String getVersion() throws CoreException {
         return getVersionAndError().o1;
@@ -848,12 +848,12 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     }
 
     /**
-     * @param version: the project version given the constants PYTHON_VERSION_XX and 
+     * @param version: the project version given the constants PYTHON_VERSION_XX and
      * JYTHON_VERSION_XX in IPythonNature. If null, nothing is done for the version.
-     * 
+     *
      * @param interpreter the interpreter to be set if null, nothing is done to the interpreter.
-     * 
-     * @throws CoreException 
+     *
+     * @throws CoreException
      */
     public void setVersion(String version, String interpreter) throws CoreException {
         clearCaches(false);
@@ -944,7 +944,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
     /**
      * Resolve the module given the absolute path of the file in the filesystem.
-     * 
+     *
      * @param fileAbsolutePath the absolute file path
      * @return the module name
      */
@@ -959,10 +959,10 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
     /**
      * Resolve the module given the absolute path of the file in the filesystem.
-     * 
+     *
      * @param fileAbsolutePath the absolute file path
      * @return the module name
-     * @throws CoreException 
+     * @throws CoreException
      */
     public String resolveModuleOnlyInProjectSources(String fileAbsolutePath, boolean addExternal) throws CoreException {
         String moduleName = null;
@@ -1170,9 +1170,9 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
     /**
      * @return info on the interpreter configured for this nature.
-     * @throws MisconfigurationException 
-     * 
-     * @note that an exception will be raised if the 
+     * @throws MisconfigurationException
+     *
+     * @note that an exception will be raised if the
      */
     public IInterpreterInfo getProjectInterpreter() throws MisconfigurationException,
             PythonNatureWithoutProjectException {
@@ -1192,7 +1192,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             }
 
             if (IPythonNature.DEFAULT_INTERPRETER.equals(projectInterpreterName)) {
-                //if it's the default, let's translate it to the outside world 
+                //if it's the default, let's translate it to the outside world
                 ret = relatedInterpreterManager.getDefaultInterpreterInfo(true);
             } else {
                 ret = relatedInterpreterManager.getInterpreterInfo(projectInterpreterName, null);
@@ -1222,9 +1222,9 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
     /**
      * @return The name of the interpreter that should be used for the nature this project is associated to.
-     * 
+     *
      * Note that this is the name that's visible to the user (and not the actual path of the executable).
-     * 
+     *
      * It can be null if the project is still not set!
      */
     public String getProjectInterpreterName() throws CoreException {
@@ -1243,7 +1243,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
     /**
      * @return a list of configuration errors and the interpreter info for the project (the interpreter info can be null)
-     * @throws PythonNatureWithoutProjectException 
+     * @throws PythonNatureWithoutProjectException
      */
     public Tuple<List<ProjectConfigError>, IInterpreterInfo> getConfigErrorsAndInfo(final IProject relatedToProject)
             throws PythonNatureWithoutProjectException {
@@ -1261,7 +1261,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             String executableOrJar = info.getExecutableOrJar();
             //Ok, if the user did a quick config, it's possible that the final executable is simply 'python', so,
             //in this case, don't check if it actually exists (as it's found on the PATH).
-            //Note: this happened after we let the user keep the original name instead of getting it from the 
+            //Note: this happened after we let the user keep the original name instead of getting it from the
             //interpreterInfo.py output.
             if (executableOrJar.contains("/") || executableOrJar.contains("\\")) {
                 if (!new File(executableOrJar).exists()) {

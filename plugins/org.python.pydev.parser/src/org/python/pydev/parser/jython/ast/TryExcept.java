@@ -68,7 +68,8 @@ public final class TryExcept extends stmtType {
         } else {
             new1 = this.handlers;
         }
-        TryExcept temp = new TryExcept(new0, new1, orelse != null ? (suiteType) orelse.createCopy(copyComments) : null);
+        TryExcept temp = new TryExcept(new0, new1,
+                orelse != null ? (suiteType) orelse.createCopy(copyComments) : null);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
         if (this.specialsBefore != null && copyComments) {

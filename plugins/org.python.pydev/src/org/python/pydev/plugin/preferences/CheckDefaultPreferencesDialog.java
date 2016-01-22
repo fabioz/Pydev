@@ -14,12 +14,12 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.osgi.service.prefs.BackingStoreException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.dialogs.DialogMemento;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 
@@ -37,6 +37,8 @@ public class CheckDefaultPreferencesDialog extends TrayDialog {
     CheckDefaultPreferencesDialog(Shell shell, CheckInfo[] missing) {
         super(shell);
         setHelpAvailable(false);
+        setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS | SWT.MAX | SWT.RESIZE | getDefaultOrientation());
+        setBlockOnOpen(true);
         memento = new DialogMemento(shell, "org.python.pydev.plugin.preferences.CheckDefaultPreferencesDialog");
         this.missing = missing;
         checkBoxes = new ArrayList<>(missing.length + 2);
@@ -213,6 +215,8 @@ public class CheckDefaultPreferencesDialog extends TrayDialog {
         }
     }
 
+    public static volatile boolean showing = false;
+
     public static void askAboutSettings() {
         IPreferenceStore preferenceStore = PydevPlugin.getDefault().getPreferenceStore();
         boolean checkPreferredSettings = preferenceStore.getBoolean(PydevRootPrefs.CHECK_PREFERRED_PYDEV_SETTINGS);
@@ -222,14 +226,23 @@ public class CheckDefaultPreferencesDialog extends TrayDialog {
                 return;
             }
 
-            boolean runNowIfInUiThread = true;
+            boolean runNowIfInUiThread = false;
             RunInUiThread.async(new Runnable() {
 
                 @Override
                 public void run() {
-                    Shell shell = EditorUtils.getShell();
+                    if (showing) {
+                        return;
+                    }
+                    Display disp = Display.getCurrent();
+                    Shell shell = new Shell(disp);
                     CheckDefaultPreferencesDialog dialog = new CheckDefaultPreferencesDialog(shell, missing);
-                    dialog.open();
+                    showing = true;
+                    try {
+                        dialog.open();
+                    } finally {
+                        showing = false;
+                    }
                 }
             }, runNowIfInUiThread);
 

@@ -13,6 +13,7 @@ package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -293,7 +294,8 @@ public abstract class ModulesManager implements IModulesManager {
 
         String fileContents = FileUtils.getFileContents(modulesKeysFile);
         if (!fileContents.startsWith(MODULES_MANAGER_V2)) {
-            throw new RuntimeException("Could not load modules manager from " + modulesKeysFile + " (version changed).");
+            throw new RuntimeException(
+                    "Could not load modules manager from " + modulesKeysFile + " (version changed).");
         }
 
         HashMap<Integer, String> intToString = new HashMap<Integer, String>();
@@ -529,7 +531,7 @@ public abstract class ModulesManager implements IModulesManager {
      * modules manager) and the keys to be removed from the modules manager (i.e.: found in the modules manager but
      * not in the keysFound)
      */
-    public Tuple<List<ModulesKey>, List<ModulesKey>> diffModules(PyPublicTreeMap<ModulesKey, ModulesKey> keysFound) {
+    public Tuple<List<ModulesKey>, List<ModulesKey>> diffModules(AbstractMap<ModulesKey, ModulesKey> keysFound) {
         ArrayList<ModulesKey> newKeys = new ArrayList<ModulesKey>();
         ArrayList<ModulesKey> removedKeys = new ArrayList<ModulesKey>();
         Iterator<ModulesKey> it = keysFound.keySet().iterator();
@@ -818,7 +820,8 @@ public abstract class ModulesManager implements IModulesManager {
      * NOTE: isLookingForRelative description was: when looking for relative imports, we don't check for __init__
      * @return the module represented by this name
      */
-    protected IModule getModule(boolean acceptCompiledModule, String name, IPythonNature nature, boolean dontSearchInit) {
+    protected IModule getModule(boolean acceptCompiledModule, String name, IPythonNature nature,
+            boolean dontSearchInit) {
         synchronized (lockTemporaryModules) {
             SortedMap<Integer, IModule> map = temporaryModules.get(name);
             if (map != null && map.size() > 0) {

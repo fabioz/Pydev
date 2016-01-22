@@ -1,6 +1,284 @@
 History For PyDev
 ~~~~~~~~~~~~~~~~~
 
+Release 4.5.3
+==========================
+
+* Debugger
+
+	* Fixed issue in set next statement (#PyDev 651).
+	
+	* pydevd.settrace was stopping inside the debugger and not in user code (#PyDev 648). 
+	
+	* subprocess.Popen could crash when running non python executable (#PyDev 650).
+	
+* PyUnit view
+
+	* The last pinned test suite appears as the first entry in the history.
+	
+	* More information is shown on the test run history.
+	
+	* A string representation of the test suite can be saved in the clipboard (last item in the test run history).
+	
+* Indexing: fixed issue where the indexing and code-analysis could race with each other and one could become corrupt.
+
+
+Release 4.5.1
+==========================
+
+* Debugger
+
+	* Cython speedup modules are now available for the debugger (see performance improvements at: https://www.speedtin.com/reports/7_pydevd_cython).
+
+	* It is considerably faster even without the speedup modules (see performance improvements at: https://www.speedtin.com/reports/8_pydevd_pure_python).
+
+	* When debugging multiple processes the console wasn't being updated to the selected stack in the debug view.
+
+	* Many bug-fixes.
+
+* Improved the search to always play safe and update the index so that the matches are always consistent (#PyDev-634).
+
+* Fixed issue renaming top-level module on refactoring.
+
+* Refactoring has option to rename variable to a standard case style.
+
+* Improved the parser that extracted the outline for global tokens to deal with async and consider declarations inside ifs.
+
+* Code completion of properties with @property no longer shows arguments parenthesis (#PyDev-453).
+
+* Preventing a freeze if some code-analysis takes too much time (#PyDev-636).
+
+* Ctrl+1 can be used to wrap/unwrap the contents of brackets (patch by yohell).
+
+
+Release 4.4.0
+==========================
+
+* Improved PyDev Package Explorer to give more information when all elements are filtered.
+
+* Code completion improvements: when parameter is typed in the docstring, assigning it to an instance gives proper code-completion results whe accessing the instance.
+
+* Fixed issues dealing with ansi colors in the interactive console.
+
+* When autopep8 is applied as the code formatting engine, the region selected is used to specify the lines for formatting.
+
+* Minor improvements in the debugger.
+
+
+Release 4.3.0
+==========================
+
+* Fixed parser for Python 3.x to support async and await as regular names too (PyDev-593).
+
+* The new search dialog now has a 'whole word' option which automatically adds `*` to the search
+
+* Search backend updated to Lucene 5.2.1.
+
+* When bringing up the search dialog the search text is initially selected.
+
+
+Release 4.2.0
+==========================
+
+* New search page for Python contents
+
+	* Text-searches using a Lucene index allows for fast matches.
+	* Matches can be flattened and grouped by project, folders and modules.
+	* Results page allows additional filtering based on module name.
+
+	|
+
+	.. image:: images/search/search_results.png
+	   :class: no_border
+
+
+* Further improvements on code completion unpacking compound types.
+
+* Not adding auto 'import' token in cython files (to accept cimport).
+
+* PyDev Mylyn integration no longer depends on a specific PyDev release.
+
+* Fixed halting condition when unable to create native file watches.
+
+* Vertical indent guide no longer slows down the editor on Linux (PyDev-582).
+
+
+Release 4.1.0
+==========================
+
+* **Code Completion**
+
+	* Improved unpacking of compound types on more situations (PyDev-573).
+
+* **Debugger**
+
+	* PyDev remote debugging no longer blocks running program to completion (PyDev-574).
+	* When there are too many referrers to some object, results are trimmed.
+
+* **Python 3 grammar**
+
+	* Accepting **@** as matrix multiplication operator.
+	* **async** and **await** are properly parsed.
+	* Fixed issue parsing 'list remainder' construct (PyDev-568).
+
+* **Others**
+
+	* Fixed issue showing editor title name when more than one dot was present in the filename.
+	* Support automatic folding elements when opening a file -- must be enabled in PyDev > Editor > Code Folding (patch by Andreas Pakulat).
+	* Fixed issue on search page.
+	* Included css to set default editor colors for PyDev for in Eclipse dark theme.
+	* Tab-stops on comments added and enabled by default (patch by jheiv).
+	* Fixed StackOverflowError on code-completion (PyDev-570)
+
+
+Release 4.0.0
+==========================
+
+* **Code Completion**
+
+	* PyDev can now code-complete unpacking compound types (such as list(str), tuple(MyClass), dict(int:str), etc).
+	* Code-completion now has a maximum amount of time to complete (which may be changed in the code-completion preferences).
+
+* **Editor**
+
+	* Bytes and Unicode literals now have different colors (note: by default the Unicode kept the same color used for the old 'Strings' configuration).
+	* Mark occurrences is now also provided on some statements (such as return, continue, etc).
+
+* **Others**
+
+	* It's now possible to bind custom keybindings to help in passing custom commands to the interactive console (see: PyDev > Interactive Console > User Commands)
+	* The bundled autopep8.py and pep8.py were upgraded.
+	* Search for references (Ctrl+Shift+G) is faster (all processors available are used for the initial search).
+	* Search page now has a 'whole word' option.
+	* Improvements in the PyVmMonitor integration in MacOS and Linux to find the PyVmMonitor executable.
+	* Fixed PyDev-Mylyn integration in the PyDev Package Explorer to work with the latest Mylyn.
+	* Fixed issue doing code-completion for elements of a list (lst[0].) in the console. (PyDev-531)
+	* py.test xfailed tests are no longer marked as 'Failed' in PyUnit view (PyDev-506)
+
+
+
+Release 3.9.2
+==========================
+
+
+* **Debugger**
+
+	* The debug view now has an interactive console (with history) attached to it by default (which may be toggled on/off). (PyDev-507)
+	* Debugger no longer reopens a file when that file is already opened. (PyDev-456)
+	* Handled issue when getting referrers for some object gave an error if it was found in a dict where the key is not a string.
+	* When interactive console starts in debug session, a banner is no longer shown.
+	* Stepping with #@DontTrace no longer returns through decorator call-site. (PyDev-526)
+	* The default for tracing template render exceptions on Django is now false.
+
+* **Interactive Console**
+
+	* F2 to send contents from editor to console now considers backslash continuations. (PyDev-502)
+	* Interactive Console interrupt now properly interrupts a sleep call (when possible). (PyDev-500)
+	* PyDev interactive console now has a user-specified encoding (by default UTF-8). (PyDev-454)
+	* Scroll the console on stdout / stderr output. (PyDev-504, patch by James Blackburn)
+	* Moved interactive console initial commands to a separate preferences page.
+	* Handling interrupted system call EINTR in the pydevconsole.py. (PyDev-534)
+	* Fixed racing condition where the output of the console could appear as a user input. (PyDev-490, patch by James Blackburn)
+
+* **Refactoring**
+
+	* Fixed issue where indentation lost on rename module refactoring. (PyDev-498)
+	* The rename modules refactoring wizard now provides a way to do a simple resource rename (to rename extensions).
+
+* **Others**
+
+	* Converting filename from .pyx to .py doesn't loose indexing on the file anymore. (PyDev-525)
+	* The Cython parser now properly scopes methods.
+	* Pasting contents directly in the PyDev package explorer to create a file uses the proper delimiter.
+	* Fixed deadlock in ImageCache when rendering debug completions from console. (PyDev-527)
+	* Fixed deadlock on racing condition when rendering PyTextHover. (PyDev-523)
+	* Tab settings were separated from the editor color settings and may now be persisted in the project/user settings.
+	* Fixed surround with try..finally/except indentation on Ctrl+1 when some line has a comment which has a different indentation.
+
+
+
+Release 3.9.1
+==========================
+
+* **Preferences**
+
+  * PyDev preferences may now be saved and persisted for each project or in the user settings (not just in the workspace).
+  * Currently Save actions, Code Formatter, Typing and Imports are supported (more to come in upcoming releases).
+  * The same pages in the preferences are used to save settings to (multiple) projects or user settings.
+  * Configuration files are saved in Yaml format and are meant to be saved in version control.
+
+* **Editor**
+
+  * The option to apply auto-formating was changed to apply any save actions in non-workspace files.
+  * Editor icon improved for dark theme (patch by Fathony Luthfillah).
+  * When running the pep8 code analysis, the markers shown are no longer 1 character off.
+
+* **Django**
+
+  * Improved Django 1.7 support (patch by David Lehrian).
+
+* **Profiling**
+
+  * Integration with PyVmMonitor: http://pyvmmonitor.com/
+
+    * A profiling view was created where the location of PyVmMonitor should be specified.
+    * Just turning the option on will make all runs from that point on run with the selected profile backend enabled.
+
+* **Debugger**
+
+  * Connecting to subprocesses working in Python 3.4.
+  * Attach to running process is now supported on Mac OS.
+
+* **Others**
+
+  * Unset VIRTUAL_ENV before running external Python to protect the sys.path (patch by James Blackburn).
+  * pytest: Expected failure is no longer marked as a failure.
+  * pytest: The working dir is changed so that conftests are loaded properly (to workaround issue in pytest: https://bitbucket.org/hpk42/pytest/issue/639/conftest-being-loaded-twice-giving).
+  * Fixed issue where an unused import would not be properly removed if it was not a from import.
+  * Fixed exception when drawing minimap overview ruler.
+
+
+
+Release 3.9.0
+==========================
+
+* **Vertical Indent Guide** is now available (may be customized in PyDev > Editor > Vertical Indent Guide. PyDev-359).
+
+* **Minimap**
+
+    * The horizontal scrollbar is shown by default (again). It's still possible to hide it in the Preferences > PyDev > Editor > Overview Ruler Minimap.
+
+    * Fixed critical issue where the minimap could lead to a repaint recursion on some Linux versions (reproduced on Ubuntu 12. LiClipse-120).
+
+* The PYTHONPATH is now properly passed to PyLint when using an external executable (PyDev-475).
+
+* Fixed issue where breakpoints in other editors (i.e.: CDT) where wrongly being handled by PyDev (patch by Danny Yoo. PyDev-482).
+
+* Fixed issue doing code-completion for builtins in Jython (PyDev-457).
+
+* **Interactive Console**
+
+    * When doing a code-completion with Ctrl+Space, let tab change the focus instead of doing the tab-enabled completion.
+
+    * Output given from the backend could end up being editable (PyDev-465).
+
+    * input() was including the prompt in the input string (PyDev-465).
+
+    * Debugger console was outputting greeting message when it shouldn't (PyDev-464).
+
+* **pep8**: --exclude can now be used in pep8 parameters (patch by Sebastian Elsner. PyDev-466).
+
+* **autopep8**: end line delimiter is now being kept (patch by Ben Blank. PyDev-461).
+
+* Unittest integration: Making sure we don't import the unittest module before executing pytest (PyDev-455).
+
+* Unittest integration: Fix to use the proper encoding when passing stdout/stderr to the java side.
+
+* Fixed issue when debugging file without extension (when there was no default editor associated to the file name).
+
+* Debugger: getpass properly working with additional arguments (PyDev-460).
+
+
 
 Release 3.8.0
 ==========================

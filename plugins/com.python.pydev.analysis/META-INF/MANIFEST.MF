@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Analysis Plug-in
 Bundle-SymbolicName: com.python.pydev.analysis; singleton:=true
-Bundle-Version: 3.9.2.qualifier
+Bundle-Version: 4.5.3.qualifier
 Bundle-Activator: com.python.pydev.analysis.AnalysisPlugin
 Bundle-Vendor: Aptana
 Bundle-Localization: plugin
@@ -10,29 +10,37 @@ Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.jface.text,
- org.python.pydev;bundle-version="2.7.6",
- com.python.pydev,
+ org.python.pydev;bundle-version="[4.5.3,4.5.4)",
+ com.python.pydev;bundle-version="[4.5.3,4.5.4)",
  org.junit;bundle-version="4.0";resolution:=optional,
- org.python.pydev.core,
- org.python.pydev.ast,
- org.python.pydev.parser,
+ org.python.pydev.core;bundle-version="[4.5.3,4.5.4)",
+ org.python.pydev.ast;bundle-version="[4.5.3,4.5.4)",
+ org.python.pydev.parser;bundle-version="[4.5.3,4.5.4)",
  org.eclipse.core.resources,
  org.eclipse.ui.editors,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.search,
  org.eclipse.ui.ide,
- org.python.pydev.jython,
- org.python.pydev.debug,
- org.python.pydev.shared_ui,
- org.python.pydev.shared_core
+ org.python.pydev.jython;bundle-version="[4.5.3,4.5.4)",
+ org.python.pydev.debug;bundle-version="[4.5.3,4.5.4)",
+ org.python.pydev.shared_ui;bundle-version="[4.5.3,4.5.4)",
+ org.python.pydev.shared_core;bundle-version="[4.5.3,4.5.4)",
+ org.eclipse.ltk.core.refactoring,
+ org.python.pydev.refactoring,
+ org.eclipse.ltk.ui.refactoring
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: analysis.jar
-Export-Package: com.python.pydev.analysis,com.python.pydev.analysis.ac
- tions,com.python.pydev.analysis.additionalinfo,com.python.pydev.analy
- sis.additionalinfo.builders,com.python.pydev.analysis.additionalinfo.
- dependencies,com.python.pydev.analysis.builder,com.python.pydev.analy
- sis.ctrl_1,com.python.pydev.analysis.messages,com.python.pydev.analys
- is.organizeimports,com.python.pydev.analysis.scopeanalysis,com.python
- .pydev.analysis.tabnanny,com.python.pydev.analysis.ui,com.python.pyde
- v.analysis.visitors
+Export-Package: com.python.pydev.analysis,
+ com.python.pydev.analysis.actions,
+ com.python.pydev.analysis.additionalinfo,
+ com.python.pydev.analysis.additionalinfo.builders,
+ com.python.pydev.analysis.additionalinfo.dependencies,
+ com.python.pydev.analysis.builder,
+ com.python.pydev.analysis.ctrl_1,
+ com.python.pydev.analysis.messages,
+ com.python.pydev.analysis.organizeimports,
+ com.python.pydev.analysis.scopeanalysis,
+ com.python.pydev.analysis.tabnanny,
+ com.python.pydev.analysis.ui,
+ com.python.pydev.analysis.visitors
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7

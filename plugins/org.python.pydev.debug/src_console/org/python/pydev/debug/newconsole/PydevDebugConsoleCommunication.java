@@ -63,12 +63,28 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
      */
     private volatile InterpreterResponse nextResponse;
 
-    private final PydevDebugConsoleFrame consoleFrame;
+    private final IPyStackFrameProvider consoleFrameProvider;
 
     private ICallback<Object, Tuple<String, String>> onContentsReceived;
 
-    public PydevDebugConsoleCommunication() {
-        consoleFrame = new PydevDebugConsoleFrame();
+    private boolean bufferedOutput;
+
+    public void setBufferedOutput(boolean bufferedOutput) {
+        this.bufferedOutput = bufferedOutput;
+    }
+
+    public boolean getBufferedOutput() {
+        return this.bufferedOutput;
+    }
+
+    public PydevDebugConsoleCommunication(boolean bufferedOutput, IPyStackFrameProvider consoleFrameProvider) {
+        this.consoleFrameProvider = consoleFrameProvider;
+        this.bufferedOutput = bufferedOutput;
+    }
+
+    @Override
+    public boolean isConnected() {
+        return this.consoleFrameProvider.getLastSelectedFrame() != null;
     }
 
     @Override
@@ -94,7 +110,7 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
 
                 @Override
                 protected IStatus run(IProgressMonitor monitor) {
-                    PyStackFrame frame = consoleFrame.getLastSelectedFrame();
+                    PyStackFrame frame = consoleFrameProvider.getLastSelectedFrame();
                     if (frame == null) {
                         if (onContentsReceived != null) {
                             onContentsReceived.call(new Tuple<String, String>(EMPTY,
@@ -105,7 +121,7 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
                     }
                     final EvaluateDebugConsoleExpression evaluateDebugConsoleExpression = new EvaluateDebugConsoleExpression(
                             frame);
-                    evaluateDebugConsoleExpression.executeCommand(command);
+                    evaluateDebugConsoleExpression.executeCommand(command, bufferedOutput);
                     String result = evaluateDebugConsoleExpression.waitForCommand();
                     try {
                         if (result.length() == 0) {
@@ -166,7 +182,7 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
             return new ICompletionProposal[0];
         }
 
-        PyStackFrame frame = consoleFrame.getLastSelectedFrame();
+        PyStackFrame frame = consoleFrameProvider.getLastSelectedFrame();
         if (frame == null) {
             return new ICompletionProposal[0];
         }
@@ -176,7 +192,7 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
         if (result.length() > 0) {
             List<Object[]> fromServer = XMLUtils.convertXMLcompletionsFromConsole(result);
             List<ICompletionProposal> ret = new ArrayList<ICompletionProposal>();
-            PydevConsoleCommunication.convertToICompletions(text, actTok, offset, fromServer, ret, false);
+            PydevConsoleCommunication.convertConsoleCompletionsToICompletions(text, actTok, offset, fromServer, ret, false);
             receivedCompletions = ret.toArray(new ICompletionProposal[ret.size()]);
         }
         return receivedCompletions;
@@ -190,7 +206,7 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
      * Enable/Disable linking of the debug console with the suspended frame.
      */
     public void linkWithDebugSelection(boolean isLinkedWithDebug) {
-        consoleFrame.linkWithDebugSelection(isLinkedWithDebug);
+        consoleFrameProvider.linkWithDebugSelection(isLinkedWithDebug);
     }
 
     public void close() throws Exception {

@@ -8,8 +8,6 @@ package org.python.pydev.parser.fastparser;
 
 import java.io.File;
 
-import junit.framework.TestCase;
-
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.parser.PyParser;
@@ -24,11 +22,14 @@ import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
+import junit.framework.TestCase;
+
 public class FastDefinitionsParserTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        FastDefinitionsParser.throwErrorOnWarnings = true;
     }
 
     @Override
@@ -180,7 +181,7 @@ public class FastDefinitionsParserTest extends TestCase {
         assertEquals(1, m.body.length);
         ClassDef classDef = ((ClassDef) m.body[0]);
         assertEquals("Bar", ((NameTok) classDef.name).id);
-        assertEquals(0, classDef.body.length); //no attribute
+        assertNull(classDef.body); //no attribute
     }
 
     public void testAttributes3() {
@@ -215,7 +216,7 @@ public class FastDefinitionsParserTest extends TestCase {
         FunctionDef funcDef = (FunctionDef) classDef.body[0];
         assertEquals("m1", ((NameTok) funcDef.name).id);
 
-        assertNull(funcDef.body[1]);
+        assertEquals(1, funcDef.body.length);
         Assign assign = (Assign) funcDef.body[0];
         assertEquals(1, assign.targets.length);
         Attribute attribute = (Attribute) assign.targets[0];
@@ -247,7 +248,7 @@ public class FastDefinitionsParserTest extends TestCase {
             NameTok attr = (NameTok) attribute.attr;
             assertEquals("ATTRIBUTE" + i, attr.id.toString());
         }
-        assertNull(funcDef.body[3]);
+        assertEquals(3, funcDef.body.length);
     }
 
     public void testAttributes6() {
@@ -275,7 +276,7 @@ public class FastDefinitionsParserTest extends TestCase {
         assertEquals(1, m.body.length);
         ClassDef classDef = ((ClassDef) m.body[0]);
         assertEquals("Bar", ((NameTok) classDef.name).id);
-        assertEquals(0, classDef.body.length); //method
+        assertNull(classDef.body); //method
 
     }
 
@@ -902,7 +903,7 @@ public class FastDefinitionsParserTest extends TestCase {
                         "    class Zoo(object):\n" +
                         "        class PPP(self):pass\n" +
 
-                        "class Bar2(object):\n" +
+        "class Bar2(object):\n" +
                         "    class Zoo2(object):\n" +
                         "        class PPP2(self):pass\n");
         assertEquals(2, m.body.length);
@@ -930,7 +931,7 @@ public class FastDefinitionsParserTest extends TestCase {
                         "    class Zoo(object):\n" +
                         "        pass\n" +
 
-                        "class Bar2(object):\n" +
+        "class Bar2(object):\n" +
                         "    class Zoo2(object):\n" +
                         "        pass\n");
         assertEquals(2, m.body.length);
@@ -1303,7 +1304,7 @@ public class FastDefinitionsParserTest extends TestCase {
 
     public void testDefinitionsParser10() {
         Module m = (Module) FastDefinitionsParser.parse("" //empty
-                );
+        );
         assertEquals(0, m.body.length);
     }
 
@@ -1451,6 +1452,74 @@ public class FastDefinitionsParserTest extends TestCase {
                 "" //empty
         );
         assertEquals(0, m.body.length);
+    }
+
+    public void testDefinitionsParser20() {
+        Module m = (Module) FastDefinitionsParser.parse(
+                "def methodempty():\n" +
+                        "    pass\n" +
+                        "\n" +
+                        "if a:\n" +
+                        "    def method():\n" +
+                        "        a = 10\n" +
+                        "else:\n" +
+                        "    def method2():\n" +
+                        "        bar = 10\n" +
+                        "");
+        assertEquals(3, m.body.length);
+        FunctionDef d = (FunctionDef) m.body[1];
+        assertEquals("method", NodeUtils.getRepresentationString(d.name));
+        assertNull(d.body);
+
+        d = (FunctionDef) m.body[2];
+        assertEquals("method2", NodeUtils.getRepresentationString(d.name));
+        assertNull(d.body);
+
+    }
+
+    public void testDefinitionsParser21() {
+        Module m = (Module) FastDefinitionsParser.parse(
+                "class F:\n" +
+                        "    def methodempty(self):\n" +
+                        "        pass\n" +
+                        "    if a:\n" +
+                        "        def method(self):\n" +
+                        "            a = 10\n" +
+                        "    else:\n" +
+                        "        def method2(self):\n" +
+                        "            bar = 10\n" +
+                        "");
+        assertEquals(1, m.body.length);
+        ClassDef c = (ClassDef) m.body[0];
+        assertEquals(3, c.body.length);
+        FunctionDef d = (FunctionDef) c.body[1];
+        assertEquals("method", NodeUtils.getRepresentationString(d.name));
+        assertNull(d.body);
+
+        d = (FunctionDef) c.body[2];
+        assertEquals("method2", NodeUtils.getRepresentationString(d.name));
+        assertNull(d.body);
+
+    }
+
+    public void testAsyncDefinitions() {
+        Module m = (Module) FastDefinitionsParser.parse("async \t def \t method():\n    pass");
+        assertEquals(1, m.body.length);
+        FunctionDef d = (FunctionDef) m.body[0];
+        assertEquals("method", NodeUtils.getRepresentationString(d.name));
+    }
+
+    public void testAssign() throws Exception {
+        Module m = (Module) FastDefinitionsParser.parse(""
+                + "def method(f): # 10 bytes\n" +
+                "    if expon == himant == lomant == 0:\n" +
+                "        f = 0.0\n" +
+                "    return sign * f\n" +
+                "");
+        assertEquals(1, m.body.length);
+        FunctionDef d = (FunctionDef) m.body[0];
+        assertEquals("method", NodeUtils.getRepresentationString(d.name));
+        assertNull(d.body);
     }
 
 }

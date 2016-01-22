@@ -77,6 +77,11 @@ public final class CompletionStateWrapper implements ICompletionState {
         wrapped.checkDefinitionMemory(module, definition);
     }
 
+    @Override
+    public void checkMaxTimeForCompletion() throws CompletionRecursionException {
+        wrapped.checkMaxTimeForCompletion();
+    }
+
     public void checkFindLocalDefinedDefinitionMemory(IModule mod, String tok) throws CompletionRecursionException {
         wrapped.checkFindLocalDefinedDefinitionMemory(mod, tok);
     }
@@ -212,5 +217,30 @@ public final class CompletionStateWrapper implements ICompletionState {
 
     public void removeStaleEntries() {
         this.wrapped.removeStaleEntries();
+    }
+
+    @Override
+    public int pushAssign() {
+        return this.wrapped.pushAssign();
+    }
+
+    @Override
+    public void popAssign() {
+        this.wrapped.popAssign();
+    }
+
+    @Override
+    public boolean getAlreadySearchedInAssign(int line, int col, IModule module, String value, String actTok) {
+        return this.wrapped.getAlreadySearchedInAssign(line, col, module, value, actTok);
+    }
+
+    @Override
+    public void pushGetCompletionsUnpackingObject() throws CompletionRecursionException {
+        this.wrapped.pushGetCompletionsUnpackingObject();
+    }
+
+    @Override
+    public void popGetCompletionsUnpackingObject() {
+        this.wrapped.popGetCompletionsUnpackingObject();
     }
 }

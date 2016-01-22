@@ -21,8 +21,6 @@ import org.eclipse.search.ui.text.Match;
 
 import com.python.pydev.refactoring.refactorer.search.AbstractPythonSearchQuery;
 import com.python.pydev.refactoring.refactorer.search.PythonFileSearchResult;
-import com.python.pydev.ui.search.FileMatch;
-import com.python.pydev.ui.search.LineElement;
 
 public class FileTreeContentProvider implements ITreeContentProvider, IFileSearchContentProvider {
 

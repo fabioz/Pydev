@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
@@ -47,7 +48,7 @@ import com.python.pydev.refactoring.wizards.IRefactorRenameProcess;
 
 /**
  * This class presents the basic functionality for doing a rename.
- * 
+ *
  * @author Fabio
  */
 public abstract class AbstractRenameRefactorProcess implements IRefactorRenameProcess {
@@ -89,7 +90,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
     }
 
     /**
-     * @param definition the definition on where this rename should be applied (we will find the references based 
+     * @param definition the definition on where this rename should be applied (we will find the references based
      * on this definition).
      */
     public AbstractRenameRefactorProcess(Definition definition) {
@@ -99,7 +100,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
     /**
      * Adds the occurences to be renamed given the request. If the rename is a local rename, and there is no need
      * of handling multiple files, this should be the preferred way of adding the occurrences.
-     * 
+     *
      * @param request will be used to fill the module name and the document
      * @param oc the occurrences to add
      */
@@ -109,7 +110,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
 
     /**
      * Adds the occurrences found to some module.
-     * 
+     *
      * @param oc the occurrences found
      * @param file the file where the occurrences were found
      * @param modName the name of the module that is bounded to the given file.
@@ -199,7 +200,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
     /**
      * This function should be overridden to find the occurrences in the local scope
      * (and check if they are correct).
-     * 
+     *
      * @param status object where the status can be set (to add errors/warnings)
      * @param request the request used for this check
      */
@@ -208,7 +209,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
     /**
      * This function should be overridden to find the occurrences in the workspace scope
      * (and check if they are correct).
-     * 
+     *
      * @param status object where the status can be set (to add errors/warnings)
      * @param request the request used for this check
      */
@@ -216,7 +217,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
 
     /**
      * Checks if the occurrences gotten are valid or not.
-     * 
+     *
      * @param status the errors will be added to the passed status.
      * @return true if all is ok and false otherwise
      */
@@ -230,7 +231,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
 
     /**
      * Implemented from the super interface. Should return the occurrences from the current document
-     *  
+     *
      * @see com.python.pydev.refactoring.wizards.IRefactorRenameProcess#getOccurrences()
      */
     public HashSet<ASTEntry> getOccurrences() {
@@ -240,7 +241,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
     /**
      * Implemented from the super interface. Should return the occurrences found in other documents
      * (but should not return the ones found in the current document)
-     * 
+     *
      * @see com.python.pydev.refactoring.wizards.IRefactorRenameProcess#getOccurrencesInOtherFiles()
      */
     public Map<Tuple<String, File>, HashSet<ASTEntry>> getOccurrencesInOtherFiles() {
@@ -249,7 +250,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
 
     /**
      * Searches for a list of entries that are found within a scope.
-     * 
+     *
      * It is always based on a single scope and bases itself on a refactoring request.
      */
     protected List<ASTEntry> getOccurrencesWithScopeAnalyzer(RefactoringRequest request, SourceModule module) {
@@ -285,14 +286,14 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
 
     /**
      * This functions tries to find the modules that may have matches for a given request.
-     * 
+     *
      * Note that it may return files that don't actually contain what we're looking for.
-     * 
+     *
      * @param request the request for a rename.
      * @return a list with the files that may contain matches for the refactoring.
      */
     protected List<Tuple<List<ModulesKey>, IPythonNature>> findFilesWithPossibleReferences(
-            RefactoringRequest request) {
+            RefactoringRequest request) throws OperationCanceledException {
         return new RefactorerFindReferences().findPossibleReferences(request);
     }
 

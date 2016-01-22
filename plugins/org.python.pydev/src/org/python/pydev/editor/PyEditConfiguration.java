@@ -61,7 +61,7 @@ public class PyEditConfiguration extends PyEditConfigurationWithoutEditor {
 
     public PyEditConfiguration(ColorAndStyleCache colorManager, IPySyntaxHighlightingAndCodeCompletionEditor edit,
             IPreferenceStore preferenceStore) {
-        super(colorManager, preferenceStore);
+        super(colorManager, preferenceStore, edit);
         this.setEdit(edit);
     }
 
@@ -81,8 +81,10 @@ public class PyEditConfiguration extends PyEditConfigurationWithoutEditor {
      */
     @Override
     @SuppressWarnings("unchecked")
-    protected Map<String, IPySyntaxHighlightingAndCodeCompletionEditor> getHyperlinkDetectorTargets(ISourceViewer sourceViewer) {
-        Map<String, IPySyntaxHighlightingAndCodeCompletionEditor> targets = super.getHyperlinkDetectorTargets(sourceViewer);
+    protected Map<String, IPySyntaxHighlightingAndCodeCompletionEditor> getHyperlinkDetectorTargets(
+            ISourceViewer sourceViewer) {
+        Map<String, IPySyntaxHighlightingAndCodeCompletionEditor> targets = super
+                .getHyperlinkDetectorTargets(sourceViewer);
         targets.put("org.python.pydev.editor.PythonEditor", edit); //$NON-NLS-1$
         return targets;
     }
@@ -92,6 +94,7 @@ public class PyEditConfiguration extends PyEditConfigurationWithoutEditor {
      * 
      * @see org.eclipse.jface.text.source.SourceViewerConfiguration#getContentAssistant(org.eclipse.jface.text.source.ISourceViewer)
      */
+    @Override
     public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
         // next create a content assistant processor to populate the completions window
         IContentAssistProcessor processor = new SimpleAssistProcessor(edit, new PythonCompletionProcessor(edit,
@@ -102,10 +105,23 @@ public class PyEditConfiguration extends PyEditConfigurationWithoutEditor {
         pyContentAssistant.setRestoreCompletionProposalSize(getSettings("pydev_completion_proposal_size"));
 
         // No code completion in comments
-        pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_SINGLELINE_STRING1);
-        pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_SINGLELINE_STRING2);
-        pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_MULTILINE_STRING1);
-        pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_MULTILINE_STRING2);
+        pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_SINGLELINE_BYTES1);
+        pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_SINGLELINE_BYTES2);
+        pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_MULTILINE_BYTES1);
+        pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_MULTILINE_BYTES2);
+
+        pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_SINGLELINE_UNICODE1);
+        pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_SINGLELINE_UNICODE2);
+        pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_MULTILINE_UNICODE1);
+        pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_MULTILINE_UNICODE2);
+
+        pyContentAssistant
+                .setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE1);
+        pyContentAssistant
+                .setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE2);
+        pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_MULTILINE_BYTES_OR_UNICODE1);
+        pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_MULTILINE_BYTES_OR_UNICODE2);
+
         pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_COMMENT);
         pyContentAssistant.setContentAssistProcessor(processor, IDocument.DEFAULT_CONTENT_TYPE);
         pyContentAssistant.setInformationControlCreator(getInformationControlCreator(sourceViewer));
@@ -124,6 +140,7 @@ public class PyEditConfiguration extends PyEditConfigurationWithoutEditor {
      * 
      * @see org.eclipse.jface.text.source.SourceViewerConfiguration#getQuickAssistAssistant(org.eclipse.jface.text.source.ISourceViewer)
      */
+    @Override
     public IQuickAssistAssistant getQuickAssistAssistant(ISourceViewer sourceViewer) {
         // create a content assistant:
         PyCorrectionAssistant assistant = new PyCorrectionAssistant();

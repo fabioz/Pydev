@@ -8,7 +8,7 @@ package org.python.pydev.parser.jython;
 
 import java.io.IOException;
 
-import org.python.pydev.core.ObjectsPool.ObjectsPoolMap;
+import org.python.pydev.core.ObjectsInternPool.ObjectsPoolMap;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 

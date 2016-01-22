@@ -69,18 +69,6 @@
    </extension>
 
 
-<!-- binding: search page-->
-   <extension
-         point="org.eclipse.search.searchPages">
-      <page
-            canSearchEnclosingProjects="true"
-            class="com.python.pydev.ui.search.PySearchPage"
-            extensions="py:90, pyw:90"
-            icon="icons/python_file.gif"
-            id="com.python.pydev.ui.search.pySearchPage"
-            label="PyDev Search"
-            showScopeSection="true"/>
-   </extension>
 <!-- view: hierarchy view-->
 <extension point="org.eclipse.ui.views">
    <view

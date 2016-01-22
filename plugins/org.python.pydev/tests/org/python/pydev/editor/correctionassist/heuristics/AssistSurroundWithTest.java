@@ -37,6 +37,60 @@ public class AssistSurroundWithTest extends TestCase {
 
     }
 
+    public void testSurround2() throws Exception {
+        AssistSurroundWith assistSurroundWith = new AssistSurroundWith();
+        IDocument doc = new Document("" +
+                "def m1():\n" +
+                "\n" +
+                "#c\n" +
+                "    a = 10\n" +
+                "\n" +
+                "\n");
+        PySelection ps = new PySelection(doc, 1, 0, 13);
+        int offset = ps.getAbsoluteCursorOffset();
+        List<ICompletionProposal> props = assistSurroundWith.getProps(ps, null, null, null, null, offset);
+        props.get(0).apply(doc);
+        TestCaseUtils.assertContentsEqual("" +
+                "def m1():\n" +
+                "    try:\n" +
+                "    \n" +
+                "    #c\n" +
+                "        a = 10\n"
+                +
+                "    except${cursor}:\n" +
+                "        raise\n" +
+                "\n" +
+                "\n" +
+                "", doc.get());
+    }
+
+    public void testSurround3() throws Exception {
+        AssistSurroundWith assistSurroundWith = new AssistSurroundWith();
+        IDocument doc = new Document("" +
+                "def m1():\n" +
+                "\n" +
+                "#c\n" +
+                "#    a = 10\n" +
+                "\n" +
+                "\n");
+        PySelection ps = new PySelection(doc, 1, 0, 14);
+        int offset = ps.getAbsoluteCursorOffset();
+        List<ICompletionProposal> props = assistSurroundWith.getProps(ps, null, null, null, null, offset);
+        props.get(0).apply(doc);
+        TestCaseUtils.assertContentsEqual("" +
+                "def m1():\n" +
+                "try:\n" +
+                "    \n" +
+                "    #c\n" +
+                "    #    a = 10\n"
+                +
+                "except${cursor}:\n" +
+                "    raise\n" +
+                "\n" +
+                "\n" +
+                "", doc.get());
+    }
+
     public void testSurround() throws Exception {
         AssistSurroundWith assistSurroundWith = new AssistSurroundWith();
         int offset = 0;

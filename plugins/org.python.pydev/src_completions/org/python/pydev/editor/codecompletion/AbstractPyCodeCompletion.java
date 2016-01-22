@@ -88,6 +88,8 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
                         if (!request.isInCalltip) {
                             getIt = false;
                         }
+                    } else if (AbstractToken.isFunctionDefProperty(element)) {
+                        getIt = false;
                     }
                     if (getIt) {
                         args = getArgs(element, state);

@@ -30,10 +30,12 @@ public class ParsingUtilsTest extends TestCase {
         }
     }
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
     }
 
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }
@@ -45,7 +47,7 @@ public class ParsingUtilsTest extends TestCase {
                 "pass\n" +
                 "";
         assertEquals(ParsingUtils.PY_COMMENT, ParsingUtils.getContentType(str, 2));
-        assertEquals(ParsingUtils.PY_SINGLELINE_STRING1, ParsingUtils.getContentType(str, 10));
+        assertEquals(ParsingUtils.PY_SINGLELINE_BYTES1, ParsingUtils.getContentType(str, 10));
         assertEquals(ParsingUtils.PY_DEFAULT, ParsingUtils.getContentType(str, 17));
     }
 
@@ -57,7 +59,7 @@ public class ParsingUtilsTest extends TestCase {
                 "";
         assertEquals(ParsingUtils.PY_DEFAULT, ParsingUtils.getContentType(str, str.length()));
         assertEquals(ParsingUtils.PY_DEFAULT, ParsingUtils.getContentType(str, str.length() - 1));
-        assertEquals(ParsingUtils.PY_MULTILINE_STRING1, ParsingUtils.getContentType(str, str.length() - 2));
+        assertEquals(ParsingUtils.PY_MULTILINE_BYTES1, ParsingUtils.getContentType(str, str.length() - 2));
     }
 
     public void testEatComments() {
@@ -556,5 +558,47 @@ public class ParsingUtilsTest extends TestCase {
         ParsingUtils parsingUtils = ParsingUtils.create(s);
         assertEquals(6, parsingUtils.findNextChar(0, '('));
         assertEquals(7, parsingUtils.eatPar(6, null));
+    }
+
+    public void testEatFromImportStatement() throws Exception {
+        String s = "from";
+        ParsingUtils parsingUtils = ParsingUtils.create(s);
+        FastStringBuffer buf = new FastStringBuffer();
+
+        assertEquals(0, parsingUtils.eatFromImportStatement(null, 0));
+
+        s = "from ";
+        parsingUtils = ParsingUtils.create(s);
+        assertEquals(5, parsingUtils.eatFromImportStatement(null, 0));
+
+        s = "from\t";
+        parsingUtils = ParsingUtils.create(s);
+        assertEquals(s.length(), parsingUtils.eatFromImportStatement(buf, 0));
+        assertEquals(s, buf.toString());
+
+        s = "from a import (#comment\nx)";
+        parsingUtils = ParsingUtils.create(s);
+        buf = new FastStringBuffer();
+        assertEquals(s.length(), parsingUtils.eatFromImportStatement(buf, 0));
+        assertEquals("from a import (x)", buf.toString());
+
+        s = "from a import \\\nx";
+        parsingUtils = ParsingUtils.create(s);
+        buf = new FastStringBuffer();
+        assertEquals(s.length(), parsingUtils.eatFromImportStatement(buf, 0));
+        assertEquals(s, buf.toString());
+
+        s = "from a import \\\r\nx";
+        parsingUtils = ParsingUtils.create(s);
+        buf = new FastStringBuffer();
+        assertEquals(s.length(), parsingUtils.eatFromImportStatement(buf, 0));
+        assertEquals(s, buf.toString());
+
+        s = "from a import x #comment";
+        parsingUtils = ParsingUtils.create(s);
+        buf = new FastStringBuffer();
+        assertEquals(s.length(), parsingUtils.eatFromImportStatement(buf, 0));
+        assertEquals("from a import x ", buf.toString());
+
     }
 }

@@ -124,16 +124,19 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <properties>
-    <tycho-version>0.22.0</tycho-version>
-    <tycho-extras-version>0.22.0</tycho-extras-version>
+    <tycho-version>0.23.1</tycho-version>
+    <tycho-extras-version>0.23.1</tycho-extras-version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <repository.id>eclipse-luna</repository.id>
-    <repository.url>http://download.eclipse.org/releases/luna</repository.url>
+    <repository.id>eclipse-mars</repository.id>
+    <repository.url>http://download.eclipse.org/releases/mars/</repository.url>
   </properties>
+  <prerequisites>
+    <maven>3.0</maven>
+  </prerequisites>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.python.pydev</groupId>
   <artifactId>parent</artifactId>
-  <version>3.9.2-SNAPSHOT</version>
+  <version>4.5.3-SNAPSHOT</version>
   <name>Pydev Build Parent</name>
   <packaging>pom</packaging>
   <modules>
@@ -262,7 +265,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-jarsigner-plugin</artifactId>
-            <version>1.2</version>
+            <version>1.4</version>
             <configuration>
               <keystore>${env.SIGN_KEYSTORE}</keystore>
               <storepass>${env.SIGN_STOREPASS}</storepass>

@@ -25,7 +25,7 @@ public interface ICompletionState extends ICompletionCache {
 
     /**
      * This is the activation token with callables changed to the reference.
-     * 
+     *
      * E.g.: if we had Grinder.grinder.getLogger(), this would be: Grinder.grinder.getLogger
      * And if we had x.ClassA(), this would be x.ClassA
      */
@@ -86,6 +86,8 @@ public interface ICompletionState extends ICompletionCache {
 
     void checkFindResolveImportMemory(IToken tok) throws CompletionRecursionException;
 
+    void checkMaxTimeForCompletion() throws CompletionRecursionException;
+
     /**
      * Doesn't throw an exception, returns true if the given line and column have already been found previously.
      */
@@ -94,7 +96,7 @@ public interface ICompletionState extends ICompletionCache {
     /**
      * Unlike other checks, it won't throw an exception, but'll see if the given module was already checked for
      * a given token (this happens when we're looking for a token that has been found in a compiled module and
-     * we want to translate to an actual position... but if we loop for some reason, it has to be stopped and 
+     * we want to translate to an actual position... but if we loop for some reason, it has to be stopped and
      * the actual compiled module is the source of the definition).
      */
     boolean canStillCheckFindSourceFromCompiled(IModule mod, String tok);
@@ -134,7 +136,7 @@ public interface ICompletionState extends ICompletionCache {
 
     /**
      * This method will save the list with the tokens for the imported modules.
-     * 
+     *
      * The attribute that stores it will not be copied when a copy is gotten.
      * If already set, this function should not override a previous value.
      */
@@ -144,5 +146,15 @@ public interface ICompletionState extends ICompletionCache {
      * May be null
      */
     public List<IToken> getTokenImportedModules();
+
+    int pushAssign();
+
+    void popAssign();
+
+    boolean getAlreadySearchedInAssign(int line, int col, IModule module, String value, String actTok);
+
+    void pushGetCompletionsUnpackingObject() throws CompletionRecursionException;
+
+    void popGetCompletionsUnpackingObject();
 
 }

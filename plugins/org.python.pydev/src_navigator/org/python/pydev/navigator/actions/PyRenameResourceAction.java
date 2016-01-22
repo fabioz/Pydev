@@ -6,12 +6,11 @@
  */
 package org.python.pydev.navigator.actions;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -44,6 +43,7 @@ import org.python.pydev.editor.refactoring.PyRefactoringRequest;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 import org.python.pydev.shared_core.structure.OrderedMap;
 import org.python.pydev.shared_ui.dialogs.DialogHelpers;
 
@@ -68,7 +68,7 @@ public class PyRenameResourceAction extends RenameResourceAction {
      *
      * @return java.lang.String
      * @param resource the resource to query status on
-     * 
+     *
      * Fix from platform: was not checking return from dialog.open
      */
     @Override
@@ -103,7 +103,7 @@ public class PyRenameResourceAction extends RenameResourceAction {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.jface.action.Action#isEnabled()
      */
     @Override
@@ -119,7 +119,7 @@ public class PyRenameResourceAction extends RenameResourceAction {
                     Object element = iterator.next();
                     if (element instanceof IAdaptable) {
                         IAdaptable adaptable = (IAdaptable) element;
-                        IResource resource = (IResource) adaptable.getAdapter(IResource.class);
+                        IResource resource = adaptable.getAdapter(IResource.class);
                         if (resource != null && resource.isAccessible()) {
                             selected.add(resource);
                             continue;
@@ -136,7 +136,7 @@ public class PyRenameResourceAction extends RenameResourceAction {
 
     /**
      * Update the PYTHONPATH of the project containing a renamed folder by replacing the folder's
-     * old path with its new one (if the folder itself is in the PYTHONPATH), and updating the 
+     * old path with its new one (if the folder itself is in the PYTHONPATH), and updating the
      * paths of any of its children that are in the PYTHONPATH.
      */
     private void updatePyPath() {
@@ -153,7 +153,7 @@ public class PyRenameResourceAction extends RenameResourceAction {
             }
             OrderedMap<String, String> projectSourcePathMap = pythonPathNature
                     .getProjectSourcePathResolvedToUnresolvedMap();
-            List<IPath> sourcePaths = new LinkedList<IPath>();
+            List<IPath> sourcePaths = new LinkedListWarningOnSlowOperations<IPath>();
             List<IPath> actualPaths = new ArrayList<IPath>(); //non-resolved
             for (String pathName : projectSourcePathMap.keySet()) {
                 sourcePaths.add(new Path(pathName));
@@ -199,8 +199,8 @@ public class PyRenameResourceAction extends RenameResourceAction {
                             && sourcePath.segment(segS - 1 - match).equals(actualPath.segment(segV - 1 - match))) {
                         match++;
                     }
-                    actualPaths.set(i, actualPath.removeLastSegments(match + 1).
-                            append(sourcePath.removeFirstSegments(segS - match - 1)));
+                    actualPaths.set(i, actualPath.removeLastSegments(match + 1)
+                            .append(sourcePath.removeFirstSegments(segS - match - 1)));
                     changedSomething = true;
                 }
                 i++;
@@ -251,8 +251,7 @@ public class PyRenameResourceAction extends RenameResourceAction {
                     iEditorPart.doSave(null);
                 }
             }
-        }
-        else if (r instanceof IFolder) {
+        } else if (r instanceof IFolder) {
             try {
                 renamedFolder = (IFolder) r;
                 preResources = new ArrayList<IResource>();
@@ -265,8 +264,7 @@ public class PyRenameResourceAction extends RenameResourceAction {
                 renamedFolder = null;
                 preResources = null;
             }
-        }
-        else {
+        } else {
             renamedFolder = null;
             preResources = null;
         }
@@ -280,24 +278,29 @@ public class PyRenameResourceAction extends RenameResourceAction {
                 try {
                     String resolveModule = n.resolveModule(r);
                     if (resolveModule != null &&
-                            // When it's an __init__, don't rename the package, only the file (regular rename operation 
+                            // When it's an __init__, don't rename the package, only the file (regular rename operation
                             // -- the folder has to be selected to do a package rename
-                            !resolveModule.endsWith(".__init__"))
-                    {
-                        File file = r.getLocation().toFile();
-                        boolean isDir = file.isDirectory();
-                        File initFile = null;
-                        if (isDir) {
-                            initFile = PythonPathHelper.getFolderInit(file);
+                            !resolveModule.endsWith(".__init__")) {
+                        IFile file = null;
+                        boolean foundAsInit = false;
+                        if (r instanceof IContainer) {
+                            file = PythonPathHelper.getFolderInit((IContainer) r);
+                            foundAsInit = true;
+                        } else if (r instanceof IFile) {
+                            file = (IFile) r;
                         }
-                        if (isDir && initFile == null) {
+
+                        if (file != null && file.exists()) {
                             //It's a directory without an __init__.py file, just keep going...
-                        } else {
-                            if (isDir) {
-                                //If it's a directory, use the __init__.py instead.
-                                file = initFile;
+                            RefactoringRequest request = new ModuleRenameRefactoringRequest(
+                                    file.getLocation().toFile(), n, null);
+                            if (!foundAsInit) {
+                                // If we have found it as an __init__ when renaming a module, we won't
+                                // set the related IFile (because we don't want to provide a 'simple rename'
+                                // in this case -- as if he did actually select the __init__, only the simple
+                                // rename would be provided in the first place).
+                                request.setFileResource(file);
                             }
-                            RefactoringRequest request = new ModuleRenameRefactoringRequest(file, n, null);
                             AbstractPyRefactoring.getPyRefactoring().rename(new PyRefactoringRequest(request));
                             //i.e.: if it was a module inside the pythonpath (as we resolved the name), don't go the default
                             //route and do a refactoring request to rename it)!

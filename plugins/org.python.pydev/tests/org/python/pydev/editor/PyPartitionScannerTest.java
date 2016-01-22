@@ -16,8 +16,8 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.rules.IToken;
 import org.python.pydev.core.IPythonPartitions;
-import org.python.pydev.core.docutils.PyPartitionScanner;
-import org.python.pydev.core.docutils.PyPartitioner;
+import org.python.pydev.core.partition.PyPartitionScanner;
+import org.python.pydev.core.partition.PyPartitioner;
 import org.python.pydev.shared_core.testutils.TestUtils;
 
 public class PyPartitionScannerTest extends TestCase {
@@ -26,10 +26,12 @@ public class PyPartitionScannerTest extends TestCase {
         junit.textui.TestRunner.run(PyPartitionScannerTest.class);
     }
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
     }
 
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }
@@ -37,7 +39,7 @@ public class PyPartitionScannerTest extends TestCase {
     public void testPartitioning() throws Exception {
         Document doc = new Document("class Foo: #comment\n" +
                 "    pass\n");
-        IDocumentPartitioner partitioner = PyPartitionScanner.addPartitionScanner(doc);
+        IDocumentPartitioner partitioner = PyPartitionScanner.addPartitionScanner(doc, null);
         assertEquals(IPythonPartitions.PY_DEFAULT, partitioner.getContentType(5));
         assertEquals(IPythonPartitions.PY_COMMENT, partitioner.getContentType(15));
     }
@@ -67,48 +69,119 @@ public class PyPartitionScannerTest extends TestCase {
         IDocument document = new Document(txt);
         PyPartitioner partitioner = PyPartitionScanner.createPyPartitioner();
         String scan = TestUtils.scan(partitioner.getScanner(), document);
-        assertEquals(TestUtils.listToExpected("__python_singleline_string1:0:7",
+        assertEquals(TestUtils.listToExpected("__python_singleline_bytes_or_unicode1:0:7",
                 "null:7:1",
                 "null:8:1",
                 "null:9:1",
-                "__python_singleline_string1:10:8",
+                "__python_singleline_bytes_or_unicode1:10:8",
                 "null:18:1",
                 "null:19:1",
-                "__python_singleline_string1:20:3",
+                "__python_singleline_bytes_or_unicode1:20:3",
                 "null:23:1",
-                "__python_multiline_string1:24:9",
+                "__python_multiline_bytes_or_unicode1:24:9",
                 "null:33:1"), scan);
 
         partitioner.connect(document);
         document.setDocumentPartitioner(partitioner);
-        checkPartitions(document, "__python_singleline_string1:0:7",
+        checkPartitions(document, "__python_singleline_bytes_or_unicode1:0:7",
                 "__dftl_partition_content_type:7:10",
-                "__python_singleline_string1:10:18",
+                "__python_singleline_bytes_or_unicode1:10:18",
                 "__dftl_partition_content_type:18:20",
-                "__python_singleline_string1:20:23",
+                "__python_singleline_bytes_or_unicode1:20:23",
                 "__dftl_partition_content_type:23:24",
-                "__python_multiline_string1:24:33",
+                "__python_multiline_bytes_or_unicode1:24:33",
                 "__dftl_partition_content_type:33:");
 
         document.replace(txt.length() - " ''' ".length(), 0, "i");
-        checkPartitions(document, "__python_singleline_string1:0:7",
+        checkPartitions(document, "__python_singleline_bytes_or_unicode1:0:7",
                 "__dftl_partition_content_type:7:10",
-                "__python_singleline_string1:10:18",
+                "__python_singleline_bytes_or_unicode1:10:18",
                 "__dftl_partition_content_type:18:20",
-                "__python_singleline_string1:20:23",
+                "__python_singleline_bytes_or_unicode1:20:23",
                 "__dftl_partition_content_type:23:24",
-                "__python_multiline_string1:24:34",
+                "__python_multiline_bytes_or_unicode1:24:34",
                 "__dftl_partition_content_type:34:");
 
         document.replace(txt.length() - " ''' ".length() + 1, 0, "j");
-        checkPartitions(document, "__python_singleline_string1:0:7",
+        checkPartitions(document, "__python_singleline_bytes_or_unicode1:0:7",
                 "__dftl_partition_content_type:7:10",
-                "__python_singleline_string1:10:18",
+                "__python_singleline_bytes_or_unicode1:10:18",
                 "__dftl_partition_content_type:18:20",
-                "__python_singleline_string1:20:23",
+                "__python_singleline_bytes_or_unicode1:20:23",
                 "__dftl_partition_content_type:23:24",
-                "__python_multiline_string1:24:35",
+                "__python_multiline_bytes_or_unicode1:24:35",
                 "__dftl_partition_content_type:35:");
+
+    }
+
+    public void testPartitioning4() throws Exception {
+        String txt = ""
+                + "class F:\n"
+                + "    '''test'''\n"
+                + "	\"\"\"test\"\"\"\n"
+                + "	'test'\n"
+                + "	\"test\"\n"
+                + "	`test`\n"
+                + "	#test\n"
+                + "	test = 10.\n"
+                + "";
+
+        IDocument document = new Document(txt);
+        PyPartitioner partitioner = PyPartitionScanner.createPyPartitioner();
+        String scan = TestUtils.scan(partitioner.getScanner(), document);
+        assertEquals(TestUtils.listToExpected("null:0:1",
+                "null:1:1",
+                "null:2:1",
+                "null:3:1",
+                "null:4:1",
+                "null:5:1",
+                "null:6:1",
+                "null:7:1",
+                "null:8:1",
+                "null:9:1",
+                "null:10:1",
+                "null:11:1",
+                "null:12:1",
+                "__python_multiline_bytes_or_unicode1:13:10",
+                "null:23:1",
+                "null:24:1",
+                "__python_multiline_bytes_or_unicode2:25:10",
+                "null:35:1",
+                "null:36:1",
+                "__python_singleline_bytes_or_unicode1:37:6",
+                "null:43:1",
+                "null:44:1",
+                "__python_singleline_bytes_or_unicode2:45:6",
+                "null:51:1",
+                "null:52:1",
+                "__python_backquotes:53:6",
+                "null:59:1",
+                "null:60:1",
+                "__python_comment:61:6",
+                "null:67:1",
+                "null:68:1",
+                "null:69:1",
+                "null:70:1",
+                "null:71:1",
+                "null:72:1",
+                "null:73:1",
+                "null:74:1",
+                "null:75:1",
+                "null:76:1",
+                "null:77:1",
+                "null:78:1"), scan);
+
+    }
+
+    public void testPartitioning5() throws Exception {
+        String txt = ""
+                + "'''test'''"
+                + "";
+
+        IDocument document = new Document(txt);
+        PyPartitioner partitioner = PyPartitionScanner.createPyPartitioner();
+        String scan = TestUtils.scan(partitioner.getScanner(), document);
+        assertEquals(TestUtils.listToExpected("__python_multiline_bytes_or_unicode1:0:10"), scan);
 
     }
 

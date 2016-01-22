@@ -44,7 +44,8 @@ public final class UnaryOp extends exprType implements unaryopType {
     }
 
     public UnaryOp createCopy(boolean copyComments) {
-        UnaryOp temp = new UnaryOp(op, operand != null ? (exprType) operand.createCopy(copyComments) : null);
+        UnaryOp temp = new UnaryOp(op,
+                operand != null ? (exprType) operand.createCopy(copyComments) : null);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
         if (this.specialsBefore != null && copyComments) {

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Refactoring Plug-in
 Bundle-SymbolicName: com.python.pydev.refactoring; singleton:=true
-Bundle-Version: 3.9.2.qualifier
+Bundle-Version: 4.5.3.qualifier
 Bundle-Activator: com.python.pydev.refactoring.RefactoringPlugin
 Bundle-Vendor: Aptana
 Bundle-Localization: plugin
@@ -13,21 +13,21 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.core.runtime,
  org.eclipse.jface.text,
- org.python.pydev;bundle-version="2.7.6",
- com.python.pydev,
+ org.python.pydev;bundle-version="[4.5.3,4.5.4)",
+ com.python.pydev;bundle-version="[4.5.3,4.5.4)",
  org.junit;bundle-version="4.0";resolution:=optional,
  org.eclipse.search,
- org.python.pydev.ast,
- org.python.pydev.shared_ui,
- org.python.pydev.core,
- org.python.pydev.parser,
+ org.python.pydev.ast;bundle-version="[4.5.3,4.5.4)",
+ org.python.pydev.shared_ui;bundle-version="[4.5.3,4.5.4)",
+ org.python.pydev.core;bundle-version="[4.5.3,4.5.4)",
+ org.python.pydev.parser;bundle-version="[4.5.3,4.5.4)",
  org.eclipse.core.resources,
- com.python.pydev.analysis,
  org.eclipse.ltk.core.refactoring,
  org.eclipse.ltk.ui.refactoring,
+ org.python.pydev.refactoring;bundle-version="[4.5.3,4.5.4)",
+ com.python.pydev.analysis;bundle-version="[4.5.3,4.5.4)",
  org.eclipse.jdt.core;resolution:=optional,
- org.eclipse.jdt.ui;resolution:=optional,
- org.python.pydev.refactoring
+ org.eclipse.jdt.ui;resolution:=optional
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: refactoring.jar
 Export-Package: com.python.pydev.refactoring.actions,com.python.pydev.

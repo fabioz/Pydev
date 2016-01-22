@@ -20,7 +20,10 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.UnpackInfo;
+import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -29,7 +32,9 @@ import org.python.pydev.parser.jython.ast.BinOp;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Compare;
+import org.python.pydev.parser.jython.ast.Comprehension;
 import org.python.pydev.parser.jython.ast.Dict;
+import org.python.pydev.parser.jython.ast.DictComp;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.For;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -53,6 +58,7 @@ import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.With;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.commentType;
+import org.python.pydev.parser.jython.ast.comprehensionType;
 import org.python.pydev.parser.jython.ast.excepthandlerType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.keywordType;
@@ -207,7 +213,8 @@ public class NodeUtils {
             return val;
         }
 
-        if (node instanceof org.python.pydev.parser.jython.ast.Dict) {
+        if (node instanceof org.python.pydev.parser.jython.ast.Dict
+                || node instanceof org.python.pydev.parser.jython.ast.DictComp) {
             String val = "{}";
             if (useTypeRepr) {
                 val = getBuiltinType(val);
@@ -323,7 +330,7 @@ public class NodeUtils {
     }
 
     public static String getFullRepresentationString(SimpleNode node, boolean fullOnSubscriptOrCall) {
-        if (node instanceof Dict) {
+        if (node instanceof Dict || node instanceof DictComp) {
             return "dict";
         }
 
@@ -962,7 +969,8 @@ public class NodeUtils {
      * @param targetAST
      * @return
      */
-    public static boolean isValidInterLoopContext(int sourceLine, int targetLine, ASTEntry sourceAST, ASTEntry targetAST) {
+    public static boolean isValidInterLoopContext(int sourceLine, int targetLine, ASTEntry sourceAST,
+            ASTEntry targetAST) {
         boolean retval = true;
         if (sourceAST.node instanceof TryExcept && targetAST.node instanceof TryExcept
                 && (!isValidTryExceptContext(sourceAST, targetAST, sourceLine, targetLine))) {
@@ -989,7 +997,8 @@ public class NodeUtils {
      *            : the line at which we need to set next (starts at 0)
      * @return
      */
-    public static boolean isValidTryExceptContext(ASTEntry sourceAST, ASTEntry targetAST, int sourceLine, int targetLine) {
+    public static boolean isValidTryExceptContext(ASTEntry sourceAST, ASTEntry targetAST, int sourceLine,
+            int targetLine) {
 
         excepthandlerType[] exceptionHandlers = ((TryExcept) sourceAST.node).handlers;
         if (((TryExcept) sourceAST.node).specialsAfter != null) {
@@ -1233,6 +1242,63 @@ public class NodeUtils {
     }
 
     /**
+     * Sets the body of some node.
+     */
+    public static void setBody(SimpleNode node, stmtType... body) {
+        if (node instanceof Module) {
+            Module module = (Module) node;
+            module.body = body;
+        }
+
+        if (node instanceof ClassDef) {
+            ClassDef module = (ClassDef) node;
+            module.body = body;
+        }
+
+        if (node instanceof FunctionDef) {
+            FunctionDef module = (FunctionDef) node;
+            module.body = body;
+        }
+
+        if (node instanceof excepthandlerType) {
+            excepthandlerType module = (excepthandlerType) node;
+            module.body = body;
+        }
+        if (node instanceof For) {
+            For module = (For) node;
+            module.body = body;
+        }
+        if (node instanceof If) {
+            If module = (If) node;
+            module.body = body;
+        }
+        if (node instanceof Suite) {
+            Suite module = (Suite) node;
+            module.body = body;
+        }
+        if (node instanceof suiteType) {
+            suiteType module = (suiteType) node;
+            module.body = body;
+        }
+        if (node instanceof TryExcept) {
+            TryExcept module = (TryExcept) node;
+            module.body = body;
+        }
+        if (node instanceof TryFinally) {
+            TryFinally module = (TryFinally) node;
+            module.body = body;
+        }
+        if (node instanceof While) {
+            While module = (While) node;
+            module.body = body;
+        }
+        if (node instanceof With) {
+            With module = (With) node;
+            module.body.body = body;
+        }
+    }
+
+    /**
      * @param node This is the node where we should start looking (usually the Module)
      * @param path This is the path for which we want an item in the given node.
      *        E.g.: If we want to find a method testFoo in a class TestCase, we'de pass TestCase.testFoo as the path.
@@ -1407,56 +1473,310 @@ public class NodeUtils {
             }
             FastStringBuffer ret = new FastStringBuffer(trimmed, 0);
             HashSet<Character> set = new HashSet<Character>();
-            set.add('`');
             set.add('!');
             set.add('~');
-            trimmed = ret.removeChars(set).toString();
-
-            i = trimmed.indexOf(' ');
-            if (i != -1) {
-                trimmed = trimmed.substring(i + 1);
+            trimmed = ret.removeChars(set).toString().trim();
+            if (trimmed.startsWith("`")) {
+                trimmed = trimmed.substring(1);
+                if (trimmed.endsWith("`")) {
+                    trimmed = trimmed.substring(0, trimmed.length() - 1);
+                }
+                i = trimmed.indexOf(' ');
+                if (i != -1) {
+                    trimmed = trimmed.substring(i + 1);
+                }
             }
         }
         return trimmed;
     }
 
     public static String getReturnTypeFromDocstring(SimpleNode node) {
-        Str stringNode = NodeUtils.getNodeDocStringNode(node);
-        String possible = null;
-        if (stringNode != null) {
-            String nodeDocString = stringNode.s;
-            if (nodeDocString != null) {
-                Iterable<String> iterLines = StringUtils.iterLines(nodeDocString);
-                for (String string : iterLines) {
-                    String trimmed = string.trim();
-                    if (trimmed.startsWith(":rtype") || trimmed.startsWith("@rtype")) {
-                        trimmed = trimmed.substring(6).trim();
-                        if (trimmed.startsWith(":")) {
-                            trimmed = trimmed.substring(1).trim();
-                        }
-                        return fixType(trimmed);
+        String nodeDocString = NodeUtils.getNodeDocString(node);
+        if (nodeDocString == null) {
+            return null;
+        }
+        return getReturnTypeFromDocstring(nodeDocString);
+    }
 
-                    } else if (trimmed.startsWith("@return") || trimmed.startsWith(":return")) {
-                        //Additional pattern:
-                        //if we have:
-                        //@return type:
-                        //    return comment on new line
-                        //consider the type there.
-                        trimmed = trimmed.substring(7).trim();
-                        if (trimmed.endsWith(":")) {
-                            trimmed = trimmed.substring(0, trimmed.length() - 1);
-                            //must be a single word
-                            if (trimmed.indexOf(' ') == -1 && trimmed.indexOf('\t') == -1) {
-                                //As this is not the default, just mark it as a possibility.
-                                //The default is the @rtype!
-                                possible = trimmed;
-                            }
-                        }
+    public static String getReturnTypeFromDocstring(String docstring) {
+        String possible = null;
+        Iterable<String> iterLines = StringUtils.iterLines(docstring);
+        String line0 = null;
+        for (String string : iterLines) {
+            String trimmed = string.trim();
+            if (line0 == null) {
+                line0 = trimmed;
+            }
+            if (trimmed.startsWith(":rtype") || trimmed.startsWith("@rtype")) {
+                trimmed = trimmed.substring(6).trim();
+                if (trimmed.startsWith(":")) {
+                    trimmed = trimmed.substring(1).trim();
+                }
+                return fixType(trimmed);
+
+            } else if (trimmed.startsWith("@return") || trimmed.startsWith(":return")) {
+                //Additional pattern:
+                //if we have:
+                //@return type:
+                //    return comment on new line
+                //consider the type there.
+                trimmed = trimmed.substring(7).trim();
+                if (trimmed.endsWith(":")) {
+                    trimmed = trimmed.substring(0, trimmed.length() - 1);
+                    //must be a single word
+                    if (trimmed.indexOf(' ') == -1 && trimmed.indexOf('\t') == -1) {
+                        //As this is not the default, just mark it as a possibility.
+                        //The default is the @rtype!
+                        possible = trimmed;
+                    }
+                }
+            }
+        }
+        if (possible == null) {
+            if (line0 != null) {
+                // Many builtins have docstrings such as "S.splitlines(keepends=False) -> list of strings"
+                int i = line0.indexOf("->");
+                if (i > 0) {
+                    possible = line0.substring(i + 2).trim();
+                    possible = possible.replace("of strings", "(str)");
+                    possible = possible.replace("of string", "(str)");
+                    int j = possible.indexOf(" of ");
+                    if (j != -1) {
+                        possible = possible.replace(" of ", "(") + ")";
                     }
                 }
             }
         }
         return fixType(possible);
+    }
+
+    public static String getUnpackedTypeFromTypeDocstring(String compoundType, UnpackInfo checkPosForDict) {
+        ParsingUtils parsingUtils = ParsingUtils.create(compoundType);
+        int len = parsingUtils.len();
+        if (checkPosForDict.getUnpackFor()) {
+            for (int i = 0; i < len; i++) {
+                char c = parsingUtils.charAt(i);
+                if (c == '(' || c == '[') {
+                    try {
+                        int j = parsingUtils.eatPar(i, null, c);
+                        if (j != -1) {
+                            compoundType = compoundType.substring(i + 1, j);
+                        }
+                    } catch (SyntaxErrorException e) {
+                    }
+                    break;
+                }
+            }
+        }
+        try {
+            //NOTE: the getUnpackTuple(10) isn't really good, but we have to change the strategy
+            //to first parse to get what's available to then know the length (so, right now
+            //we won't work very well with negative numbers in this use-case).
+            return getValueForContainer(compoundType, 0, checkPosForDict.getUnpackTuple(10), -1);
+        } catch (SyntaxErrorException e) {
+            return "";
+        }
+
+    }
+
+    private static String getValueForContainer(String substring, int currentPos, int unpackTuple,
+            int foundFirstSeparator)
+                    throws SyntaxErrorException {
+        if (unpackTuple == -1) {
+            return substring;
+        }
+
+        ParsingUtils parsingUtils = ParsingUtils.create(substring);
+        int len = parsingUtils.len();
+        int lastStart = 0;
+        for (int i = 0; i < len; i++) {
+            char c = parsingUtils.charAt(i);
+            if (c == '(' || c == '[') {
+                int j = parsingUtils.eatPar(i, null, c);
+                if (j != -1) {
+                    String searchIn = substring.substring(i + 1, j);
+                    if (foundFirstSeparator == -1) {
+                        return getValueForContainer(searchIn, currentPos, unpackTuple, 0);
+                    } else {
+                        i = j;
+                        continue;
+                    }
+                }
+            }
+            boolean found = c == ':' || c == ',';
+
+            if (!found && c == '-') {
+                if (i + 1 < len) {
+                    if (parsingUtils.charAt(i + 1) == '>') {
+                        found = true;
+                    }
+                }
+            }
+
+            if (found) {
+                if (currentPos == unpackTuple) {
+                    return substring.substring(lastStart, i).trim();
+                }
+                if (c == '-') {
+                    i++;
+                }
+                lastStart = i + 1;
+                foundFirstSeparator = i;
+                currentPos++;
+            }
+        }
+        if (currentPos == unpackTuple) {
+            return substring.substring(lastStart, substring.length()).trim();
+        }
+        return substring;
+    }
+
+    public static String getPackedTypeFromDocstring(String docstring) {
+        docstring = docstring.trim();
+        int i = docstring.indexOf('(');
+        int j = docstring.indexOf('[');
+        int k = docstring.indexOf(' ');
+        if (i == -1 && j == -1 && k == -1) {
+            return docstring;
+        }
+        if (i != -1) {
+            if (i == 0) {
+                return "tuple";
+            }
+            return docstring.substring(0, i).trim();
+        }
+        if (j != -1) {
+            if (j == 0) {
+                return "list";
+            }
+            return docstring.substring(0, j).trim();
+        }
+        if (k != -1) {
+            return docstring.substring(0, k).trim();
+        }
+        throw new RuntimeException("Did not expect to get here");
+    }
+
+    public static exprType[] getEltsFromCompoundObject(SimpleNode ast) {
+        // Most common at the top!
+        if (ast instanceof org.python.pydev.parser.jython.ast.Tuple) {
+            org.python.pydev.parser.jython.ast.Tuple tuple = (org.python.pydev.parser.jython.ast.Tuple) ast;
+            return tuple.elts;
+        }
+        if (ast instanceof org.python.pydev.parser.jython.ast.List) {
+            org.python.pydev.parser.jython.ast.List list = (org.python.pydev.parser.jython.ast.List) ast;
+            return list.elts;
+        }
+
+        if (ast instanceof org.python.pydev.parser.jython.ast.ListComp) {
+            org.python.pydev.parser.jython.ast.ListComp list = (org.python.pydev.parser.jython.ast.ListComp) ast;
+            exprType[] ret = new exprType[] { list.elt };
+
+            if (list.generators != null && list.generators.length == 1) {
+                comprehensionType comprehensionType = list.generators[0];
+                if (comprehensionType instanceof Comprehension) {
+                    Comprehension comprehension = (Comprehension) comprehensionType;
+                    exprType iter = comprehension.iter;
+                    exprType[] eltsFromIter = getEltsFromCompoundObject(iter);
+
+                    if (comprehension.target instanceof Name && eltsFromIter != null && eltsFromIter.length > 0) {
+                        Name name = (Name) comprehension.target;
+                        String rep = getRepresentationString(name);
+                        if (rep != null) {
+                            if (ret.length == 1) {
+                                if (ret[0] instanceof Name) {
+                                    String nameRep = getRepresentationString(ret[0]);
+                                    if (rep.equals(nameRep)) {
+                                        ret[0] = eltsFromIter[0]; //Note: mutating ret is Ok (it's a local copy).
+                                    }
+
+                                } else if (ret[0] instanceof org.python.pydev.parser.jython.ast.Tuple
+                                        || ret[0] instanceof org.python.pydev.parser.jython.ast.List) {
+                                    ret[0] = (exprType) ret[0].createCopy(); //Careful: we shouldn't mutate the original AST.
+                                    exprType[] tupleElts = getEltsFromCompoundObject(ret[0]);
+                                    for (int i = 0; i < tupleElts.length; i++) {
+                                        exprType tupleArg = tupleElts[i];
+                                        if (tupleArg instanceof Name) {
+                                            if (rep.equals(getRepresentationString(tupleArg))) {
+                                                tupleElts[i] = eltsFromIter[0];
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return ret;
+        }
+        if (ast instanceof org.python.pydev.parser.jython.ast.Set) {
+            org.python.pydev.parser.jython.ast.Set set = (org.python.pydev.parser.jython.ast.Set) ast;
+            return set.elts;
+        }
+        if (ast instanceof org.python.pydev.parser.jython.ast.Dict) {
+            org.python.pydev.parser.jython.ast.Dict dict = (org.python.pydev.parser.jython.ast.Dict) ast;
+            return new exprType[] { dict.keys[0], dict.values[0] };
+        }
+        if (ast instanceof org.python.pydev.parser.jython.ast.DictComp) {
+            org.python.pydev.parser.jython.ast.DictComp dict = (org.python.pydev.parser.jython.ast.DictComp) ast;
+            return new exprType[] { dict.key, dict.value };
+        }
+        if (ast instanceof org.python.pydev.parser.jython.ast.SetComp) {
+            org.python.pydev.parser.jython.ast.SetComp set = (org.python.pydev.parser.jython.ast.SetComp) ast;
+            return new exprType[] { set.elt };
+        }
+        if (ast instanceof Call) {
+            Call call = (Call) ast;
+            exprType func = call.func;
+            if (func instanceof Name) {
+                Name name = (Name) func;
+                if ("dict".equals(name.id) || "list".equals(name.id) || "tuple".equals(name.id)
+                        || "set".equals(name.id)) {
+                    //A dict call
+                    exprType[] args = call.args;
+                    if (args != null && args.length > 0) {
+                        return getEltsFromCompoundObject(args[0]);
+                    }
+                }
+            }
+            if (func instanceof Attribute) {
+                Attribute attribute = (Attribute) func;
+                if (attribute.value instanceof Dict) {
+                    Dict dict = (Dict) attribute.value;
+                    String representationString = getRepresentationString(attribute.attr);
+                    if ("keys".equals(representationString) || "iterkeys".equals(representationString)) {
+                        return dict.keys;
+                    }
+                    if ("values".equals(representationString) || "itervalues".equals(representationString)) {
+                        return dict.values;
+                    }
+                    if ("items".equals(representationString) || "iteritems".equals(representationString)) {
+                        if (dict.keys != null && dict.values != null && dict.keys.length > 0
+                                && dict.values.length > 0) {
+                            return new exprType[] { dict.keys[0], dict.values[0] };
+                        }
+                    }
+                }
+
+                if (attribute.value instanceof DictComp) {
+                    DictComp dict = (DictComp) attribute.value;
+                    String representationString = getRepresentationString(attribute.attr);
+                    if ("keys".equals(representationString) || "iterkeys".equals(representationString)) {
+                        return new exprType[] { dict.key };
+                    }
+                    if ("values".equals(representationString) || "itervalues".equals(representationString)) {
+                        return new exprType[] { dict.value };
+                    }
+                    if ("items".equals(representationString) || "iteritems".equals(representationString)) {
+                        if (dict.key != null && dict.value != null) {
+                            return new exprType[] { dict.key, dict.value };
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 
 }

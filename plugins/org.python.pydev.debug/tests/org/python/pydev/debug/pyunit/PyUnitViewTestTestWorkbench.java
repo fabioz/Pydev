@@ -9,15 +9,15 @@ package org.python.pydev.debug.pyunit;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.swt.widgets.Tree;
 import org.python.pydev.debug.pyunit.HistoryAction.HistoryMenuCreator;
 import org.python.pydev.debug.pyunit.HistoryAction.IActionsMenu;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase {
 
@@ -33,6 +33,7 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase {
         }
     }
 
+    @Override
     protected void setUp() throws Exception {
         //no need for default setup
         closeWelcomeView();
@@ -132,7 +133,8 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase {
 
         notifyFinished();
 
-        ShowOnlyFailuresAction action = (ShowOnlyFailuresAction) getPyUnitViewAction(view, ShowOnlyFailuresAction.class);
+        ShowOnlyFailuresAction action = (ShowOnlyFailuresAction) getPyUnitViewAction(view,
+                ShowOnlyFailuresAction.class);
         action.setChecked(false);//clicking it should do this.
         action.run();
         assertTrue(!action.isChecked()); //showing all methods (not only failures/errors)
@@ -206,7 +208,8 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase {
         checkRun1Active(view, serverListener1, false);
     }
 
-    private void checkRun1Active(PyUnitView view, PyUnitViewServerListener serverListener1, boolean onlyFailuresInTree) {
+    private void checkRun1Active(PyUnitView view, PyUnitViewServerListener serverListener1,
+            boolean onlyFailuresInTree) {
         assertSame(view.getCurrentTestRun(), serverListener1.getTestRun());
         assertEquals(3, serverListener1.getTestRun().getSharedResultsList().size());
         CounterPanel counterPanel = view.getCounterPanel();

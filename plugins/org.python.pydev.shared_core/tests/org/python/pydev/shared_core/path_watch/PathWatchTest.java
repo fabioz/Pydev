@@ -19,14 +19,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.TestCase;
-
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.callbacks.ListenerList;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.testutils.TestUtils;
+
+import junit.framework.TestCase;
 
 /**
  * @author fabioz
@@ -269,8 +269,10 @@ public class PathWatchTest extends TestCase {
         pathWatch.track(baseDir, new TrackChangesListener());
 
         File dir = new File(baseDir, "dir");
+        pathWatch.log.append("Creating :").appendObject(dir).append('\n');
         dir.mkdir();
         File f = new File(dir, "t.txt");
+        pathWatch.log.append("Creating :").appendObject(f).append('\n');
         FileUtils.writeStrToFile("test", f);
         synchronized (lockToSynchWait) {
             lockToSynchWait.wait(300);
@@ -280,11 +282,18 @@ public class PathWatchTest extends TestCase {
                     + "changed its time with interesting content.");
         }
         f = new File(dir, "t.py");
+        pathWatch.log.append("Creating :").appendObject(f).append('\n');
         FileUtils.writeStrToFile("test", f);
-        synchronized (lockToSynchWait) {
-            lockToSynchWait.wait(300);
-        }
-        assertTrue(getChangeHappened());
+        waitUntilCondition(new ICallback<String, Object>() {
+
+            @Override
+            public String call(Object arg) {
+                if (getChangeHappened()) {
+                    return null;
+                }
+                return "No change detected. \nLog:\n" + pathWatch.log;
+            }
+        });
     }
 
     public void testPathWatch() throws Exception {
@@ -344,7 +353,7 @@ public class PathWatchTest extends TestCase {
         });
         changes.clear();
 
-        pathWatch.log.append("\n--- Will delete base dir files ---\n");
+        pathWatch.log.append("--- Will delete base dir files ---\n");
         File[] files = baseDir.listFiles();
         if (files != null) {
 
@@ -395,16 +404,16 @@ public class PathWatchTest extends TestCase {
         });
         changes.clear();
 
-        pathWatch.log.append("\n--- Will create base dir ---");
+        pathWatch.log.append("--- Will create base dir ---");
         baseDir.mkdir();
         pathWatch.track(baseDir, listener);
         pathWatch.track(baseDir, listener2);
 
-        pathWatch.log.append("\n--- Will delete base dir--- \n");
+        pathWatch.log.append("--- Will delete base dir--- \n");
 
         assertTrue(baseDir.delete());
 
-        //JPathWatch did notify us (through an extension) that a tracked directory was removed (i.e.: ExtendedWatchEventKind.KEY_INVALID). 
+        //JPathWatch did notify us (through an extension) that a tracked directory was removed (i.e.: ExtendedWatchEventKind.KEY_INVALID).
         // Java 1.7 doesn't, so the test below no longer works.
         //
         //waitUntilCondition(new ICallback<String, Object>() {

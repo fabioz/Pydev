@@ -22,4 +22,13 @@
          <enablement></enablement>
       </consolePageParticipant>
    </extension>
+   
+   <extension
+         point="org.eclipse.ui.elementFactories">
+      <factory
+            class="org.python.pydev.shared_ui.editor_input.PyEditorInputFactory"
+            id="org.python.pydev.editorinput.pyEditorInputFactory">
+      </factory>
+   </extension>
+   
 </plugin>

@@ -122,7 +122,7 @@ module Python
 	boolop = And | Or 
 
 	operator = Add | Sub | Mult | Div | Mod | Pow | LShift 
-                 | RShift | BitOr | BitXor | BitAnd | FloorDiv
+                 | RShift | BitOr | BitXor | BitAnd | FloorDiv | Dot
 
 	unaryop = Invert | Not | UAdd | USub
 

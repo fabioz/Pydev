@@ -11,13 +11,16 @@
  */
 package org.python.pydev.editor;
 
-import junit.framework.TestCase;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.autoedit.TestIndentPrefs;
 import org.python.pydev.shared_core.utils.DocCmd;
+
+import junit.framework.TestCase;
 
 /**
  * @author Fabio Zadrozny
@@ -342,7 +345,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         DocCmd docCmd = new DocCmd(offset, 0, "\n");
         strategy.customizeDocumentCommand(doc, docCmd);
         assertEquals("\n        ", docCmd.text);
-        assertEquals(-1, docCmd.caretOffset); //don't change it 
+        assertEquals(-1, docCmd.caretOffset); //don't change it
 
     }
 
@@ -1859,6 +1862,12 @@ public class PyAutoIndentStrategyTest extends TestCase {
         expected = " ";
         assertEquals(expected, docCmd.text);
 
+        doc = "from xxx cimport";
+        docCmd = new DocCmd(doc.length(), 0, " ");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = " ";
+        assertEquals(expected, docCmd.text);
+
         doc = "no from xxx";
         docCmd = new DocCmd(doc.length(), 0, " ");
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
@@ -1948,7 +1957,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         doc = "''";
         docCmd = new DocCmd(0, 0, "'");
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
-        expected = "'"; //don't walk with the cursor and add so that the document becomes ''' 
+        expected = "'"; //don't walk with the cursor and add so that the document becomes '''
         assertEquals(expected, docCmd.text);
 
         doc = "";
@@ -2446,6 +2455,38 @@ public class PyAutoIndentStrategyTest extends TestCase {
                 "", doc.get());
         assertEquals(docCmd.offset, initialOffset - 4);
         assertEquals(expected, docCmd.text);
+
+    }
+
+    public void testAllowTabStopInComments() {
+        // (Based on code in testTabInComment())
+        TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
+        strategy.setIndentPrefs(prefs);
+
+        LinkedHashMap<String, String> tests = new LinkedHashMap<String, String>();
+        tests.put("#comment", "    ");
+        tests.put("#comment ", "   ");
+        tests.put("#comment  ", "  ");
+        tests.put("#comment   ", " ");
+        tests.put("#comment    ", "    "); // We wrap around to 4 spaces again
+
+        // Set the option, test that we get variable number of spaces inserted
+        prefs.tabStopInComment = true;
+        for (Map.Entry<String, String> e : tests.entrySet()) {
+            Document doc = new Document(e.getKey());
+            DocCmd docCmd = new DocCmd(doc.getLength(), 0, "\t");
+            strategy.customizeDocumentCommand(doc, docCmd);
+            assertEquals(e.getValue(), docCmd.text);
+        }
+
+        // Disable the option, test that we get exactly 4 spaces inserted
+        prefs.tabStopInComment = false;
+        for (Map.Entry<String, String> e : tests.entrySet()) {
+            Document doc = new Document(e.getKey());
+            DocCmd docCmd = new DocCmd(doc.getLength(), 0, "\t");
+            strategy.customizeDocumentCommand(doc, docCmd);
+            assertEquals("    ", docCmd.text);
+        }
 
     }
 }

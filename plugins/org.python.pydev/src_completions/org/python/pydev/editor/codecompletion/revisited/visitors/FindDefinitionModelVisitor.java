@@ -24,11 +24,14 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
+import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.Comprehension;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Global;
 import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.ListComp;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
@@ -36,6 +39,7 @@ import org.python.pydev.parser.jython.ast.NameTokType;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.aliasType;
+import org.python.pydev.parser.jython.ast.comprehensionType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.structure.FastStack;
@@ -77,8 +81,14 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
      */
     public String moduleImported;
 
+    /**
+     * Starts at 1
+     */
     private int line;
 
+    /**
+     * Starts at 1
+     */
     private int col;
 
     private boolean foundAsDefinition = false;
@@ -141,6 +151,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
     /**
      * @see org.python.pydev.parser.jython.ast.VisitorBase#unhandled_node(org.python.pydev.parser.jython.SimpleNode)
      */
+    @Override
     protected Object unhandled_node(SimpleNode node) throws Exception {
         return null;
     }
@@ -148,6 +159,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
     /**
      * @see org.python.pydev.parser.jython.ast.VisitorBase#traverse(org.python.pydev.parser.jython.SimpleNode)
      */
+    @Override
     public void traverse(SimpleNode node) throws Exception {
         node.traverse(this);
     }
@@ -155,6 +167,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
     /**
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitClassDef(org.python.pydev.parser.jython.ast.ClassDef)
      */
+    @Override
     public Object visitClassDef(ClassDef node) throws Exception {
         globalDeclarationsStack.push(new HashSet<String>());
         defsStack.push(node);
@@ -171,6 +184,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
     /**
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitFunctionDef(org.python.pydev.parser.jython.ast.FunctionDef)
      */
+    @Override
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         globalDeclarationsStack.push(new HashSet<String>());
         defsStack.push(node);
@@ -253,12 +267,14 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
                     definitionFound = new KeywordParameterDefinition(line, node.beginColumn, rep, node, scope,
                             module.get(), this.call.peek());
                     definitions.add(definitionFound);
-                    throw new StopVisitingException();
+                    throw STOP_VISITING_EXCEPTION;
                 }
             }
         }
         return null;
     }
+
+    private static final StopVisitingException STOP_VISITING_EXCEPTION = new StopVisitingException();
 
     /**
      * @param node the declaration node we're interested in (class or function)
@@ -267,8 +283,9 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
     private void checkDeclaration(SimpleNode node, NameTok name) {
         String rep = NodeUtils.getRepresentationString(node);
         if (rep.equals(tokenToFind)
-                && ((line == -1 && col == -1) || (line == name.beginLine && col >= name.beginColumn && col <= name.beginColumn
-                        + rep.length()))) {
+                && ((line == -1 && col == -1)
+                        || (line == name.beginLine && col >= name.beginColumn && col <= name.beginColumn
+                                + rep.length()))) {
             foundAsDefinition = true;
             // if it is found as a definition it is an 'exact' match, so, erase all the others.
             ILocalScope scope = new LocalScope(this.defsStack);
@@ -301,8 +318,14 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
     /**
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitAssign(org.python.pydev.parser.jython.ast.Assign)
      */
+    @Override
     public Object visitAssign(Assign node) throws Exception {
+        return this.visitAssign(node, -1);
+    }
+
+    public Object visitAssign(Assign node, int unpackPos) throws Exception {
         ILocalScope scope = new LocalScope(this.defsStack);
+        scope.setFoundAtASTNode(node);
         if (foundAsDefinition && !scope.equals(definitionFound.scope)) { //if it is found as a definition it is an 'exact' match, so, we do not keep checking it
             return null;
         }
@@ -319,14 +342,14 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
                 Tuple targetTuple = (Tuple) target;
                 if (node.value instanceof Tuple) {
                     Tuple valueTuple = (Tuple) node.value;
-                    checkTupleAssignTarget(targetTuple, valueTuple.elts);
+                    checkTupleAssignTarget(targetTuple, valueTuple.elts, false);
 
                 } else if (node.value instanceof org.python.pydev.parser.jython.ast.List) {
                     org.python.pydev.parser.jython.ast.List valueList = (org.python.pydev.parser.jython.ast.List) node.value;
-                    checkTupleAssignTarget(targetTuple, valueList.elts);
+                    checkTupleAssignTarget(targetTuple, valueList.elts, false);
 
                 } else {
-                    checkTupleAssignTarget(targetTuple, new exprType[] { node.value });
+                    checkTupleAssignTarget(targetTuple, new exprType[] { node.value }, true);
                 }
 
             } else {
@@ -344,7 +367,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
                     int col = NodeUtils.getColDefinition(target);
 
                     AssignDefinition definition = new AssignDefinition(value, rep, i, node, line, col, scope,
-                            module.get(), nodeValue);
+                            module.get(), nodeValue, unpackPos);
 
                     //mark it as global (if it was found as global in some of the previous contexts).
                     for (Set<String> globals : globalDeclarationsStack) {
@@ -358,25 +381,127 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
             }
         }
 
-        return null;
+        return super.visitAssign(node);
+    }
+
+    @Override
+    public Object visitListComp(ListComp node) throws Exception {
+        exprType elt = node.elt;
+        elt = fixMissingAttribute(elt);
+        if (this.line == elt.beginLine) {
+            ILocalScope scope = new LocalScope(this.defsStack);
+            scope.setFoundAtASTNode(node);
+            if (foundAsDefinition && !scope.equals(definitionFound.scope)) { //if it is found as a definition it is an 'exact' match, so, we do not keep checking it
+                return super.visitListComp(node);
+            }
+
+            if (this.tokenToFind.equals(NodeUtils.getRepresentationString(elt))) {
+                // Something as [a for a in [F(), C()]]
+                if (node.generators != null && node.generators.length == 1) {
+                    comprehensionType comprehensionType = node.generators[0];
+                    if (comprehensionType instanceof Comprehension) {
+                        Comprehension comprehension = (Comprehension) comprehensionType;
+                        if (comprehension.iter != null) {
+                            if (this.tokenToFind.equals(NodeUtils.getRepresentationString(comprehension.target))) {
+                                exprType[] elts = NodeUtils.getEltsFromCompoundObject(comprehension.iter);
+                                String rep = "";
+                                if (elts != null && elts.length > 0) {
+                                    rep = NodeUtils.getRepresentationString(elts[0]);
+                                }
+                                ListCompDefinition definition = new ListCompDefinition(rep, this.tokenToFind, node,
+                                        line, col, scope, module.get());
+
+                                definitions.add(definition);
+                            }
+                        }
+                    }
+                }
+            } else if (elt instanceof Tuple || elt instanceof List) {
+                // something as [(a, b) for (a, b) in [(F(), G()), ...]]
+
+                exprType[] eltsFromCompoundObject = NodeUtils.getEltsFromCompoundObject(elt);
+                if (eltsFromCompoundObject != null) {
+                    int length = eltsFromCompoundObject.length;
+                    for (int i = 0; i < length; i++) {
+                        exprType eltFromCompound = fixMissingAttribute(eltsFromCompoundObject[i]);
+                        if (this.tokenToFind.equals(NodeUtils.getRepresentationString(eltFromCompound))) {
+
+                            if (node.generators != null && node.generators.length == 1) {
+                                comprehensionType comprehensionType = node.generators[0];
+
+                                if (comprehensionType instanceof Comprehension) {
+                                    Comprehension comprehension = (Comprehension) comprehensionType;
+
+                                    if (comprehension.iter != null) {
+                                        exprType target = comprehension.target;
+
+                                        if (target != null) {
+                                            exprType[] targetElts = NodeUtils.getEltsFromCompoundObject(target);
+
+                                            if (targetElts != null) {
+
+                                                for (int j = 0; j < targetElts.length; j++) {
+                                                    exprType targetElt = targetElts[j];
+
+                                                    if (this.tokenToFind
+                                                            .equals(NodeUtils.getRepresentationString(targetElt))) {
+                                                        exprType[] elts = NodeUtils
+                                                                .getEltsFromCompoundObject(comprehension.iter);
+                                                        String rep = "";
+                                                        if (elts != null && elts.length > j) {
+                                                            rep = NodeUtils.getRepresentationString(elts[j]);
+                                                        }
+                                                        ListCompDefinition definition = new ListCompDefinition(rep,
+                                                                this.tokenToFind, node,
+                                                                line, col, scope, module.get());
+
+                                                        definitions.add(definition);
+                                                    }
+
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return super.visitListComp(node);
+    }
+
+    private exprType fixMissingAttribute(exprType elt) {
+        if (elt instanceof Attribute) {
+            // I.e.: in this case we have: Attribute[value=Name[id=i, ctx=Load, reserved=false], attr=NameTok[id=!<MissingName>!, ctx=Attrib], ctx=Load]
+            Attribute attribute = (Attribute) elt;
+            String rep = NodeUtils.getRepresentationString(attribute.attr);
+            if (rep == null || rep.startsWith("!")) {
+                elt = attribute.value;
+            }
+        }
+        return elt;
     }
 
     /**
      * Analyze an assign that has the target as a tuple and the multiple elements in the other side.
-     * 
+     *
      * E.g.: www, yyy = 1, 2
-     * 
+     *
      * @param targetTuple the target in the assign
      * @param valueElts the values that are being assigned
+     * @param unpackElements
      */
-    private void checkTupleAssignTarget(Tuple targetTuple, exprType[] valueElts) throws Exception {
+    private void checkTupleAssignTarget(Tuple targetTuple, exprType[] valueElts, boolean unpackElements)
+            throws Exception {
         if (valueElts == null || valueElts.length == 0) {
             return; //nothing to do if we don't have any values
         }
 
         for (int i = 0; i < targetTuple.elts.length; i++) {
             int j = i;
-            //that's if the number of values is less than the number of assigns (actually, that'd 
+            //that's if the number of values is less than the number of assigns (actually, that'd
             //probably be an error, but let's go on gracefully, as the user can be in an invalid moment
             //in his code)
             if (j >= valueElts.length) {
@@ -385,7 +510,13 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
             Assign assign = new Assign(new exprType[] { targetTuple.elts[i] }, valueElts[j]);
             assign.beginLine = targetTuple.beginLine;
             assign.beginColumn = targetTuple.beginColumn;
-            visitAssign(assign);
+            if (unpackElements) {
+                visitAssign(assign, i);
+
+            } else {
+                visitAssign(assign);
+
+            }
         }
     }
 }

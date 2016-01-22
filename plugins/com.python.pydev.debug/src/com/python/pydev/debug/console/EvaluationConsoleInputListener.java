@@ -38,8 +38,15 @@ public class EvaluationConsoleInputListener implements IConsoleInputListener {
                     System.out.println("Evaluating:\n" + toEval);
                 }
                 if (context instanceof PyStackFrame) {
-                    target.postCommand(new EvaluateExpressionCommand(target, toEval, ((PyStackFrame) context)
-                            .getLocalsLocator().getPyDBLocation(), true));
+                    final PyStackFrame frame = (PyStackFrame) context;
+                    target.postCommand(new EvaluateExpressionCommand(target, toEval, frame
+                            .getLocalsLocator().getPyDBLocation(), true) {
+                        @Override
+                        public void processOKResponse(int cmdCode, String payload) {
+                            frame.forceGetNewVariables();
+                            super.processOKResponse(cmdCode, payload);
+                        }
+                    });
                 }
             }
             buf = new StringBuffer();

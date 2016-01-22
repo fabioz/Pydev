@@ -35,6 +35,8 @@ public abstract class BaseModel implements IOutlineModel {
 
     protected abstract IParsedItem createParsedItemFromSimpleNode(ISimpleNode ast);
 
+    private boolean disposed = false;
+
     public final ICallbackWithListeners<IOutlineModel> onModelChanged = new CallbackWithListeners<IOutlineModel>();
 
     @Override
@@ -95,9 +97,12 @@ public abstract class BaseModel implements IOutlineModel {
     protected abstract IParsedItem duplicateRootAddingError(ErrorDescription errorDesc);
 
     public void dispose() {
-        editor.removeModelListener(modelListener);
-        onModelChanged.unregisterAllListeners();
-        root = null;
+        if (!disposed) {
+            disposed = true;
+            editor.removeModelListener(modelListener);
+            onModelChanged.unregisterAllListeners();
+            root = null;
+        }
     }
 
     public IParsedItem getRoot() {
@@ -174,7 +179,12 @@ public abstract class BaseModel implements IOutlineModel {
                 }
 
             } else {
-                Log.log("No old model root?");
+                if (disposed) {
+                    Log.logInfo("It seems it's already disposed...");
+
+                } else {
+                    Log.logInfo("No old model root?");
+                }
             }
         } catch (Throwable e) {
             Log.log(e);

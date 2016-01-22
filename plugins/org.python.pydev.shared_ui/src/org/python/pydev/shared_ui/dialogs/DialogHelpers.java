@@ -41,8 +41,10 @@ public class DialogHelpers {
     }
 
     public static String openInputRequest(String title, String message) {
-        Shell shell = EditorUtils.getShell();
-        String initialValue = "";
+        return openInputRequest(title, message, null);
+    }
+
+    public static String openInputRequest(String title, String message, Shell shell) {
         IInputValidator validator = new IInputValidator() {
 
             @Override
@@ -53,10 +55,45 @@ public class DialogHelpers {
                 return null;
             }
         };
+        return openInputRequest(title, message, shell, validator);
+    }
+
+    public static String openInputRequest(String title, String message, Shell shell, IInputValidator validator) {
+        if (shell == null) {
+            shell = EditorUtils.getShell();
+        }
+        String initialValue = "";
         InputDialog dialog = new InputDialog(shell, title, message, initialValue, validator);
         dialog.setBlockOnOpen(true);
         if (dialog.open() == Window.OK) {
             return dialog.getValue();
+        }
+        return null;
+    }
+
+    // Return could be null if user cancelled.
+    public static Integer openAskInt(String title, String message, int initial) {
+        Shell shell = EditorUtils.getShell();
+        String initialValue = "" + initial;
+        IInputValidator validator = new IInputValidator() {
+
+            @Override
+            public String isValid(String newText) {
+                if (newText.length() == 0) {
+                    return "At least 1 char must be provided.";
+                }
+                try {
+                    Integer.parseInt(newText);
+                } catch (Exception e) {
+                    return "A number is required.";
+                }
+                return null;
+            }
+        };
+        InputDialog dialog = new InputDialog(shell, title, message, initialValue, validator);
+        dialog.setBlockOnOpen(true);
+        if (dialog.open() == Window.OK) {
+            return Integer.parseInt(dialog.getValue());
         }
         return null;
     }

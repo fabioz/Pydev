@@ -71,16 +71,35 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
         participant = new ImportsCompletionParticipant();
 
         //check simple
-        ICompletionProposal[] proposals = requestCompl("unittest", new String[] { "unittest", "unittest - testlib" }); //the unittest module and testlib.unittest
+        ICompletionProposal[] proposals = requestCompl(
+                "unittest", -1, -1, new String[] { "unittest", "unittest - testlib" }
+                ); //the unittest module and testlib.unittest
 
         Document document = new Document("unittest");
-        ((CtxInsensitiveImportComplProposal) proposals[0]).indentString = "    ";
-        ((CtxInsensitiveImportComplProposal) proposals[0]).apply(document, ' ', 0, 8);
+        ICompletionProposal p0 = null;
+        ICompletionProposal p1 = null;
+        for (ICompletionProposal p : proposals) {
+            String displayString = p.getDisplayString();
+            if (displayString.equals("unittest")) {
+                p0 = p;
+            } else if (displayString.equals("unittest - testlib")) {
+                p1 = p;
+            }
+        }
+
+        if (p0 == null) {
+            fail("Could not find unittest import");
+        }
+        if (p1 == null) {
+            fail("Could not find unittest - testlib import");
+        }
+        ((CtxInsensitiveImportComplProposal) p0).indentString = "    ";
+        ((CtxInsensitiveImportComplProposal) p0).apply(document, ' ', 0, 8);
         PySelectionTest.checkStrEquals("import unittest\r\nunittest", document.get());
 
         document = new Document("unittest");
-        ((CtxInsensitiveImportComplProposal) proposals[1]).indentString = "    ";
-        ((CtxInsensitiveImportComplProposal) proposals[1]).apply(document, ' ', 0, 8);
+        ((CtxInsensitiveImportComplProposal) p1).indentString = "    ";
+        ((CtxInsensitiveImportComplProposal) p1).apply(document, ' ', 0, 8);
         PySelectionTest.checkStrEquals("from testlib import unittest\r\nunittest", document.get());
 
         document = new Document("unittest");
@@ -94,14 +113,14 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
 
         document = new Document("unittest");
         prefs.setValue(PyCodeCompletionPreferencesPage.APPLY_COMPLETION_ON_DOT, false);
-        ((CtxInsensitiveImportComplProposal) proposals[1]).indentString = "    ";
-        ((CtxInsensitiveImportComplProposal) proposals[1]).apply(document, '.', 0, 8);
+        ((CtxInsensitiveImportComplProposal) p1).indentString = "    ";
+        ((CtxInsensitiveImportComplProposal) p1).apply(document, '.', 0, 8);
         PySelectionTest.checkStrEquals("unittest.", document.get());
 
         document = new Document("unittest");
         prefs.setValue(PyCodeCompletionPreferencesPage.APPLY_COMPLETION_ON_DOT, true);
-        ((CtxInsensitiveImportComplProposal) proposals[1]).indentString = "    ";
-        ((CtxInsensitiveImportComplProposal) proposals[1]).apply(document, '.', 0, 8);
+        ((CtxInsensitiveImportComplProposal) p1).indentString = "    ";
+        ((CtxInsensitiveImportComplProposal) p1).apply(document, '.', 0, 8);
         PySelectionTest.checkStrEquals("from testlib import unittest\r\nunittest.", document.get());
 
         //for imports, the behavior never changes

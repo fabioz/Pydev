@@ -86,6 +86,46 @@ public class PyDevCodeFoldingPrefPage extends PreferencePage implements IWorkben
 
     public static final String FOLD_WITH = "FOLD_WITH";
 
+    public static final String INITIALLY_FOLD_COMMENTS = "INITIALLY_COLLAPSE_COMMENTS";
+
+    public static final boolean DEFAULT_INITIALLY_FOLD_COMMENTS = false;
+
+    public static final String INITIALLY_FOLD_IF = "INITIALLY_FOLD_IF";
+
+    public static final boolean DEFAULT_INITIALLY_FOLD_IF = false;
+
+    public static final String INITIALLY_FOLD_WHILE = "INITIALLY_FOLD_WHILE";
+
+    public static final boolean DEFAULT_INITIALLY_FOLD_WHILE = false;
+
+    public static final String INITIALLY_FOLD_CLASSDEF = "INITIALLY_FOLD_CLASSDEF";
+
+    public static final boolean DEFAULT_INITIALLY_FOLD_CLASSDEF = false;
+
+    public static final String INITIALLY_FOLD_FUNCTIONDEF = "INITIALLY_FOLD_FUNCTIONDEF";
+
+    public static final boolean DEFAULT_INITIALLY_FOLD_FUNCTIONDEF = false;
+
+    public static final String INITIALLY_FOLD_STRINGS = "INITIALLY_FOLD_STRINGS";
+
+    public static final boolean DEFAULT_INITIALLY_FOLD_STRINGS = false;
+
+    public static final String INITIALLY_FOLD_WITH = "INITIALLY_FOLD_WITH";
+
+    public static final boolean DEFAULT_INITIALLY_FOLD_WITH = false;
+
+    public static final String INITIALLY_FOLD_TRY = "INITIALLY_FOLD_TRY";
+
+    public static final boolean DEFAULT_INITIALLY_FOLD_TRY = false;
+
+    public static final String INITIALLY_FOLD_IMPORTS = "INITIALLY_FOLD_IMPORTS";
+
+    public static final boolean DEFAULT_INITIALLY_FOLD_IMPORTS = false;
+
+    public static final String INITIALLY_FOLD_FOR = "INITIALLY_FOLD_FOR";
+
+    public static final boolean DEFAULT_INITIALLY_FOLD_FOR = false;
+
     /**
      * 
      */
@@ -130,38 +170,62 @@ public class PyDevCodeFoldingPrefPage extends PreferencePage implements IWorkben
 
         Label listLabel = new Label(top, SWT.NONE);
         listLabel
-                .setText("\nSelect the elements you would like PyDev \nto fold on.\n\nWill be applied when the document is saved");
+                .setText(
+                        "\nSelect the elements you would like PyDev \nto fold on.\n\nWill be applied when the document is saved");
 
-        Button slaveImport = addCheckBox(top, "Fold Imports?", FOLD_IMPORTS, 0);
+        /*[[[cog
+        import cog
+        template = '''Button slave%(titled)s = addCheckBox(top, "Fold %(caption)ss?", %(constant)s, 0);
+        Button slaveInitialCollapse%(titled)s = addCheckBox(top, "Initially Fold %(caption)ss?", INITIALLY_%(constant)s, 0);
+        createDependency(new Button[] { master, slave%(titled)s }, slaveInitialCollapse%(titled)s, USE_CODE_FOLDING, %(constant)s);
+        '''
+        import folding_entries
+        for constant, caption in zip(folding_entries.FOLDING_ENTRIES, folding_entries.FOLDING_CAPTIONS):
+            titled = constant.title().replace('_', '');
+            cog.outl(template % dict(titled=titled, constant=constant, caption=caption))
+            
+        ]]]*/
+        Button slaveFoldImports = addCheckBox(top, "Fold Imports?", FOLD_IMPORTS, 0);
+        Button slaveInitialCollapseFoldImports = addCheckBox(top, "Initially Fold Imports?", INITIALLY_FOLD_IMPORTS, 0);
+        createDependency(new Button[] { master, slaveFoldImports }, slaveInitialCollapseFoldImports, USE_CODE_FOLDING, FOLD_IMPORTS);
 
-        Button slaveClass = addCheckBox(top, "Fold Class Definitions?", FOLD_CLASSDEF, 0);
+        Button slaveFoldClassdef = addCheckBox(top, "Fold Class Definitions?", FOLD_CLASSDEF, 0);
+        Button slaveInitialCollapseFoldClassdef = addCheckBox(top, "Initially Fold Class Definitions?", INITIALLY_FOLD_CLASSDEF, 0);
+        createDependency(new Button[] { master, slaveFoldClassdef }, slaveInitialCollapseFoldClassdef, USE_CODE_FOLDING, FOLD_CLASSDEF);
 
-        Button slaveFunc = addCheckBox(top, "Fold Function Definitions?", FOLD_FUNCTIONDEF, 0);
+        Button slaveFoldFunctiondef = addCheckBox(top, "Fold Function Definitions?", FOLD_FUNCTIONDEF, 0);
+        Button slaveInitialCollapseFoldFunctiondef = addCheckBox(top, "Initially Fold Function Definitions?", INITIALLY_FOLD_FUNCTIONDEF, 0);
+        createDependency(new Button[] { master, slaveFoldFunctiondef }, slaveInitialCollapseFoldFunctiondef, USE_CODE_FOLDING, FOLD_FUNCTIONDEF);
 
-        Button slaveString = addCheckBox(top, "Fold Multi-line Strings?", FOLD_STRINGS, 0);
+        Button slaveFoldComments = addCheckBox(top, "Fold Comments?", FOLD_COMMENTS, 0);
+        Button slaveInitialCollapseFoldComments = addCheckBox(top, "Initially Fold Comments?", INITIALLY_FOLD_COMMENTS, 0);
+        createDependency(new Button[] { master, slaveFoldComments }, slaveInitialCollapseFoldComments, USE_CODE_FOLDING, FOLD_COMMENTS);
 
-        Button slaveComment = addCheckBox(top, "Fold Comments?", FOLD_COMMENTS, 0);
+        Button slaveFoldStrings = addCheckBox(top, "Fold Strings?", FOLD_STRINGS, 0);
+        Button slaveInitialCollapseFoldStrings = addCheckBox(top, "Initially Fold Strings?", INITIALLY_FOLD_STRINGS, 0);
+        createDependency(new Button[] { master, slaveFoldStrings }, slaveInitialCollapseFoldStrings, USE_CODE_FOLDING, FOLD_STRINGS);
 
-        Button slaveFor = addCheckBox(top, "Fold FOR statments?", FOLD_FOR, 0);
+        Button slaveFoldIf = addCheckBox(top, "Fold If statements?", FOLD_IF, 0);
+        Button slaveInitialCollapseFoldIf = addCheckBox(top, "Initially Fold If statements?", INITIALLY_FOLD_IF, 0);
+        createDependency(new Button[] { master, slaveFoldIf }, slaveInitialCollapseFoldIf, USE_CODE_FOLDING, FOLD_IF);
 
-        Button slaveIf = addCheckBox(top, "Fold IF statments?", FOLD_IF, 0);
+        Button slaveFoldWhile = addCheckBox(top, "Fold While statements?", FOLD_WHILE, 0);
+        Button slaveInitialCollapseFoldWhile = addCheckBox(top, "Initially Fold While statements?", INITIALLY_FOLD_WHILE, 0);
+        createDependency(new Button[] { master, slaveFoldWhile }, slaveInitialCollapseFoldWhile, USE_CODE_FOLDING, FOLD_WHILE);
 
-        Button slaveTry = addCheckBox(top, "Fold TRY statments?", FOLD_TRY, 0);
+        Button slaveFoldWith = addCheckBox(top, "Fold With statements?", FOLD_WITH, 0);
+        Button slaveInitialCollapseFoldWith = addCheckBox(top, "Initially Fold With statements?", INITIALLY_FOLD_WITH, 0);
+        createDependency(new Button[] { master, slaveFoldWith }, slaveInitialCollapseFoldWith, USE_CODE_FOLDING, FOLD_WITH);
 
-        Button slaveWhile = addCheckBox(top, "Fold WHILE statments?", FOLD_WHILE, 0);
+        Button slaveFoldTry = addCheckBox(top, "Fold Try statements?", FOLD_TRY, 0);
+        Button slaveInitialCollapseFoldTry = addCheckBox(top, "Initially Fold Try statements?", INITIALLY_FOLD_TRY, 0);
+        createDependency(new Button[] { master, slaveFoldTry }, slaveInitialCollapseFoldTry, USE_CODE_FOLDING, FOLD_TRY);
 
-        Button slaveWith = addCheckBox(top, "Fold WITH statments?", FOLD_WITH, 0);
+        Button slaveFoldFor = addCheckBox(top, "Fold For statements?", FOLD_FOR, 0);
+        Button slaveInitialCollapseFoldFor = addCheckBox(top, "Initially Fold For statements?", INITIALLY_FOLD_FOR, 0);
+        createDependency(new Button[] { master, slaveFoldFor }, slaveInitialCollapseFoldFor, USE_CODE_FOLDING, FOLD_FOR);
 
-        createDependency(master, USE_CODE_FOLDING, slaveClass);
-        createDependency(master, USE_CODE_FOLDING, slaveFunc);
-        createDependency(master, USE_CODE_FOLDING, slaveImport);
-        createDependency(master, USE_CODE_FOLDING, slaveFor);
-        createDependency(master, USE_CODE_FOLDING, slaveIf);
-        createDependency(master, USE_CODE_FOLDING, slaveTry);
-        createDependency(master, USE_CODE_FOLDING, slaveWhile);
-        createDependency(master, USE_CODE_FOLDING, slaveWith);
-        createDependency(master, USE_CODE_FOLDING, slaveString);
-        createDependency(master, USE_CODE_FOLDING, slaveComment);
+        //[[[end]]]
 
         return top;
 
@@ -170,6 +234,7 @@ public class PyDevCodeFoldingPrefPage extends PreferencePage implements IWorkben
     /*
      * @see PreferencePage#performOk()
      */
+    @Override
     public boolean performOk() {
         fOverlayStore.propagate();
         PydevPlugin.getDefault().savePluginPreferences();
@@ -179,6 +244,7 @@ public class PyDevCodeFoldingPrefPage extends PreferencePage implements IWorkben
     /*
      * @see PreferencePage#performDefaults()
      */
+    @Override
     protected void performDefaults() {
 
         fOverlayStore.loadDefaults();
@@ -192,8 +258,8 @@ public class PyDevCodeFoldingPrefPage extends PreferencePage implements IWorkben
 
         Iterator<Button> e = fCheckBoxes.keySet().iterator();
         while (e.hasNext()) {
-            Button b = (Button) e.next();
-            String key = (String) fCheckBoxes.get(b);
+            Button b = e.next();
+            String key = fCheckBoxes.get(b);
             b.setSelection(fOverlayStore.getBoolean(key));
         }
 
@@ -210,7 +276,7 @@ public class PyDevCodeFoldingPrefPage extends PreferencePage implements IWorkben
         // Update slaves
         Iterator<SelectionListener> iter = fMasterSlaveListeners.iterator();
         while (iter.hasNext()) {
-            SelectionListener listener = (SelectionListener) iter.next();
+            SelectionListener listener = iter.next();
             listener.widgetSelected(null);
         }
     }
@@ -225,7 +291,7 @@ public class PyDevCodeFoldingPrefPage extends PreferencePage implements IWorkben
 
         public void widgetSelected(SelectionEvent e) {
             Button button = (Button) e.widget;
-            fOverlayStore.setValue((String) fCheckBoxes.get(button), button.getSelection());
+            fOverlayStore.setValue(fCheckBoxes.get(button), button.getSelection());
         }
     };
 
@@ -246,46 +312,86 @@ public class PyDevCodeFoldingPrefPage extends PreferencePage implements IWorkben
 
     protected java.util.List<SelectionListener> fMasterSlaveListeners = new ArrayList<SelectionListener>();
 
-    protected void createDependency(final Button master, String masterKey, final Control slave) {
-        indent(slave);
+    protected void createDependency(final Button[] masterControls, final Control slave, String... masterKeys) {
+        indent(slave, 20 * masterKeys.length);
 
-        boolean masterState = fOverlayStore.getBoolean(masterKey);
+        boolean masterState = true;
+        for (String string : masterKeys) {
+            masterState &= fOverlayStore.getBoolean(string);
+        }
         slave.setEnabled(masterState);
 
         SelectionListener listener = new SelectionListener() {
             public void widgetSelected(SelectionEvent e) {
-                slave.setEnabled(master.getSelection());
+                boolean enabled = true;
+                for (Button master : masterControls) {
+                    enabled &= master.getSelection();
+                }
+                slave.setEnabled(enabled);
             }
 
             public void widgetDefaultSelected(SelectionEvent e) {
             }
         };
-        master.addSelectionListener(listener);
+        for (Button master : masterControls) {
+            master.addSelectionListener(listener);
+        }
         fMasterSlaveListeners.add(listener);
     }
 
-    protected static void indent(Control control) {
+    protected static void indent(Control control, int horizontalIndent) {
         GridData gridData = new GridData();
-        gridData.horizontalIndent = 20;
+        gridData.horizontalIndent = horizontalIndent;
         control.setLayoutData(gridData);
     }
 
     protected OverlayPreferenceStore createOverlayStore() {
 
         java.util.List<OverlayPreferenceStore.OverlayKey> overlayKeys = new ArrayList<OverlayPreferenceStore.OverlayKey>();
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, USE_CODE_FOLDING));
 
         //checkbox      
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, USE_CODE_FOLDING));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, FOLD_CLASSDEF));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, FOLD_COMMENTS));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, FOLD_FOR));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, FOLD_FUNCTIONDEF));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, FOLD_IF));
+        /*[[[cog
+        import cog
+        template = '''overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, %s));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, INITIALLY_%s));
+        '''
+        import folding_entries
+        for s in folding_entries.FOLDING_ENTRIES:
+            cog.outl(template % (s, s))
+            
+        ]]]*/
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, FOLD_IMPORTS));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, INITIALLY_FOLD_IMPORTS));
+
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, FOLD_CLASSDEF));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, INITIALLY_FOLD_CLASSDEF));
+
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, FOLD_FUNCTIONDEF));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, INITIALLY_FOLD_FUNCTIONDEF));
+
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, FOLD_COMMENTS));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, INITIALLY_FOLD_COMMENTS));
+
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, FOLD_STRINGS));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, FOLD_TRY));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, INITIALLY_FOLD_STRINGS));
+
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, FOLD_IF));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, INITIALLY_FOLD_IF));
+
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, FOLD_WHILE));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, INITIALLY_FOLD_WHILE));
+
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, FOLD_WITH));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, INITIALLY_FOLD_WITH));
+
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, FOLD_TRY));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, INITIALLY_FOLD_TRY));
+
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, FOLD_FOR));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, INITIALLY_FOLD_FOR));
+
+        //[[[end]]]
 
         OverlayPreferenceStore.OverlayKey[] keys = new OverlayPreferenceStore.OverlayKey[overlayKeys.size()];
         overlayKeys.toArray(keys);

@@ -88,7 +88,7 @@ public class PyReconciler implements IReconcilingStrategy, IReconcilingStrategyE
          */
         public void endCollecting() {
 
-            List toRemove = new ArrayList();
+            List<Object> toRemove = new ArrayList<Object>();
 
             Object fLockObject;
             if (fAnnotationModel instanceof ISynchronizable) {
@@ -120,7 +120,7 @@ public class PyReconciler implements IReconcilingStrategy, IReconcilingStrategyE
                     iter = null;
                 }
 
-                Annotation[] annotationsToRemove = (Annotation[]) toRemove.toArray(new Annotation[toRemove.size()]);
+                Annotation[] annotationsToRemove = toRemove.toArray(new Annotation[toRemove.size()]);
 
                 //let other threads execute before getting the lock (again) on the annotation model
                 Thread.yield();

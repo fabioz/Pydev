@@ -506,6 +506,25 @@ public final class PythonPathHelper implements IPythonPathHelper {
     }
 
     /**
+     * @param root this is the folder we're checking
+     * @return true if it is a folder with an __init__ python file
+     */
+    public static IFile getFolderInit(IContainer root) {
+        // Checking for existence of a specific file is much faster than listing a directory!
+        String[] validInitFiles = FileTypesPreferencesPage.getValidInitFiles();
+        int len = validInitFiles.length;
+        for (int i = 0; i < len; i++) {
+            String init = validInitFiles[i];
+            IFile f = root.getFile(new Path(init));
+            if (f.exists()) {
+                return f;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * @param item the file we want to check
      * @return true if the file is a valid __init__ file
      */

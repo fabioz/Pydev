@@ -54,6 +54,7 @@ import org.python.pydev.shared_interactive_console.console.ui.internal.IHandleSc
 import org.python.pydev.shared_interactive_console.console.ui.internal.ScriptConsoleMessages;
 import org.python.pydev.shared_interactive_console.console.ui.internal.ScriptConsolePage;
 import org.python.pydev.shared_interactive_console.console.ui.internal.actions.AbstractHandleBackspaceAction;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 /**
  * The pydev console creates the basic stuff to work as a script console.
@@ -82,9 +83,16 @@ public class PydevConsole extends ScriptConsole {
     public PydevConsole(PydevConsoleInterpreter interpreter, String additionalInitialComands) {
         super(CONSOLE_NAME + " [" + getNextId() + "]", PydevConsoleConstants.CONSOLE_TYPE, interpreter);
         this.additionalInitialComands = additionalInitialComands;
-        this.setPydevConsoleBackground(ColorManager.getDefault().getConsoleBackgroundColor());
-        //Cannot be called directly because Eclipse 3.2does not support it.
-        //setBackground(ColorManager.getPreferenceColor(PydevConsoleConstants.CONSOLE_BACKGROUND_COLOR));
+        boolean runNowIfInUiThread = true;
+        RunInUiThread.async(new Runnable() {
+
+            @Override
+            public void run() {
+                setPydevConsoleBackground(ColorManager.getDefault().getConsoleBackgroundColor());
+                //Cannot be called directly because Eclipse 3.2does not support it.
+                //setBackground(ColorManager.getPreferenceColor(PydevConsoleConstants.CONSOLE_BACKGROUND_COLOR));
+            }
+        }, runNowIfInUiThread);
     }
 
     @Override
@@ -106,7 +114,7 @@ public class PydevConsole extends ScriptConsole {
     }
 
     @Override
-    protected SourceViewerConfiguration createSourceViewerConfiguration() {
+    public SourceViewerConfiguration createSourceViewerConfiguration() {
         PyContentAssistant contentAssist = new PyContentAssistant();
         IContentAssistProcessor processor = createConsoleCompletionProcessor(contentAssist);
         contentAssist.setContentAssistProcessor(processor, PydevScriptConsoleSourceViewerConfiguration.PARTITION_TYPE);

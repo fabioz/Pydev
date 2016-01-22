@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.IEncodedStreamContentAccessor;
 import org.eclipse.compare.IStreamContentAccessor;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -19,7 +20,7 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.python.pydev.core.docutils.PyPartitionScanner;
+import org.python.pydev.core.partition.PyPartitionScanner;
 import org.python.pydev.editor.PyEditConfigurationWithoutEditor;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.log.Log;
@@ -30,13 +31,18 @@ public class PyContentViewer extends Viewer {
     private SourceViewer fSourceViewer;
     private Object fInput;
 
-    PyContentViewer(Composite parent) {
+    PyContentViewer(Composite parent, CompareConfiguration mp) {
         fSourceViewer = new SourceViewer(parent, null, SWT.LEFT_TO_RIGHT | SWT.H_SCROLL | SWT.V_SCROLL);
         IPreferenceStore store = PydevPrefs.getChainedPrefStore();
 
         final ColorAndStyleCache c = new ColorAndStyleCache(store);
 
-        fSourceViewer.configure(new PyEditConfigurationWithoutEditor(c, store));
+        // Ideally we wouldn't pass null for the grammarVersionProvider... although
+        // I haven't been able to get to this code at all (is this something still needed?)
+        // It seems that Eclipse (in 4.5m5 at least) never gets to use the org.eclipse.compare.contentViewers
+        // as it seems to use what's provided by org.eclipse.compare.contentMergeViewers or the
+        // editor directly... if that's not the case, first we need to discover how that's still needed.
+        fSourceViewer.configure(new PyEditConfigurationWithoutEditor(c, store, null));
 
         fSourceViewer.setEditable(false);
         parent.addDisposeListener(new DisposeListener() {
@@ -57,7 +63,7 @@ public class PyContentViewer extends Viewer {
     public void setInput(Object input) {
         if (input instanceof IStreamContentAccessor) {
             Document document = new Document(getString(input));
-            PyPartitionScanner.addPartitionScanner(document);
+            PyPartitionScanner.addPartitionScanner(document, null);
         }
         fInput = input;
     }

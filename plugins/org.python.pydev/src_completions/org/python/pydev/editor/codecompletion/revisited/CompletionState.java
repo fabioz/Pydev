@@ -28,7 +28,9 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.structure.CompletionRecursionException;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.structure.Tuple3;
 
 /**
@@ -41,6 +43,7 @@ public final class CompletionState implements ICompletionState {
     private int col = -1;
     private IPythonNature nature;
     private String qualifier;
+    private int levelGetCompletionsUnpackingObject = 0;
 
     private final Memo<String> memory = new Memo<String>();
     private final Memo<Definition> definitionMemory = new Memo<Definition>();
@@ -62,6 +65,8 @@ public final class CompletionState implements ICompletionState {
     private List<IToken> tokenImportedModules;
     private ICompletionCache completionCache;
     private String fullActivationToken;
+    private long initialMillis = 0;
+    private long maxMillisToComplete;
 
     public ICompletionState getCopy() {
         return new CompletionStateWrapper(this);
@@ -78,7 +83,7 @@ public final class CompletionState implements ICompletionState {
 
     /**
      * this is a class that can act as a memo and check if something is defined more than 'n' times
-     * 
+     *
      * @author Fabio Zadrozny
      */
     private static class Memo<E> {
@@ -208,7 +213,7 @@ public final class CompletionState implements ICompletionState {
 
     /**
      * @param module
-     * @throws CompletionRecursionException 
+     * @throws CompletionRecursionException
      */
     public void checkResolveImportMemory(IModule module, String value) throws CompletionRecursionException {
         if (this.resolveImportMemory.isInRecursion(module, value)) {
@@ -247,6 +252,26 @@ public final class CompletionState implements ICompletionState {
         }
     }
 
+    public void checkMaxTimeForCompletion() throws CompletionRecursionException {
+        if (this.initialMillis <= 0) {
+            this.initialMillis = System.currentTimeMillis();
+            if (SharedCorePlugin.inTestMode()) {
+                this.maxMillisToComplete = Long.MAX_VALUE; //2 * 1000; //In test mode the max is 2 seconds.
+            } else {
+                this.maxMillisToComplete = PyCodeCompletionPreferencesPage
+                        .getMaximumNumberOfMillisToCompleteCodeCompletionRequest();
+            }
+        } else {
+            long diff = System.currentTimeMillis() - this.initialMillis;
+            if (diff > this.maxMillisToComplete) {
+                throw new CompletionRecursionException(
+                        "Stopping analysis: completion took too much time to complete. Max set to: "
+                                + this.maxMillisToComplete + " millis. Current: " + diff + " millis. Note: this "
+                                + "value may be changed in the code-completion preferences.");
+            }
+        }
+    };
+
     Set<Tuple3<Integer, Integer, IModule>> foundSameDefinitionMemory = new HashSet<Tuple3<Integer, Integer, IModule>>();
 
     public boolean checkFoudSameDefinition(int line, int col, IModule mod) {
@@ -267,8 +292,8 @@ public final class CompletionState implements ICompletionState {
 
     /**
      * This check is a bit different from the others because of the context it will work in...
-     * 
-     *  This check is used when resolving things from imports, so, it may check for recursions found when in previous context, but 
+     *
+     *  This check is used when resolving things from imports, so, it may check for recursions found when in previous context, but
      *  if a recursion is found in the current context, that's ok (because it's simply trying to get the actual representation for a token)
      */
     public void checkFindResolveImportMemory(IToken token) throws CompletionRecursionException {
@@ -435,5 +460,120 @@ public final class CompletionState implements ICompletionState {
 
     public void clear() {
         this.completionCache.clear();
+    }
+
+    private static class AlreadySerched {
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((actTok == null) ? 0 : actTok.hashCode());
+            result = prime * result + col;
+            result = prime * result + line;
+            result = prime * result + ((module == null) ? 0 : module.hashCode());
+            result = prime * result + ((value == null) ? 0 : value.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            AlreadySerched other = (AlreadySerched) obj;
+            if (actTok == null) {
+                if (other.actTok != null) {
+                    return false;
+                }
+            } else if (!actTok.equals(other.actTok)) {
+                return false;
+            }
+            if (col != other.col) {
+                return false;
+            }
+            if (line != other.line) {
+                return false;
+            }
+            if (module == null) {
+                if (other.module != null) {
+                    return false;
+                }
+            } else if (!module.equals(other.module)) {
+                return false;
+            }
+            if (value == null) {
+                if (other.value != null) {
+                    return false;
+                }
+            } else if (!value.equals(other.value)) {
+                return false;
+            }
+            return true;
+        }
+
+        private final int line;
+        private final int col;
+        private final IModule module;
+        private final String actTok;
+        private final String value;
+
+        AlreadySerched(int line, int col, IModule module, String value, String actTok) {
+            this.line = line;
+            this.col = col;
+            this.module = module;
+            this.actTok = actTok;
+            this.value = value;
+        }
+    }
+
+    private Set<AlreadySerched> alreadySearchedInAssign = new HashSet<CompletionState.AlreadySerched>();
+
+    @Override
+    public boolean getAlreadySearchedInAssign(int line, int col, IModule module, String value, String actTok) {
+        AlreadySerched s = new AlreadySerched(line, col, module, value, actTok);
+        if (alreadySearchedInAssign.contains(s)) {
+            return true;
+        }
+        alreadySearchedInAssign.add(s);
+        return false;
+    }
+
+    int assign = 0;
+
+    @Override
+    public int pushAssign() {
+        assign += 1;
+        return assign;
+    }
+
+    @Override
+    public void popAssign() {
+        assign -= 1;
+        if (assign == 0) {
+            // When we get to level 0, clear anything searched previously
+            alreadySearchedInAssign.clear();
+        }
+    }
+
+    @Override
+    public void pushGetCompletionsUnpackingObject() throws CompletionRecursionException {
+        levelGetCompletionsUnpackingObject += 1;
+        if (levelGetCompletionsUnpackingObject > 15) {
+            throw new CompletionRecursionException(
+                    "Error: recursion detected getting completions unpacking object. Activation token: "
+                            + this.getActivationToken());
+        }
+    }
+
+    @Override
+    public void popGetCompletionsUnpackingObject() {
+        levelGetCompletionsUnpackingObject -= 1;
     }
 }

@@ -152,7 +152,6 @@ public class StringSubstitution {
     /**
      * Performs string substitution for context and value variables.
      */
-    @SuppressWarnings("unchecked")
     class StringSubstitutionEngine {
 
         // delimiters
@@ -212,22 +211,22 @@ public class StringSubstitution {
         public String performStringSubstitution(String expression, boolean resolveVariables,
                 Map<String, String> variableSubstitution) throws CoreException {
             substitute(expression, resolveVariables, variableSubstitution);
-            List resolvedVariableSets = new ArrayList();
+            List<HashSet<String>> resolvedVariableSets = new ArrayList<HashSet<String>>();
             while (fSubs) {
-                HashSet resolved = substitute(fResult.toString(), true, variableSubstitution);
+                HashSet<String> resolved = substitute(fResult.toString(), true, variableSubstitution);
 
                 for (int i = resolvedVariableSets.size() - 1; i >= 0; i--) {
 
-                    HashSet prevSet = (HashSet) resolvedVariableSets.get(i);
+                    HashSet<String> prevSet = resolvedVariableSets.get(i);
 
                     if (prevSet.equals(resolved)) {
-                        HashSet conflictingSet = new HashSet();
+                        HashSet<String> conflictingSet = new HashSet<String>();
                         for (; i < resolvedVariableSets.size(); i++) {
-                            conflictingSet.addAll((HashSet) resolvedVariableSets.get(i));
+                            conflictingSet.addAll(resolvedVariableSets.get(i));
                         }
 
                         StringBuffer problemVariableList = new StringBuffer();
-                        for (Iterator it = conflictingSet.iterator(); it.hasNext();) {
+                        for (Iterator<?> it = conflictingSet.iterator(); it.hasNext();) {
                             problemVariableList.append(it.next().toString());
                             problemVariableList.append(", "); //$NON-NLS-1$
                         }
@@ -235,7 +234,8 @@ public class StringSubstitution {
                         throw new CoreException(new Status(IStatus.ERROR, VariablesPlugin.getUniqueIdentifier(),
                                 VariablesPlugin.REFERENCE_CYCLE_ERROR,
                                 StringUtils.format("Cycle error on:",
-                                        problemVariableList.toString()), null));
+                                        problemVariableList.toString()),
+                                null));
                     }
                 }
 
@@ -254,7 +254,7 @@ public class StringSubstitution {
          */
         private HashSet<String> substitute(String expression, boolean resolveVariables,
                 Map<String, String> variableSubstitution)
-                throws CoreException {
+                        throws CoreException {
             fResult = new StringBuffer(expression.length());
             fStack = new Stack<VariableReference>();
             fSubs = false;
@@ -354,8 +354,9 @@ public class StringSubstitution {
          * @return variable value, possibly <code>null</code>
          * @exception CoreException if unable to resolve a value
          */
-        private String resolve(VariableReference var, boolean resolveVariables, Map<String, String> variableSubstitution)
-                throws CoreException {
+        private String resolve(VariableReference var, boolean resolveVariables,
+                Map<String, String> variableSubstitution)
+                        throws CoreException {
             String text = var.getText();
             int pos = text.indexOf(VARIABLE_ARG);
             String name = null;

@@ -25,8 +25,8 @@ public class AnalysisBuilderRunnableFactory {
 
     /**
      * Field that should know all the threads.
-     * 
-     * Key is tuple with project name and module name. 
+     *
+     * Key is tuple with project name and module name.
      */
     private volatile static Map<KeyForAnalysisRunnable, IAnalysisBuilderRunnable> availableThreads;
 
@@ -93,18 +93,19 @@ public class AnalysisBuilderRunnableFactory {
      * is lower than one already in place (this can happen if we have a notification from a successful parse, but
      * it's only acknowledged after a build request, because the parse to finish can take some time, while the build
      * is 'automatic').
-     * 
+     *
      * @param nature the related nature
      * @param moduleName the name of the module we'll analyze
      * @param documentTime the time of the creation of the document we're about to analyze.
      * @param available the existing threads.
-     * @param resourceModificationStamp 
-     * 
+     * @param resourceModificationStamp
+     * @param analysisCause
+     *
      * @return The analysis key if all check were OK or null if some check failed.
      */
     private static KeyForAnalysisRunnable areNatureAndProjectAndTimeOK(IPythonNature nature,
             String moduleName, long documentTime, Map<KeyForAnalysisRunnable, IAnalysisBuilderRunnable> available,
-            long resourceModificationStamp) {
+            long resourceModificationStamp, int analysisCause) {
         synchronized (lock) {
             if (nature == null) {
                 return null;
@@ -115,7 +116,8 @@ public class AnalysisBuilderRunnableFactory {
                 return null;
             }
 
-            KeyForAnalysisRunnable analysisKey = new KeyForAnalysisRunnable(project.getName(), moduleName);
+            KeyForAnalysisRunnable analysisKey = new KeyForAnalysisRunnable(project.getName(), moduleName,
+                    analysisCause);
             IAnalysisBuilderRunnable oldAnalysisBuilderThread = available.get(analysisKey);
 
             if (oldAnalysisBuilderThread != null) {
@@ -176,7 +178,7 @@ public class AnalysisBuilderRunnableFactory {
     /**
      * Creates a thread for analyzing some module (and stopping analysis of some other thread if there is one
      * already running).
-     *  
+     *
      * @return The new runnable or null if there's one there already that has a higher document version.
      */
     /*Default*/static IAnalysisBuilderRunnable createRunnable(IDocument document, IResource resource,
@@ -186,7 +188,7 @@ public class AnalysisBuilderRunnableFactory {
         synchronized (lock) {
             Map<KeyForAnalysisRunnable, IAnalysisBuilderRunnable> available = getAvailableThreads();
             KeyForAnalysisRunnable analysisKey = areNatureAndProjectAndTimeOK(nature, moduleName, documentTime,
-                    available, resourceModificationStamp);
+                    available, resourceModificationStamp, analysisCause);
             if (analysisKey == null) {
                 return null;
             }
@@ -209,7 +211,8 @@ public class AnalysisBuilderRunnableFactory {
                 if (!forceAnalysis) {
                     if (PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()) {
                         if (analysisCause == IAnalysisBuilderRunnable.ANALYSIS_CAUSE_BUILDER
-                                && oldAnalysisBuilderThread.getAnalysisCause() != IAnalysisBuilderRunnable.ANALYSIS_CAUSE_BUILDER) {
+                                && oldAnalysisBuilderThread
+                                        .getAnalysisCause() != IAnalysisBuilderRunnable.ANALYSIS_CAUSE_BUILDER) {
                             //we're stopping a previous analysis that would really happen, so, let's force this one
                             forceAnalysis = true;
                         }
@@ -238,7 +241,7 @@ public class AnalysisBuilderRunnableFactory {
         synchronized (lock) {
             Map<KeyForAnalysisRunnable, IAnalysisBuilderRunnable> available = getAvailableThreads();
             KeyForAnalysisRunnable analysisKey = areNatureAndProjectAndTimeOK(nature, moduleName, documentTime,
-                    available, resourceModificationStamp);
+                    available, resourceModificationStamp, analysisCause);
             if (analysisKey == null) {
                 return null;
             }

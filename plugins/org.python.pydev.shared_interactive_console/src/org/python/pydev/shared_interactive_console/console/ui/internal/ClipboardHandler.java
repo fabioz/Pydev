@@ -28,22 +28,25 @@ public class ClipboardHandler {
     /**
      * Adds text from the given document to the clipboard, but without the text related to the prompt
      * (gotten from the document partitioner).
-     * 
+     *
      * @param doc the document from where the text should be gotten
      * @param selectedRange the range selected for saving
      * @param clipboardType the type of the clipboard (see constants in clipboard)
      * @param display the display to be used
      */
     public void putIntoClipboard(IDocument doc, Point selectedRange, int clipboardType, Display display) {
+        String plainText = getPlainText(doc, selectedRange);
+        if (plainText.length() == 0) {
+            return;
+        }
 
+        putIntoClipboard(clipboardType, display, plainText);
+    }
+
+    public void putIntoClipboard(int clipboardType, Display display, String plainText) throws SWTError {
         Clipboard clipboard = new Clipboard(display);
         try {
             TextTransfer plainTextTransfer = TextTransfer.getInstance();
-
-            String plainText = getPlainText(doc, selectedRange);
-            if (plainText.length() == 0) {
-                return;
-            }
 
             String[] data = new String[] { plainText };
             Transfer[] types = new Transfer[] { plainTextTransfer };
@@ -51,7 +54,7 @@ public class ClipboardHandler {
             try {
                 clipboard.setContents(data, types, clipboardType);
             } catch (SWTError error) {
-                // Copy to clipboard failed. This happens when another application 
+                // Copy to clipboard failed. This happens when another application
                 // is accessing the clipboard while we copy. Ignore the error.
                 // Fixes 1GDQAVN
                 // Rethrow all other errors. Fixes bug 17578.

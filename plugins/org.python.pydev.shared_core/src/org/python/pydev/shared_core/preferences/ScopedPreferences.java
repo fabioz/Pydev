@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2014-2015 by Brainwy Software Ltda. All Rights Reserved.
+ * Licensed under11 the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 package org.python.pydev.shared_core.preferences;
 
 import java.io.ByteArrayInputStream;
@@ -21,9 +27,12 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IDocument;
+import org.osgi.framework.Bundle;
 import org.python.pydev.shared_core.cache.LRUCache;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.io.FileUtils;
@@ -36,29 +45,45 @@ import org.yaml.snakeyaml.Yaml;
 
 public final class ScopedPreferences implements IScopedPreferences {
 
-    private static final Map<String, IScopedPreferences> pluginNameToPreferences = new HashMap<String, IScopedPreferences>();
+    private static final Map<String, IScopedPreferences> yamlFileNameToPreferences = new HashMap<String, IScopedPreferences>();
     private static final Object lock = new Object();
 
-    public static IScopedPreferences get(final String pluginName) {
-        IScopedPreferences ret = pluginNameToPreferences.get(pluginName);
+    public static IScopedPreferences get(final String yamlFileName) {
+        IScopedPreferences ret = yamlFileNameToPreferences.get(yamlFileName);
         if (ret == null) {
             synchronized (lock) {
-                ret = new ScopedPreferences(pluginName);
-                pluginNameToPreferences.put(pluginName, ret);
+                ret = new ScopedPreferences(yamlFileName);
+                yamlFileNameToPreferences.put(yamlFileName, ret);
             }
         }
         return ret;
     }
 
     public static String USER_HOME_IN_TESTS = null;
+    public static String WORKSPACE_DIR_IN_TESTS = null;
 
-    private String pluginName;
+    private String yamlFileName;
     private File[] trackedDirs;
     private File defaultSettingsDir = null;
+    private File workspaceDir = null;
 
-    public ScopedPreferences(String pluginName) {
-        this.pluginName = pluginName;
+    public ScopedPreferences(String yamlFileName) {
+        this.yamlFileName = yamlFileName;
         Set<File> set = new OrderedSet<File>();
+
+        try {
+            if (WORKSPACE_DIR_IN_TESTS != null) {
+                workspaceDir = new File(WORKSPACE_DIR_IN_TESTS, yamlFileName + ".yaml");
+            } else {
+                Bundle bundle = Platform.getBundle("org.python.pydev.shared_core");
+                if (bundle != null) {
+                    IPath stateLocation = Platform.getStateLocation(bundle);
+                    workspaceDir = new File(stateLocation.toFile(), yamlFileName + ".yaml");
+                }
+            }
+        } catch (Exception e1) {
+            Log.log(e1);
+        }
 
         //Default paths always there!
         String userHome;
@@ -93,7 +118,7 @@ public final class ScopedPreferences implements IScopedPreferences {
         }
 
         // TODO: Add support later on.
-        // ScopedPreferenceStore workspaceSettings = new ScopedPreferenceStore(InstanceScope.INSTANCE, pluginName);
+        // ScopedPreferenceStore workspaceSettings = new ScopedPreferenceStore(InstanceScope.INSTANCE, yamlFileName);
         // String string = workspaceSettings.getString("ADDITIONAL_TRACKED_DIRS");
         // //Load additional tracked dirs
         // for (String s : StringUtils.split(string, '|')) {
@@ -104,7 +129,12 @@ public final class ScopedPreferences implements IScopedPreferences {
 
     @Override
     public File getUserSettingsLocation() {
-        return new File(defaultSettingsDir, pluginName + ".yaml");
+        return new File(defaultSettingsDir, yamlFileName + ".yaml");
+    }
+
+    @Override
+    public File getWorkspaceSettingsLocation() {
+        return workspaceDir;
     }
 
     @Override
@@ -114,8 +144,8 @@ public final class ScopedPreferences implements IScopedPreferences {
         Tuple<Map<String, Object>, Set<String>> ret = new Tuple<>(o1, o2);
 
         File yamlFile = getUserSettingsLocation();
-        if (yamlFile.exists()) {
-            Map<String, Object> loaded = getYamlFileContents(yamlFile);
+        Map<String, Object> loaded = getYamlFileContents(yamlFile);
+        if (loaded != null) {
             Set<Entry<String, Object>> initialEntrySet = saveData.entrySet();
             for (Entry<String, Object> entry : initialEntrySet) {
                 Object loadedObj = loaded.get(entry.getKey());
@@ -136,7 +166,7 @@ public final class ScopedPreferences implements IScopedPreferences {
         Map<String, Object> o1 = new HashMap<>();
         Set<String> o2 = new HashSet<>();
         Tuple<Map<String, Object>, Set<String>> ret = new Tuple<>(o1, o2);
-        IFile yamlFile = getProjectConfigFile(project, pluginName + ".yaml", false);
+        IFile yamlFile = getProjectConfigFile(project, yamlFileName + ".yaml", false);
 
         if (yamlFile.exists()) {
             Map<String, Object> loaded = getYamlFileContents(yamlFile);
@@ -168,7 +198,7 @@ public final class ScopedPreferences implements IScopedPreferences {
             yamlMapToWrite.put(entry.getKey(), entry.getValue());
         }
         saveData = null; // make sure we don't use it anymore
-        File yamlFile = new File(defaultSettingsDir, pluginName + ".yaml");
+        File yamlFile = new File(defaultSettingsDir, yamlFileName + ".yaml");
         if (yamlFile.exists()) {
             try {
                 Map<String, Object> initial = new HashMap<>(getYamlFileContents(yamlFile));
@@ -195,7 +225,7 @@ public final class ScopedPreferences implements IScopedPreferences {
 
         for (IProject project : projects) {
             try {
-                IFile projectConfigFile = getProjectConfigFile(project, pluginName + ".yaml", true);
+                IFile projectConfigFile = getProjectConfigFile(project, yamlFileName + ".yaml", true);
                 if (projectConfigFile == null) {
                     buf.append("Unable to get config file location for: ").append(project.getName()).append("\n");
                     continue;
@@ -264,7 +294,7 @@ public final class ScopedPreferences implements IScopedPreferences {
 
     @Override
     public IFile getProjectSettingsLocation(IProject p) {
-        return getProjectConfigFile(p, pluginName + ".yaml", false);
+        return getProjectConfigFile(p, yamlFileName + ".yaml", false);
     }
 
     /**
@@ -355,19 +385,17 @@ public final class ScopedPreferences implements IScopedPreferences {
         // If it got here, it's not in the project, let's try in the user settings...
         for (File dir : trackedDirs) {
             try {
-                File yaml = new File(dir, pluginName + ".yaml");
-                if (yaml.exists()) {
-                    Map<String, Object> yamlFileContents = null;
-                    try {
-                        yamlFileContents = getYamlFileContents(yaml);
-                    } catch (Exception e) {
-                        Log.log(e);
-                    }
-                    if (yamlFileContents != null) {
-                        Object object = yamlFileContents.get(keyInYaml);
-                        if (object != null) {
-                            return object;
-                        }
+                File yaml = new File(dir, yamlFileName + ".yaml");
+                Map<String, Object> yamlFileContents = null;
+                try {
+                    yamlFileContents = getYamlFileContents(yaml);
+                } catch (Exception e) {
+                    Log.log(e);
+                }
+                if (yamlFileContents != null) {
+                    Object object = yamlFileContents.get(keyInYaml);
+                    if (object != null) {
+                        return object;
                     }
                 }
             } catch (Exception e) {
@@ -472,7 +500,11 @@ public final class ScopedPreferences implements IScopedPreferences {
                 });
     }
 
-    private Map<String, Object> getYamlFileContents(final File yamlFile) throws Exception {
+    @Override
+    public Map<String, Object> getYamlFileContents(final File yamlFile) throws Exception {
+        if (!yamlFile.exists()) {
+            return null;
+        }
         //Using this API to get a higher precision!
         FileTime ret = Files.getLastModifiedTime(yamlFile.toPath());
         long lastModified = ret.to(TimeUnit.NANOSECONDS);

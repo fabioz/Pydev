@@ -35,10 +35,10 @@ import org.eclipse.ui.texteditor.IUpdate;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyBreakpoint;
-import org.python.pydev.editorinput.PydevFileEditorInput;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.editor.BaseEditor;
+import org.python.pydev.shared_ui.editor_input.EditorInputUtils;
 import org.python.pydev.shared_ui.utils.PyMarkerUtils;
 
 /**
@@ -173,7 +173,7 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
 
         String attribute = (String) marker.getAttribute(PyBreakpoint.PY_BREAK_EXTERNAL_PATH_ID);
         if (attribute != null) {
-            File file = PydevFileEditorInput.getFile(externalFileEditorInput);
+            File file = EditorInputUtils.getFile(externalFileEditorInput);
             if (file == null) {
                 return false;
             }

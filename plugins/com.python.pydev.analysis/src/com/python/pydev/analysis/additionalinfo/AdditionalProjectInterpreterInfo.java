@@ -6,7 +6,7 @@
  */
 /*
  * Created on Sep 13, 2005
- * 
+ *
  * @author Fabio Zadrozny
  */
 package com.python.pydev.analysis.additionalinfo;
@@ -23,12 +23,17 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
@@ -36,9 +41,11 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.structure.OrderedMap;
 import org.python.pydev.shared_core.structure.Tuple;
 
 import com.python.pydev.analysis.AnalysisPlugin;
+import com.python.pydev.analysis.system_info_builder.InterpreterInfoBuilder;
 
 public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWithBuild {
 
@@ -121,7 +128,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
     /**
      * @param nature the nature we want to get info on
      * @return all the additional info that is bounded with some nature (including related projects)
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     public static List<AbstractAdditionalTokensInfo> getAdditionalInfo(IPythonNature nature, boolean addSystemInfo,
             boolean addReferencingProjects) throws MisconfigurationException {
@@ -137,13 +144,13 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
 
     public static List<Tuple<AbstractAdditionalTokensInfo, IPythonNature>> getAdditionalInfoAndNature(
             IPythonNature nature, boolean addSystemInfo, boolean addReferencingProjects)
-            throws MisconfigurationException {
+                    throws MisconfigurationException {
         return getAdditionalInfoAndNature(nature, addSystemInfo, addReferencingProjects, true);
     }
 
     public static List<Tuple<AbstractAdditionalTokensInfo, IPythonNature>> getAdditionalInfoAndNature(
             IPythonNature nature, boolean addSystemInfo, boolean addReferencingProjects, boolean addReferencedProjects)
-            throws MisconfigurationException {
+                    throws MisconfigurationException {
 
         List<Tuple<AbstractAdditionalTokensInfo, IPythonNature>> ret = new ArrayList<Tuple<AbstractAdditionalTokensInfo, IPythonNature>>();
 
@@ -176,7 +183,8 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
                     //get for the referenced projects
                     Set<IProject> referencedProjects = ProjectModulesManager.getReferencedProjects(project);
                     for (IProject refProject : referencedProjects) {
-                        additionalInfoForProject = getAdditionalInfoForProject(PythonNature.getPythonNature(refProject));
+                        additionalInfoForProject = getAdditionalInfoForProject(
+                                PythonNature.getPythonNature(refProject));
                         if (additionalInfoForProject != null) {
                             ret.add(new Tuple<AbstractAdditionalTokensInfo, IPythonNature>(additionalInfoForProject,
                                     PythonNature.getPythonNature(refProject)));
@@ -187,7 +195,8 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
                 if (addReferencingProjects) {
                     Set<IProject> referencingProjects = ProjectModulesManager.getReferencingProjects(project);
                     for (IProject refProject : referencingProjects) {
-                        additionalInfoForProject = getAdditionalInfoForProject(PythonNature.getPythonNature(refProject));
+                        additionalInfoForProject = getAdditionalInfoForProject(
+                                PythonNature.getPythonNature(refProject));
                         if (additionalInfoForProject != null) {
                             ret.add(new Tuple<AbstractAdditionalTokensInfo, IPythonNature>(additionalInfoForProject,
                                     PythonNature.getPythonNature(refProject)));
@@ -205,9 +214,9 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
     /**
      * @param project the project we want to get info on
      * @return the additional info for a given project (gotten from the cache with its name)
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
-    public static AbstractAdditionalDependencyInfo getAdditionalInfoForProject(IPythonNature nature)
+    public static AbstractAdditionalDependencyInfo getAdditionalInfoForProject(final IPythonNature nature)
             throws MisconfigurationException {
         if (nature == null) {
             return null;
@@ -226,6 +235,25 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
 
                 if (!info.load()) {
                     recreateAllInfo(nature, new NullProgressMonitor());
+                } else {
+                    final AbstractAdditionalDependencyInfo temp = info;
+                    temp.setWaitForIntegrityCheck(true);
+                    //Ok, after it's loaded the first time, check the index integrity!
+                    Job j = new Job("Check index integrity for: " + project.getName()) {
+
+                        @Override
+                        protected IStatus run(IProgressMonitor monitor) {
+                            try {
+                                new InterpreterInfoBuilder().syncInfoToPythonPath(monitor, nature);
+                            } finally {
+                                temp.setWaitForIntegrityCheck(false);
+                            }
+                            return Status.OK_STATUS;
+                        }
+                    };
+                    j.setPriority(Job.INTERACTIVE);
+                    j.setSystem(true);
+                    j.schedule();
                 }
 
             }
@@ -257,7 +285,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
     /**
      * @param project the project we want to get info on
      * @return a list of the additional info for the project + referencing projects
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     public static List<AbstractAdditionalDependencyInfo> getAdditionalInfoForProjectAndReferencing(IPythonNature nature)
             throws MisconfigurationException {
@@ -289,6 +317,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
                         .getAdditionalInfoForProject(nature);
                 if (currInfo != null) {
                     currInfo.clearAllInfo();
+                    currInfo.dispose();
                 }
 
                 String feedback = "(project:" + project.getName() + ")";
@@ -325,4 +354,60 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
         AdditionalProjectInterpreterInfo additionalProjectInterpreterInfo = (AdditionalProjectInterpreterInfo) obj;
         return this.getProject().equals(additionalProjectInterpreterInfo.getProject());
     }
+
+    /**
+     * @param token the token we want to search for (must be an exact match). Only tokens which are valid identifiers
+     * may be searched (i.e.: no dots in it or anything alike).
+     *
+     * @return List<ModulesKey> a list with all the modules that contains the passed token.
+     *
+     * Note: if it's a name with dots, we'll split it and search for each one.
+     */
+    public List<ModulesKey> getModulesWithToken(String token, IProgressMonitor monitor)
+            throws OperationCanceledException {
+        NullProgressMonitor nullMonitor = new NullProgressMonitor();
+        if (monitor == null) {
+            monitor = nullMonitor;
+        }
+        int length = token.length();
+        if (token == null || length == 0) {
+            return new ArrayList<>();
+        }
+
+        for (int i = 0; i < length; i++) {
+            char c = token.charAt(i);
+            if (!Character.isJavaIdentifierPart(c) && c != '.') {
+                throw new RuntimeException(StringUtils.format(
+                        "Token: %s is not a valid token to search for.", token));
+            }
+        }
+
+        StringUtils.checkTokensValidForWildcardQuery(token);
+
+        OrderedMap<String, Set<String>> fieldNameToValues = new OrderedMap<>();
+        Set<String> split = new HashSet<>();
+        for (String s : StringUtils.splitForIndexMatching(token)) {
+            // We need to search in lowercase (we only index case-insensitive).
+            split.add(s.toLowerCase());
+        }
+        fieldNameToValues.put(IReferenceSearches.FIELD_CONTENTS, split);
+
+        List<ModulesKey> search = getReferenceSearches().search(project, fieldNameToValues, monitor);
+
+        //Checking consistency with old version
+        //List<ModulesKey> old = new ReferenceSearches(this).search(project, token, nullMonitor);
+        //System.out.println("Searching for: " + token);
+        //Collections.sort(search);
+        //Collections.sort(old);
+        //System.out.println("---- New ----");
+        //for (ModulesKey modulesKey : search) {
+        //    System.out.println(modulesKey);
+        //}
+        //System.out.println("---- Old ----");
+        //for (ModulesKey modulesKey : old) {
+        //    System.out.println(modulesKey);
+        //}
+        return search;
+    }
+
 }

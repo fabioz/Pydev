@@ -26,13 +26,13 @@ public interface IIndentPrefs {
 
     /**
      * Sets the forceTabs preference for auto-indentation.
-     * 
+     *
      * <p>
      * This is the preference that overrides "use spaces" preference when file
      * contains tabs (like mine do).
      * <p>
      * If the first indented line starts with a tab, then tabs override spaces.
-     * 
+     *
      * @return True If tabs should be used even if it says we should use spaces.
      */
     public void setForceTabs(boolean forceTabs);
@@ -43,6 +43,8 @@ public interface IIndentPrefs {
      * @return the width a tab should have.
      */
     public int getTabWidth();
+
+    public void addTabChangedListener(ITabChangedListener listener);
 
     /**
      * @return the indentation string based on the current settings.
@@ -66,7 +68,7 @@ public interface IIndentPrefs {
     public boolean getAutoColon();
 
     /**
-     * Get whether or not to auto-skip braces insertion  
+     * Get whether or not to auto-skip braces insertion
      * @return if auto-skip braces is ENABLED
      */
     public boolean getAutoBraces();
@@ -117,7 +119,14 @@ public interface IIndentPrefs {
     public boolean getAutoLiterals();
 
     /**
+     * Allow tab stops in comments?
+     */
+    public boolean getTabStopInComment();
+
+    /**
      * Should we do the link on auto-close?
      */
     public boolean getAutoLink();
+
+    public boolean getGuessTabSubstitution();
 }

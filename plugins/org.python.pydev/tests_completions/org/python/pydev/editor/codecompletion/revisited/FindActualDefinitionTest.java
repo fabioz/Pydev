@@ -33,6 +33,7 @@ public class FindActualDefinitionTest extends CodeCompletionTestsBase {
         }
     }
 
+    @Override
     public void setUp() throws Exception {
         super.setUp();
         restorePythonPath(false);
@@ -84,19 +85,15 @@ public class FindActualDefinitionTest extends CodeCompletionTestsBase {
         String str = "" +
                 "class Test(unittest.TestCase):\n" +
                 "\n" +
-                "    def testCountCalls(self):\n"
-                +
+                "    def testCountCalls(self):\n" +
                 "        parent = self.root\n" +
                 "        if name == '':\n" +
-                "            result = parent\n"
-                +
+                "            result = parent\n" +
                 "        else:\n" +
                 "            parts = name.split('/')\n" +
-                "            for i_part in parts:\n"
-                +
+                "            for i_part in parts:\n" +
                 "                result = parent.find(i_part)\n" +
-                "                parent = result\n"
-                +
+                "                parent = result\n" +
                 "        return result\n" +
                 "\n" +
                 "";
@@ -106,5 +103,30 @@ public class FindActualDefinitionTest extends CodeCompletionTestsBase {
         PyRefactoringFindDefinition.findActualDefinition(null, mod, "parent.find", selected, 10, 33, nature,
                 completionCache);
         assertEquals(0, selected.size());
+    }
+
+    public void testFindActualDefinition4() throws Exception {
+        String str = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "        pass\n"
+                + "     \n"
+                + "\n"
+                + "class X:\n"
+                + "    def items(self):\n"
+                + "        ':rtype: list(str, G)'\n"
+                + "     \n"
+                + "\n"
+                + "def check(x):\n"
+                + "    ':type x:X'\n"
+                + "    for a, b in x.items():\n" //should get the items following the user hints.
+                + "        b.mG()"
+                + "";
+        IModule mod = SourceModule.createModuleFromDoc(null, new Document(str), nature);
+        ICompletionCache completionCache = new CompletionCache();
+        ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
+        PyRefactoringFindDefinition.findActualDefinition(null, mod, "x.items", selected, 13, 23, nature,
+                completionCache);
+        assertEquals(1, selected.size());
     }
 }

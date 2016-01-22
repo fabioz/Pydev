@@ -53,8 +53,8 @@ public final class TryFinally extends stmtType {
         } else {
             new0 = this.body;
         }
-        TryFinally temp = new TryFinally(new0, finalbody != null ? (suiteType) finalbody.createCopy(copyComments)
-                : null);
+        TryFinally temp = new TryFinally(new0,
+                finalbody != null ? (suiteType) finalbody.createCopy(copyComments) : null);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
         if (this.specialsBefore != null && copyComments) {

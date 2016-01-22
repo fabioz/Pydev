@@ -7,6 +7,7 @@
 package org.python.pydev.editor.codecompletion.revisited.javaintegration;
 
 import java.io.File;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -42,25 +43,25 @@ import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
 /**
- * This class wraps a java project as we'd wrap a python project in a ProjectModulesManager, to give info on the 
- * modules available. 
+ * This class wraps a java project as we'd wrap a python project in a ProjectModulesManager, to give info on the
+ * modules available.
  *
  * Alternative to find the package names:
  *             SearchableEnvironment s = j.newSearchableNameEnvironment(new ICompilationUnit[]{unit});
  *             s.findPackages("bar".toCharArray(), new ISearchRequestor(){
- * 
+ *
  *                 public void acceptPackage(char[] packageName) {
  *                     System.out.println("Accept package:"+new String(packageName));
  *                 }
- * 
+ *
  *                 public void acceptType(char[] packageName, char[] typeName, char[][] enclosingTypeNames, int modifiers,
  *                         AccessRestriction accessRestriction) {
  *                     System.out.println("Accept type:"+new String(packageName)+" / "+new String(typeName));
  *                 }});
  * End Alternative
- * 
+ *
  * Message about it: http://www.eclipse.org/newsportal/article.php?id=21742&group=eclipse.tools.jdt#21742
- * 
+ *
  * @author Fabio
  */
 public class JavaProjectModulesManager implements IModulesManager, IProjectModulesManager {
@@ -152,17 +153,17 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
         /**
          * @param elementName the name of the element (same as javaElement.getElementName())
          * @param packageRoot the java package where the element is contained
-         * @param javaElement the java element 
-         * 
+         * @param javaElement the java element
+         *
          * @return true if the element should be added and false otherwise.
          */
         public boolean accept(String elementName, IPackageFragmentRoot packageRoot, IJavaElement javaElement);
     }
 
     /**
-     * This method passes through all the java packages and calls the filter callback passed 
+     * This method passes through all the java packages and calls the filter callback passed
      * on each package found.
-     * 
+     *
      * If true is returned on the callback, the children of each package (classes) will also be visited,
      * otherwise, they'll be skipped.
      */
@@ -182,7 +183,7 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
                     for (IPackageFragmentRoot root : roots) {
                         IJavaElement[] children = root.getChildren();
 
-                        //get the actual packages 
+                        //get the actual packages
                         for (IJavaElement child : children) {
                             IPackageFragment childPackage = (IPackageFragment) child;
                             String elementName = childPackage.getElementName();
@@ -293,7 +294,7 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
 
             if (javaElement != null) {
 
-                //now, there's a catch here, we'll find any class in the project classpath, even if it's in the 
+                //now, there's a catch here, we'll find any class in the project classpath, even if it's in the
                 //global classpath (e.g.: rt.jar), and this shouldn't be treated in this project modules manager
                 //(that's treated in the Jython system manager)
                 IJavaElement ancestor = javaElement.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
@@ -416,6 +417,11 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
 
     @Override
     public Object getCompiledModuleCreationLock(String name) {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public Tuple<List<ModulesKey>, List<ModulesKey>> diffModules(AbstractMap<ModulesKey, ModulesKey> keysFound) {
         throw new RuntimeException("not implemented");
     }
 }

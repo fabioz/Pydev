@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.ltk.core.refactoring.participants.RenameRefactoring;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizardOpenOperation;
 import org.python.pydev.core.log.Log;
@@ -110,7 +111,8 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
         return null;
     }
 
-    public ItemPointer[] findDefinition(RefactoringRequest request) throws TooManyMatchesException {
+    public ItemPointer[] findDefinition(RefactoringRequest request)
+            throws TooManyMatchesException, BadLocationException {
         return new RefactorerFindDefinition().findDefinition(request);
     }
 
@@ -139,7 +141,7 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
             try {
                 req.pushMonitor(new SubProgressMonitor(monitor, 10));
                 pyReferenceSearcher.prepareSearch(req);
-            } catch (PyReferenceSearcher.SearchException e) {
+            } catch (PyReferenceSearcher.SearchException | BadLocationException e) {
                 return null;
             } finally {
                 req.popMonitor().done();

@@ -1,14 +1,14 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2004 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials 
+ * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/cpl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Scott Schlesier - Adapted for use in pydev
- *     Fabio Zadrozny 
+ *     Fabio Zadrozny
  *******************************************************************************/
 
 package org.python.pydev.editor.preferences;
@@ -68,7 +68,7 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
     private IPropertyChangeListener updateLabelExampleOnPrefsChanges;
 
     public PydevEditorPrefs() {
-        setDescription("PyDev editor appearance settings:\nNote: Pydev ignores the 'Insert spaces for tabs' in the general settings.");
+        setDescription("PyDev editor appearance settings:\n\nNote: PyDev ignores the 'Insert spaces for tabs' in the general settings.");
         setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
 
         fOverlayStore = createOverlayStore();
@@ -82,11 +82,20 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
         layout.numColumns = 1;
         appearanceComposite.setLayout(layout);
 
-        addTextField(appearanceComposite, "Tab length:", TAB_WIDTH, 3, 0, true);
+        LinkFieldEditor tabsFieldEditor = new LinkFieldEditor("UNUSED",
+                "Tab settings for PyDev may be configured at: " + "<a>Tabs</a>", appearanceComposite,
+                new SelectionListener() {
 
-        addCheckBox(appearanceComposite, "Replace tabs with spaces when typing?", SUBSTITUTE_TABS, 0);
+                    public void widgetSelected(SelectionEvent e) {
+                        String id = "org.python.pydev.editor.preferences.PyTabPreferencesPage";
+                        IWorkbenchPreferenceContainer workbenchPreferenceContainer = ((IWorkbenchPreferenceContainer) getContainer());
+                        workbenchPreferenceContainer.openPage(id, null);
+                    }
 
-        addCheckBox(appearanceComposite, "Assume tab spacing when files contain tabs?", GUESS_TAB_SUBSTITUTION, 0);
+                    public void widgetDefaultSelected(SelectionEvent e) {
+                    }
+                });
+        tabsFieldEditor.getLinkControl(appearanceComposite);
 
         createColorOptions(appearanceComposite);
 
@@ -250,10 +259,11 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
                     "\n" +
                     "    @memoize(size=10)\n" +
                     "    def Call(self, param1=None):\n" +
-                    "        '''docstring'''\n" +
+                    "        u'''unicode'''\n" +
                     "        return param1 + 10 * 10\n" +
                     "\n" +
                     "    def Call2(self):\n" +
+                    "        b'''bytes'''\n" +
                     "        #Comment\n" +
                     "        return self.Call(param1=10)" +
                     "";
@@ -274,6 +284,7 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
         localStore.setValue(FUNC_NAME_COLOR, fOverlayStore.getString(FUNC_NAME_COLOR));
         localStore.setValue(CLASS_NAME_COLOR, fOverlayStore.getString(CLASS_NAME_COLOR));
         localStore.setValue(STRING_COLOR, fOverlayStore.getString(STRING_COLOR));
+        localStore.setValue(UNICODE_COLOR, fOverlayStore.getString(UNICODE_COLOR));
         localStore.setValue(COMMENT_COLOR, fOverlayStore.getString(COMMENT_COLOR));
         localStore.setValue(BACKQUOTES_COLOR, fOverlayStore.getString(BACKQUOTES_COLOR));
         localStore.setValue(PARENS_COLOR, fOverlayStore.getString(PARENS_COLOR));
@@ -288,6 +299,7 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
         localStore.setValue(FUNC_NAME_STYLE, fOverlayStore.getInt(FUNC_NAME_STYLE));
         localStore.setValue(CLASS_NAME_STYLE, fOverlayStore.getInt(CLASS_NAME_STYLE));
         localStore.setValue(STRING_STYLE, fOverlayStore.getInt(STRING_STYLE));
+        localStore.setValue(UNICODE_STYLE, fOverlayStore.getInt(UNICODE_STYLE));
         localStore.setValue(COMMENT_STYLE, fOverlayStore.getInt(COMMENT_STYLE));
         localStore.setValue(BACKQUOTES_STYLE, fOverlayStore.getInt(BACKQUOTES_STYLE));
         localStore.setValue(PARENS_STYLE, fOverlayStore.getInt(PARENS_STYLE));

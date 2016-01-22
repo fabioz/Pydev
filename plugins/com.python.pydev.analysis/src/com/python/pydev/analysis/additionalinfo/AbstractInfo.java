@@ -11,7 +11,7 @@ package com.python.pydev.analysis.additionalinfo;
 
 import java.io.Serializable;
 
-import org.python.pydev.core.ObjectsPool;
+import org.python.pydev.core.ObjectsInternPool;
 
 public abstract class AbstractInfo implements IInfo, Serializable {
     /**
@@ -35,10 +35,10 @@ public abstract class AbstractInfo implements IInfo, Serializable {
     public final String moduleDeclared;
 
     public AbstractInfo(String name, String moduleDeclared, String path) {
-        synchronized (ObjectsPool.lock) {
-            this.name = ObjectsPool.internUnsynched(name);
-            this.moduleDeclared = ObjectsPool.internUnsynched(moduleDeclared);
-            this.path = ObjectsPool.internUnsynched(path);
+        synchronized (ObjectsInternPool.lock) {
+            this.name = ObjectsInternPool.internUnsynched(name);
+            this.moduleDeclared = ObjectsInternPool.internUnsynched(moduleDeclared);
+            this.path = ObjectsInternPool.internUnsynched(path);
         }
     }
 

@@ -7,7 +7,6 @@
 
 package org.python.pydev.ui.wizards.files;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
@@ -31,6 +30,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 import org.python.pydev.utils.PyFileListing;
 
 public class PythonExistingSourceGroup {
@@ -59,7 +59,7 @@ public class PythonExistingSourceGroup {
     /**
      * The source paths that are already referenced by the project.
      */
-    protected List<IPath> projectLinkTargets = new LinkedList<IPath>();
+    protected List<IPath> projectLinkTargets = new LinkedListWarningOnSlowOperations<IPath>();
     protected IProject iProject;
 
     public PythonExistingSourceGroup(Composite parent, IProject project, ModifyListener sourceChangeListener) {
@@ -159,8 +159,7 @@ public class PythonExistingSourceGroup {
     protected void selectLinkTarget(IPath linkPath) {
         if (validateLinkPath(linkPath)) {
             linkTarget = linkPath;
-        }
-        else {
+        } else {
             linkTarget = null;
         }
     }
@@ -170,8 +169,7 @@ public class PythonExistingSourceGroup {
             String segment = linkPath.lastSegment();
             if (segment == null) {
                 errorMessage = "External source location must not be null.";
-            }
-            else {
+            } else {
                 errorMessage = "External source location '" + segment + "' does not exist.";
             }
             return false;

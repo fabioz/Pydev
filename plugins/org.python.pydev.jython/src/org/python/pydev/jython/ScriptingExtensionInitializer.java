@@ -16,7 +16,7 @@ public class ScriptingExtensionInitializer extends AbstractPreferenceInitializer
 
     @Override
     public void initializeDefaultPreferences() {
-        Preferences node = new DefaultScope().getNode(DEFAULT_SCOPE);
+        Preferences node = DefaultScope.INSTANCE.getNode(DEFAULT_SCOPE);
 
         node.putBoolean(JyScriptingPreferencesPage.SHOW_SCRIPTING_OUTPUT,
                 JyScriptingPreferencesPage.DEFAULT_SHOW_SCRIPTING_OUTPUT);

@@ -23,8 +23,8 @@ import junit.framework.TestCase;
 public class ObjectsPoolTest extends TestCase {
 
     public void testObjectsPool() throws Exception {
-        String intern = ObjectsPool.intern(new String("foo"));
-        assertSame(ObjectsPool.intern(new String("foo")), intern);
+        String intern = ObjectsInternPool.intern(new String("foo"));
+        assertSame(ObjectsInternPool.intern(new String("foo")), intern);
 
         //        Timer t = new Timer();
         //        synchronized (ObjectsPool.lock){

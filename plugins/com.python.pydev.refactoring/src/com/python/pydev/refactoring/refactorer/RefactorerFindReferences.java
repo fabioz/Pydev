@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
@@ -30,7 +31,7 @@ import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo
 
 /**
  * Refactorer used to find the references given some refactoring request.
- * 
+ *
  * @author Fabio
  */
 public class RefactorerFindReferences {
@@ -38,20 +39,21 @@ public class RefactorerFindReferences {
     /**
      * If this field is not null, the return will be forced without actually doing
      * a search in files.
-     * 
+     *
      * This is intended to help in testing features that depend on the search.
      */
     public static ArrayList<Tuple<List<ModulesKey>, IPythonNature>> FORCED_RETURN;
 
     /**
      * Find the references that may have the text we're looking for.
-     * 
+     *
      * @param request the request with the info for the find
      * @return an array of IFile with the files that may have the references we're
      * interested about (note that those may not actually contain the matches we're
      * interested in -- it is just a helper to refine our search).
      */
-    public List<Tuple<List<ModulesKey>, IPythonNature>> findPossibleReferences(RefactoringRequest request) {
+    public List<Tuple<List<ModulesKey>, IPythonNature>> findPossibleReferences(RefactoringRequest request)
+            throws OperationCanceledException {
         String initialName = request.initialName;
         List<Tuple<List<ModulesKey>, IPythonNature>> ret = request.getPossibleReferences(initialName);
         if (ret != null) {
@@ -108,16 +110,22 @@ public class RefactorerFindReferences {
                     return ret;
                 }
 
+                //long initial = System.currentTimeMillis();
                 request.getMonitor().beginTask("Find possible references", infoAndNature.size());
                 request.getMonitor().setTaskName("Find possible references");
                 try {
                     for (Tuple<AbstractAdditionalTokensInfo, IPythonNature> tuple : infoAndNature) {
                         try {
-                            request.pushMonitor(new SubProgressMonitor(request.getMonitor(), 1));
-                            if (tuple.o1 != null && tuple.o2 != null) {
-                                List<ModulesKey> modulesWithToken = tuple.o1.getModulesWithToken(
-                                        request.nature.getProject(), initialName, request.getMonitor());
+                            SubProgressMonitor sub = new SubProgressMonitor(request.getMonitor(), 1);
+                            request.pushMonitor(sub);
+                            if (tuple.o1 instanceof AdditionalProjectInterpreterInfo && tuple.o2 != null) {
+                                AdditionalProjectInterpreterInfo info = (AdditionalProjectInterpreterInfo) tuple.o1;
+                                List<ModulesKey> modulesWithToken = info.getModulesWithToken(
+                                        initialName, sub);
 
+                                if (sub.isCanceled()) {
+                                    break;
+                                }
                                 ret.add(new Tuple<List<ModulesKey>, IPythonNature>(modulesWithToken, tuple.o2));
                             }
                         } finally {
@@ -127,10 +135,13 @@ public class RefactorerFindReferences {
                 } finally {
                     request.getMonitor().done();
                 }
+                //System.out.println("Total: " + ((System.currentTimeMillis() - initial) / 1000.));
             } catch (MisconfigurationException e) {
                 throw new RuntimeException(e);
             }
 
+        } catch (OperationCanceledException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

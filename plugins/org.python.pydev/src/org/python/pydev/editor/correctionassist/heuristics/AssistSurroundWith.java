@@ -56,8 +56,20 @@ public class AssistSurroundWith extends AbstractTemplateCodeCompletion implement
         String selectedText = ps.getSelectedText();
         List<String> splitInLines = StringUtils.splitInLines(selectedText);
         int firstCharPosition = -1;
+        int firstCommentCharPosition = -1;
+
         for (String string : splitInLines) {
-            if (string.trim().length() > 0) {
+            String trimmed = string.trim();
+            if (trimmed.startsWith("#")) {
+                int localFirst = PySelection.getFirstCharPosition(string);
+                if (firstCommentCharPosition == -1) {
+                    firstCommentCharPosition = localFirst;
+                } else if (localFirst < firstCommentCharPosition) {
+                    firstCommentCharPosition = localFirst;
+                }
+                continue;
+            }
+            if (trimmed.length() > 0) {
                 int localFirst = PySelection.getFirstCharPosition(string);
                 if (firstCharPosition == -1) {
                     firstCharPosition = localFirst;
@@ -67,7 +79,12 @@ public class AssistSurroundWith extends AbstractTemplateCodeCompletion implement
             }
         }
         if (firstCharPosition == -1) {
-            return l;
+            if (firstCommentCharPosition != -1) {
+                firstCharPosition = firstCommentCharPosition;
+            } else {
+                // Haven't found any non-empty line.
+                return l;
+            }
         }
 
         //delimiter to use
@@ -130,10 +147,10 @@ public class AssistSurroundWith extends AbstractTemplateCodeCompletion implement
 
     /**
      * Template completions available for surround with... They %s will be replaced later for the actual code/indentation.
-     * 
+     *
      * Could be refactored so that we don't have to put the actual indent here (creating a subclass of PyDocumentTemplateContext)
      * Also, if that refactoring was done, we could give an interface for the user to configure those templates better.
-     * 
+     *
      * Another nice thing may be analyzing the current context for local variables so that
      * for item in collection could have 'good' choices for the collection variable based on the local variables.
      */

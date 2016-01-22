@@ -31,18 +31,20 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.partition.PyPartitionScanner;
 import org.python.pydev.shared_core.string.DocIterator;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.structure.Tuple3;
 
 /**
  * Redone the whole class, so that the interface is better defined and no
  * duplication of information is given.
- * 
+ *
  * Now, it is just used as 'shortcuts' to document and selection settings.
- * 
+ *
  * @author Fabio Zadrozny
  * @author Parhaum Toofanian
  */
@@ -55,12 +57,15 @@ public final class PySelection extends TextSelectionUtils {
 
     public static final String[] CLASS_AND_FUNC_TOKENS = new String[] { "def", "class", };
 
+    public static final String[] FUNC_TOKEN = new String[] { "def" };
+
     public static final String[] CLASS_TOKEN = new String[] { "class", };
 
     public static final String[] INDENT_TOKENS = new String[] { "if", "for", "except", "def", "class", "else", "elif",
             "while", "try", "with", "finally" };
 
     public static final Set<String> STATEMENT_TOKENS = new HashSet<String>();
+
     static {
         //Note that lambda is not here because it's usually inside other statements
         STATEMENT_TOKENS.add("assert");
@@ -86,6 +91,7 @@ public final class PySelection extends TextSelectionUtils {
     };
 
     public static final Set<String> ALL_KEYWORD_TOKENS = new HashSet<String>();
+
     static {
         ALL_KEYWORD_TOKENS.add("False");
         ALL_KEYWORD_TOKENS.add("None");
@@ -127,7 +133,7 @@ public final class PySelection extends TextSelectionUtils {
 
     /**
      * Alternate constructor for PySelection. Takes in a text editor from Eclipse.
-     * 
+     *
      * @param textEditor The text editor operating in Eclipse
      */
     public PySelection(ITextEditor textEditor) {
@@ -188,7 +194,7 @@ public final class PySelection extends TextSelectionUtils {
      * @return true if the passed line has a from __future__ import.
      */
     public static boolean isFutureImportLine(String line) {
-        List<String> split = StringUtils.split(line, ' ', '\t');
+        List<String> split = StringUtils.split(line, new char[] { ' ', '\t' });
         int fromIndex = split.indexOf("from");
         int futureIndex = split.indexOf("__future__");
         boolean isFuture = fromIndex != -1 && futureIndex != -1 && futureIndex == fromIndex + 1;
@@ -211,19 +217,19 @@ public final class PySelection extends TextSelectionUtils {
     /**
      * @param isFutureImport if true, that means that the location found must match a from __future__ import (which
      * must be always put as the 1st import)
-     *  
+     *
      * @return the line where a global import would be able to happen.
-     * 
+     *
      * The 'usual' structure that we take into consideration for a py file here is:
-     * 
+     *
      * #coding ...
-     * 
+     *
      * '''
      * multiline comment...
      * '''
-     * 
+     *
      * imports #that's what we want to find out
-     * 
+     *
      * code
      */
     public int getLineAvailableForImport(boolean isFutureImport) {
@@ -469,21 +475,21 @@ public final class PySelection extends TextSelectionUtils {
 
     /**
      * This function gets the tokens inside the parenthesis that start at the current selection line
-     * 
+     *
      * @param addSelf: this defines whether tokens named self should be added if it is found.
-     * 
+     *
      * @param isCall: if it's a call, when we have in the parenthesis something as Call(a, (b,c)), it'll return
      * in the list as items:
-     * 
+     *
      * a
      * (b,c)
-     * 
+     *
      * Otherwise (in a definition), it'll return
-     * 
+     *
      * a
      * b
      * c
-     * 
+     *
      * @return a Tuple so that the first param is the list and the second the offset of the end of the parenthesis.
      * It may return null if no starting parenthesis was found at the current line
      */
@@ -579,7 +585,7 @@ public final class PySelection extends TextSelectionUtils {
 
     /**
      * This function goes backward in the document searching for an 'if' and returns the line that has it.
-     * 
+     *
      * May return null if it was not found.
      */
     public String getPreviousLineThatStartsWithToken(String[] tokens) {
@@ -741,9 +747,9 @@ public final class PySelection extends TextSelectionUtils {
 
     /**
      * @param lineToStart: if -1, it'll start at the current line.
-     * 
+     *
      * @return a tuple with:
-     * - the line that starts the new scope 
+     * - the line that starts the new scope
      * - a String with the line where some dedent token was found while looking for that scope.
      * - a string with the lowest indent (null if none was found)
      */
@@ -781,7 +787,7 @@ public final class PySelection extends TextSelectionUtils {
                     }
                 }
             }
-            //we have to check for the first condition (if a dedent is found, but we already found 
+            //we have to check for the first condition (if a dedent is found, but we already found
             //one with a first char, the dedent should not be taken into consideration... and vice-versa).
             if (lowestStr == null && foundDedent == null && startsWithDedentToken(trimmed)) {
                 foundDedent = line;
@@ -800,7 +806,8 @@ public final class PySelection extends TextSelectionUtils {
 
     public static class ActivationTokenAndQual {
         public ActivationTokenAndQual(String activationToken, String qualifier, boolean changedForCalltip,
-                boolean alreadyHasParams, boolean isInMethodKeywordParam, int offsetForKeywordParam, int calltipOffset) {
+                boolean alreadyHasParams, boolean isInMethodKeywordParam, int offsetForKeywordParam,
+                int calltipOffset) {
             this.activationToken = activationToken;
             this.qualifier = qualifier;
             this.changedForCalltip = changedForCalltip;
@@ -862,14 +869,55 @@ public final class PySelection extends TextSelectionUtils {
         return new String[] { ret.activationToken, ret.qualifier }; //will never be changed for the calltip, as we didn't request it
     }
 
+    public static String getTextForCompletionInConsole(IDocument document, int documentOffset) {
+        String lineContentsToCursor;
+        try {
+            lineContentsToCursor = PySelection.getLineContentsToCursor(document, documentOffset);
+        } catch (BadLocationException e1) {
+            return "";
+        }
+        try {
+            FastStringBuffer buf = new FastStringBuffer(lineContentsToCursor.length());
+
+            lineContentsToCursor = StringUtils.reverse(lineContentsToCursor);
+            ParsingUtils parsingUtils = ParsingUtils.create(lineContentsToCursor);
+            int i = 0;
+            while (i < parsingUtils.len()) {
+                char c = parsingUtils.charAt(i);
+                if (c == ']' || c == '}' || c == ')' || c == '\'' || c == '"') { // Check for closing because we're actually going backwards...
+                    int initial = i;
+                    i = parsingUtils.eatPar(i, null, c);
+                    buf.append(lineContentsToCursor.substring(initial, i));
+                    if (i < parsingUtils.len()) {
+                        buf.append(parsingUtils.charAt(i));
+                        i += 1;
+                    }
+                    continue;
+                }
+                if (Character.isJavaIdentifierPart(c) || c == '.') {
+                    buf.append(c);
+                    i += 1;
+                    continue;
+                }
+                break;
+            }
+
+            return buf.reverse().toString();
+        } catch (Exception e) {
+            Log.log(e);
+            return lineContentsToCursor;
+        }
+
+    }
+
     /**
      * Returns the activation token.
-     * 
+     *
      * @param documentOffset the current cursor offset (we may have to change it if getFullQualifier is true)
      * @param handleForCalltips if true, it will take into account that we may be looking for the activation token and
      * qualifier for a calltip, in which case we should return the activation token and qualifier before a parenthesis (if we're
      * just after a '(' or ',' ).
-     * 
+     *
      * @return the activation token and the qualifier.
      */
     public static ActivationTokenAndQual getActivationTokenAndQual(IDocument doc, int documentOffset,
@@ -929,7 +977,7 @@ public final class PySelection extends TextSelectionUtils {
             //ok, let's see if there's something inside the parenthesis
             try {
                 char c = doc.getChar(parOffset);
-                if (c == '(') { //only do it 
+                if (c == '(') { //only do it
                     parOffset++;
                     while (parOffset < doc.getLength()) {
                         c = doc.getChar(parOffset);
@@ -973,7 +1021,7 @@ public final class PySelection extends TextSelectionUtils {
                 String c = doc.get(documentOffset - 1, 1);
 
                 if (c.equals("]")) {
-                    // consume [.*] 
+                    // consume [.*]
                     int docOff = documentOffset;
                     while (docOff > 0 && doc.get(docOff, 1).equals("[") == false) {
                         docOff -= 1;
@@ -1043,12 +1091,12 @@ public final class PySelection extends TextSelectionUtils {
 
     /**
      * This function will look for a the offset of a method call before the current offset
-     * 
+     *
      * @param doc: an IDocument, String, StringBuffer or char[]
      * @param calltipOffset the offset we should start looking for it
      * @return the offset that points the location just after the activation token and qualifier.
-     * 
-     * @throws BadLocationException 
+     *
+     * @throws BadLocationException
      */
     public static int getBeforeParentesisCall(Object doc, int calltipOffset) {
         ParsingUtils parsingUtils = ParsingUtils.create(doc);
@@ -1180,7 +1228,7 @@ public final class PySelection extends TextSelectionUtils {
                 }
                 if (decl != DECLARATION_NONE) {
 
-                    //ok, we're in a class or def line... so, if we find a '(' or ':', we're not in the declaration... 
+                    //ok, we're in a class or def line... so, if we find a '(' or ':', we're not in the declaration...
                     //(otherwise, we're in it)
                     while (strTok.hasMoreTokens()) {
                         tok = strTok.nextToken();
@@ -1278,7 +1326,7 @@ public final class PySelection extends TextSelectionUtils {
     private static final int TDD_PART_PARENS = 5;
 
     /**
-     * @return a list 
+     * @return a list
      */
     public List<TddPossibleMatches> getTddPossibleMatchesAtLine(int offset) {
         String line = getLine(getLineOfOffset(offset));
@@ -1306,6 +1354,111 @@ public final class PySelection extends TextSelectionUtils {
             ret.add(new TddPossibleMatches(matcher.group(TDD_PART_FULL), matcher.group(TDD_PART_PART1), secondPart));
         }
         return ret;
+    }
+
+    public static boolean hasFromFutureImportUnicode(IDocument document) {
+        try {
+            FastStringBuffer buf = new FastStringBuffer(100 * 5); //Close to 5 lines
+
+            ParsingUtils parsingUtils = ParsingUtils.create(document);
+            int len = parsingUtils.len();
+
+            for (int i = 0; i < len; i++) {
+                char c = parsingUtils.charAt(i);
+                if (c == '#') {
+                    i = parsingUtils.eatComments(null, i);
+
+                } else if (c == '\'' || c == '\"') {
+                    try {
+                        i = parsingUtils.eatLiterals(null, i);
+                    } catch (SyntaxErrorException e) {
+                        //ignore
+                    }
+
+                } else if (Character.isWhitespace(c)) {
+                    //skip
+
+                } else if (c == 'f') { //Possibly some from __future__ import ...
+                    i = parsingUtils.eatFromImportStatement(buf, i);
+                    if (!PySelection.isFutureImportLine(buf.toString())) {
+                        return false;
+                    }
+                    if (buf.indexOf("unicode_literals") != -1) {
+                        return true;
+                    }
+                } else {
+                    return false;
+                }
+            }
+            return false;
+        } catch (SyntaxErrorException e) {
+            Log.log(e);
+            return false;
+        }
+    }
+
+    /**
+     * @return a tuple(start line, end line).
+     */
+    public Tuple<Integer, Integer> getCurrentMethodStartEndLines() {
+
+        try {
+            boolean considerCurrentLine = false;
+            LineStartingScope previousLineThatStartsScope = this.getPreviousLineThatStartsScope(FUNC_TOKEN,
+                    considerCurrentLine,
+                    this.getFirstCharPositionInCurrentCursorOffset());
+            if (previousLineThatStartsScope == null) {
+                return getFullDocStartEndLines();
+            }
+            int startLine = previousLineThatStartsScope.iLineStartingScope;
+            int minColumn = PySelection.getFirstCharPosition(previousLineThatStartsScope.lineStartingScope);
+
+            int initialOffset = this.getLineOffset(startLine);
+            TabNannyDocIterator iterator = new TabNannyDocIterator(getDoc(), true, false,
+                    initialOffset);
+            if (iterator.hasNext()) {
+                iterator.next(); // ignore first one (this is from the current line).
+            }
+            int lastOffset = initialOffset;
+            while (iterator.hasNext()) {
+                Tuple3<String, Integer, Boolean> next = iterator.next();
+                if (next.o3) {
+                    if (next.o1.length() <= minColumn) {
+                        break;
+                    }
+                    lastOffset = next.o2;
+                }
+            }
+            return new Tuple<Integer, Integer>(startLine, this.getLineOfOffset(lastOffset));
+
+            // Can't use the approach below because we may be in an inner scope (thus, there'll be no other opening scope finishing
+            // the current one).
+            // LineStartingScope nextLineThatStartsScope = this.getNextLineThatStartsScope(FUNC_TOKEN, startLine + 1,
+            //         minColumn + 1);
+            //
+            // if (nextLineThatStartsScope == null) {
+            //     int numberOfLines = doc.getNumberOfLines();
+            //     if (numberOfLines > 0) {
+            //         numberOfLines -= 1;
+            //     }
+            //     return new Tuple<Integer, Integer>(startLine, numberOfLines);
+            // }
+            // return new Tuple<Integer, Integer>(startLine, nextLineThatStartsScope.iLineStartingScope - 1);
+        } catch (BadLocationException e) {
+            return getFullDocStartEndLines();
+        } catch (Exception e) {
+            Log.log(e);
+            return getFullDocStartEndLines();
+        }
+
+    }
+
+    private Tuple<Integer, Integer> getFullDocStartEndLines() {
+        int numberOfLines = doc.getNumberOfLines();
+        if (numberOfLines > 0) {
+            numberOfLines -= 1;
+        }
+        return new Tuple<Integer, Integer>(0, numberOfLines);
     }
 
 }

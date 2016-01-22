@@ -94,26 +94,26 @@ public class FileUtilsTest extends TestCase {
             }
         };
 
-        assertTrue(f1.lastModified() != f2.lastModified()); //if equal, this would invalidate the test!
-        assertTrue(f1a.lastModified() != f1.lastModified()); //if equal, this would invalidate the test!
-        assertTrue(f1a.lastModified() != f2.lastModified()); //if equal, this would invalidate the test!
+        assertTrue(FileUtils.lastModified(f1) != FileUtils.lastModified(f2)); //if equal, this would invalidate the test!
+        assertTrue(FileUtils.lastModified(f1a) != FileUtils.lastModified(f1)); //if equal, this would invalidate the test!
+        assertTrue(FileUtils.lastModified(f1a) != FileUtils.lastModified(f2)); //if equal, this would invalidate the test!
 
         long lastModifiedTimeFromDir = FileUtils.getLastModifiedTimeFromDir(baseDir, acceptAll, acceptAll, 1000);
-        assertEquals(lastModifiedTimeFromDir, f2.lastModified());
+        assertEquals(lastModifiedTimeFromDir, FileUtils.lastModified(f2));
 
         lastModifiedTimeFromDir = FileUtils.getLastModifiedTimeFromDir(baseDir, acceptAll, acceptAll, 1);
         assertEquals(lastModifiedTimeFromDir, 0);
 
         lastModifiedTimeFromDir = FileUtils.getLastModifiedTimeFromDir(baseDir, acceptAll, acceptAll, 2);
-        assertEquals(lastModifiedTimeFromDir, f2.lastModified());
+        assertEquals(lastModifiedTimeFromDir, FileUtils.lastModified(f2));
 
         lastModifiedTimeFromDir = FileUtils.getLastModifiedTimeFromDir(baseDir, acceptAll, acceptOnlyDir1, 2);
-        assertEquals(lastModifiedTimeFromDir, f1.lastModified());
+        assertEquals(lastModifiedTimeFromDir, FileUtils.lastModified(f1));
 
         lastModifiedTimeFromDir = FileUtils.getLastModifiedTimeFromDir(baseDir, acceptOnlyPy, acceptAll, 2);
-        assertEquals(lastModifiedTimeFromDir, f1.lastModified());
+        assertEquals(lastModifiedTimeFromDir, FileUtils.lastModified(f1));
 
         lastModifiedTimeFromDir = FileUtils.getLastModifiedTimeFromDir(baseDir, acceptOnlyTxt, acceptOnlyDir1, 2);
-        assertEquals(lastModifiedTimeFromDir, f1a.lastModified());
+        assertEquals(lastModifiedTimeFromDir, FileUtils.lastModified(f1a));
     }
 }

@@ -16,7 +16,7 @@ import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo
 
 /**
  * This class is used to do analysis on a thread, just to remove the actual info.
- * 
+ *
  * @author Fabio
  */
 public class AnalysisBuilderRunnableForRemove extends AbstractAnalysisBuilderRunnable {
@@ -24,23 +24,26 @@ public class AnalysisBuilderRunnableForRemove extends AbstractAnalysisBuilderRun
     /**
      * @param oldAnalysisBuilderThread This is an existing runnable that was already analyzing things... we must wait for it
      * to finish to start it again.
-     * 
+     *
      * @param module: this is a callback that'll be called with a boolean that should return the IModule to be used in the
      * analysis.
      * The parameter is FULL_MODULE or DEFINITIONS_MODULE
      */
-    /*Default*/AnalysisBuilderRunnableForRemove(String moduleName, IPythonNature nature, boolean isFullBuild,
+    /*Default*/ AnalysisBuilderRunnableForRemove(String moduleName, IPythonNature nature, boolean isFullBuild,
             IAnalysisBuilderRunnable oldAnalysisBuilderThread, boolean forceAnalysis, int analysisCause,
             long documentTime, KeyForAnalysisRunnable key, long resourceModificationStamp) {
         super(isFullBuild, moduleName, forceAnalysis, analysisCause, oldAnalysisBuilderThread, nature, documentTime,
                 key, resourceModificationStamp);
-    }
 
-    public void doAnalysis() {
         if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
             Log.toLogFile(this, "Removing additional info from: " + moduleName);
         }
         removeInfoForModule(moduleName, nature, isFullBuild);
+    }
+
+    @Override
+    public void doAnalysis() {
+        // Do nothing (we let it be scheduled just to stop executing an existing analysis).
     }
 
     /**

@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -40,11 +41,8 @@ import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
+import org.python.pydev.editor.codecompletion.revisited.modules.CompiledToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
-import org.python.pydev.parser.jython.ast.FunctionDef;
-import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
-import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
-import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
@@ -72,6 +70,54 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         } catch (Throwable e) {
             e.printStackTrace();
         }
+    }
+
+    public void registerThreadGlobalCompletion() {
+        Map<String, List<Object>> participants = new HashMap<>();
+        participants.put(ExtensionHelper.PYDEV_COMPLETION, Arrays.asList((Object) new IPyDevCompletionParticipant() {
+
+            @Override
+            public Collection<Object> getStringGlobalCompletions(CompletionRequest request, ICompletionState state)
+                    throws MisconfigurationException {
+                return new ArrayList<>();
+            }
+
+            @Override
+            public Collection<Object> getGlobalCompletions(CompletionRequest request, ICompletionState state)
+                    throws MisconfigurationException {
+                return new ArrayList<>();
+            }
+
+            @Override
+            public Collection<IToken> getCompletionsForType(ICompletionState state)
+                    throws CompletionRecursionException {
+                ArrayList<IToken> ret = new ArrayList<>();
+                if (state.getActivationToken().endsWith("Thread")) {
+                    ret.add(new CompiledToken("run()", "", "", "", 1));
+                }
+                return ret;
+            }
+
+            @Override
+            public Collection<IToken> getCompletionsForTokenWithUndefinedType(ICompletionState state,
+                    ILocalScope localScope,
+                    Collection<IToken> interfaceForLocal) {
+                return new ArrayList<>();
+            }
+
+            @Override
+            public Collection<IToken> getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope,
+                    Collection<IToken> interfaceForLocal) {
+                return new ArrayList<>();
+            }
+
+            @Override
+            public Collection<Object> getArgsCompletion(ICompletionState state, ILocalScope localScope,
+                    Collection<IToken> interfaceForLocal) {
+                return new ArrayList<>();
+            }
+        }));
+        ExtensionHelper.testingParticipants = participants;
     }
 
     private static final class ParticipantWithBarToken implements IPyDevCompletionParticipant {
@@ -139,6 +185,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         CompiledModule.COMPILED_MODULES_ENABLED = true;
         super.tearDown();
         PyCodeCompletion.onCompletionRecursionException = null;
+        ExtensionHelper.testingParticipants = null;
     }
 
     public void testCompleteImportCompletion() throws Exception {
@@ -783,6 +830,33 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertTrue(act.isInMethodKeywordParam);
     }
 
+    public void testGetActTokOnCompound() {
+        String str = "a[0].foo";
+        ActivationTokenAndQual act = PySelection.getActivationTokenAndQual(new Document(str), str.length(), true, true);
+        assertEquals("a.__getitem__().", act.activationToken);
+        assertEquals("foo", act.qualifier);
+    }
+
+    public void testGetTextForCompletionInConsole() {
+        Document doc = new Document("a[0].");
+        assertEquals("a[0].", PySelection.getTextForCompletionInConsole(doc, doc.getLength()));
+    }
+
+    public void testGetTextForCompletionInConsole2() {
+        Document doc = new Document("1, a[0].");
+        assertEquals("a[0].", PySelection.getTextForCompletionInConsole(doc, doc.getLength()));
+    }
+
+    public void testGetTextForCompletionInConsole3() {
+        Document doc = new Document("1, a[','].");
+        assertEquals("a[','].", PySelection.getTextForCompletionInConsole(doc, doc.getLength()));
+    }
+
+    public void testGetTextForCompletionInConsole4() {
+        Document doc = new Document("1, ','.");
+        assertEquals("','.", PySelection.getTextForCompletionInConsole(doc, doc.getLength()));
+    }
+
     /**
      * Add tests that demonstrate behaviour when doc starts with a .
      */
@@ -1418,8 +1492,8 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         String s = "class A:\n" +
                 "    def method1(self):\n" +
                 "        pass\n" +
-                "w,y = A(), A()\n" +
-                "w.";
+                "w,y = '', A()\n" +
+                "y.";
 
         requestCompl(s, -1, new String[] { "method1()" });
     }
@@ -1428,7 +1502,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         String s = "class A:\n" +
                 "    def method1(self):\n" +
                 "        pass\n" +
-                "w,y = [A(), A()]\n" +
+                "w,y = [A(), '']\n" +
                 "w.";
 
         requestCompl(s, -1, new String[] { "method1()" });
@@ -1438,7 +1512,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         String s = "class A:\n" +
                 "    def method1(self):\n" +
                 "        pass\n" +
-                "w,y = A()\n" +
+                "w = A()\n" +
                 "w.";
 
         requestCompl(s, -1, new String[] { "method1()" });
@@ -1560,7 +1634,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "    def __foo__(self):\n" +
                 "        pass\n" +
 
-                "    def _bar(self):\n" +
+        "    def _bar(self):\n" +
                 "        pass\n" +
                 "\n" +
                 "class B(A):\n" +
@@ -1824,55 +1898,6 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals(1, comps.length);
     }
 
-    public void testHandledParamType() throws Exception {
-        PyAstFactory factory = new PyAstFactory(new AdapterPrefs("\n", null));
-        FunctionDef functionDef = factory.createFunctionDef("foo");
-        factory.setBody(functionDef, factory.createString(":type a: Bar"));
-        assertEquals("Bar", NodeUtils.getTypeForParameterFromDocstring("a", functionDef));
-    }
-
-    public void testHandledParamType1() throws Exception {
-        PyAstFactory factory = new PyAstFactory(new AdapterPrefs("\n", null));
-        FunctionDef functionDef = factory.createFunctionDef("foo");
-        factory.setBody(functionDef, factory.createString(":param Bar a:"));
-        assertEquals("Bar", NodeUtils.getTypeForParameterFromDocstring("a", functionDef));
-    }
-
-    public void testHandledParamType2() throws Exception {
-        PyAstFactory factory = new PyAstFactory(new AdapterPrefs("\n", null));
-        FunctionDef functionDef = factory.createFunctionDef("foo");
-        factory.setBody(functionDef, factory.createString("@param a: Bar"));
-        assertEquals("Bar", NodeUtils.getTypeForParameterFromDocstring("a", functionDef));
-    }
-
-    public void testHandledParamType3() throws Exception {
-        PyAstFactory factory = new PyAstFactory(new AdapterPrefs("\n", null));
-        FunctionDef functionDef = factory.createFunctionDef("foo");
-        factory.setBody(functionDef, factory.createString(":param Bar a: some string"));
-        assertEquals("Bar", NodeUtils.getTypeForParameterFromDocstring("a", functionDef));
-    }
-
-    public void testHandledReturnType() throws Exception {
-        PyAstFactory factory = new PyAstFactory(new AdapterPrefs("\n", null));
-        FunctionDef functionDef = factory.createFunctionDef("foo");
-        factory.setBody(functionDef, factory.createString(":rtype Bar"));
-        assertEquals("Bar", NodeUtils.getReturnTypeFromDocstring(functionDef));
-    }
-
-    public void testHandledReturnType1() throws Exception {
-        PyAstFactory factory = new PyAstFactory(new AdapterPrefs("\n", null));
-        FunctionDef functionDef = factory.createFunctionDef("foo");
-        factory.setBody(functionDef, factory.createString("@return Foo:\n    this is the foo return"));
-        assertEquals("Foo", NodeUtils.getReturnTypeFromDocstring(functionDef));
-    }
-
-    public void testHandledReturnType2() throws Exception {
-        PyAstFactory factory = new PyAstFactory(new AdapterPrefs("\n", null));
-        FunctionDef functionDef = factory.createFunctionDef("foo");
-        factory.setBody(functionDef, factory.createString(":rtype :class:`Bar`"));
-        assertEquals("Bar", NodeUtils.getReturnTypeFromDocstring(functionDef));
-    }
-
     public void testTypeOnLocalVar() throws Exception {
         String s;
         s = ""
@@ -1888,4 +1913,1091 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "bar()" });
         assertEquals(1, comps.length);
     }
+
+    public void testTypeOnLocalVar2() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "  def bar(self):\n"
+                + "    self.n #: :type self.n: F\n"
+                + "    self.n."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "bar()" });
+        assertEquals(1, comps.length);
+    }
+
+    /**
+     * Cases to work:
+     *
+     * x = [1, 2, 3]
+     * x = (1, 2, 3)
+     * x = set([1, 2, 3])
+     * x = {'a': 1}
+     * x = list({'a': 1}.iterkeys()) #py3
+     * x = {'a': 1}.keys() #py2
+     * x = list({'a': 1}.itervalues()) #py3
+     * x = {'a': 1}.values() #py2
+     *
+     * class MyClass():
+     *     def __iter__(self):
+     *         yield 1
+     *
+     *     def __getitem__(self, i):
+     *         return 1
+     *
+     * x = MyClass()
+     *
+     *
+     * for a in x: __iter__
+     *     a.
+     *
+     * a[0].  #__getitem__
+     */
+    public void testCodeCompletionForCompoundObjects1() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "a = [F()]\n"
+                + "a[0]."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects2() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "a = [F()]\n"
+                + "for x in a:\n"
+                + "    x."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects2a() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "for x in [F()]:\n"
+                + "    x."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects3() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "\n"
+                + "def foo(a):\n"
+                + "    ':type a: list[F]'\n"
+                + "    for x in a:\n"
+                + "        x."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects3a() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "\n"
+                + "def foo(a):\n"
+                + "    ':type a: list(F)'\n"
+                + "    for x in a:\n"
+                + "        x."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects4() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "	       pass\n"
+                + "		   \n"
+                + "class MyClass():\n"
+                + "    def __iter__(self):\n"
+                + "        yield G()\n"
+                + "\n"
+                + "x = MyClass()\n"
+                + "\n"
+                + "for a in x:\n"
+                + "    a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects4a() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "	       pass\n"
+                + "		   \n"
+                + "class MyClass():\n"
+                + "    def __getitem__(self):\n"
+                + "        return G()\n"
+                + "    def __len__(self):\n"
+                + "        return 2\n"
+                + "\n"
+                + "x = MyClass()\n"
+                + "\n"
+                + "for a in x:\n"
+                + "    a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects4b() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def mF(self):\n"
+                + "	       pass\n"
+                + "		   \n"
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "	       pass\n"
+                + "		   \n"
+                + "class MyClass():\n"
+                + "    def __iter__(self):\n"
+                + "        yield G()\n"
+                + "\n"
+                + "    def __getitem__(self, i):\n"
+                + "        return F()\n"
+                + "\n"
+                + "x = MyClass()\n"
+                + "\n"
+                + "for a in x: #__iter__\n"
+                + "    a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects4c() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "	       pass\n"
+                + "		   \n"
+                + "def MyMethod():\n"
+                + "    return [G()]\n"
+                + "\n"
+                + "for a in MyMethod():\n"
+                + "    a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects5c() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "	       pass\n"
+                + "		   \n"
+                + "def MyMethod():\n"
+                + "    return (G(),)\n"
+                + "\n"
+                + "for a in MyMethod():\n"
+                + "    a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects5d() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "	       pass\n"
+                + "		   \n"
+                + "def MyMethod():\n"
+                + "    return {G(),}\n"
+                + "\n"
+                + "for a in MyMethod():\n"
+                + "    a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects5e() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "	       pass\n"
+                + "		   \n"
+                + "def MyMethod():\n"
+                + "    return {G(),}\n"
+                + "\n"
+                + "x = MyMethod()\n"
+                + "\n"
+                + "for a in x:\n"
+                + "    a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects5f() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def mF(self):\n"
+                + "        pass\n"
+                + "        \n"
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "        pass\n"
+                + "        \n"
+                + "class MyClass():\n"
+                + "    def __iter__(self):\n"
+                + "        yield G()\n"
+                + "\n"
+                + "    def __getitem__(self, i):\n"
+                + "        return F()\n"
+                + "\n"
+                + "for a in MyClass(): #__iter__\n"
+                + "    a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects6() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "        pass\n"
+                + "     \n"
+                + "\n"
+                + "for a in {G():'', G():''}:\n" // Default is iterating through dict keys
+                + "    a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects6a() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "        pass\n"
+                + "     \n"
+                + "\n"
+                + "for a in {G():'', G():''}.keys():\n"
+                + "    a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects6b() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "        pass\n"
+                + "     \n"
+                + "\n"
+                + "for a, b in {'':G(), '':G()}.items():\n"
+                + "    b."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects6c() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "        pass\n"
+                + "     \n"
+                + "\n"
+                + "for a, b in {G():'', G():''}.items():\n"
+                + "    a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects6d() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "        pass\n"
+                + "     \n"
+                + "\n"
+                + "def check(x):\n"
+                + "    ':type x:dict(G, str)'\n"
+                + "    for a, b in x.items():\n"
+                + "        a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects6e() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "        pass\n"
+                + "     \n"
+                + "\n"
+                + "def check(x):\n"
+                + "    ':type x:dict(G, str)'\n"
+                + "    for a in x.keys():\n"
+                + "        a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects6f() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "        pass\n"
+                + "     \n"
+                + "\n"
+                + "def check(x):\n"
+                + "    ':type x:dict(str, G)'\n"
+                + "    for a in x.values():\n"
+                + "        a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects6g() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "        pass\n"
+                + "     \n"
+                + "\n"
+                + "class X:\n"
+                + "    def items(self):\n"
+                + "        ':rtype: list(tuple(str, G))'\n"
+                + "     \n"
+                + "\n"
+                + "def check(x):\n"
+                + "    ':type x:X'\n"
+                + "    for a, b in x.items():\n"
+                + "        b."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects6h() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "        pass\n"
+                + "     \n"
+                + "\n"
+                + "class X:\n"
+                + "    def items(self):\n"
+                + "        ':rtype: list((str, G))'\n"
+                + "     \n"
+                + "\n"
+                + "def check(x):\n"
+                + "    ':type x:X'\n"
+                + "    for a, b in x.items():\n"
+                + "        b."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects6i() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "        pass\n"
+                + "     \n"
+                + "\n"
+                + "class X:\n"
+                + "    def items(self):\n"
+                + "        ':rtype: list(tuple(str, G))'\n"
+                + "     \n"
+                + "\n"
+                + "def check(x):\n"
+                + "    ':type x:X'\n"
+                + "    for a, b in x.items():\n"
+                + "        b."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionUnpackTuple() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "        pass\n"
+                + "     \n"
+                + "\n"
+                + "class X:\n"
+                + "    def items(self):\n"
+                + "        ':rtype: list(tuple(str, G))'\n"
+                + "     \n"
+                + "\n"
+                + "def check(x):\n"
+                + "    ':type x:tuple(X, G)'\n"
+                + "    a, b = x\n"
+                + "    b."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionUnpackTupleInFor() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "        pass\n"
+                + "\n"
+                + "def check():\n"
+                + "    x = [(G(), 1), (G(), 2)]\n"
+                + "    for a, b in x:\n"
+                + "        a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionUnpackTupleInFor2() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "        pass\n"
+                + "\n"
+                + "def check(x):\n"
+                + "    ':type x:list(tuple(G(), 1))'\n"
+                + "    for a, b in x:\n"
+                + "        a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionUnpackTupleInFor2a() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "        pass\n"
+                + "\n"
+                + "def check(x):\n"
+                + "    ':type x:list((G(), 1))'\n"
+                + "    for a, b in x:\n"
+                + "        a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionUnpackTupleInFor2b() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "        pass\n"
+                + "\n"
+                + "def check(x):\n"
+                + "    ':type x:((G(), 1))'\n"
+                + "    for a, b in x:\n"
+                + "        a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionUnpackTupleInFor2c() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "        pass\n"
+                + "\n"
+                + "def check(x):\n"
+                + "    ':type x:[(G(), 1)]'\n"
+                + "    for a, b in x:\n"
+                + "        a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionUnpackTupleInFor3() throws Exception {
+        String s;
+        s = ""
+                + "class G:\n"
+                + "    def mG(self):\n"
+                + "        pass\n"
+                + "\n"
+                + "def ra():\n"
+                + "    ':rtype: list(tuple(G(), 1))'\n"
+                + "\n"
+                + "def check():\n"
+                + "    for a, b in ra():\n"
+                + "        a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects7() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "for x in  [F(i) for i in range(10)]:\n"
+                + "    x."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects7a() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "for x in {F(i): str(i) for i in range(10)}:\n"
+                + "    x."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects7b() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "d = {F(i): str(i) for i in range(10)}\n"
+                + "for x in d:\n"
+                + "    x."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects7c() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "d = {F(i): str(i) for i in range(10)}\n"
+                + "for a, b in d.iteritems():\n"
+                + "    a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects7c1() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "d = {i:F(i) for i in range(10)}\n"
+                + "for a, b in d.iteritems():\n"
+                + "    b."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects7d() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "d = {F(1): 1}\n"
+                + "for a, b in d.iteritems():\n"
+                + "    a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects7e() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "d = {1: F(1)}\n"
+                + "for a, b in d.iteritems():\n"
+                + "    b."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects8() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "d = dict((1, F(1)) for i in xrange(10))\n"
+                + "for a, b in d.iteritems():\n"
+                + "    b."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects9() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "\n"
+                + "d = [(1, F(1))]\n"
+                + "for a, b in d:\n"
+                + "    b."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects10() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + ""
+                + "d = F()\n"
+                + "d.a = [(1, F(1))]\n"
+                + "for a, b in d.a:\n"
+                + "    b."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects11() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + ""
+                + "x = [i for i in [F(1), F(2)]]\n"
+                + "for k in x:\n"
+                + "    k."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects11a() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + ""
+                + "x = dict(((i, str(i)) for i in [F(1), F(2)]))\n"
+                + "for k, v in x.iteritems():\n"
+                + "    k."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundObjects11b() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + ""
+                + "x = dict(([i, str(i)] for i in [F(1), F(2)]))\n"
+                + "for k, v in x.iteritems():\n"
+                + "    k."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionInsideListComprehension() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "x = [i. for i in [F()]]"
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length() - " for i in [F()]]".length(), -1,
+                new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionInsideListComprehension2() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "\n"
+                + "i = F()\n"
+                + "y = [i. for x in [10]]"
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length() - " for x in [10]]".length(), -1,
+                new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionInsideListComprehension2a() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "\n"
+                + "y = [(b. ,a) for (a, b) in [10, F()]]"
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length() - " ,a) for (a, b) in [10, F()]]".length(), -1,
+                new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionInsideListComprehension3() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "\n"
+                + "y = list((x. for x in [F()]))"
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length() - " for x in [F()]))".length(), -1,
+                new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompound() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "x = list(F() for x in [xrange(10)])\n"
+                + "for a in x:\n"
+                + "    a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompound1() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "x = tuple(F() for x in [xrange(10)])\n"
+                + "for a in x:\n"
+                + "    a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompound2() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "x = [F(i) for i in range(10)]\n"
+                + "a = x[0]\n"
+                + "a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompound3() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "x = [F(i) for i in range(10)]\n"
+                + "a = x[-1]\n"
+                + "a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompound4() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "x = [F(i) for i in range(10)]\n"
+                + "a = x[50]\n" // The position shouldn't matter in this case...
+                + "a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompound5() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "x = [None, F(i)]\n"
+                + "a = x[1]\n" // The position matters here!
+                + "a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompound5b() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "x = [None, F(i)]\n"
+                + "a = x[-1]\n" // The position matters here!
+                + "a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompound5d() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "x = [F(i), None]\n"
+                + "a = x[-2]\n" // The position matters here!
+                + "a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompound5a() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "x = [None, F(i)]\n"
+                + "a = x[0]\n" // The position matters here!
+                + "a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] {});
+        assertEquals(0, comps.length);
+    }
+
+    public void testCodeCompletionForCompound5c() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "x = [None, F(i)]\n"
+                + "a = x[-2]\n" // The position matters here!
+                + "a."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] {});
+        assertEquals(0, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundSet() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "a = set([F()])\n"
+                + "for x in a:\n" +
+                "    x."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionForCompoundNotInNamespace() throws Exception {
+        String s;
+        s = ""
+                + "import threading\n"
+                + "def foo(a):\n"
+                + "  ':param list(threading.Thread) a:'\n"
+                + "  for x in a:\n" +
+                "      x."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "run()" });
+        assertTrue(comps.length > 10);
+    }
+
+    public void testCodeCompletionForCompoundNotInNamespace2() throws Exception {
+        registerThreadGlobalCompletion();
+
+        String s;
+        s = ""
+                + "def foo(a):\n"
+                + "  ':param list(threading.Thread) a:'\n"
+                + "  for x in a:\n" +
+                "      x."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "run()" });
+        assertTrue(comps.length == 1);
+    }
+
+    public void testCodeCompletionForCompoundNotInNamespace3() throws Exception {
+        registerThreadGlobalCompletion();
+
+        String s;
+        s = ""
+                + "def foo(a):\n"
+                + "  ':param list(Thread) a:'\n"
+                + "  for x in a:\n" +
+                "      x."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "run()" });
+        assertTrue(comps.length == 1);
+    }
+
+    public void testCodeCompletionForCompoundInNamespace4() throws Exception {
+        String s;
+        s = ""
+                + "import threading\n"
+                + "def foo():\n"
+                + "  a = [threading.Thread()]\n"
+                + "  for x in a:\n" +
+                "      x."
+                + "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "run()" });
+        assertTrue(comps.length > 10);
+    }
+
+    public void testCodeCompletionFromInstanceGivenParameterType() throws Exception {
+        String s;
+        s = "" +
+                "class Foo:\n" +
+                "    def m1(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "class Person(object):\n" +
+                "    def __init__(self, foo):\n" +
+                "        '''\n" +
+                "        :type foo: Foo\n" +
+                "        '''\n" +
+                "        self.foo = foo\n" +
+                "        self.foo.";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionFromInstanceGivenVariableType() throws Exception {
+        String s;
+        s = "" +
+                "class Foo:\n" +
+                "    def m1(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "class Person(object):\n" +
+                "    def __init__(self):\n" +
+                "        self.foo = foo #: :type foo: Foo\n" +
+                "        self.foo.";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionFromProperty() throws Exception {
+        String s;
+        s = "" +
+                "class Foo:\n" +
+                "    @property\n" +
+                "    def m1(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "Foo().";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "m1" });
+        assertEquals(1, comps.length);
+    }
+
 }

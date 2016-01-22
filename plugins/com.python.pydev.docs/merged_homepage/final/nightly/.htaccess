@@ -2,4 +2,4 @@ RewriteEngine On
 RewriteBase /
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ http://update-production-pydev.s3.amazonaws.com/pydev/nightly/$1 [R]
+RewriteRule ^(.*)$ https://dl.bintray.com/fabioz/pydev/nightly/$1 [R]

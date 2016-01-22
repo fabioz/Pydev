@@ -32,10 +32,13 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.file.DirectoryStream;
+import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -44,6 +47,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -542,8 +546,8 @@ public class FileUtils {
      *      FastStringBuffer.class
      *
      */
-    public static Object getStreamContents(InputStream contentStream, String encoding, IProgressMonitor monitor,
-            Class<? extends Object> returnType) throws IOException {
+    public static <T> T getStreamContents(InputStream contentStream, String encoding, IProgressMonitor monitor,
+            Class<T> returnType) throws IOException {
 
         FastStringBuffer buffer = fillBufferWithStream(contentStream, encoding, monitor);
         if (buffer == null) {
@@ -552,14 +556,14 @@ public class FileUtils {
 
         //return it in the way specified by the user
         if (returnType == null || returnType == FastStringBuffer.class) {
-            return buffer;
+            return (T) buffer;
 
         } else if (returnType == IDocument.class) {
             Document doc = new Document(buffer.toString());
-            return doc;
+            return (T) doc;
 
         } else if (returnType == String.class) {
-            return buffer.toString();
+            return (T) buffer.toString();
 
         } else {
             throw new RuntimeException("Don't know how to handle return type: " + returnType);
@@ -571,7 +575,7 @@ public class FileUtils {
      */
     public static String getStreamContents(InputStream stream, String encoding, IProgressMonitor monitor) {
         try {
-            return (String) getStreamContents(stream, encoding, monitor, String.class);
+            return getStreamContents(stream, encoding, monitor, String.class);
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
@@ -585,11 +589,15 @@ public class FileUtils {
         }
     }
 
+    public static byte[] getFileContentsBytes(File file) throws IOException {
+        return Files.readAllBytes(Paths.get(file.toURI()));
+    }
+
     /**
      * @param file the file we want to read
      * @return the contents of the file as a string
      */
-    public static Object getFileContentsCustom(File file, String encoding, Class<? extends Object> returnType) {
+    public static <T> T getFileContentsCustom(File file, String encoding, Class<T> returnType) {
         try (FileInputStream stream = new FileInputStream(file)) {
             return getStreamContents(stream, encoding, null, returnType);
         } catch (Exception e) {
@@ -597,7 +605,7 @@ public class FileUtils {
         }
     }
 
-    public static Object getFileContentsCustom(File file, Class<? extends Object> returnType) {
+    public static <T> T getFileContentsCustom(File file, Class<T> returnType) {
         return getFileContentsCustom(file, null, returnType);
     }
 
@@ -606,14 +614,14 @@ public class FileUtils {
      * @return the contents of the file as a string
      */
     public static String getFileContents(File file) {
-        return (String) getFileContentsCustom(file, null, String.class);
+        return getFileContentsCustom(file, null, String.class);
     }
 
     /**
      * To get file contents for a python file, the encoding is required!
      */
     public static String getPyFileContents(File file) {
-        return (String) getFileContentsCustom(file, getPythonFileEncoding(file), String.class);
+        return getFileContentsCustom(file, getPythonFileEncoding(file), String.class);
     }
 
     /**
@@ -825,9 +833,9 @@ public class FileUtils {
 
     /**
      * Utility that'll open a file and read it until we get to the given line which when found is returned.
-     * 
+     *
      * Throws exception if we're unable to find the given line.
-     * 
+     *
      * @param lineNumber: 1-based
      */
     public static String getLineFromFile(File file, int lineNumber) throws FileNotFoundException, IOException {
@@ -873,7 +881,7 @@ public class FileUtils {
                         }
                     } else {
                         if (filesFilter.accept(file2)) {
-                            max = Math.max(max, file2.lastModified());
+                            max = Math.max(max, FileUtils.lastModified(file2));
                         }
                     }
                 }
@@ -882,7 +890,7 @@ public class FileUtils {
             }
         } else {
             if (filesFilter.accept(file)) {
-                max = Math.max(max, file.lastModified());
+                max = Math.max(max, FileUtils.lastModified(file));
             }
         }
         return max;
@@ -908,7 +916,7 @@ public class FileUtils {
                     }
                 }
 
-            } catch (Throwable e) {//NoSuchMethod/NoClassDef exception 
+            } catch (Throwable e) {//NoSuchMethod/NoClassDef exception
                 if (e instanceof ClassNotFoundException || e instanceof LinkageError
                         || e instanceof NoSuchMethodException || e instanceof NoSuchMethodError
                         || e instanceof NoClassDefFoundError) {
@@ -958,7 +966,7 @@ public class FileUtils {
                 IDocument doc = getDocFromPath(path);
                 if (doc == null) {
                     //can this actually happen?... yeap, it can (if file does not exist)
-                    doc = (IDocument) FileUtils.getStreamContents(file.getContents(true), null, null, IDocument.class);
+                    doc = FileUtils.getStreamContents(file.getContents(true), null, null, IDocument.class);
                 }
                 return doc;
             } catch (CoreException e) {
@@ -982,4 +990,133 @@ public class FileUtils {
         }
         return null;
     }
+
+    /**
+     * @param onFile - true keeps on searching and false terminates the searching.
+     */
+    public static void visitDirectory(File file, final boolean recursive, final ICallback<Boolean, Path> onFile)
+            throws IOException {
+        final Path rootDir = Paths.get(FileUtils.getFileAbsolutePath(file));
+        visitDirectory(rootDir, recursive, onFile);
+    }
+
+    /**
+     * @param onFile - true keeps on searching and false terminates the searching.
+     */
+    public static void visitDirectory(Path rootDir, final boolean recursive, final ICallback<Boolean, Path> onFile)
+            throws IOException {
+
+        Files.walkFileTree(rootDir, new FileVisitor<Path>() {
+
+            @Override
+            public FileVisitResult preVisitDirectory(Path path,
+                    BasicFileAttributes atts) throws IOException {
+                return recursive ? FileVisitResult.CONTINUE : FileVisitResult.SKIP_SUBTREE;
+            }
+
+            @Override
+            public FileVisitResult visitFile(Path path, BasicFileAttributes mainAtts)
+                    throws IOException {
+                if (!onFile.call(path)) {
+                    return FileVisitResult.TERMINATE;
+                }
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path path,
+                    IOException exc) throws IOException {
+                return recursive ? FileVisitResult.CONTINUE : FileVisitResult.SKIP_SUBTREE;
+            }
+
+            @Override
+            public FileVisitResult visitFileFailed(Path path, IOException exc)
+                    throws IOException {
+                Log.log(exc);
+                return FileVisitResult.CONTINUE;
+            }
+        });
+
+    }
+
+    public static long lastModified(File file) {
+        try {
+            // Has a higher precision.
+            final Path path = Paths.get(file.toURI());
+            return lastModified(path);
+        } catch (IOException e) {
+            final long lastModified = file.lastModified();
+            Log.log("Error. returning: " + lastModified, e);
+            return lastModified;
+        }
+    }
+
+    public static long lastModified(final Path path) throws IOException {
+        long ret = Files.getLastModifiedTime(path).to(TimeUnit.NANOSECONDS);
+        // System.out.println("\nFound:");
+        // System.out.println(ret);
+        // System.out.println(file.lastModified());
+        return ret;
+    }
+
+    public static String getFileExtension(String name) {
+        return StringUtils.getFileExtension(name);
+    }
+
+    public static class ReadLines {
+
+        public final List<String> lines;
+        private byte[] cbuf;
+        private int nChars;
+
+        public ReadLines(List<String> lines, byte[] cbuf, int nChars) {
+            this.lines = lines;
+            this.cbuf = cbuf;
+            this.nChars = nChars;
+        }
+
+        public int size() {
+            if (lines == null) {
+                return 0;
+            }
+            return lines.size();
+        }
+
+        public boolean isBinary() {
+            return cbuf != null ? !StringUtils.isValidTextString(cbuf, nChars) : false;
+        }
+
+    }
+
+    public static ReadLines readLines(File file) {
+        List<String> lines = null;
+        byte[] cbuf = null;
+        int nChars = -1;
+        if (file.exists()) {
+            try {
+                FileInputStream stream = new FileInputStream(file);
+                try {
+                    lines = new ArrayList<String>(2);
+                    cbuf = new byte[1024 * 2];
+                    //Consider that a line is not longer than 1024 chars (more than enough for a coding or shebang declaration).
+                    nChars = stream.read(cbuf);
+                    if (nChars > 0) {
+                        for (String line : StringUtils.iterLines(new String(cbuf, 0, nChars))) {
+                            lines.add(line);
+                            if (2 == lines.size()) {
+                                break;
+                            }
+                        }
+                    }
+
+                } finally {
+                    stream.close();
+                }
+            } catch (Exception e) {
+                Log.log(e);
+            }
+        }
+        return new ReadLines(lines, cbuf, nChars);
+    }
+
 }

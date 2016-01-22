@@ -59,7 +59,8 @@ public final class ListComp extends exprType implements comp_contextType {
         } else {
             new0 = this.generators;
         }
-        ListComp temp = new ListComp(elt != null ? (exprType) elt.createCopy(copyComments) : null, new0, ctx);
+        ListComp temp = new ListComp(elt != null ? (exprType) elt.createCopy(copyComments) : null, new0,
+                ctx);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
         if (this.specialsBefore != null && copyComments) {

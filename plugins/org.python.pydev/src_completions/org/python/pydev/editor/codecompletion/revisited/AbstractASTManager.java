@@ -25,6 +25,7 @@ import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionRequest;
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
@@ -34,6 +35,7 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.TupleN;
+import org.python.pydev.core.UnpackInfo;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
@@ -41,18 +43,31 @@ import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
+import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.GlobalModelVisitor;
+import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Attribute;
+import org.python.pydev.parser.jython.ast.Call;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.For;
+import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.Return;
+import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.aliasType;
+import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.parser.visitors.scope.ReturnVisitor;
+import org.python.pydev.parser.visitors.scope.YieldVisitor;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.ImmutableTuple;
@@ -61,7 +76,7 @@ import org.python.pydev.shared_core.structure.Tuple3;
 
 public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
-    private static final IToken[] EMPTY_ITOKEN_ARRAY = new IToken[0];
+    public static final IToken[] EMPTY_ITOKEN_ARRAY = new IToken[0];
 
     private static final boolean DEBUG_CACHE = false;
 
@@ -105,12 +120,12 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
     /**
      * Returns the imports that start with a given string. The comparison is not case dependent. Passes all the modules in the cache.
-     * 
+     *
      * @param original is the name of the import module eg. 'from toimport import ' would mean that the original is 'toimport'
      * or something like 'foo.bar' or an empty string (if only 'import').
      * @return a Set with the imports as tuples with the name, the docstring.
-     * @throws CompletionRecursionException 
-     * @throws MisconfigurationException 
+     * @throws CompletionRecursionException
+     * @throws MisconfigurationException
      */
     public IToken[] getCompletionsForImport(ImportInfo importInfo, ICompletionRequest r, boolean onlyGetDirectModules)
             throws CompletionRecursionException, MisconfigurationException {
@@ -151,7 +166,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
                     if (!onlyDots) {
                         //ok, we have to add the other part too, as we have more than the leading dots
-                        //from ..bar import 
+                        //from ..bar import
                         relative += "." + afterDots;
                     }
 
@@ -181,7 +196,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         //If we have a relative import, first match with the relative and only try to match the absolute if the relative
         //was not found.
         if (relative != null && relative.equals(absoluteModule) == false) {
-            getAbsoluteImportTokens(relative, set, IToken.TYPE_RELATIVE_IMPORT, false, importInfo, onlyGetDirectModules);
+            getAbsoluteImportTokens(relative, set, IToken.TYPE_RELATIVE_IMPORT, false, importInfo,
+                    onlyGetDirectModules);
             if (importInfo.hasImportSubstring) {
                 getTokensForModule(relative, nature, relative, set);
             }
@@ -252,7 +268,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
      * @param moduleToGetTokensFrom the string that represents the token from where we are getting the imports
      * @param set the set where the tokens should be added
      * @param importInfo if null, only the 1st element of the module will be added, otherwise, it'll check the info
-     * to see if it should add only the 1st element of the module or the complete module (e.g.: add only xml or 
+     * to see if it should add only the 1st element of the module or the complete module (e.g.: add only xml or
      * xml.dom and other submodules too)
      */
     public void getAbsoluteImportTokens(String moduleToGetTokensFrom, Set<IToken> inputOutput, int type,
@@ -264,7 +280,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         //            //from xxx
         //            //import xxx
         //            //
-        //            //We do NOT want to get it on: 
+        //            //We do NOT want to get it on:
         //            //from xxx import yyy
         //            if(importInfo.hasFromSubstring != importInfo.hasImportSubstring){
         //                getSubModules = true;
@@ -304,7 +320,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             //modules that start with the same name).
             //e.g. we want xml.dom
             //and not xmlrpclib
-            //if we have xml token (not using the qualifier here) 
+            //if we have xml token (not using the qualifier here)
             if (moduleToGetTokensFrom.length() != 0) {
                 if (element.length() > 0 && element.charAt(0) == ('.')) {
                     element = element.substring(1);
@@ -341,7 +357,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
      * @param original this is the initial module where the completion should happen (may have class in it too)
      * @param moduleToGetTokensFrom
      * @param set set where the tokens should be added
-     * @throws CompletionRecursionException 
+     * @throws CompletionRecursionException
      */
     protected void getTokensForModule(String original, IPythonNature nature, String moduleToGetTokensFrom,
             Set<IToken> set) throws CompletionRecursionException {
@@ -383,14 +399,15 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
      * @param doc
      * @param state
      * @return
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
-    public static IModule createModule(File file, IDocument doc, IPythonNature nature) throws MisconfigurationException {
+    public static IModule createModule(File file, IDocument doc, IPythonNature nature)
+            throws MisconfigurationException {
         return AbstractModule.createModuleFromDoc(file, doc, nature);
     }
 
-    //    /** 
-    //     * @throws MisconfigurationException 
+    //    /**
+    //     * @throws MisconfigurationException
     //     * @see org.python.pydev.core.ICodeCompletionASTManager#getCompletionsForToken(java.io.File, org.eclipse.jface.text.IDocument, org.python.pydev.editor.codecompletion.revisited.CompletionState)
     //     */
     //    public IToken[] getCompletionsForToken(File file, IDocument doc, ICompletionState state) throws CompletionRecursionException, MisconfigurationException {
@@ -398,7 +415,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     //        return getCompletionsForModule(module, state, true, true);
     //    }
 
-    /** 
+    /**
      * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getCompletionsForToken(org.eclipse.jface.text.IDocument, org.python.pydev.editor.codecompletion.revisited.CompletionState)
      */
     public IToken[] getCompletionsForToken(IDocument doc, ICompletionState state) {
@@ -436,7 +453,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
     /**
      * This method returns the module that corresponds to the path passed as a parameter.
-     * 
+     *
      * @param name the name of the module we're looking for
      * @param lookingForRelative determines whether we're looking for a relative module (in which case we should
      * not check in other places... only in the module)
@@ -453,7 +470,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     /**
      * Identifies the token passed and if it maps to a builtin not 'easily recognizable', as
      * a string or list, we return it.
-     * 
+     *
      * @param state
      * @return
      */
@@ -485,16 +502,17 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         return null;
     }
 
-    /** 
-     * @throws CompletionRecursionException 
+    /**
+     * @throws CompletionRecursionException
      * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getCompletionsForModule(org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule, org.python.pydev.editor.codecompletion.revisited.CompletionState)
      */
-    public IToken[] getCompletionsForModule(IModule module, ICompletionState state) throws CompletionRecursionException {
+    public IToken[] getCompletionsForModule(IModule module, ICompletionState state)
+            throws CompletionRecursionException {
         return getCompletionsForModule(module, state, true);
     }
 
-    /** 
-     * @throws CompletionRecursionException 
+    /**
+     * @throws CompletionRecursionException
      * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getCompletionsForModule(org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule, org.python.pydev.editor.codecompletion.revisited.CompletionState, boolean)
      */
     public IToken[] getCompletionsForModule(IModule module, ICompletionState state, boolean searchSameLevelMods)
@@ -502,7 +520,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         return getCompletionsForModule(module, state, true, false);
     }
 
-    /** 
+    /**
      * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getCompletionsForModule(org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule, org.python.pydev.editor.codecompletion.revisited.CompletionState, boolean, boolean)
      */
     public IToken[] getCompletionsForModule(IModule module, ICompletionState state, boolean searchSameLevelMods,
@@ -510,9 +528,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         return getCompletionsForModule(module, state, searchSameLevelMods, lookForArgumentCompletion, false);
     }
 
-    /** 
+    /**
      * @see #getCompletionsForModule(IModule, ICompletionState, boolean, boolean)
-     * 
+     *
      * Same thing but may handle things as if it was a wild import (in which case, the tokens starting with '_' are
      * removed and if __all__ is available, only the tokens contained in __all__ are returned)
      */
@@ -548,7 +566,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
     /**
      * Filters the tokens according to the wild import rules:
-     * - the tokens starting with '_' are removed 
+     * - the tokens starting with '_' are removed
      * - if __all__ is available, only the tokens contained in __all__ are returned)
      */
     private IToken[] filterForWildImport(IModule module, boolean handleAsWildImport, IToken[] completionsForModule) {
@@ -596,6 +614,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         if (DebugSettings.DEBUG_CODE_COMPLETION) {
             log("internalGenerateGetCompletionsForModule", module, state);
         }
+        state.checkMaxTimeForCompletion();
 
         ArrayList<IToken> importedModules = new ArrayList<IToken>();
 
@@ -604,7 +623,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         int col = state.getCol();
 
         if (state.getLocalImportsGotten() == false) {
-            //in the first analyzed module, we have to get the local imports too. 
+            //in the first analyzed module, we have to get the local imports too.
             state.setLocalImportsGotten(true);
             if (module != null && line >= 0) {
                 localScope = module.getLocalScope(line, col);
@@ -728,47 +747,49 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                     }
                 }
 
-                if (lookForArgumentCompletion && localScope != null) {
+                //Let's check if we have to unpack it...
+                int oldLookingFor = state.getLookingFor();
+                state.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE, true);
+                try {
+                    if (state.getActivationToken().endsWith(".__getitem__")) {
+                        String activationToken = state.getActivationToken();
+                        String compoundActivationToken = activationToken.substring(0, activationToken.length() - 12);
 
-                    //now, if we have to look for arguments and search things in the local scope, let's also
-                    //check for assert (isinstance...) in this scope with the given variable.
-                    List<String> lookForClass = localScope.getPossibleClassesForActivationToken(state
-                            .getActivationToken());
-                    if (lookForClass.size() > 0) {
-                        HashSet<IToken> hashSet = new HashSet<IToken>();
+                        IToken[] ret = getCompletionsUnpackingObject(module,
+                                state.getCopyWithActTok(compoundActivationToken), localScope, new UnpackInfo());
+                        if (ret != null && ret.length > 0) {
+                            return ret;
+                        }
+                    } else {
+                        if (localScope != null) {
+                            ISimpleNode foundAtASTNode = localScope.getFoundAtASTNode();
+                            if (foundAtASTNode instanceof For) {
+                                For for1 = (For) foundAtASTNode;
 
-                        getCompletionsForClassInLocalScope(module, state, searchSameLevelMods,
-                                lookForArgumentCompletion, lookForClass, hashSet);
-
-                        if (hashSet.size() > 0) {
-                            return hashSet.toArray(EMPTY_ITOKEN_ARRAY);
-                        } else {
-                            //Give a chance to find it without the scope
-                            //Try to deal with some token that's not imported
-                            List<IPyDevCompletionParticipant> participants = ExtensionHelper
-                                    .getParticipants(ExtensionHelper.PYDEV_COMPLETION);
-
-                            for (String classToCheck : lookForClass) {
-                                for (IPyDevCompletionParticipant participant : participants) {
-                                    ICompletionState copy = state.getCopy();
-                                    copy.setActivationToken(classToCheck);
-                                    copy.setLookingFor(ICompletionState.LOOKING_FOR_ASSIGN);
-
-                                    Collection<IToken> collection = participant.getCompletionsForType(copy);
-                                    if (collection != null && collection.size() > 0) {
-                                        return collection.toArray(EMPTY_ITOKEN_ARRAY);
-                                    }
+                                // case where we may have to unpack some iteration
+                                // e.g.: for a, b in x.items():
+                                IToken[] ret = getCompletionsUnpackingForLoop(module, state, localScope, for1);
+                                if (ret != null && ret.length > 0) {
+                                    return ret;
                                 }
+                                //Note: we don't bail out here because it's possible that the user has
+                                //added the type on the context (because on a for unpacking either we find it
+                                //when checking the for loop unpack or the user has to explicitly give
+                                //us a hint).
                             }
                         }
                     }
+                } finally {
+                    state.setLookingFor(oldLookingFor, true);
+                }
 
-                    //ok, didn't find in assert isinstance... keep going
-                    //if there was no assert for the class, get from extensions / local scope interface
-                    tokens = CompletionParticipantsHelper.getCompletionsForMethodParameter(state, localScope).toArray(
-                            EMPTY_ITOKEN_ARRAY);
-                    if (tokens != null && tokens.length > 0) {
-                        return tokens;
+                if (lookForArgumentCompletion && localScope != null) {
+
+                    IToken[] ret = getCompletionsFromTokenInLocalScope(module, state, searchSameLevelMods,
+                            lookForArgumentCompletion,
+                            localScope);
+                    if (ret != null && ret.length > 0) {
+                        return ret;
                     }
                 }
 
@@ -781,6 +802,626 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         }
 
         return EMPTY_ITOKEN_ARRAY;
+    }
+
+    public IToken[] getCompletionsFromTokenInLocalScope(IModule module, ICompletionState state,
+            boolean searchSameLevelMods, boolean lookForArgumentCompletion, ILocalScope localScope)
+                    throws CompletionRecursionException {
+        IToken[] tokens;
+        //now, if we have to look for arguments and search things in the local scope, let's also
+        //check for assert (isinstance...) in this scope with the given variable.
+        List<String> lookForClass = localScope.getPossibleClassesForActivationToken(state
+                .getActivationToken());
+        if (lookForClass.size() > 0) {
+            List<String> lst = new ArrayList<>(lookForClass.size());
+            for (String s : lookForClass) {
+                lst.add(NodeUtils.getPackedTypeFromDocstring(s));
+            }
+            lookForClass = lst;
+            HashSet<IToken> hashSet = new HashSet<IToken>();
+
+            getCompletionsForClassInLocalScope(module, state, searchSameLevelMods,
+                    lookForArgumentCompletion, lookForClass, hashSet);
+
+            if (hashSet.size() > 0) {
+                return hashSet.toArray(EMPTY_ITOKEN_ARRAY);
+            } else {
+                //Give a chance to find it without the scope
+                //Try to deal with some token that's not imported
+                IToken[] ret = getCompletionsFromTypeRepresentation(state, lookForClass, module);
+                if (ret != null && ret.length > 0) {
+                    return ret;
+                }
+            }
+        }
+
+        //ok, didn't find in assert isinstance... keep going
+        //if there was no assert for the class, get from extensions / local scope interface
+        tokens = CompletionParticipantsHelper.getCompletionsForMethodParameter(state, localScope).toArray(
+                EMPTY_ITOKEN_ARRAY);
+        if (tokens != null && tokens.length > 0) {
+            return tokens;
+        }
+        return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    public IToken[] getCompletionsFromTypeRepresentation(ICompletionState state, List<String> lookForClass,
+            IModule currentModule)
+                    throws CompletionRecursionException {
+        state.checkMaxTimeForCompletion();
+
+        //First check in the current module...
+        for (String classToCheck : lookForClass) {
+            IToken[] completionsForModule = getCompletionsForModule(
+                    currentModule,
+                    state.getCopyWithActTok(classToCheck));
+            if (completionsForModule != null
+                    && completionsForModule.length > 0) {
+                return completionsForModule;
+            }
+        }
+
+        List<IPyDevCompletionParticipant> participants = ExtensionHelper
+                .getParticipants(ExtensionHelper.PYDEV_COMPLETION);
+
+        for (String classToCheck : lookForClass) {
+            for (IPyDevCompletionParticipant participant : participants) {
+                ICompletionState copy = state.getCopyWithActTok(classToCheck);
+                int oldLookingFor = copy.getLookingFor();
+                copy.setLookingFor(ICompletionState.LOOKING_FOR_ASSIGN);
+
+                Collection<IToken> collection = participant.getCompletionsForType(copy);
+                if (collection != null && collection.size() > 0) {
+                    return collection.toArray(EMPTY_ITOKEN_ARRAY);
+                }
+                //If it didn't return, restore the old value...
+                copy.setLookingFor(oldLookingFor);
+            }
+        }
+        return EMPTY_ITOKEN_ARRAY;
+    }
+
+    private IToken[] getCompletionsUnpackingForLoop(IModule module, ICompletionState state, ILocalScope localScope,
+            For for1)
+                    throws CompletionRecursionException {
+        state.checkMaxTimeForCompletion();
+        if (for1.target instanceof org.python.pydev.parser.jython.ast.Tuple
+                || for1.target instanceof org.python.pydev.parser.jython.ast.List) {
+            exprType[] eltsTarget = NodeUtils.getEltsFromCompoundObject(for1.target);
+            if (eltsTarget != null) {
+                UnpackInfo unpackPos = new UnpackInfo();
+                unpackPos.addUnpackFor();
+                for (int i = 0; i < eltsTarget.length; i++) {
+                    exprType elt = eltsTarget[i];
+                    if (state.getActivationToken().equals(
+                            NodeUtils.getFullRepresentationString(elt))) {
+                        unpackPos.addUnpackTuple(i);
+                        break;
+                    }
+                }
+
+                boolean hasUnpackInfo = unpackPos.hasUnpackInfo();
+                if (hasUnpackInfo) {
+                    exprType[] elts = NodeUtils.getEltsFromCompoundObject(for1.iter);
+                    if (elts != null) {
+                        if (elts.length == 1) {
+                            if (elts[0] instanceof org.python.pydev.parser.jython.ast.Tuple
+                                    || elts[0] instanceof org.python.pydev.parser.jython.ast.List) {
+                                elts = NodeUtils.getEltsFromCompoundObject(elts[0]);
+                            }
+                        }
+                        int unpackTuple = unpackPos.getUnpackTuple(elts.length);
+                        if (unpackTuple >= 0) {
+                            String rep = NodeUtils.getFullRepresentationString(elts[unpackTuple]);
+                            if (rep != null) {
+                                ICompletionState copyWithActTok = state.getCopyWithActTok(rep);
+                                if (elts[unpackTuple] instanceof Call) {
+                                    copyWithActTok.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
+                                }
+                                IToken[] completionsForModule = getCompletionsForModule(module,
+                                        copyWithActTok);
+                                if (completionsForModule.length > 0) {
+                                    return completionsForModule;
+                                }
+                            }
+                        }
+                    } else {
+                        IToken[] ret = getDictCompletionOnForLoop(module, state, for1, localScope, unpackPos);
+                        if (ret != null && ret.length > 0) {
+                            return ret;
+                        }
+                    }
+                }
+            }
+
+        } else if (state.getActivationToken().equals(
+                NodeUtils.getFullRepresentationString(for1.target))) {
+            // We're the target of some for loop, so, in fact, we're unpacking some compound object...
+            if (for1.iter != null) {
+                IToken[] ret = null;
+                exprType[] elts = NodeUtils.getEltsFromCompoundObject(for1.iter);
+                if (elts != null) {
+                    UnpackInfo unpackInfo = new UnpackInfo();
+                    unpackInfo.addUnpackFor();
+                    ret = getCompletionsFromUnpackedCompoundObject(module, state, elts, unpackInfo);
+                } else {
+                    String rep = NodeUtils
+                            .getFullRepresentationString(for1.iter);
+                    if (rep != null) {
+                        ret = getCompletionsUnpackingObject(module,
+                                state.getCopyWithActTok(rep),
+                                localScope, new UnpackInfo(true, -1));
+                    }
+                }
+                if (ret != null && ret.length > 0) {
+                    return ret;
+                }
+                // Check if we're doing some keys/values/items in a dict...
+                UnpackInfo unpackPos = new UnpackInfo();
+                unpackPos.addUnpackFor();
+                ret = getDictCompletionOnForLoop(module, state, for1, localScope, unpackPos);
+                if (ret != null && ret.length > 0) {
+                    return ret;
+                }
+            }
+        }
+        return null;
+    }
+
+    private IToken[] getDictCompletionOnForLoop(IModule module, ICompletionState state, For for1,
+            ILocalScope localScope, UnpackInfo unpackPos)
+                    throws CompletionRecursionException {
+        state.checkMaxTimeForCompletion();
+
+        exprType func = null;
+        if (for1.iter instanceof Call) {
+            Call call = (Call) for1.iter;
+            func = call.func;
+        } else if (for1.iter instanceof exprType) {
+            func = for1.iter;
+        }
+        if (func instanceof Attribute) {
+            Attribute attribute = (Attribute) func;
+            String representationString = NodeUtils
+                    .getFullRepresentationString(attribute.attr);
+            if (representationString != null) {
+                exprType value = attribute.value;
+                if (value != null) {
+
+                    int searchDict = -1;
+                    if ("keys".equals(representationString)
+                            || "iterkeys".equals(representationString)) {
+                        searchDict = 0;
+                    }
+                    if ("values".equals(representationString)
+                            || "itervalues".equals(representationString)) {
+                        searchDict = 1;
+                    }
+                    if ("items".equals(representationString)
+                            || "iteritems".equals(representationString)) {
+                        searchDict = 2;
+                    }
+                    if (searchDict >= 0) {
+                        String rep = NodeUtils.getFullRepresentationString(value);
+                        try {
+                            ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
+                            PyRefactoringFindDefinition.findActualDefinition(null, module,
+                                    rep,
+                                    selected,
+                                    value.beginLine, value.beginLine, state.getNature(),
+                                    state);
+                            for (Iterator<IDefinition> iterator = selected.iterator(); iterator
+                                    .hasNext();) {
+                                IDefinition iDefinition = iterator.next();
+                                // Ok, couldn't get possible classes, let's see if the definition is a dict
+                                if (iDefinition instanceof AssignDefinition) {
+                                    AssignDefinition assignDefinition = (AssignDefinition) iDefinition;
+                                    IToken[] tokens = getCompletionsFromAssignDefinition(module, state,
+                                            unpackPos, assignDefinition);
+                                    if (tokens != null && tokens.length > 0) {
+                                        return tokens;
+                                    }
+                                }
+
+                                if (iDefinition instanceof Definition) {
+                                    Definition definition = (Definition) iDefinition;
+                                    if (definition.scope != null) {
+                                        List<String> possibleClassesForActivationToken = definition.scope
+                                                .getPossibleClassesForActivationToken(rep);
+                                        for (String string : possibleClassesForActivationToken) {
+                                            String unpackedTypeFromDocstring = null;
+                                            if (searchDict == 0) {
+                                                unpackedTypeFromDocstring = NodeUtils
+                                                        .getUnpackedTypeFromTypeDocstring(string,
+                                                                new UnpackInfo(true, 0));
+                                            } else if (searchDict == 1) {
+                                                unpackedTypeFromDocstring = NodeUtils
+                                                        .getUnpackedTypeFromTypeDocstring(string,
+                                                                new UnpackInfo(true, 1));
+                                            } else if (searchDict == 2) {
+                                                unpackedTypeFromDocstring = NodeUtils
+                                                        .getUnpackedTypeFromTypeDocstring(string,
+                                                                unpackPos);
+                                            }
+                                            if (unpackedTypeFromDocstring.equals(string)) {
+                                                continue;
+                                            }
+
+                                            IToken[] ret = getCompletionsFromTypeRepresentation(
+                                                    state, Arrays.asList(unpackedTypeFromDocstring),
+                                                    definition.module);
+                                            if (ret != null && ret.length > 0) {
+                                                return ret;
+                                            }
+                                        }
+                                    }
+
+                                }
+                            }
+                        } catch (CompletionRecursionException e) {
+                            throw e;
+                        } catch (Exception e) {
+                            Log.log(e);
+                            throw new RuntimeException("Error when getting definition for:"
+                                    + state.getActivationToken(), e);
+                        }
+                    }
+                }
+            }
+        }
+        //Ok, couldn't get it as a dict, but it may still be some custom class...
+        String full = NodeUtils.getFullRepresentationString(for1.iter);
+        if (full != null) {
+            ICompletionState copyWithActTok = state.getCopyWithActTok(full);
+            copyWithActTok.setLine(NodeUtils.getLineDefinition(for1.iter) - 1);
+            copyWithActTok.setCol(NodeUtils.getColDefinition(for1.iter) - 1);
+            IToken[] ret = getCompletionsUnpackingObject(module, copyWithActTok, localScope, unpackPos);
+            if (ret != null && ret.length > 0) {
+                return ret;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @param unpackPos which position are we unpacking? -1 for 'don't care' (i.e.: for a in b) -- 0 would be for a,b in x (when
+     * asking for completions in a).s
+     */
+    public IToken[] getCompletionsUnpackingObject(IModule module, ICompletionState state, ILocalScope scope,
+            UnpackInfo unpackPos)
+                    throws CompletionRecursionException {
+        ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
+        state.pushGetCompletionsUnpackingObject();
+        try {
+            PyRefactoringFindDefinition.findActualDefinition(null, module, state.getActivationToken(),
+                    selected,
+                    state.getLine() + 1, state.getCol() + 1, state.getNature(),
+                    state);
+            for (Iterator<IDefinition> iterator = selected.iterator(); iterator.hasNext();) {
+                IDefinition iDefinition = iterator.next();
+                if (!(iDefinition instanceof AssignDefinition) && iDefinition instanceof Definition) {
+                    Definition definition = (Definition) iDefinition;
+                    if (definition.ast != null) {
+                        IToken[] ret = getCompletionsUnpackingAST(definition.ast,
+                                definition.module, state, unpackPos);
+                        if (ret != null && ret.length > 0) {
+                            return ret;
+                        }
+                    }
+
+                    // If it still hasn't returned, try to get it from the docstring
+                    String docstring = definition.getDocstring(this.getNature(), state);
+                    if (docstring != null && !docstring.isEmpty()) {
+                        IToken[] tokens = getCompletionsUnpackingDocstring(module, state, unpackPos, docstring);
+                        if (tokens != null && tokens.length > 0) {
+                            return tokens;
+                        }
+                    }
+
+                } else if (iDefinition instanceof AssignDefinition) {
+                    AssignDefinition assignDefinition = (AssignDefinition) iDefinition;
+                    IToken[] tokens = getCompletionsFromAssignDefinition(module, state, unpackPos, assignDefinition);
+                    if (tokens != null && tokens.length > 0) {
+                        return tokens;
+                    }
+                }
+            }
+        } catch (CompletionRecursionException e) {
+            throw e;
+        } catch (Exception e) {
+            Log.log(e);
+            throw new RuntimeException("Error when getting definition for:" + state.getActivationToken(), e);
+        } finally {
+            state.popGetCompletionsUnpackingObject();
+        }
+
+        //If we didn't return so far, we should still check for types specified in docstrings...
+        if (scope != null) {
+            List<String> possibleClassesForActivationToken = scope.getPossibleClassesForActivationToken(state
+                    .getActivationToken());
+
+            for (String string : possibleClassesForActivationToken) {
+                String unpackedTypeFromDocstring = NodeUtils.getUnpackedTypeFromTypeDocstring(string, unpackPos);
+                ICompletionState copyWithActTok = state.getCopyWithActTok(unpackedTypeFromDocstring);
+                copyWithActTok.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
+                IToken[] completionsForModule = getCompletionsForModule(module,
+                        copyWithActTok);
+                if (completionsForModule != null && completionsForModule.length > 0) {
+                    return completionsForModule;
+                } else {
+                    //Try to deal with some token that's not imported
+                    List<IPyDevCompletionParticipant> participants = ExtensionHelper
+                            .getParticipants(ExtensionHelper.PYDEV_COMPLETION);
+                    ArrayList<Object> lst = new ArrayList<>();
+                    for (IPyDevCompletionParticipant participant : participants) {
+                        Collection<IToken> collection = participant.getCompletionsForType(copyWithActTok);
+                        if (collection != null && collection.size() > 0) {
+                            lst.addAll(collection);
+                        }
+                    }
+                    if (lst.size() > 0) {
+                        return lst.toArray(new IToken[0]);
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private IToken[] getCompletionsFromAssignDefinition(IModule module, ICompletionState state, UnpackInfo unpackPos,
+            AssignDefinition assignDefinition) throws CompletionRecursionException, Exception {
+        exprType[] elts = NodeUtils.getEltsFromCompoundObject(assignDefinition.nodeValue);
+        if (elts != null) {
+            // I.e.: something as [1,2,3, Call()]
+            IToken[] completionsFromUnpackedList = getCompletionsFromUnpackedCompoundObject(module, state,
+                    elts, unpackPos);
+            if (completionsFromUnpackedList != null) {
+                return completionsFromUnpackedList;
+            }
+        } else {
+            ArrayList<IDefinition> found = new ArrayList<>();
+            // Pointing to some other place... let's follow it.
+            PyRefactoringFindDefinition.findActualDefinition(null, assignDefinition.module,
+                    assignDefinition.value,
+                    found,
+                    assignDefinition.line, assignDefinition.col, state.getNature(),
+                    state);
+            for (IDefinition f : found) {
+                if (f instanceof Definition) {
+                    Definition definition = (Definition) f;
+                    if (definition.ast != null) {
+                        //We're unpacking some class/method we found... something as:
+                        //class SomeClass:
+                        //    def __iter__(self):
+                        //x = SomeClass()
+                        //for a in x:
+                        //    a.
+                        IToken[] ret = getCompletionsUnpackingAST(definition.ast, definition.module, state,
+                                unpackPos);
+                        if (ret != null && ret.length > 0) {
+                            return ret;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private IToken[] getCompletionsUnpackingAST(SimpleNode ast, final IModule module, ICompletionState state,
+            UnpackInfo unpackPos)
+                    throws CompletionRecursionException {
+
+        if (ast instanceof FunctionDef) {
+            IToken[] tokens = getCompletionsUnpackingDocstring(module, state, unpackPos,
+                    NodeUtils.getNodeDocString(ast));
+            if (tokens != null && tokens.length > 0) {
+                return tokens;
+            }
+
+            List<Yield> findYields = YieldVisitor.findYields((FunctionDef) ast);
+            for (Yield yield : findYields) {
+                //Note: the yield means we actually have a generator, so, the value yield is already
+                //what we should complete on.
+                if (yield.value != null) {
+                    String rep = NodeUtils
+                            .getFullRepresentationString(yield.value);
+                    if (rep != null) {
+                        ICompletionState copyWithActTok = state.getCopyWithActTok(rep);
+                        copyWithActTok.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
+                        IToken[] completionsForModule = getCompletionsForModule(module,
+                                copyWithActTok);
+                        if (completionsForModule.length > 0) {
+                            return completionsForModule;
+                        }
+                    }
+                }
+            }
+
+            List<Return> findReturns = ReturnVisitor.findReturns((FunctionDef) ast);
+            for (Return return1 : findReturns) {
+                //Return types have to be unpacked...
+                if (return1.value != null) {
+                    exprType[] elts = NodeUtils.getEltsFromCompoundObject(return1.value);
+                    if (elts != null) {
+                        IToken[] ret = getCompletionsFromUnpackedCompoundObject(module, state, elts, unpackPos);
+                        if (ret != null && ret.length > 0) {
+                            return ret;
+                        }
+
+                    } else {
+                        String rep = NodeUtils.getFullRepresentationString(return1.value);
+                        if (rep != null) {
+                            IToken[] completionsUnpackingObject = getCompletionsUnpackingObject(module,
+                                    state.getCopyWithActTok(rep), null, unpackPos);
+                            if (completionsUnpackingObject != null && completionsUnpackingObject.length > 0) {
+                                return completionsUnpackingObject;
+                            }
+                        }
+                    }
+                }
+            }
+        } else if (ast instanceof ClassDef) {
+            String rep = NodeUtils
+                    .getFullRepresentationString(ast);
+            if (rep != null) {
+                IToken[] completionsForModule = this.getCompletionsForModule(module,
+                        state.getCopyWithActTok(rep));
+                IToken getItemToken = null;
+                for (int i = 0; i < completionsForModule.length; i++) {
+                    IToken iToken = completionsForModule[i];
+
+                    switch (iToken.getRepresentation()) {
+                        case "__getitem__":
+                            getItemToken = iToken;
+                            break;
+                        case "__iter__":
+                            //__iter__ has priority over __getitem__
+                            //If we find it we'll try to unpack completions from it.
+                            if (iToken instanceof SourceToken) {
+                                SourceToken sourceToken = (SourceToken) iToken;
+                                IModule useModule = null;
+                                if (module.getName().equals(
+                                        sourceToken.getParentPackage())) {
+                                    useModule = module;
+                                }
+                                if (useModule == null) {
+                                    String parentPackage = sourceToken.getParentPackage();
+                                    useModule = getModule(parentPackage, state.getNature(),
+                                            true);
+                                }
+
+                                IToken[] ret = getCompletionsUnpackingAST(sourceToken.getAst(),
+                                        useModule, state, unpackPos);
+                                if (ret != null && ret.length > 0) {
+                                    return ret;
+                                }
+                            }
+                            break;
+                    }
+                }
+                if (getItemToken instanceof SourceToken) {
+                    //The __getitem__ is already unpacked (i.e.: __iter__ returns a generator
+                    //and __getitem__ already returns the value we're iterating through).
+                    SourceToken sourceToken = (SourceToken) getItemToken;
+                    IModule useModule = null;
+                    if (module.getName().equals(
+                            sourceToken.getParentPackage())) {
+                        useModule = module;
+                    } else {
+                        String parentPackage = getItemToken.getParentPackage();
+                        useModule = getModule(parentPackage, state.getNature(), true);
+                    }
+                    IToken[] ret = getCompletionsNotUnpackingToken(sourceToken,
+                            useModule, state);
+                    if (ret != null && ret.length > 0) {
+                        return ret;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private IToken[] getCompletionsUnpackingDocstring(final IModule module, ICompletionState state,
+            UnpackInfo unpackPos,
+            String docstring) throws CompletionRecursionException {
+        if (docstring != null) {
+            String type = NodeUtils.getReturnTypeFromDocstring(docstring);
+            if (type != null) {
+                String unpackedTypeFromDocstring = NodeUtils.getUnpackedTypeFromTypeDocstring(type, unpackPos);
+                if (unpackedTypeFromDocstring != null) {
+                    ICompletionState copyWithActTok = state.getCopyWithActTok(unpackedTypeFromDocstring);
+                    copyWithActTok.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
+                    IToken[] completionsForModule = getCompletionsForModule(module,
+                            copyWithActTok);
+                    if (completionsForModule.length > 0) {
+                        return completionsForModule;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private IToken[] getCompletionsNotUnpackingToken(SourceToken token, IModule useModule, ICompletionState state)
+            throws CompletionRecursionException {
+        if (useModule == null) {
+            String parentPackage = token.getParentPackage();
+            useModule = getModule(parentPackage, state.getNature(), true);
+        }
+
+        SimpleNode ast = token.getAst();
+        if (ast instanceof FunctionDef) {
+            String type = NodeUtils.getReturnTypeFromDocstring(ast);
+            if (type != null) {
+                ICompletionState copyWithActTok = state.getCopyWithActTok(type);
+                copyWithActTok.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
+                IToken[] completionsForModule = getCompletionsForModule(useModule,
+                        copyWithActTok);
+                if (completionsForModule.length > 0) {
+                    return completionsForModule;
+                }
+            }
+
+            List<Return> findReturns = ReturnVisitor.findReturns((FunctionDef) ast);
+            for (Return return1 : findReturns) {
+                //Return types have to be unpacked...
+                if (return1.value != null) {
+                    String rep = NodeUtils.getFullRepresentationString(return1.value);
+                    if (rep != null) {
+                        IToken[] completionsForModule = getCompletionsForModule(useModule,
+                                state.getCopyWithActTok(rep));
+                        if (completionsForModule != null && completionsForModule.length > 0) {
+                            return completionsForModule;
+                        }
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Unpacks the type of the content of a list and gets completions based on it.
+     * @param unpackPos
+     */
+    private IToken[] getCompletionsFromUnpackedCompoundObject(IModule module, ICompletionState state,
+            exprType[] elts, UnpackInfo unpackPos) throws CompletionRecursionException {
+
+        if (elts != null && elts.length > 0) {
+            exprType elt = elts[0];
+            if (elt instanceof org.python.pydev.parser.jython.ast.Tuple
+                    || elt instanceof org.python.pydev.parser.jython.ast.List) {
+                if (unpackPos.getUnpackFor()) {
+                    elts = NodeUtils.getEltsFromCompoundObject(elt);
+                }
+            }
+            String rep;
+            int unpackTuple = unpackPos.getUnpackTuple(elts.length);
+            if (unpackTuple >= 0) {
+                rep = NodeUtils.getFullRepresentationString(elts[unpackTuple]);
+            } else {
+                rep = NodeUtils.getFullRepresentationString(elts[0]);
+
+            }
+            if (rep != null) {
+                ICompletionState copyWithActTok = state.getCopyWithActTok(rep);
+                if (elts[0] instanceof Call) {
+                    copyWithActTok.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
+                }
+                IToken[] completionsForModule = getCompletionsForModule(module,
+                        copyWithActTok);
+                if (completionsForModule.length > 0) {
+                    return completionsForModule;
+                }
+            }
+        }
+        return null;
     }
 
     private IToken[] decorateWithLocal(IToken[] tokens, ILocalScope localScope, ICompletionState state) {
@@ -798,8 +1439,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     }
 
     private IToken[] getAssignCompletions(IModule module, ICompletionState state, boolean lookForArgumentCompletion,
-            ILocalScope localScope) {
-        AssignCompletionInfo assignCompletions = assignAnalysis.getAssignCompletions(this, module, state);
+            ILocalScope localScope) throws CompletionRecursionException {
+        state.checkMaxTimeForCompletion();
+        AssignCompletionInfo assignCompletions = assignAnalysis.getAssignCompletions(this, module, state, localScope);
 
         boolean useExtensions = assignCompletions.completions.size() == 0;
 
@@ -829,7 +1471,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
      */
     public void getCompletionsForClassInLocalScope(IModule module, ICompletionState state, boolean searchSameLevelMods,
             boolean lookForArgumentCompletion, List<String> lookForClass, HashSet<IToken> hashSet)
-            throws CompletionRecursionException {
+                    throws CompletionRecursionException {
         IToken[] tokens;
         //if found here, it's an instanced variable (force it and restore if we didn't find it here...)
         ICompletionState stateCopy = state.getCopy();
@@ -858,12 +1500,12 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     /**
      * Attempt to search on modules on the same level as this one (this will only happen if we are in an __init__
      * module (otherwise, the initial set will be empty)
-     * 
+     *
      * @param initial this is the set of tokens generated from modules in the same level
      * @param state the current state of the completion
-     * 
+     *
      * @return a list of tokens found.
-     * @throws CompletionRecursionException 
+     * @throws CompletionRecursionException
      */
     protected IToken[] searchOnSameLevelMods(Set<IToken> initial, ICompletionState state)
             throws CompletionRecursionException {
@@ -899,7 +1541,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
                 if (actTokUsed != null) {
                     ICompletionState copy = state.getCopyWithActTok(actTokUsed);
-                    copy.setBuiltinsGotten(true); //we don't want builtins... 
+                    copy.setBuiltinsGotten(true); //we don't want builtins...
                     ret = getCompletionsForModule(sameLevelMod, copy);
                     break;
                 }
@@ -941,8 +1583,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             }
         }
 
-        //wild imports: recursively go and get those completions. Must be done before getting the builtins, because 
-        //when we do a wild import, we may get tokens that are filtered, and there's a chance that the builtins get 
+        //wild imports: recursively go and get those completions. Must be done before getting the builtins, because
+        //when we do a wild import, we may get tokens that are filtered, and there's a chance that the builtins get
         //filtered out if they are gotten from a wild import and not from the module itself.
         for (int i = 0; i < wildImportedModules.length; i++) {
 
@@ -983,11 +1625,11 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     }
 
     /**
-     * Resolves a token defined with 'from module import something' statement 
-     * to a proper type, as defined in module.  
+     * Resolves a token defined with 'from module import something' statement
+     * to a proper type, as defined in module.
      * @param imported the token to resolve.
      * @return the resolved token or the original token in case no additional information could be obtained.
-     * @throws CompletionRecursionException 
+     * @throws CompletionRecursionException
      */
     public ImmutableTuple<IModule, IToken> resolveImport(ICompletionState state, final IToken imported, IModule current)
             throws CompletionRecursionException {
@@ -1017,7 +1659,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
     /**
      * This is the public interface
-     * @throws CompletionRecursionException 
+     * @throws CompletionRecursionException
      * @see org.python.pydev.core.ICodeCompletionASTManager#getRepInModule(org.python.pydev.core.IModule, java.lang.String, org.python.pydev.core.IPythonNature)
      */
     public IToken getRepInModule(IModule module, String tokName, IPythonNature nature)
@@ -1026,12 +1668,12 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     }
 
     /**
-     * Get the actual token representing the tokName in the passed module  
+     * Get the actual token representing the tokName in the passed module
      * @param module the module where we're looking
      * @param tokName the name of the token we're looking for
      * @param nature the nature we're looking for
      * @return the actual token in the module (or null if it was not possible to find it).
-     * @throws CompletionRecursionException 
+     * @throws CompletionRecursionException
      */
     private IToken getRepInModule(IModule module, String tokName, IPythonNature nature, ICompletionState state)
             throws CompletionRecursionException {
@@ -1042,7 +1684,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
             //ok, we are getting some token from the module... let's see if it is really available.
             String[] headAndTail = FullRepIterable.headAndTail(tokName);
-            String actToken = headAndTail[0]; //tail (if os.path, it is os) 
+            String actToken = headAndTail[0]; //tail (if os.path, it is os)
             String hasToBeFound = headAndTail[1]; //head (it is path)
 
             //if it was os.path:
@@ -1152,7 +1794,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             //the activation token corresponds to an imported module. We have to get its global tokens and return them.
             ICompletionState copy = state.getCopy();
             copy.setActivationToken("");
-            copy.setBuiltinsGotten(true); //we don't want builtins... 
+            copy.setBuiltinsGotten(true); //we don't want builtins...
             return getCompletionsForModule(mod, copy);
         } else if (mod != null) {
             ICompletionState copy = state.getCopy();
@@ -1212,7 +1854,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
      * @return tuple with:
      * 0: mod
      * 1: tok
-     * @throws CompletionRecursionException 
+     * @throws CompletionRecursionException
      */
     public Tuple3<IModule, String, IToken> findOnImportedMods(ICompletionState state, IModule current)
             throws CompletionRecursionException {
@@ -1221,21 +1863,21 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     }
 
     /**
-     * This function tries to find some activation token defined in some imported module.  
+     * This function tries to find some activation token defined in some imported module.
      * @return tuple with: the module and the token that should be used from it.
-     * 
+     *
      * @param this is the activation token we have. It may be a single token or some dotted name.
-     * 
+     *
      * If it is a dotted name, such as testcase.TestCase, we need to match against some import
      * represented as testcase or testcase.TestCase.
-     * 
+     *
      * If a testcase.TestCase matches against some import named testcase, the import is returned and
      * the TestCase is put as the module
-     * 
+     *
      * 0: mod
      * 1: tok (string)
      * 2: actual tok
-     * @throws CompletionRecursionException 
+     * @throws CompletionRecursionException
      */
     public Tuple3<IModule, String, IToken> findOnImportedMods(IToken[] importedModules, ICompletionState state,
             String currentModuleName, IModule current) throws CompletionRecursionException {
@@ -1254,7 +1896,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                         if (r != null) {
                             return new Tuple3<IModule, String, IToken>(r.o1, r.o2, importedModule);
                         }
-                        //Note, if r==null, even though the name matched, keep on going (to handle cases of 
+                        //Note, if r==null, even though the name matched, keep on going (to handle cases of
                         //try..except ImportError, as we cannot be sure of which version will actually match).
                     } catch (MisconfigurationException e) {
                         Log.log(e);
@@ -1278,13 +1920,13 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
     /**
      * Checks if some module can be resolved and returns the module it is resolved to (and to which token).
-     * @throws CompletionRecursionException 
-     * @throws MisconfigurationException 
-     * 
+     * @throws CompletionRecursionException
+     * @throws MisconfigurationException
+     *
      */
     public Tuple<IModule, String> findOnImportedMods(IToken importedModule, String tok, ICompletionState state,
             String activationToken, String currentModuleName, IModule current) throws CompletionRecursionException,
-            MisconfigurationException {
+                    MisconfigurationException {
 
         Tuple<IModule, String> modTok = null;
         IModule mod = null;
@@ -1311,7 +1953,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                     String modName = ((NameTok) importFrom.module).id;
                     if (modName.length() > 0) {
                         //ok, we have to add the other part too, as we have more than the leading dots
-                        //from ..bar import 
+                        //from ..bar import
                         relative += "." + modName;
                     }
 
@@ -1448,7 +2090,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
     /**
      * Fixes the token if we found a module that was just a substring from the initial activation token.
-     * 
+     *
      * This means that if we had testcase.TestCase and found it as TestCase, the token is added with TestCase
      */
     protected Tuple<IModule, String> fixTok(Tuple<IModule, String> modTok, String tok, String activationToken) {
@@ -1467,12 +2109,12 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
      * This function receives a path (rep) and extracts a module from that path.
      * First it tries with the full path, and them removes a part of the final of
      * that path until it finds the module or the path is empty.
-     * 
+     *
      * @param currentModuleName this is the module name (used to check validity for relative imports) -- not used if dontSearchInit is false
-     * if this parameter is not null, it means we're looking for a relative import. When checking for relative imports, 
+     * if this parameter is not null, it means we're looking for a relative import. When checking for relative imports,
      * we should only check the modules that are directly under this project (so, we should not check the whole pythonpath for
-     * it, just direct modules) 
-     * 
+     * it, just direct modules)
+     *
      * @return tuple with found module and the String removed from the path in
      * order to find the module.
      */

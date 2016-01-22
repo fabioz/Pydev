@@ -6,7 +6,7 @@
  */
 package org.python.copiedfromeclipsesrc;
 
-import org.python.pydev.core.docutils.WrapAndCaseUtils;
+import org.python.pydev.shared_core.string.WrapAndCaseUtils;
 
 public class JDTNotAvailableException extends RuntimeException {
 

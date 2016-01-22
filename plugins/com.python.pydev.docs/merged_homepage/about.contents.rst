@@ -18,7 +18,7 @@
     &nbsp;&nbsp;&nbsp;&nbsp;<a href="http://pydev.blogspot.com">pydev.blogspot.com</a></p><br/>
 
     <p><strong>E-mail:</strong><br/>
-    Please use this only if you <strong>really</strong> can't make your comments public: fabioz.pydev at gmail (.com)</p>
+    Please use this only if you <strong>really</strong> can't make your comments public: fabioz.pydev at gmail.com</p>
 
     <br/>
 
@@ -27,9 +27,9 @@
     <quote_area>So, what about it?</quote_area>
 
 
-**PyDev** is a trademark of **Appcelerator**. Although it's no longer
-supported by Appcelerator, it's kept being developed (as open source)
-by **Fabio Zadrozny** with financial support from the PyDev user community
+PyDev enables Eclipse to support Python (and is among the leading tools for Python coding).
+It's also an open source project created by Aleks Totic in 2003 and kept going
+by Fabio Zadrozny since 2005 with financial support from the PyDev user community
 and corporate sponsors.
 
 **License: EPL (Eclipse Public License)**

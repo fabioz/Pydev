@@ -101,7 +101,8 @@ public class RefactorerFinds {
                     findParentDefinitions(nature, toFindOnRound.module, definitions, withoutAstDefinitions,
                             toFindOnRound, completionCache, request);
 
-                    request.communicateWork(StringUtils.format("Found: %s parents for: %s", definitions.size(), d.value));
+                    request.communicateWork(
+                            StringUtils.format("Found: %s parents for: %s", definitions.size(), d.value));
 
                     //and add a parent for each definition found (this will make up what the next search we will do)
                     for (IDefinition def : definitions) {
@@ -222,13 +223,18 @@ public class RefactorerFinds {
                 monitor = new NullProgressMonitor();
             }
             monitor.beginTask("Find likely modules with children", 100);
+            monitor.setTaskName("Searching: " + model.name);
 
             try {
                 List<ModulesKey> modules;
                 try {
                     request.pushMonitor(new SubProgressMonitor(monitor, 90));
-                    modules = additionalInfo.getModulesWithToken(request.nature.getProject(), model.name, monitor);
-                    monitor.setTaskName("Searching: " + model.name);
+                    if (additionalInfo instanceof AdditionalProjectInterpreterInfo) {
+                        AdditionalProjectInterpreterInfo additionalProjectInterpreterInfo = (AdditionalProjectInterpreterInfo) additionalInfo;
+                        modules = additionalProjectInterpreterInfo.getModulesWithToken(model.name, monitor);
+                    } else {
+                        continue;
+                    }
                     if (monitor.isCanceled()) {
                         throw new OperationCanceledException();
                     }

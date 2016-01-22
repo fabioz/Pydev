@@ -23,9 +23,9 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
+import org.python.pydev.shared_ui.search.SearchMessages;
 
 import com.python.pydev.PydevPlugin;
-import com.python.pydev.ui.search.SearchMessages;
 
 public class EditorOpener {
 

@@ -36,6 +36,7 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.refactoring.PepticPlugin;
 import org.python.pydev.refactoring.core.base.AbstractPythonRefactoring;
 import org.python.pydev.refactoring.messages.Messages;
+import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 
 public class PythonRefactoringWizard extends RefactoringWizard {
     protected AbstractPythonRefactoring refactoring;
@@ -54,7 +55,7 @@ public class PythonRefactoringWizard extends RefactoringWizard {
         this.setDefaultPageImageDescriptor(wizardImg);
         this.setWindowTitle(refactoring.getName());
         this.setDefaultPageTitle(refactoring.getName());
-        this.pages = new LinkedList<IWizardPage>();
+        this.pages = new LinkedListWarningOnSlowOperations<IWizardPage>();
 
         this.pages.add(page);
 
@@ -81,6 +82,7 @@ public class PythonRefactoringWizard extends RefactoringWizard {
     /**
      * Looks for an usable shell
      */
+    @Override
     public Shell getShell() {
         return targetEditor != null ? targetEditor.getSite().getShell() : PlatformUI.getWorkbench()
                 .getActiveWorkbenchWindow().getShell();

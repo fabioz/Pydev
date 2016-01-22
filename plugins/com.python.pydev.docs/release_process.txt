@@ -3,10 +3,10 @@ Update the version:
 
 x:
 cd x:\pydev
-python update_version.py 3.9.1
+python update_version.py 4.5.3
 
 X:\pydev\builders\org.python.pydev.build\build_cmd.bat
-C:\bin\Python27\python.exe X:\pydev_build\deploy_dir\pydev_uploader.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository -d pydev/nightly
+C:\bin\Python27\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository -d https://api.bintray.com/content/fabioz/pydev/nightly/
 
 
 --------- For full build ---------
@@ -24,7 +24,13 @@ C:\bin\Python27\python.exe X:\pydev_build\deploy_dir\pydev_uploader.py -s X:\pyd
 		Commit everything
         Merge with master
 
-		Execute in cmd.exe: X:\pydev\builders\org.python.pydev.build\build_cmd.bat
+		Check that
+		 
+			C:\tools\Miniconda32\envs\py27_32\python -c "import pydevd"
+			
+		throws an exception (it cannot be installed in the environment)
+		
+		Create tab in cmdermini: X:\pydev\builders\org.python.pydev.build\build_cmd.bat
 
 		Copy features and plugins folders from X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository to X:\pydev_build\update_site_dir\updates
 
@@ -41,7 +47,7 @@ del X:\pydev_build\update_site_dir\updates\content.jar
 		Update artifacts.jar and content.jar
 
 
-C:\bin\eclipse44_1_final\eclipse.exe -application org.eclipse.equinox.p2.publisher.EclipseGenerator -updateSite X:\pydev_build\update_site_dir\updates\ -site file:X:\pydev_build\update_site_dir\updates\site.xml -metadataRepository file:X:\pydev_build\update_site_dir\updates -metadataRepositoryName "PyDev Update Site" -artifactRepository file:X:\pydev_build\update_site_dir\updates -artifactRepositoryName "PyDev Artifacts" -publishArtifacts -publishArtifactRepository -compress -reusePack200Files -noDefaultIUs -vmargs -Xmx256m
+C:\bin\eclipse451final\eclipse.exe -application org.eclipse.equinox.p2.publisher.EclipseGenerator -updateSite X:\pydev_build\update_site_dir\updates\ -site file:X:\pydev_build\update_site_dir\updates\site.xml -metadataRepository file:X:\pydev_build\update_site_dir\updates -metadataRepositoryName "PyDev Update Site" -artifactRepository file:X:\pydev_build\update_site_dir\updates -artifactRepositoryName "PyDev Artifacts" -publishArtifacts -publishArtifactRepository -compress -reusePack200Files -noDefaultIUs -vmargs -Xmx256m
 
 
 		** Copy site.xml, artifacts.jar and content.jar to X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository
@@ -56,38 +62,54 @@ copy X:\pydev_build\update_site_dir\updates\content.jar X:\pydev_build\build_dir
 
 x:\
 cd X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable
-"C:\Program Files\7-Zip\7z" a -tzip -r "PyDev 3.9.1.zip" features plugins
+"C:\Program Files\7-Zip\7z" a -tzip -r "PyDev 4.5.3.zip" features plugins
 cd X:\pydev_build\build_dir\pydev
-git archive -o "X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\PyDev 3.9.1-sources.zip" master
+git archive -o "X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\PyDev 4.5.3-sources.zip" origin/development
 
 		** Copy zips from X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable to sourceforge:
 
 
         ** Submit feature and sources .zip in folder X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable to:
 
-c:\bin\FileZilla\filezilla.exe sftp://fabioz,pydev@frs.sourceforge.net/home/pfs/project/p/py/pydev/pydev/ --local="X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable"
+p:\FileZilla\filezilla.exe sftp://fabioz,pydev@frs.sourceforge.net/home/pfs/project/p/py/pydev/pydev/ --local="X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable"
 
 Note: check pageant if it does not connect.
 
 Check if the main download button points to the proper place (not to the sources) --
-https://sourceforge.net/projects/pydev/files/pydev/PyDev 3.9.1/ -- choose file > file info > set default and give better name.
+https://sourceforge.net/projects/pydev/files/pydev/PyDev 4.5.3/ -- choose file > file info > set default and give better name.
 
 
 		** Add contents to the update site
 
 
-c:\bin\Python27\python.exe X:\pydev_build\deploy_dir\pydev_uploader.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository -d pydev/updates
+cd X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\
+
+mkdir org.python.pydev.p2-repo-4.5.3-SNAPSHOT
+
+cd org.python.pydev.p2-repo-4.5.3-SNAPSHOT
+
+"C:\Program Files\7-Zip\7z" x ..\org.python.pydev.p2-repo-4.5.3-SNAPSHOT.zip
+
+c:\bin\Python27\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-4.5.3-SNAPSHOT -d https://api.bintray.com/content/fabioz/pydev/nightly/
+Note: if unable to send: remove at https://bintray.com/fabioz/pydev/pydev/nightly/edit add back at https://bintray.com/fabioz/pydev/pydev/new/version
+
+Create "4.5.3" version in "https://bintray.com/fabioz/pydev/pydev/new/version"
+Add "4.5.3" in X:\release_tools\pydev_uploader_bintray.py
+c:\bin\Python27\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-4.5.3-SNAPSHOT -d https://api.bintray.com/content/fabioz/pydev/4.5.3/
 
 
 		** Update homepage:
 
+robocopy X:\pydev\plugins\com.python.pydev.docs\merged_homepage\final X:\openshift\pydev.page2\ /xd .git /xd .openshift  /s
+cd /D X:\openshift\pydev.page2\
+mu st
+mu acp "Updated to 4.5.3"
 
-c:\bin\FileZilla\filezilla.exe sftp://fabioz,pydev@frs.sourceforge.net/home/project-web/pydev/htdocs --local="x:\pydev\plugins\com.python.pydev.docs\merged_homepage\final"
-c:\bin\FileZilla\filezilla.exe sftp://deploy@173.45.225.54/var/www --local="x:\pydev\plugins\com.python.pydev.docs\merged_homepage\final"
+p:\FileZilla\filezilla.exe sftp://fabioz,pydev@frs.sourceforge.net/home/project-web/pydev/htdocs --local="x:\pydev\plugins\com.python.pydev.docs\merged_homepage\final"
 
 
 		** Tag repository:
-		  git tag pydev_3_9_1 -a
+		  git tag pydev_4_5_3 -a -m "PyDev 4.5.3"
 		  git push --tags
 
 
@@ -106,4 +128,4 @@ c:\bin\FileZilla\filezilla.exe sftp://deploy@173.45.225.54/var/www --local="x:\p
         ** Update the versions:
             x:
             cd x:\pydev
-            python update_version.py 3.7.2
+            python update_version.py 4.5.3

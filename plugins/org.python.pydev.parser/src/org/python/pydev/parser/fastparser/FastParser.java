@@ -7,7 +7,9 @@
 package org.python.pydev.parser.fastparser;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,12 +19,15 @@ import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.string.DocIterator;
+import org.python.pydev.shared_core.structure.FastStack;
 
 /**
  * This class is able to obtain the classes and function definitions as a tree structure (only filled with
@@ -113,7 +118,7 @@ public final class FastParser {
 
     /**
      * Note: Used from jython scripts.
-     * 
+     *
      * @param doc the document to be parsed
      * @param currentLine the line where the parsing should begin (inclusive -- starts at 0)
      * @return the path to the current statement (where the current is the last element and the top-level is the 1st).
@@ -139,6 +144,10 @@ public final class FastParser {
 
     private List<stmtType> parse() {
         List<stmtType> body = new ArrayList<stmtType>();
+
+        FastStack<stmtType> stack = new FastStack<>(5);
+        Map<Integer, List<stmtType>> objectIdToBody = new HashMap<>();
+
         PySelection ps = new PySelection(doc);
         DocIterator it = new DocIterator(forward, ps, currentLine, false);
 
@@ -201,7 +210,7 @@ public final class FastParser {
                     FunctionDef functionDef = createFunctionDef(lastReturnedLine, nameTok,
                             PySelection.getFirstCharPosition(line));
 
-                    if (!addStatement(body, functionDef)) {
+                    if (!addStatement(body, stack, objectIdToBody, functionDef)) {
                         return body;
                     }
 
@@ -223,7 +232,7 @@ public final class FastParser {
                     ClassDef classDef = createClassDef(lastReturnedLine, nameTok,
                             PySelection.getFirstCharPosition(line));
 
-                    if (!addStatement(body, classDef)) {
+                    if (!addStatement(body, stack, objectIdToBody, classDef)) {
                         return body;
                     }
 
@@ -236,14 +245,62 @@ public final class FastParser {
 
         }
 
+        if (cythonParse) {
+            for (stmtType t : body) {
+                buildBody(t, objectIdToBody);
+            }
+        }
         return body;
     }
 
+    private void buildBody(stmtType t, Map<Integer, List<stmtType>> objectIdToBody) {
+        int id = System.identityHashCode(t);
+        List<stmtType> list = objectIdToBody.get(id);
+        if (list != null) {
+            NodeUtils.setBody(t, list.toArray(new stmtType[0]));
+            for (stmtType stmtType : list) {
+                buildBody(stmtType, objectIdToBody);
+            }
+        }
+
+    }
+
     /**
+     * @param objectIdToBody
      * @return whether we should continue iterating.
      */
-    private boolean addStatement(List<stmtType> body, stmtType stmt) {
-        if (!findGloballyAccessiblePath) {
+    private boolean addStatement(List<stmtType> body, FastStack<stmtType> stack,
+            Map<Integer, List<stmtType>> objectIdToBody, stmtType stmt) {
+        if (cythonParse) {
+            if (stack.empty()) {
+                stack.push(stmt);
+                body.add(stmt); // Globals added to body
+            } else {
+                stmtType prev = stack.peek();
+
+                while (prev.beginColumn >= stmt.beginColumn) {
+                    stack.pop();
+                    if (stack.empty()) {
+                        stack.push(stmt);
+                        body.add(stmt); // Globals added to body
+                        return true;
+                    }
+                    prev = stack.peek();
+                }
+                //If it got here we are inside some context...
+                stack.push(stmt);
+                int id = System.identityHashCode(prev);
+                List<stmtType> prevBody = objectIdToBody.get(id);
+                if (prevBody == null) {
+                    prevBody = new ArrayList<>();
+                    objectIdToBody.put(id, prevBody);
+                }
+                //Inside some other: add to its context (and not to global).
+                prevBody.add(stmt);
+            }
+            return true;
+
+        } else if (!findGloballyAccessiblePath) {
             body.add(stmt);
             return true;
         } else {
@@ -263,8 +320,20 @@ public final class FastParser {
     }
 
     private FunctionDef createFunctionDef(int lastReturnedLine, NameTok nameTok, int matchedCol) {
-        argumentsType args = new argumentsType(EMTPY_EXPR_TYPE, null, null, EMTPY_EXPR_TYPE, null, null, null, null,
-                null, null);
+        argumentsType args;
+        if (cythonParse) {
+            Name name = new Name("self", Name.Store, false);
+            exprType[] selfExprType = new exprType[] { name };
+
+            name.beginLine = lastReturnedLine + 1;
+            name.beginColumn = matchedCol + 1 + 4 + 1 + nameTok.id.length(); // 4 for 'def ' and 1 for '('
+
+            args = new argumentsType(selfExprType, null, null, EMTPY_EXPR_TYPE, null, null, null, null,
+                    null, null);
+        } else {
+            args = new argumentsType(EMTPY_EXPR_TYPE, null, null, EMTPY_EXPR_TYPE, null, null, null, null,
+                    null, null);
+        }
         FunctionDef functionDef = new FunctionDef(nameTok, args, EMTPY_STMT_TYPE, EMTPY_DECORATORS_TYPE, null);
         functionDef.beginLine = lastReturnedLine + 1;
         functionDef.beginColumn = matchedCol + 1;
@@ -308,7 +377,7 @@ public final class FastParser {
         int col = matcher.start(NAME_GROUP);
 
         int absoluteCursorOffset = ps.getAbsoluteCursorOffset(lastReturnedLine, col);
-        if (ParsingUtils.getContentType(ps.getDoc(), absoluteCursorOffset) != IPythonPartitions.PY_DEFAULT) {
+        if (!IPythonPartitions.PY_DEFAULT.equals(ParsingUtils.getContentType(ps.getDoc(), absoluteCursorOffset))) {
             return null;
         }
 

@@ -26,6 +26,8 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_ui.EditorUtils;
+import org.python.pydev.shared_ui.editor_input.PydevZipFileEditorInput;
+import org.python.pydev.shared_ui.editor_input.PydevZipFileStorage;
 
 /**
  * Class that provides different ways to open an editor.

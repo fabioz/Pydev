@@ -13,8 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import junit.framework.TestCase;
-
 import org.eclipse.core.resources.FileInfoMatcherDescription;
 import org.eclipse.core.resources.IBuildConfiguration;
 import org.eclipse.core.resources.IContainer;
@@ -52,6 +50,8 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.structure.OrderedMap;
+
+import junit.framework.TestCase;
 
 public class StringSubstitutionTest extends TestCase {
 
@@ -348,7 +348,7 @@ public class StringSubstitutionTest extends TestCase {
 
                     public IResourceFilterDescription createFilter(int type,
                             FileInfoMatcherDescription matcherDescription, int updateFlags, IProgressMonitor monitor)
-                            throws CoreException {
+                                    throws CoreException {
                         throw new RuntimeException("Not implemented");
                     }
 
@@ -385,7 +385,8 @@ public class StringSubstitutionTest extends TestCase {
                         throw new RuntimeException("Not implemented");
                     }
 
-                    public void copy(IPath destination, int updateFlags, IProgressMonitor monitor) throws CoreException {
+                    public void copy(IPath destination, int updateFlags, IProgressMonitor monitor)
+                            throws CoreException {
                         throw new RuntimeException("Not implemented");
                     }
 
@@ -659,7 +660,8 @@ public class StringSubstitutionTest extends TestCase {
                         throw new RuntimeException("Not implemented");
                     }
 
-                    public void move(IPath destination, int updateFlags, IProgressMonitor monitor) throws CoreException {
+                    public void move(IPath destination, int updateFlags, IProgressMonitor monitor)
+                            throws CoreException {
                         throw new RuntimeException("Not implemented");
                     }
 
@@ -892,6 +894,16 @@ public class StringSubstitutionTest extends TestCase {
 
             public String resolveModuleOnlyInProjectSources(IResource fileAbsolutePath, boolean addExternal)
                     throws CoreException, MisconfigurationException {
+                throw new RuntimeException("Not implemented");
+            }
+
+            @Override
+            public void updateMtime() {
+                throw new RuntimeException("Not implemented");
+            }
+
+            @Override
+            public long getMtime() {
                 throw new RuntimeException("Not implemented");
             }
         });

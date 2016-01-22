@@ -2,12 +2,12 @@
 __pycache__/
 *.py[cod]
 *.class
-
+_pydevd_bundle/*.so
 # Distribution / packaging
 .Python
 env/
 bin/
-build/
+build/temp.*
 develop-eggs/
 dist/
 eggs/
@@ -32,3 +32,5 @@ htmlcov/
 nosetests.xml
 coverage.xml
 
+snippet.py
+build/*

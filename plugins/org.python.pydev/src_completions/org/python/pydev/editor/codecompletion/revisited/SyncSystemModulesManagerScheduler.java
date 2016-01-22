@@ -38,6 +38,7 @@ import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.path_watch.EventsStackerRunnable;
 import org.python.pydev.shared_core.path_watch.IFilesystemChangesListener;
+import org.python.pydev.shared_core.path_watch.IPathWatch;
 import org.python.pydev.shared_core.path_watch.PathWatch;
 import org.python.pydev.shared_core.structure.DataAndImageTreeNode;
 import org.python.pydev.shared_core.structure.TreeNode;
@@ -48,7 +49,7 @@ import org.python.pydev.ui.pythonpathconf.InterpreterGeneralPreferencesPage;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class SyncSystemModulesManagerScheduler implements IInterpreterManagerListener {
 
-    private final PathWatch pathWatch = new PathWatch();
+    private final IPathWatch pathWatch = new PathWatch();
 
     public SyncSystemModulesManagerScheduler() {
         pathWatch.setDirectoryFileFilter(filter, dirFilter);
@@ -469,7 +470,7 @@ public class SyncSystemModulesManagerScheduler implements IInterpreterManagerLis
     /**
      * Must be synchronized (lockSetInfos).
      */
-    private void stopTrack(IInterpreterManager manager, PathWatch pathWatch) {
+    private void stopTrack(IInterpreterManager manager, IPathWatch pathWatch) {
         List<InfoTracker> currTrackers = managerToPathsTracker.remove(manager);
         if (currTrackers != null) {
             for (InfoTracker infoTracker : currTrackers) {

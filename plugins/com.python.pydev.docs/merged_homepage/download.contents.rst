@@ -59,6 +59,13 @@ it provides support for those languages (among others such as C++, CoffeScript, 
 with theming support -- which is especially nice for dark themes -- if you're into it :)
 
 
+Profiling
+============
+
+To profile your programs, `PyVmMonitor <http://www.pyvmmonitor.com/>`_ is required and integrated through the
+profile view inside PyDev (window > show view > other > PyDev > profile).
+
+
 Requirements
 ============
 

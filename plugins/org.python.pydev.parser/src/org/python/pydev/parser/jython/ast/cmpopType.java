@@ -13,6 +13,17 @@ public interface cmpopType {
     public static final int In = 9;
     public static final int NotIn = 10;
 
-    public static final String[] cmpopTypeNames = new String[] { "<undef>", "Eq", "NotEq", "Lt", "LtE", "Gt", "GtE",
-            "Is", "IsNot", "In", "NotIn", };
+    public static final String[] cmpopTypeNames = new String[] {
+            "<undef>",
+            "Eq",
+            "NotEq",
+            "Lt",
+            "LtE",
+            "Gt",
+            "GtE",
+            "Is",
+            "IsNot",
+            "In",
+            "NotIn",
+    };
 }

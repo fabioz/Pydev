@@ -16,8 +16,8 @@ import java.util.Set;
 import java.util.SortedMap;
 
 import org.python.pydev.core.FastBufferedReader;
-import org.python.pydev.core.ObjectsPool;
-import org.python.pydev.core.ObjectsPool.ObjectsPoolMap;
+import org.python.pydev.core.ObjectsInternPool;
+import org.python.pydev.core.ObjectsInternPool.ObjectsPoolMap;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PyPublicTreeMap;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -164,7 +164,7 @@ public class TreeIO {
                     char c = internalCharsArray[i];
                     switch (c) {
                         case '|':
-                            key = ObjectsPool.internLocal(objectsPoolMap, buf.toString());
+                            key = ObjectsInternPool.internLocal(objectsPoolMap, buf.toString());
                             buf.clear();
                             i++;
                             break OUT;
@@ -192,7 +192,7 @@ public class TreeIO {
                     char c = internalCharsArray[i];
                     switch (c) {
                         case '!':
-                            infoName = ObjectsPool.internLocal(objectsPoolMap, buf.toString());
+                            infoName = ObjectsInternPool.internLocal(objectsPoolMap, buf.toString());
                             buf.clear();
                             break;
 

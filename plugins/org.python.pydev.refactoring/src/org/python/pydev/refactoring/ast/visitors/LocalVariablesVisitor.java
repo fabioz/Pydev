@@ -21,18 +21,19 @@
 
 package org.python.pydev.refactoring.ast.visitors;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 
 public class LocalVariablesVisitor extends ParentVisitor {
     List<Name> names;
 
     public LocalVariablesVisitor() {
-        names = new LinkedList<Name>();
+        names = new LinkedListWarningOnSlowOperations<Name>();
     }
 
+    @Override
     public Object visitName(Name node) throws Exception {
         names.add(node);
         return super.visitName(node);

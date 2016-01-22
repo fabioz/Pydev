@@ -35,7 +35,7 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
  * File utilities that need access to:
  * - ITextFileBufferManager
  * - IProject/IResource
- *  
+ *
  * Also, the functions to load documents may suppose they're dealing with Python files (i.e.:
  * to get the encoding to open the stream properly if we weren't able to get the stream from
  * the ITextFileBufferManager).
@@ -81,29 +81,23 @@ public class FileUtilsFileBuffer {
     /**
      * @param f the zip file that should be opened
      * @param pathInZip the path within the zip file that should be gotten
-     * @param returnType the class that specifies the return type of this method. 
+     * @param returnType the class that specifies the return type of this method.
      * If null, it'll return in the fastest possible way available.
      * Valid options are:
      *      String.class
      *      IDocument.class
      *      FastStringBuffer.class
-     * 
+     *
      * @return an object with the contents from a path within a zip file, having the return type
      * of the object specified by the parameter returnType.
      */
     public static Object getCustomReturnFromZip(File f, String pathInZip, Class<? extends Object> returnType)
             throws Exception {
 
-        ZipFile zipFile = new ZipFile(f, ZipFile.OPEN_READ);
-        try {
-            InputStream inputStream = zipFile.getInputStream(zipFile.getEntry(pathInZip));
-            try {
+        try (ZipFile zipFile = new ZipFile(f, ZipFile.OPEN_READ);) {
+            try (InputStream inputStream = zipFile.getInputStream(zipFile.getEntry(pathInZip));) {
                 return FileUtils.getStreamContents(inputStream, null, null, returnType);
-            } finally {
-                inputStream.close();
             }
-        } finally {
-            zipFile.close();
         }
     }
 
@@ -123,14 +117,14 @@ public class FileUtilsFileBuffer {
 
     /**
      * @param f the file from where we want to get the contents
-     * @param returnType the class that specifies the return type of this method. 
+     * @param returnType the class that specifies the return type of this method.
      * If null, it'll return in the fastest possible way available.
      * Valid options are:
      *      String.class
      *      IDocument.class
      *      FastStringBuffer.class
-     *      
-     * 
+     *
+     *
      * @return an object with the contents from the file, having the return type
      * of the object specified by the parameter returnType.
      */

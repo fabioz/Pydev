@@ -21,4 +21,6 @@ public interface ICommandHandler {
     public ICompletionProposal[] getTabCompletions(String commandLine, int cursorPosition);
 
     void setOnContentsReceivedCallback(ICallback<Object, Tuple<String, String>> onContentsReceived);
+
+    void beforeHandleCommand(String userInput, ICallback<Object, InterpreterResponse> onResponseReceived);
 }

@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.python.pydev.core.ObjectsPool;
+import org.python.pydev.core.ObjectsInternPool;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 
@@ -106,7 +106,7 @@ public class InfoStrFactory {
 
         HashMap<Integer, String> map = new HashMap<Integer, String>();
         map.put(0, null);
-        synchronized (ObjectsPool.lock) {
+        synchronized (ObjectsInternPool.lock) {
             while (linesIt.hasNext()) {
                 String line = linesIt.next().trim();
                 int i = StringUtils.rFind(line, '=');
@@ -114,7 +114,7 @@ public class InfoStrFactory {
                     String token = line.substring(0, i);
                     String value = line.substring(i + 1);
 
-                    map.put(Integer.parseInt(value), ObjectsPool.internUnsynched(token));
+                    map.put(Integer.parseInt(value), ObjectsInternPool.internUnsynched(token));
                 }
             }
         }

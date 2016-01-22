@@ -75,7 +75,7 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
 
     public void addProps(MarkerAnnotationAndPosition markerAnnotation, IAnalysisPreferences analysisPreferences,
             String line, PySelection ps, int offset, IPythonNature nature, PyEdit edit, List<ICompletionProposal> props)
-            throws BadLocationException, CoreException {
+                    throws BadLocationException, CoreException {
         if (nature == null) {
             return;
         }
@@ -340,8 +340,9 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
         props.add(new TddRefactorCompletionInModule(markerContents, imageMethod, "Create " + markerContents +
                 " classmethod at " + className +
                 " in " + file.getName(), null, "Create " + markerContents +
-                " classmethod at class: " + className +
-                " in " + file, IPyCompletionProposal.PRIORITY_CREATE, edit,
+                        " classmethod at class: " + className +
+                        " in " + file,
+                IPyCompletionProposal.PRIORITY_CREATE, edit,
                 file, parametersAfterCall, pyCreateMethod, ps));
     }
 
@@ -349,15 +350,16 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
             String markerContents, List<String> parametersAfterCall, File file) {
         props.add(new TddRefactorCompletionInModule(markerContents, imageMethod, "Create " + markerContents +
                 " method at " + file.getName(), null, "Create " + markerContents +
-                " method at " + file,
-                IPyCompletionProposal.PRIORITY_CREATE, edit, file, parametersAfterCall, new PyCreateMethodOrField(), ps));
+                        " method at " + file,
+                IPyCompletionProposal.PRIORITY_CREATE, edit, file, parametersAfterCall, new PyCreateMethodOrField(),
+                ps));
     }
 
     private void addCreateClassOption(PySelection ps, PyEdit edit, List<ICompletionProposal> props,
             String markerContents, List<String> parametersAfterCall, File file) {
         props.add(new TddRefactorCompletionInModule(markerContents, imageClass, "Create " + markerContents +
                 " class at " + file.getName(), null, "Create " + markerContents +
-                " class at " + file,
+                        " class at " + file,
                 IPyCompletionProposal.PRIORITY_CREATE, edit, file, parametersAfterCall, new PyCreateClass(), ps));
     }
 
@@ -365,8 +367,9 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
             String markerContents, String moduleName, List<String> parametersAfterCall, File file) {
         props.add(new TddRefactorCompletionInInexistentModule(markerContents, imageClass, "Create " + markerContents +
                 " class at new module " + moduleName, null, "Create " + markerContents +
-                " class at new module "
-                + file, IPyCompletionProposal.PRIORITY_CREATE, edit, file, new ArrayList<String>(),
+                        " class at new module "
+                        + file,
+                IPyCompletionProposal.PRIORITY_CREATE, edit, file, new ArrayList<String>(),
                 new PyCreateClass(), ps));
     }
 
@@ -374,8 +377,9 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
             String markerContents, String moduleName, List<String> parametersAfterCall, File file) {
         props.add(new TddRefactorCompletionInInexistentModule(markerContents, imageMethod, "Create " + markerContents +
                 " method at new module " + moduleName, null, "Create " + markerContents +
-                " method at new module "
-                + file, IPyCompletionProposal.PRIORITY_CREATE, edit, file, new ArrayList<String>(),
+                        " method at new module "
+                        + file,
+                IPyCompletionProposal.PRIORITY_CREATE, edit, file, new ArrayList<String>(),
                 new PyCreateMethodOrField(), ps));
     }
 
@@ -383,8 +387,8 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
             String markerContents, File file) {
         props.add(new TddRefactorCompletionInInexistentModule(markerContents, imageModule, "Create " + markerContents +
                 " module", null, "Create " + markerContents +
-                " module (" + file +
-                ")",
+                        " module (" + file +
+                        ")",
                 IPyCompletionProposal.PRIORITY_CREATE, edit, file, new ArrayList<String>(), new NullPyCreateAction(),
                 ps));
     }
@@ -414,7 +418,7 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
 
         try {
             PyRefactoringFindDefinition.findActualDefinition(request, completionCache, selected);
-        } catch (CompletionRecursionException e1) {
+        } catch (CompletionRecursionException | BadLocationException e1) {
             Log.log(e1);
         }
         return selected;

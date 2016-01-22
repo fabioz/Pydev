@@ -63,6 +63,16 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
     }
 
     @Override
+    public void findReferencesToRename(RefactoringRequest request, RefactoringStatus status) {
+        if (request.isModuleRenameRefactoringRequest() && request.getSimpleResourceRename()
+                && request.getIFileResource() != null) {
+            return;
+
+        }
+        super.findReferencesToRename(request, status);
+    }
+
+    @Override
     protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
         if (request.isModuleRenameRefactoringRequest()) {
             onModuleRenameRefactoringRequest(request);

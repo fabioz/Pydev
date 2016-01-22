@@ -37,9 +37,13 @@ public class PartitionMerger {
         //Fill in the spaces.
         ArrayList<TypedPosition> lst = new ArrayList<TypedPosition>(positions.length);
         int lastOffset = 0;
-        TypedPosition last = null;
+        TypedPositionWithSubTokens last = null;
         for (int j = 0; j < positions.length; j++) {
             Position position = positions[j];
+            TypedPositionWithSubTokens withSub = null;
+            if (position instanceof TypedPositionWithSubTokens) {
+                withSub = (TypedPositionWithSubTokens) position;
+            }
             if (position instanceof TypedPosition) {
                 TypedPosition typedPosition = (TypedPosition) position;
                 String type = typedPosition.getType();
@@ -47,22 +51,28 @@ public class PartitionMerger {
                 int currOffset = typedPosition.getOffset();
                 int currLen = typedPosition.getLength();
                 if (lastOffset < currOffset) {
+                    // Fill in a gap (no need to worry about sub rule tokens in this case).
                     if (last != null && last.getType().equals(IDocument.DEFAULT_CONTENT_TYPE)) {
                         //Fix the existing one
                         last.setLength(last.getLength() + currOffset - lastOffset);
 
                     } else {
-                        TypedPosition newPos = new TypedPosition(lastOffset, currOffset - lastOffset,
-                                IDocument.DEFAULT_CONTENT_TYPE);
+                        TypedPositionWithSubTokens newPos = new TypedPositionWithSubTokens(lastOffset,
+                                currOffset - lastOffset,
+                                IDocument.DEFAULT_CONTENT_TYPE, null, false);
                         lst.add(newPos);
                         last = newPos;
                     }
                 }
                 if (last != null && last.getType().equals(type)) {
-                    //Fix the existing one
+                    //Fix the existing one (we need to keep sub tokens consistent).
                     last.setLength(last.getLength() + currLen);
+                    if (withSub != null) {
+                        last.mergeSubRuleToken(withSub.createCopy());
+                    }
                 } else {
-                    TypedPosition newPos = new TypedPosition(currOffset, currLen, type);
+                    TypedPositionWithSubTokens newPos = new TypedPositionWithSubTokens(currOffset, currLen, type,
+                            withSub != null ? withSub.createCopy().getSubRuleToken() : null, false);
                     lst.add(newPos);
                     last = newPos;
                 }
@@ -74,7 +84,8 @@ public class PartitionMerger {
                 //Fix the existing one
                 last.setLength(last.getLength() + docLen - lastOffset);
             } else {
-                lst.add(new TypedPosition(lastOffset, docLen - lastOffset, IDocument.DEFAULT_CONTENT_TYPE));
+                lst.add(new TypedPositionWithSubTokens(lastOffset, docLen - lastOffset, IDocument.DEFAULT_CONTENT_TYPE,
+                        null, false));
             }
         }
         return lst;

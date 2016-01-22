@@ -1,8 +1,10 @@
-
+'''
+Entry point module to run a file in the interactive console.
+'''
 from pydevconsole import *
 
-import pydev_imports
-from pydevd_utils import save_main_module
+from _pydev_bundle import pydev_imports
+from _pydevd_bundle.pydevd_utils import save_main_module
 
 
 def run_file(file, globals=None, locals=None):
@@ -23,6 +25,7 @@ def run_file(file, globals=None, locals=None):
     if locals is None:
         locals = globals
 
+    sys.path.insert(0, os.path.split(file)[0])
 
     print('Running %s'%file)
     pydev_imports.execfile(file, globals, locals)  # execute the script
@@ -41,7 +44,9 @@ if __name__ == '__main__':
 
     file = sys.argv[1]
 
-    import pydev_localhost
+    del sys.argv[0]
+
+    from _pydev_bundle import pydev_localhost
 
     if int(port) == 0 and int(client_port) == 0:
         (h, p) = pydev_localhost.get_socket_name()
@@ -53,11 +58,11 @@ if __name__ == '__main__':
 
     #replace exit (see comments on method)
     #note that this does not work in jython!!! (sys method can't be replaced).
-    sys.exit = DoExit
+    sys.exit = do_exit
 
     interpreter = InterpreterInterface(host, int(client_port), threading.currentThread())
 
-    server_thread = threading.Thread(target=start_server,
+    server_thread = threading.Thread(target=start_console_server,
                                      name='ServerThread',
                                      args=(host, int(port), interpreter))
     server_thread.setDaemon(True)
@@ -65,6 +70,6 @@ if __name__ == '__main__':
 
     globals = run_file(file, None, None)
 
-    interpreter.getNamespace().update(globals)
+    interpreter.get_namespace().update(globals)
 
     process_exec_queue(interpreter)

@@ -12,8 +12,8 @@
 * Contributors:
 *     Fabio Zadrozny <fabiofz@gmail.com> - initial implementation
 ******************************************************************************/
-/* 
- * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler 
+/*
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
  */
 
 package org.python.pydev.refactoring.tests.adapter;
@@ -28,10 +28,12 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionRequest;
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.UnpackInfo;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.ast.Name;
@@ -73,7 +75,8 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
         throw new RuntimeException("Not implemented");
     }
 
-    public IToken[] getCompletionsForModule(IModule module, ICompletionState state) throws CompletionRecursionException {
+    public IToken[] getCompletionsForModule(IModule module, ICompletionState state)
+            throws CompletionRecursionException {
         return new IToken[] { new SourceToken(new Name("True", Name.Store, true), "True", "", "", "__builtin__"),
                 new SourceToken(new Name("False", Name.Store, true), "False", "", "", "__builtin__"), };
     }
@@ -143,7 +146,7 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
 
     public void getCompletionsForClassInLocalScope(IModule module, ICompletionState state, boolean searchSameLevelMods,
             boolean lookForArgumentCompletion, List<String> lookForClass, HashSet<IToken> hashSet)
-            throws CompletionRecursionException {
+                    throws CompletionRecursionException {
         throw new RuntimeException("Not implemented");
     }
 
@@ -178,6 +181,19 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
      * @see org.python.pydev.core.ICodeCompletionASTManager#saveToFile(java.io.File)
      */
     public void saveToFile(File astOutputFile) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public IToken[] getCompletionsUnpackingObject(IModule module, ICompletionState copy, ILocalScope scope,
+            UnpackInfo unpackPos) throws CompletionRecursionException {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public IToken[] getCompletionsFromTokenInLocalScope(IModule module, ICompletionState state,
+            boolean searchSameLevelMods, boolean lookForArgumentCompletion, ILocalScope localScope)
+                    throws CompletionRecursionException {
         throw new RuntimeException("Not implemented");
     }
 

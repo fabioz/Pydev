@@ -71,7 +71,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
     /**
      * XML-RPC client for sending messages to the server.
      */
-    private IXmlRpcClient client;
+    private volatile IXmlRpcClient client;
 
     /**
      * This is the server responsible for giving input to a raw_input() requested
@@ -101,11 +101,11 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
 
         private final Object lock = new Object();
 
-        public StdStreamsThread(Process process) {
+        public StdStreamsThread(Process process, String encoding) {
             this.setName("StdStreamsThread: " + process);
             this.setDaemon(true);
-            stdOutReader = new ThreadStreamReader(process.getInputStream());
-            stdErrReader = new ThreadStreamReader(process.getErrorStream());
+            stdOutReader = new ThreadStreamReader(process.getInputStream(), true, encoding);
+            stdErrReader = new ThreadStreamReader(process.getErrorStream(), true, encoding);
             stdOutReader.start();
             stdErrReader.start();
         }
@@ -148,8 +148,8 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
      * @throws MalformedURLException
      */
     public PydevConsoleCommunication(int port, final Process process, int clientPort, String[] commandArray,
-            String[] envp)
-            throws Exception {
+            String[] envp, String encoding)
+                    throws Exception {
         this.commandArray = commandArray;
         this.envp = envp;
 
@@ -177,7 +177,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
         });
 
         this.webServer.start();
-        this.stdStreamsThread = new StdStreamsThread(process);
+        this.stdStreamsThread = new StdStreamsThread(process, encoding);
         this.stdStreamsThread.start();
 
         IXmlRpcClient client = new ScriptXmlRpcClient(process);
@@ -218,6 +218,11 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
         }
     }
 
+    @Override
+    public boolean isConnected() {
+        return this.client != null;
+    }
+
     /**
      * Variables that control when we're expecting to give some input to the server or when we're
      * adding some line to be executed
@@ -236,7 +241,8 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
     /**
      * Response that should be sent back to the shell.
      */
-    private volatile ConditionEventWithValue<InterpreterResponse> nextResponse = new ConditionEventWithValue<>(null, 20);
+    private volatile ConditionEventWithValue<InterpreterResponse> nextResponse = new ConditionEventWithValue<>(null,
+            20);
 
     /**
      * Helper to keep on busy loop.
@@ -451,7 +457,8 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                     final boolean needInput = false;
                     try {
                         if (!firstCommWorked) {
-                            throw new Exception("hello must be called successfully before execInterpreter can be used.");
+                            throw new Exception(
+                                    "hello must be called successfully before execInterpreter can be used.");
                         }
 
                         finishedExecution.unset();
@@ -491,13 +498,42 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
         Object fromServer = client.execute("getCompletions", new Object[] { text, actTok });
         List<ICompletionProposal> ret = new ArrayList<ICompletionProposal>();
 
-        convertToICompletions(text, actTok, offset, fromServer, ret, showForTabCompletion);
+        convertConsoleCompletionsToICompletions(text, actTok, offset, fromServer, ret, showForTabCompletion);
         ICompletionProposal[] proposals = ret.toArray(new ICompletionProposal[ret.size()]);
         return proposals;
     }
 
-    public static void convertToICompletions(final String text, String actTok, int offset, Object fromServer,
+    public static void convertConsoleCompletionsToICompletions(final String text, String actTok, int offset,
+            Object fromServer,
             List<ICompletionProposal> ret, boolean showForTabCompletion) {
+        IFilterCompletion filter = null;
+        if (actTok != null && actTok.indexOf("].") != -1) {
+            // Fix issue: when we request a code-completion on a list position i.e.: "lst[0]." IPython is giving us completions from the
+            // filesystem, so, this is a workaround for that where we remove such completions.
+            filter = new IFilterCompletion() {
+
+                @Override
+                public boolean acceptCompletion(int type, PyLinkedModeCompletionProposal completion) {
+                    if (type == IToken.TYPE_IPYTHON) {
+                        if (completion.getDisplayString().startsWith(".")) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+
+            };
+        }
+
+        convertToICompletions(text, actTok, offset, fromServer, ret, showForTabCompletion, filter);
+    }
+
+    public static interface IFilterCompletion {
+        boolean acceptCompletion(int type, PyLinkedModeCompletionProposal completion);
+    }
+
+    private static void convertToICompletions(final String text, String actTok, int offset, Object fromServer,
+            List<ICompletionProposal> ret, boolean showForTabCompletion, IFilterCompletion filter) {
         if (fromServer instanceof Object[]) {
             Object[] objects = (Object[]) fromServer;
             fromServer = Arrays.asList(objects);
@@ -597,10 +633,13 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                         }
                     }
 
-                    ret.add(new PyLinkedModeCompletionProposal(nameAndArgs, replacementOffset, length, cursorPos,
+                    PyLinkedModeCompletionProposal completion = new PyLinkedModeCompletionProposal(nameAndArgs,
+                            replacementOffset, length, cursorPos,
                             PyCodeCompletionImages.getImageForType(type), nameAndArgs, pyContextInformation, docStr,
-                            priority, PyCompletionProposal.ON_APPLY_DEFAULT, args, false));
-
+                            priority, PyCompletionProposal.ON_APPLY_DEFAULT, args, false);
+                    if (filter == null || filter.acceptCompletion(type, completion)) {
+                        ret.add(completion);
+                    }
                 }
             }
         }

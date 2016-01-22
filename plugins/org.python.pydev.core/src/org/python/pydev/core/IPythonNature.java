@@ -79,7 +79,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
     }
 
     /**
-     * Constants persisted. Probably a better way would be disassociating whether it's python/jython and the 
+     * Constants persisted. Probably a better way would be disassociating whether it's python/jython and the
      * grammar version to be used (to avoid the explosion of constants below).
      */
     public static final String PYTHON_VERSION_2_1 = "python 2.1";
@@ -137,29 +137,29 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
 
     /**
      * @return the project version given the constants provided
-     * @throws CoreException 
+     * @throws CoreException
      */
     String getVersion() throws CoreException;
 
     /**
      * @return the default version
-     * @throws CoreException 
+     * @throws CoreException
      */
     String getDefaultVersion();
 
     /**
      * set the project version given the constants provided
-     * 
+     *
      * @see PYTHON_VERSION_XX
      * @see JYTHON_VERSION_XX
-     * 
-     * @throws CoreException 
+     *
+     * @throws CoreException
      */
     void setVersion(String version, String interpreter) throws CoreException;
 
     /**
      * @return the id that is related to this nature given its type
-     * 
+     *
      * @see #INTERPRETER_TYPE_PYTHON
      * @see #INTERPRETER_TYPE_JYTHON
      * @see #INTERPRETER_TYPE_IRONPYTHON
@@ -194,7 +194,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
 
     /**
      * Rebuilds the path with the current path information (just to refresh it).
-     * @throws CoreException 
+     * @throws CoreException
      */
     void rebuildPath();
 
@@ -206,7 +206,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
     /**
      * @return the tokens for the builtins. As getting the builtins is VERY usual, we'll keep them here.
      * (we can't forget to change it when the interpreter is changed -- on rebuildPath)
-     * 
+     *
      * May return null if not set
      */
     IToken[] getBuiltinCompletions();
@@ -225,7 +225,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
 
     /**
      * Checks if the given resource is in the pythonpath
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     boolean isResourceInPythonpath(IResource resource) throws MisconfigurationException;
 
@@ -247,15 +247,19 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
     /**
      * @return the configured interpreter that should be used to get the completions (must be the same string
      * of one of the configured interpreters in the preferences).
-     * 
+     *
      * Must always be a valid path (e.g.: if the interpreter is internally configured as "Default", it should
      * return the actual path, not the internal representation).
-     * 
-     * Note: the return can never be null (an exception is thrown if none can be determined) 
-     * @throws PythonNatureWithoutProjectException 
+     *
+     * Note: the return can never be null (an exception is thrown if none can be determined)
+     * @throws PythonNatureWithoutProjectException
      */
     IInterpreterInfo getProjectInterpreter() throws MisconfigurationException, PythonNatureWithoutProjectException;
 
     boolean isOkToUse();
+
+    void updateMtime();
+
+    long getMtime();
 
 }

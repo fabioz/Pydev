@@ -26,11 +26,11 @@ import org.python.pydev.shared_core.log.Log;
 /**
  * ColorCache gets colors by RGB, or name
  * Named colors are retrieved from preferences
- * 
+ *
  * It would be nice if color cache listened to preference changes
  * and modified its colors when prefs changed. But currently colors are
  * immutable, so this can't be done
-        implements Preferences.IPropertyChangeListener 
+        implements Preferences.IPropertyChangeListener
         preferences.addPropertyChangeListener(this);
         preferences.removePropertyChangeListener(this);
 */
@@ -79,7 +79,7 @@ public abstract class ColorCache {
     protected Color getNamedColor(String name) {
         Color color = fNamedColorTable.get(name);
         if (color == null || color.isDisposed()) {
-            String colorCode = preferences.getString(name);
+            String colorCode = preferences != null ? preferences.getString(name) : "";
             if (colorCode.length() == 0) {
                 if (name.equals("RED")) {
                     color = getColor(new RGB(255, 0, 0));

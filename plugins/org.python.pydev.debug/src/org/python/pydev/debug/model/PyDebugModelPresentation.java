@@ -30,7 +30,7 @@ import org.eclipse.ui.IEditorInput;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editorinput.PydevFileEditorInput;
+import org.python.pydev.editorinput.EditorInputFactory;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.ImageCache;
 
@@ -90,8 +90,7 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
                             return imageCache.get("icons/breakmarker.gif");
                         }
                     }
-                }
-                else {
+                } else {
                     if (pyBreakpoint.getType().equals(PyBreakpoint.PY_BREAK_TYPE_DJANGO)) {
                         return imageCache.get("icons/breakmarker_django_gray.png");
 
@@ -277,7 +276,7 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
         if (element instanceof PyBreakpoint) {
             String file = ((PyBreakpoint) element).getFile();
             if (file != null) {
-                return PydevFileEditorInput.create(new File(file), false);
+                return EditorInputFactory.create(new File(file), false);
 
                 //We should not open the editor here, just create the input... the debug framework opens it later on.
                 //IPath path = new Path(file);

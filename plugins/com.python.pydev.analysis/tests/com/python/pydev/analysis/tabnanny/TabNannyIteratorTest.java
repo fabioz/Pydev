@@ -9,7 +9,7 @@ package com.python.pydev.analysis.tabnanny;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
-import org.python.pydev.parser.fastparser.TabNannyDocIterator;
+import org.python.pydev.core.docutils.TabNannyDocIterator;
 
 public class TabNannyIteratorTest extends TestCase {
 

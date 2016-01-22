@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.viewers.ILabelProvider;
@@ -341,8 +342,10 @@ public class PyGoToDefinition extends PyRefactorAction {
      * @return an array of ItemPointer with the definitions found
      * @throws MisconfigurationException 
      * @throws TooManyMatchesException 
+     * @throws BadLocationException 
      */
-    public ItemPointer[] findDefinition(PyEdit pyEdit) throws TooManyMatchesException, MisconfigurationException {
+    public ItemPointer[] findDefinition(PyEdit pyEdit)
+            throws TooManyMatchesException, MisconfigurationException, BadLocationException {
         IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
         return pyRefactoring.findDefinition(getRefactoringRequest());
     }

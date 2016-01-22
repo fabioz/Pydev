@@ -27,12 +27,12 @@
    <extension point="org.eclipse.ui.editors.documentProviders">
       <provider
             class="org.python.pydev.editor.PyDocumentProvider"
-            id="org.python.pydev.editorinput.PydevFileEditorInput"
-            inputTypes="org.python.pydev.editorinput.PydevFileEditorInput"/>
+            id="org.python.pydev.shared_ui.editor_input.PydevFileEditorInput"
+            inputTypes="org.python.pydev.shared_ui.editor_input.PydevFileEditorInput"/>
       <provider
             class="org.python.pydev.editor.PyDocumentProvider"
-            id="org.python.pydev.editorinput.PydevFileEditorInput"
-            inputTypes="org.python.pydev.editorinput.PydevZipFileEditorInput"/>
+            id="org.python.pydev.shared_ui.editor_input.PydevFileEditorInput"
+            inputTypes="org.python.pydev.shared_ui.editor_input.PydevZipFileEditorInput"/>
       <provider
             class="org.python.pydev.editor.PyDocumentProvider"
             id="org.python.pydev.editor.PyDocumentProvider"
@@ -286,6 +286,9 @@
 	<extension point="org.eclipse.ui.keywords" name="Typing">
 	    <keyword id="org.python.pydev.typing"  label="indentation new line parentheses"/>
 	</extension>
+	<extension point="org.eclipse.ui.keywords" name="Tabs">
+	    <keyword id="org.python.pydev.tabs"  label="tabs indentation"/>
+	</extension>
 	<extension point="org.eclipse.ui.keywords" name="Minimap">
 	    <keyword id="org.python.pydev.minimap"  label="minimap horizontal vertical scrollbar ruler birds"/>
 	</extension>
@@ -329,6 +332,13 @@
             class="org.python.pydev.editor.preferences.PydevTypingPrefs"
             id="org.python.pydev.prefs2">
             <keywordReference id="org.python.pydev.typing"/>
+      </page>
+      <page
+            name="Tabs"
+            category="org.python.pydev.prefs.editor"
+            class="org.python.pydev.editor.preferences.PyTabPreferencesPage"
+            id="org.python.pydev.editor.preferences.PyTabPreferencesPage">
+            <keywordReference id="org.python.pydev.tabs"/>
       </page>
       <page
             name="Interpreters"
@@ -960,6 +970,7 @@
             commandId="org.python.pydev.editor.actions.navigation.nextMethod"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
+      <!-- Note: bound in pyedit_exec_line_in_shell.py -->
       <key
             sequence="F2"
             contextId="org.python.pydev.ui.editor.scope"
@@ -1300,14 +1311,6 @@
    </extension>
 
 
-   <extension
-         point="org.eclipse.ui.elementFactories">
-      <factory
-            class="org.python.pydev.editorinput.PyEditorInputFactory"
-            id="org.python.pydev.editorinput.pyEditorInputFactory">
-      </factory>
-   </extension>
-
 <!-- ********************** PyDev Package Explorer ********************** -->
 <!-- ********************** PyDev Package Explorer ********************** -->
 <!-- ********************** PyDev Package Explorer ********************** -->
@@ -1537,7 +1540,7 @@
 	  	  id="org.python.pydev.navigator.filters.hidePyTildaFiles"
 	  	  class="org.python.pydev.navigator.filters.PyTildaFilter">
 	  </commonFilter>
-	  
+
   	  <commonFilter activeByDefault="true"
 	  	  name="PyDev: __pycache__"
 	  	  description="PyDev: __pycache__ folders"

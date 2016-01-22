@@ -1,9 +1,13 @@
-/**
- * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
- * Licensed under the terms of the Eclipse Public License (EPL).
- * Please see the license.txt included with this distribution for details.
- * Any modifications to this file must keep this entire header intact.
- */
+/*******************************************************************************
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
 package com.python.pydev.refactoring.refactorer.search.copied;
 
 import org.eclipse.core.runtime.Assert;
@@ -23,17 +27,18 @@ import org.eclipse.ui.actions.ActionGroup;
 import org.eclipse.ui.actions.OpenFileAction;
 import org.eclipse.ui.actions.OpenWithMenu;
 import org.eclipse.ui.dialogs.PropertyDialogAction;
-
-import com.python.pydev.ui.search.SearchMessages;
+import org.python.pydev.shared_ui.search.SearchMessages;
 
 /**
  * Action group that adds the Text search actions to a context menu and
  * the global menu bar.
- * 
+ *
  * <p>
  * This class may be instantiated; it is not intended to be subclassed.
  * </p>
- * 
+ *
+ * Copy from org.eclipse.search.internal.ui.text.NewTextSearchActionGroup
+ *
  * @since 2.1
  */
 public class NewTextSearchActionGroup extends ActionGroup {
@@ -52,13 +57,15 @@ public class NewTextSearchActionGroup extends ActionGroup {
         fOpenAction = new OpenFileAction(fPage);
         ISelection selection = fSelectionProvider.getSelection();
 
-        if (selection instanceof IStructuredSelection)
+        if (selection instanceof IStructuredSelection) {
             fOpenPropertiesDialog.selectionChanged((IStructuredSelection) selection);
-        else
+        } else {
             fOpenPropertiesDialog.selectionChanged(selection);
+        }
 
     }
 
+    @Override
     public void fillContextMenu(IMenuManager menu) {
         // view must exist if we create a context menu for it.
 
@@ -66,15 +73,17 @@ public class NewTextSearchActionGroup extends ActionGroup {
         if (selection instanceof IStructuredSelection) {
             addOpenWithMenu(menu, (IStructuredSelection) selection);
             if (fOpenPropertiesDialog != null && fOpenPropertiesDialog.isEnabled()
-                    && fOpenPropertiesDialog.isApplicableForSelection((IStructuredSelection) selection))
+                    && fOpenPropertiesDialog.isApplicableForSelection((IStructuredSelection) selection)) {
                 menu.appendToGroup(IContextMenuConstants.GROUP_PROPERTIES, fOpenPropertiesDialog);
+            }
         }
 
     }
 
     private void addOpenWithMenu(IMenuManager menu, IStructuredSelection selection) {
-        if (selection == null)
+        if (selection == null) {
             return;
+        }
 
         fOpenAction.selectionChanged(selection);
         if (fOpenAction.isEnabled()) {
@@ -86,8 +95,9 @@ public class NewTextSearchActionGroup extends ActionGroup {
         }
 
         Object o = selection.getFirstElement();
-        if (!(o instanceof IAdaptable))
+        if (!(o instanceof IAdaptable)) {
             return;
+        }
 
         // Create menu
         IMenuManager submenu = new MenuManager(SearchMessages.OpenWithMenu_label);
@@ -100,6 +110,7 @@ public class NewTextSearchActionGroup extends ActionGroup {
     /* (non-Javadoc)
      * Method declared in ActionGroup
      */
+    @Override
     public void fillActionBars(IActionBars actionBar) {
         super.fillActionBars(actionBar);
         setGlobalActionHandlers(actionBar);

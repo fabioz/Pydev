@@ -54,7 +54,8 @@ public final class GeneratorExp extends exprType {
         } else {
             new0 = this.generators;
         }
-        GeneratorExp temp = new GeneratorExp(elt != null ? (exprType) elt.createCopy(copyComments) : null, new0);
+        GeneratorExp temp = new GeneratorExp(elt != null ? (exprType) elt.createCopy(copyComments) : null,
+                new0);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
         if (this.specialsBefore != null && copyComments) {

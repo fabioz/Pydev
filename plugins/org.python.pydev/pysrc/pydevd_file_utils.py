@@ -41,7 +41,7 @@
 
 
 
-from pydevd_constants import *  #@UnusedWildImport
+from _pydevd_bundle.pydevd_constants import *  #@UnusedWildImport
 import os.path
 import sys
 import traceback
@@ -72,6 +72,17 @@ PATHS_FROM_ECLIPSE_TO_PYTHON = []
 
 normcase = os_normcase # May be rebound on set_ide_os
 
+
+# Seems to be unused (just commented out for now).
+# from _pydev_bundle._pydev_filesystem_encoding import getfilesystemencoding
+# def norm_case(filename):
+#     filename = os_normcase(filename)
+#     if IS_PY3K:
+#         return filename
+#     enc = getfilesystemencoding()
+#     return filename.decode(enc).lower().encode(enc)
+
+
 def set_ide_os(os):
     '''
     We need to set the IDE os because the host where the code is running may be
@@ -96,35 +107,51 @@ def set_ide_os(os):
 DEBUG_CLIENT_SERVER_TRANSLATION = False
 
 #caches filled as requested during the debug session
-NORM_FILENAME_CONTAINER = {}
-NORM_FILENAME_AND_BASE_CONTAINER = {}
+NORM_PATHS_CONTAINER = {}
+NORM_PATHS_AND_BASE_CONTAINER = {}
 NORM_FILENAME_TO_SERVER_CONTAINER = {}
 NORM_FILENAME_TO_CLIENT_CONTAINER = {}
 
 
-
-
 def _NormFile(filename):
-    try:
-        return NORM_FILENAME_CONTAINER[filename]
-    except KeyError:
-        r = normcase(rPath(filename))
-        #cache it for fast access later
-        ind = r.find('.zip')
-        if ind == -1:
-            ind = r.find('.egg')
-        if ind != -1:
-            ind+=4
-            zip_path = r[:ind]
-            if r[ind] == "!":
-                ind+=1
-            inner_path = r[ind:]
-            if inner_path.startswith('/') or inner_path.startswith('\\'):
-                inner_path = inner_path[1:]
-            r = zip_path + "/" + inner_path
+    abs_path, real_path = _NormPaths(filename)
+    return real_path
 
-        NORM_FILENAME_CONTAINER[filename] = r
-        return r
+
+def _AbsFile(filename):
+    abs_path, real_path = _NormPaths(filename)
+    return abs_path
+
+
+# Returns tuple of absolute path and real path for given filename
+def _NormPaths(filename):
+    try:
+        return NORM_PATHS_CONTAINER[filename]
+    except KeyError:
+        abs_path = _NormPath(filename, os.path.abspath)
+        real_path = _NormPath(filename, rPath)
+
+        NORM_PATHS_CONTAINER[filename] = abs_path, real_path
+        return abs_path, real_path
+
+
+def _NormPath(filename, normpath):
+    r = normcase(normpath(filename))
+    #cache it for fast access later
+    ind = r.find('.zip')
+    if ind == -1:
+        ind = r.find('.egg')
+    if ind != -1:
+        ind+=4
+        zip_path = r[:ind]
+        if r[ind] == "!":
+            ind+=1
+        inner_path = r[ind:]
+        if inner_path.startswith('/') or inner_path.startswith('\\'):
+            inner_path = inner_path[1:]
+        r = join(zip_path, inner_path)
+    return r
+
 
 ZIP_SEARCH_CACHE = {}
 def exists(file):
@@ -155,9 +182,9 @@ def exists(file):
             if inner_path.startswith('/') or inner_path.startswith('\\'):
                 inner_path = inner_path[1:]
 
-            info = zip.getinfo(inner_path)
+            info = zip.getinfo(inner_path.replace('\\', '/'))
 
-            return zip_path + "/" + inner_path
+            return join(zip_path, inner_path)
         except KeyError:
             return None
     return None
@@ -180,30 +207,52 @@ try:
 
         NORM_SEARCH_CACHE = {}
 
-        initial_norm_file = _NormFile
-        def _NormFile(filename):  #Let's redefine _NormFile to work with paths that may be incorrect
+        initial_norm_paths = _NormPaths
+        def _NormPaths(filename):  #Let's redefine _NormPaths to work with paths that may be incorrect
             try:
                 return NORM_SEARCH_CACHE[filename]
             except KeyError:
-                ret = initial_norm_file(filename)
-                if not exists(ret):
+                abs_path, real_path = initial_norm_paths(filename)
+                if not exists(real_path):
                     #We must actually go on and check if we can find it as if it was a relative path for some of the paths in the pythonpath
                     for path in sys.path:
-                        ret = initial_norm_file(join(path, filename))
-                        if exists(ret):
+                        abs_path, real_path = initial_norm_paths(join(path, filename))
+                        if exists(real_path):
                             break
                     else:
                         sys.stderr.write('pydev debugger: Unable to find real location for: %s\n' % (filename,))
-                        ret = filename
+                        abs_path = filename
+                        real_path = filename
 
-                NORM_SEARCH_CACHE[filename] = ret
-                return ret
+                NORM_SEARCH_CACHE[filename] = abs_path, real_path
+                return abs_path, real_path
+
 except:
     #Don't fail if there's something not correct here -- but at least print it to the user so that we can correct that
     traceback.print_exc()
 
+norm_file_to_client = _AbsFile
+norm_file_to_server = _NormFile
 
-if PATHS_FROM_ECLIPSE_TO_PYTHON:
+def setup_client_server_paths(paths):
+    '''paths is the same format as PATHS_FROM_ECLIPSE_TO_PYTHON'''
+    
+    global NORM_FILENAME_TO_SERVER_CONTAINER
+    global NORM_FILENAME_TO_CLIENT_CONTAINER
+    global PATHS_FROM_ECLIPSE_TO_PYTHON
+    global norm_file_to_client
+    global norm_file_to_server
+    
+    NORM_FILENAME_TO_SERVER_CONTAINER = {}
+    NORM_FILENAME_TO_CLIENT_CONTAINER = {}
+    PATHS_FROM_ECLIPSE_TO_PYTHON = paths[:]
+    
+    if not PATHS_FROM_ECLIPSE_TO_PYTHON:
+        #no translation step needed (just inline the calls)
+        norm_file_to_client = _AbsFile
+        norm_file_to_server = _NormFile
+        return
+            
     #Work on the client and server slashes.
     eclipse_sep = None
     python_sep = None
@@ -229,7 +278,7 @@ if PATHS_FROM_ECLIPSE_TO_PYTHON:
 
 
     #only setup translation functions if absolutely needed!
-    def NormFileToServer(filename):
+    def _norm_file_to_server(filename):
         #Eclipse will send the passed filename to be translated to the python process
         #So, this would be 'NormFileFromEclipseToPython'
         try:
@@ -258,8 +307,7 @@ if PATHS_FROM_ECLIPSE_TO_PYTHON:
             NORM_FILENAME_TO_SERVER_CONTAINER[filename] = translated
             return translated
 
-
-    def NormFileToClient(filename):
+    def _norm_file_to_client(filename):
         #The result of this method will be passed to eclipse
         #So, this would be 'NormFileFromPythonToEclipse'
         try:
@@ -287,30 +335,36 @@ if PATHS_FROM_ECLIPSE_TO_PYTHON:
             #only at the beginning of this method.
             NORM_FILENAME_TO_CLIENT_CONTAINER[filename] = translated
             return translated
+    
+    norm_file_to_server = _norm_file_to_server        
+    norm_file_to_client = _norm_file_to_client
 
-else:
-    #no translation step needed (just inline the calls)
-    NormFileToClient = _NormFile
-    NormFileToServer = _NormFile
+setup_client_server_paths(PATHS_FROM_ECLIPSE_TO_PYTHON)
 
-
-def GetFileNameAndBaseFromFile(f):
+# For given file f returns tuple of its absolute path, real path and base name
+def get_abs_path_real_path_and_base_from_file(f):
     try:
-        return NORM_FILENAME_AND_BASE_CONTAINER[f]
-    except KeyError:
-        filename = _NormFile(f)
-        base = basename(filename)
-        NORM_FILENAME_AND_BASE_CONTAINER[f] = filename, base
-        return filename, base
+        return NORM_PATHS_AND_BASE_CONTAINER[f]
+    except:
+        abs_path, real_path = _NormPaths(f)
+        base = basename(real_path)
+        ret = abs_path, real_path, base
+        NORM_PATHS_AND_BASE_CONTAINER[f] = ret
+        return ret
 
 
-def GetFilenameAndBase(frame):
-    #This one is just internal (so, does not need any kind of client-server translation)
-    f = frame.f_code.co_filename
-    if f is not None and f.startswith('build/bdist.'):
-        # files from eggs in Python 2.7 have paths like build/bdist.linux-x86_64/egg/<path-inside-egg>
-        f = frame.f_globals['__file__']
-        if f.endswith('.pyc'):
-            f = f[:-1]
-    return GetFileNameAndBaseFromFile(f)
-
+def get_abs_path_real_path_and_base_from_frame(frame):
+    try:
+        return NORM_PATHS_AND_BASE_CONTAINER[frame.f_code.co_filename]
+    except:
+        #This one is just internal (so, does not need any kind of client-server translation)
+        f = frame.f_code.co_filename
+        if f is not None and f.startswith('build/bdist.'):
+            # files from eggs in Python 2.7 have paths like build/bdist.linux-x86_64/egg/<path-inside-egg>
+            f = frame.f_globals['__file__']
+            if f.endswith('.pyc'):
+                f = f[:-1]
+        ret = get_abs_path_real_path_and_base_from_file(f)
+        # Also cache based on the frame.f_code.co_filename (if we had it inside build/bdist it can make a difference).
+        NORM_PATHS_AND_BASE_CONTAINER[frame.f_code.co_filename] = ret
+        return ret

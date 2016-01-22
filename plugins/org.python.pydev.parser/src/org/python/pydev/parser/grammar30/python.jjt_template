@@ -9,9 +9,9 @@ options
     NODE_USES_PARSER      = true;
     STATIC                = false;  // multiple parsers
     COMMON_TOKEN_ACTION   = true;   // CommonTokenAction(Token)
-    DEBUG_PARSER          = false;  // must be used to enable tracing 
+    DEBUG_PARSER          = false;  // must be used to enable tracing
     DEBUG_LOOKAHEAD       = false;
-    DEBUG_TOKEN_MANAGER   = false;  // used to debug the tokens we have generating 
+    DEBUG_TOKEN_MANAGER   = false;  // used to debug the tokens we have generating
 
     USER_CHAR_STREAM      = true;
     UNICODE_INPUT         = true;
@@ -28,9 +28,9 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements IGra
 {
 
 $COMMOM_METHODS
-    
+
     private void handleFutureImports(String importName){
-        
+
     }
 
 
@@ -48,9 +48,21 @@ $COMMOM_METHODS
         }else if (peeked != null){
             peeked.getSpecialsAfter().add(token.asSpecialStr());
         }
-        
+
     }
 
+    @Override
+    protected Token handleErrorInName(ParseException e) throws ParseException {
+        try {
+            return jj_consume_token(ASYNC);
+        } catch (ParseException e1) {
+            try {
+                return jj_consume_token(AWAIT);
+            } catch (ParseException e2) {
+                return super.handleErrorInName(e);
+            }
+        }
+    }
 }
 
 
@@ -187,6 +199,7 @@ TOKEN : /* OPERATORS */
 |   < PLUSEQ: "+=" >
 |   < MINUSEQ: "-=" >
 |   < MULTIPLYEQ: "*=" >
+|   < DOTEQ: "@=" >
 |   < DIVIDEEQ: "/=" >
 |   < FLOORDIVIDEEQ: "//=" >
 |   < MODULOEQ: "%=" >
@@ -214,6 +227,8 @@ TOKEN : /* KEYWORDS */
 |   < TRY: "try" >
 |   < EXCEPT: "except" >
 |   < DEF: "def" >
+|   < ASYNC: "async" >
+|   < AWAIT: "await" >
 |   < CLASS: "class" >
 |   < FINALLY: "finally" >
 |   < PASS: "pass" >
@@ -242,14 +257,14 @@ TOKEN : /* Python identifiers */
 {
     < NAME: <LETTER> ( <LETTER> | <DIGIT>)* >
 |
-    < #LETTER: 
+    < #LETTER:
     [
        "a"-"z",
        "A"-"Z",
        "_",
        "\u0080"-"\uffff" //Anything more than 128 is considered valid (unicode range)
-    
-    ] 
+
+    ]
 >
 }
 
@@ -394,7 +409,7 @@ I stopped this because I've seen that making the CharStream was apparently the n
 comming back to this approach later).
 <IN_STRING23> MORE:
 {
-    <~[]> 
+    <~[]>
     {
          try {
                  while(true){
@@ -433,9 +448,9 @@ $FILE_INPUT
 
 //funcdef: 'def' NAME parameters ['->' test] ':' suite
 void funcdef(): {}
-{ 
-    $DEF_START parameters() [{grammarActions.addSpecialToken("->", STRATEGY_BEFORE_NEXT);}<MINUS_GREATER> test()#funcdef_return_annottation] $COLON 
-        suite() 
+{
+    $DEF_START parameters() [{grammarActions.addSpecialToken("->", STRATEGY_BEFORE_NEXT);}<MINUS_GREATER> test()#funcdef_return_annottation] $COLON
+        suite()
 }
 
 
@@ -444,7 +459,7 @@ void funcdef(): {}
 //decorator: '@' dotted_name [ '(' [arglist] ')' ] NEWLINE
 void decorators(): {}
 {
-    (begin_decorator() [{grammarActions.markDecoratorWithCall();} <LPAREN>  {grammarActions.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} [arglist()] $RPAREN ] $NEWLINE )+ 
+    (begin_decorator() [{grammarActions.markDecoratorWithCall();} <LPAREN>  {grammarActions.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} [arglist()] $RPAREN ] $NEWLINE )+
 }
 
 
@@ -455,27 +470,24 @@ void begin_decorator(): {}
 //parameters: '(' [typedargslist] ')'
 void parameters() #void:  {}
 { $LPAREN2
-  [typedargslist()] 
-  $RPAREN 
+  [typedargslist()]
+  $RPAREN
 }
-  
-//typedargslist: ((tfpdef ['=' test] ',')*
-//                ('*' [tfpdef] (',' tfpdef ['=' test])* [',' '**' tfpdef] | '**' tfpdef)
-//                | tfpdef ['=' test] (',' tfpdef ['=' test])* [','])
+
+// typedargslist: (tfpdef ['=' test] (',' tfpdef ['=' test])* [','
+//        ['*' [tfpdef] (',' tfpdef ['=' test])* [',' '**' tfpdef] | '**' tfpdef]]
+//      |  '*' [tfpdef] (',' tfpdef ['=' test])* [',' '**' tfpdef] | '**' tfpdef)
+
 void typedargslist() #void: {}
 {
 // Doing the exact same does not yield good results for javacc, so, we have to work with an alternative specification
-// (that does the same thing)
-//       (LOOKAHEAD(2) (defaultarg2() <COMMA>)*
-//        (ExtraArgList2() (<COMMA> defaultarg2())* [<COMMA> ExtraKeywordList2()] | ExtraKeywordList2())
-//        | defaultarg2() (<COMMA> defaultarg2())* [<COMMA>])
-
-
+// (that does the same thing)... yay, Python 3.5 updated their construct to the same I had to use for Python 3 from the beggining ;)
        ((defaultarg2() (LOOKAHEAD(2)$COMMA defaultarg2())*) [LOOKAHEAD(2)$COMMA ((ExtraArgList2() (LOOKAHEAD(2)$COMMA onlykeywordarg2())* [$COMMA ExtraKeywordList2()]) | (ExtraKeywordList2()) )]) [$COMMA]
-    |  (ExtraArgList2() (LOOKAHEAD(2)$COMMA onlykeywordarg2())* [LOOKAHEAD(2)$COMMA ExtraKeywordList2()]) [$COMMA]   
+    |  (ExtraArgList2() (LOOKAHEAD(2)$COMMA onlykeywordarg2())* [LOOKAHEAD(2)$COMMA ExtraKeywordList2()]) [$COMMA]
     |   ExtraKeywordList2() [$COMMA]
 }
 
+// ['*' [tfpdef]
 void ExtraArgList2(): {}
 {
 	<MULTIPLY> {grammarActions.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} [tfpdef()]
@@ -486,6 +498,7 @@ void ExtraKeywordList2(): {}
 	<POWER> {grammarActions.addSpecialToken("**", STRATEGY_BEFORE_NEXT);} tfpdef()
 }
 
+// tfpdef ['=' test]
 void defaultarg2(): {}
 { tfpdef() [temporaryToken=<EQUAL> {this.addSpecialToArgDef(temporaryToken);}  test()] }
 
@@ -496,7 +509,7 @@ void onlykeywordarg2(): {}
 
 //tfpdef: NAME [':' test]
 void tfpdef(): {}
-{ 
+{
 	Name() [LOOKAHEAD(2)<COLON> {grammarActions.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} test()]
 }
 
@@ -507,7 +520,7 @@ void tfpdef(): {}
 void varargslist() #void: {}
 {
        ((defaultarg() (LOOKAHEAD(2)$COMMA defaultarg())*) [LOOKAHEAD(2)$COMMA ((ExtraArgList() (LOOKAHEAD(2)$COMMA onlykeywordarg())* [$COMMA ExtraKeywordList()]) | (ExtraKeywordList()) )]) [$COMMA]
-    |  (ExtraArgList() (LOOKAHEAD(2)$COMMA onlykeywordarg())* [LOOKAHEAD(2)$COMMA ExtraKeywordList()]) [$COMMA]   
+    |  (ExtraArgList() (LOOKAHEAD(2)$COMMA onlykeywordarg())* [LOOKAHEAD(2)$COMMA ExtraKeywordList()]) [$COMMA]
     |   ExtraKeywordList() [$COMMA]
 }
 
@@ -538,7 +551,7 @@ $STMT
 $SIMPLE_STMT
 
 
-//small_stmt: expr_stmt | del_stmt | pass_stmt | flow_stmt | import_stmt | global_stmt | nonlocal_stmt | assert_stmt 
+//small_stmt: expr_stmt | del_stmt | pass_stmt | flow_stmt | import_stmt | global_stmt | nonlocal_stmt | assert_stmt
 void small_stmt() #void: {SimpleNode simpleNode;Token spStr;}
 {
     expr_stmt()
@@ -551,14 +564,17 @@ void small_stmt() #void: {SimpleNode simpleNode;Token spStr;}
 |   $CALL_ASSERT
 }
 
-//expr_stmt: testlist (augassign (yield_expr|testlist) |
-//                     ('=' (yield_expr|testlist))*)
+// Note: we do 2 in one here
+// expr_stmt: testlist_star_expr (augassign (yield_expr|testlist) |
+//                      ('=' (yield_expr|testlist_star_expr))*)
+// augassign: ('+=' | '-=' | '*=' | '@=' | '/=' | '%=' | '&=' | '|=' | '^=' |
 void expr_stmt() #void: {}
 {
     testlist_star_expr() (
     <PLUSEQ>        (yield_expr()|SmartTestList())   #aug_plus(2)
 |   <MINUSEQ>       (yield_expr()|SmartTestList())   #aug_minus(2)
 |   <MULTIPLYEQ>    (yield_expr()|SmartTestList())   #aug_multiply(2)
+|   <DOTEQ>         (yield_expr()|SmartTestList())   #aug_dot(2)
 |   <DIVIDEEQ>      (yield_expr()|SmartTestList())   #aug_divide(2)
 |   <FLOORDIVIDEEQ> (yield_expr()|SmartTestList())   #aug_floordivide(2)
 |   <MODULOEQ>      (yield_expr()|SmartTestList())   #aug_modulo(2)
@@ -606,7 +622,7 @@ void yield_stmt(): {}
 //Change in Python 3.3: yield from 'xxx'
 //yield_expr: 'yield' [yield_arg]
 void yield_expr(): {Token spStr; boolean isYieldFrom=false;}
-{ spStr=<YIELD> [isYieldFrom=yield_arg()] 
+{ spStr=<YIELD> [isYieldFrom=yield_arg()]
     {
         Yield yield = (Yield)this.grammarActions.addToPeek(spStr, false, Yield.class);
         if(yield != null){
@@ -619,11 +635,11 @@ void yield_expr(): {Token spStr; boolean isYieldFrom=false;}
 //yield_arg: 'from' test | testlist
 boolean yield_arg() #void: {}
 { {boolean isYieldFrom;}
-  ( 
-  (<FROM> {grammarActions.addSpecialToken(" from ");isYieldFrom=true;} test()) 
-  | 
+  (
+  (<FROM> {grammarActions.addSpecialToken(" from ");isYieldFrom=true;} test())
+  |
   SmartTestList(){isYieldFrom=false;}
-  ) 
+  )
   {return isYieldFrom;}
 }
 
@@ -638,7 +654,7 @@ $IMPORT_STMT
 
 
 Import Import(): {}
-{ dotted_as_name() ($COMMA dotted_as_name())* 
+{ dotted_as_name() ($COMMA dotted_as_name())*
   {return (Import)jjtree.peekNode();}
 }
 
@@ -649,29 +665,29 @@ void ImportFrom(): { int level=0; int state=0;String fromName=null;String import
     //we need to set the  $IMPORT in both otherwise the lookahead will not work as we want it to work
     //because it confuses the import with the dotted name
      (("." {level++;} )* (fromName=dotted_name())? )  {if(fromName==null && level==0){throw new ParseException("Expecting to find '.' or name in import.");}}
-     $IMPORT 
-    
+     $IMPORT
+
     (
         //from xxx import *
         <MULTIPLY> {grammarActions.addSpecialToken("*",STRATEGY_ADD_AFTER_PREV);}//from xx import *
-        
+
         //from xxx import a,b,c
-        | (importName=import_as_name() {if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);} 
-            ($COMMA (importName=import_as_name()){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);})* 
-          ) 
-        
+        | (importName=import_as_name() {if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);}
+            ($COMMA (importName=import_as_name()){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);})*
+          )
+
         //from xxx import (a,b,c)
-        | $LPAREN1   
-          (importName=import_as_name()){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);} 
+        | $LPAREN1
+          (importName=import_as_name()){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);}
           (
            ({
              if(state!=0){
                  throw new ParseException("Invalid syntax: 2 commas cannot be grouped.", getToken(1));
              }
-             state=1; 
-             } 
-             $COMMA ( {state=0;} (importName=import_as_name(){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);}))? )* 
-           $RPAREN 
+             state=1;
+             }
+             $COMMA ( {state=0;} (importName=import_as_name(){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);}))? )*
+           $RPAREN
           )
     )
     //now, let's set the correct level for the module
@@ -701,12 +717,17 @@ void nonlocal_stmt(): {}
 $ASSERT
 
 
-//compound_stmt: if_stmt | while_stmt | for_stmt | try_stmt | with_stmt | funcdef | classdef
+//compound_stmt: if_stmt | while_stmt | for_stmt | try_stmt | with_stmt | funcdef | classdef | decorated | async_stmt
 void compound_stmt() #void : {}
 {
-    if_stmt() | while_stmt() | for_stmt() | try_stmt() | with_stmt() | funcdef() | classdef() | decorated()
+    if_stmt() | while_stmt() | for_stmt() | try_stmt() | with_stmt() | funcdef() | classdef() | decorated()  | async_stmt()
 }
 
+//async_stmt: ASYNC (funcdef | with_stmt | for_stmt)
+void async_stmt() #void : {}
+{
+	<ASYNC> (funcdef() | with_stmt() | for_stmt())
+}
 
 $IF
 
@@ -724,28 +745,28 @@ $BEGIN_ELSE
 void for_stmt(): {}
 {   <FOR> {this.markLastAsSuiteStart();} {grammarActions.addSpecialTokenToLastOpened("for ");} exprlist() $IN SmartTestList() $COLON suite()
     [begin_for_else_stmt() suite()]
-    
-} 
+
+}
 
 
 void begin_for_else_stmt(): {}
-{ <ELSE> {grammarActions.addSpecialToken("else",STRATEGY_BEFORE_NEXT);} {grammarActions.addSpecialToken(":",STRATEGY_BEFORE_NEXT);} <COLON>  
+{ <ELSE> {grammarActions.addSpecialToken("else",STRATEGY_BEFORE_NEXT);} {grammarActions.addSpecialToken(":",STRATEGY_BEFORE_NEXT);} <COLON>
 }
 //try_stmt: ('try' ':' suite (except_clause ':' suite)+ #diagram:break
 //           ['else' ':' suite] | 'try' ':' suite 'finally' ':' suite)
 void try_stmt() #void: {SimpleNode tryNode;int i=0;}
-{ 
+{
     begin_try_stmt() {tryNode = (SimpleNode)jjtree.peekNode();}  suite() (
         (
-            (except_clause(tryNode) {i++;})+ 
-    
+            (except_clause(tryNode) {i++;})+
+
             [begin_try_else_stmt() suite() {i++;} #tryelse_stmt(2) ]
-            
+
             [begin_finally_stmt()  suite() {i++;} #tryfinally_outer_stmt(2)]
-            
+
             #try_stmt(i)
         )
-        
+
         | begin_finally_stmt() suite()
             #tryfinally_stmt(jjtree.nodeArity()+1)
     )
@@ -753,14 +774,14 @@ void try_stmt() #void: {SimpleNode tryNode;int i=0;}
 
 //this is the 'try' ':'  it is needed because we need that scope closing for getting the specials.
 void begin_try_stmt(): {}
-{ <TRY> {this.markLastAsSuiteStart();} {grammarActions.addSpecialToken("try", STRATEGY_BEFORE_NEXT);} {grammarActions.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} <COLON> 
+{ <TRY> {this.markLastAsSuiteStart();} {grammarActions.addSpecialToken("try", STRATEGY_BEFORE_NEXT);} {grammarActions.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} <COLON>
 }
 void begin_try_else_stmt(): {}
 { <ELSE> {grammarActions.addSpecialToken("else", STRATEGY_BEFORE_NEXT);}{grammarActions.addSpecialToken(":", STRATEGY_BEFORE_NEXT);}<COLON>
 }
 
 void begin_finally_stmt(): {}
-{ <FINALLY> {grammarActions.addSpecialToken("finally", STRATEGY_BEFORE_NEXT);} {grammarActions.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} <COLON> 
+{ <FINALLY> {grammarActions.addSpecialToken("finally", STRATEGY_BEFORE_NEXT);} {grammarActions.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} <COLON>
 }
 
 //except_clause: 'except' [test [as test]]
@@ -846,13 +867,16 @@ void arith_expr() #void : {}
 |   <MINUS> term() #sub_2op(2) )*
 }
 
-//term: factor (('*'|'/'|'%') factor)*
+//term: factor (('*'|'@'|'/'|'%'|'//') factor)*
 void term() #void : {}
 {
-    factor()  ( <MULTIPLY> factor() #mul_2op(2)
-|   <DIVIDE> factor() #div_2op(2)
-|   <FLOORDIVIDE> factor() #floordiv_2op(2)
-|   <MODULO> factor() #mod_2op(2) )*
+    factor()  (
+		    <MULTIPLY> factor() #mul_2op(2) // *
+		|   <AT> factor() #dot_2op(2) //@
+		|   <DIVIDE> factor() #div_2op(2) // /
+		|   <MODULO> factor() #mod_2op(2) // %
+		|   <FLOORDIVIDE> factor() #floordiv_2op(2) // //
+	)*
 }
 
 //factor: ('+'|'-'|'~') factor | power
@@ -864,26 +888,30 @@ void factor() #void: {}
 |   power()
 } /*Modified, no recursion*/
 
-//power: atom trailer* ('**' factor)*
+//power: atom_expr ['**' factor]
 void power() #void: {}
-{ atom() (trailer())* (LOOKAHEAD(2) <POWER> factor() #pow_2op(2))* }
+{ atom_expr() (LOOKAHEAD(2) <POWER> factor() #pow_2op(2))* }
+
+//atom_expr: [AWAIT] atom trailer*
+void atom_expr() #void: {}
+{ [<AWAIT>] atom() (trailer())*}
 
 //trailer: '(' [arglist] ')' | '[' subscriptlist ']' | '.' NAME
 void trailer() #void: {Object spStr;Object spStr2;}
 {
- 
-    ({spStr  = grammarActions.createSpecialStr("(", false);} <LPAREN>  
-    [arglist()] 
-    <RPAREN> {spStr2 = grammarActions.createSpecialStr(")", false);}  
+
+    ({spStr  = grammarActions.createSpecialStr("(", false);} <LPAREN>
+    [arglist()]
+    <RPAREN> {spStr2 = grammarActions.createSpecialStr(")", false);}
     )#Call_Op(jjtree.nodeArity()+1) {grammarActions.addToPeekCallFunc(spStr, true); grammarActions.addToPeek(spStr2, true);}
 
 
-|   ({spStr = grammarActions.createSpecialStr("[", false);} <LBRACKET> 
+|   ({spStr = grammarActions.createSpecialStr("[", false);} <LBRACKET>
     subscriptlist()
-    <RBRACKET> {spStr2 = grammarActions.createSpecialStr("]", false);}   
+    <RBRACKET> {spStr2 = grammarActions.createSpecialStr("]", false);}
     )#Index_Op(2) {grammarActions.addToPeek(spStr, false); grammarActions.addToPeek(spStr2, true);}
 
-|   <DOT> Name() #Dot_Op(2) 
+|   <DOT> Name() #Dot_Op(2)
 }
 
 
@@ -894,34 +922,34 @@ void trailer() #void: {Object spStr;Object spStr2;}
 //       NAME | NUMBER | STRING+ | '...' | 'None' | 'True' | 'False')
 void atom() #void: {Object spStr;Object spStr2;}
 {
-    LOOKAHEAD(2) (  
-      {spStr  = grammarActions.createSpecialStr("(", false);} <LPAREN>  
-      {spStr2 = grammarActions.createSpecialStr(")", false);} <RPAREN> 
+    LOOKAHEAD(2) (
+      {spStr  = grammarActions.createSpecialStr("(", false);} <LPAREN>
+      {spStr2 = grammarActions.createSpecialStr(")", false);} <RPAREN>
     ) #tuple {grammarActions.addToPeek(spStr, false); grammarActions.addToPeek(spStr2, true);}
 
-|   LOOKAHEAD(2) (  
-      {spStr  = grammarActions.createSpecialStr("(", false);} <LPAREN>  
+|   LOOKAHEAD(2) (
+      {spStr  = grammarActions.createSpecialStr("(", false);} <LPAREN>
       (yield_expr() | testlist_comp())
-      {spStr2 = grammarActions.createSpecialStr(")", false);} <RPAREN> 
+      {spStr2 = grammarActions.createSpecialStr(")", false);} <RPAREN>
     ) #tuple {grammarActions.addToPeek(spStr, false); grammarActions.addToPeek(spStr2, true);}
 
 
-|   ( {spStr = grammarActions.createSpecialStr("[", false);} <LBRACKET> 
-      [testlist_comp()] 
-      {spStr2 = grammarActions.createSpecialStr("]", false);} <RBRACKET>  
+|   ( {spStr = grammarActions.createSpecialStr("[", false);} <LBRACKET>
+      [testlist_comp()]
+      {spStr2 = grammarActions.createSpecialStr("]", false);} <RBRACKET>
     ) #list {grammarActions.addToPeek(spStr, false); grammarActions.addToPeek(spStr2, true);}
-      
-      
-|   ( {spStr  = grammarActions.createSpecialStr("{", false);}<LBRACE> 
-      [dictorsetmaker()] 
-      {spStr2  = grammarActions.createSpecialStr("}", false);} <RBRACE> 
+
+
+|   ( {spStr  = grammarActions.createSpecialStr("{", false);}<LBRACE>
+      [dictorsetmaker()]
+      {spStr2  = grammarActions.createSpecialStr("}", false);} <RBRACE>
     ) #dictionary {grammarActions.addToPeek(spStr, false); grammarActions.addToPeek(spStr2, true);}
-    
+
 |   (<FALSE>)#False
 |   (<TRUE>)#True
 |   (<NONE>)#None
 |   (<DOT> <DOT> <DOT>)#Ellipsis_as_name
-|   Name() 
+|   Name()
 |   Number()
 |   String() (String() #strjoin(2))*
 }
@@ -967,10 +995,12 @@ void SmartTestList() #void: {}
 void testlist() #void: {}
 { test() (LOOKAHEAD(2) $COMMA test())* [$COMMA]}
 
-//testlist_star_expr: test (',' test)* [',']
+
+// testlist_star_expr: (test|star_expr) (',' (test|star_expr))* [',']
 void testlist_star_expr() #void: {}
 { ( (test()|star_expr()) (LOOKAHEAD(2) $COMMA  (test()|star_expr()))* [Comma()]) #tuple(>1) }
 
+//star_expr: '*' expr
 void star_expr(): {}
 {<MULTIPLY> {grammarActions.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} expr()}
 
@@ -978,9 +1008,9 @@ void star_expr(): {}
 $DICTORSETMAKER
 
 
-//testlist_comp: test ( comp_for | (',' test)* [','] )
+// testlist_comp: (test|star_expr) ( comp_for | (',' (test|star_expr))* [','] )
 void testlist_comp() #void: {}
-{ test() ( LOOKAHEAD(2)(comp_for())+ | (LOOKAHEAD(2) $COMMA test())* [Comma()] #tuple(>1)) }
+{ (test()|star_expr()) ( LOOKAHEAD(2)(comp_for())+ | (LOOKAHEAD(2) $COMMA (test()|star_expr()))* [Comma()] #tuple(>1)) }
 
 
 //comp_iter: [comp_for | comp_if]
@@ -996,10 +1026,16 @@ void comp_if()#void:{}
 { $IF_COMP test_nocond() [comp_iter()]}
 
 
-//decorated: decorators (classdef | funcdef)
+//decorated: decorators (classdef | funcdef | async_funcdef)
 void decorated():{}
 {
-    decorators() (classdef()|funcdef())
+    decorators() (classdef()|funcdef()|async_funcdef())
+}
+
+//async_funcdef: ASYNC funcdef
+void async_funcdef() #void : {}
+{
+    <ASYNC> funcdef()
 }
 
 //classdef: 'class' NAME ['(' [arglist] ')'] ':' suite
@@ -1010,13 +1046,14 @@ void classdef(): {Token spStr;Token spStr2;}
 }
 
 //arglist: (argument ',')* (argument [',']
-//                         |'*' test (',' argument)* [',' '**' test] 
+//                         |'*' test (',' argument)* [',' '**' test]
 //                         |'**' test)
 void arglist() #void: {}
 {
        ((argument() (LOOKAHEAD(2)$COMMA argument())*) [LOOKAHEAD(2)$COMMA ((ExtraArgValueList() (LOOKAHEAD(2)$COMMA argument())* [$COMMA ExtraKeywordValueList()]) | (ExtraKeywordValueList()) )]) [$COMMA]
-    |  (ExtraArgValueList() (LOOKAHEAD(2)$COMMA argument())* [LOOKAHEAD(2)$COMMA ExtraKeywordValueList()]) [$COMMA]   
+    |  (ExtraArgValueList() (LOOKAHEAD(2)$COMMA argument())* [LOOKAHEAD(2)$COMMA ExtraKeywordValueList()]) [$COMMA]
     |   ExtraKeywordValueList() [$COMMA]
+
 }
 
 
@@ -1029,7 +1066,7 @@ void ExtraKeywordValueList(): {}
 
 //argument: test [comp_for] | test '=' test  # Really [keyword '='] test
 void argument(): {}
-{ 
+{
 	   test() (LOOKAHEAD(2)  (Keyword()) |  [comp_for()])
 }
 
@@ -1055,7 +1092,7 @@ void Number() #Num :
     )
 |   (
         t=<OCTNUMBER> {
-            grammarActions.makeIntSub2(t, 8, t, (Num) jjtThis); 
+            grammarActions.makeIntSub2(t, 8, t, (Num) jjtThis);
         } {}
     )
 |   (

@@ -3,7 +3,7 @@
 <plugin>
     <extension point="org.eclipse.ui.keywords" name="Analysis Preferences">
         <keyword id="com.python.pydev.analysis.keywords"  label="pep8 builtins globals tokens"/>
-    </extension>    
+    </extension>
 
    <extension point="org.eclipse.ui.preferencePages">
       <page
@@ -14,7 +14,7 @@
             <keywordReference id="com.python.pydev.analysis.keywords"/>
       </page>
    </extension>
-   
+
    <extension point="org.eclipse.ui.preferencePages">
       <page
             class="com.python.pydev.analysis.ui.AutoImportsPreferencesPage"
@@ -30,7 +30,7 @@
 	   <super type="org.eclipse.core.resources.problemmarker"/>
 	   <persistent value="true"/>
 	</extension>
-	
+
 <!-- Adds ctrl+2+ - - d -->
    <extension point="org.python.pydev.pydev_pyedit_listener">
   		<pyedit_listener_participant class="com.python.pydev.analysis.additionalinfo.AdditionalInfoIntegrityChecker"/>
@@ -46,7 +46,7 @@
    		<!--Also does the ctx insensitive builder part (which was removed)-->
    		<builder_participant class="com.python.pydev.analysis.builder.AnalysisBuilderVisitor"/>
    </extension>
-   
+
    <extension point="org.eclipse.core.runtime.preferences">
       <initializer class="com.python.pydev.analysis.AnalysisPreferenceInitializer"/>
    </extension>
@@ -62,11 +62,11 @@
    <extension point="org.python.pydev.pydev_interpreter_observer">
   		<interpreter_observer class="com.python.pydev.analysis.additionalinfo.builders.InterpreterObserver"/>
    </extension>
-   
+
    <extension point="org.python.pydev.pydev_ctrl_1">
 		<ctrl_1_participant class="com.python.pydev.analysis.ctrl_1.AnalysisMarkersParticipants"/>
    </extension>
-   
+
    <extension point="org.python.pydev.pydev_ctrl_1">
 		<ctrl_1_participant class="com.python.pydev.analysis.ctrl_1.DontAnalyzeFileMarkerParticipant"/>
    </extension>
@@ -81,6 +81,29 @@
    <extension point="org.python.pydev.pydev_organize_imports">
 		<organize_imports_participant class="com.python.pydev.analysis.organizeimports.OrganizeImports"/>
    </extension>
+
+<!-- search page-->
+   <extension
+         point="org.eclipse.search.searchPages">
+      <page
+            canSearchEnclosingProjects="false"
+            class="com.python.pydev.analysis.search_index.PySearchIndexPage"
+            extensions="py:90, pyw:90"
+            icon="icons/python_file.gif"
+            id="com.python.pydev.analysis.search_index.PySearchIndexPage"
+            label="PyDev Search"
+            showScopeSection="false"/>
+   </extension>
+   <extension
+         id="com.python.pydev.analysis.search_index.SearchIndexResultPage"
+         point="org.eclipse.search.searchResultViewPages">
+      <viewPage
+            class="com.python.pydev.analysis.search_index.PySearchIndexResultPage"
+            id="com.python.pydev.analysis.search_index.SearchIndexResultPage"
+            label="PyDev Search Result"
+            searchResultClass="com.python.pydev.analysis.search_index.PySearchResult"/>
+   </extension>
+
 
 <extension point="org.eclipse.ui.actionSets">
   <actionSet
@@ -136,7 +159,7 @@
       <key
             sequence="M1+M2+T"
             contextId="com.python.pydev.contexts.window"
-            commandId="com.python.pydev.analysis.actions.pyGlobalsBrowserWorkbench"	
+            commandId="com.python.pydev.analysis.actions.pyGlobalsBrowserWorkbench"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
 </extension>
@@ -162,7 +185,7 @@
 
 <!-- PyDev nature/project related actions -->
    <extension point="org.eclipse.ui.popupMenus">
-      
+
       <!-- Force analysis of tree -->
       <objectContribution
             adaptable="true"

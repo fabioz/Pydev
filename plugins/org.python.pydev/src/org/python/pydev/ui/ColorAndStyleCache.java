@@ -31,15 +31,15 @@ public class ColorAndStyleCache extends ColorCache {
     
     template = '''
     public TextAttribute get%sTextAttribute() {
-
+    
         return new TextAttribute(getNamedColor(
                 PydevEditorPrefs.%s_COLOR), null, preferences.getInt(PydevEditorPrefs.%s_STYLE));
     }'''
     
-    for s in ('self', 'code', 'decorator', 'number', 'class_name', 'func_name', 'comment', 'backquotes', 'string', 'keyword', 'parens', 'operators', 'docstring_markup'):
+    for s in ('self', 'code', 'decorator', 'number', 'class_name', 'func_name', 'comment', 'backquotes', 'string', 'unicode', 'keyword', 'parens', 'operators', 'docstring_markup'):
         
         cog.outl(template % (s.title().replace('_', ''), s.upper(), s.upper()))
-
+    
     ]]]*/
 
     public TextAttribute getSelfTextAttribute() {
@@ -96,6 +96,12 @@ public class ColorAndStyleCache extends ColorCache {
                 PydevEditorPrefs.STRING_COLOR), null, preferences.getInt(PydevEditorPrefs.STRING_STYLE));
     }
 
+    public TextAttribute getUnicodeTextAttribute() {
+
+        return new TextAttribute(getNamedColor(
+                PydevEditorPrefs.UNICODE_COLOR), null, preferences.getInt(PydevEditorPrefs.UNICODE_STYLE));
+    }
+
     public TextAttribute getKeywordTextAttribute() {
 
         return new TextAttribute(getNamedColor(
@@ -117,8 +123,7 @@ public class ColorAndStyleCache extends ColorCache {
     public TextAttribute getDocstringMarkupTextAttribute() {
 
         return new TextAttribute(getNamedColor(
-                PydevEditorPrefs.DOCSTRING_MARKUP_COLOR), null,
-                preferences.getInt(PydevEditorPrefs.DOCSTRING_MARKUP_STYLE));
+                PydevEditorPrefs.DOCSTRING_MARKUP_COLOR), null, preferences.getInt(PydevEditorPrefs.DOCSTRING_MARKUP_STYLE));
     }
     //[[[end]]]
 

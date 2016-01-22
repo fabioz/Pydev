@@ -42,22 +42,7 @@ public class AutoEditStrategyNewLineHelper {
             return;
         }
 
-        String prevLineIndent = "";
-        try {
-            // find start of line
-            int p = (command.offset == document.getLength() ? command.offset - 1 : command.offset);
-            IRegion info = document.getLineInformationOfOffset(p);
-            int start = info.getOffset();
-
-            // find white spaces
-            int end = findEndOfWhiteSpace(document, start, command.offset);
-
-            if (end > start) {
-                prevLineIndent = document.get(start, end - start);
-            }
-        } catch (BadLocationException e) {
-            //ignore
-        }
+        String prevLineIndent = getPreviousLineIndent(command, document);
 
         boolean insideBrackets = false;
         try {
@@ -79,5 +64,25 @@ public class AutoEditStrategyNewLineHelper {
             command.text = new FastStringBuffer(command.text, prevLineIndent.length()).append(prevLineIndent)
                     .toString();
         }
+    }
+
+    public String getPreviousLineIndent(DocumentCommand command, IDocument document) {
+        String prevLineIndent = "";
+        try {
+            // find start of line
+            int p = (command.offset == document.getLength() ? command.offset - 1 : command.offset);
+            IRegion info = document.getLineInformationOfOffset(p);
+            int start = info.getOffset();
+
+            // find white spaces
+            int end = findEndOfWhiteSpace(document, start, command.offset);
+
+            if (end > start) {
+                prevLineIndent = document.get(start, end - start);
+            }
+        } catch (BadLocationException e) {
+            //ignore
+        }
+        return prevLineIndent;
     }
 }

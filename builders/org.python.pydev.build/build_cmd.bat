@@ -19,13 +19,13 @@ set BUILD_DIR=X:\pydev_build\build_dir
 set DEPLOY_DIR=X:\pydev_build\deploy_dir
 set JAVA_HOME=C:\bin\jdk1.7.0_55
 set MAVEN_BIN=C:\bin\maven-3.2.1\bin
-set GIT_EXECUTABLE="C:\Program Files (x86)\Git\bin\git.exe"
-set ECLIPSE_CLEAN=C:\bin\eclipse44rc4_x64
-set LAUNCHER_PLUGIN=org.eclipse.equinox.launcher_1.3.0.v20130327-1440
-set BUILDER_PLUGIN=org.eclipse.pde.build_3.8.100.v20130514-1028
-set KEYSTORE=%DEPLOY_DIR%\pydevkeystore
+set GIT_EXECUTABLE="p:\git\bin\git.exe"
+set ECLIPSE_CLEAN=C:\bin\eclipse45final
+set LAUNCHER_PLUGIN=org.eclipse.equinox.launcher_1.3.100.v20150511-1540.jar
+set BUILDER_PLUGIN=org.eclipse.pde.build_3.9.100.v20150521-1524
+set KEYSTORE=X:\release_tools\pydevkeystore
 set KEYSTORE_ALIAS=pydev
-set SIGN_KEYSTORE=%DEPLOY_DIR%\pydevkeystore
+set SIGN_KEYSTORE=X:\release_tools\pydevkeystore
 set SIGN_ALIAS=pydev
 SET MAVEN_OPTS=-Xmx1024m
 
@@ -36,11 +36,11 @@ set BASEARCH=x86
 
 set PATH=
 set PATH=C:\bin\Python27
-set PATH=C:\bin\FastCopy211;%PATH%
+set PATH=p:\FastCopy211;%PATH%
 set PATH=C:\Windows\system32;%PATH%
 set PATH=%MAVEN_BIN%;%PATH%
 set PATH=%JAVA_HOME%\bin;%PATH%
-set PATH=C:\Program Files (x86)\Git\bin;%PATH%
+set PATH=p:\git\bin;%PATH%
 set PATH=%ECLIPSE_CLEAN%\plugins\org.apache.ant_1.9.2.v201404171502\bin;%PATH%
 
 
@@ -60,8 +60,12 @@ git checkout %BRANCH%
 git pull origin %BRANCH%
 @echo If copied/pasted into cmd.exe, it will break here
 
+@echo Create builtin modules
+set PYTHONPATH=%BUILD_DIR%/Pydev/plugins/org.python.pydev/pysrc
+C:\tools\Miniconda32\envs\py27_32\python %BUILD_DIR%/Pydev/plugins/org.python.pydev/pysrc/build_tools/build_binaries_windows.py
+
 @echo to clean after the build: -DcleanAfter.set=true
-mvn -o install
+mvn install
 
 
 
@@ -80,14 +84,14 @@ mvn -o install
 @echo
 @echo DEPLOY_DIR: The directory where the final artifacts of the build will be put
 @echo
-@echo KEYSTORE: A keystore needs to be created and available at %DEPLOY_DIR%\pydevkeystore
+@echo KEYSTORE: A keystore needs to be created and available at X:\release_tools\pydevkeystore
 @echo
-@echo 	%JAVA_HOME%\bin\keytool -genkey -dname "CN=Brainwy Software, OU=PyDev, O=Brainwy, L=Florianopolis, ST=SC, C=Brazil" -keystore %DEPLOY_DIR%\pydevkeystore -alias pydev -validity 3650
-@echo 	%JAVA_HOME%\bin\keytool -selfcert -alias pydev -keystore %DEPLOY_DIR%\pydevkeystore -validity 3650
-@echo 	%JAVA_HOME%\bin\keytool -export -keystore %DEPLOY_DIR%\pydevkeystore -alias pydev -file pydev_certificate.cer
+@echo 	%JAVA_HOME%\bin\keytool -genkey -dname "CN=Brainwy Software, OU=PyDev, O=Brainwy, L=Florianopolis, ST=SC, C=Brazil" -keystore X:\release_tools\pydevkeystore -alias pydev -validity 3650
+@echo 	%JAVA_HOME%\bin\keytool -selfcert -alias pydev -keystore X:\release_tools\pydevkeystore -validity 3650
+@echo 	%JAVA_HOME%\bin\keytool -export -keystore X:\release_tools\pydevkeystore -alias pydev -file pydev_certificate.cer
 @echo
 @echo 	To sign
-@echo 	%JAVA_HOME%\bin\jarsigner -keystore %DEPLOY_DIR%\pydevkeystore -storepass PASSUSED JAR_TO_SIGN pydev
+@echo 	%JAVA_HOME%\bin\jarsigner -keystore X:\release_tools\pydevkeystore -storepass PASSUSED JAR_TO_SIGN pydev
 @echo
 @echo
 @echo KEYSTORE_ALIAS: The alias used during the keystore creation

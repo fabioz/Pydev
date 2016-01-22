@@ -52,8 +52,8 @@ public final class AugAssign extends stmtType implements operatorType {
     }
 
     public AugAssign createCopy(boolean copyComments) {
-        AugAssign temp = new AugAssign(target != null ? (exprType) target.createCopy(copyComments) : null, op,
-                value != null ? (exprType) value.createCopy(copyComments) : null);
+        AugAssign temp = new AugAssign(target != null ? (exprType) target.createCopy(copyComments) : null,
+                op, value != null ? (exprType) value.createCopy(copyComments) : null);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
         if (this.specialsBefore != null && copyComments) {

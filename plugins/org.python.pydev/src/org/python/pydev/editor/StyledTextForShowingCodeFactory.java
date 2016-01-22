@@ -28,8 +28,8 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.core.IPythonPartitions;
-import org.python.pydev.core.docutils.PyPartitionScanner;
 import org.python.pydev.core.docutils.SyntaxErrorException;
+import org.python.pydev.core.partition.PyPartitionScanner;
 import org.python.pydev.editor.actions.PyFormatStd;
 import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 import org.python.pydev.plugin.preferences.PydevPrefs;
@@ -193,11 +193,28 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener 
                     textPresentation.addStyleRange(new StyleRange(offset, len, textAttribute.getForeground(), null,
                             textAttribute.getStyle()));
 
-                } else if (IPythonPartitions.PY_MULTILINE_STRING1.equals(type)
-                        || IPythonPartitions.PY_MULTILINE_STRING2.equals(type)
-                        || IPythonPartitions.PY_SINGLELINE_STRING1.equals(type)
-                        || IPythonPartitions.PY_SINGLELINE_STRING2.equals(type)) {
+                } else if (IPythonPartitions.PY_MULTILINE_BYTES1.equals(type)
+                        || IPythonPartitions.PY_MULTILINE_BYTES2.equals(type)
+                        || IPythonPartitions.PY_SINGLELINE_BYTES1.equals(type)
+                        || IPythonPartitions.PY_SINGLELINE_BYTES2.equals(type)) {
                     TextAttribute textAttribute = colorCache.getStringTextAttribute();
+                    textPresentation.addStyleRange(new StyleRange(offset, len, textAttribute.getForeground(), null,
+                            textAttribute.getStyle()));
+
+                } else if (IPythonPartitions.PY_MULTILINE_UNICODE1.equals(type)
+                        || IPythonPartitions.PY_MULTILINE_UNICODE2.equals(type)
+                        || IPythonPartitions.PY_SINGLELINE_UNICODE1.equals(type)
+                        || IPythonPartitions.PY_SINGLELINE_UNICODE2.equals(type)) {
+                    TextAttribute textAttribute = colorCache.getUnicodeTextAttribute();
+                    textPresentation.addStyleRange(new StyleRange(offset, len, textAttribute.getForeground(), null,
+                            textAttribute.getStyle()));
+
+                } else if (IPythonPartitions.PY_MULTILINE_BYTES_OR_UNICODE1.equals(type)
+                        || IPythonPartitions.PY_MULTILINE_BYTES_OR_UNICODE2.equals(type)
+                        || IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE1.equals(type)
+                        || IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE2.equals(type)) {
+                    //In this case, although we have a choice, make it similar to unicode.
+                    TextAttribute textAttribute = colorCache.getUnicodeTextAttribute();
                     textPresentation.addStyleRange(new StyleRange(offset, len, textAttribute.getForeground(), null,
                             textAttribute.getStyle()));
                 }

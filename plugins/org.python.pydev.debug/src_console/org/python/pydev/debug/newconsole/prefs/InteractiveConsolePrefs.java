@@ -21,7 +21,6 @@ import org.python.pydev.debug.newconsole.PydevConsoleConstants;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_interactive_console.InteractiveConsolePlugin;
 import org.python.pydev.shared_interactive_console.console.ui.ScriptConsoleUIConstants;
-import org.python.pydev.shared_ui.field_editors.MultiStringFieldEditor;
 
 public class InteractiveConsolePrefs extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
@@ -35,32 +34,25 @@ public class InteractiveConsolePrefs extends FieldEditorPreferencePage implement
     protected void createFieldEditors() {
         Composite p = getFieldEditorParent();
 
-        ColorFieldEditor sysout = new ColorFieldEditor(PydevConsoleConstants.CONSOLE_OUTPUT_COLOR, "Stdout color", p);
-        ColorFieldEditor syserr = new ColorFieldEditor(PydevConsoleConstants.CONSOLE_ERROR_COLOR, "Stderr color", p);
-        ColorFieldEditor sysin = new ColorFieldEditor(PydevConsoleConstants.CONSOLE_INPUT_COLOR, "Stdin color", p);
-        ColorFieldEditor prompt = new ColorFieldEditor(PydevConsoleConstants.CONSOLE_PROMPT_COLOR, "Prompt color", p);
-        ColorFieldEditor background = new ColorFieldEditor(PydevConsoleConstants.CONSOLE_BACKGROUND_COLOR,
-                "Background color", p);
-        ColorFieldEditor debugBackground = new ColorFieldEditor(PydevConsoleConstants.DEBUG_CONSOLE_BACKGROUND_COLOR,
-                "Debug console background color", p);
+        addField(new ColorFieldEditor(PydevConsoleConstants.CONSOLE_OUTPUT_COLOR, "Stdout color", p));
 
-        addField(sysout);
-        addField(syserr);
-        addField(sysin);
-        addField(prompt);
-        addField(background);
-        addField(debugBackground);
+        addField(new ColorFieldEditor(PydevConsoleConstants.CONSOLE_ERROR_COLOR, "Stderr color", p));
 
-        addField(new MultiStringFieldEditor(PydevConsoleConstants.INITIAL_INTERPRETER_CMDS,
-                "Initial interpreter commands.\n\nCan use variables from:\nRun/Debug > String Substitution", p));
+        addField(new ColorFieldEditor(PydevConsoleConstants.CONSOLE_INPUT_COLOR, "Stdin color", p));
 
-        addField(new MultiStringFieldEditor(
-                PydevConsoleConstants.DJANGO_INTERPRETER_CMDS,
-                "Django interpreter commands.\n\nCan use variables from:\nRun/Debug > String Substitution\n\nUse ${DJANGO_SETTINGS_MODULE} to access\nthe project's Django settings module.",
-                p));
+        addField(new ColorFieldEditor(PydevConsoleConstants.CONSOLE_PROMPT_COLOR, "Prompt color", p));
+
+        addField(new ColorFieldEditor(PydevConsoleConstants.CONSOLE_BACKGROUND_COLOR,
+                "Background color", p));
+
+        addField(new ColorFieldEditor(PydevConsoleConstants.DEBUG_CONSOLE_BACKGROUND_COLOR,
+                "Debug console background color", p));
 
         addField(new StringFieldEditor(PydevConsoleConstants.INTERACTIVE_CONSOLE_VM_ARGS,
                 "Vm Args for jython\n(used only on external\nprocess option):", p));
+
+        addField(new StringFieldEditor(PydevConsoleConstants.INTERACTIVE_CONSOLE_ENCODING,
+                "Encoding for interactive console:", p));
 
         addField(new IntegerFieldEditor(PydevConsoleConstants.INTERACTIVE_CONSOLE_MAXIMUM_CONNECTION_ATTEMPTS,
                 "Maximum connection attempts\nfor initial communication:", p));

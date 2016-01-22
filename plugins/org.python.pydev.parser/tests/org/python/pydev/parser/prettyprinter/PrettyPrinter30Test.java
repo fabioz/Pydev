@@ -590,4 +590,69 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase {
 
     }
 
+    public void testAsync() throws Exception {
+        String s = ""
+                + "async def m1():\n"
+                + "    pass";
+        checkPrettyPrintEqual(s, s, s, s);
+    }
+
+    public void testAsync1() throws Exception {
+        String s = ""
+                + "@param\n"
+                + "async def m1():\n"
+                + "    pass";
+        checkPrettyPrintEqual(s, s, s, s);
+    }
+
+    public void testAsync2() throws Exception {
+        String s = ""
+                + "async with a:\n"
+                + "    pass";
+        checkPrettyPrintEqual(s, s, s, s);
+    }
+
+    public void testAsync3() throws Exception {
+        String s = ""
+                + "async with a:\n"
+                + "    pass";
+        checkPrettyPrintEqual(s, s, s, s);
+    }
+
+    public void testAwait() throws Exception {
+        String s = ""
+                + "async with a:\n"
+                + "    b = await foo()";
+        checkPrettyPrintEqual(s, s, s, s);
+    }
+
+    public void testListRemainder() throws Exception {
+        String s = ""
+                + "(first, middle, *last) = lst"
+                + "";
+        checkPrettyPrintEqual(s, s, s, s);
+    }
+
+    public void testDotOperator() throws Exception {
+        String s = ""
+                + "a = a @ a"
+                + "";
+        checkPrettyPrintEqual(s, s, s, s);
+    }
+
+    public void testDotOperator2() throws Exception {
+        String s = ""
+                + "a @= a"
+                + "";
+        checkPrettyPrintEqual(s, s, s, s);
+    }
+
+    public void testAcceptKwargsOnClass() throws Exception {
+        String s = ""
+                + "class F(**args):\n"
+                + "    pass\n"
+                + "";
+        checkPrettyPrintEqual(s, s, s, s);
+    }
+
 }

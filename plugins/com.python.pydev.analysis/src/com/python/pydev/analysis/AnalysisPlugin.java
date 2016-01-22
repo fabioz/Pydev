@@ -36,6 +36,7 @@ import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.UIConstants;
 
 import com.python.pydev.analysis.additionalinfo.IInfo;
+import com.python.pydev.analysis.additionalinfo.ReferenceSearchesLucene;
 
 /**
  * The main plugin class to be used in the desktop.
@@ -66,21 +67,21 @@ public class AnalysisPlugin extends AbstractUIPlugin {
         //        Display.getDefault().asyncExec(new Runnable() {
         //            public void run() {
         //                IWorkbench workbench = PlatformUI.getWorkbench();
-        //                
+        //
         //                activeWorkbenchWindow = workbench.getActiveWorkbenchWindow();
         //                handleActivePage();
-        //                
+        //
         //                workbench.addWindowListener(new IWindowListener() {
-        //                    
+        //
         //                    public void windowOpened(IWorkbenchWindow window) {
         //                    }
-        //                    
+        //
         //                    public void windowDeactivated(IWorkbenchWindow window) {
         //                    }
-        //                    
+        //
         //                    public void windowClosed(IWorkbenchWindow window) {
         //                    }
-        //                    
+        //
         //                    public void windowActivated(IWorkbenchWindow window) {
         //                        //When a window is activated, remove from the previous and add to the new one.
         //                        if(activeWorkbenchWindow != null){
@@ -114,6 +115,7 @@ public class AnalysisPlugin extends AbstractUIPlugin {
     @Override
     public void stop(BundleContext context) throws Exception {
         super.stop(context);
+        ReferenceSearchesLucene.disposeAll();
         plugin = null;
     }
 

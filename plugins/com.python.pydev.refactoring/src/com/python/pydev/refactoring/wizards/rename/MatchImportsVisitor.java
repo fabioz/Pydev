@@ -48,6 +48,7 @@ import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.FastStack;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.ArrayUtils;
@@ -205,6 +206,10 @@ public class MatchImportsVisitor extends VisitorBase {
                 } catch (BadLocationException e) {
                     throw new RuntimeException(e);
                 }
+                int firstCharPosition = TextSelectionUtils.getFirstCharPosition(line);
+                if (firstCharPosition > 0) {
+                    str = line.substring(0, firstCharPosition) + str;
+                }
                 TextEdit replaceEdit = new ReplaceEdit(offset, line.length(), str);
                 ret.add(replaceEdit);
             }
@@ -287,7 +292,8 @@ public class MatchImportsVisitor extends VisitorBase {
     private String lastPart;
     private FastStack<SimpleNode> stack = new FastStack<>(10);
 
-    public MatchImportsVisitor(IPythonNature nature, String initialName, SourceModule module, IProgressMonitor monitor) {
+    public MatchImportsVisitor(IPythonNature nature, String initialName, SourceModule module,
+            IProgressMonitor monitor) {
         this.nature = nature;
         this.initialModuleName = getWithoutInit(initialName);
         this.currentModule = module;
@@ -484,10 +490,11 @@ public class MatchImportsVisitor extends VisitorBase {
                     }
 
                     if (aliasType.asname == null) {
-                        boolean partialInImportStatement = node instanceof Import && startsWith;
-                        String checkName = partialInImportStatement ? initialModuleName : nameInImport;
+                        boolean forceFull = node instanceof Import && startsWith
+                                && full.contains(".");
+                        String checkName = forceFull ? initialModuleName : nameInImport;
 
-                        findOccurrences(partialInImportStatement, checkName);
+                        findOccurrences(forceFull, checkName);
                     }
                     handled = true;
                 } else {
@@ -510,17 +517,18 @@ public class MatchImportsVisitor extends VisitorBase {
         return handled;
     }
 
-    protected void findOccurrences(boolean partialInImportStatement, String checkName) {
+    protected void findOccurrences(boolean forceFull, String checkName) {
         List<ASTEntry> localOccurrences = ScopeAnalysis.getLocalOccurrences(checkName,
                 stack.peek());
         for (ASTEntry astEntry : localOccurrences) {
             if ((astEntry.node instanceof NameTok)
-                    && (((NameTok) astEntry.node).ctx == NameTok.ImportName || ((NameTok) astEntry.node).ctx == NameTok.ImportModule)) {
+                    && (((NameTok) astEntry.node).ctx == NameTok.ImportName
+                            || ((NameTok) astEntry.node).ctx == NameTok.ImportModule)) {
                 //i.e.: skip if it's an import as we already handle those!
                 continue;
             } else {
                 occurrences.add(new PyRenameImportProcess.FixedInputStringASTEntry(checkName,
-                        null, astEntry.node, partialInImportStatement));
+                        null, astEntry.node, forceFull));
             }
         }
     }

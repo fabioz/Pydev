@@ -6,8 +6,7 @@
  */
 package org.python.pydev.debug.newconsole.env;
 
-import java.util.Map;
-
+import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamsProxy;
@@ -19,13 +18,14 @@ import org.python.pydev.debug.core.Constants;
  */
 public class PydevSpawnedInterpreterProcess extends RuntimeProcess {
 
-    public PydevSpawnedInterpreterProcess(ILaunch launch, Process process, String name, Map attributes) {
-        super(launch, process, name, attributes);
+    public PydevSpawnedInterpreterProcess(ILaunch launch, Process process, String name, String encoding) {
+        super(launch, process, name, null);
         this.setAttribute(IProcess.ATTR_PROCESS_TYPE, Constants.PROCESS_TYPE);
+        this.setAttribute(DebugPlugin.ATTR_CONSOLE_ENCODING, encoding);
     }
 
     /**
-     * PydevSpawnedInterpreterProcess handles the IO in a custom way, so we don't 
+     * PydevSpawnedInterpreterProcess handles the IO in a custom way, so we don't
      * use the streams proxy.
      */
     @Override

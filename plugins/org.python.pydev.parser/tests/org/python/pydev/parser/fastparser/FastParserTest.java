@@ -11,9 +11,15 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.IGrammarVersionProvider;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.parser.prettyprinter.AbstractPrettyPrinterTestBase;
+import org.python.pydev.parser.prettyprinterv2.IPrettyPrinterPrefs;
+import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
 import org.python.pydev.parser.visitors.NodeUtils;
 
 /**
@@ -80,16 +86,16 @@ public class FastParserTest extends TestCase {
         check(all, 3, 10, 1, 10, 7);
 
         stmtType found = FastParser.firstClassOrFunction(doc, 1, true, false);
-        checkNode(3, 1, 3, 7, (ClassDef) found);
+        checkNode(3, 1, 3, 7, found);
 
         found = FastParser.firstClassOrFunction(doc, 0, true, false);
-        checkNode(1, 1, 1, 7, (ClassDef) found);
+        checkNode(1, 1, 1, 7, found);
 
         found = FastParser.firstClassOrFunction(doc, 5, true, false);
-        checkNode(10, 1, 10, 7, (ClassDef) found);
+        checkNode(10, 1, 10, 7, found);
 
         found = FastParser.firstClassOrFunction(doc, 5, false, false);
-        checkNode(5, 5, 5, 11, (ClassDef) found);
+        checkNode(5, 5, 5, 11, found);
 
         found = FastParser.firstClassOrFunction(doc, -1, false, false);
         assertNull(found);
@@ -98,7 +104,7 @@ public class FastParserTest extends TestCase {
         assertNull(found);
 
         found = FastParser.firstClassOrFunction(doc, 15, false, false);
-        checkNode(10, 1, 10, 7, (ClassDef) found);
+        checkNode(10, 1, 10, 7, found);
 
     }
 
@@ -184,6 +190,78 @@ public class FastParserTest extends TestCase {
         List<stmtType> stmts = FastParser.parseCython(doc);
         assertEquals(1, stmts.size());
         assertEquals("enum parrot_state:", NodeUtils.getRepresentationString(stmts.get(0)));
+    }
+
+    public void testCython3() throws Exception {
+        Document doc = new Document();
+        doc.set(""
+                + "def a():\n"
+                + "    cdef int b\n"
+                + "    b2 = 8\n"
+                + "    return a\n"
+                + "\n"
+                + "def a2():\n"
+                + "    cdef int b\n"
+                + "    b = 6\n"
+                + "    return a\n"
+                + "\n"
+                );
+        List<stmtType> stmts = FastParser.parseCython(doc);
+        assertEquals(2, stmts.size());
+        assertEquals("a", NodeUtils.getRepresentationString(stmts.get(0)));
+
+        FunctionDef st0 = (FunctionDef) stmts.get(0);
+        assertEquals(1, st0.body.length);
+        assertEquals("int b", NodeUtils.getRepresentationString(st0.body[0]));
+
+        assertEquals("a2", NodeUtils.getRepresentationString(stmts.get(1)));
+        FunctionDef st1 = (FunctionDef) stmts.get(1);
+        assertEquals(1, st1.body.length);
+
+        String s = printAst(stmts);
+        assertEquals(""
+                + "def a(self):\n"
+                + "    def int b(self):\n"
+                + "def a2(self):\n"
+                + "    def int b(self):\n"
+                + "", s);
+    }
+
+    public void testCython4() throws Exception {
+        Document doc = new Document();
+        doc.set(""
+                + "def a():\n"
+                + "    cdef int b\n"
+                + "        def c():\n"
+                + "    def d():\n"
+                + "    def e():\n"
+                + "        cdef int b\n"
+                + "\n"
+                );
+        List<stmtType> stmts = FastParser.parseCython(doc);
+
+        String s = printAst(stmts);
+        assertEquals(""
+                + "def a(self):\n"
+                + "    def int b(self):\n"
+                + "        def c(self):\n"
+                + "    def d(self):\n"
+                + "    def e(self):\n"
+                + "        def int b(self):\n"
+                + "", s);
+    }
+
+    private String printAst(List<stmtType> stmts) throws Error {
+        IGrammarVersionProvider versionProvider = new IGrammarVersionProvider() {
+
+            @Override
+            public int getGrammarVersion() throws MisconfigurationException {
+                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
+            }
+        };
+        IPrettyPrinterPrefs prefs = new PrettyPrinterPrefsV2("\n", "    ", versionProvider);
+        String s = AbstractPrettyPrinterTestBase.makePrint(prefs, new Module(stmts.toArray(new stmtType[0])));
+        return s;
     }
 
     public void testBackwardsUntil1stGlobal2() throws Exception {

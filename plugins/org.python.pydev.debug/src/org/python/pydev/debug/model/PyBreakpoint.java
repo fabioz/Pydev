@@ -34,6 +34,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
 /**
@@ -230,7 +231,7 @@ public class PyBreakpoint extends LineBreakpoint {
             return "None";
         }
 
-        if (file.lastModified() == lastModifiedTimeCached) {
+        if (FileUtils.lastModified(file) == lastModifiedTimeCached) {
             return functionName;
         }
 
@@ -263,7 +264,7 @@ public class PyBreakpoint extends LineBreakpoint {
                 } finally {
                     nature.endRequests();
                 }
-                lastModifiedTimeCached = file.lastModified();
+                lastModifiedTimeCached = FileUtils.lastModified(file);
 
                 if (sourceModule == null) {
                     //the text for the breakpoint requires the function name, and it may be requested before

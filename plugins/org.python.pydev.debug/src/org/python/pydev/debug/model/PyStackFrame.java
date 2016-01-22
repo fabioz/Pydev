@@ -37,7 +37,7 @@ import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * Represents a stack entry.
- * 
+ *
  * Needs to integrate with the source locator
  */
 public class PyStackFrame extends PlatformObject implements IStackFrame, IVariableLocator, IPyStackFrame {
@@ -158,10 +158,10 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
 
     /**
      * This interface changed in 3.2... we returned an empty collection before, and used the
-     * DeferredWorkbenchAdapter to get the actual children, but now we have to use the 
+     * DeferredWorkbenchAdapter to get the actual children, but now we have to use the
      * DeferredWorkbenchAdapter from here, as it is not called in that other interface
      * anymore.
-     * 
+     *
      * @see org.eclipse.debug.core.model.IStackFrame#getVariables()
      */
     public IVariable[] getVariables() throws DebugException {
@@ -205,7 +205,10 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
         this.onAskGetNewVars = true;
         AbstractDebugTarget target = getTarget();
         if (target != null) {
-            target.fireEvent(new DebugEvent(this, DebugEvent.CHANGE, DebugEvent.CONTENT));
+            // I.e.: if we do a new DebugEvent(this, DebugEvent.CHANGE, DebugEvent.CONTENT), the selection
+            // of the editor is redone (thus, if the user uses F2 it'd get back to the current breakpoint
+            // location because it'd be reselected).
+            target.fireEvent(new DebugEvent(this, DebugEvent.CHANGE, DebugEvent.UNSPECIFIED));
         }
     }
 

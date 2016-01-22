@@ -177,6 +177,9 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
             case JJTAUG_MULTIPLY:
                 ret = new AugAssign(null, AugAssign.Mult, null);
                 break;
+            case JJTAUG_DOT:
+                ret = new AugAssign(null, AugAssign.Dot, null);
+                break;
             case JJTAUG_DIVIDE:
                 ret = new AugAssign(null, AugAssign.Div, null);
                 break;
@@ -228,6 +231,9 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
                 break;
             case JJTMUL_2OP:
                 ret = new BinOp(null, BinOp.Mult, null);
+                break;
+            case JJTDOT_2OP:
+                ret = new BinOp(null, BinOp.Dot, null);
                 break;
             case JJTDIV_2OP:
                 ret = new BinOp(null, BinOp.Div, null);
@@ -423,6 +429,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
             case JJTAUG_PLUS:
             case JJTAUG_MINUS:
             case JJTAUG_MULTIPLY:
+            case JJTAUG_DOT:
             case JJTAUG_DIVIDE:
             case JJTAUG_MODULO:
             case JJTAUG_AND:
@@ -510,6 +517,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
             case JJTADD_2OP:
             case JJTSUB_2OP:
             case JJTMUL_2OP:
+            case JJTDOT_2OP:
             case JJTDIV_2OP:
             case JJTMOD_2OP:
             case JJTPOW_2OP:

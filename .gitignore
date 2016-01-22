@@ -51,3 +51,4 @@ Desktop DB
 plugins/org.python.pydev/pysrc/.git
 plugins/org.python.pydev/pysrc/.project
 plugins/org.python.pydev/pysrc/.settings
+**/v2_indexcache/**

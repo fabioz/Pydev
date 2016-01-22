@@ -35,4 +35,6 @@ public interface IScriptConsoleInterpreter extends IScriptConsoleShell, IConsole
 
     void interrupt();
 
+    public IScriptConsoleCommunication getConsoleCommunication();
+
 }

@@ -18,10 +18,10 @@ import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.python.pydev.core.docutils.WrapAndCaseUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.string.WrapAndCaseUtils;
 import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;
 
 /**
@@ -39,6 +39,9 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
 
     public static final String AUTOCOMPLETE_ON_DOT = "AUTOCOMPLETE_ON_DOT";
     public static final boolean DEFAULT_AUTOCOMPLETE_ON_DOT = true;
+
+    public static final String MAX_MILLIS_FOR_COMPLETION = "MAX_MILLIS_FOR_COMPLETION";
+    public static final int DEFAULT_MAX_MILLIS_FOR_COMPLETION = 5 * 1000; //Default is 5 seconds
 
     public static final String AUTOCOMPLETE_ON_ALL_ASCII_CHARS = "AUTOCOMPLETE_ON_ALL_ASCII_CHARS";
     public static final boolean DEFAULT_AUTOCOMPLETE_ON_ALL_ASCII_CHARS = true;
@@ -100,6 +103,10 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
         deepAnalysisFieldEditor.getTextControl(p).setToolTipText(tooltip);
 
         addField(new BooleanFieldEditor(USE_CODECOMPLETION, "Use code completion?", p));
+
+        addField(new IntegerFieldEditor(
+                MAX_MILLIS_FOR_COMPLETION,
+                "Maximum millis for a code-completion request to complete?", p));
 
         addField(new BooleanFieldEditor(USE_CODE_COMPLETION_ON_DEBUG_CONSOLES,
                 "Use code completion on debug console sessions?", p));
@@ -174,6 +181,19 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
             ret = 2; // at least 2 attempts!
         }
         return ret;
+    }
+
+    public static int getMaximumNumberOfMillisToCompleteCodeCompletionRequest() {
+        int val = getPreferences().getInt(PyCodeCompletionPreferencesPage.MAX_MILLIS_FOR_COMPLETION);
+        if (val <= 200) {
+            //Never less than 200 millis
+            val = 200;
+        }
+        if (val >= 120 * 1000) {
+            //Never more than 2 minutes
+            val = 120 * 1000;
+        }
+        return val;
     }
 
     public static boolean isToAutocompleteOnDot() {

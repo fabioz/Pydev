@@ -35,16 +35,16 @@ import org.eclipse.ui.internal.ide.StatusUtil;
 import org.eclipse.ui.internal.progress.ProgressMonitorJobsDialog;
 
 /**
- * The abstract superclass for actions which invoke commands 
+ * The abstract superclass for actions which invoke commands
  * implemented in org.eclipse.core.* on a set of selected resources.
- * 
+ *
  * It iterates over all selected resources; errors are collected and
  * displayed to the user via a problems dialog at the end of the operation.
  * User requests to cancel the operation are passed along to the core.
  * <p>
  * Subclasses must implement the following methods:
  * <ul>
- *   <li><code>invokeOperation</code> - to perform the operation on one of the 
+ *   <li><code>invokeOperation</code> - to perform the operation on one of the
  *      selected resources</li>
  *   <li><code>getOperationMessage</code> - to furnish a title for the progress
  *      dialog</li>
@@ -57,7 +57,7 @@ import org.eclipse.ui.internal.progress.ProgressMonitorJobsDialog;
  *   <li><code>updateSelection</code> - extend to refine enablement criteria</li>
  *   <li><code>getProblemsTitle</code> - reimplement to furnish a title for the
  *      problems dialog</li>
- *   <li><code>getProblemsMessage</code> - reimplement to furnish a message for 
+ *   <li><code>getProblemsMessage</code> - reimplement to furnish a message for
  *      the problems dialog</li>
  *   <li><code>run</code> - extend to </li>
  * </ul>
@@ -74,7 +74,7 @@ public abstract class WorkspaceAction extends SelectionListenerAction {
      * Creates a new action with the given text.
      *
      * @param shell the shell (for the modal progress dialog and error messages)
-     * @param text the string used as the text for the action, 
+     * @param text the string used as the text for the action,
      *   or <code>null</code> if there is no text
      */
     protected WorkspaceAction(Shell shell, String text) {
@@ -154,7 +154,7 @@ public abstract class WorkspaceAction extends SelectionListenerAction {
      * </p>
      *
      * @return the message
-     * 
+     *
      * @since 3.1
      */
     protected abstract String getOperationMessage();
@@ -163,13 +163,13 @@ public abstract class WorkspaceAction extends SelectionListenerAction {
      * Returns the string to display for this action's problems dialog.
      * <p>
      * The <code>WorkspaceAction</code> implementation of this method returns a
-     * vague message (localized counterpart of something like "The following 
+     * vague message (localized counterpart of something like "The following
      * problems occurred."). Subclasses may reimplement to provide something more
      * suited to the particular action.
      * </p>
      *
      * @return the problems message
-     * 
+     *
      * @since 3.1
      */
     protected String getProblemsMessage() {
@@ -180,12 +180,12 @@ public abstract class WorkspaceAction extends SelectionListenerAction {
      * Returns the title for this action's problems dialog.
      * <p>
      * The <code>WorkspaceAction</code> implementation of this method returns a
-     * generic title (localized counterpart of "Problems"). Subclasses may 
+     * generic title (localized counterpart of "Problems"). Subclasses may
      * reimplement to provide something more suited to the particular action.
      * </p>
      *
      * @return the problems dialog title
-     * 
+     *
      * @since 3.1
      */
     protected String getProblemsTitle() {
@@ -215,7 +215,7 @@ public abstract class WorkspaceAction extends SelectionListenerAction {
      * @param resource one of the selected resources
      * @param monitor a progress monitor
      * @exception CoreException if the operation fails
-     * 
+     *
      * @since 3.1
      */
     protected abstract void invokeOperation(IResource resource, IProgressMonitor monitor) throws CoreException;
@@ -235,13 +235,13 @@ public abstract class WorkspaceAction extends SelectionListenerAction {
     }
 
     /**
-     * Performs pruning on the given list of resources, as described in 
+     * Performs pruning on the given list of resources, as described in
      * <code>shouldPerformResourcePruning</code>.
      *
-     * @param resourceCollection the list of resources (element type: 
+     * @param resourceCollection the list of resources (element type:
      *    <code>IResource</code>)
      * @return the list of resources (element type: <code>IResource</code>)
-     *      after pruning. 
+     *      after pruning.
      * @see #shouldPerformResourcePruning
      */
     List<IResource> pruneResources(List<IResource> resourceCollection) {
@@ -273,7 +273,7 @@ public abstract class WorkspaceAction extends SelectionListenerAction {
     /**
      * The <code>CoreWrapperAction</code> implementation of this <code>IAction</code>
      * method uses a <code>ProgressMonitorDialog</code> to run the operation. The
-     * operation calls <code>execute</code> (which, in turn, calls 
+     * operation calls <code>execute</code> (which, in turn, calls
      * <code>invokeOperation</code>). Afterwards, any <code>CoreException</code>s
      * encountered while running the operation are reported to the user via a
      * problems dialog.
@@ -281,10 +281,12 @@ public abstract class WorkspaceAction extends SelectionListenerAction {
      * Subclasses may extend this method.
      * </p>
      */
+    @Override
     public void run() {
         final IStatus[] errorStatus = new IStatus[1];
         try {
             WorkspaceModifyOperation op = new WorkspaceModifyOperation() {
+                @Override
                 public void execute(IProgressMonitor monitor) {
                     errorStatus[0] = WorkspaceAction.this.execute(getActionResources(), monitor);
                 }
@@ -317,9 +319,9 @@ public abstract class WorkspaceAction extends SelectionListenerAction {
      * if pruning is not required.
      * </p>
      *
-     * @return <code>true</code> if pruning should be performed, 
+     * @return <code>true</code> if pruning should be performed,
      *   and <code>false</code> if pruning is not desired
-     *   
+     *
      * @since 3.1
      */
     protected boolean shouldPerformResourcePruning() {
@@ -333,11 +335,12 @@ public abstract class WorkspaceAction extends SelectionListenerAction {
      * extend to react to selection changes; however, if the super method returns
      * <code>false</code>, the overriding method should also return <code>false</code>.
      */
+    @Override
     protected boolean updateSelection(IStructuredSelection selection) {
         if (!super.updateSelection(selection) || selection.isEmpty()) {
             return false;
         }
-        for (Iterator<IResource> i = getSelectedResources().iterator(); i.hasNext();) {
+        for (Iterator<? extends IResource> i = getSelectedResources().iterator(); i.hasNext();) {
             IResource r = i.next();
             if (!r.isAccessible()) {
                 return false;
@@ -373,9 +376,9 @@ public abstract class WorkspaceAction extends SelectionListenerAction {
      * progress dialog.
      * @param rule The rule to apply to the background job or
      * <code>null</code> if there isn't one.
-     * @param jobFamily a single family that the job should 
+     * @param jobFamily a single family that the job should
      * belong to or <code>null</code> if none.
-     * 
+     *
      * @since 3.1
      */
     public void runInBackground(ISchedulingRule rule, Object jobFamily) {
@@ -391,9 +394,9 @@ public abstract class WorkspaceAction extends SelectionListenerAction {
      * progress dialog.
      * @param rule The rule to apply to the background job or
      * <code>null</code> if there isn't one.
-     * @param jobFamilies the families the job should belong 
+     * @param jobFamilies the families the job should belong
      * to or <code>null</code> if none.
-     * 
+     *
      * @since 3.1
      */
     public void runInBackground(ISchedulingRule rule, final Object[] jobFamilies) {
@@ -404,6 +407,7 @@ public abstract class WorkspaceAction extends SelectionListenerAction {
             /* (non-Javadoc)
              * @see org.eclipse.core.runtime.jobs.Job#belongsTo(java.lang.Object)
              */
+            @Override
             public boolean belongsTo(Object family) {
                 if (jobFamilies == null || family == null) {
                     return false;
@@ -419,6 +423,7 @@ public abstract class WorkspaceAction extends SelectionListenerAction {
             /* (non-Javadoc)
              * @see org.eclipse.core.resources.WorkspaceJob#runInWorkspace(org.eclipse.core.runtime.IProgressMonitor)
              */
+            @Override
             public IStatus runInWorkspace(IProgressMonitor monitor) {
                 return WorkspaceAction.this.execute(resources, monitor);
             }

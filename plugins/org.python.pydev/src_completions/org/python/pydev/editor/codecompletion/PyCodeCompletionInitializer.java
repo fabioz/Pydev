@@ -19,7 +19,7 @@ public class PyCodeCompletionInitializer extends AbstractPreferenceInitializer {
 
     @Override
     public void initializeDefaultPreferences() {
-        Preferences node = new DefaultScope().getNode(PydevPlugin.DEFAULT_PYDEV_SCOPE);
+        Preferences node = DefaultScope.INSTANCE.getNode(PydevPlugin.DEFAULT_PYDEV_SCOPE);
 
         //use?
         node.putBoolean(PyCodeCompletionPreferencesPage.USE_CODECOMPLETION,
@@ -36,6 +36,8 @@ public class PyCodeCompletionInitializer extends AbstractPreferenceInitializer {
                 PyCodeCompletionPreferencesPage.DEFAULT_AUTOCOMPLETE_ON_PAR);
         node.putBoolean(PyCodeCompletionPreferencesPage.AUTOCOMPLETE_ON_ALL_ASCII_CHARS,
                 PyCodeCompletionPreferencesPage.DEFAULT_AUTOCOMPLETE_ON_ALL_ASCII_CHARS);
+        node.putInt(PyCodeCompletionPreferencesPage.MAX_MILLIS_FOR_COMPLETION,
+                PyCodeCompletionPreferencesPage.DEFAULT_MAX_MILLIS_FOR_COMPLETION);
 
         //When to apply
         node.putBoolean(PyCodeCompletionPreferencesPage.APPLY_COMPLETION_ON_DOT,

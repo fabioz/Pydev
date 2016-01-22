@@ -13,12 +13,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
@@ -36,7 +38,7 @@ import com.python.pydev.analysis.messages.IMessage;
 /**
  * This class is used to do analysis on a thread, so that if an analysis is asked for some analysis that
  * is already in progress, that analysis will be stopped and this one will begin.
- * 
+ *
  * @author Fabio
  */
 public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
@@ -51,6 +53,9 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
     private IDocument document;
     private IResource resource;
     private ICallback<IModule, Integer> module;
+    private int moduleRequest;
+
+    private boolean onlyRecreateCtxInsensitiveInfo;
 
     // ---------------------------------------------------------------------------------------- END ATTRIBUTES
 
@@ -84,12 +89,12 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
     /**
      * @param oldAnalysisBuilderThread This is an existing runnable that was already analyzing things... we must wait for it
      * to finish to start it again.
-     * 
+     *
      * @param module: this is a callback that'll be called with a boolean that should return the IModule to be used in the
      * analysis.
      * The parameter is FULL_MODULE or DEFINITIONS_MODULE
      */
-    /*Default*/AnalysisBuilderRunnable(IDocument document, IResource resource, ICallback<IModule, Integer> module,
+    /*Default*/ AnalysisBuilderRunnable(IDocument document, IResource resource, ICallback<IModule, Integer> module,
             boolean isFullBuild, String moduleName, boolean forceAnalysis, int analysisCause,
             IAnalysisBuilderRunnable oldAnalysisBuilderThread, IPythonNature nature, long documentTime,
             KeyForAnalysisRunnable key, long resourceModificationStamp) {
@@ -103,6 +108,54 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
         this.document = document;
         this.resource = resource;
         this.module = module;
+
+        // Important: we can only update the index if it was a builder... if it was the parser,
+        // we can't update it otherwise we could end up with data that's not saved in the index.
+        boolean updateIndex = analysisCause == ANALYSIS_CAUSE_BUILDER;
+
+        // Previously we did this in a thread, but updating the indexes in a thread made things too
+        // unreliable for the index (it was not uncommon for it to become unsynchronized as we can't
+        // guarantee the order of operations).
+        // So, this process is now synchronous (just the code-analysis is done in a thread now).
+        try {
+            onlyRecreateCtxInsensitiveInfo = !forceAnalysis && analysisCause == ANALYSIS_CAUSE_BUILDER
+                    && PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor();
+
+            if (!onlyRecreateCtxInsensitiveInfo) {
+                //if not a source folder, we'll just want to recreate the context insensitive information
+                if (!nature.isResourceInPythonpathProjectSources(resource, false)) {
+                    onlyRecreateCtxInsensitiveInfo = true;
+                }
+            }
+
+            AbstractAdditionalTokensInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
+
+            if (info == null) {
+                Log.log("Unable to get additional info for: " + resource + " -- " + moduleName);
+                return;
+            }
+
+            //remove dependency information (and anything else that was already generated)
+            if (!isFullBuild && updateIndex) {
+                //if it is a full build, that info is already removed
+                AnalysisBuilderRunnableForRemove.removeInfoForModule(moduleName, nature, isFullBuild);
+            }
+
+            if (onlyRecreateCtxInsensitiveInfo) {
+                moduleRequest = DEFINITIONS_MODULE;
+            } else {
+                moduleRequest = FULL_MODULE;
+            }
+
+            //recreate the ctx insensitive info
+            if (updateIndex) {
+                recreateCtxInsensitiveInfo(info, (SourceModule) this.module.call(moduleRequest), nature, resource);
+            }
+
+        } catch (MisconfigurationException | CoreException e) {
+            Log.log(e);
+        }
+
     }
 
     @Override
@@ -147,6 +200,18 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
             if (!makeAnalysis) {
                 //let's see if we should do code analysis
                 AnalysisRunner.deleteMarkers(r);
+                if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
+                    Log.toLogFile(this, "Skipping: !makeAnalysis -- " + moduleName);
+                }
+                return;
+            }
+
+            if (onlyRecreateCtxInsensitiveInfo) {
+                if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
+                    Log.toLogFile(this, "Skipping: !forceAnalysis && analysisCause == ANALYSIS_CAUSE_BUILDER && "
+                            + "PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor() -- " + moduleName);
+                }
+                return;
             }
 
             if (nature == null) {
@@ -157,55 +222,6 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
 
             if (info == null) {
                 Log.log("Unable to get additional info for: " + r + " -- " + moduleName);
-                return;
-            }
-
-            checkStop();
-            //remove dependency information (and anything else that was already generated), but first, gather 
-            //the modules dependent on this one.
-            if (!isFullBuild) {
-                //if it is a full build, that info is already removed
-                AnalysisBuilderRunnableForRemove.removeInfoForModule(moduleName, nature, isFullBuild);
-            }
-
-            boolean onlyRecreateCtxInsensitiveInfo = !forceAnalysis && analysisCause == ANALYSIS_CAUSE_BUILDER
-                    && PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor();
-
-            if (!onlyRecreateCtxInsensitiveInfo) {
-                //if not a source folder, we'll just want to recreate the context insensitive information
-                if (!nature.isResourceInPythonpathProjectSources(r, false)) {
-                    onlyRecreateCtxInsensitiveInfo = true;
-                }
-            }
-
-            int moduleRequest;
-            if (onlyRecreateCtxInsensitiveInfo) {
-                moduleRequest = DEFINITIONS_MODULE;
-            } else {
-                moduleRequest = FULL_MODULE;
-            }
-
-            //get the module for the analysis
-            checkStop();
-            SourceModule module = (SourceModule) this.module.call(moduleRequest);
-
-            checkStop();
-            //recreate the ctx insensitive info
-            recreateCtxInsensitiveInfo(info, module, nature, r);
-
-            if (onlyRecreateCtxInsensitiveInfo) {
-                if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                    Log.toLogFile(this, "Skipping: !forceAnalysis && analysisCause == ANALYSIS_CAUSE_BUILDER && "
-                            + "PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor() -- " + moduleName);
-                }
-                return;
-            }
-
-            //let's see if we should continue with the process
-            if (!makeAnalysis) {
-                if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                    Log.toLogFile(this, "Skipping: !makeAnalysis -- " + moduleName);
-                }
                 return;
             }
 
@@ -231,6 +247,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
             //ok, let's do it
             OccurrencesAnalyzer analyzer = new OccurrencesAnalyzer();
             checkStop();
+            SourceModule module = (SourceModule) this.module.call(moduleRequest);
             IMessage[] messages = analyzer.analyzeDocument(nature, module, analysisPreferences, document,
                     this.internalCancelMonitor, DefaultIndentPrefs.get(this.resource));
 
@@ -250,8 +267,9 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
                 boolean analyzeOnlyActiveEditor = PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor();
                 if (forceAnalysis
                         || !analyzeOnlyActiveEditor
-                        || (analyzeOnlyActiveEditor && (!PyDevBuilderPrefPage.getRemoveErrorsWhenEditorIsClosed() || PyEdit
-                                .isEditorOpenForResource(r)))) {
+                        || (analyzeOnlyActiveEditor
+                                && (!PyDevBuilderPrefPage.getRemoveErrorsWhenEditorIsClosed() || PyEdit
+                                        .isEditorOpenForResource(r)))) {
                     runner.setMarkers(r, document, messages, this.internalCancelMonitor);
                 } else {
                     if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
@@ -298,7 +316,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
             IPythonNature nature, IResource r) {
 
         //info.removeInfoFromModule(sourceModule.getName()); -- does not remove info from the module because this
-        //should be already done once it gets here (the AnalysisBuilder, that also makes dependency info 
+        //should be already done once it gets here (the AnalysisBuilder, that also makes dependency info
         //should take care of this).
         boolean generateDelta;
         if (isFullBuild) {

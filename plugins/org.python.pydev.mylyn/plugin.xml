@@ -10,7 +10,7 @@
 		id="org.python.pydev.navigator.actions.mylyn" 
    		targetID="org.python.pydev.navigator.view">
     	<action
-           class="org.eclipse.mylyn.internal.ide.ui.actions.FocusProjectExplorerAction"
+           class="org.python.pydev.mylyn.PyFocusExplorerAction"
            enablesFor="*"
            icon="icons/elcl16/interest-filtering.gif"
            id="org.python.pydev.navigator.actions.mylyn.FilterResourceNavigatorAction"

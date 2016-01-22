@@ -7,7 +7,6 @@
 
 package org.python.pydev.ui.wizards.files;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IPath;
@@ -20,6 +19,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Label;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.ui.editors.TreeWithAddRemove;
 
@@ -34,7 +34,7 @@ public class PythonExistingSourceListGroup extends PythonExistingSourceGroup {
      * The source paths that are selected by this group, and are to be added to a project's
      * list of referenced source locations.
      */
-    private List<IPath> linkTargets = new LinkedList<IPath>();
+    private List<IPath> linkTargets = new LinkedListWarningOnSlowOperations<IPath>();
 
     /**
      * Creates a new instance of the widget.
@@ -52,8 +52,9 @@ public class PythonExistingSourceListGroup extends PythonExistingSourceGroup {
         GridData gd;
         GridData data;
         Label l2 = new Label(parent, SWT.NONE);
-        l2.setText("Project External Source Folders\n\nChoose external folders containing source that should be used for this project."
-                + "\nThese folders will be automatically added to the PYTHONPATH\n(unless the 'Don't configure PYTHONPATH' option was selected).");
+        l2.setText(
+                "Project External Source Folders\n\nChoose external folders containing source that should be used for this project."
+                        + "\nThese folders will be automatically added to the PYTHONPATH\n(unless the 'Don't configure PYTHONPATH' option was selected).");
         gd = new GridData();
         gd.grabExcessHorizontalSpace = true;
         gd.grabExcessVerticalSpace = false;

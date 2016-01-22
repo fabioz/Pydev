@@ -68,7 +68,7 @@ import com.python.pydev.refactoring.wizards.rename.TextEditCreation;
 
 /**
  * A class used for the refactorings that need the rename project (in pysrcrefactoring)
- * 
+ *
  * @author Fabio
  */
 public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase {
@@ -150,6 +150,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
                     public IPath getFullPath() {
                         return Path.fromOSString(this.file.getAbsolutePath());
                     }
+
                 };
             }
         };
@@ -185,8 +186,8 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
     protected abstract Class getProcessUnderTest();
 
     /**
-     * A method that creates a project that references no other project 
-     * 
+     * A method that creates a project that references no other project
+     *
      * @param force whether the creation of the new nature should be forced
      * @param path the pythonpath for the new nature
      * @param name the name for the project
@@ -206,7 +207,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
 
     /**
      * Overriden so that the pythonpath is only restored for the system and the refactoring nature
-     * 
+     *
      * @param force whether this should be forced, even if it was previously created for this class
      */
     @Override
@@ -290,7 +291,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
     /**
      * Goes through all the workspace (in this case the refactoring project) and gathers the references
      * for the current selection.
-     * 
+     *
      * @param moduleName the name of the module we're currently in
      * @param line the line we're in
      * @param col the col we're in

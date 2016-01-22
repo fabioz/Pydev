@@ -14,7 +14,22 @@ public interface operatorType {
     public static final int BitXor = 10;
     public static final int BitAnd = 11;
     public static final int FloorDiv = 12;
+    public static final int Dot = 13;
 
-    public static final String[] operatorTypeNames = new String[] { "<undef>", "Add", "Sub", "Mult", "Div", "Mod",
-            "Pow", "LShift", "RShift", "BitOr", "BitXor", "BitAnd", "FloorDiv", };
+    public static final String[] operatorTypeNames = new String[] {
+            "<undef>",
+            "Add",
+            "Sub",
+            "Mult",
+            "Div",
+            "Mod",
+            "Pow",
+            "LShift",
+            "RShift",
+            "BitOr",
+            "BitXor",
+            "BitAnd",
+            "FloorDiv",
+            "Dot",
+    };
 }

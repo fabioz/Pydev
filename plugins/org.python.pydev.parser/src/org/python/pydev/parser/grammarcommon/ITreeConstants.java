@@ -145,4 +145,7 @@ public interface ITreeConstants {
     public static final int JJTWITH_ITEM = 636;
     public static final int JJTELLIPSIS = 637;
     public static final int JJTELLIPSIS_AS_NAME = 638;
+    public static final int JJTDOT_2OP = 639;
+    public static final int JJTAUG_DOT = 640;
+
 }

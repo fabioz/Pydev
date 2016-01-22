@@ -4,11 +4,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.python.pydev.core.log.Log;
 
 /**
- * This is a refactoring request which may actually be composed of multiple requests (i.e.: for when we want to 
+ * This is a refactoring request which may actually be composed of multiple requests (i.e.: for when we want to
  * move several resources at once).
  */
 public class PyRefactoringRequest implements IPyRefactoringRequest {
@@ -44,6 +46,55 @@ public class PyRefactoringRequest implements IPyRefactoringRequest {
     public void setUpdateReferences(boolean selection) {
         for (RefactoringRequest r : requests) {
             r.setUpdateReferences(selection);
+        }
+    }
+
+    @Override
+    public IFile getIFileResource() {
+        IFile f = null;
+        for (RefactoringRequest r : requests) {
+            if (f == null) {
+                f = r.getIFileResource();
+            } else {
+                IFile f2 = r.getIFileResource();
+                if (!f.equals(f2)) {
+                    // This is inconsistent
+                    return null;
+                }
+            }
+        }
+        return f;
+    }
+
+    @Override
+    public void setSimpleResourceRename(boolean simpleResourceRename) {
+        for (RefactoringRequest r : requests) {
+            r.setSimpleResourceRename(simpleResourceRename);
+        }
+    }
+
+    @Override
+    public boolean getSimpleResourceRename() {
+        try {
+            Boolean b = null;
+            for (RefactoringRequest r : requests) {
+                if (b == null) {
+                    b = r.getSimpleResourceRename();
+                } else {
+                    if (b != r.getSimpleResourceRename()) {
+                        // If there's a conflict, we can't do a resource rename
+                        // (this makes no sense).
+                        return false;
+                    }
+                }
+            }
+            if (b == null) {
+                return false;
+            }
+            return b;
+        } catch (Exception e) {
+            Log.log(e);
+            return false;
         }
     }
 

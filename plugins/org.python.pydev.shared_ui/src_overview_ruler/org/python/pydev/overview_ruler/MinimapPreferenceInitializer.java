@@ -17,7 +17,7 @@ public class MinimapPreferenceInitializer extends AbstractPreferenceInitializer 
 
     @Override
     public void initializeDefaultPreferences() {
-        Preferences node = new DefaultScope().getNode(SharedUiPlugin.PLUGIN_ID);
+        Preferences node = DefaultScope.INSTANCE.getNode(SharedUiPlugin.PLUGIN_ID);
 
         node.putBoolean(MinimapOverviewRulerPreferencesPage.USE_MINIMAP, true);
         node.putBoolean(MinimapOverviewRulerPreferencesPage.SHOW_VERTICAL_SCROLLBAR, false);

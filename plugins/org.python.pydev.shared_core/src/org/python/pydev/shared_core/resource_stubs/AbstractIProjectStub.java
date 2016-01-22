@@ -40,7 +40,8 @@ public class AbstractIProjectStub extends AbstractIContainerStub implements IPro
         throw new RuntimeException("Not implemented");
     }
 
-    public void create(IProjectDescription description, int updateFlags, IProgressMonitor monitor) throws CoreException {
+    public void create(IProjectDescription description, int updateFlags, IProgressMonitor monitor)
+            throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 

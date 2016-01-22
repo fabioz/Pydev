@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
@@ -31,12 +32,15 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.ImportsSelection;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.debug.model.PyDebugTarget;
 import org.python.pydev.debug.model.PyStackFrame;
 import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant2;
 import org.python.pydev.editor.codecompletion.PyLinkedModeCompletionProposal;
 import org.python.pydev.editor.codecompletion.templates.PyTemplateCompletionProcessor;
 import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant2;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_interactive_console.console.IScriptConsoleCommunication;
@@ -116,6 +120,8 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
         final String text = commandLine.substring(0, position);
         ActivationTokenAndQual tokenAndQual = PySelection.getActivationTokenAndQual(new Document(text), text.length(),
                 true, false);
+        String textForCompletionInConsole = PySelection
+                .getTextForCompletionInConsole(new Document(text), text.length());
 
         //Code-completion for imports
         ImportInfo importsTipper = ImportsSelection.getImportsTipperStr(text, false);
@@ -191,7 +197,8 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
         if (!showOnlyTemplates) {
             //shell completions
             if (consoleCommunication != null) {
-                ICompletionProposal[] consoleCompletions = consoleCommunication.getCompletions(text, actTok, offset,
+                ICompletionProposal[] consoleCompletions = consoleCommunication.getCompletions(text,
+                        textForCompletionInConsole, offset,
                         showForTabCompletion);
                 // If we're only showing ipython completions, then short-circuit the rest
                 if (showForTabCompletion) {
@@ -233,14 +240,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
      * @see com.aptana.interactive_console.console.IScriptConsoleShell#getDescription(org.eclipse.jface.text.IDocument, int)
      */
     public String getDescription(IDocument doc, int position) throws Exception {
-        ActivationTokenAndQual tokenAndQual = PySelection.getActivationTokenAndQual(doc, position, true, false);
-        String actTok = tokenAndQual.activationToken;
-        if (tokenAndQual.qualifier != null && tokenAndQual.qualifier.length() > 0) {
-            if (actTok.length() > 0 && actTok.charAt(actTok.length() - 1) != '.') {
-                actTok += '.';
-            }
-            actTok += tokenAndQual.qualifier;
-        }
+        String actTok = PySelection.getTextForCompletionInConsole(doc, position);
         return consoleCommunication.getDescription(actTok);
     }
 
@@ -322,6 +322,29 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
      */
     public void linkWithDebugSelection(boolean isLinkedWithDebug) {
         this.consoleCommunication.linkWithDebugSelection(isLinkedWithDebug);
+    }
+
+    public void setLaunchAndRelatedInfo(ILaunch launch) {
+        this.setLaunch(launch);
+        if (launch != null) {
+            IDebugTarget debugTarget = launch.getDebugTarget();
+            IInterpreterInfo projectInterpreter = null;
+            if (debugTarget instanceof PyDebugTarget) {
+                PyDebugTarget pyDebugTarget = (PyDebugTarget) debugTarget;
+                PythonNature nature = PythonNature.getPythonNature(pyDebugTarget.project);
+                if (nature != null) {
+                    ArrayList<IPythonNature> natures = new ArrayList<>(1);
+                    this.setNaturesUsed(natures);
+                    try {
+                        projectInterpreter = nature.getProjectInterpreter();
+                        this.setInterpreterInfo(projectInterpreter);
+                    } catch (Throwable e1) {
+                        Log.log(e1);
+                    }
+                }
+            }
+        }
+
     }
 
 }

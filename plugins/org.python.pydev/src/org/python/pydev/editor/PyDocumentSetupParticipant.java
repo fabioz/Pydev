@@ -6,14 +6,14 @@
  */
 /*
  * Created on Jul 19, 2005
- * 
+ *
  * @author Fabio Zadrozny
  */
 package org.python.pydev.editor;
 
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.core.docutils.PyPartitionScanner;
+import org.python.pydev.core.partition.PyPartitionScanner;
 
 public class PyDocumentSetupParticipant implements IDocumentSetupParticipant {
 
@@ -22,7 +22,7 @@ public class PyDocumentSetupParticipant implements IDocumentSetupParticipant {
     }
 
     public void setup(IDocument document) {
-        PyPartitionScanner.addPartitionScanner(document);
+        PyPartitionScanner.addPartitionScanner(document, null);
     }
 
 }

@@ -32,5 +32,5 @@ public interface IInterpreterInfoBuilder {
      *
      * On dispose, the info reference should be disposed (but this builder should not be reused again).
      */
-    public BuilderResult synchInfoToPythonPath(IProgressMonitor monitor, InterpreterInfo interpreterInfo);
+    public BuilderResult syncInfoToPythonPath(IProgressMonitor monitor, InterpreterInfo interpreterInfo);
 }

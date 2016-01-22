@@ -9,6 +9,7 @@ package org.python.pydev.plugin.nature;
 import java.io.File;
 import java.util.EmptyStackException;
 import java.util.Stack;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.eclipse.core.resources.IResource;
 import org.python.pydev.core.ICodeCompletionASTManager;
@@ -24,7 +25,7 @@ public abstract class AbstractPythonNature implements IPythonNature {
     /**
      * @param resource the resource we want info on
      * @return whether the passed resource is in the pythonpath or not (it must be in a source folder for that).
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     public boolean isResourceInPythonpath(IResource resource) throws MisconfigurationException {
         return resolveModule(resource) != null;
@@ -37,7 +38,7 @@ public abstract class AbstractPythonNature implements IPythonNature {
     /**
      * @param resource the resource we want to get the name from
      * @return the name of the module in the environment
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     public String resolveModule(IResource resource) throws MisconfigurationException {
         String resourceOSString = PydevPlugin.getIResourceOSString(resource);
@@ -89,4 +90,15 @@ public abstract class AbstractPythonNature implements IPythonNature {
         }
     }
 
+    private AtomicLong mtime = new AtomicLong();
+
+    @Override
+    public void updateMtime() {
+        mtime.incrementAndGet();
+    }
+
+    @Override
+    public long getMtime() {
+        return mtime.get();
+    }
 }

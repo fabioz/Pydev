@@ -85,6 +85,7 @@ public class ConsoleRestartLaunchPageParticipant implements IConsolePageParticip
         return null;
     }
 
+    @Override
     public void dispose() {
         DebugPlugin.getDefault().removeDebugEventListener(this);
         if (restartLaunchAction != null) {
@@ -97,9 +98,11 @@ public class ConsoleRestartLaunchPageParticipant implements IConsolePageParticip
         }
     }
 
+    @Override
     public void activated() {
     }
 
+    @Override
     public void deactivated() {
     }
 

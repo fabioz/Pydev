@@ -19,6 +19,7 @@ import java.util.List;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
@@ -76,7 +77,8 @@ import org.python.pydev.shared_core.structure.FastStack;
  */
 public class PyTextHover implements ITextHover, ITextHoverExtension {
 
-    private final class PyInformationControl extends DefaultInformationControl implements IInformationControlExtension3 {
+    private final class PyInformationControl extends DefaultInformationControl
+            implements IInformationControlExtension3 {
         private PyInformationControl(Shell parent, int textStyles, IInformationPresenter presenter,
                 String statusFieldText) {
             super(parent, textStyles, presenter, statusFieldText);
@@ -88,11 +90,6 @@ public class PyTextHover implements ITextHover, ITextHoverExtension {
      * Whether we're in a comment or multiline string.
      */
     private final boolean pythonCommentOrMultiline;
-
-    /**
-     * A buffer we can fill with the information to be returned.
-     */
-    private final FastStringBuffer buf = new FastStringBuffer();
 
     /**
      * The text selected
@@ -117,12 +114,9 @@ public class PyTextHover implements ITextHover, ITextHoverExtension {
         this.pythonCommentOrMultiline = pythonCommentOrMultiline;
     }
 
-    /**
-     * Synchronized because of buffer access.
-     */
     @SuppressWarnings("unchecked")
-    public synchronized String getHoverInfo(ITextViewer textViewer, IRegion hoverRegion) {
-        buf.clear();
+    public String getHoverInfo(ITextViewer textViewer, IRegion hoverRegion) {
+        FastStringBuffer buf = new FastStringBuffer();
 
         if (!pythonCommentOrMultiline) {
             if (textViewer instanceof PySourceViewer) {
@@ -145,9 +139,9 @@ public class PyTextHover implements ITextHover, ITextHoverExtension {
                     }
                 }
 
-                getMarkerHover(hoverRegion, s);
+                getMarkerHover(hoverRegion, s, buf);
                 if (PyHoverPreferencesPage.getShowDocstringOnHover()) {
-                    getDocstringHover(hoverRegion, s, ps);
+                    getDocstringHover(hoverRegion, s, ps, buf);
                 }
 
             }
@@ -158,7 +152,7 @@ public class PyTextHover implements ITextHover, ITextHoverExtension {
     /**
      * Fills the buffer with the text for markers we're hovering over.
      */
-    private void getMarkerHover(IRegion hoverRegion, PySourceViewer s) {
+    private void getMarkerHover(IRegion hoverRegion, PySourceViewer s, FastStringBuffer buf) {
         for (Iterator<MarkerAnnotationAndPosition> it = s.getMarkerIterator(); it.hasNext();) {
             MarkerAnnotationAndPosition marker = it.next();
             try {
@@ -187,7 +181,7 @@ public class PyTextHover implements ITextHover, ITextHoverExtension {
      * Fills the buffer with the text for docstrings of the selected element.
      */
     @SuppressWarnings("unchecked")
-    private void getDocstringHover(IRegion hoverRegion, PySourceViewer s, PySelection ps) {
+    private void getDocstringHover(IRegion hoverRegion, PySourceViewer s, PySelection ps, FastStringBuffer buf) {
         //Now, aside from the marker, let's check if there's some definition we should show the user about.
         CompletionCache completionCache = new CompletionCache();
         ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
@@ -204,7 +198,7 @@ public class PyTextHover implements ITextHover, ITextHoverExtension {
         String[] tokenAndQual = null;
         try {
             tokenAndQual = PyRefactoringFindDefinition.findActualDefinition(request, completionCache, selected);
-        } catch (CompletionRecursionException e1) {
+        } catch (CompletionRecursionException | BadLocationException e1) {
             Log.log(e1);
             buf.append("Unable to compute hover. Details: " + e1.getMessage());
             return;

@@ -23,7 +23,7 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
  * 
  * @param <E>
  */
-public final class FastStack<E> implements Iterable<E> {
+public class FastStack<E> implements Iterable<E> {
 
     private E[] elementData;
 
@@ -252,10 +252,12 @@ public final class FastStack<E> implements Iterable<E> {
         return buf.toString();
     }
 
+    @Override
     public int hashCode() {
         throw new RuntimeException("Not hashable");
     }
 
+    @Override
     public boolean equals(Object o) {
         throw new RuntimeException("Not comparable");
     }

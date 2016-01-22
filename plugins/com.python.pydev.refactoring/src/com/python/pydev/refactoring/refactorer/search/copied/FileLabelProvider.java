@@ -6,24 +6,22 @@
  */
 package com.python.pydev.refactoring.refactorer.search.copied;
 
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Comparator;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.search.internal.ui.Messages;
-import org.eclipse.search.internal.ui.SearchPluginImages;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import org.eclipse.search.ui.text.AbstractTextSearchViewPage;
 import org.eclipse.search.ui.text.Match;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
-
-import com.python.pydev.ui.search.FileMatch;
-import com.python.pydev.ui.search.LineElement;
-import com.python.pydev.ui.search.SearchMessages;
+import org.python.pydev.shared_ui.SharedUiPlugin;
+import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_ui.search.SearchMessages;
 
 public class FileLabelProvider extends LabelProvider {
 
@@ -37,7 +35,7 @@ public class FileLabelProvider extends LabelProvider {
 
     private final WorkbenchLabelProvider fLabelProvider;
     private final AbstractTextSearchViewPage fPage;
-    private final Comparator fMatchComparator;
+    private final Comparator<FileMatch> fMatchComparator;
 
     private final Image fLineMatchImage;
 
@@ -47,10 +45,11 @@ public class FileLabelProvider extends LabelProvider {
         fLabelProvider = new WorkbenchLabelProvider();
         fOrder = orderFlag;
         fPage = page;
-        fLineMatchImage = SearchPluginImages.get(SearchPluginImages.IMG_OBJ_TEXT_SEARCH_LINE);
-        fMatchComparator = new Comparator() {
-            public int compare(Object o1, Object o2) {
-                return ((FileMatch) o1).getOriginalOffset() - ((FileMatch) o2).getOriginalOffset();
+
+        fLineMatchImage = SharedUiPlugin.getImageCache().get(UIConstants.LINE_MATCH);
+        fMatchComparator = new Comparator<FileMatch>() {
+            public int compare(FileMatch o1, FileMatch o2) {
+                return o1.getOriginalOffset() - o2.getOriginalOffset();
             }
         };
     }
@@ -66,20 +65,24 @@ public class FileLabelProvider extends LabelProvider {
     /* (non-Javadoc)
      * @see org.eclipse.jface.viewers.LabelProvider#getText(java.lang.Object)
      */
+    @Override
     public String getText(Object object) {
         return getStyledText(object);
     }
 
     public String getStyledText(Object element) {
-        if (element instanceof LineElement)
+        if (element instanceof LineElement) {
             return getLineElementLabel((LineElement) element);
+        }
 
-        if (!(element instanceof IResource))
+        if (!(element instanceof IResource)) {
             return new String();
+        }
 
         IResource resource = (IResource) element;
-        if (!resource.exists())
+        if (!resource.exists()) {
             new String(SearchMessages.FileLabelProvider_removed_resource_label);
+        }
 
         String name = BasicElementLabels.getResourceName(resource);
         if (fOrder == SHOW_LABEL) {
@@ -95,18 +98,18 @@ public class FileLabelProvider extends LabelProvider {
             return getColoredLabelWithCounts(resource, str);
         }
 
-        String str = new String(Messages.format(fgSeparatorFormat, new String[] { pathString, name }));
+        String str = new String(MessageFormat.format(fgSeparatorFormat, pathString, name));
         return getColoredLabelWithCounts(resource, str);
     }
 
     private String getLineElementLabel(LineElement lineElement) {
         int lineNumber = lineElement.getLine();
-        String lineNumberString = Messages
+        String lineNumberString = MessageFormat
                 .format(SearchMessages.FileLabelProvider_line_number, new Integer(lineNumber));
 
         String str = new String(lineNumberString);
 
-        Match[] matches = lineElement.getMatches(fPage.getInput());
+        FileMatch[] matches = lineElement.getMatches(fPage.getInput());
         Arrays.sort(matches, fMatchComparator);
 
         String content = lineElement.getContents();
@@ -117,7 +120,7 @@ public class FileLabelProvider extends LabelProvider {
 
         int charsToCut = getCharsToCut(length, matches); // number of characters to leave away if the line is too long
         for (int i = 0; i < matches.length; i++) {
-            FileMatch match = (FileMatch) matches[i];
+            FileMatch match = matches[i];
             int start = Math.max(match.getOriginalOffset() - lineElement.getOffset(), 0);
             // append gap between last match and the new one
             if (pos < start) {
@@ -203,14 +206,16 @@ public class FileLabelProvider extends LabelProvider {
 
     private String getColoredLabelWithCounts(Object element, String coloredName) {
         AbstractTextSearchResult result = fPage.getInput();
-        if (result == null)
+        if (result == null) {
             return coloredName;
+        }
 
         int matchCount = result.getMatchCount(element);
-        if (matchCount <= 1)
+        if (matchCount <= 1) {
             return coloredName;
+        }
 
-        String countInfo = Messages.format(SearchMessages.FileLabelProvider_count_format, new Integer(matchCount));
+        String countInfo = MessageFormat.format(SearchMessages.FileLabelProvider_count_format, new Integer(matchCount));
         coloredName += " ";
         coloredName += countInfo;
         return coloredName;
@@ -219,12 +224,14 @@ public class FileLabelProvider extends LabelProvider {
     /* (non-Javadoc)
      * @see org.eclipse.jface.viewers.LabelProvider#getImage(java.lang.Object)
      */
+    @Override
     public Image getImage(Object element) {
         if (element instanceof LineElement) {
             return fLineMatchImage;
         }
-        if (!(element instanceof IResource))
+        if (!(element instanceof IResource)) {
             return null;
+        }
 
         IResource resource = (IResource) element;
         Image image = fLabelProvider.getImage(resource);
@@ -234,6 +241,7 @@ public class FileLabelProvider extends LabelProvider {
     /* (non-Javadoc)
      * @see org.eclipse.jface.viewers.BaseLabelProvider#dispose()
      */
+    @Override
     public void dispose() {
         super.dispose();
         fLabelProvider.dispose();
@@ -242,6 +250,7 @@ public class FileLabelProvider extends LabelProvider {
     /* (non-Javadoc)
      * @see org.eclipse.jface.viewers.BaseLabelProvider#isLabelProperty(java.lang.Object, java.lang.String)
      */
+    @Override
     public boolean isLabelProperty(Object element, String property) {
         return fLabelProvider.isLabelProperty(element, property);
     }
@@ -249,6 +258,7 @@ public class FileLabelProvider extends LabelProvider {
     /* (non-Javadoc)
      * @see org.eclipse.jface.viewers.BaseLabelProvider#removeListener(org.eclipse.jface.viewers.ILabelProviderListener)
      */
+    @Override
     public void removeListener(ILabelProviderListener listener) {
         super.removeListener(listener);
         fLabelProvider.removeListener(listener);
@@ -257,6 +267,7 @@ public class FileLabelProvider extends LabelProvider {
     /* (non-Javadoc)
      * @see org.eclipse.jface.viewers.BaseLabelProvider#addListener(org.eclipse.jface.viewers.ILabelProviderListener)
      */
+    @Override
     public void addListener(ILabelProviderListener listener) {
         super.addListener(listener);
         fLabelProvider.addListener(listener);

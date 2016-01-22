@@ -69,8 +69,10 @@ import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.FastStack;
 import org.python.pydev.shared_core.structure.ImmutableTuple;
+import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 import org.python.pydev.shared_core.structure.OrderedMap;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.UIConstants;
@@ -103,9 +105,9 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
 
         //let's see if we should do a code-completion in the current scope...
 
-        //this engine does not work 'correctly' in the default scope on: 
+        //this engine does not work 'correctly' in the default scope on:
         //- class definitions - after 'class' and before '('
-        //- method definitions - after 'def' and before '(' 
+        //- method definitions - after 'def' and before '('
         PySelection ps = request.getPySelection();
         int lineCtx = ps.isInDeclarationLine();
         if (lineCtx != PySelection.DECLARATION_NONE) {
@@ -244,7 +246,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             boolean importsTip = false;
 
             if (importsTipper.importsTipperStr.length() != 0) {
-                //code completion in imports 
+                //code completion in imports
                 request.isInCalltip = false; //if found after (, but in an import, it is not a calltip!
                 request.isInMethodKeywordParam = false; //if found after (, but in an import, it is not a calltip!
                 importsTip = doImportCompletion(request, astManager, tokensList, importsTipper);
@@ -269,6 +271,14 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                 //want to do the analysis...
                 state.pushFindResolveImportMemoryCtx();
                 try {
+                    if (tokensList.size() > 10000) {
+                        Log.logWarn(StringUtils.format(
+                                "Warning: computed %s completions (trimming to 10000).\nRequest: %s",
+                                tokensList.size(), request));
+                        //With too many items it's possible that we have too many removals,
+                        //so, switch to a linked list (where removal is fast).
+                        tokensList = new LinkedListWarningOnSlowOperations(tokensList.subList(0, 10000));
+                    }
                     int i = 0;
                     for (Iterator<Object> it = tokensList.listIterator(); it.hasNext();) {
                         i++;
@@ -326,8 +336,9 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                                         break;
                                     }
                                     if (token2 == null
-                                            || (token2.equals(token) && token2.getArgs().equals(token.getArgs()) && token2
-                                                    .getParentPackage().equals(token.getParentPackage()))) {
+                                            || (token2.equals(token) && token2.getArgs().equals(token.getArgs())
+                                                    && token2
+                                                            .getParentPackage().equals(token.getParentPackage()))) {
                                         break;
                                     }
                                     token = token2;
@@ -368,7 +379,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
 
     private void fillTokensWithJediCompletions(CompletionRequest request, PySelection ps, IPythonNature nature,
             ICodeCompletionASTManager astManager, List<Object> tokensList) throws IOException, CoreException,
-            MisconfigurationException, PythonNatureWithoutProjectException {
+                    MisconfigurationException, PythonNatureWithoutProjectException {
 
         try {
             char c = ps.getCharBeforeCurrentOffset();
@@ -447,11 +458,11 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
 
     /**
      * Does a code-completion that will retrieve the globals in the module
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     private void doGlobalsCompletion(CompletionRequest request, ICodeCompletionASTManager astManager,
             List<Object> tokensList, ICompletionState state) throws CompletionRecursionException,
-            MisconfigurationException {
+                    MisconfigurationException {
         state.setActivationToken(request.activationToken);
         if (DebugSettings.DEBUG_CODE_COMPLETION) {
             Log.toLogFile(this, "astManager.getCompletionsForToken");
@@ -478,14 +489,14 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
 
     /**
      * Does a code-completion that will retrieve the all matches for some token in the module
-     * @throws MisconfigurationException 
-     * @throws PythonNatureWithoutProjectException 
-     * @throws CoreException 
-     * @throws IOException 
+     * @throws MisconfigurationException
+     * @throws PythonNatureWithoutProjectException
+     * @throws CoreException
+     * @throws IOException
      */
     private void doTokenCompletion(CompletionRequest request, ICodeCompletionASTManager astManager,
             List<Object> tokensList, String trimmed, ICompletionState state) throws CompletionRecursionException,
-            MisconfigurationException, IOException, CoreException, PythonNatureWithoutProjectException {
+                    MisconfigurationException, IOException, CoreException, PythonNatureWithoutProjectException {
         if (false) { //disabled for now.
             fillTokensWithJediCompletions(request, request.getPySelection(), request.nature, astManager, tokensList);
             return;
@@ -529,11 +540,11 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
 
     /**
      * Does a code-completion that will check for imports
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     private boolean doImportCompletion(CompletionRequest request, ICodeCompletionASTManager astManager,
             List<Object> tokensList, ImportInfo importsTipper) throws CompletionRecursionException,
-            MisconfigurationException {
+                    MisconfigurationException {
         boolean importsTip;
         //get the project and make the code completion!!
         //so, we want to do a code completion for imports...
@@ -559,7 +570,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
 
     /**
      * @return completions added from contributors
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private Collection<Object> getGlobalsFromParticipants(CompletionRequest request, ICompletionState state)
@@ -579,9 +590,9 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
      * @param theList OUT - returned completions are added here. (IToken instances)
      * @param getOnlySupers whether we should only get things from super classes (in this case, we won't get things from the current class)
      * @param checkIfInCorrectScope if true, we'll first check if we're in a scope that actually has a method with 'self' or 'cls'
-     * 
+     *
      * @return true if we actually tried to get the completions for self or cls.
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     @SuppressWarnings("unchecked")
     public static boolean getSelfOrClsCompletions(CompletionRequest request, List theList, ICompletionState state,
@@ -601,7 +612,8 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                     boolean scopeCorrect = false;
 
                     FastStack<SimpleNode> scopeStack = visitor.scope.getScopeStack();
-                    for (Iterator<SimpleNode> it = scopeStack.topDownIterator(); scopeCorrect == false && it.hasNext();) {
+                    for (Iterator<SimpleNode> it = scopeStack.topDownIterator(); scopeCorrect == false
+                            && it.hasNext();) {
                         SimpleNode node = it.next();
                         if (node instanceof FunctionDef) {
                             FunctionDef funcDef = (FunctionDef) node;
@@ -634,7 +646,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
 
     /**
      * Get self completions when you already have a scope
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static void getSelfOrClsCompletions(ILocalScope scope, CompletionRequest request, List theList,
@@ -665,7 +677,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                         }
                     }
                 } else {
-                    //ok, get the completions for the class, only thing we have to take care now is that we may 
+                    //ok, get the completions for the class, only thing we have to take care now is that we may
                     //not have only 'self' for completion, but something like self.foo.
                     //so, let's analyze our activation token to see what should we do.
 
@@ -692,7 +704,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
 
                     } else {
                         //it's not only self, so, first we have to get the definition of the token
-                        //the first one is self, so, just discard it, and go on, token by token to know what is the last 
+                        //the first one is self, so, just discard it, and go on, token by token to know what is the last
                         //one we are completing (e.g.: self.foo.bar)
                         int line = request.doc.getLineOfOffset(request.documentOffset);
                         IRegion region = request.doc.getLineInformationOfOffset(request.documentOffset);
@@ -703,7 +715,8 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
 
                         AbstractASTManager astMan = ((AbstractASTManager) request.nature.getAstManager());
                         theList.addAll(new AssignAnalysis().getAssignCompletions(astMan, module, new CompletionState(
-                                line, col, request.activationToken, request.nature, request.qualifier)).completions);
+                                line, col, request.activationToken, request.nature, request.qualifier),
+                                scope).completions);
                     }
                 }
             }

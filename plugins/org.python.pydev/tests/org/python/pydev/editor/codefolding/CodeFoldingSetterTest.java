@@ -9,8 +9,6 @@ package org.python.pydev.editor.codefolding;
 import java.util.Iterator;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.jface.text.Document;
@@ -18,6 +16,8 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
+
+import junit.framework.TestCase;
 
 public class CodeFoldingSetterTest extends TestCase {
 
@@ -103,7 +103,7 @@ public class CodeFoldingSetterTest extends TestCase {
             "    else:\n" + //77                                       
             "        print 'nothing'\n" + //78                                                     
             "        print 'other'" //79                   
-    ;
+            ;
 
     public static void main(String[] args) {
         try {
@@ -135,6 +135,7 @@ public class CodeFoldingSetterTest extends TestCase {
         preferences.setValue(PyDevCodeFoldingPrefPage.USE_CODE_FOLDING, value);
         preferences.setValue(PyDevCodeFoldingPrefPage.FOLD_CLASSDEF, value);
         preferences.setValue(PyDevCodeFoldingPrefPage.FOLD_COMMENTS, value);
+        preferences.setValue(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_COMMENTS, value);
         preferences.setValue(PyDevCodeFoldingPrefPage.FOLD_FOR, value);
         preferences.setValue(PyDevCodeFoldingPrefPage.FOLD_FUNCTIONDEF, value);
         preferences.setValue(PyDevCodeFoldingPrefPage.FOLD_IF, value);
@@ -365,7 +366,7 @@ public class CodeFoldingSetterTest extends TestCase {
 
     private List<FoldingEntry> getMarks(Document doc, int grammarVersion) {
         ParseOutput r = PyParser.reparseDocument(new PyParser.ParserInfo(doc, grammarVersion));
-        List<FoldingEntry> marks = CodeFoldingSetter.getMarks(doc, (SimpleNode) r.ast);
+        List<FoldingEntry> marks = CodeFoldingSetter.getMarks(doc, (SimpleNode) r.ast, true);
         if (DEBUG) {
             for (FoldingEntry entry : marks) {
                 System.out.println(entry);
@@ -378,6 +379,7 @@ public class CodeFoldingSetterTest extends TestCase {
         setOptionTrue(PyDevCodeFoldingPrefPage.FOLD_STRINGS);
         setOptionTrue(PyDevCodeFoldingPrefPage.FOLD_FUNCTIONDEF);
         setOptionTrue(PyDevCodeFoldingPrefPage.FOLD_COMMENTS);
+        setOptionTrue(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_COMMENTS);
         setOptionTrue(PyDevCodeFoldingPrefPage.FOLD_IMPORTS);
         setOptionTrue(PyDevCodeFoldingPrefPage.USE_CODE_FOLDING);
         Document doc = new Document("" +
@@ -453,6 +455,7 @@ public class CodeFoldingSetterTest extends TestCase {
 
     public void testMarksCommentsEnabled() throws Exception {
         setOptionTrue(PyDevCodeFoldingPrefPage.FOLD_COMMENTS);
+        setOptionTrue(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_COMMENTS);
         setOptionTrue(PyDevCodeFoldingPrefPage.USE_CODE_FOLDING);
         Document doc = new Document(largeDoc);
 
