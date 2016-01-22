@@ -25,11 +25,11 @@ C:\bin\Python27\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pyde
         Merge with master
 
 		Check that
-		 
+
 			C:\tools\Miniconda32\envs\py27_32\python -c "import pydevd"
-			
+
 		throws an exception (it cannot be installed in the environment)
-		
+
 		Create tab in cmdermini: X:\pydev\builders\org.python.pydev.build\build_cmd.bat
 
 		Copy features and plugins folders from X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository to X:\pydev_build\update_site_dir\updates
@@ -126,6 +126,6 @@ p:\FileZilla\filezilla.exe sftp://fabioz,pydev@frs.sourceforge.net/home/project-
 		** Twitter
 
         ** Update the versions:
-            x:
-            cd x:\pydev
-            python update_version.py 4.5.3
+			x:
+			cd x:\pydev
+			python update_version.py 4.5.4
