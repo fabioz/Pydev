@@ -9,7 +9,6 @@ import java.util.Set;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IDebugTarget;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.ui.IActionBars;
@@ -33,7 +32,7 @@ public class ReferrersView extends BaseDebugView {
     /**
      * May only be called in the UI thread. If the view is not visible, shows it if the
      * preference to do that is set to true.
-     * 
+     *
      * Note that it may return null if the preference to show it is false and the view is not currently shown.
      */
     public static ReferrersView getView(boolean forceVisible) {
@@ -176,7 +175,7 @@ public class ReferrersView extends BaseDebugView {
 
     public void showReferrersFor(final AbstractDebugTarget debugTarget, final IVariableLocator locator) {
         RunCustomOperationCommand cmd = new RunCustomOperationCommand(debugTarget, locator,
-                "from pydevd_referrers import get_referrer_info",
+                "from _pydevd_bundle.pydevd_referrers import get_referrer_info",
                 "get_referrer_info");
 
         ReferrerCommandResponseListener listener = new ReferrerCommandResponseListener(this, locator, debugTarget);
