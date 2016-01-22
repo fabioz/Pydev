@@ -92,6 +92,11 @@ public class PyTextHover implements ITextHover, ITextHoverExtension {
     private final boolean pythonCommentOrMultiline;
 
     /**
+     * The type of the content we're hovering over.
+     */
+    private final String contentType;
+
+    /**
      * The text selected
      */
     private ITextSelection textSelection;
@@ -112,19 +117,25 @@ public class PyTextHover implements ITextHover, ITextHoverExtension {
             }
         }
         this.pythonCommentOrMultiline = pythonCommentOrMultiline;
+        this.contentType = contentType;
     }
 
     @SuppressWarnings("unchecked")
     public String getHoverInfo(ITextViewer textViewer, IRegion hoverRegion) {
         FastStringBuffer buf = new FastStringBuffer();
 
-        if (!pythonCommentOrMultiline) {
-            if (textViewer instanceof PySourceViewer) {
-                PySourceViewer s = (PySourceViewer) textViewer;
-                PySelection ps = new PySelection(s.getDocument(), hoverRegion.getOffset() + hoverRegion.getLength());
+        if (textViewer instanceof PySourceViewer) {
+            PySourceViewer s = (PySourceViewer) textViewer;
+            PySelection ps = new PySelection(s.getDocument(), hoverRegion.getOffset() + hoverRegion.getLength());
 
-                List<IPyHoverParticipant> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_HOVER);
-                for (IPyHoverParticipant pyHoverParticipant : participants) {
+            List<IPyHoverParticipant> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_HOVER);
+            for (IPyHoverParticipant pyHoverParticipant : participants) {
+                boolean contentTypeSupported = !pythonCommentOrMultiline;
+                if (pyHoverParticipant instanceof IPyHoverParticipant2) {
+                    contentTypeSupported = ((IPyHoverParticipant2) pyHoverParticipant)
+                            .isContentTypeSupported(this.contentType);
+                }
+                if (contentTypeSupported) {
                     try {
                         String hoverText = pyHoverParticipant.getHoverText(hoverRegion, s, ps, textSelection);
                         if (hoverText != null && hoverText.trim().length() > 0) {
@@ -138,13 +149,14 @@ public class PyTextHover implements ITextHover, ITextHoverExtension {
                         Log.log(e);
                     }
                 }
-
+            }
+            if (!pythonCommentOrMultiline) {
                 getMarkerHover(hoverRegion, s, buf);
                 if (PyHoverPreferencesPage.getShowDocstringOnHover()) {
                     getDocstringHover(hoverRegion, s, ps, buf);
                 }
-
             }
+
         }
         return buf.toString();
     }
