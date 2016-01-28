@@ -32,6 +32,7 @@ public class ExtensionHelper extends BaseExtensionHelper {
     public static final String PYDEV_GLOBALS_BROWSER = "org.python.pydev.pydev_globals_browser";
     public static final String PYDEV_DEBUG_PREFERENCES_PAGE = "org.python.pydev.pydev_debug_preferences_page";
     public static final String PYDEV_HOVER = "org.python.pydev.pydev_hover";
+    public static final String PY_TEXT_HOVER = "org.python.pydev.pyTextHover";
 
     //IInterpreterInfoBuilder
     public static final String PYDEV_INTERPRETER_INFO_BUILDER = "org.python.pydev.pydev_interpreter_info_builder";

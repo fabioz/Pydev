@@ -16,6 +16,7 @@ import java.util.Map;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextHover;
+import org.eclipse.jface.text.ITextViewerExtension2;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.jface.text.quickassist.IQuickAssistAssistant;
@@ -29,8 +30,11 @@ import org.python.pydev.editor.codecompletion.PythonStringCompletionProcessor;
 import org.python.pydev.editor.correctionassist.PyCorrectionAssistant;
 import org.python.pydev.editor.correctionassist.PythonCorrectionProcessor;
 import org.python.pydev.editor.hover.PyAnnotationHover;
+import org.python.pydev.editor.hover.PyEditorTextHoverDescriptor;
+import org.python.pydev.editor.hover.PyEditorTextHoverProxy;
 import org.python.pydev.editor.hover.PyTextHover;
 import org.python.pydev.editor.simpleassist.SimpleAssistProcessor;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.ColorAndStyleCache;
 
 /**
@@ -71,8 +75,30 @@ public class PyEditConfiguration extends PyEditConfigurationWithoutEditor {
     }
 
     @Override
-    public ITextHover getTextHover(ISourceViewer sourceViewer, String contentType) {
+    public ITextHover getTextHover(ISourceViewer sourceViewer, String contentType, int stateMask) {
+        PyEditorTextHoverDescriptor[] hoverDescs = PydevPlugin.getDefault().getPyEditorTextHoverDescriptors();
+        int i = 0;
+        while (i < hoverDescs.length) {
+            if (true/*hoverDescs[i].isEnabled() && hoverDescs[i].getStateMask() == stateMask*/) {
+                return new PyEditorTextHoverProxy(hoverDescs[i], contentType);
+            }
+            i++;
+        }
+
+        /**
+         * If no contributions from org.python.pydev.pyTextHover, fall back to the legacy Hover that provides
+         * hover info from participants contributed to the deprecated org.python.pydev.pydev_hover extension point,
+         * concatenated with docstring and marker hover info.
+        */
         return new PyTextHover(sourceViewer, contentType);
+    }
+
+    /*
+     * @see SourceViewerConfiguration#getTextHover(ISourceViewer, String)
+     */
+    @Override
+    public ITextHover getTextHover(ISourceViewer sourceViewer, String contentType) {
+        return getTextHover(sourceViewer, contentType, ITextViewerExtension2.DEFAULT_HOVER_STATE_MASK);
     }
 
     /*
@@ -83,8 +109,8 @@ public class PyEditConfiguration extends PyEditConfigurationWithoutEditor {
     @SuppressWarnings("unchecked")
     protected Map<String, IPySyntaxHighlightingAndCodeCompletionEditor> getHyperlinkDetectorTargets(
             ISourceViewer sourceViewer) {
-        Map<String, IPySyntaxHighlightingAndCodeCompletionEditor> targets = super
-                .getHyperlinkDetectorTargets(sourceViewer);
+        Map<String, IPySyntaxHighlightingAndCodeCompletionEditor> targets = super.getHyperlinkDetectorTargets(
+                sourceViewer);
         targets.put("org.python.pydev.editor.PythonEditor", edit); //$NON-NLS-1$
         return targets;
     }

@@ -27,6 +27,10 @@ public class PyHoverPreferencesPage extends FieldEditorPreferencePage implements
     public static final String SHOW_DEBUG_VARIABLES_VALUES_ON_HOVER = "SHOW_DEBUG_VARIABLES_VALUES_ON_HOVER";
     public static final boolean DEFAULT_SHOW_DEBUG_VARIABLES_VALUES_ON_HOVER = true;
 
+    public static final String EDITOR_TEXT_HOVER_MODIFIERS = "hoverModifiers";
+
+    public static final String EDITOR_TEXT_HOVER_MODIFIER_MASKS = "hoverModifierMasks";
+
     public PyHoverPreferencesPage() {
         super(FLAT);
         setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());

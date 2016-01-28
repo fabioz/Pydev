@@ -23,6 +23,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -45,6 +46,8 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.SyncSystemModulesManagerScheduler;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
+import org.python.pydev.editor.hover.PyEditorTextHoverDescriptor;
+import org.python.pydev.editor.hover.PydevBestMatchHover;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
@@ -59,11 +62,14 @@ import org.python.pydev.shared_ui.bundle.IBundleInfo;
 import org.python.pydev.ui.interpreters.IronpythonInterpreterManager;
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
+import org.python.pydev.utils.ConfigurationElementAttributeSorter;
 
 /**
  * The main plugin class - initialized on startup - has resource bundle for internationalization - has preferences
  */
 public class PydevPlugin extends AbstractUIPlugin {
+
+    private PyEditorTextHoverDescriptor[] fPyEditorTextHoverDescriptors;
 
     public static String getVersion() {
         try {
@@ -626,6 +632,43 @@ public class PydevPlugin extends AbstractUIPlugin {
             }
         }
         return managerToNameToInfo;
+    }
+
+    /**
+     * Returns all Python editor text hovers contributed to the workbench.
+     *
+     * @return an array of JavaEditorTextHoverDescriptor
+     * @since 2.1
+     */
+    public synchronized PyEditorTextHoverDescriptor[] getPyEditorTextHoverDescriptors() {
+        if (fPyEditorTextHoverDescriptors == null) {
+            fPyEditorTextHoverDescriptors = PyEditorTextHoverDescriptor.getContributedHovers();
+            ConfigurationElementAttributeSorter sorter = new ConfigurationElementAttributeSorter() {
+                /*
+                 * @see org.eclipse.ui.texteditor.ConfigurationElementSorter#getConfigurationElement(java.lang.Object)
+                 */
+                @Override
+                public IConfigurationElement getConfigurationElement(Object object) {
+                    return ((PyEditorTextHoverDescriptor) object).getConfigurationElement();
+                }
+            };
+            sorter.sort(fPyEditorTextHoverDescriptors, PyEditorTextHoverDescriptor.ATT_PYDEV_HOVER_PRIORITY);
+
+            // Move Best Match hover to front
+            for (int i = 0; i < fPyEditorTextHoverDescriptors.length - 1; i++) {
+                if (PydevBestMatchHover.ID_BESTMATCH_HOVER.equals(fPyEditorTextHoverDescriptors[i].getId())) {
+                    PyEditorTextHoverDescriptor hoverDescriptor = fPyEditorTextHoverDescriptors[i];
+                    for (int j = i; j > 0; j--) {
+                        fPyEditorTextHoverDescriptors[j] = fPyEditorTextHoverDescriptors[j - 1];
+                    }
+                    fPyEditorTextHoverDescriptors[0] = hoverDescriptor;
+                    break;
+                }
+
+            }
+        }
+
+        return fPyEditorTextHoverDescriptors;
     }
 
 }
