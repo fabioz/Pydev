@@ -1,25 +1,36 @@
 History For PyDev
 ~~~~~~~~~~~~~~~~~
 
+
+Release 4.5.4
+==========================
+
+* Debugger
+
+	* Fixed critical issue, in which the main process was killed during the debugging when a subprocess exited when	"Attach to subprocess automatically while debugging" was enabled (#PyDev 656).
+
+	* Fixed issue which broke the action to get the referrers of some object in the debugger (right-click variable in debugger > get referrers).
+
+
 Release 4.5.3
 ==========================
 
 * Debugger
 
 	* Fixed issue in set next statement (#PyDev 651).
-	
-	* pydevd.settrace was stopping inside the debugger and not in user code (#PyDev 648). 
-	
+
+	* pydevd.settrace was stopping inside the debugger and not in user code (#PyDev 648).
+
 	* subprocess.Popen could crash when running non python executable (#PyDev 650).
-	
+
 * PyUnit view
 
 	* The last pinned test suite appears as the first entry in the history.
-	
+
 	* More information is shown on the test run history.
-	
+
 	* A string representation of the test suite can be saved in the clipboard (last item in the test run history).
-	
+
 * Indexing: fixed issue where the indexing and code-analysis could race with each other and one could become corrupt.
 
 
