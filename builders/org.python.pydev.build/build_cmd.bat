@@ -11,7 +11,7 @@
 @echo The contents here may just be copied into cmd.exe or some other shell (just note that
 @echo in some cases a call to git may stop executing, so, you may need to copy the commands in chunks).
 
-set BRANCH=development
+set BRANCH=master
 
 set DRIVE=x:
 set BASE_LOCAL_PYDEV_GIT=x:\pydev
