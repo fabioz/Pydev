@@ -45,13 +45,13 @@ import org.python.pydev.plugin.PydevPlugin;
 public class PyEditorTextHoverDescriptor {
 
     private static final String HOVER_TAG = "pyTextHover"; //$NON-NLS-1$
-    private static final String CLASS_ATTRIBUTE = "class"; //$NON-NLS-1$
-    private static final String ID_ATTRIBUTE = "id"; //$NON-NLS-1$
     private static final String LABEL_ATTRIBUTE = "label"; //$NON-NLS-1$
     private static final String ACTIVATE_PLUG_IN_ATTRIBUTE = "activate"; //$NON-NLS-1$
     private static final String DESCRIPTION_ATTRIBUTE = "description"; //$NON-NLS-1$
 
     public static final String ATT_PYDEV_HOVER_PRIORITY = "priority";
+    public static final String ATT_PYDEV_HOVER_LABEL = "label";
+    public static final String ATT_PYDEV_HOVER_CLASS = "class";
     public static final String ATT_PYDEV_HOVER_ID = "id";
     public static final String ATT_PYDEV_HOVER_PREEMPT = "preempt";
     public static final int DEFAULT_HOVER_PRIORITY = 100;
@@ -61,7 +61,9 @@ public class PyEditorTextHoverDescriptor {
     public static final String VALUE_SEPARATOR = ";"; //$NON-NLS-1$
 
     private int fStateMask;
+
     private String fModifierString;
+
     private boolean fIsEnabled;
 
     private IConfigurationElement fElement;
@@ -127,7 +129,7 @@ public class PyEditorTextHoverDescriptor {
         boolean isHoversPlugInActivated = Platform.getBundle(pluginId).getState() == Bundle.ACTIVE;
         if (isHoversPlugInActivated || canActivatePlugIn()) {
             try {
-                return (AbstractPyEditorTextHover) fElement.createExecutableExtension(CLASS_ATTRIBUTE);
+                return (AbstractPyEditorTextHover) fElement.createExecutableExtension(ATT_PYDEV_HOVER_CLASS);
             } catch (CoreException x) {
                 Log.log(x);
             }
@@ -144,7 +146,7 @@ public class PyEditorTextHoverDescriptor {
      * @return the id
      */
     public String getId() {
-        return fElement.getAttribute(ID_ATTRIBUTE);
+        return fElement.getAttribute(ATT_PYDEV_HOVER_ID);
     }
 
     /**
@@ -153,7 +155,7 @@ public class PyEditorTextHoverDescriptor {
      * @return the class name
      */
     public String getHoverClassName() {
-        return fElement.getAttribute(CLASS_ATTRIBUTE);
+        return fElement.getAttribute(ATT_PYDEV_HOVER_CLASS);
     }
 
     /**
@@ -174,6 +176,20 @@ public class PyEditorTextHoverDescriptor {
             return label.substring(lastDot + 1);
         } else {
             return label;
+        }
+    }
+
+    /**
+     * Returns the hover's priority.
+     *
+     * @return the id
+     */
+    public Integer getPriority() {
+        String sPriority = fElement.getAttribute(ATT_PYDEV_HOVER_PRIORITY);
+        try {
+            return Integer.parseInt(sPriority);
+        } catch (NumberFormatException e) {
+            return null;
         }
     }
 

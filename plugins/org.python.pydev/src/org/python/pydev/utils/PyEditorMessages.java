@@ -29,6 +29,19 @@ public final class PyEditorMessages extends NLS {
     }
 
     public static String EditorUtility_concatModifierStrings;
+    public static String PyEditorHoverConfigurationBlock_delimiter;
+    public static String PyEditorHoverConfigurationBlock_hoverPreferences;
+    public static String PyEditorHoverConfigurationBlock_annotationRollover;
+    public static String PyEditorHoverConfigurationBlock_modifierColumnTitle;
+    public static String PyEditorHoverConfigurationBlock_nameColumnTitle;
+    public static String PyEditorHoverConfigurationBlock_keyModifier;
+    public static String PyEditorHoverConfigurationBlock_insertDelimiterAndModifierAndDelimiter;
+    public static String PyEditorHoverConfigurationBlock_insertDelimiterAndModifier;
+    public static String PyEditorHoverConfigurationBlock_insertModifierAndDelimiter;
+    public static String PyEditorHoverConfigurationBlock_description;
+    public static String PyEditorHoverConfigurationBlock_modifierIsNotValid;
+    public static String PyEditorHoverConfigurationBlock_modifierIsNotValidForHover;
+    public static String PyEditorHoverConfigurationBlock_duplicateModifier;
 
     static {
         NLS.initializeMessages(BUNDLE_NAME, PyEditorMessages.class);

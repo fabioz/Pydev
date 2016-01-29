@@ -1,10 +1,7 @@
 package org.python.pydev.editor.hover;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
-import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
@@ -23,7 +20,6 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.PyInformationPresenter;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
-import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
@@ -40,7 +36,7 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.FastStack;
 
-public class PyDocTextHover extends AbstractPyEditorTextHover {
+public class PyDocstringTextHover extends AbstractPyEditorTextHover {
 
     @Override
     public String getHoverInfo(ITextViewer textViewer, IRegion hoverRegion) {
@@ -49,7 +45,6 @@ public class PyDocTextHover extends AbstractPyEditorTextHover {
         if (textViewer instanceof PySourceViewer) {
             PySourceViewer s = (PySourceViewer) textViewer;
             PySelection ps = new PySelection(s.getDocument(), hoverRegion.getOffset() + hoverRegion.getLength());
-            getMarkerHover(hoverRegion, s, buf);
             if (PyHoverPreferencesPage.getShowDocstringOnHover()) {
                 getDocstringHover(hoverRegion, s, ps, buf);
             }
@@ -68,35 +63,11 @@ public class PyDocTextHover extends AbstractPyEditorTextHover {
             }
         }
 
-        return !pythonCommentOrMultiline;
-    }
-
-    /**
-     * Fills the buffer with the text for markers we're hovering over.
-     */
-    private void getMarkerHover(IRegion hoverRegion, PySourceViewer s, FastStringBuffer buf) {
-        for (Iterator<MarkerAnnotationAndPosition> it = s.getMarkerIterator(); it.hasNext();) {
-            MarkerAnnotationAndPosition marker = it.next();
-            try {
-                if (marker.position == null) {
-                    continue;
-                }
-                int cStart = marker.position.offset;
-                int cEnd = cStart + marker.position.length;
-                int offset = hoverRegion.getOffset();
-                if (cStart <= offset && cEnd >= offset) {
-                    if (buf.length() > 0) {
-                        buf.append(PyInformationPresenter.LINE_DELIM);
-                    }
-                    Object msg = marker.markerAnnotation.getMarker().getAttribute(IMarker.MESSAGE);
-                    if (!"PyDev breakpoint".equals(msg)) {
-                        buf.appendObject(msg);
-                    }
-                }
-            } catch (CoreException e) {
-                //ignore marker does not exist anymore
-            }
+        if (!pythonCommentOrMultiline) {
+            return PyHoverPreferencesPage.getShowDocstringOnHover();
         }
+
+        return false;
     }
 
     /**

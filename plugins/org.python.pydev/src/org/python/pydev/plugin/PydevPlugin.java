@@ -31,14 +31,19 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.forms.FormColors;
+import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.prefs.BackingStoreException;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
@@ -271,6 +276,8 @@ public class PydevPlugin extends AbstractUIPlugin {
     }
 
     private Set<String> erasePrefixes = new HashSet<String>();
+
+    private FormToolkit fDialogsFormToolkit;
 
     public File getTempFile(String prefix) {
         erasePrefixes.add(prefix);
@@ -669,6 +676,42 @@ public class PydevPlugin extends AbstractUIPlugin {
         }
 
         return fPyEditorTextHoverDescriptors;
+    }
+
+    /**
+     * Flushes the instance scope of this plug-in.
+     * 
+     * @since 3.7
+     */
+    public static void flushInstanceScope() {
+        try {
+            InstanceScope.INSTANCE.getNode(PydevPlugin.getPluginID()).flush();
+        } catch (BackingStoreException e) {
+            Log.log(e);
+        }
+    }
+
+    public FormToolkit getDialogsFormToolkit() {
+        if (fDialogsFormToolkit == null) {
+            FormColors colors = new FormColors(Display.getCurrent());
+            colors.setBackground(null);
+            colors.setForeground(null);
+            fDialogsFormToolkit = new FormToolkit(colors);
+        }
+        return fDialogsFormToolkit;
+    }
+
+    /**
+     * Resets the Java editor text hovers contributed to the workbench.
+     * <p>
+     * This will force a rebuild of the descriptors the next time
+     * a client asks for them.
+     * </p>
+     *
+     * @since 2.1
+     */
+    public synchronized void resetPyEditorTextHoverDescriptors() {
+        fPyEditorTextHoverDescriptors = null;
     }
 
 }

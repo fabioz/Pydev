@@ -2824,10 +2824,22 @@ if __name__ == "__main__":
          point="org.python.pydev.pyTextHover">
       <pyTextHover
             activate="false"
-            class="org.python.pydev.editor.hover.PyDocTextHover"
+            class="org.python.pydev.editor.hover.PyDocstringTextHover"
             description="Provides hover text for Python docstrings"
-            id="org.python.pydev.pyDocHover"
-            label="Python Docstring and Marker Hover info"
+            id="org.python.pydev.editor.hover.PyDocstringTextHover"
+            label="Python Docstring Hover"
+            preempt="false"
+            priority="100">
+      </pyTextHover>
+   </extension>
+   <extension
+         point="org.python.pydev.pyTextHover">
+      <pyTextHover
+            activate="false"
+            class="org.python.pydev.editor.hover.PyMarkerTextHover"
+            description="Provides hover text for Python markers"
+            id="org.python.pydev.pyMarkerHover"
+            label="Python Marker Hover"
             preempt="false"
             priority="100">
       </pyTextHover>

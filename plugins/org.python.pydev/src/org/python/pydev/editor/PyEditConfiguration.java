@@ -32,7 +32,6 @@ import org.python.pydev.editor.correctionassist.PythonCorrectionProcessor;
 import org.python.pydev.editor.hover.PyAnnotationHover;
 import org.python.pydev.editor.hover.PyEditorTextHoverDescriptor;
 import org.python.pydev.editor.hover.PyEditorTextHoverProxy;
-import org.python.pydev.editor.hover.PyTextHover;
 import org.python.pydev.editor.simpleassist.SimpleAssistProcessor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.ColorAndStyleCache;
@@ -76,21 +75,32 @@ public class PyEditConfiguration extends PyEditConfigurationWithoutEditor {
 
     @Override
     public ITextHover getTextHover(ISourceViewer sourceViewer, String contentType, int stateMask) {
+        /**
+         * If any contributions from the deprecated extension point org.python.pydev.pydev_hover, use
+         * the old style Pydev hover implementation, and ignore any contributions to org.python.pydev.pyTextHover.
+         */
+        //        @SuppressWarnings("unchecked")
+        //        List<IPyHoverParticipant> participants = (List<IPyHoverParticipant>) ExtensionHelper
+        //                .getParticipants(ExtensionHelper.PYDEV_HOVER);
+        //        if (participants != null && participants.size() > 0) {
+        //            return new PyTextHover(sourceViewer, contentType);
+        //        }
+
+        /**
+         * We return the highest priority registered hover. If two or more hovers have the highest
+         * priority, it is indeterminate which will be selected. Use a CombiningTextHover as the
+         * highest priority hover to combine hover info in a configurable way.
+         */
         PyEditorTextHoverDescriptor[] hoverDescs = PydevPlugin.getDefault().getPyEditorTextHoverDescriptors();
         int i = 0;
         while (i < hoverDescs.length) {
-            if (true/*hoverDescs[i].isEnabled() && hoverDescs[i].getStateMask() == stateMask*/) {
+            if (hoverDescs[i].isEnabled() && hoverDescs[i].getStateMask() == stateMask) {
                 return new PyEditorTextHoverProxy(hoverDescs[i], contentType);
             }
             i++;
         }
 
-        /**
-         * If no contributions from org.python.pydev.pyTextHover, fall back to the legacy Hover that provides
-         * hover info from participants contributed to the deprecated org.python.pydev.pydev_hover extension point,
-         * concatenated with docstring and marker hover info.
-        */
-        return new PyTextHover(sourceViewer, contentType);
+        return null;
     }
 
     /*
@@ -181,5 +191,38 @@ public class PyEditConfiguration extends PyEditConfigurationWithoutEditor {
         //delay and auto activate set on PyContentAssistant constructor.
 
         return assistant;
+    }
+
+    /*
+     * @see SourceViewerConfiguration#getConfiguredTextHoverStateMasks(ISourceViewer, String)
+     * @since 2.1
+     */
+    @Override
+    public int[] getConfiguredTextHoverStateMasks(ISourceViewer sourceViewer, String contentType) {
+        PyEditorTextHoverDescriptor[] hoverDescs = PydevPlugin.getDefault().getPyEditorTextHoverDescriptors();
+        int stateMasks[] = new int[hoverDescs.length];
+        int stateMasksLength = 0;
+        for (int i = 0; i < hoverDescs.length; i++) {
+            if (hoverDescs[i].isEnabled()) {
+                int j = 0;
+                int stateMask = hoverDescs[i].getStateMask();
+                while (j < stateMasksLength) {
+                    if (stateMasks[j] == stateMask) {
+                        break;
+                    }
+                    j++;
+                }
+                if (j == stateMasksLength) {
+                    stateMasks[stateMasksLength++] = stateMask;
+                }
+            }
+        }
+        if (stateMasksLength == hoverDescs.length) {
+            return stateMasks;
+        }
+
+        int[] shortenedStateMasks = new int[stateMasksLength];
+        System.arraycopy(stateMasks, 0, shortenedStateMasks, 0, stateMasksLength);
+        return shortenedStateMasks;
     }
 }

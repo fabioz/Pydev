@@ -20,11 +20,10 @@ public abstract class ConfigurationElementAttributeSorter {
 
     /**
      * Sorts the given array based on its elements' configuration elements
-     * according to the prerequisite relation of their defining plug-ins.
+     * according to the natural sort order of the specified attribute.
      *
      * @param elements the array to be sorted
      * @param attribute the name of the attribute on whose values the elements are to be sorted
-     * @param Type the type of the attribute values
      */
     public final void sort(Object[] elements, String attribute) {
         this.attName = attribute;
