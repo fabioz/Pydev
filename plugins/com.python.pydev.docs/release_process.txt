@@ -54,13 +54,13 @@ p:\FileZilla\filezilla.exe sftp://fabioz,pydev@frs.sourceforge.net/home/pfs/proj
 Note: check pageant if it does not connect.
 
 Check if the main download button points to the proper place (not to the sources) --
-https://sourceforge.net/projects/pydev/files/pydev/PyDev 4.5.4/ -- choose file > file info > set default and give better name.
+https://sourceforge.net/projects/pydev/files/pydev/PyDev 4.5.4/ -- choose file > file info > set default.
 
 
 		** Add contents to the update site
 
 
-cd X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\
+cdd X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\
 
 mkdir org.python.pydev.p2-repo-4.5.4-SNAPSHOT
 
