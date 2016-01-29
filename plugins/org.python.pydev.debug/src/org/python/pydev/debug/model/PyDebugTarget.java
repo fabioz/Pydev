@@ -21,7 +21,6 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.console.ConsoleCompletionsPageParticipant;
 import org.python.pydev.debug.model.remote.AbstractRemoteDebugger;
 
-
 /**
  * Debugger class that represents a single python process.
  * 
@@ -38,15 +37,22 @@ public class PyDebugTarget extends AbstractDebugTarget {
      */
     public final IProject project;
     public volatile boolean finishedInit = false;
+    public final boolean isAuxiliaryDebugTarget;
 
     public PyDebugTarget(ILaunch launch, IProcess process, IPath[] file, AbstractRemoteDebugger debugger,
             IProject project) {
+        this(launch, process, file, debugger, project, false);
+    }
+
+    public PyDebugTarget(ILaunch launch, IProcess process, IPath[] file, AbstractRemoteDebugger debugger,
+            IProject project, boolean isAuxiliaryDebugTarget) {
         this.launch = launch;
         this.process = process;
         this.file = file;
         this.debugger = debugger;
         this.threads = new PyThread[0];
         this.project = project;
+        this.isAuxiliaryDebugTarget = isAuxiliaryDebugTarget;
         launch.addDebugTarget(this);
         debugger.addTarget(this);
         IBreakpointManager breakpointManager = DebugPlugin.getDefault().getBreakpointManager();
@@ -73,6 +79,7 @@ public class PyDebugTarget extends AbstractDebugTarget {
         return process;
     }
 
+    @Override
     public boolean canTerminate() {
         if (!finishedInit) {
             //We must finish init to terminate
@@ -83,6 +90,7 @@ public class PyDebugTarget extends AbstractDebugTarget {
         return !this.isTerminated();
     }
 
+    @Override
     public boolean isTerminated() {
         if (!finishedInit) {
             //We must finish init to terminate
@@ -94,12 +102,18 @@ public class PyDebugTarget extends AbstractDebugTarget {
         return process.isTerminated();
     }
 
+    @Override
     public void terminate() {
         if (process != null) {
-            try {
-                process.terminate();
-            } catch (DebugException e) {
-                Log.log(e);
+            if (!this.isAuxiliaryDebugTarget) {
+                try {
+                    // We can only terminate the process if it's not an auxiliary debug target
+                    // (otherwise, when connecting on multiple processes, we may end up terminating
+                    // the main process when the child process exits).
+                    process.terminate();
+                } catch (DebugException e) {
+                    Log.log(e);
+                }
             }
             process = null;
         }

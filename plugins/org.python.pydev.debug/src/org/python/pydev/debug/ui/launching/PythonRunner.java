@@ -199,7 +199,7 @@ public class PythonRunner {
                         Socket socket = listenConnector.waitForConnection();
                         if (socket != null && !socket.isClosed()) {
                             PyDebugTarget t = new PyDebugTarget(launch, process, config.resource, debugger,
-                                    config.project);
+                                    config.project, true);
                             try {
                                 t.startTransmission(socket); // this starts reading/writing from sockets
                                 t.initialize();
