@@ -151,8 +151,11 @@ Companies have the option of sponsoring PyDev through corporate sponsorship. See
 Release 4.5.4
 ==========================
 
-Fixed critical issue in the debugger, in which the main process was killed during the debugging when a subprocess exited when
-"Attach to subprocess automatically while debugging" was enabled (#PyDev 656).
+* Debugger
+
+	* Fixed critical issue, in which the main process was killed during the debugging when a subprocess exited when	"Attach to subprocess automatically while debugging" was enabled (#PyDev 656).
+
+	* Fixed issue which broke the action to get the referrers of some object in the debugger (right-click variable in debugger > get referrers).
 
 Release 4.5.3
 ==========================
