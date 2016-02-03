@@ -41,6 +41,10 @@ public class PyHoverPreferencesPage extends AbstractConfigurationBlockPreference
 
     public static final String EDITOR_TEXT_HOVER_MODIFIER_MASKS = "hoverModifierMasks";
 
+    public static final String EDITOR_TEXT_HOVER_PRORITIES = "hoverPriorities";
+
+    public static final String EDITOR_TEXT_HOVER_PREEMPTS = "hoverPreempts";
+
     public static final String EDITOR_ANNOTATION_ROLL_OVER = "editor_annotation_roll_over"; //$NON-NLS-1$
 
     public PyHoverPreferencesPage() {

@@ -91,7 +91,7 @@ public class PyEditConfiguration extends PyEditConfigurationWithoutEditor {
          * priority, it is indeterminate which will be selected. Use a CombiningTextHover as the
          * highest priority hover to combine hover info in a configurable way.
          */
-        PyEditorTextHoverDescriptor[] hoverDescs = PydevPlugin.getDefault().getPyEditorTextHoverDescriptors();
+        PyEditorTextHoverDescriptor[] hoverDescs = PydevPlugin.getDefault().getPyEditorTextHoverDescriptors(false);
         int i = 0;
         while (i < hoverDescs.length) {
             if (hoverDescs[i].isEnabled() && hoverDescs[i].getStateMask() == stateMask) {
@@ -199,7 +199,7 @@ public class PyEditConfiguration extends PyEditConfigurationWithoutEditor {
      */
     @Override
     public int[] getConfiguredTextHoverStateMasks(ISourceViewer sourceViewer, String contentType) {
-        PyEditorTextHoverDescriptor[] hoverDescs = PydevPlugin.getDefault().getPyEditorTextHoverDescriptors();
+        PyEditorTextHoverDescriptor[] hoverDescs = PydevPlugin.getDefault().getPyEditorTextHoverDescriptors(false);
         int stateMasks[] = new int[hoverDescs.length];
         int stateMasksLength = 0;
         for (int i = 0; i < hoverDescs.length; i++) {

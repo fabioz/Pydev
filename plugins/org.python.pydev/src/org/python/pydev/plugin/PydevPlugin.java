@@ -647,9 +647,11 @@ public class PydevPlugin extends AbstractUIPlugin {
      * @return an array of JavaEditorTextHoverDescriptor
      * @since 2.1
      */
-    public synchronized PyEditorTextHoverDescriptor[] getPyEditorTextHoverDescriptors() {
-        if (fPyEditorTextHoverDescriptors == null) {
-            fPyEditorTextHoverDescriptors = PyEditorTextHoverDescriptor.getContributedHovers();
+    public synchronized PyEditorTextHoverDescriptor[] getPyEditorTextHoverDescriptors(
+            boolean useRegisteredExtensionPolintValues) {
+        if (fPyEditorTextHoverDescriptors == null || useRegisteredExtensionPolintValues) {
+            fPyEditorTextHoverDescriptors = PyEditorTextHoverDescriptor
+                    .getContributedHovers(useRegisteredExtensionPolintValues);
             ConfigurationElementAttributeSorter sorter = new ConfigurationElementAttributeSorter() {
                 /*
                  * @see org.eclipse.ui.texteditor.ConfigurationElementSorter#getConfigurationElement(java.lang.Object)

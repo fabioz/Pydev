@@ -5,6 +5,7 @@ import java.util.Comparator;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IConfigurationElement;
+import org.python.pydev.editor.hover.PyEditorTextHoverDescriptor;
 
 /**
  * Allows to sort an array based on their elements' configuration elements
@@ -54,26 +55,34 @@ public abstract class ConfigurationElementAttributeSorter {
          */
         public int compare(O object0, O object1) {
 
-            IConfigurationElement e0 = getConfigurationElement(object0);
-            IConfigurationElement e1 = getConfigurationElement(object1);
-            if (e0 != null && e1 != null) {
-                String e0String = e0.getAttribute(attName);
-                String e1String = e1.getAttribute(attName);
+            if (object0 instanceof PyEditorTextHoverDescriptor && object1 instanceof PyEditorTextHoverDescriptor) {
 
-                if (e0String != null && e1String != null) {
+                PyEditorTextHoverDescriptor descr0 = (PyEditorTextHoverDescriptor) object0;
+                PyEditorTextHoverDescriptor descr1 = (PyEditorTextHoverDescriptor) object1;
+                if (descr0.fPriority != null && descr1.fPriority != null) {
+                    return descr0.fPriority.compareTo(descr1.fPriority);
+                }
+                IConfigurationElement e0 = getConfigurationElement(object0);
+                IConfigurationElement e1 = getConfigurationElement(object1);
+                if (e0 != null && e1 != null) {
+                    String e0String = e0.getAttribute(attName);
+                    String e1String = e1.getAttribute(attName);
 
-                    Integer val0 = null;
-                    Integer val1 = null;
+                    if (e0String != null && e1String != null) {
 
-                    try {
-                        val0 = Integer.parseInt(e0String);
-                        val1 = Integer.parseInt(e1String);
-                    } catch (NumberFormatException e) {
-                        return e0String.compareTo(e1String);
-                    }
+                        Integer val0 = null;
+                        Integer val1 = null;
 
-                    if (val0 != null && val1 != null) {
-                        return val0.compareTo(val1);
+                        try {
+                            val0 = Integer.parseInt(e0String);
+                            val1 = Integer.parseInt(e1String);
+                        } catch (NumberFormatException e) {
+                            return e0String.compareTo(e1String);
+                        }
+
+                        if (val0 != null && val1 != null) {
+                            return val0.compareTo(val1);
+                        }
                     }
                 }
             }

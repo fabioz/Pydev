@@ -34,6 +34,8 @@ public final class PyEditorMessages extends NLS {
     public static String PyEditorHoverConfigurationBlock_annotationRollover;
     public static String PyEditorHoverConfigurationBlock_modifierColumnTitle;
     public static String PyEditorHoverConfigurationBlock_nameColumnTitle;
+    public static String PyEditorHoverConfigurationBlock_priorityColumnTitle;
+    public static String PyEditorHoverConfigurationBlock_preemptColumnTitle;
     public static String PyEditorHoverConfigurationBlock_keyModifier;
     public static String PyEditorHoverConfigurationBlock_insertDelimiterAndModifierAndDelimiter;
     public static String PyEditorHoverConfigurationBlock_insertDelimiterAndModifier;

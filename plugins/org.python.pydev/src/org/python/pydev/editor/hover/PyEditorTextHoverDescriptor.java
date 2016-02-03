@@ -68,17 +68,21 @@ public class PyEditorTextHoverDescriptor {
 
     private IConfigurationElement fElement;
 
+    public Integer fPriority;
+
+    public Boolean fPreempt;
+
     /**
      * Returns all Java editor text hovers contributed to the workbench.
      *
      * @return an array with the contributed text hovers
      */
-    public static PyEditorTextHoverDescriptor[] getContributedHovers() {
+    public static PyEditorTextHoverDescriptor[] getContributedHovers(boolean useRegisteredExtensionPointValues) {
         IExtensionRegistry registry = Platform.getExtensionRegistry();
         IConfigurationElement[] elements = registry
                 .getConfigurationElementsFor(ExtensionHelper.PY_TEXT_HOVER);
         PyEditorTextHoverDescriptor[] hoverDescs = createDescriptors(elements);
-        initializeFromPreferences(hoverDescs);
+        initializeFromPreferences(hoverDescs, useRegisteredExtensionPointValues);
         return hoverDescs;
     }
 
@@ -180,20 +184,6 @@ public class PyEditorTextHoverDescriptor {
     }
 
     /**
-     * Returns the hover's priority.
-     *
-     * @return the id
-     */
-    public Integer getPriority() {
-        String sPriority = fElement.getAttribute(ATT_PYDEV_HOVER_PRIORITY);
-        try {
-            return Integer.parseInt(sPriority);
-        } catch (NumberFormatException e) {
-            return null;
-        }
-    }
-
-    /**
      * Returns the hover's description.
      *
      * @return the hover's description or <code>null</code> if not provided
@@ -225,13 +215,23 @@ public class PyEditorTextHoverDescriptor {
             IConfigurationElement element = elements[i];
             if (HOVER_TAG.equals(element.getName())) {
                 PyEditorTextHoverDescriptor desc = new PyEditorTextHoverDescriptor(element);
+                String sPriority = element.getAttribute(ATT_PYDEV_HOVER_PRIORITY);
+                try {
+                    int val = Integer.parseInt(sPriority);
+                    desc.fPriority = (val >= 0 ? val : 0);
+                } catch (NumberFormatException e) {
+                    desc.fPriority = DEFAULT_HOVER_PRIORITY;
+                }
+                String sPreempt = element.getAttribute(ATT_PYDEV_HOVER_PREEMPT);
+                desc.fPreempt = Boolean.valueOf(sPreempt);
                 result.add(desc);
             }
         }
         return result.toArray(new PyEditorTextHoverDescriptor[result.size()]);
     }
 
-    private static void initializeFromPreferences(PyEditorTextHoverDescriptor[] hovers) {
+    private static void initializeFromPreferences(PyEditorTextHoverDescriptor[] hovers,
+            boolean useRegisteredExtensionPointValues) {
         String compiledTextHoverModifiers = PydevPlugin.getDefault().getPreferenceStore()
                 .getString(PyHoverPreferencesPage.EDITOR_TEXT_HOVER_MODIFIERS);
 
@@ -255,6 +255,32 @@ public class PyEditorTextHoverDescriptor {
             String id = tokenizer.nextToken();
             if (tokenizer.hasMoreTokens()) {
                 idToModifierMask.put(id, tokenizer.nextToken());
+            }
+        }
+
+        String compiledTextHoverPriorities = PydevPlugin.getDefault().getPreferenceStore()
+                .getString(PyHoverPreferencesPage.EDITOR_TEXT_HOVER_PRORITIES);
+
+        tokenizer = new StringTokenizer(compiledTextHoverPriorities, PyEditorTextHoverDescriptor.VALUE_SEPARATOR);
+        HashMap<String, String> idToPriority = new HashMap<String, String>(tokenizer.countTokens() / 2);
+
+        while (tokenizer.hasMoreTokens()) {
+            String id = tokenizer.nextToken();
+            if (tokenizer.hasMoreTokens()) {
+                idToPriority.put(id, tokenizer.nextToken());
+            }
+        }
+
+        String compiledTextHoverPreempts = PydevPlugin.getDefault().getPreferenceStore()
+                .getString(PyHoverPreferencesPage.EDITOR_TEXT_HOVER_PREEMPTS);
+
+        tokenizer = new StringTokenizer(compiledTextHoverPreempts, PyEditorTextHoverDescriptor.VALUE_SEPARATOR);
+        HashMap<String, String> idToPreempt = new HashMap<String, String>(tokenizer.countTokens() / 2);
+
+        while (tokenizer.hasMoreTokens()) {
+            String id = tokenizer.nextToken();
+            if (tokenizer.hasMoreTokens()) {
+                idToPreempt.put(id, tokenizer.nextToken());
             }
         }
 
@@ -292,6 +318,26 @@ public class PyEditorTextHoverDescriptor {
                     hovers[i].fModifierString = PyAction.getModifierString(stateMask);
                 }
             }
+
+            /*
+             * For priority and preempt, use values registered with extension point if not
+             * overridden by preferences or if extension point registration value is requested
+             */
+            if (!useRegisteredExtensionPointValues) {
+                String sPriority = idToPriority.get(hovers[i].getId());
+                if (sPriority != null) {
+                    try {
+                        hovers[i].fPriority = Integer.parseInt(sPriority);
+                    } catch (NumberFormatException e) {
+                        //pass; createDescriptors() ensured some value was set
+                    }
+                }
+
+                String sPreempt = idToPreempt.get(hovers[i].getId());
+                if (sPreempt != null) {
+                    hovers[i].fPreempt = Boolean.valueOf(sPreempt);
+                }
+            }
         }
     }
 
@@ -320,6 +366,24 @@ public class PyEditorTextHoverDescriptor {
      */
     public boolean isEnabled() {
         return fIsEnabled;
+    }
+
+    /**
+     * Returns the hover's priority.
+     *
+     * @return the priority
+     */
+    public Integer getPriority() {
+        return fPriority;
+    }
+
+    /**
+     * Returns the hover's preempt setting.
+     *
+     * @return the preempt setting
+     */
+    public Boolean isPreempt() {
+        return fPreempt;
     }
 
     /**

@@ -2841,7 +2841,7 @@ if __name__ == "__main__":
             id="org.python.pydev.pyMarkerHover"
             label="Python Marker Hover"
             preempt="false"
-            priority="100">
+            priority="150">
       </pyTextHover>
    </extension>
  </plugin>
