@@ -781,13 +781,6 @@
            name="User commands">
      </page>
   </extension>
-  <extension
-        point="org.python.pydev.pydev_hover">
-     <hover_participant
-           class="org.python.pydev.debug.ui.hover.PyDebugHover"
-           id="org.python.pydev.debug.ui.hover.PyDebugHover">
-     </hover_participant>
-  </extension>
 <!-- end console stuff -->
 
 
@@ -1358,6 +1351,18 @@
             class="org.python.pydev.debug.processfactory.PyProcessFactory"
             id="org.python.pydev.debug.processfactory.PyProcessFactory">
       </processFactory>
+   </extension>
+   <extension
+         point="org.python.pydev.pyTextHover">
+      <pyTextHover
+            activate="false"
+            class="org.python.pydev.debug.ui.hover.PyDebugHover"
+            description="Provides Debug Hover Info"
+            id="org.python.pydev.debug.ui.hover.PyDebugHover"
+            label="PyDev Debug Hover"
+            preempt="false"
+            priority="100">
+      </pyTextHover>
    </extension>
 
 </plugin>

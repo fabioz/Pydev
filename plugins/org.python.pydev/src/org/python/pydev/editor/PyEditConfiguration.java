@@ -11,6 +11,7 @@
 
 package org.python.pydev.editor;
 
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -23,15 +24,18 @@ import org.eclipse.jface.text.quickassist.IQuickAssistAssistant;
 import org.eclipse.jface.text.quickassist.IQuickAssistProcessor;
 import org.eclipse.jface.text.source.IAnnotationHover;
 import org.eclipse.jface.text.source.ISourceViewer;
+import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.PythonCompletionProcessor;
 import org.python.pydev.editor.codecompletion.PythonStringCompletionProcessor;
 import org.python.pydev.editor.correctionassist.PyCorrectionAssistant;
 import org.python.pydev.editor.correctionassist.PythonCorrectionProcessor;
+import org.python.pydev.editor.hover.IPyHoverParticipant;
 import org.python.pydev.editor.hover.PyAnnotationHover;
 import org.python.pydev.editor.hover.PyEditorTextHoverDescriptor;
 import org.python.pydev.editor.hover.PyEditorTextHoverProxy;
+import org.python.pydev.editor.hover.PyTextHover;
 import org.python.pydev.editor.simpleassist.SimpleAssistProcessor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.ColorAndStyleCache;
@@ -79,12 +83,12 @@ public class PyEditConfiguration extends PyEditConfigurationWithoutEditor {
          * If any contributions from the deprecated extension point org.python.pydev.pydev_hover, use
          * the old style Pydev hover implementation, and ignore any contributions to org.python.pydev.pyTextHover.
          */
-        //        @SuppressWarnings("unchecked")
-        //        List<IPyHoverParticipant> participants = (List<IPyHoverParticipant>) ExtensionHelper
-        //                .getParticipants(ExtensionHelper.PYDEV_HOVER);
-        //        if (participants != null && participants.size() > 0) {
-        //            return new PyTextHover(sourceViewer, contentType);
-        //        }
+        @SuppressWarnings("unchecked")
+        List<IPyHoverParticipant> participants = ExtensionHelper
+                .getParticipants(ExtensionHelper.PYDEV_HOVER);
+        if (participants != null && participants.size() > 0) {
+            return new PyTextHover(sourceViewer, contentType);
+        }
 
         /**
          * We return the highest priority registered hover. If two or more hovers have the highest

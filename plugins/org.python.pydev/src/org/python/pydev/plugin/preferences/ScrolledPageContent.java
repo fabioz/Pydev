@@ -1,11 +1,11 @@
 package org.python.pydev.plugin.preferences;
 
-import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.SharedScrolledComposite;
+import org.python.pydev.plugin.PydevPlugin;
 
 public class ScrolledPageContent extends SharedScrolledComposite {
 
@@ -20,7 +20,7 @@ public class ScrolledPageContent extends SharedScrolledComposite {
 
         setFont(parent.getFont());
 
-        fToolkit = JavaPlugin.getDefault().getDialogsFormToolkit();
+        fToolkit = PydevPlugin.getDefault().getDialogsFormToolkit();
 
         setExpandHorizontal(true);
         setExpandVertical(true);
@@ -31,7 +31,7 @@ public class ScrolledPageContent extends SharedScrolledComposite {
     }
 
     public void adaptChild(Control childControl) {
-        fToolkit.adapt(childControl, true, true);
+        //        fToolkit.adapt(childControl, true, true);
     }
 
     public Composite getBody() {
