@@ -24,6 +24,7 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -44,6 +45,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.prefs.BackingStoreException;
+import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
@@ -52,7 +54,6 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.SyncSystemModulesManagerScheduler;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.hover.PyEditorTextHoverDescriptor;
-import org.python.pydev.editor.hover.PydevBestMatchHover;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
@@ -662,22 +663,37 @@ public class PydevPlugin extends AbstractUIPlugin {
                 }
             };
             sorter.sort(fPyEditorTextHoverDescriptors, PyEditorTextHoverDescriptor.ATT_PYDEV_HOVER_PRIORITY);
-
-            // Move Best Match hover to front
-            for (int i = 0; i < fPyEditorTextHoverDescriptors.length - 1; i++) {
-                if (PydevBestMatchHover.ID_BESTMATCH_HOVER.equals(fPyEditorTextHoverDescriptors[i].getId())) {
-                    PyEditorTextHoverDescriptor hoverDescriptor = fPyEditorTextHoverDescriptors[i];
-                    for (int j = i; j > 0; j--) {
-                        fPyEditorTextHoverDescriptors[j] = fPyEditorTextHoverDescriptors[j - 1];
-                    }
-                    fPyEditorTextHoverDescriptors[0] = hoverDescriptor;
-                    break;
-                }
-
-            }
         }
 
         return fPyEditorTextHoverDescriptors;
+    }
+
+    /**
+    * Retrieves a Text Hover which combines hover info from other registered Text Hovers.
+    *
+    * @return a PyEditorTextHoverDescriptor contributed to {@link ExtensionHelper#PY_TEXT_COMBINING_HOVER}}
+    * which combines hover info from other registered Text Hovers. Returns <code>null</code> if
+    * no combining Hover has been contributed.
+    * @throws a CoreException if more than one combining Hover has been registered.
+    */
+    public synchronized PyEditorTextHoverDescriptor getPyEditorCombiningTextHoverDescriptor(
+            boolean useRegisteredExtensionPolintValues) throws CoreException {
+        if (fPyEditorTextHoverDescriptors == null || useRegisteredExtensionPolintValues) {
+            IExtensionRegistry registry = Platform.getExtensionRegistry();
+            IConfigurationElement[] elements = registry
+                    .getConfigurationElementsFor(ExtensionHelper.PY_TEXT_COMBINING_HOVER);
+            if (elements.length > 1) {
+                throw new CoreException(
+                        new Status(Status.ERROR, getPluginID(), "Only one contribution to extension point " +
+                                ExtensionHelper.PY_TEXT_COMBINING_HOVER + " is permitted, but " + elements.length
+                                + " were found."));
+            }
+            PyEditorTextHoverDescriptor[] hoverDescs = PyEditorTextHoverDescriptor.createDescriptors(elements);
+            PyEditorTextHoverDescriptor.initializeFromPreferences(hoverDescs, useRegisteredExtensionPolintValues);
+            return hoverDescs[0];
+        }
+
+        return null;
     }
 
     /**

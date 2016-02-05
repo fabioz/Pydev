@@ -2827,7 +2827,7 @@ if __name__ == "__main__":
             class="org.python.pydev.editor.hover.PyDocstringTextHover"
             description="Provides hover text for Python docstrings"
             id="org.python.pydev.editor.hover.PyDocstringTextHover"
-            label="Python Docstring Hover"
+            label="PyDev Docstring Hover"
             preempt="false"
             priority="100">
       </pyTextHover>
@@ -2839,9 +2839,21 @@ if __name__ == "__main__":
             class="org.python.pydev.editor.hover.PyMarkerTextHover"
             description="Provides hover text for Python markers"
             id="org.python.pydev.pyMarkerHover"
-            label="Python Marker Hover"
+            label="PyDev Marker Hover"
             preempt="false"
             priority="150">
+      </pyTextHover>
+   </extension>
+   <extension
+         point="org.python.pydev.pyTextHover">
+      <pyTextHover
+            activate="false"
+            class="org.python.pydev.editor.hover.DefaultPydevCombiningHover"
+            description="Combines info from enabled hovers, in priority order, until reaching a hover with preempt == true"
+            id="org.python.pydev.editor.hover.defaultCombiningHover"
+            label="Default PyDev Combining Hover"
+            preempt="true"
+            priority="10">
       </pyTextHover>
    </extension>
  </plugin>

@@ -9,10 +9,10 @@ import org.eclipse.jface.text.IInformationControlExtension3;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.ITextHoverExtension;
+import org.eclipse.jface.text.ITextHoverExtension2;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Region;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.python.pydev.core.IIndentPrefs;
@@ -27,18 +27,18 @@ import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 import org.python.pydev.parser.visitors.NodeUtils;
 
-public abstract class AbstractPyEditorTextHover implements ITextHover, ITextHoverExtension {
+public abstract class AbstractPyEditorTextHover implements ITextHover, ITextHoverExtension, ITextHoverExtension2 {
 
     /**
      * The text selected
      */
-    private ITextSelection textSelection;
+    protected ITextSelection textSelection;
 
     private final class PyInformationControl extends DefaultInformationControl
             implements IInformationControlExtension3 {
-        private PyInformationControl(Shell parent, int textStyles, IInformationPresenter presenter,
-                String statusFieldText) {
-            super(parent, textStyles, presenter, statusFieldText);
+        private PyInformationControl(Shell parent, String statusFieldText,
+                IInformationPresenter presenter) {
+            super(parent, statusFieldText, presenter);
         }
 
     }
@@ -57,8 +57,8 @@ public abstract class AbstractPyEditorTextHover implements ITextHover, ITextHove
                 } catch (Throwable e) {
                     //Not available on Eclipse 3.2
                 }
-                DefaultInformationControl ret = new PyInformationControl(parent, SWT.NONE,
-                        new PyInformationPresenter(), tooltipAffordanceString);
+                DefaultInformationControl ret = new PyInformationControl(parent, tooltipAffordanceString,
+                        new PyInformationPresenter());
                 return ret;
             }
         };
@@ -101,5 +101,14 @@ public abstract class AbstractPyEditorTextHover implements ITextHover, ITextHove
             }
         }
         return str;
+    }
+
+    /*
+     * @see org.eclipse.jface.text.ITextHoverExtension2#getHoverInfo2(org.eclipse.jface.text.ITextViewer, org.eclipse.jface.text.IRegion)
+     * @since 3.4
+     */
+    @SuppressWarnings("deprecation")
+    public Object getHoverInfo2(ITextViewer textViewer, IRegion hoverRegion) {
+        return getHoverInfo(textViewer, hoverRegion);
     }
 }

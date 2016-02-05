@@ -17,7 +17,6 @@ package org.python.pydev.plugin.preferences;
  *******************************************************************************/
 
 import org.eclipse.jface.resource.JFaceResources;
-import org.eclipse.jface.util.Util;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ColumnViewer;
 import org.eclipse.swt.SWT;
@@ -28,8 +27,8 @@ import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 
 public abstract class EmulatedNativeCheckBoxLabelProvider extends
         ColumnLabelProvider {
@@ -48,21 +47,11 @@ public abstract class EmulatedNativeCheckBoxLabelProvider extends
         // it transparent in the image.
         Color greenScreen = new Color(control.getDisplay(), 222, 223, 224);
 
-        Shell shell = new Shell(Display.getCurrent().getActiveShell(), SWT.NO_TRIM);
+        Shell shell = new Shell(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+                SWT.NO_TRIM | SWT.NO_BACKGROUND);
 
         // otherwise we have a default gray color
         shell.setBackground(greenScreen);
-
-        if (Util.isMac()) {
-            Button button2 = new Button(shell, SWT.CHECK);
-            Point bsize = button2.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-
-            // otherwise an image is stretched by width
-            bsize.x = Math.min(bsize.x, bsize.y);
-            bsize.y = Math.min(bsize.x, bsize.y);
-            button2.setSize(bsize);
-            button2.setLocation(100, 100);
-        }
 
         Button button = new Button(shell, SWT.CHECK | SWT.NO_BACKGROUND);
         button.setBackground(greenScreen);
@@ -73,13 +62,18 @@ public abstract class EmulatedNativeCheckBoxLabelProvider extends
         Point bsize = button.computeSize(SWT.DEFAULT, SWT.DEFAULT);
 
         // otherwise an image is stretched by width
-        bsize.x = Math.min(bsize.x, bsize.y);
-        bsize.y = Math.min(bsize.x, bsize.y);
+        bsize.x = Math.max(bsize.x - 1, bsize.y - 1);
+        bsize.y = Math.max(bsize.x - 1, bsize.y - 1);
         button.setSize(bsize);
-        GC gc = new GC(shell);
 
         //In some cases, the image is not displayed unless the shell size is maximized for the GC
-        shell.setSize(gc.getClipping().width, gc.getClipping().height);
+        GC gc = new GC(shell);
+        Point shellSize = new Point(gc.getClipping().width, gc.getClipping().height);
+        //but on some platforms the clipping is not set, so we use a reasonable fallback
+        if (shellSize.x == 0) {
+            shellSize = new Point(bsize.x + 3, bsize.y + 3);
+        }
+        shell.setSize(shellSize);
         shell.open();
 
         Image image = new Image(control.getDisplay(), bsize.x, bsize.y);

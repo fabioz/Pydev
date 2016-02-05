@@ -209,7 +209,7 @@ public class PyEditorTextHoverDescriptor {
         return getId().hashCode();
     }
 
-    private static PyEditorTextHoverDescriptor[] createDescriptors(IConfigurationElement[] elements) {
+    public static PyEditorTextHoverDescriptor[] createDescriptors(IConfigurationElement[] elements) {
         List<PyEditorTextHoverDescriptor> result = new ArrayList<PyEditorTextHoverDescriptor>(elements.length);
         for (int i = 0; i < elements.length; i++) {
             IConfigurationElement element = elements[i];
@@ -230,7 +230,7 @@ public class PyEditorTextHoverDescriptor {
         return result.toArray(new PyEditorTextHoverDescriptor[result.size()]);
     }
 
-    private static void initializeFromPreferences(PyEditorTextHoverDescriptor[] hovers,
+    public static void initializeFromPreferences(PyEditorTextHoverDescriptor[] hovers,
             boolean useRegisteredExtensionPointValues) {
         String compiledTextHoverModifiers = PydevPlugin.getDefault().getPreferenceStore()
                 .getString(PyHoverPreferencesPage.EDITOR_TEXT_HOVER_MODIFIERS);

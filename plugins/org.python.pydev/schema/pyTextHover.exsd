@@ -60,7 +60,7 @@
          <attribute name="class" type="string" use="required">
             <annotation>
                <documentation>
-                  the fully qualified class name implementing the interface &lt;code&gt;org.python.pydev.editor.hover.IPyHoverParticipant&lt;/code&gt;
+                  the fully qualified class name implementing the interface &lt;code&gt;org.python.pydev.editor.hover.AbstractPyEditorTextHover&lt;/code&gt;
                </documentation>
                <appInfo>
                   <meta.attribute kind="java" basedOn="org.python.pydev.editor.hover.AbstractPyEditorTextHover:"/>

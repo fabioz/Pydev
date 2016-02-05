@@ -189,4 +189,10 @@ public class PyDocstringTextHover extends AbstractPyEditorTextHover {
         }
     }
 
+    @Override
+    public Object getHoverInfo2(ITextViewer textViewer, IRegion hoverRegion) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

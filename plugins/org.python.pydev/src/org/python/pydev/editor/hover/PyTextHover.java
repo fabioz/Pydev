@@ -31,7 +31,6 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.source.ISourceViewer;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.python.pydev.core.ExtensionHelper;
@@ -79,9 +78,9 @@ public class PyTextHover implements ITextHover, ITextHoverExtension {
 
     private final class PyInformationControl extends DefaultInformationControl
             implements IInformationControlExtension3 {
-        private PyInformationControl(Shell parent, int textStyles, IInformationPresenter presenter,
-                String statusFieldText) {
-            super(parent, textStyles, presenter, statusFieldText);
+        private PyInformationControl(Shell parent, String statusFieldText,
+                IInformationPresenter presenter) {
+            super(parent, statusFieldText, presenter);
         }
 
     }
@@ -347,8 +346,8 @@ public class PyTextHover implements ITextHover, ITextHoverExtension {
                 } catch (Throwable e) {
                     //Not available on Eclipse 3.2
                 }
-                DefaultInformationControl ret = new PyInformationControl(parent, SWT.NONE,
-                        new PyInformationPresenter(), tooltipAffordanceString);
+                DefaultInformationControl ret = new PyInformationControl(parent, tooltipAffordanceString,
+                        new PyInformationPresenter());
                 return ret;
             }
         };

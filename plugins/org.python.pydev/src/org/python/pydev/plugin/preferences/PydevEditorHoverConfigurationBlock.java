@@ -329,8 +329,9 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
         layout.marginHeight = 0;
         hoverComposite.setLayout(layout);
 
-        String rollOverLabel = PyEditorMessages.PyEditorHoverConfigurationBlock_annotationRollover;
-        addCheckBox(hoverComposite, rollOverLabel, PyHoverPreferencesPage.EDITOR_ANNOTATION_ROLL_OVER, 0);
+        // Multiple vertical ruler icons not supported in PyDev?
+        // String rollOverLabel = PyEditorMessages.PyEditorHoverConfigurationBlock_annotationRollover;
+        // addCheckBox(hoverComposite, rollOverLabel, PyHoverPreferencesPage.EDITOR_ANNOTATION_ROLL_OVER, 0);
 
         addFiller(hoverComposite);
 
