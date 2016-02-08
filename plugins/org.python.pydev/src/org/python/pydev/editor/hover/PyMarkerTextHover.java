@@ -14,6 +14,8 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 
 public class PyMarkerTextHover extends AbstractPyEditorTextHover {
 
+    public static String ID = "org.python.pydev.editor.hover.pyMarkerTextHover";
+
     @Override
     public String getHoverInfo(ITextViewer textViewer, IRegion hoverRegion) {
         FastStringBuffer buf = new FastStringBuffer();

@@ -119,6 +119,7 @@ public class DefaultPydevCombiningHover extends AbstractPyEditorTextHover implem
                             buf.append(PyInformationPresenter.LINE_DELIM);
                         }
                         buf.append(hoverText);
+                        //TODO append delimiter, and add preference for enabling/disabling it
                     }
                 }
                 currentPriority = descr.getPriority();

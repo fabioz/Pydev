@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -12,6 +11,8 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.viewers.CellEditor;
@@ -33,12 +34,14 @@ import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerCell;
+import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
@@ -53,6 +56,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
+import org.python.pydev.editor.hover.DefaultPydevCombiningHover;
 import org.python.pydev.editor.hover.PyEditorTextHoverDescriptor;
 import org.python.pydev.editor.hover.PyHoverPreferencesPage;
 import org.python.pydev.plugin.PydevPlugin;
@@ -130,11 +134,9 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
                 case MODIFIER_PROP:
                     TableItem item = (TableItem) fHoverTableViewer.testFindItem(cell.getElement());
                     int index = fHoverTable.indexOf(item);
-                    cell.setText(fHoverConfigs[index].fModifierString);
+                    cell.setText(fHoverConfigs[convertIndex(index)].fModifierString);
                     break;
                 case PRIORITY_PROP:
-                    item = (TableItem) fHoverTableViewer.testFindItem(cell.getElement());
-                    index = fHoverTable.indexOf(item);
                     cell.setText(String.valueOf(((PyEditorTextHoverDescriptor) cell.getElement()).fPriority));
                     break;
                 case PREEMPT_PROP:
@@ -263,6 +265,62 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
 
     private StatusInfo fStatus;
 
+    private class KeyModifierListener implements KeyListener {
+
+        private Text editor;
+
+        private KeyModifierListener(Text editor) {
+            this.editor = editor;
+        }
+
+        private boolean isModifierCandidate;
+
+        public void keyPressed(KeyEvent e) {
+            isModifierCandidate = e.keyCode > 0 && e.character == 0 && e.stateMask == 0;
+        }
+
+        public void keyReleased(KeyEvent e) {
+            if (isModifierCandidate && e.stateMask > 0 && e.stateMask == e.stateMask && e.character == 0) {// && e.time -time < 1000) {
+                String text = editor.getText();
+                Point selection = editor.getSelection();
+                int i = selection.x - 1;
+                while (i > -1 && Character.isWhitespace(text.charAt(i))) {
+                    i--;
+                }
+                boolean needsPrefixDelimiter = i > -1 && !String.valueOf(text.charAt(i)).equals(DELIMITER);
+
+                i = selection.y;
+                while (i < text.length() && Character.isWhitespace(text.charAt(i))) {
+                    i++;
+                }
+                boolean needsPostfixDelimiter = i < text.length()
+                        && !String.valueOf(text.charAt(i)).equals(DELIMITER);
+
+                String insertString;
+
+                if (needsPrefixDelimiter && needsPostfixDelimiter) {
+                    insertString = Messages.format(
+                            PyEditorMessages.PyEditorHoverConfigurationBlock_insertDelimiterAndModifierAndDelimiter,
+                            new String[] { Action.findModifierString(e.stateMask) });
+                } else if (needsPrefixDelimiter) {
+                    insertString = Messages.format(
+                            PyEditorMessages.PyEditorHoverConfigurationBlock_insertDelimiterAndModifier,
+                            new String[] { Action.findModifierString(e.stateMask) });
+                } else if (needsPostfixDelimiter) {
+                    insertString = Messages.format(
+                            PyEditorMessages.PyEditorHoverConfigurationBlock_insertModifierAndDelimiter,
+                            new String[] { Action.findModifierString(e.stateMask) });
+                } else {
+                    insertString = Action.findModifierString(e.stateMask);
+                }
+
+                if (insertString != null) {
+                    editor.insert(insertString);
+                }
+            }
+        }
+    };
+
     private Map<Button, String> fCheckBoxes = new HashMap<Button, String>();
     private SelectionListener fCheckBoxListener = new SelectionListener() {
         public void widgetDefaultSelected(SelectionEvent e) {
@@ -275,6 +333,20 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
             fStore.setValue(fCheckBoxes.get(button), button.getSelection());
         }
     };
+
+    private int fPremptColWidth;
+
+    private Button combineHovers;
+
+    private Text combiningHoverModifierEditor;
+
+    private Button showDocstrings;
+
+    private Button debugShowVars;
+
+    private Button useFirstHover;
+
+    private Label fCombiningHoverLabel;
 
     public PydevEditorHoverConfigurationBlock(PreferencePage mainPreferencePage, OverlayPreferenceStore store) {
         Assert.isNotNull(mainPreferencePage);
@@ -317,6 +389,38 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
      * @return the control for the preference page
      */
     public Control createControl(final Composite parent) {
+
+        Composite comp = new Composite(parent, SWT.NONE);
+        GridDataFactory.fillDefaults().grab(true, false).applyTo(comp);
+        GridLayoutFactory.fillDefaults().numColumns(3).applyTo(comp);
+        Composite buttonComp = new Composite(comp, SWT.BORDER);
+        GridLayoutFactory.fillDefaults().numColumns(2).applyTo(buttonComp);
+        useFirstHover = new Button(buttonComp, SWT.RADIO | SWT.BORDER);
+        useFirstHover.setText("Use highest priority Hover");
+        GridDataFactory.fillDefaults().applyTo(useFirstHover);
+        combineHovers = new Button(buttonComp, SWT.RADIO | SWT.BORDER);
+        combineHovers.setText("Combine Hovers");
+        GridDataFactory.fillDefaults().applyTo(combineHovers);
+        combineHovers.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                combiningHoverModifierEditor.setEnabled(combineHovers.getSelection());
+                fCombiningHoverLabel.setEnabled(combineHovers.getSelection());
+                showPreemptColumn(combineHovers.getSelection());
+                fHoverConfigs[0].fIsEnabled = combineHovers.getSelection();
+            }
+        });
+
+        fCombiningHoverLabel = new Label(comp, SWT.PUSH);
+        fCombiningHoverLabel.setText("Combined Hovers Key Modifier:");
+        combiningHoverModifierEditor = new Text(comp, SWT.BORDER);
+        combiningHoverModifierEditor.addKeyListener(new KeyModifierListener(combiningHoverModifierEditor));
+        combiningHoverModifierEditor.addModifyListener(new ModifyListener() {
+            public void modifyText(ModifyEvent e) {
+                handleModifierModified();
+            }
+        });
+        GridDataFactory.fillDefaults().grab(true, false).applyTo(combiningHoverModifierEditor);
 
         ScrolledPageContent scrolled = new ScrolledPageContent(parent, SWT.H_SCROLL | SWT.V_SCROLL);
         scrolled.setExpandHorizontal(true);
@@ -368,9 +472,7 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
 
         TableLayout tableLayout = new TableLayout();
         fHoverTable.setLayout(tableLayout);
-        fHoverTableViewer = new CheckboxTableViewer(fHoverTable) {
-
-        };
+        fHoverTableViewer = new CheckboxTableViewer(fHoverTable);
 
         TableViewerColumn nameColumnViewer = new TableViewerColumn(fHoverTableViewer, SWT.NONE);
         nameColumnViewer.setLabelProvider(new PyEditorTextHoverDescriptorLabelProvider(fHoverTableViewer));
@@ -437,6 +539,17 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
             }
         });
 
+        //Don't show combining hover
+        fHoverTableViewer.addFilter(new ViewerFilter() {
+
+            @Override
+            public boolean select(Viewer viewer, Object parentElement, Object element) {
+                return !((PyEditorTextHoverDescriptor) element).getId().equals(
+                        DefaultPydevCombiningHover.ID_DEFAULT_COMBINING_HOVER);
+            }
+
+        });
+
         // Text field for modifier string
         label = new Label(hoverComposite, SWT.LEFT);
         label.setText(PyEditorMessages.PyEditorHoverConfigurationBlock_keyModifier);
@@ -444,54 +557,7 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
         gd = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
         fModifierEditor.setLayoutData(gd);
 
-        fModifierEditor.addKeyListener(new KeyListener() {
-            private boolean isModifierCandidate;
-
-            public void keyPressed(KeyEvent e) {
-                isModifierCandidate = e.keyCode > 0 && e.character == 0 && e.stateMask == 0;
-            }
-
-            public void keyReleased(KeyEvent e) {
-                if (isModifierCandidate && e.stateMask > 0 && e.stateMask == e.stateMask && e.character == 0) {// && e.time -time < 1000) {
-                    String text = fModifierEditor.getText();
-                    Point selection = fModifierEditor.getSelection();
-                    int i = selection.x - 1;
-                    while (i > -1 && Character.isWhitespace(text.charAt(i))) {
-                        i--;
-                    }
-                    boolean needsPrefixDelimiter = i > -1 && !String.valueOf(text.charAt(i)).equals(DELIMITER);
-
-                    i = selection.y;
-                    while (i < text.length() && Character.isWhitespace(text.charAt(i))) {
-                        i++;
-                    }
-                    boolean needsPostfixDelimiter = i < text.length()
-                            && !String.valueOf(text.charAt(i)).equals(DELIMITER);
-
-                    String insertString;
-
-                    if (needsPrefixDelimiter && needsPostfixDelimiter) {
-                        insertString = Messages.format(
-                                PyEditorMessages.PyEditorHoverConfigurationBlock_insertDelimiterAndModifierAndDelimiter,
-                                new String[] { Action.findModifierString(e.stateMask) });
-                    } else if (needsPrefixDelimiter) {
-                        insertString = Messages.format(
-                                PyEditorMessages.PyEditorHoverConfigurationBlock_insertDelimiterAndModifier,
-                                new String[] { Action.findModifierString(e.stateMask) });
-                    } else if (needsPostfixDelimiter) {
-                        insertString = Messages.format(
-                                PyEditorMessages.PyEditorHoverConfigurationBlock_insertModifierAndDelimiter,
-                                new String[] { Action.findModifierString(e.stateMask) });
-                    } else {
-                        insertString = Action.findModifierString(e.stateMask);
-                    }
-
-                    if (insertString != null) {
-                        fModifierEditor.insert(insertString);
-                    }
-                }
-            }
-        });
+        fModifierEditor.addKeyListener(new KeyModifierListener(fModifierEditor));
 
         fModifierEditor.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e) {
@@ -511,13 +577,20 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
         gd.horizontalSpan = 2;
         fDescription.setLayoutData(gd);
 
-        initialize();
+        showDocstrings = new Button(parent, SWT.CHECK);
+        showDocstrings.setText("Show docstrings");
+        showDocstrings.setSelection(PyHoverPreferencesPage.getShowDocstringOnHover());
+        debugShowVars = new Button(parent, SWT.CHECK);
+        debugShowVars.setText("Show variables values while debugging");
+        debugShowVars.setSelection(PyHoverPreferencesPage.getShowValuesWhileDebuggingOnHover());
 
         scrolled.setContent(hoverComposite);
         final Point size = hoverComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT);
         scrolled.setMinSize(size.x, size.y);
 
         Dialog.applyDialogFont(scrolled);
+
+        initialize();
 
         return scrolled;
 
@@ -555,17 +628,24 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
     void initializeFields() {
         fModifierEditor.setEnabled(false);
 
-        Iterator<Button> e = fCheckBoxes.keySet().iterator();
-        while (e.hasNext()) {
-            Button b = e.next();
-            String key = fCheckBoxes.get(b);
-            b.setSelection(fStore.getBoolean(key));
-        }
+        //        Iterator<Button> e = fCheckBoxes.keySet().iterator();
+        //        while (e.hasNext()) {
+        //            Button b = e.next();
+        //            String key = fCheckBoxes.get(b);
+        //            b.setSelection(fStore.getBoolean(key));
+        //        }
 
-        for (int i = 0; i < fHoverConfigs.length; i++) {
-            fHoverTable.getItem(i).setChecked(fHoverConfigs[i].fIsEnabled);
+        combineHovers.setSelection(PyHoverPreferencesPage.getCombineHoverInfo());
+        useFirstHover.setSelection(!PyHoverPreferencesPage.getCombineHoverInfo());
+        combiningHoverModifierEditor.setEnabled(PyHoverPreferencesPage.getCombineHoverInfo());
+        fCombiningHoverLabel.setEnabled(PyHoverPreferencesPage.getCombineHoverInfo());
+
+        //skip first hover config (combining hover) which is filtered from viewer
+        for (int i = 1; i < fHoverConfigs.length; i++) {
+            fHoverTable.getItem(i - 1).setChecked(fHoverConfigs[i].fIsEnabled);
         }
         fHoverTableViewer.refresh();
+        combiningHoverModifierEditor.setText(fHoverConfigs[0].fModifierString);
     }
 
     public void performOk() {
@@ -612,10 +692,18 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
         }
         fStore.setValue(PyHoverPreferencesPage.EDITOR_TEXT_HOVER_MODIFIERS, buf.toString());
         fStore.setValue(PyHoverPreferencesPage.EDITOR_TEXT_HOVER_MODIFIER_MASKS, maskBuf.toString());
-        PydevPlugin.getDefault().getPreferenceStore().setValue(PyHoverPreferencesPage.EDITOR_TEXT_HOVER_PRORITIES,
+        PydevPrefs.getPreferenceStore().setValue(PyHoverPreferencesPage.EDITOR_TEXT_HOVER_PRORITIES,
                 priorityBuf.toString());
-        PydevPlugin.getDefault().getPreferenceStore().setValue(PyHoverPreferencesPage.EDITOR_TEXT_HOVER_PREEMPTS,
+        PydevPrefs.getPreferenceStore().setValue(PyHoverPreferencesPage.EDITOR_TEXT_HOVER_PREEMPTS,
                 preemptBuf.toString());
+
+        PydevPrefs.getPreferenceStore().setValue(PyHoverPreferencesPage.COMBINE_HOVER_INFO,
+                combineHovers.getSelection());
+        PydevPrefs.getPreferenceStore().setValue(PyHoverPreferencesPage.SHOW_DOCSTRING_ON_HOVER,
+                showDocstrings.getSelection());
+        PydevPrefs.getPreferenceStore()
+                .setValue(PyHoverPreferencesPage.SHOW_DEBUG_VARIABLES_VALUES_ON_HOVER, debugShowVars.getSelection());
+
         PydevPlugin.getDefault().resetPyEditorTextHoverDescriptors();
     }
 
@@ -629,7 +717,6 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
     }
 
     private void restoreFromPreferences() {
-        //TODO Enable modifier editor if applicable after restoring from prefs
         String compiledTextHoverModifiers = fStore.getString(PyHoverPreferencesPage.EDITOR_TEXT_HOVER_MODIFIERS);
 
         StringTokenizer tokenizer = new StringTokenizer(compiledTextHoverModifiers,
@@ -656,7 +743,7 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
             }
         }
 
-        String compiledTextHoverPriorities = PydevPlugin.getDefault().getPreferenceStore()
+        String compiledTextHoverPriorities = PydevPrefs.getPreferenceStore()
                 .getString(PyHoverPreferencesPage.EDITOR_TEXT_HOVER_PRORITIES);
 
         tokenizer = new StringTokenizer(compiledTextHoverPriorities, PyEditorTextHoverDescriptor.VALUE_SEPARATOR);
@@ -669,7 +756,7 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
             }
         }
 
-        String compiledTextHoverPreempts = PydevPlugin.getDefault().getPreferenceStore()
+        String compiledTextHoverPreempts = PydevPrefs.getPreferenceStore()
                 .getString(PyHoverPreferencesPage.EDITOR_TEXT_HOVER_PREEMPTS);
 
         tokenizer = new StringTokenizer(compiledTextHoverPreempts, PyEditorTextHoverDescriptor.VALUE_SEPARATOR);
@@ -683,7 +770,6 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
         }
         for (int i = 0; i < fHoverConfigs.length; i++) {
             // There is no extension point field for these values, so restore from preferences
-            PyEditorTextHoverDescriptor[] descr = getContributedHovers(true);
             String modifierString = idToModifier.get(getContributedHovers(true)[i].getId());
             boolean enabled = true;
             if (modifierString == null) {
@@ -716,26 +802,31 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
             fHoverConfigs[i].fPreempt = getContributedHovers(true)[i].fPreempt;
             initialize();
             fHoverTableViewer.setInput(getContributedHovers(true));
-
         }
     }
 
     private void handleModifierModified() {
         int i = fHoverTable.getSelectionIndex();
+        HoverConfig hoverConfig = null;
+        Text editor = null;
         if (i == -1) {
-            return;
+            hoverConfig = fHoverConfigs[0];
+            editor = combiningHoverModifierEditor;
+        } else {
+            hoverConfig = fHoverConfigs[convertIndex(i)];
+            editor = fModifierEditor;
         }
 
-        String modifiers = fModifierEditor.getText();
-        fHoverConfigs[i].fModifierString = modifiers;
-        fHoverConfigs[i].fStateMask = PyEditorTextHoverDescriptor.computeStateMask(modifiers);
+        String modifiers = editor.getText();
+        hoverConfig.fModifierString = modifiers;
+        hoverConfig.fStateMask = PyEditorTextHoverDescriptor.computeStateMask(modifiers);
 
         // update table
-        if (!fHoverTableViewer.isCellEditorActive()) {
+        if (!fHoverTableViewer.isCellEditorActive() && i >= 0) {
             fHoverTableViewer.refresh(getContributedHovers()[i]);
         }
 
-        updateStatus(fHoverConfigs[i]);
+        updateStatus(hoverConfig);
     }
 
     private void handleSetPriority(Integer priority) {
@@ -743,8 +834,8 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
         if (i == -1) {
             return;
         }
-
-        fHoverConfigs[i].fPriority = priority;
+        HoverConfig hoverConfig = fHoverConfigs[convertIndex(i)];
+        hoverConfig.fPriority = priority;
 
         /**
          * Ensure hover configs and hover descriptors are in same order
@@ -760,7 +851,7 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
         });
         fHoverTableViewer.refresh();
 
-        updateStatus(fHoverConfigs[i]);
+        updateStatus(hoverConfig);
     }
 
     public void handleSetPreempt(Boolean preempt) {
@@ -769,12 +860,13 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
             return;
         }
 
-        fHoverConfigs[i].fPreempt = preempt;
+        HoverConfig hoverConfig = fHoverConfigs[convertIndex(i)];
+        hoverConfig.fPreempt = preempt;
 
         // update table
         fHoverTableViewer.refresh(((IStructuredSelection) fHoverTableViewer.getSelection()).getFirstElement());
 
-        updateStatus(fHoverConfigs[i]);
+        updateStatus(hoverConfig);
     }
 
     private void handleHoverListSelection() {
@@ -786,11 +878,11 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
             }
             return;
         }
-
-        boolean enabled = fHoverConfigs[i].fIsEnabled;
+        HoverConfig hoverConfig = fHoverConfigs[convertIndex(i)];
+        boolean enabled = hoverConfig.fIsEnabled;
         fModifierEditor.setEnabled(enabled);
-        fModifierEditor.setText(fHoverConfigs[i].fModifierString);
-        String description = getContributedHovers()[i].getDescription();
+        fModifierEditor.setText(hoverConfig.fModifierString);
+        String description = getContributedHovers()[convertIndex(i)].getDescription();
         if (description == null) {
             description = ""; //$NON-NLS-1$
         }
@@ -839,20 +931,20 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
         StatusUtil.applyToStatusLine(fMainPreferencePage, fStatus);
     }
 
-    private Button addCheckBox(Composite parent, String label, String key, int indentation) {
+    /*private Button addCheckBox(Composite parent, String label, String key, int indentation) {
         Button checkBox = new Button(parent, SWT.CHECK);
         checkBox.setText(label);
-
+    
         GridData gd = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
         gd.horizontalIndent = indentation;
         gd.horizontalSpan = 2;
         checkBox.setLayoutData(gd);
         checkBox.addSelectionListener(fCheckBoxListener);
-
+    
         fCheckBoxes.put(checkBox, key);
-
+    
         return checkBox;
-    }
+    }*/
 
     private void addFiller(Composite composite) {
         PixelConverter pixelConverter = new PixelConverter(composite);
@@ -868,5 +960,27 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
      */
     public void dispose() {
         // nothing to dispose
+    }
+
+    public void showPreemptColumn(boolean show) {
+        if (fPreemptColumn.getWidth() != 0) {
+            fPremptColWidth = fPreemptColumn.getWidth();
+        }
+        fPreemptColumn.setWidth(show ? fPremptColWidth : 0);
+    }
+
+    /*
+     * Because fHoverConfigs contains a record for the combining hover, and
+     * this item is excluded from fHoverTable by the viewer filter, we adjust
+     * the index when mapping from a table item to an item in fHoverConfigs.
+     */
+    private int convertIndex(int index) {
+        //verify item is filtered, just to be sure
+        if (fHoverTableViewer != null && fHoverTableViewer.getInput() != null && fHoverTable != null) {
+            if (((Object[]) fHoverTableViewer.getInput()).length == fHoverTable.getItemCount() + 1) {
+                return index + 1;
+            }
+        }
+        return index;
     }
 }

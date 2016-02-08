@@ -90,7 +90,7 @@
          <attribute name="priority" type="string" use="default" value="100">
             <annotation>
                <documentation>
-                  the priority of the hover vis a vis other hovers, an integer between 0 (highest priority) and the maximum Java int value (lowest priority).
+                  the priority of the hover vis a vis other hovers, an integer between 1 (highest priority) and the maximum Java int value (lowest priority).
                </documentation>
             </annotation>
          </attribute>

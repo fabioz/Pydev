@@ -2826,7 +2826,7 @@ if __name__ == "__main__":
             activate="false"
             class="org.python.pydev.editor.hover.PyDocstringTextHover"
             description="Provides hover text for Python docstrings"
-            id="org.python.pydev.editor.hover.PyDocstringTextHover"
+            id="org.python.pydev.editor.hover.pyDocstringTextHover"
             label="PyDev Docstring Hover"
             preempt="false"
             priority="100">
@@ -2838,7 +2838,7 @@ if __name__ == "__main__":
             activate="false"
             class="org.python.pydev.editor.hover.PyMarkerTextHover"
             description="Provides hover text for Python markers"
-            id="org.python.pydev.pyMarkerHover"
+            id="org.python.pydev.editor.hover.pyMarkerTextHover"
             label="PyDev Marker Hover"
             preempt="false"
             priority="150">

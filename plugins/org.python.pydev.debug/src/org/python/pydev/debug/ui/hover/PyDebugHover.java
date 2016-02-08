@@ -32,6 +32,8 @@ import org.python.pydev.editor.hover.PyHoverPreferencesPage;
  */
 public class PyDebugHover extends AbstractPyEditorTextHover {
 
+    public static String ID = "org.python.pydev.debug.ui.hover.PyDebugHover";
+
     /**
      * Gets the value from the debugger for the currently hovered string.
      */

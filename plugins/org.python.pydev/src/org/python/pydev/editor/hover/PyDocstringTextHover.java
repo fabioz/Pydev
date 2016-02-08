@@ -38,6 +38,8 @@ import org.python.pydev.shared_core.structure.FastStack;
 
 public class PyDocstringTextHover extends AbstractPyEditorTextHover {
 
+    public static String ID = "org.python.pydev.editor.hover.pyDocstringTextHover";
+
     @Override
     public String getHoverInfo(ITextViewer textViewer, IRegion hoverRegion) {
         FastStringBuffer buf = new FastStringBuffer();

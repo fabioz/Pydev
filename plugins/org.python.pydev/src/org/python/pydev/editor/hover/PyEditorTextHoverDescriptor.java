@@ -36,6 +36,7 @@ import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.preferences.PydevPrefs;
 
 /**
  * Describes a Java editor text hover.
@@ -59,6 +60,8 @@ public class PyEditorTextHoverDescriptor {
     public static final String NO_MODIFIER = "0"; //$NON-NLS-1$
     public static final String DISABLED_TAG = "!"; //$NON-NLS-1$
     public static final String VALUE_SEPARATOR = ";"; //$NON-NLS-1$
+    private static final int HIGHEST_PRIORITY = 1;
+    private static final int COMBINING_HOVER_PRIORITY = 0;
 
     private int fStateMask;
 
@@ -218,15 +221,36 @@ public class PyEditorTextHoverDescriptor {
                 String sPriority = element.getAttribute(ATT_PYDEV_HOVER_PRIORITY);
                 try {
                     int val = Integer.parseInt(sPriority);
-                    desc.fPriority = (val >= 0 ? val : 0);
+                    desc.fPriority = (val >= HIGHEST_PRIORITY ? val : HIGHEST_PRIORITY);
                 } catch (NumberFormatException e) {
                     desc.fPriority = DEFAULT_HOVER_PRIORITY;
                 }
+                if (DefaultPydevCombiningHover.ID_DEFAULT_COMBINING_HOVER
+                        .equals(element.getAttribute(ATT_PYDEV_HOVER_ID))) {
+                    //combining hover hard-wired to highest priority, and enabled/disabled via UI
+                    desc.fPriority = COMBINING_HOVER_PRIORITY;
+                }
                 String sPreempt = element.getAttribute(ATT_PYDEV_HOVER_PREEMPT);
                 desc.fPreempt = Boolean.valueOf(sPreempt);
-                result.add(desc);
+                //Ensure that no other plug-in contributes a hover with the ID reserved for the default combining Hover
+                String declaringPlugin = element.getContributor().getName();
+                if (DefaultPydevCombiningHover.ID_DEFAULT_COMBINING_HOVER.equals(desc.getId()) &&
+                        !PydevPlugin.getDefault().getBundle().getSymbolicName()
+                                .equals(declaringPlugin)) {
+                    Log.log("Plugin " + declaringPlugin + " contributed a Text Hover with ID "
+                            + DefaultPydevCombiningHover.ID_DEFAULT_COMBINING_HOVER + ".\n" +
+                            "This ID is reserved by PyDev for the default Combining Hover. The contributed "
+                            + "Hover was ignored.");
+                } else {
+                    result.add(desc);
+                }
             }
         }
+
+        //ensure built-in PyDev Hovers are enabled the first time PyDev runs
+        checkHoverEnabled(PyDocstringTextHover.ID);
+        checkHoverEnabled(PyMarkerTextHover.ID);
+
         return result.toArray(new PyEditorTextHoverDescriptor[result.size()]);
     }
 
@@ -394,5 +418,17 @@ public class PyEditorTextHoverDescriptor {
      */
     public IConfigurationElement getConfigurationElement() {
         return fElement;
+    }
+
+    /*
+     * Enable the specified Hover if preferences have not yet been set for it.
+     */
+    private static void checkHoverEnabled(String hoverId) {
+        String modifierSettings = PydevPrefs.getPreferences()
+                .getString(PyHoverPreferencesPage.EDITOR_TEXT_HOVER_MODIFIERS);
+        if (modifierSettings.indexOf(hoverId) < 0) {
+            PydevPrefs.getPreferences().setValue(PyHoverPreferencesPage.EDITOR_TEXT_HOVER_MODIFIERS,
+                    hoverId + VALUE_SEPARATOR + NO_MODIFIER + VALUE_SEPARATOR + modifierSettings);
+        }
     }
 }

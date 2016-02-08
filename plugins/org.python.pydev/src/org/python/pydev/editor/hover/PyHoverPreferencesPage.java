@@ -6,14 +6,13 @@
  */
 package org.python.pydev.editor.hover;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.widgets.Button;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.eclipse.ui.progress.UIJob;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.AbstractConfigurationBlockPreferencePage;
 import org.python.pydev.plugin.preferences.IPreferenceConfigurationBlock;
@@ -47,34 +46,15 @@ public class PyHoverPreferencesPage extends AbstractConfigurationBlockPreference
 
     public static final String EDITOR_ANNOTATION_ROLL_OVER = "editor_annotation_roll_over"; //$NON-NLS-1$
 
+    public static final String COMBINE_HOVER_INFO = "combineHoverInfo";
+
+    public static final boolean DEFAULT_COMBINE_HOVER_INFO = true;
+
+    private PydevEditorHoverConfigurationBlock config;
+
     public PyHoverPreferencesPage() {
         setPreferenceStore();
         setDescription();
-    }
-
-    @Override
-    protected Control createContents(Composite parent) {
-        Composite panel = (Composite) super.createContents(parent);
-        final Button showDocstrings = new Button(parent, SWT.CHECK);
-        showDocstrings.setText("Show docstrings?");
-        showDocstrings.setSelection(getPreferenceStore().getBoolean(SHOW_DOCSTRING_ON_HOVER));
-        showDocstrings.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                getPreferenceStore().setValue(SHOW_DOCSTRING_ON_HOVER, showDocstrings.getSelection());
-            }
-        });
-
-        final Button debugShowVars = new Button(parent, SWT.CHECK);
-        debugShowVars.setText("Show variables values while debugging?");
-        debugShowVars.setSelection(getPreferenceStore().getBoolean(SHOW_DEBUG_VARIABLES_VALUES_ON_HOVER));
-        debugShowVars.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                getPreferenceStore().setValue(SHOW_DEBUG_VARIABLES_VALUES_ON_HOVER, debugShowVars.getSelection());
-            }
-        });
-        return panel;
     }
 
     @Override
@@ -82,11 +62,34 @@ public class PyHoverPreferencesPage extends AbstractConfigurationBlockPreference
         // pass
     }
 
-    /**
-     * @return whether the docstring should be shown when hovering.
-     */
+    @Override
+    public void createControl(Composite parent) {
+        super.createControl(parent);
+        //need to delay somewhat or it won't have any effect
+        new UIJob("Show/Hide Preempt Column") {
+
+            @Override
+            public IStatus runInUIThread(IProgressMonitor monitor) {
+                config.showPreemptColumn(PyHoverPreferencesPage.getCombineHoverInfo());
+                return Status.OK_STATUS;
+            }
+
+        }.schedule(500);
+    }
+
+    /**@return
+    
+    whether the docstring should be shown when hovering.*/
+
     public static boolean getShowDocstringOnHover() {
         return PydevPrefs.getPreferences().getBoolean(SHOW_DOCSTRING_ON_HOVER);
+    }
+
+    /**
+     * @return whether info from enabled Hovers should be combined.
+     */
+    public static boolean getCombineHoverInfo() {
+        return PydevPrefs.getPreferences().getBoolean(COMBINE_HOVER_INFO);
     }
 
     /**
@@ -98,7 +101,9 @@ public class PyHoverPreferencesPage extends AbstractConfigurationBlockPreference
 
     @Override
     protected IPreferenceConfigurationBlock createConfigurationBlock(OverlayPreferenceStore overlayPreferenceStore) {
-        return new PydevEditorHoverConfigurationBlock(this, overlayPreferenceStore);
+        config = new PydevEditorHoverConfigurationBlock(this,
+                overlayPreferenceStore);
+        return config;
     }
 
     @Override
