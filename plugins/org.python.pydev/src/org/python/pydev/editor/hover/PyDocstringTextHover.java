@@ -6,6 +6,9 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.ControlListener;
+import org.eclipse.swt.widgets.Control;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IPythonNature;
@@ -41,7 +44,7 @@ public class PyDocstringTextHover extends AbstractPyEditorTextHover {
     public static String ID = "org.python.pydev.editor.hover.pyDocstringTextHover";
 
     @Override
-    public String getHoverInfo(ITextViewer textViewer, IRegion hoverRegion) {
+    public String getHoverInfo(final ITextViewer textViewer, IRegion hoverRegion) {
         FastStringBuffer buf = new FastStringBuffer();
 
         if (textViewer instanceof PySourceViewer) {
@@ -52,6 +55,24 @@ public class PyDocstringTextHover extends AbstractPyEditorTextHover {
             }
         }
         return buf.toString();
+    }
+
+    public PyDocstringTextHover() {
+        super();
+        this.addInformationPresenterControlListener(new ControlListener() {
+
+            @Override
+            public void controlMoved(ControlEvent e) {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void controlResized(ControlEvent e) {
+                System.err.println("HOVER RESIZED " + ((Control) e.getSource()).getBounds());
+            }
+
+        });
     }
 
     @Override
@@ -189,12 +210,6 @@ public class PyDocstringTextHover extends AbstractPyEditorTextHover {
                 }
             }
         }
-    }
-
-    @Override
-    public Object getHoverInfo2(ITextViewer textViewer, IRegion hoverRegion) {
-        // TODO Auto-generated method stub
-        return null;
     }
 
 }

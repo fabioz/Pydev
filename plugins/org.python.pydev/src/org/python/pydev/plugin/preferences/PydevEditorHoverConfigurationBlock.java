@@ -348,6 +348,8 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
 
     private Label fCombiningHoverLabel;
 
+    private Button useHoverDivider;
+
     public PydevEditorHoverConfigurationBlock(PreferencePage mainPreferencePage, OverlayPreferenceStore store) {
         Assert.isNotNull(mainPreferencePage);
         Assert.isNotNull(store);
@@ -583,6 +585,9 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
         debugShowVars = new Button(parent, SWT.CHECK);
         debugShowVars.setText("Show variables values while debugging");
         debugShowVars.setSelection(PyHoverPreferencesPage.getShowValuesWhileDebuggingOnHover());
+        useHoverDivider = new Button(parent, SWT.CHECK);
+        useHoverDivider.setText("Add divider between contributions when combining hovers");
+        useHoverDivider.setSelection(PyHoverPreferencesPage.getUseHoverDelimiters());
 
         scrolled.setContent(hoverComposite);
         final Point size = hoverComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT);
@@ -690,6 +695,7 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
             preemptBuf.append(fHoverConfigs[i].fPreempt);
             preemptBuf.append(PyEditorTextHoverDescriptor.VALUE_SEPARATOR);
         }
+
         fStore.setValue(PyHoverPreferencesPage.EDITOR_TEXT_HOVER_MODIFIERS, buf.toString());
         fStore.setValue(PyHoverPreferencesPage.EDITOR_TEXT_HOVER_MODIFIER_MASKS, maskBuf.toString());
         PydevPrefs.getPreferenceStore().setValue(PyHoverPreferencesPage.EDITOR_TEXT_HOVER_PRORITIES,
@@ -701,8 +707,10 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
                 combineHovers.getSelection());
         PydevPrefs.getPreferenceStore().setValue(PyHoverPreferencesPage.SHOW_DOCSTRING_ON_HOVER,
                 showDocstrings.getSelection());
-        PydevPrefs.getPreferenceStore()
-                .setValue(PyHoverPreferencesPage.SHOW_DEBUG_VARIABLES_VALUES_ON_HOVER, debugShowVars.getSelection());
+        PydevPrefs.getPreferenceStore().setValue(PyHoverPreferencesPage.SHOW_DEBUG_VARIABLES_VALUES_ON_HOVER,
+                debugShowVars.getSelection());
+        PydevPrefs.getPreferenceStore().setValue(PyHoverPreferencesPage.USE_HOVER_DIVIDER,
+                useHoverDivider.getSelection());
 
         PydevPlugin.getDefault().resetPyEditorTextHoverDescriptors();
     }

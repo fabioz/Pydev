@@ -9,6 +9,7 @@ package org.python.pydev.editor;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Arrays;
 import java.util.Iterator;
 
 import org.eclipse.jface.resource.JFaceColors;
@@ -17,12 +18,15 @@ import org.eclipse.jface.text.TextPresentation;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Drawable;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.editor.actions.PyOpenAction;
@@ -54,6 +58,7 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
 
     private int fCounter;
     private boolean fEnforceUpperLineLimit;
+    private ControlListener resizeCallback;
 
     public PyInformationPresenter(boolean enforceUpperLineLimit) {
         super();
@@ -63,6 +68,24 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
     public PyInformationPresenter() {
         this(true);
     }
+
+    private ControlListener resizeListener = new ControlListener() {
+
+        @Override
+        public void controlMoved(ControlEvent e) {
+            if (resizeCallback != null) {
+                resizeCallback.controlMoved(e);
+            }
+        }
+
+        @Override
+        public void controlResized(ControlEvent e) {
+            if (resizeCallback != null) {
+                resizeCallback.controlResized(e);
+            }
+        }
+
+    };
 
     /**
      * Creates the reader and properly puts the presentation into place.
@@ -177,19 +200,21 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
         Iterator<StyleRange> e = presentation.getAllStyleRangeIterator();
         while (e.hasNext()) {
 
-            StyleRange range = (StyleRange) e.next();
+            StyleRange range = e.next();
 
             int myStart = range.start;
             int myEnd = range.start + range.length - 1;
             myEnd = Math.max(myStart, myEnd);
 
-            if (myEnd < yoursStart)
+            if (myEnd < yoursStart) {
                 continue;
+            }
 
-            if (myStart < yoursStart)
+            if (myStart < yoursStart) {
                 range.length += insertLength;
-            else
+            } else {
                 range.start += insertLength;
+            }
         }
     }
 
@@ -198,8 +223,9 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
         int length = string.length();
         buffer.append(string);
 
-        if (presentation != null)
+        if (presentation != null) {
             adaptTextPresentation(presentation, fCounter, length);
+        }
 
         fCounter += length;
     }
@@ -208,8 +234,9 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
         int length = line.length();
 
         int i = 0;
-        while (i < length && Character.isWhitespace(line.charAt(i)))
+        while (i < length && Character.isWhitespace(line.charAt(i))) {
             ++i;
+        }
 
         return (i == length ? line : line.substring(0, i)) + " "; //$NON-NLS-1$
     }
@@ -224,6 +251,7 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
             final StyledText styledText = (StyledText) drawable;
             styledText.addMouseListener(new MouseAdapter() {
 
+                @Override
                 public void mouseDown(MouseEvent e) {
                     int offset;
                     try {
@@ -248,8 +276,18 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
             });
         }
 
-        if (hoverInfo == null)
+        if (drawable instanceof Control) {
+            Control control = (Control) drawable;
+            if (!Arrays.asList(control.getListeners(SWT.Resize)).contains(resizeListener)) {
+                control.addControlListener(resizeListener);
+            } else {
+                System.err.println("LISTENER ALREADY ADDED");
+            }
+        }
+
+        if (hoverInfo == null) {
             return null;
+        }
 
         GC gc = new GC(drawable);
         try {
@@ -269,16 +307,18 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
 
             while (line != null) {
 
-                if (fEnforceUpperLineLimit && maxNumberOfLines <= 0)
+                if (fEnforceUpperLineLimit && maxNumberOfLines <= 0) {
                     break;
+                }
 
                 if (firstLineProcessed) {
-                    if (!lastLineFormatted)
+                    if (!lastLineFormatted) {
                         append(buffer, LINE_DELIM, null);
-                    else {
+                    } else {
                         append(buffer, LINE_DELIM, presentation);
-                        if (lastLineIndent != null)
+                        if (lastLineIndent != null) {
                             append(buffer, lastLineIndent, presentation);
+                        }
                     }
                 }
 
@@ -286,10 +326,11 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
                 firstLineProcessed = true;
 
                 lastLineFormatted = lineFormatted;
-                if (!lineFormatted)
+                if (!lineFormatted) {
                     lastLineIndent = null;
-                else if (lastLineIndent == null)
+                } else if (lastLineIndent == null) {
                     lastLineIndent = getIndent(line);
+                }
 
                 line = reader.readLine();
                 lineFormatted = reader.isFormattedLine();
@@ -318,23 +359,31 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
         int length = buffer.length();
 
         int end = length - 1;
-        while (end >= 0 && Character.isWhitespace(buffer.charAt(end)))
+        while (end >= 0 && Character.isWhitespace(buffer.charAt(end))) {
             --end;
+        }
 
-        if (end == -1)
+        if (end == -1) {
             return ""; //$NON-NLS-1$
+        }
 
-        if (end < length - 1)
+        if (end < length - 1) {
             buffer.delete(end + 1, length);
-        else
+        } else {
             end = length;
+        }
 
         int start = 0;
-        while (start < end && Character.isWhitespace(buffer.charAt(start)))
+        while (start < end && Character.isWhitespace(buffer.charAt(start))) {
             ++start;
+        }
 
         buffer.delete(0, start);
         presentation.setResultWindow(new Region(start, buffer.length()));
         return buffer.toString();
+    }
+
+    public void addResizeCallback(ControlListener listener) {
+        this.resizeCallback = listener;
     }
 }

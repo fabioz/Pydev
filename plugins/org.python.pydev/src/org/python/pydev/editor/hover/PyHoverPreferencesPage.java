@@ -36,19 +36,23 @@ public class PyHoverPreferencesPage extends AbstractConfigurationBlockPreference
 
     public static final boolean DEFAULT_SHOW_DEBUG_VARIABLES_VALUES_ON_HOVER = true;
 
-    public static final String EDITOR_TEXT_HOVER_MODIFIERS = "hoverModifiers";
+    public static final String EDITOR_TEXT_HOVER_MODIFIERS = "EDITOR_TEXT_HOVER_MODIFIERS";
 
-    public static final String EDITOR_TEXT_HOVER_MODIFIER_MASKS = "hoverModifierMasks";
+    public static final String EDITOR_TEXT_HOVER_MODIFIER_MASKS = "EDITOR_TEXT_HOVER_MODIFIER_MASKS";
 
-    public static final String EDITOR_TEXT_HOVER_PRORITIES = "hoverPriorities";
+    public static final String EDITOR_TEXT_HOVER_PRORITIES = "EDITOR_TEXT_HOVER_PRORITIES";
 
-    public static final String EDITOR_TEXT_HOVER_PREEMPTS = "hoverPreempts";
+    public static final String EDITOR_TEXT_HOVER_PREEMPTS = "EDITOR_TEXT_HOVER_PREEMPTS";
 
-    public static final String EDITOR_ANNOTATION_ROLL_OVER = "editor_annotation_roll_over"; //$NON-NLS-1$
+    public static final String EDITOR_ANNOTATION_ROLL_OVER = "EDITOR_ANNOTATION_ROLL_OVER"; //$NON-NLS-1$
 
-    public static final String COMBINE_HOVER_INFO = "combineHoverInfo";
+    public static final String COMBINE_HOVER_INFO = "COMBINE_HOVER_INFO";
 
     public static final boolean DEFAULT_COMBINE_HOVER_INFO = true;
+
+    public static final String USE_HOVER_DIVIDER = "USE_HOVER_DIVIDER";
+
+    public static final boolean DEFAULT_USE_HOVER_DIVIDER = true;
 
     private PydevEditorHoverConfigurationBlock config;
 
@@ -97,6 +101,14 @@ public class PyHoverPreferencesPage extends AbstractConfigurationBlockPreference
      */
     public static boolean getShowValuesWhileDebuggingOnHover() {
         return PydevPrefs.getPreferences().getBoolean(SHOW_DEBUG_VARIABLES_VALUES_ON_HOVER);
+    }
+
+    /**
+     * @return whether the value of include a divider between text contributions when 
+     * combining info from multiple Hovers.
+     */
+    public static boolean getUseHoverDelimiters() {
+        return PydevPrefs.getPreferences().getBoolean(USE_HOVER_DIVIDER);
     }
 
     @Override

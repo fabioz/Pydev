@@ -13,6 +13,7 @@ import org.eclipse.jface.text.ITextHoverExtension2;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Region;
+import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.python.pydev.core.IIndentPrefs;
@@ -33,14 +34,20 @@ public abstract class AbstractPyEditorTextHover implements ITextHover, ITextHove
      * The text selected
      */
     protected ITextSelection textSelection;
+    protected PyInformationPresenter informationPresenter;
+    protected PyInformationControl informationControl;
 
-    private final class PyInformationControl extends DefaultInformationControl
+    final class PyInformationControl extends DefaultInformationControl
             implements IInformationControlExtension3 {
         private PyInformationControl(Shell parent, String statusFieldText,
                 IInformationPresenter presenter) {
             super(parent, statusFieldText, presenter);
         }
 
+    }
+
+    public AbstractPyEditorTextHover() {
+        informationPresenter = new PyInformationPresenter();
     }
 
     public abstract boolean isContentTypeSupported(String contentType);
@@ -50,6 +57,7 @@ public abstract class AbstractPyEditorTextHover implements ITextHover, ITextHove
      */
     public IInformationControlCreator getHoverControlCreator() {
         return new IInformationControlCreator() {
+
             public IInformationControl createInformationControl(Shell parent) {
                 String tooltipAffordanceString = null;
                 try {
@@ -57,9 +65,9 @@ public abstract class AbstractPyEditorTextHover implements ITextHover, ITextHove
                 } catch (Throwable e) {
                     //Not available on Eclipse 3.2
                 }
-                DefaultInformationControl ret = new PyInformationControl(parent, tooltipAffordanceString,
-                        new PyInformationPresenter());
-                return ret;
+                informationControl = new PyInformationControl(parent, tooltipAffordanceString,
+                        informationPresenter);
+                return informationControl;
             }
         };
     }
@@ -111,4 +119,11 @@ public abstract class AbstractPyEditorTextHover implements ITextHover, ITextHove
     public Object getHoverInfo2(ITextViewer textViewer, IRegion hoverRegion) {
         return getHoverInfo(textViewer, hoverRegion);
     }
+
+    public void addInformationPresenterControlListener(ControlListener listener) {
+        if (informationPresenter != null) {
+            informationPresenter.addResizeCallback(listener);
+        }
+    }
+
 }
