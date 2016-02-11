@@ -1,4 +1,4 @@
-package org.python.pydev.plugin.preferences;
+package org.python.pydev.ui;
 
 /*******************************************************************************
  * Copyright (c) 2007 BestSolution Systemhaus GmbH

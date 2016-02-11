@@ -1,3 +1,13 @@
+/**
+ * Copyright (c) 2016 by Brainwy Software LTDA. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ * 
+ * Copied from the JDT implementation of
+ * <code>org.eclipse.jdt.internal.ui.text.java.hover.JavaEditorTextHoverProxy</code>
+ * and modified for PyDev.
+ */
 package org.python.pydev.editor.hover;
 
 import org.eclipse.jface.text.IInformationControlCreator;
@@ -8,8 +18,6 @@ import org.eclipse.jface.text.ITextViewer;
 
 /**
  * Proxy for PyDev editor Text Hovers.
- *
- * @since 2.1
  */
 public class PyEditorTextHoverProxy implements ITextHover, ITextHoverExtension {
 

@@ -1,3 +1,11 @@
+/**
+ * Copyright (c) 2016 by Brainwy Software LTDA. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ * 
+ * A re-factor of <code>PyTextHover</code> to use the extension point <code>org.python.pydev.pyTextHover</code>
+ */
 package org.python.pydev.editor.hover;
 
 import java.util.ArrayList;
@@ -58,6 +66,8 @@ public class PyDocstringTextHover extends AbstractPyEditorTextHover {
         super();
     }
 
+    /*
+     */
     @Override
     public boolean isContentTypeSupported(String contentType) {
         boolean pythonCommentOrMultiline = false;

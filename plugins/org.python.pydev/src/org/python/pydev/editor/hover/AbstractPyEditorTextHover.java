@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2016 by Brainwy Software LTDA. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 package org.python.pydev.editor.hover;
 
 import java.io.IOException;
@@ -52,6 +58,11 @@ public abstract class AbstractPyEditorTextHover implements ITextHover, ITextHove
         informationPresenter = new PyInformationPresenter();
     }
 
+    /**
+     * Specifies whether a given content type is supported for this Hover
+     * @param contentType the content type
+     * @return whether hover info should be rendered for this content type
+     */
     public abstract boolean isContentTypeSupported(String contentType);
 
     /*
@@ -83,6 +94,9 @@ public abstract class AbstractPyEditorTextHover implements ITextHover, ITextHove
         return new Region(offset, 0);
     }
 
+    /**
+     * Copied from {@link PyTextHover} when that class was deprecated.
+     */
     public static String printAst(PyEdit edit, SimpleNode astToPrint) {
         String str = null;
         if (astToPrint != null) {
@@ -113,12 +127,6 @@ public abstract class AbstractPyEditorTextHover implements ITextHover, ITextHove
         return str;
     }
 
-    @Override
-    public String getHoverInfo(ITextViewer textViewer, IRegion hoverRegion) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
     /*
      * @see org.eclipse.jface.text.ITextHoverExtension2#getHoverInfo2(org.eclipse.jface.text.ITextViewer, org.eclipse.jface.text.IRegion)
      * @since 3.4
@@ -128,16 +136,28 @@ public abstract class AbstractPyEditorTextHover implements ITextHover, ITextHove
         return getHoverInfo(textViewer, hoverRegion);
     }
 
+    /**
+     * Add a listener to resize events on the information presented control.
+     * @param listener the resize listener
+     */
     public void addInformationPresenterControlListener(ControlListener listener) {
         if (informationPresenter != null) {
             informationPresenter.addResizeCallback(listener);
         }
     }
 
+    /**
+     * Set the preferred width of the Hover control.
+     * @param width the preferred width
+     */
     public void setHoverControlPreferredWidth(int width) {
         this.hoverControlPreferredWidth = width;
     }
 
+    /**
+     * Get the preferred width of the Hover control.
+     * @return the preferred width
+     */
     public Integer getHoverControlPreferredWidth() {
         return this.hoverControlPreferredWidth;
     }

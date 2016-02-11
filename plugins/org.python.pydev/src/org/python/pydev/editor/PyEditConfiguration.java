@@ -80,7 +80,7 @@ public class PyEditConfiguration extends PyEditConfigurationWithoutEditor {
     @Override
     public ITextHover getTextHover(ISourceViewer sourceViewer, String contentType, int stateMask) {
         /**
-         * If any contributions from the deprecated extension point org.python.pydev.pydev_hover, use
+         * If there are any contributions from the deprecated extension point org.python.pydev.pydev_hover, use
          * the old style Pydev hover implementation, and ignore any contributions to org.python.pydev.pyTextHover.
          */
         @SuppressWarnings("unchecked")
@@ -92,8 +92,9 @@ public class PyEditConfiguration extends PyEditConfigurationWithoutEditor {
 
         /**
          * We return the highest priority registered hover. If two or more hovers have the highest
-         * priority, it is indeterminate which will be selected. Use a CombiningTextHover as the
-         * highest priority hover to combine hover info in a configurable way.
+         * priority, it is indeterminate which will be selected. The proper way to combine hover
+         * info is to set this behavior on the Hover preference page. This causes a combining
+         * Text Hover to be set as the highest priority Hover.
          */
         PyEditorTextHoverDescriptor[] hoverDescs = PydevPlugin.getDefault().getPyEditorTextHoverDescriptors(false);
         int i = 0;
@@ -123,8 +124,8 @@ public class PyEditConfiguration extends PyEditConfigurationWithoutEditor {
     @SuppressWarnings("unchecked")
     protected Map<String, IPySyntaxHighlightingAndCodeCompletionEditor> getHyperlinkDetectorTargets(
             ISourceViewer sourceViewer) {
-        Map<String, IPySyntaxHighlightingAndCodeCompletionEditor> targets = super.getHyperlinkDetectorTargets(
-                sourceViewer);
+        Map<String, IPySyntaxHighlightingAndCodeCompletionEditor> targets = super
+        		.getHyperlinkDetectorTargets(sourceViewer);
         targets.put("org.python.pydev.editor.PythonEditor", edit); //$NON-NLS-1$
         return targets;
     }
@@ -199,7 +200,8 @@ public class PyEditConfiguration extends PyEditConfigurationWithoutEditor {
 
     /*
      * @see SourceViewerConfiguration#getConfiguredTextHoverStateMasks(ISourceViewer, String)
-     * @since 2.1
+     * Implementation copied from org.eclipse.jdt.ui.text.JavaSourceViewerConfiguration and adapted
+     * for PyDev.
      */
     @Override
     public int[] getConfiguredTextHoverStateMasks(ISourceViewer sourceViewer, String contentType) {

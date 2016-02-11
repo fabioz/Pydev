@@ -1,10 +1,19 @@
-package org.python.pydev.plugin.preferences;
+/**
+ * Copyright (c) 2016 by Brainwy Software LTDA. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ * 
+ * Copied from the JDT implementation of
+ * <code>org.eclipse.jdt.internal.ui.preferences.JavaEditorHoverConfigurationBlock</code>
+ * and modified for PyDev.
+ */
+package org.python.pydev.editor.hover;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.Assert;
@@ -56,21 +65,26 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.python.pydev.editor.hover.DefaultPydevCombiningHover;
-import org.python.pydev.editor.hover.PyEditorTextHoverDescriptor;
-import org.python.pydev.editor.hover.PyHoverPreferencesPage;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.StatusInfo;
+import org.python.pydev.plugin.preferences.IPreferenceConfigurationBlock;
+import org.python.pydev.plugin.preferences.OverlayPreferenceStore;
 import org.python.pydev.plugin.preferences.OverlayPreferenceStore.OverlayKey;
+import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.ui.EmulatedNativeCheckBoxLabelProvider;
+import org.python.pydev.ui.ScrolledPageContent;
+import org.python.pydev.ui.TableLayoutComposite;
 import org.python.pydev.utils.Messages;
 import org.python.pydev.utils.PyEditorMessages;
+import org.python.pydev.utils.SWTUtil;
+import org.python.pydev.utils.StatusUtil;
 
 /**
  * Configures Java Editor hover preferences.
  *
  * @since 2.1
  */
-public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurationBlock {
+public class PyEditorHoverConfigurationBlock implements IPreferenceConfigurationBlock {
 
     private static final String DELIMITER = PyEditorMessages.PyEditorHoverConfigurationBlock_delimiter;
 
@@ -101,11 +115,8 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
 
     private class PyEditorTextHoverDescriptorLabelProvider extends EmulatedNativeCheckBoxLabelProvider {
 
-        private TableViewer viewer;
-
         public PyEditorTextHoverDescriptorLabelProvider(ColumnViewer viewer) {
             super(viewer);
-            this.viewer = (TableViewer) viewer;
         }
 
         @Override
@@ -192,7 +203,7 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
                         if (!"".equals(value)) {
                             try {
                                 int val = Integer.parseInt((String) value);
-                                if (val < 0) {
+                                if (val <= 0) {
                                     valid = false;
                                 }
                             } catch (NumberFormatException | ClassCastException e) {
@@ -201,7 +212,7 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
                         }
                         editor.getControl()
                                 .setBackground(valid ? null : Display.getDefault().getSystemColor(SWT.COLOR_RED));
-                        return (valid ? null : "non-negative integer required");
+                        return (valid ? null : "positive integer required");
                     }
                 });
                 ((Text) ((TextCellEditor) editor).getControl()).selectAll();
@@ -211,15 +222,23 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
             return this.editor;
         }
 
+        /*
+         * (non-Javadoc)
+         * @see org.eclipse.jface.viewers.EditingSupport#canEdit(java.lang.Object)
+         */
         @Override
         protected boolean canEdit(Object element) {
             return true;
         }
 
+        /*
+         * (non-Javadoc)
+         * @see org.eclipse.jface.viewers.EditingSupport#getValue(java.lang.Object)
+         */
         @Override
         protected Object getValue(Object element) {
             PyEditorTextHoverDescriptor descr = (PyEditorTextHoverDescriptor) element;
-            if (descr != null /*&& editor.isValueValid()*/) {
+            if (descr != null) {
                 switch (this.column) {
                     case PRIORITY_PROP:
                         return String.valueOf(descr.getPriority());
@@ -232,6 +251,10 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
             return "";
         }
 
+        /*
+         * (non-Javadoc)
+         * @see org.eclipse.jface.viewers.EditingSupport#setValue(java.lang.Object, java.lang.Object)
+         */
         @Override
         protected void setValue(Object element, Object value) {
             switch (this.column) {
@@ -280,7 +303,7 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
         }
 
         public void keyReleased(KeyEvent e) {
-            if (isModifierCandidate && e.stateMask > 0 && e.stateMask == e.stateMask && e.character == 0) {// && e.time -time < 1000) {
+            if (isModifierCandidate && e.stateMask > 0 && e.stateMask == e.stateMask && e.character == 0) {
                 String text = editor.getText();
                 Point selection = editor.getSelection();
                 int i = selection.x - 1;
@@ -321,19 +344,6 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
         }
     };
 
-    private Map<Button, String> fCheckBoxes = new HashMap<Button, String>();
-    private SelectionListener fCheckBoxListener = new SelectionListener() {
-        public void widgetDefaultSelected(SelectionEvent e) {
-            Button button = (Button) e.widget;
-            fStore.setValue(fCheckBoxes.get(button), button.getSelection());
-        }
-
-        public void widgetSelected(SelectionEvent e) {
-            Button button = (Button) e.widget;
-            fStore.setValue(fCheckBoxes.get(button), button.getSelection());
-        }
-    };
-
     private int fPremptColWidth;
 
     private Button combineHovers;
@@ -350,21 +360,12 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
 
     private Button useHoverDivider;
 
-    public PydevEditorHoverConfigurationBlock(PreferencePage mainPreferencePage, OverlayPreferenceStore store) {
+    public PyEditorHoverConfigurationBlock(PreferencePage mainPreferencePage, OverlayPreferenceStore store) {
         Assert.isNotNull(mainPreferencePage);
         Assert.isNotNull(store);
         fMainPreferencePage = mainPreferencePage;
         fStore = store;
         fStore.addKeys(createOverlayStoreKeys());
-    }
-
-    public HoverConfig getHoverConfigById(String id) {
-        for (HoverConfig config : fHoverConfigs) {
-            if (config.fId.equals(id)) {
-                return config;
-            }
-        }
-        return null;
     }
 
     private OverlayPreferenceStore.OverlayKey[] createOverlayStoreKeys() {
@@ -434,10 +435,6 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
         layout.marginWidth = 0;
         layout.marginHeight = 0;
         hoverComposite.setLayout(layout);
-
-        // Multiple vertical ruler icons not supported in PyDev?
-        // String rollOverLabel = PyEditorMessages.PyEditorHoverConfigurationBlock_annotationRollover;
-        // addCheckBox(hoverComposite, rollOverLabel, PyHoverPreferencesPage.EDITOR_ANNOTATION_ROLL_OVER, 0);
 
         addFiller(hoverComposite);
 
@@ -632,13 +629,6 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
 
     void initializeFields() {
         fModifierEditor.setEnabled(false);
-
-        //        Iterator<Button> e = fCheckBoxes.keySet().iterator();
-        //        while (e.hasNext()) {
-        //            Button b = e.next();
-        //            String key = fCheckBoxes.get(b);
-        //            b.setSelection(fStore.getBoolean(key));
-        //        }
 
         combineHovers.setSelection(PyHoverPreferencesPage.getCombineHoverInfo());
         useFirstHover.setSelection(!PyHoverPreferencesPage.getCombineHoverInfo());
@@ -924,10 +914,10 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
                             Messages.format(
                                     PyEditorMessages.PyEditorHoverConfigurationBlock_modifierIsNotValidForHover,
                                     new String[] { fHoverConfigs[i].fModifierString, label }));
-                    //                } else if (stateMasks.containsKey(stateMask)) {
-                    //                    fStatus = new StatusInfo(IStatus.ERROR,
-                    //                            Messages.format(PyEditorMessages.PyEditorHoverConfigurationBlock_duplicateModifier,
-                    //                                    new String[] { label, stateMasks.get(stateMask) }));
+                    /* The JDT implementation prohibits duplicate hovers with the same modifier.
+                     * We permit duplicates because the highest priority hover with a given modifier
+                     * will be selected at runtime.
+                     */
                 } else {
                     stateMasks.put(stateMask, label);
                 }
@@ -938,21 +928,6 @@ public class PydevEditorHoverConfigurationBlock implements IPreferenceConfigurat
         fMainPreferencePage.setValid(fStatus.isOK());
         StatusUtil.applyToStatusLine(fMainPreferencePage, fStatus);
     }
-
-    /*private Button addCheckBox(Composite parent, String label, String key, int indentation) {
-        Button checkBox = new Button(parent, SWT.CHECK);
-        checkBox.setText(label);
-    
-        GridData gd = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
-        gd.horizontalIndent = indentation;
-        gd.horizontalSpan = 2;
-        checkBox.setLayoutData(gd);
-        checkBox.addSelectionListener(fCheckBoxListener);
-    
-        fCheckBoxes.put(checkBox, key);
-    
-        return checkBox;
-    }*/
 
     private void addFiller(Composite composite) {
         PixelConverter pixelConverter = new PixelConverter(composite);

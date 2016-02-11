@@ -73,7 +73,10 @@ import org.python.pydev.shared_core.structure.FastStack;
  * Gets the default hover information and asks for clients to gather more info.
  * 
  * @author Fabio
+ * @deprecated use {@link AbstractPyEditorTextHover} and contribute it to extension
+ * point <code> org.python.pydev.pyTextHover</code>
  */
+@Deprecated
 public class PyTextHover implements ITextHover, ITextHoverExtension {
 
     private final class PyInformationControl extends DefaultInformationControl

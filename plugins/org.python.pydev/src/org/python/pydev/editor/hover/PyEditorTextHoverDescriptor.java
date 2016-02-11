@@ -1,3 +1,13 @@
+/**
+ * Copyright (c) 2016 by Brainwy Software LTDA. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ * 
+ * Copied from the JDT implementation of
+ * <code>org.eclipse.jdt.internal.ui.text.java.hover.JavaEditorTextHoverDescriptor</code>
+ * and modified for PyDev.
+ */
 package org.python.pydev.editor.hover;
 
 /*******************************************************************************
@@ -39,7 +49,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 
 /**
- * Describes a Java editor text hover.
+ * Describes a PyDev editor text hover.
  *
  * @since 2.1
  */
@@ -76,7 +86,7 @@ public class PyEditorTextHoverDescriptor {
     public Boolean fPreempt;
 
     /**
-     * Returns all Java editor text hovers contributed to the workbench.
+     * Returns all PyDev editor text hovers contributed to the workbench.
      *
      * @return an array with the contributed text hovers
      */
@@ -117,7 +127,7 @@ public class PyEditorTextHoverDescriptor {
     }
 
     /**
-     * Creates a new Java Editor text hover descriptor from the given configuration element.
+     * Creates a new PyDev Editor text hover descriptor from the given configuration element.
      *
      * @param element the configuration element
      */
@@ -127,7 +137,7 @@ public class PyEditorTextHoverDescriptor {
     }
 
     /**
-     * Creates the Java editor text hover.
+     * Creates the PyDev editor text hover.
      *
      * @return the text hover
      */
@@ -414,7 +424,6 @@ public class PyEditorTextHoverDescriptor {
      * Returns this hover descriptors configuration element.
      *
      * @return the configuration element
-     * @since 3.0
      */
     public IConfigurationElement getConfigurationElement() {
         return fElement;

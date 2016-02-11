@@ -1,3 +1,12 @@
+/**
+ * Copyright (c) 2016 by Brainwy Software LTDA. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ * 
+ * Copied from the JDT implementation of
+ * <code>org.eclipse.cdt.internal.ui.preferences.IPreferenceConfigurationBlock</code>.
+ */
 package org.python.pydev.plugin.preferences;
 
 import org.eclipse.swt.widgets.Composite;
@@ -6,12 +15,10 @@ import org.eclipse.swt.widgets.Control;
 /**
  * Interface for preference configuration blocks which can either be
  * wrapped by a {@link org.python.pydev.plugin.preferences.AbstractConfigurationBlockPreferencePage}
- * or be included some preference page.
+ * or be included in some preference page.
  * <p>
  * Clients may implement this interface.
  * </p>
- *
- * @since 3.0
  */
 public interface IPreferenceConfigurationBlock {
 

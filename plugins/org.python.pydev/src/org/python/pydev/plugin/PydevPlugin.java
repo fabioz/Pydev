@@ -53,6 +53,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.SyncSystemModulesManagerScheduler;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
+import org.python.pydev.editor.hover.DefaultPydevCombiningHover;
 import org.python.pydev.editor.hover.PyEditorTextHoverDescriptor;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
@@ -68,7 +69,6 @@ import org.python.pydev.shared_ui.bundle.IBundleInfo;
 import org.python.pydev.ui.interpreters.IronpythonInterpreterManager;
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
-import org.python.pydev.utils.ConfigurationElementAttributeSorter;
 
 /**
  * The main plugin class - initialized on startup - has resource bundle for internationalization - has preferences
@@ -643,10 +643,9 @@ public class PydevPlugin extends AbstractUIPlugin {
     }
 
     /**
-     * Returns all Python editor text hovers contributed to the workbench.
+     * Returns all PyDev editor text hovers contributed to the workbench.
      *
-     * @return an array of JavaEditorTextHoverDescriptor
-     * @since 2.1
+     * @return an array of PyEditorTextHoverDescriptor
      */
     public synchronized PyEditorTextHoverDescriptor[] getPyEditorTextHoverDescriptors(
             boolean useRegisteredExtensionPolintValues) {
@@ -673,7 +672,8 @@ public class PydevPlugin extends AbstractUIPlugin {
     *
     * @return a PyEditorTextHoverDescriptor contributed to {@link ExtensionHelper#PY_TEXT_COMBINING_HOVER}}
     * which combines hover info from other registered Text Hovers. Returns <code>null</code> if
-    * no combining Hover has been contributed.
+    * no combining Hover has been contributed. In this case a default combining hover provided by PyDev
+    * ({@link DefaultPydevCombiningHover}) will be used.
     * @throws a CoreException if more than one combining Hover has been registered.
     */
     public synchronized PyEditorTextHoverDescriptor getPyEditorCombiningTextHoverDescriptor(
@@ -698,8 +698,6 @@ public class PydevPlugin extends AbstractUIPlugin {
 
     /**
      * Flushes the instance scope of this plug-in.
-     * 
-     * @since 3.7
      */
     public static void flushInstanceScope() {
         try {
@@ -720,13 +718,11 @@ public class PydevPlugin extends AbstractUIPlugin {
     }
 
     /**
-     * Resets the Java editor text hovers contributed to the workbench.
+     * Resets the PyDev editor text hovers contributed to the workbench.
      * <p>
      * This will force a rebuild of the descriptors the next time
      * a client asks for them.
      * </p>
-     *
-     * @since 2.1
      */
     public synchronized void resetPyEditorTextHoverDescriptors() {
         fPyEditorTextHoverDescriptors = null;

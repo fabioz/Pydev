@@ -1,4 +1,15 @@
-package org.python.pydev.utils;
+/**
+ * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
+/*
+ * Created on 02/11/2016
+ * 
+ * @author Mark Leone
+ */
+package org.python.pydev.plugin;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -40,8 +51,8 @@ public abstract class ConfigurationElementAttributeSorter {
     public abstract IConfigurationElement getConfigurationElement(Object object);
 
     /**
-     * Compare configuration elements according to the prerequisite relation
-     * of their defining plug-ins.
+     * Compare configuration elements according to the natural sort order
+     * of specified attribute values.
      */
     private class ConfigurationElementAttributeComparator<O> implements Comparator<O> {
 

@@ -1,3 +1,11 @@
+/**
+ * Copyright (c) 2016 by Brainwy Software LTDA. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ * 
+ * A re-factor of <code>PyTextHover</code> to use the extension point <code>org.python.pydev.pyTextHover</code>
+ */
 package org.python.pydev.editor.hover;
 
 import java.util.Iterator;
@@ -16,6 +24,10 @@ public class PyMarkerTextHover extends AbstractPyEditorTextHover {
 
     public static String ID = "org.python.pydev.editor.hover.pyMarkerTextHover";
 
+    /*
+     * (non-Javadoc)
+     * @see org.eclipse.jface.text.ITextHover#getHoverInfo(org.eclipse.jface.text.ITextViewer, org.eclipse.jface.text.IRegion)
+     */
     @Override
     public String getHoverInfo(ITextViewer textViewer, IRegion hoverRegion) {
         FastStringBuffer buf = new FastStringBuffer();
@@ -28,6 +40,10 @@ public class PyMarkerTextHover extends AbstractPyEditorTextHover {
         return buf.toString();
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.python.pydev.editor.hover.AbstractPyEditorTextHover#isContentTypeSupported(java.lang.String)
+     */
     @Override
     public boolean isContentTypeSupported(String contentType) {
         boolean pythonCommentOrMultiline = false;

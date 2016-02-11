@@ -333,7 +333,7 @@ public abstract class PyAction extends BaseAction implements IEditorActionDelega
                     if (editorInput == null) {
                         continue;
                     }
-                    IFile file = editorInput.getAdapter(IFile.class);
+                    IFile file = (IFile) editorInput.getAdapter(IFile.class);
                     if (file != null) {
                         ret.add(file);
                     }

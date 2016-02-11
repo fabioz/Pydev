@@ -17,7 +17,6 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.AbstractConfigurationBlockPreferencePage;
 import org.python.pydev.plugin.preferences.IPreferenceConfigurationBlock;
 import org.python.pydev.plugin.preferences.OverlayPreferenceStore;
-import org.python.pydev.plugin.preferences.PydevEditorHoverConfigurationBlock;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 
 /**
@@ -54,7 +53,7 @@ public class PyHoverPreferencesPage extends AbstractConfigurationBlockPreference
 
     public static final boolean DEFAULT_USE_HOVER_DIVIDER = true;
 
-    private PydevEditorHoverConfigurationBlock config;
+    private PyEditorHoverConfigurationBlock config;
 
     public PyHoverPreferencesPage() {
         setPreferenceStore();
@@ -81,9 +80,7 @@ public class PyHoverPreferencesPage extends AbstractConfigurationBlockPreference
         }.schedule(500);
     }
 
-    /**@return
-    
-    whether the docstring should be shown when hovering.*/
+    /**@return whether the docstring should be shown when hovering.*/
 
     public static boolean getShowDocstringOnHover() {
         return PydevPrefs.getPreferences().getBoolean(SHOW_DOCSTRING_ON_HOVER);
@@ -113,7 +110,7 @@ public class PyHoverPreferencesPage extends AbstractConfigurationBlockPreference
 
     @Override
     protected IPreferenceConfigurationBlock createConfigurationBlock(OverlayPreferenceStore overlayPreferenceStore) {
-        config = new PydevEditorHoverConfigurationBlock(this,
+        config = new PyEditorHoverConfigurationBlock(this,
                 overlayPreferenceStore);
         return config;
     }

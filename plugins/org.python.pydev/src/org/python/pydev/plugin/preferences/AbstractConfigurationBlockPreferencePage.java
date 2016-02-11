@@ -1,3 +1,12 @@
+/**
+ * Copyright (c) 2016 by Brainwy Software LTDA. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ * 
+ * Copied from the JDT implementation of
+ * <code>org.eclipse.jdt.internal.ui.preferences.AbstractConfigurationBlockPreferencePage</code>.
+ */
 package org.python.pydev.plugin.preferences;
 
 import org.eclipse.jface.dialogs.Dialog;

@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2016 by Brainwy Software LTDA. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
+/*
+ * Author: Mark Leone
+ * Created: Feb 11, 2016
+ * 
+ * Loosely follows the JDT implementation of a best match hover. Code for obtaining
+ * and configuring contributed Hovers was copied from <code>BestMatchHover</code>,
+ * but this implementation combines Hover info in priority order, whereas the JDT
+ * implementation chooses the best fit hover.
+ */
 package org.python.pydev.editor.hover;
 
 import java.util.ArrayList;
@@ -118,6 +133,10 @@ public class DefaultPydevCombiningHover extends AbstractPyEditorTextHover implem
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.eclipse.jface.text.ITextHover#getHoverInfo(org.eclipse.jface.text.ITextViewer, org.eclipse.jface.text.IRegion)
+     */
     @Override
     public String getHoverInfo(final ITextViewer textViewer, IRegion hoverRegion) {
         this.viewer = textViewer;
@@ -145,6 +164,7 @@ public class DefaultPydevCombiningHover extends AbstractPyEditorTextHover implem
                     currentPriority = descr.getPriority();
                 }
                 if (descr.getPriority().equals(currentPriority) || !preempt) {
+                    @SuppressWarnings("deprecation")
                     final String hoverText = hover.getHoverInfo(textViewer, hoverRegion);
                     if (hoverText != null && hoverText.trim().length() > 0) {
                         if (!firstHoverInfo && PyHoverPreferencesPage.getUseHoverDelimiters()) {
@@ -179,6 +199,11 @@ public class DefaultPydevCombiningHover extends AbstractPyEditorTextHover implem
         return buf.toString();
     }
 
+    /**
+     * Ensures that the width of the control for this Hover is equal to the
+     * largest width, if any, set for contributing Hovers.
+     * @param hover a contributing Hover
+     */
     private void checkHoverControlWidth(AbstractPyEditorTextHover hover) {
         if (hover.getHoverControlPreferredWidth() != null) {
             if (this.hoverControlWidth == null) {
@@ -195,6 +220,12 @@ public class DefaultPydevCombiningHover extends AbstractPyEditorTextHover implem
         }
     }
 
+    /**
+     * Resizes the divider between Hovers when the control is resized, to
+     * fit exactly in the control's client area.
+     * @param text the <code>StyledText</code> containing the hover info
+     * @param width the desired width of the divider in pixels
+     */
     protected void resizeDividerText(StyledText text, final int width) {
         if (width != lastDividerLen) {
             final String[] newDivider = new String[1];
@@ -214,11 +245,12 @@ public class DefaultPydevCombiningHover extends AbstractPyEditorTextHover implem
     }
 
     /**
+     * Creates divider text of a specified width
      * Must be called from the event dispatch thread
-     * @param width
-     * @return
+     * @param width the desired width of the divider in pixels
+     * @return the divider text
      */
-    String createDivider(final int width) {
+    private String createDivider(final int width) {
         Assert.isTrue(Display.getCurrent().getThread() == Thread.currentThread(),
                 "This method must be called from the UI thread");
         final StringBuilder divider = new StringBuilder();
@@ -233,7 +265,7 @@ public class DefaultPydevCombiningHover extends AbstractPyEditorTextHover implem
         return divider.toString();
     }
 
-    protected int getMaxExtent(String hoverText) {
+    private int getMaxExtent(String hoverText) {
         GC gc = new GC(viewer.getTextWidget().getDisplay());
         int max = 0;
         for (String line : hoverText.split("\\n")) {
@@ -250,11 +282,19 @@ public class DefaultPydevCombiningHover extends AbstractPyEditorTextHover implem
         return max;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.python.pydev.editor.hover.AbstractPyEditorTextHover#isContentTypeSupported(java.lang.String)
+     */
     @Override
     public boolean isContentTypeSupported(String contentType) {
         return true;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.eclipse.core.runtime.IExecutableExtensionFactory#create()
+     */
     @Override
     public Object create() throws CoreException {
         try {
