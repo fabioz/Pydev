@@ -10,7 +10,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IExecutableExtensionFactory;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
@@ -27,7 +26,7 @@ public class DefaultPydevCombiningHover extends AbstractPyEditorTextHover implem
 
     private static final String DIVIDER_CHAR = Character.toString((char) 0xfeff2015);
 
-    protected static int CLIENT_WIDTH = 500;
+    protected static Integer hoverControlWidth = null;
 
     private ArrayList<PyEditorTextHoverDescriptor> fTextHoverSpecifications;
 
@@ -55,11 +54,13 @@ public class DefaultPydevCombiningHover extends AbstractPyEditorTextHover implem
 
             @Override
             public void controlResized(ControlEvent e) {
-                CLIENT_WIDTH = informationControl.getBounds().width;
-                informationControl.setSizeConstraints(CLIENT_WIDTH, SWT.DEFAULT);
+                if (hoverControlPreferredWidth != null) {
+                    informationControl.setSize(hoverControlPreferredWidth, informationControl.getBounds().height);
+                }
+                hoverControlWidth = informationControl.getBounds().width;
                 StyledText text = (StyledText) e.getSource();
                 if (PyHoverPreferencesPage.getUseHoverDelimiters()) {
-                    resizeDividerText(text, CLIENT_WIDTH);
+                    resizeDividerText(text, hoverControlWidth);
                 }
             }
 
@@ -173,7 +174,11 @@ public class DefaultPydevCombiningHover extends AbstractPyEditorTextHover implem
 
                                 @Override
                                 public void run() {
-                                    buf.append(createDivider(CLIENT_WIDTH));
+                                    if (hoverControlWidth != null) {
+                                        buf.append(createDivider(hoverControlWidth));
+                                    } else {
+                                        buf.append(createDivider(getMaxExtent(hoverText)));
+                                    }
                                 }
 
                             });
@@ -192,6 +197,24 @@ public class DefaultPydevCombiningHover extends AbstractPyEditorTextHover implem
         currentPriority = null;
         preempt = false;
         return buf.toString();
+    }
+
+    protected int getMaxExtent(String hoverText) {
+        GC gc = new GC(viewer.getTextWidget().getDisplay());
+        int max = 0;
+        for (String line : hoverText.split("\\n")) {
+            /*TODO we need a way to skip lines that will be formatted by the InformationPresenter
+              For now, we hard-code it to skip file paths embedded in the hover info*/
+            if (!line.startsWith("FILE_PATH=")) {
+                int extent = gc.stringExtent(line).x;
+                System.err.println(extent + ": " + line);
+                if (extent > max) {
+                    max = extent;
+                }
+            }
+        }
+        gc.dispose();
+        return max;
     }
 
     /**

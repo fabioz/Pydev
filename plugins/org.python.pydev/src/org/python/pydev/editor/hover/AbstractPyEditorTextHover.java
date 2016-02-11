@@ -36,6 +36,7 @@ public abstract class AbstractPyEditorTextHover implements ITextHover, ITextHove
     protected ITextSelection textSelection;
     protected PyInformationPresenter informationPresenter;
     protected PyInformationControl informationControl;
+    protected Integer hoverControlPreferredWidth;
 
     final class PyInformationControl extends DefaultInformationControl
             implements IInformationControlExtension3 {
@@ -124,6 +125,10 @@ public abstract class AbstractPyEditorTextHover implements ITextHover, ITextHove
         if (informationPresenter != null) {
             informationPresenter.addResizeCallback(listener);
         }
+    }
+
+    public void setHoverControlPreferredWidth(int width) {
+        this.hoverControlPreferredWidth = width;
     }
 
 }
