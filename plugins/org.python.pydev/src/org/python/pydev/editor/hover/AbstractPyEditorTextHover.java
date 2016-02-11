@@ -37,8 +37,9 @@ public abstract class AbstractPyEditorTextHover implements ITextHover, ITextHove
     protected PyInformationPresenter informationPresenter;
     protected PyInformationControl informationControl;
     protected Integer hoverControlPreferredWidth;
+    protected Integer hoverControlWidth = null;
 
-    final class PyInformationControl extends DefaultInformationControl
+    public final class PyInformationControl extends DefaultInformationControl
             implements IInformationControlExtension3 {
         private PyInformationControl(Shell parent, String statusFieldText,
                 IInformationPresenter presenter) {
@@ -112,6 +113,12 @@ public abstract class AbstractPyEditorTextHover implements ITextHover, ITextHove
         return str;
     }
 
+    @Override
+    public String getHoverInfo(ITextViewer textViewer, IRegion hoverRegion) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
     /*
      * @see org.eclipse.jface.text.ITextHoverExtension2#getHoverInfo2(org.eclipse.jface.text.ITextViewer, org.eclipse.jface.text.IRegion)
      * @since 3.4
@@ -129,6 +136,10 @@ public abstract class AbstractPyEditorTextHover implements ITextHover, ITextHove
 
     public void setHoverControlPreferredWidth(int width) {
         this.hoverControlPreferredWidth = width;
+    }
+
+    public Integer getHoverControlPreferredWidth() {
+        return this.hoverControlPreferredWidth;
     }
 
 }

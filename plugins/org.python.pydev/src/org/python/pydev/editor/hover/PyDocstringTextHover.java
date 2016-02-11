@@ -6,9 +6,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
-import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.ControlListener;
-import org.eclipse.swt.widgets.Control;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IPythonNature;
@@ -59,20 +56,6 @@ public class PyDocstringTextHover extends AbstractPyEditorTextHover {
 
     public PyDocstringTextHover() {
         super();
-        this.addInformationPresenterControlListener(new ControlListener() {
-
-            @Override
-            public void controlMoved(ControlEvent e) {
-                // TODO Auto-generated method stub
-
-            }
-
-            @Override
-            public void controlResized(ControlEvent e) {
-                System.err.println("HOVER RESIZED " + ((Control) e.getSource()).getBounds());
-            }
-
-        });
     }
 
     @Override

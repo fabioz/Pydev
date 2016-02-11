@@ -24,10 +24,6 @@ public class DefaultPydevCombiningHover extends AbstractPyEditorTextHover implem
 
     public static final Object ID_DEFAULT_COMBINING_HOVER = "org.python.pydev.editor.hover.defaultCombiningHover";
 
-    private static final String DIVIDER_CHAR = Character.toString((char) 0xfeff2015);
-
-    protected static Integer hoverControlWidth = null;
-
     private ArrayList<PyEditorTextHoverDescriptor> fTextHoverSpecifications;
 
     private ArrayList<AbstractPyEditorTextHover> fInstantiatedTextHovers;
@@ -40,9 +36,11 @@ public class DefaultPydevCombiningHover extends AbstractPyEditorTextHover implem
 
     boolean contentTypeSupported = false;
 
-    private ITextViewer viewer;
-
     private int lastDividerLen;
+
+    protected ITextViewer viewer;
+
+    private static final String DIVIDER_CHAR = Character.toString((char) 0xfeff2015);
 
     public DefaultPydevCombiningHover() {
         installTextHovers();
@@ -65,24 +63,6 @@ public class DefaultPydevCombiningHover extends AbstractPyEditorTextHover implem
             }
 
         });
-    }
-
-    protected void resizeDividerText(StyledText text, final int width) {
-        if (width != lastDividerLen) {
-            final String[] newDivider = new String[1];
-            int oldLen = lastDividerLen;
-            text.getDisplay().syncExec(new Runnable() {
-
-                @Override
-                public void run() {
-                    newDivider[0] = createDivider(width);
-                }
-
-            });
-            String regex = "\\" + DIVIDER_CHAR + "{" + oldLen + "}\\n\\s\\" + DIVIDER_CHAR + "{" +
-                    Math.abs(oldLen - lastDividerLen) + "}";
-            text.setText(text.getText().replaceAll(regex, newDivider[0]));
-        }
     }
 
     /**
@@ -165,7 +145,6 @@ public class DefaultPydevCombiningHover extends AbstractPyEditorTextHover implem
                     currentPriority = descr.getPriority();
                 }
                 if (descr.getPriority().equals(currentPriority) || !preempt) {
-                    @SuppressWarnings("deprecation")
                     final String hoverText = hover.getHoverInfo(textViewer, hoverRegion);
                     if (hoverText != null && hoverText.trim().length() > 0) {
                         if (!firstHoverInfo && PyHoverPreferencesPage.getUseHoverDelimiters()) {
@@ -188,6 +167,7 @@ public class DefaultPydevCombiningHover extends AbstractPyEditorTextHover implem
                         }
                         buf.append(hoverText);
                         firstHoverInfo = false;
+                        checkHoverControlWidth(hover);
                     }
                 }
                 currentPriority = descr.getPriority();
@@ -199,22 +179,38 @@ public class DefaultPydevCombiningHover extends AbstractPyEditorTextHover implem
         return buf.toString();
     }
 
-    protected int getMaxExtent(String hoverText) {
-        GC gc = new GC(viewer.getTextWidget().getDisplay());
-        int max = 0;
-        for (String line : hoverText.split("\\n")) {
-            /*TODO we need a way to skip lines that will be formatted by the InformationPresenter
-              For now, we hard-code it to skip file paths embedded in the hover info*/
-            if (!line.startsWith("FILE_PATH=")) {
-                int extent = gc.stringExtent(line).x;
-                System.err.println(extent + ": " + line);
-                if (extent > max) {
-                    max = extent;
+    private void checkHoverControlWidth(AbstractPyEditorTextHover hover) {
+        if (hover.getHoverControlPreferredWidth() != null) {
+            if (this.hoverControlWidth == null) {
+                this.hoverControlPreferredWidth = hover.getHoverControlPreferredWidth();
+                if (informationControl != null) {
+                    informationControl.setSize(hoverControlPreferredWidth, informationControl.getBounds().height);
+                }
+            } else if (hover.getHoverControlPreferredWidth() > this.hoverControlWidth) {
+                this.hoverControlPreferredWidth = hover.getHoverControlPreferredWidth();
+                if (informationControl != null) {
+                    informationControl.setSize(hoverControlPreferredWidth, informationControl.getBounds().height);
                 }
             }
         }
-        gc.dispose();
-        return max;
+    }
+
+    protected void resizeDividerText(StyledText text, final int width) {
+        if (width != lastDividerLen) {
+            final String[] newDivider = new String[1];
+            int oldLen = lastDividerLen;
+            text.getDisplay().syncExec(new Runnable() {
+
+                @Override
+                public void run() {
+                    newDivider[0] = createDivider(width);
+                }
+
+            });
+            String regex = "\\" + DIVIDER_CHAR + "{" + oldLen + "}\\n\\s\\" + DIVIDER_CHAR + "{" +
+                    Math.abs(oldLen - lastDividerLen) + "}";
+            text.setText(text.getText().replaceAll(regex, newDivider[0]));
+        }
     }
 
     /**
@@ -222,7 +218,7 @@ public class DefaultPydevCombiningHover extends AbstractPyEditorTextHover implem
      * @param width
      * @return
      */
-    private String createDivider(final int width) {
+    String createDivider(final int width) {
         Assert.isTrue(Display.getCurrent().getThread() == Thread.currentThread(),
                 "This method must be called from the UI thread");
         final StringBuilder divider = new StringBuilder();
@@ -235,6 +231,23 @@ public class DefaultPydevCombiningHover extends AbstractPyEditorTextHover implem
         gc.dispose();
         lastDividerLen = divider.length();
         return divider.toString();
+    }
+
+    protected int getMaxExtent(String hoverText) {
+        GC gc = new GC(viewer.getTextWidget().getDisplay());
+        int max = 0;
+        for (String line : hoverText.split("\\n")) {
+            /*TODO we need a way to skip lines that will be formatted by the InformationPresenter
+              For now, we hard-code it to skip file paths embedded in the hover info*/
+            if (!line.startsWith("FILE_PATH=")) {
+                int extent = gc.stringExtent(line).x;
+                if (extent > max) {
+                    max = extent;
+                }
+            }
+        }
+        gc.dispose();
+        return max;
     }
 
     @Override
