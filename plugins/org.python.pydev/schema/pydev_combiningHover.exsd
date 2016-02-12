@@ -3,11 +3,10 @@
 <schema targetNamespace="org.python.pydev" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appInfo>
-         <meta.schema plugin="org.python.pydev" id="pyTextHover" name="PyDev Text Hover"/>
+         <meta.schema plugin="org.python.pydev" id="pydev_combiningHover" name="PyDev Combining Hover"/>
       </appInfo>
       <documentation>
-         This extension point allows clients to provide hover capabilities to the editor.
-         Clients must implement the interface: org.python.pydev.editor.hover.IPyHoverParticipant
+         Contribute a custom implementation of a Combining Hover. The contributed hover will replace the default implementation provided in org.python.pydev.editor.hover.DefaultPydevCombiningHover. Only one contribution instance of this extension is permitted.
       </documentation>
    </annotation>
 
@@ -85,20 +84,6 @@
                <appInfo>
                   <meta.attribute translatable="true"/>
                </appInfo>
-            </annotation>
-         </attribute>
-         <attribute name="priority" type="string" use="default" value="100">
-            <annotation>
-               <documentation>
-                  the priority of the hover vis a vis other hovers, an integer between 1 (highest priority) and the maximum Java int value (lowest priority).
-               </documentation>
-            </annotation>
-         </attribute>
-         <attribute name="preempt" type="boolean" use="default" value="false">
-            <annotation>
-               <documentation>
-                  used by the Best Match Hover to determine whether to preempt lower priority hovers from contributing to a hover pop-up after this hover contributes hover info.
-               </documentation>
             </annotation>
          </attribute>
          <attribute name="activate" type="boolean" use="default" value="false">

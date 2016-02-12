@@ -1353,7 +1353,7 @@
       </processFactory>
    </extension>
    <extension
-         point="org.python.pydev.pyTextHover">
+         point="org.python.pydev.pydev_hover2">
       <pyTextHover
             activate="false"
             class="org.python.pydev.debug.ui.hover.PyDebugHover"

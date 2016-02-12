@@ -299,8 +299,8 @@ public class DefaultPydevCombiningHover extends AbstractPyEditorTextHover implem
     public Object create() throws CoreException {
         try {
             PyEditorTextHoverDescriptor contributedHover = PydevPlugin.getDefault()
-                    .getPyEditorCombiningTextHoverDescriptor(false);
-            return contributedHover != null ? contributedHover : new DefaultPydevCombiningHover();
+                    .getPyEditorCombiningTextHoverDescriptor(true);
+            return contributedHover != null ? contributedHover.createTextHover() : new DefaultPydevCombiningHover();
         } catch (CoreException e) {
             Log.log(e.getMessage());
             return new DefaultPydevCombiningHover();

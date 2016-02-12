@@ -414,7 +414,7 @@ public class PyEditorHoverConfigurationBlock implements IPreferenceConfiguration
                         "no contributions are made to the deprecated\n" +
                         "extension point " + ExtensionHelper.PYDEV_HOVER
                         + ". Contribute custom Hover behavior using extension point\n" +
-                        ExtensionHelper.PY_TEXT_HOVER + ".");
+                        ExtensionHelper.PYDEV_HOVER2 + ".");
         disabledLabelGridData = GridDataFactory.fillDefaults().span(3, 1).create();
         disabledLabelGridData.exclude = true;
         disabledLabel.setLayoutData(disabledLabelGridData);

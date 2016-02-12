@@ -93,7 +93,7 @@ public class PyEditorTextHoverDescriptor {
     public static PyEditorTextHoverDescriptor[] getContributedHovers(boolean useRegisteredExtensionPointValues) {
         IExtensionRegistry registry = Platform.getExtensionRegistry();
         IConfigurationElement[] elements = registry
-                .getConfigurationElementsFor(ExtensionHelper.PY_TEXT_HOVER);
+                .getConfigurationElementsFor(ExtensionHelper.PYDEV_HOVER2);
         PyEditorTextHoverDescriptor[] hoverDescs = createDescriptors(elements);
         initializeFromPreferences(hoverDescs, useRegisteredExtensionPointValues);
         return hoverDescs;

@@ -690,7 +690,7 @@ public class PydevPlugin extends AbstractUIPlugin {
             }
             PyEditorTextHoverDescriptor[] hoverDescs = PyEditorTextHoverDescriptor.createDescriptors(elements);
             PyEditorTextHoverDescriptor.initializeFromPreferences(hoverDescs, useRegisteredExtensionPolintValues);
-            return hoverDescs[0];
+            return hoverDescs.length > 0 ? hoverDescs[0] : null;
         }
 
         return null;

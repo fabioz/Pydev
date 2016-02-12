@@ -1169,7 +1169,8 @@
    <extension-point id="pydev_interpreter_info_builder" name="PyDev interpreter info builder" schema="schema/pydev_interpreter_info_builder.exsd"/>
    <extension-point id="pydev_interpreter_provider" name="PyDev interpreter provider" schema="schema/pydev_interpreter_provider.exsd"/>
    <extension-point id="pydev_python_module_resolver" name="Python module resolver" schema="schema/pydev_python_module_resolver.exsd"/>
-   <extension-point id="pyTextHover" name="PyDev Text Hover" schema="schema/pyTextHover.exsd"/>
+   <extension-point id="pydev_hover2" name="PyDev Hover2" schema="schema/pydev_hover2.exsd"/>
+   <extension-point id="pydev_combiningHover" name="PyDev Combining Hover" schema="schema/pydev_combiningHover.exsd"/>
 <!-- wizards -->
    <extension point="org.eclipse.ui.newWizards">
       <category
@@ -2821,7 +2822,7 @@ if __name__ == "__main__":
       </stylesheet>
    </extension>
    <extension
-         point="org.python.pydev.pyTextHover">
+         point="org.python.pydev.pydev_hover2">
       <pyTextHover
             activate="false"
             class="org.python.pydev.editor.hover.PyDocstringTextHover"
@@ -2833,7 +2834,7 @@ if __name__ == "__main__":
       </pyTextHover>
    </extension>
    <extension
-         point="org.python.pydev.pyTextHover">
+         point="org.python.pydev.pydev_hover2">
       <pyTextHover
             activate="false"
             class="org.python.pydev.editor.hover.PyMarkerTextHover"
@@ -2845,7 +2846,7 @@ if __name__ == "__main__":
       </pyTextHover>
    </extension>
    <extension
-         point="org.python.pydev.pyTextHover">
+         point="org.python.pydev.pydev_hover2">
       <pyTextHover
             activate="false"
             class="org.python.pydev.editor.hover.DefaultPydevCombiningHover"
