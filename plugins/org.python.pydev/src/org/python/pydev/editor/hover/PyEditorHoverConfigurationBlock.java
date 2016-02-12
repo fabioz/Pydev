@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.Assert;
@@ -65,6 +66,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
+import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.StatusInfo;
 import org.python.pydev.plugin.preferences.IPreferenceConfigurationBlock;
@@ -348,7 +350,7 @@ public class PyEditorHoverConfigurationBlock implements IPreferenceConfiguration
 
     private Button combineHovers;
 
-    private Text combiningHoverModifierEditor;
+    private Text fCombiningHoverModifierEditor;
 
     private Button showDocstrings;
 
@@ -359,6 +361,14 @@ public class PyEditorHoverConfigurationBlock implements IPreferenceConfiguration
     private Label fCombiningHoverLabel;
 
     private Button useHoverDivider;
+
+    private Label disabledLabel;
+
+    private Composite comp;
+
+    private GridData disabledLabelGridData;
+
+    private Composite buttonComp;
 
     public PyEditorHoverConfigurationBlock(PreferencePage mainPreferencePage, OverlayPreferenceStore store) {
         Assert.isNotNull(mainPreferencePage);
@@ -393,10 +403,24 @@ public class PyEditorHoverConfigurationBlock implements IPreferenceConfiguration
      */
     public Control createControl(final Composite parent) {
 
-        Composite comp = new Composite(parent, SWT.NONE);
+        comp = new Composite(parent, SWT.NONE);
         GridDataFactory.fillDefaults().grab(true, false).applyTo(comp);
         GridLayoutFactory.fillDefaults().numColumns(3).applyTo(comp);
-        Composite buttonComp = new Composite(comp, SWT.BORDER);
+
+        //disabled warning
+        disabledLabel = new Label(comp, SWT.NONE);
+        disabledLabel.setText(
+                "The custom Hover controls on this page can only be used if " +
+                        "no contributions are made to the deprecated\n" +
+                        "extension point " + ExtensionHelper.PYDEV_HOVER
+                        + ". Contribute custom Hover behavior using extension point\n" +
+                        ExtensionHelper.PY_TEXT_HOVER + ".");
+        disabledLabelGridData = GridDataFactory.fillDefaults().span(3, 1).create();
+        disabledLabelGridData.exclude = true;
+        disabledLabel.setLayoutData(disabledLabelGridData);
+        disabledLabel.setVisible(false);
+
+        buttonComp = new Composite(comp, SWT.BORDER);
         GridLayoutFactory.fillDefaults().numColumns(2).applyTo(buttonComp);
         useFirstHover = new Button(buttonComp, SWT.RADIO | SWT.BORDER);
         useFirstHover.setText("Use highest priority Hover");
@@ -407,7 +431,7 @@ public class PyEditorHoverConfigurationBlock implements IPreferenceConfiguration
         combineHovers.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                combiningHoverModifierEditor.setEnabled(combineHovers.getSelection());
+                fCombiningHoverModifierEditor.setEnabled(combineHovers.getSelection());
                 fCombiningHoverLabel.setEnabled(combineHovers.getSelection());
                 showPreemptColumn(combineHovers.getSelection());
                 fHoverConfigs[0].fIsEnabled = combineHovers.getSelection();
@@ -416,14 +440,14 @@ public class PyEditorHoverConfigurationBlock implements IPreferenceConfiguration
 
         fCombiningHoverLabel = new Label(comp, SWT.PUSH);
         fCombiningHoverLabel.setText("Combined Hovers Key Modifier:");
-        combiningHoverModifierEditor = new Text(comp, SWT.BORDER);
-        combiningHoverModifierEditor.addKeyListener(new KeyModifierListener(combiningHoverModifierEditor));
-        combiningHoverModifierEditor.addModifyListener(new ModifyListener() {
+        fCombiningHoverModifierEditor = new Text(comp, SWT.BORDER);
+        fCombiningHoverModifierEditor.addKeyListener(new KeyModifierListener(fCombiningHoverModifierEditor));
+        fCombiningHoverModifierEditor.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e) {
                 handleModifierModified();
             }
         });
-        GridDataFactory.fillDefaults().grab(true, false).applyTo(combiningHoverModifierEditor);
+        GridDataFactory.fillDefaults().grab(true, false).applyTo(fCombiningHoverModifierEditor);
 
         ScrolledPageContent scrolled = new ScrolledPageContent(parent, SWT.H_SCROLL | SWT.V_SCROLL);
         scrolled.setExpandHorizontal(true);
@@ -594,8 +618,27 @@ public class PyEditorHoverConfigurationBlock implements IPreferenceConfiguration
 
         initialize();
 
-        return scrolled;
+        return comp;
 
+    }
+
+    /*
+     * Disable controls for pyTwextHover extension point if any contributions are
+     * made to the deprecated pydev_hover extension point.
+     */
+    private void checkEnabled() {
+        List<?> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_HOVER);
+        if (participants.size() != 0) {
+            disabledLabel.setVisible(true);
+            disabledLabelGridData.exclude = false;
+            comp.layout();
+            useFirstHover.setEnabled(false);
+            combineHovers.setEnabled(false);
+            fCombiningHoverLabel.setEnabled(false);
+            fCombiningHoverModifierEditor.setEnabled(false);
+            fHoverTable.setEnabled(false);
+            useHoverDivider.setEnabled(false);
+        }
     }
 
     private void addColumnLayoutData(TableLayoutComposite layouter) {
@@ -623,8 +666,8 @@ public class PyEditorHoverConfigurationBlock implements IPreferenceConfiguration
         }
 
         fHoverTableViewer.setInput(hoverDescs);
-
         initializeFields();
+        checkEnabled();
     }
 
     void initializeFields() {
@@ -632,7 +675,7 @@ public class PyEditorHoverConfigurationBlock implements IPreferenceConfiguration
 
         combineHovers.setSelection(PyHoverPreferencesPage.getCombineHoverInfo());
         useFirstHover.setSelection(!PyHoverPreferencesPage.getCombineHoverInfo());
-        combiningHoverModifierEditor.setEnabled(PyHoverPreferencesPage.getCombineHoverInfo());
+        fCombiningHoverModifierEditor.setEnabled(PyHoverPreferencesPage.getCombineHoverInfo());
         fCombiningHoverLabel.setEnabled(PyHoverPreferencesPage.getCombineHoverInfo());
 
         //skip first hover config (combining hover) which is filtered from viewer
@@ -640,7 +683,7 @@ public class PyEditorHoverConfigurationBlock implements IPreferenceConfiguration
             fHoverTable.getItem(i - 1).setChecked(fHoverConfigs[i].fIsEnabled);
         }
         fHoverTableViewer.refresh();
-        combiningHoverModifierEditor.setText(fHoverConfigs[0].fModifierString);
+        fCombiningHoverModifierEditor.setText(fHoverConfigs[0].fModifierString);
     }
 
     public void performOk() {
@@ -809,7 +852,7 @@ public class PyEditorHoverConfigurationBlock implements IPreferenceConfiguration
         Text editor = null;
         if (i == -1) {
             hoverConfig = fHoverConfigs[0];
-            editor = combiningHoverModifierEditor;
+            editor = fCombiningHoverModifierEditor;
         } else {
             hoverConfig = fHoverConfigs[convertIndex(i)];
             editor = fModifierEditor;
