@@ -638,6 +638,9 @@ public class PyEditorHoverConfigurationBlock implements IPreferenceConfiguration
             fCombiningHoverModifierEditor.setEnabled(false);
             fHoverTable.setEnabled(false);
             useHoverDivider.setEnabled(false);
+        } else {
+            //only needed for old style hover
+            showDocstrings.setEnabled(false);
         }
     }
 
@@ -922,6 +925,9 @@ public class PyEditorHoverConfigurationBlock implements IPreferenceConfiguration
         HoverConfig hoverConfig = fHoverConfigs[convertIndex(i)];
         boolean enabled = hoverConfig.fIsEnabled;
         fModifierEditor.setEnabled(enabled);
+        if (hoverConfig.fId.equals(PyDocstringTextHover.ID)) {
+            showDocstrings.setSelection(enabled);
+        }
         fModifierEditor.setText(hoverConfig.fModifierString);
         String description = getContributedHovers()[convertIndex(i)].getDescription();
         if (description == null) {
