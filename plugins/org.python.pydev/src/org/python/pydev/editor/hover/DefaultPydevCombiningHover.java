@@ -187,7 +187,14 @@ public class DefaultPydevCombiningHover extends AbstractPyEditorTextHover implem
                         }
                         buf.append(hoverText);
                         firstHoverInfo = false;
-                        checkHoverControlWidth(hover);
+                        viewer.getTextWidget().getDisplay().asyncExec(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                checkHoverControlWidth(hover);
+                            }
+
+                        });
                     }
                 }
                 currentPriority = descr.getPriority();
