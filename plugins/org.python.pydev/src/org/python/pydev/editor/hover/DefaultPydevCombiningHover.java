@@ -163,7 +163,6 @@ public class DefaultPydevCombiningHover extends AbstractPyEditorTextHover implem
                     currentPriority = descr.getPriority();
                 }
                 if (descr.getPriority().equals(currentPriority) || !preempt) {
-                    System.err.println("ON UI THREAD: " + (Thread.currentThread() == Display.getDefault().getThread()));
                     @SuppressWarnings("deprecation")
                     final String hoverText = hover.getHoverInfo(textViewer, hoverRegion);
                     if (hoverText != null && hoverText.trim().length() > 0) {
