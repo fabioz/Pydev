@@ -1,15 +1,19 @@
-/**
- * Copyright (c) 2016 by Brainwy Software LTDA. All Rights Reserved.
- * Licensed under the terms of the Eclipse Public License (EPL).
- * Please see the license.txt included with this distribution for details.
- * Any modifications to this file must keep this entire header intact.
- * 
- * Copied from the JDT implementation of
- * <code>org.eclipse.jdt.internal.corext.util.Messages</code>.
- */
+/*******************************************************************************
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
+ *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
+ *     Jesper Steen Moeller - Contribution for
+ *                          Bug 406973 - [compiler] Parse MethodParameters attribute
+ *     Mark Leone - Modifications for PyDev
+ *******************************************************************************/
 package org.python.pydev.utils;
-
-import com.ibm.icu.text.MessageFormat;
 
 /**
  * Helper class to format message strings.
@@ -19,11 +23,11 @@ import com.ibm.icu.text.MessageFormat;
 public class Messages {
 
     public static String format(String message, Object object) {
-        return MessageFormat.format(message, new Object[] { object });
+        return String.format(message, new Object[] { object });
     }
 
     public static String format(String message, Object[] objects) {
-        return MessageFormat.format(message, objects);
+        return String.format(message, objects);
     }
 
     private Messages() {

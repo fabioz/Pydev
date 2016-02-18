@@ -3,8 +3,7 @@
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
- */
-/*
+ * 
  * Author: Mark Leone
  * Created: Feb 11, 2016
  * 
@@ -164,6 +163,7 @@ public class DefaultPydevCombiningHover extends AbstractPyEditorTextHover implem
                     currentPriority = descr.getPriority();
                 }
                 if (descr.getPriority().equals(currentPriority) || !preempt) {
+                    System.err.println("ON UI THREAD: " + (Thread.currentThread() == Display.getDefault().getThread()));
                     @SuppressWarnings("deprecation")
                     final String hoverText = hover.getHoverInfo(textViewer, hoverRegion);
                     if (hoverText != null && hoverText.trim().length() > 0) {

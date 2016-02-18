@@ -42,7 +42,6 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev.shared_core;bundle-version="[4.5.2,4.5.3)",
  org.eclipse.e4.ui.css.swt.theme;resolution:=optional,
  org.eclipse.e4.ui.services;resolution:=optional,
- com.ibm.icu,
  org.eclipse.ui.forms,
  org.eclipse.swt
 Bundle-ActivationPolicy: lazy

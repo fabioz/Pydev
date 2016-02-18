@@ -1,13 +1,14 @@
-/**
- * Copyright (c) 2016 by Brainwy Software LTDA. All Rights Reserved.
- * Licensed under the terms of the Eclipse Public License (EPL).
- * Please see the license.txt included with this distribution for details.
- * Any modifications to this file must keep this entire header intact.
- * 
- * Copied from the JDT implementation of
- * <code>org.eclipse.jdt.internal.ui.preferences.JavaEditorHoverConfigurationBlock</code>
- * and modified for PyDev.
- */
+/*******************************************************************************
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *     Mark Leone - Modifications for PyDev
+ *******************************************************************************/
 package org.python.pydev.editor.hover;
 
 import java.util.ArrayList;
@@ -82,9 +83,7 @@ import org.python.pydev.utils.SWTUtil;
 import org.python.pydev.utils.StatusUtil;
 
 /**
- * Configures Java Editor hover preferences.
- *
- * @since 2.1
+ * Configures PyDev Editor hover preferences.
  */
 public class PyEditorHoverConfigurationBlock implements IPreferenceConfigurationBlock {
 

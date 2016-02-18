@@ -38,7 +38,7 @@ public class PyDebugHover extends AbstractPyEditorTextHover {
      * Gets the value from the debugger for the currently hovered string.
      */
     @Override
-    public String getHoverInfo(ITextViewer textViewer, IRegion hoverRegion) {
+    public String getHoverInfo(final ITextViewer textViewer, IRegion hoverRegion) {
         if (!PyHoverPreferencesPage.getShowValuesWhileDebuggingOnHover()) {
             return null;
         }
@@ -58,13 +58,26 @@ public class PyDebugHover extends AbstractPyEditorTextHover {
                 return null;
             }
             String act = null;
-            ITextSelection textSelection = (ITextSelection) textViewer.getSelectionProvider().getSelection();
+            final ITextSelection[] textSelection = new ITextSelection[1];
+            if (Thread.currentThread() == textViewer.getTextWidget().getDisplay().getThread()) {
+                textSelection[0] = (ITextSelection) textViewer.getSelectionProvider().getSelection();
+            } else {
+                textViewer.getTextWidget().getDisplay().syncExec(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        textSelection[0] = (ITextSelection) textViewer.getSelectionProvider().getSelection();
+                    }
+
+                });
+            }
+
             PySelection ps = new PySelection(textViewer.getDocument(),
                     hoverRegion.getOffset() + hoverRegion.getLength());
             int mouseOffset = ps.getAbsoluteCursorOffset();
 
-            int offset = textSelection.getOffset();
-            int len = textSelection.getLength();
+            int offset = textSelection[0].getOffset();
+            int len = textSelection[0].getLength();
             boolean reportSyntaxErrors = false;
             if (len > 0 && mouseOffset >= offset && offset + len >= mouseOffset) {
                 try {
@@ -117,11 +130,7 @@ public class PyDebugHover extends AbstractPyEditorTextHover {
             }
         }
 
-        if (!pythonCommentOrMultiline) {
-            return PyHoverPreferencesPage.getShowDocstringOnHover();
-        }
-
-        return false;
+        return !pythonCommentOrMultiline;
     }
 
 }

@@ -1,15 +1,3 @@
-/**
- * Copyright (c) 2016 by Brainwy Software LTDA. All Rights Reserved.
- * Licensed under the terms of the Eclipse Public License (EPL).
- * Please see the license.txt included with this distribution for details.
- * Any modifications to this file must keep this entire header intact.
- * 
- * Copied from the JDT implementation of
- * <code>org.eclipse.jdt.internal.ui.text.java.hover.JavaEditorTextHoverDescriptor</code>
- * and modified for PyDev.
- */
-package org.python.pydev.editor.hover;
-
 /*******************************************************************************
  * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
@@ -19,16 +7,9 @@ package org.python.pydev.editor.hover;
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Mark Leone - Modifications and enhancements for PyDev
  *******************************************************************************/
-
-/*
- * TODO
- * Make a new extension point to declare an ITextHover instance, and use that in this class and
- * break PyTextHover into two separate implementations of it, for marker and docstring hovers.
- * 
- * Leave the existing IPyHoverParticipant intact, and handle any declared extensions of that type,
- * for backward compatibility. But PyDev will not contribute anything to that extension point
- */
+package org.python.pydev.editor.hover;
 
 import java.util.ArrayList;
 import java.util.HashMap;
