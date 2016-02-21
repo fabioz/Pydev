@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IExecutableExtensionFactory;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
+import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
@@ -246,7 +247,9 @@ public class DefaultPydevCombiningHover extends AbstractPyEditorTextHover implem
             });
             String regex = "\\" + DIVIDER_CHAR + "{" + oldLen + "}\\n\\s\\" + DIVIDER_CHAR + "{" +
                     Math.abs(oldLen - lastDividerLen) + "}";
+            StyleRange[] ranges = text.getStyleRanges();
             text.setText(text.getText().replaceAll(regex, newDivider[0]));
+            text.setStyleRanges(ranges);
         }
     }
 
