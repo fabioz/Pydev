@@ -31,7 +31,7 @@ public class PythonNode implements Comparable, IWrappedResource {
 
     /**
      * Constructor
-     * 
+     *
      * @param pythonFile this is the file that contains this node
      * @param parent this is the parent for this item (a PythonFile or another PythonNode)
      * @param e the parsed item that represents this node.
@@ -74,7 +74,7 @@ public class PythonNode implements Comparable, IWrappedResource {
         return IWrappedResource.RANK_PYTHON_NODE;
     }
 
-    public Object getAdapter(Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
         //return pythonFile.getAdapter(adapter);
         return null;
     }

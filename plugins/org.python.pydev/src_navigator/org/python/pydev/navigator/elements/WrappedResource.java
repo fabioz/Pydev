@@ -17,7 +17,7 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 
 /**
  * This class represents a resource that is wrapped for the python model.
- * 
+ *
  * @author Fabio
  *
  * @param <X>
@@ -55,9 +55,10 @@ public class WrappedResource<X extends IResource> implements IWrappedResource, I
     }
 
     public IResource getAdaptedResource(IAdaptable adaptable) {
-        return (IResource) getActualObject();
+        return getActualObject();
     }
 
+    @Override
     public boolean equals(Object other) {
         if (other instanceof IWrappedResource) {
             if (other == this) {
@@ -83,13 +84,15 @@ public class WrappedResource<X extends IResource> implements IWrappedResource, I
         return this.getActualObject().hashCode();
     }
 
-    public Object getAdapter(Class adapter) {
+    @SuppressWarnings("unchecked")
+    public <T> T getAdapter(Class<T> adapter) {
         if (adapter == IContributorResourceAdapter.class) {
-            return this;
+            return (T) this;
         }
-        return WrappedResource.getAdapterFromActualObject((IResource) this.getActualObject(), adapter);
+        return WrappedResource.getAdapterFromActualObject(this.getActualObject(), adapter);
     }
 
+    @Override
     public String toString() {
         FastStringBuffer buf = new FastStringBuffer();
         buf.append(FullRepIterable.getLastPart(super.toString())); //something as org.eclipse.ui.internal.WorkingSet@2813 will become WorkingSet@2813
@@ -99,7 +102,7 @@ public class WrappedResource<X extends IResource> implements IWrappedResource, I
         return buf.toString();
     }
 
-    public static Object getAdapterFromActualObject(IResource actualObject2, Class adapter) {
+    public static <T> T getAdapterFromActualObject(IResource actualObject2, Class<T> adapter) {
         if (IDeferredWorkbenchAdapter.class.equals(adapter) || IWorkbenchAdapter2.class.equals(adapter)
                 || IWorkbenchAdapter.class.equals(adapter)) {
             return null;

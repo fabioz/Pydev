@@ -28,9 +28,9 @@ import com.python.pydev.codecompletion.ui.CodeCompletionPreferencesPage;
 
 /**
  * by using this assist (with the extension), we are able to just validate it (without recomputing all completions each time).
- * 
+ *
  * They are only recomputed on backspace...
- * 
+ *
  * @author Fabio
  */
 public class SimpleAssistProposal extends PyCompletionProposal implements ICompletionProposalExtension2 {
@@ -98,7 +98,7 @@ public class SimpleAssistProposal extends PyCompletionProposal implements ICompl
                 projectAdaptable = new IAdaptable() {
 
                     @Override
-                    public Object getAdapter(Class adapter) {
+                    public <T> T getAdapter(Class<T> adapter) {
                         return null;
                     }
                 };

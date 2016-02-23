@@ -248,8 +248,8 @@ public class PydevConsole extends ScriptConsole {
      */
     @Override
     public String getInitialCommands() {
-        String str = PydevDebugPlugin.getDefault().getPreferenceStore().
-                getString(PydevConsoleConstants.INITIAL_INTERPRETER_CMDS);
+        String str = PydevDebugPlugin.getDefault().getPreferenceStore()
+                .getString(PydevConsoleConstants.INITIAL_INTERPRETER_CMDS);
         try {
             // Expand any eclipse variables in the GUI
             IStringVariableManager manager = VariablesPlugin.getDefault().getStringVariableManager();
@@ -338,7 +338,7 @@ public class PydevConsole extends ScriptConsole {
         return new PyAutoIndentStrategy(new IAdaptable() {
 
             @Override
-            public Object getAdapter(Class adapter) {
+            public <T> T getAdapter(Class<T> adapter) {
                 return null;
             }
         });

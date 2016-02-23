@@ -125,7 +125,7 @@ public class StringSubstitutionTest extends TestCase {
             }
 
             @Override
-            public Object getAdapter(Class adapter) {
+            public <T> T getAdapter(Class<T> adapter) {
                 throw new RuntimeException("Not implemented");
             }
 
@@ -348,7 +348,7 @@ public class StringSubstitutionTest extends TestCase {
 
                     public IResourceFilterDescription createFilter(int type,
                             FileInfoMatcherDescription matcherDescription, int updateFlags, IProgressMonitor monitor)
-                                    throws CoreException {
+                            throws CoreException {
                         throw new RuntimeException("Not implemented");
                     }
 
@@ -727,7 +727,7 @@ public class StringSubstitutionTest extends TestCase {
                         throw new RuntimeException("Not implemented");
                     }
 
-                    public Object getAdapter(Class adapter) {
+                    public <T> T getAdapter(Class<T> adapter) {
                         throw new RuntimeException("Not implemented");
                     }
 

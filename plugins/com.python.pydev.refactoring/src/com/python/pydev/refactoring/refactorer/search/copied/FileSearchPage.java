@@ -318,9 +318,10 @@ public class FileSearchPage extends AbstractTextSearchViewPage implements IAdapt
         }
     }
 
-    public Object getAdapter(Class adapter) {
+    @SuppressWarnings("unchecked")
+    public <T> T getAdapter(Class<T> adapter) {
         if (IShowInTargetList.class.equals(adapter)) {
-            return SHOW_IN_TARGET_LIST;
+            return (T) SHOW_IN_TARGET_LIST;
         }
         return null;
     }

@@ -26,11 +26,11 @@ import org.python.pydev.shared_interactive_console.console.codegen.IScriptConsol
 
 /**
  * Represents a python variable.
- * 
+ *
  * Eclipse gives you an option to separate implementation of variable
  * and its value. I've found it convenient to roll both of them into 1
  * class.
- * 
+ *
  */
 public class PyVariable extends PlatformObject implements IVariable, IValue, IVariableLocator {
 
@@ -59,7 +59,7 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
     protected String id;
 
     /**
-     * This method sets information about how this variable was found. 
+     * This method sets information about how this variable was found.
      */
     public void setRefererrerFoundInfo(String id, String foundAs) {
         if (foundAs != null && foundAs.length() > 0) {
@@ -137,9 +137,9 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
 
     /**
      * This method is called when some value has to be changed to some other expression.
-     * 
+     *
      * Note that it will (currently) only work for changing local values that are in the topmost frame.
-     * -- python has no way of making it work right now (see: pydevd_vars.changeAttrExpression) 
+     * -- python has no way of making it work right now (see: pydevd_vars.changeAttrExpression)
      */
     public void setValue(String expression) throws DebugException {
         ChangeVariableCommand changeVariableCommand = getChangeVariableCommand(target, expression);
@@ -159,18 +159,19 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
         return false;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Object getAdapter(Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
         AdapterDebug.print(this, adapter);
 
         if (adapter.equals(ILaunch.class)) {
             return target.getAdapter(adapter);
 
         } else if (adapter.equals(org.eclipse.debug.ui.actions.IRunToLineTarget.class)) {
-            return this.target.getRunToLineTarget();
+            return (T) this.target.getRunToLineTarget();
 
         } else if (adapter.equals(IScriptConsoleCodeGenerator.class)) {
-            return new PyConsoleCodeGeneratorVariable(this);
+            return (T) new PyConsoleCodeGeneratorVariable(this);
 
         } else if (adapter.equals(IPropertySource.class) || adapter.equals(ITaskListResourceAdapter.class)
                 || adapter.equals(org.eclipse.ui.IContributorResourceAdapter.class)
@@ -183,14 +184,14 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
         // ongoing, I do not fully understand all the interfaces they'd like me to support
         // so I print them out as errors
         if (adapter.equals(IDeferredWorkbenchAdapter.class)) {
-            return new DeferredWorkbenchAdapter(this);
+            return (T) new DeferredWorkbenchAdapter(this);
         }
 
         //cannot check for the actual interface because it may not be available on eclipse 3.2 (it's only available
         //from 3.3 onwards... and this is only a hack for it to work with eclipse 3.4)
         if (adapter.toString().endsWith(
                 "org.eclipse.debug.internal.ui.viewers.model.provisional.IElementContentProvider")) {
-            return new PyVariableContentProviderHack();
+            return (T) new PyVariableContentProviderHack();
         }
         AdapterDebug.printDontKnow(this, adapter);
         return super.getAdapter(adapter);
