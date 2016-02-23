@@ -265,10 +265,11 @@ public class PySourceViewer extends BaseSourceViewer implements IAdaptable, ICom
         super.customizeDocumentCommand(command);
     }
 
-    public Object getAdapter(Class adapter) {
+    @SuppressWarnings("unchecked")
+    public <T> T getAdapter(Class<T> adapter) {
         PyEdit pyEdit = projection.get();
         if (pyEdit != null) {
-            return pyEdit.getAdapter(adapter);
+            return (T) pyEdit.getAdapter(adapter);
         }
         return null;
     }

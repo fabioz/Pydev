@@ -19,12 +19,13 @@ import org.python.pydev.shared_ui.editor.BaseEditor;
 
 public class PyToggleTargetAdapter implements IAdapterFactory {
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Object getAdapter(Object adaptableObject, Class adapterType) {
+    public <T> T getAdapter(Object adaptableObject, Class<T> adapterType) {
         if (adaptableObject instanceof ITextEditor && adapterType == IToggleBreakpointsTarget.class) {
             ITextEditor iTextEditor = (ITextEditor) adaptableObject;
             if (canToggleFor(iTextEditor)) {
-                return new PyDjangoToggleBreakpointsTarget();
+                return (T) new PyDjangoToggleBreakpointsTarget();
             }
             return null;
         }
@@ -47,7 +48,7 @@ public class PyToggleTargetAdapter implements IAdapterFactory {
     }
 
     @Override
-    public Class[] getAdapterList() {
+    public Class<?>[] getAdapterList() {
         return new Class[] { IToggleBreakpointsTarget.class };
     }
 

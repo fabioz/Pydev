@@ -37,8 +37,8 @@ import org.python.pydev.shared_core.utils.DocCmd;
 import org.python.pydev.shared_ui.editor.ITextViewerExtensionAutoEditions;
 
 /**
- * Something similar org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor.BracketInserter (but not too similar). 
- * 
+ * Something similar org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor.BracketInserter (but not too similar).
+ *
  * @author Fabio Zadrozny
  */
 public class PyPeerLinker {
@@ -99,13 +99,13 @@ public class PyPeerLinker {
                                 adaptable = new IAdaptable() {
 
                                     @Override
-                                    public Object getAdapter(Class adapter) {
+                                    public <T> T getAdapter(Class<T> adapter) {
                                         return null;
                                     }
                                 };
                             }
 
-                            //Don't bother in getting the indent prefs from the editor: the default indent prefs are 
+                            //Don't bother in getting the indent prefs from the editor: the default indent prefs are
                             //always global for the settings we want.
                             pyPeerLinker.setIndentPrefs(new DefaultIndentPrefs(adaptable));
                             PySelection ps = new PySelection(viewer.getDocument(), (ITextSelection) selection);
@@ -191,7 +191,7 @@ public class PyPeerLinker {
                 IExitPolicy policy = new IExitPolicy() {
 
                     public ExitFlags doExit(LinkedModeModel model, VerifyEvent event, int offset, int length) {
-                        //Yes, no special exit, if ' is entered again, let's do the needed treatment again instead of going 
+                        //Yes, no special exit, if ' is entered again, let's do the needed treatment again instead of going
                         //to the end (only <return> goes to the end).
                         //if (event.character == c) {
                         //    return new ExitFlags(ILinkedModeListener.UPDATE_CARET, false);
@@ -259,7 +259,7 @@ public class PyPeerLinker {
 
     /**
      * Called right after a ' or "
-     * 
+     *
      * @return false if we should leave the handling to the auto-indent and true if it handled things properly here.
      */
     private boolean handleLiteral(IDocument document, DocumentCommand command, PySelection ps,
@@ -301,7 +301,7 @@ public class PyPeerLinker {
         String cursorLineContents = ps.getCursorLineContents();
         if (cursorLineContents.indexOf(literalChar) == -1) {
             if (!isDefaultContext) {
-                //only add additional chars if on default context. 
+                //only add additional chars if on default context.
                 return false;
             }
             document.replace(offset, ps.getSelLength(), command.text + command.text);
@@ -325,7 +325,7 @@ public class PyPeerLinker {
             //if it's not balanced, this char would be the closing char.
             if (balanced) {
                 if (!isDefaultContext) {
-                    //only add additional chars if on default context. 
+                    //only add additional chars if on default context.
                     return false;
                 }
                 document.replace(offset, ps.getSelLength(), command.text + command.text);

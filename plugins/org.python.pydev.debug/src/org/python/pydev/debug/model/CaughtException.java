@@ -35,12 +35,13 @@ public class CaughtException implements IAdaptable {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Object getAdapter(Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
         if (adapter == IStackFrame.class) {
             IStackFrame[] stack = this.threadNstack.stack;
             if (stack != null && stack.length > 0) {
-                return stack[0];
+                return (T) stack[0];
             }
         }
         return null;

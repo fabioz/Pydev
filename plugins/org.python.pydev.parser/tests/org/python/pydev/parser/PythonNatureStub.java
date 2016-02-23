@@ -25,7 +25,7 @@ import org.python.pydev.core.MisconfigurationException;
 public class PythonNatureStub implements IPythonNature, IAdaptable {
 
     @Override
-    public Object getAdapter(Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
         throw new RuntimeException("Not implemented");
     }
 

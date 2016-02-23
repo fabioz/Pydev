@@ -166,10 +166,11 @@ public class ProjectStub extends AbstractIProjectStub implements IWorkbenchAdapt
 
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Object getAdapter(Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
         if (adapter == IWorkbenchAdapter.class) {
-            return this;
+            return (T) this;
         }
         throw new RuntimeException("Not impl");
 

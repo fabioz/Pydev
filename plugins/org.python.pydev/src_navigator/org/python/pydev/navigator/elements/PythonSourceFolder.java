@@ -24,10 +24,9 @@ import org.eclipse.ui.IActionFilter;
 import org.eclipse.ui.IContributorResourceAdapter;
 import org.python.pydev.core.log.Log;
 
-
 /**
  * This is the the model for a source folder that exists within a project.
- * 
+ *
  * @author Fabio
  */
 public class PythonSourceFolder implements IWrappedResource, IAdaptable, IContributorResourceAdapter {
@@ -127,18 +126,19 @@ public class PythonSourceFolder implements IWrappedResource, IAdaptable, IContri
     }
 
     public IResource getAdaptedResource(IAdaptable adaptable) {
-        return (IResource) getActualObject();
+        return getActualObject();
     }
 
-    public Object getAdapter(Class adapter) {
+    @SuppressWarnings("unchecked")
+    public <T> T getAdapter(Class<T> adapter) {
         if (adapter == IActionFilter.class) {
             IActionFilter platformActionFilter = (IActionFilter) this.getActualObject().getAdapter(adapter);
-            return new PythonSourceFolderActionFilter(platformActionFilter);
+            return (T) new PythonSourceFolderActionFilter(platformActionFilter);
         }
         if (adapter == IContributorResourceAdapter.class) {
-            return this;
+            return (T) this;
         }
-        return WrappedResource.getAdapterFromActualObject((IResource) this.getActualObject(), adapter);
+        return WrappedResource.getAdapterFromActualObject(this.getActualObject(), adapter);
     }
 
     /* (non-Javadoc)

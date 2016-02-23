@@ -39,9 +39,9 @@ import org.python.pydev.shared_core.utils.DocCmd;
 
 /**
  * Base class for actions that do a move action (Alt+Up or Alt+Down).
- * 
+ *
  * Subclasses just need to decide whether to go up or down.
- * 
+ *
  * @author Fabio
  */
 public abstract class PyMoveLineAction extends TextEditorAction {
@@ -154,7 +154,7 @@ public abstract class PyMoveLineAction extends TextEditorAction {
                     //check partition in the start of the line after the skipped line
                     int offsetToCheckPartition;
                     if (skippedLine.getEndLine() == document.getNumberOfLines() - 1) {
-                        offsetToCheckPartition = document.getLength() - 1; //check the last document char 
+                        offsetToCheckPartition = document.getLength() - 1; //check the last document char
                     } else {
                         offsetToCheckPartition = skippedLine.getOffset() + skippedLine.getLength(); //that's always the '\n' of the line
                     }
@@ -181,7 +181,7 @@ public abstract class PyMoveLineAction extends TextEditorAction {
                     indentStrategy = new PyAutoIndentStrategy(new IAdaptable() {
 
                         @Override
-                        public Object getAdapter(Class adapter) {
+                        public <T> T getAdapter(Class<T> adapter) {
                             return null;
                         }
                     });
@@ -287,8 +287,7 @@ public abstract class PyMoveLineAction extends TextEditorAction {
         viewer.setSelectedRange(offset + length, -length);
         //viewer.revealRange(offset, length); // will trigger jumping
         StyledText st = viewer.getTextWidget();
-        if (st != null)
-        {
+        if (st != null) {
             st.showSelection(); // only minimal scrolling
         }
     }
@@ -375,7 +374,8 @@ public abstract class PyMoveLineAction extends TextEditorAction {
      * <code>selection</code>, without any terminating line delimiters
      * @throws BadLocationException if the selection is out of bounds (when the underlying document has changed during the call)
      */
-    private ITextSelection getMovingSelection(IDocument document, ITextSelection selection) throws BadLocationException {
+    private ITextSelection getMovingSelection(IDocument document, ITextSelection selection)
+            throws BadLocationException {
         int low = document.getLineOffset(selection.getStartLine());
         int endLine = selection.getEndLine();
         int high = document.getLineOffset(endLine) + document.getLineLength(endLine);
@@ -456,11 +456,12 @@ public abstract class PyMoveLineAction extends TextEditorAction {
      */
     private void showStatus() {
         ITextEditor textEditor = getTextEditor();
-        IEditorStatusLine status = (IEditorStatusLine) textEditor.getAdapter(IEditorStatusLine.class);
+        IEditorStatusLine status = textEditor.getAdapter(IEditorStatusLine.class);
         if (status == null) {
             return;
         }
         status.setMessage(false,
-                "Move not possible - Uncheck \"Show Source of Selected Element Only\" to see the entire document", null);
+                "Move not possible - Uncheck \"Show Source of Selected Element Only\" to see the entire document",
+                null);
     }
 }

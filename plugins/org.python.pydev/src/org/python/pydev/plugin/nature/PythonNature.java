@@ -420,7 +420,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             //Only synchronized internally!
             IProject project, IProgressMonitor monitor, String version, String projectPythonpath,
             String externalProjectPythonpath, String projectInterpreter, Map<String, String> variableSubstitution)
-                    throws CoreException {
+            throws CoreException {
 
         if (project == null || !project.isOpen()) {
             return null;
@@ -1321,10 +1321,11 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         return "PythonNature: " + this.project;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Object getAdapter(Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
         if (IProject.class == adapter) {
-            return this.project;
+            return (T) this.project;
         }
         return null;
     }

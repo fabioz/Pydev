@@ -914,24 +914,25 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         return disconnected;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Object getAdapter(Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
         AdapterDebug.print(this, adapter);
 
         // Not really sure what to do here, but I am trying
         if (adapter.equals(ILaunch.class)) {
-            return launch;
+            return (T) launch;
 
         } else if (adapter.equals(IResource.class)) {
             // used by Variable ContextManager, and Project:Properties menu item
             if (file != null && file.length > 0) {
-                return new PySourceLocatorBase().getFileForLocation(file[0], null);
+                return (T) new PySourceLocatorBase().getFileForLocation(file[0], null);
             } else {
                 return null;
             }
 
         } else if (adapter.equals(org.eclipse.debug.ui.actions.IRunToLineTarget.class)) {
-            return this.getRunToLineTarget();
+            return (T) this.getRunToLineTarget();
 
         } else if (adapter.equals(IPropertySource.class)) {
             return launch.getAdapter(adapter);

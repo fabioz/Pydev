@@ -29,7 +29,7 @@ public class ConsoleActivateDebugContext implements IConsolePageParticipant, IDe
     private IPageBookViewPage page;
     private IConsoleView view;
 
-    public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
         return null;
     }
 
