@@ -17,6 +17,7 @@ public interface ISystemModulesManager extends IModulesManager {
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.ModulesManager#getBuiltins()
      */
+    @Override
     public abstract String[] getBuiltins();
 
     /**

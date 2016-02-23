@@ -77,6 +77,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor {
         //related to the definitions)
         ICallback<IModule, Integer> moduleCallback = new ICallback<IModule, Integer>() {
 
+            @Override
             public IModule call(Integer arg) {
 
                 //Note: we cannot get anything from the memo at this point because it'll be called later on from a thread
@@ -153,6 +154,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor {
 
             moduleCallback = new ICallback<IModule, Integer>() {
 
+                @Override
                 public IModule call(Integer arg) {
                     return module;
                 }

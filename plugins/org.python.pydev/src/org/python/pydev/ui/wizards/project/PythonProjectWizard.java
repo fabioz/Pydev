@@ -84,6 +84,7 @@ public class PythonProjectWizard extends AbstractNewProjectWizard implements IEx
 
     protected IWorkbench workbench;
 
+    @Override
     public void init(IWorkbench workbench, IStructuredSelection currentSelection) {
         this.selection = currentSelection;
         this.workbench = workbench;
@@ -217,6 +218,7 @@ public class PythonProjectWizard extends AbstractNewProjectWizard implements IEx
     }
 
     protected ICallback<List<IContainer>, IProject> getSourceFolderHandlesCallback = new ICallback<List<IContainer>, IProject>() {
+        @Override
         public List<IContainer> call(IProject projectHandle) {
             final int sourceFolderConfigurationStyle = projectPage.getSourceFolderConfigurationStyle();
             List<IContainer> ret = new ArrayList<IContainer>();
@@ -244,6 +246,7 @@ public class PythonProjectWizard extends AbstractNewProjectWizard implements IEx
     };
 
     protected ICallback<List<IPath>, IProject> getExistingSourceFolderHandlesCallback = new ICallback<List<IPath>, IProject>() {
+        @Override
         public List<IPath> call(IProject projectHandle) {
             if (projectPage.getSourceFolderConfigurationStyle() == IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_EXISTING_SOURCES) {
                 List<IPath> eSources = sourcesPage.getExistingSourceFolders();
@@ -326,6 +329,7 @@ public class PythonProjectWizard extends AbstractNewProjectWizard implements IEx
         setDefaultPageImageDescriptor(desc);
     }
 
+    @Override
     public void setInitializationData(IConfigurationElement config, String propertyName, Object data)
             throws CoreException {
         this.fConfigElement = config;

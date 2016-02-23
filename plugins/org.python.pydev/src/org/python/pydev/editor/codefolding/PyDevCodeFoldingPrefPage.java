@@ -139,6 +139,7 @@ public class PyDevCodeFoldingPrefPage extends PreferencePage implements IWorkben
     /** 
      * @see org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
      */
+    @Override
     public void init(IWorkbench workbench) {
     }
 
@@ -286,9 +287,11 @@ public class PyDevCodeFoldingPrefPage extends PreferencePage implements IWorkben
     protected Map<Button, String> fCheckBoxes = new HashMap<Button, String>();
 
     protected SelectionListener fCheckBoxListener = new SelectionListener() {
+        @Override
         public void widgetDefaultSelected(SelectionEvent e) {
         }
 
+        @Override
         public void widgetSelected(SelectionEvent e) {
             Button button = (Button) e.widget;
             fOverlayStore.setValue(fCheckBoxes.get(button), button.getSelection());
@@ -322,6 +325,7 @@ public class PyDevCodeFoldingPrefPage extends PreferencePage implements IWorkben
         slave.setEnabled(masterState);
 
         SelectionListener listener = new SelectionListener() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 boolean enabled = true;
                 for (Button master : masterControls) {
@@ -330,6 +334,7 @@ public class PyDevCodeFoldingPrefPage extends PreferencePage implements IWorkben
                 slave.setEnabled(enabled);
             }
 
+            @Override
             public void widgetDefaultSelected(SelectionEvent e) {
             }
         };

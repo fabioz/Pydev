@@ -114,6 +114,7 @@ public class InterpreterGeneralPreferencesPage extends FieldEditorPreferencePage
                 null));
     }
 
+    @Override
     public void init(IWorkbench workbench) {
         // pass
     }

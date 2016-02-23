@@ -56,6 +56,7 @@ public class DirectoryTraverser implements Iterable<String> {
         return files;
     }
 
+    @Override
     public Iterator<String> iterator() {
         return getAllFiles().iterator();
     }

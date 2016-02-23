@@ -27,6 +27,7 @@ public class MemoVisitor extends VisitorBase {
 
     List<SimpleNode> visited = new ArrayList<SimpleNode>();
 
+    @Override
     protected Object unhandled_node(SimpleNode node) throws Exception {
         if (node instanceof Pass) {
             return null;
@@ -36,10 +37,12 @@ public class MemoVisitor extends VisitorBase {
         return null;
     }
 
+    @Override
     public void traverse(SimpleNode node) throws Exception {
         node.traverse(this);
     }
 
+    @Override
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         visited.add(node);
         exprType[] args = node.args.args;
@@ -62,6 +65,7 @@ public class MemoVisitor extends VisitorBase {
         return visited.size();
     }
 
+    @Override
     public boolean equals(Object obj) {
 
         MemoVisitor other = (MemoVisitor) obj;
@@ -115,6 +119,7 @@ public class MemoVisitor extends VisitorBase {
         //        System.out.println(string);
     }
 
+    @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
         for (Iterator<SimpleNode> iter = visited.iterator(); iter.hasNext();) {

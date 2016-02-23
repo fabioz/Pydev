@@ -179,6 +179,7 @@ public class ProjectStub extends AbstractIProjectStub implements IWorkbenchAdapt
     private HashMap<Object, Object[]> stubsCache = new HashMap<Object, Object[]>();
 
     //workbench adapter
+    @Override
     public Object[] getChildren(Object o) {
         Object[] found = stubsCache.get(o);
         if (found != null) {
@@ -211,14 +212,17 @@ public class ProjectStub extends AbstractIProjectStub implements IWorkbenchAdapt
         return ret.toArray();
     }
 
+    @Override
     public ImageDescriptor getImageDescriptor(Object object) {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public String getLabel(Object o) {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public Object getParent(Object o) {
         throw new RuntimeException("Not implemented");
     }

@@ -28,12 +28,14 @@ public class PyIndexView extends ViewPart {
 
         tree.addKeyListener(new KeyListener() {
 
+            @Override
             public void keyReleased(KeyEvent e) {
                 if (e.keyCode == SWT.F5) {
                     treeViewer.setInput(new IndexRoot());
                 }
             }
 
+            @Override
             public void keyPressed(KeyEvent e) {
             }
         });

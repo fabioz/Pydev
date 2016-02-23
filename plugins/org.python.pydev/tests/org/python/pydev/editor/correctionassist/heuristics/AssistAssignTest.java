@@ -30,6 +30,7 @@ public class AssistAssignTest extends TestCase {
 
     static class NonCamelCodingStd implements ICodingStd {
 
+        @Override
         public boolean localsAndAttrsCamelcase() {
             return false;
         }
@@ -38,6 +39,7 @@ public class AssistAssignTest extends TestCase {
 
     static class CamelCodingStd implements ICodingStd {
 
+        @Override
         public boolean localsAndAttrsCamelcase() {
             return true;
         }
@@ -62,6 +64,7 @@ public class AssistAssignTest extends TestCase {
     /*
      * @see TestCase#setUp()
      */
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
         assist = new AssistAssign(new CamelCodingStd());
@@ -70,6 +73,7 @@ public class AssistAssignTest extends TestCase {
     /*
      * @see TestCase#tearDown()
      */
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }

@@ -39,6 +39,7 @@ public class ProcessInfo implements IProcessInfo {
     /**
      * @see org.eclipse.cdt.core.IProcessInfo#getName()
      */
+    @Override
     public String getName() {
         return name;
     }
@@ -46,6 +47,7 @@ public class ProcessInfo implements IProcessInfo {
     /**
      * @see org.eclipse.cdt.core.IProcessInfo#getPid()
      */
+    @Override
     public int getPid() {
         return pid;
     }

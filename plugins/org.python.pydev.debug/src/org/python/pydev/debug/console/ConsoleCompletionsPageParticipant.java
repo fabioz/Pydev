@@ -66,6 +66,7 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
             this.currentPyStackFrameForConsole = currentPyStackFrameForConsole;
         }
 
+        @Override
         public String getDescription(String text) throws Exception {
             throw new RuntimeException("Not implemented");
         }
@@ -78,6 +79,7 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
         /**
          * Gets the completions at the passed offset.
          */
+        @Override
         public ICompletionProposal[] getCompletions(String text, String actTok, int offset,
                 boolean showForTabCompletion)
                 throws Exception {
@@ -125,6 +127,7 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
             return ret.toArray(new ICompletionProposal[0]);
         }
 
+        @Override
         public void execInterpreter(String command, ICallback<Object, InterpreterResponse> onResponseReceived) {
             throw new RuntimeException("Not implemented");
         }
@@ -140,6 +143,7 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
 
         }
 
+        @Override
         public void close() throws Exception {
             throw new RuntimeException("Not implemented");
         }
@@ -148,6 +152,7 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
          * Received when the completions command receives a response (ICommandResponseListener)
          * Converts the xml to completions.
          */
+        @Override
         public void commandComplete(AbstractDebuggerCommand cmd) {
             GetCompletionsCommand compCmd = (GetCompletionsCommand) cmd;
             try {
@@ -161,6 +166,7 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
 
         }
 
+        @Override
         public void linkWithDebugSelection(boolean isLinkedWithDebug) {
             throw new RuntimeException("Not implemented");
         }
@@ -172,6 +178,7 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
      */
     private PyContentAssistant contentAssist;
 
+    @Override
     public <T> T getAdapter(Class<T> adapter) {
 
         return null;
@@ -180,6 +187,7 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
     /**
      * When a console page is initialized,
      */
+    @Override
     public void init(IPageBookViewPage page, final IConsole console) {
         if (!(console instanceof ProcessConsole)) {
             return;
@@ -205,6 +213,7 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
             //the content assist, but the completions on the default keybinding is not, so, we have to
             //call it ourselves here.
             control.addKeyListener(new KeyListener() {
+                @Override
                 public void keyPressed(KeyEvent e) {
 
                     if (KeyBindingHelper.matchesContentAssistKeybinding(e)) {
@@ -212,6 +221,7 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
                     }
                 }
 
+                @Override
                 public void keyReleased(KeyEvent e) {
                 }
             });
@@ -248,14 +258,17 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
         }
     }
 
+    @Override
     public void dispose() {
 
     }
 
+    @Override
     public void activated() {
 
     }
 
+    @Override
     public void deactivated() {
 
     }

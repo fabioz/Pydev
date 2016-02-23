@@ -225,10 +225,12 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
         treeWithInterpreters = getListControl(parent);
         treeWithInterpreters.addSelectionListener(new SelectionListener() {
 
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 updateTree();
             }
 
+            @Override
             public void widgetDefaultSelected(SelectionEvent e) {
                 updateTree();
             }
@@ -237,9 +239,11 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
 
         treeWithInterpreters.addKeyListener(new KeyListener() {
 
+            @Override
             public void keyReleased(KeyEvent e) {
             }
 
+            @Override
             public void keyPressed(KeyEvent e) {
                 if (e.keyCode == SWT.F2) {
                     renameSelection();
@@ -249,12 +253,15 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
 
         treeWithInterpreters.addMouseListener(new MouseListener() {
 
+            @Override
             public void mouseUp(MouseEvent e) {
             }
 
+            @Override
             public void mouseDown(MouseEvent e) {
             }
 
+            @Override
             public void mouseDoubleClick(MouseEvent e) {
                 renameSelection();
             }
@@ -269,6 +276,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
             final String initialName = getNameFromTreeItem(curr);
             InputDialog d = new InputDialog(this.getShell(), "New name",
                     "Please specify the new name of the interpreter.", initialName, new IInputValidator() {
+                        @Override
                         public String isValid(String newText) {
                             if (newText == null || newText.trim().equals("")) {
                                 return "Please specify a non-empty name.";
@@ -306,6 +314,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
             treeWithLibs = new Tree(parent, SWT.BORDER | SWT.MULTI);
             treeWithLibs.setFont(parent.getFont());
             treeWithLibs.addDisposeListener(new DisposeListener() {
+                @Override
                 public void widgetDisposed(DisposeEvent event) {
                     treeWithLibs = null;
                 }
@@ -404,6 +413,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
             protected String getInput() {
                 IInputValidator validator = new IInputValidator() {
 
+                    @Override
                     public String isValid(String newText) {
                         for (char c : newText.toCharArray()) {
                             if (!Character.isJavaIdentifierPart(c) && c != ' ' && c != ',' && c != '.') {
@@ -518,6 +528,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
 
                         IInputValidator validator = new IInputValidator() {
 
+                            @Override
                             public String isValid(String newText) {
                                 if (newText.length() == 0) {
                                     return "Number not provided.";
@@ -548,6 +559,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
                             try {
                                 IRunnableWithProgress operation = new IRunnableWithProgress() {
 
+                                    @Override
                                     public void run(final IProgressMonitor monitor) throws InvocationTargetException,
                                             InterruptedException {
                                         monitor.beginTask("Restoring PYTHONPATH", IProgressMonitor.UNKNOWN);
@@ -707,6 +719,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
             }
             removeBtSystemFolder = createBt(boxSystem, "ListEditor.remove", getSelectionListenerSystem());//$NON-NLS-1$
             boxSystem.addDisposeListener(new DisposeListener() {
+                @Override
                 public void widgetDisposed(DisposeEvent event) {
                     addBtSystemJar = null;
                     addBtSystemFolder = null;
@@ -1028,6 +1041,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
     /**
      * Called after infos are set (changed) in the interpreter manager.
      */
+    @Override
     public void afterSetInfos(IInterpreterManager manager, IInterpreterInfo[] interpreterInfos) {
         synchronized (expectedSetLock) {
             if (expectedSetInfos == 0) {

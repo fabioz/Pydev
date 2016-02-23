@@ -73,6 +73,7 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
 
         IStructuredContentProvider contentProvider = new IStructuredContentProvider() {
 
+            @Override
             public Object[] getElements(Object inputElement) {
                 if (inputElement instanceof IInterpreterInfo[]) {
                     return (IInterpreterInfo[]) inputElement;
@@ -80,9 +81,11 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
                 return new Object[0];
             }
 
+            @Override
             public void dispose() {
             }
 
+            @Override
             public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 
             }
@@ -135,6 +138,7 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
         return selectionDialog;
     }
 
+    @Override
     public void init(IWorkbench workbench) {
     }
 
@@ -269,6 +273,7 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
         try {
             IRunnableWithProgress operation = new IRunnableWithProgress() {
 
+                @Override
                 public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
                     monitor.beginTask("Restoring PYTHONPATH", IProgressMonitor.UNKNOWN);
                     try {

@@ -15,6 +15,7 @@ public final class While extends stmtType {
         this.orelse = orelse;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -24,6 +25,7 @@ public final class While extends stmtType {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -47,10 +49,12 @@ public final class While extends stmtType {
         return true;
     }
 
+    @Override
     public While createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public While createCopy(boolean copyComments) {
         stmtType[] new0;
         if (this.body != null) {
@@ -84,6 +88,7 @@ public final class While extends stmtType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("While[");
         sb.append("test=");
@@ -98,10 +103,12 @@ public final class While extends stmtType {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitWhile(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (test != null) {
             test.accept(visitor);

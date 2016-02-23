@@ -48,6 +48,7 @@ public class RetargetSetNextAction extends RetargetAction {
             }
         }
 
+        @Override
         public void debugContextChanged(DebugContextEvent event) {
             contextActivated(event.getContext());
         }
@@ -87,6 +88,7 @@ public class RetargetSetNextAction extends RetargetAction {
      // * 
      * @see org.eclipse.ui.IWorkbenchWindowActionDelegate#dispose()
      */
+    @Override
     public void dispose() {
         DebugUITools.getDebugContextManager().getContextService(fWindow).removeDebugContextListener(fContextListener);
         super.dispose();
@@ -98,6 +100,7 @@ public class RetargetSetNextAction extends RetargetAction {
      * @seeorg.eclipse.ui.IWorkbenchWindowActionDelegate#init(org.eclipse.ui.
      * IWorkbenchWindow)
      */
+    @Override
     public void init(IWorkbenchWindow window) {
         super.init(window);
         IDebugContextService service = DebugUITools.getDebugContextManager().getContextService(window);

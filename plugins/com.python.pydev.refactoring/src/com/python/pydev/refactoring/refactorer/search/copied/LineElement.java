@@ -32,18 +32,22 @@ public class LineElement implements ICustomLineElement {
         fLineContents = lineContents;
     }
 
+    @Override
     public IResource getParent() {
         return fParent;
     }
 
+    @Override
     public int getLine() {
         return fLineNumber;
     }
 
+    @Override
     public String getContents() {
         return fLineContents;
     }
 
+    @Override
     public int getOffset() {
         return fLineStartOffset;
     }
@@ -52,10 +56,12 @@ public class LineElement implements ICustomLineElement {
         return fLineStartOffset <= offset && offset < fLineStartOffset + fLineContents.length();
     }
 
+    @Override
     public int getLength() {
         return fLineContents.length();
     }
 
+    @Override
     public FileMatch[] getMatches(AbstractTextSearchResult result) {
         ArrayList<FileMatch> res = new ArrayList<FileMatch>();
         Match[] matches = result.getMatches(fParent);
@@ -68,6 +74,7 @@ public class LineElement implements ICustomLineElement {
         return res.toArray(new FileMatch[res.size()]);
     }
 
+    @Override
     public int getNumberOfMatches(AbstractTextSearchResult result) {
         int count = 0;
         Match[] matches = result.getMatches(fParent);

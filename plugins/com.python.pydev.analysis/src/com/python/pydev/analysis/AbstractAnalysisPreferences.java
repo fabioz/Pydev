@@ -31,6 +31,7 @@ public abstract class AbstractAnalysisPreferences implements IAnalysisPreference
         typeToIgnoreMessage.put(TYPE_ARGUMENTS_MISATCH, MSG_TO_IGNORE_TYPE_ARGUMENTS_MISATCH);
     }
 
+    @Override
     public String getRequiredMessageToIgnore(int type) {
         return typeToIgnoreMessage.get(type);
     }

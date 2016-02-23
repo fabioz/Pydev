@@ -89,6 +89,7 @@ public class ToolTipHandler {
          * Get out of the way if we attempt to activate the control underneath the tooltip
          */
         control.addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseDown(MouseEvent e) {
                 if (tipShell.isVisible())
                     tipShell.setVisible(false);
@@ -99,12 +100,14 @@ public class ToolTipHandler {
          * Trap hover events to pop-up tooltip
          */
         control.addMouseTrackListener(new MouseTrackAdapter() {
+            @Override
             public void mouseExit(MouseEvent e) {
                 if (tipShell.isVisible())
                     tipShell.setVisible(false);
                 tipWidget = null;
             }
 
+            @Override
             public void mouseHover(MouseEvent event) {
                 Point pt = new Point(event.x, event.y);
                 Widget widget = event.widget;
@@ -143,6 +146,7 @@ public class ToolTipHandler {
          * Trap F1 Help to pop up a custom help box
          */
         control.addHelpListener(new HelpListener() {
+            @Override
             public void helpRequested(HelpEvent event) {
                 if (tipWidget == null)
                     return;

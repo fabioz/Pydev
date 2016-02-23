@@ -15,6 +15,7 @@ public final class ImportFrom extends stmtType {
         this.level = level;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -24,6 +25,7 @@ public final class ImportFrom extends stmtType {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -44,10 +46,12 @@ public final class ImportFrom extends stmtType {
         return true;
     }
 
+    @Override
     public ImportFrom createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public ImportFrom createCopy(boolean copyComments) {
         aliasType[] new0;
         if (this.names != null) {
@@ -81,6 +85,7 @@ public final class ImportFrom extends stmtType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("ImportFrom[");
         sb.append("module=");
@@ -95,10 +100,12 @@ public final class ImportFrom extends stmtType {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitImportFrom(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (module != null) {
             module.accept(visitor);

@@ -224,6 +224,7 @@ public class DeltaSaver<X> {
         //also, sort by the name (which must be an integer)
         Collections.sort(deltasFound, new Comparator<File>() {
 
+            @Override
             public int compare(File o1, File o2) {
                 String i = FullRepIterable.headAndTail(o1.getName())[0];
                 String j = FullRepIterable.headAndTail(o2.getName())[0];

@@ -42,16 +42,19 @@ public class OutlineIterator implements Iterator<ASTEntry> {
         next = null;
     }
 
+    @Override
     public boolean hasNext() {
         return next != null;
     }
 
+    @Override
     public ASTEntry next() {
         ASTEntry n = next;
         setNext();
         return n;
     }
 
+    @Override
     public void remove() {
         throw new RuntimeException("Not Impl");
     }

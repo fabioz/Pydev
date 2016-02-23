@@ -63,6 +63,7 @@ public class PyDebugTarget extends AbstractDebugTarget {
         DebugPlugin.getDefault().getLaunchManager().addLaunchListener(this);
     }
 
+    @Override
     public void launchRemoved(ILaunch launch) {
         // shut down the remote debugger when parent launch
         if (launch == this.launch) {
@@ -75,6 +76,7 @@ public class PyDebugTarget extends AbstractDebugTarget {
         }
     }
 
+    @Override
     public IProcess getProcess() {
         return process;
     }

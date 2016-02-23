@@ -33,6 +33,7 @@ public final class ModInfo extends AbstractInfo {
         return lastPart;
     }
 
+    @Override
     public int getType() {
         return MOD_IMPORT_TYPE;
     }

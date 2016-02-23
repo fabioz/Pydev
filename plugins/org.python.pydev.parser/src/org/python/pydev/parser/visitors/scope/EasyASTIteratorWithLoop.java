@@ -22,6 +22,7 @@ public class EasyASTIteratorWithLoop extends EasyAstIteratorBase {
     /**
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitFor(org.python.pydev.parser.jython.ast.For)
      */
+    @Override
     public Object visitFor(For node) throws Exception {
         return createASTNode(node);
     }
@@ -29,6 +30,7 @@ public class EasyASTIteratorWithLoop extends EasyAstIteratorBase {
     /**
      * @see org.python.pydev.parser.jython.ast.VisitorWhile#visitFor(org.python.pydev.parser.jython.ast.While)
      */
+    @Override
     public Object visitWhile(While node) throws Exception {
         return createASTNode(node);
 
@@ -37,6 +39,7 @@ public class EasyASTIteratorWithLoop extends EasyAstIteratorBase {
     /**
      * @see org.python.pydev.parser.jython.ast.VisitorWhile#visitFor(org.python.pydev.parser.jython.ast.TryExcept)
      */
+    @Override
     public Object visitTryExcept(TryExcept node) throws Exception {
         return createASTNode(node);
 
@@ -45,6 +48,7 @@ public class EasyASTIteratorWithLoop extends EasyAstIteratorBase {
     /**
      * @see org.python.pydev.parser.jython.ast.VisitorWhile#visitFor(org.python.pydev.parser.jython.ast.TryFinally)
      */
+    @Override
     public Object visitWith(With node) throws Exception {
         return createASTNode(node);
 
@@ -53,6 +57,7 @@ public class EasyASTIteratorWithLoop extends EasyAstIteratorBase {
     /**
      * @see org.python.pydev.parser.jython.ast.VisitorWhile#visitFor(org.python.pydev.parser.jython.ast.TryFinally)
      */
+    @Override
     public Object visitTryFinally(TryFinally node) throws Exception {
         return createASTNode(node);
 

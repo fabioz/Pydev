@@ -144,6 +144,7 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
         //Wait a bit until showing the key assist dialog
         new UIJob("") {
 
+            @Override
             public IStatus runInUIThread(IProgressMonitor monitor) {
                 synchronized (lock) {
                     if (fInstalled && keyAssistDialog != null) {
@@ -208,6 +209,7 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
     /*
      * @see VerifyKeyListener#verifyKey(VerifyEvent)
      */
+    @Override
     public void verifyKey(VerifyEvent event) {
 
         if (!event.doit)
@@ -352,6 +354,7 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
     /*
      * @see ITextListener#textChanged(TextEvent)
      */
+    @Override
     public void textChanged(TextEvent event) {
         if (event.getDocumentEvent() != null)
             leave();
@@ -360,6 +363,7 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
     /*
      * @see MouseListener##mouseDoubleClick(MouseEvent)
      */
+    @Override
     public void mouseDoubleClick(MouseEvent e) {
         leave();
     }
@@ -367,6 +371,7 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
     /*
      * @see MouseListener#mouseDown(org.eclipse.swt.events.MouseEvent)
      */
+    @Override
     public void mouseDown(MouseEvent e) {
         leave();
     }
@@ -374,6 +379,7 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
     /*
      * @see MouseListener#mouseUp(org.eclipse.swt.events.MouseEvent)
      */
+    @Override
     public void mouseUp(MouseEvent e) {
         leave();
     }
@@ -381,6 +387,7 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
     /*
      * @see FocusListener#focusGained(org.eclipse.swt.events.FocusEvent)
      */
+    @Override
     public void focusGained(FocusEvent e) {
         leave();
     }
@@ -388,6 +395,7 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
     /*
      * @see FocusListener#focusLost(org.eclipse.swt.events.FocusEvent)
      */
+    @Override
     public void focusLost(FocusEvent e) {
         // When the focus is lost, we have to treat the case where the focus went to the key assist
         // dialog, so, if that was the case, we won't leave right now, only when the focus is 
@@ -399,6 +407,7 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
 
                 new UIJob("Check leave") {
 
+                    @Override
                     public IStatus runInUIThread(IProgressMonitor monitor) {
                         synchronized (lock) {
                             if (fInstalled && keyAssistDialog != null && !completionsTable.isDisposed()) {
@@ -407,22 +416,26 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
                                 } else {
                                     completionsTable.addFocusListener(new FocusListener() {
 
+                                        @Override
                                         public void focusLost(FocusEvent e) {
                                             leave();
                                         }
 
+                                        @Override
                                         public void focusGained(FocusEvent e) {
                                             leave();
                                         }
                                     });
                                     completionsTable.addKeyListener(new KeyListener() {
 
+                                        @Override
                                         public void keyReleased(KeyEvent e) {
                                             if (e.character == 0x1B) { //ESC
                                                 leave();
                                             }
                                         }
 
+                                        @Override
                                         public void keyPressed(KeyEvent e) {
                                         }
                                     });
@@ -525,6 +538,7 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
     /*
      * @see ISelectionChangedListener#selectionChanged(org.eclipse.jface.viewers.SelectionChangedEvent)
      */
+    @Override
     public void selectionChanged(SelectionChangedEvent e) {
         //System.out.println("selection changed:"+e);
     }

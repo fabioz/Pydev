@@ -36,6 +36,7 @@ public class OverrideUnittestArgumentsBlock extends AbstractLaunchConfigurationT
     private Combo comboSelectRunner;
     private Text textRunnerParameters;
 
+    @Override
     public void createControl(Composite parent) {
         Font font = parent.getFont();
 
@@ -72,10 +73,12 @@ public class OverrideUnittestArgumentsBlock extends AbstractLaunchConfigurationT
         }
         comboSelectRunner.addSelectionListener(new SelectionListener() {
 
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 updateLaunchConfigurationDialog();
             }
 
+            @Override
             public void widgetDefaultSelected(SelectionEvent e) {
                 updateLaunchConfigurationDialog();
             }
@@ -87,6 +90,7 @@ public class OverrideUnittestArgumentsBlock extends AbstractLaunchConfigurationT
         textRunnerParameters.setFont(font);
 
         textRunnerParameters.addModifyListener(new ModifyListener() {
+            @Override
             public void modifyText(ModifyEvent evt) {
                 updateLaunchConfigurationDialog();
             }
@@ -94,12 +98,14 @@ public class OverrideUnittestArgumentsBlock extends AbstractLaunchConfigurationT
 
     }
 
+    @Override
     public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
         configuration.setAttribute(PyUnitPrefsPage2.LAUNCH_CONFIG_OVERRIDE_PYUNIT_RUN_PARAMS_CHOICE, (String) null);
         configuration.setAttribute(PyUnitPrefsPage2.LAUNCH_CONFIG_OVERRIDE_TEST_RUNNER, (String) null);
         configuration.setAttribute(PyUnitPrefsPage2.LAUNCH_CONFIG_OVERRIDE_PYUNIT_RUN_PARAMS, (String) null);
     }
 
+    @Override
     public void initializeFrom(ILaunchConfiguration configuration) {
 
         //Override selection
@@ -144,6 +150,7 @@ public class OverrideUnittestArgumentsBlock extends AbstractLaunchConfigurationT
         updateOverrideState();
     }
 
+    @Override
     public void performApply(ILaunchConfigurationWorkingCopy configuration) {
         configuration.setAttribute(PyUnitPrefsPage2.LAUNCH_CONFIG_OVERRIDE_PYUNIT_RUN_PARAMS_CHOICE,
                 buttonAskOverride.getSelection());
@@ -153,6 +160,7 @@ public class OverrideUnittestArgumentsBlock extends AbstractLaunchConfigurationT
                 textRunnerParameters.getText());
     }
 
+    @Override
     public String getName() {
         return "PyUnit";
     }

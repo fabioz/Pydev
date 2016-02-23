@@ -88,6 +88,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
      */
     public static ICallback<Object, CompletionRecursionException> onCompletionRecursionException;
 
+    @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public List getCodeCompletionProposals(ITextViewer viewer, CompletionRequest request) throws CoreException,
             BadLocationException, IOException, MisconfigurationException, PythonNatureWithoutProjectException {

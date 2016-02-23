@@ -15,6 +15,7 @@ public final class Subscript extends exprType implements expr_contextType {
         this.ctx = ctx;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -24,6 +25,7 @@ public final class Subscript extends exprType implements expr_contextType {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -47,10 +49,12 @@ public final class Subscript extends exprType implements expr_contextType {
         return true;
     }
 
+    @Override
     public Subscript createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public Subscript createCopy(boolean copyComments) {
         Subscript temp = new Subscript(value != null ? (exprType) value.createCopy(copyComments) : null,
                 slice != null ? (sliceType) slice.createCopy(copyComments) : null, ctx);
@@ -75,6 +79,7 @@ public final class Subscript extends exprType implements expr_contextType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("Subscript[");
         sb.append("value=");
@@ -89,10 +94,12 @@ public final class Subscript extends exprType implements expr_contextType {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitSubscript(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (value != null) {
             value.accept(visitor);

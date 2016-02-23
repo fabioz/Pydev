@@ -425,15 +425,18 @@ class Entities {
         private Map<String, Integer> mapNameToValue = new HashMap<String, Integer>();
         private HashMap<Integer, String> mapValueToName = new HashMap<Integer, String>();
 
+        @Override
         public void add(String name, int value) {
             mapNameToValue.put(name, new Integer(value));
             mapValueToName.put(value, name);
         }
 
+        @Override
         public String name(int value) {
             return (String) mapValueToName.get(value);
         }
 
+        @Override
         public int value(String name) {
             Object value = mapNameToValue.get(name);
             if (value == null) {
@@ -447,15 +450,18 @@ class Entities {
         protected Map<String, Integer> mapNameToValue;
         protected Map<Integer, String> mapValueToName;
 
+        @Override
         public void add(String name, int value) {
             mapNameToValue.put(name, new Integer(value));
             mapValueToName.put(new Integer(value), name);
         }
 
+        @Override
         public String name(int value) {
             return (String) mapValueToName.get(new Integer(value));
         }
 
+        @Override
         public int value(String name) {
             Object value = mapNameToValue.get(name);
             if (value == null) {
@@ -483,6 +489,7 @@ class Entities {
         private String[] lookupTable;
         private int LOOKUP_TABLE_SIZE = 256;
 
+        @Override
         public String name(int value) {
             if (value < LOOKUP_TABLE_SIZE) {
                 return lookupTable()[value];
@@ -522,6 +529,7 @@ class Entities {
             values = new int[growBy];
         }
 
+        @Override
         public void add(String name, int value) {
             ensureCapacity(size + 1);
             names[size] = name;
@@ -541,6 +549,7 @@ class Entities {
             }
         }
 
+        @Override
         public String name(int value) {
             for (int i = 0; i < size; ++i) {
                 if (values[i] == value) {
@@ -550,6 +559,7 @@ class Entities {
             return null;
         }
 
+        @Override
         public int value(String name) {
             for (int i = 0; i < size; ++i) {
                 if (names[i].equals(name)) {
@@ -589,6 +599,7 @@ class Entities {
             return -(low + 1); // key not found.
         }
 
+        @Override
         public void add(String name, int value) {
             ensureCapacity(size + 1);
             int insertAt = binarySearch(value);
@@ -603,6 +614,7 @@ class Entities {
             size++;
         }
 
+        @Override
         public String name(int value) {
             int index = binarySearch(value);
             if (index < 0) {

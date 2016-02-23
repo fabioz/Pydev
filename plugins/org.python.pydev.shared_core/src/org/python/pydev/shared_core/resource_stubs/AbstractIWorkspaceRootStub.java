@@ -18,50 +18,62 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 public class AbstractIWorkspaceRootStub extends AbstractIContainerStub implements IWorkspaceRoot {
 
+    @Override
     public void delete(boolean deleteContent, boolean force, IProgressMonitor monitor) throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public IContainer[] findContainersForLocation(IPath location) {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public IContainer[] findContainersForLocationURI(URI location) {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public IContainer[] findContainersForLocationURI(URI location, int memberFlags) {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public IFile[] findFilesForLocation(IPath location) {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public IFile[] findFilesForLocationURI(URI location) {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public IFile[] findFilesForLocationURI(URI location, int memberFlags) {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public IContainer getContainerForLocation(IPath location) {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public IFile getFileForLocation(IPath location) {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public IProject getProject(String name) {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public IProject[] getProjects() {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public IProject[] getProjects(int memberFlags) {
         throw new RuntimeException("Not implemented");
     }

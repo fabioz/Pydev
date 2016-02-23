@@ -105,6 +105,7 @@ public class UIUtils {
         panel = new JPanel(new GridLayout(0, 2));
         JButton button = new JButton("OK");
         button.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 confirmed[0] = true;
                 dialog.setVisible(false);
@@ -115,6 +116,7 @@ public class UIUtils {
         button = new JButton("Cancel");
         panel.add(button);
         button.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 dialog.setVisible(false);
             }

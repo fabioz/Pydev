@@ -18,16 +18,20 @@ public class StartDebugServer implements IWorkbenchWindowActionDelegate {
     public StartDebugServer() {
     }
 
+    @Override
     public void run(IAction action) {
         PydevRemoteDebuggerServer.startServer();
     }
 
+    @Override
     public void selectionChanged(IAction action, ISelection selection) {
     }
 
+    @Override
     public void dispose() {
     }
 
+    @Override
     public void init(IWorkbenchWindow window) {
     }
 }

@@ -76,6 +76,7 @@ public class AppEngineWizard extends PythonProjectWizard {
 
         ICallback<List<String>, IProject> getExternalSourceFolderHandlesCallback = new ICallback<List<String>, IProject>() {
 
+            @Override
             public List<String> call(IProject projectHandle) {
                 return appEngineConfigWizardPage.getExternalSourceFolders();
             }
@@ -83,6 +84,7 @@ public class AppEngineWizard extends PythonProjectWizard {
 
         ICallback<Map<String, String>, IProject> getVariableSubstitutionCallback = new ICallback<Map<String, String>, IProject>() {
 
+            @Override
             public Map<String, String> call(IProject projectHandle) {
                 return appEngineConfigWizardPage.getVariableSubstitution();
             }

@@ -44,12 +44,15 @@ public class InformationPresenterWithLineTracker extends AbstractTooltipInformat
                 final PyUnitTestResult pyUnitTestResult = (PyUnitTestResult) this.data;
                 range.customData = new IHyperlink() {
 
+                    @Override
                     public void linkExited() {
                     }
 
+                    @Override
                     public void linkEntered() {
                     }
 
+                    @Override
                     public void linkActivated() {
                         pyUnitTestResult.open();
                     }
@@ -61,6 +64,7 @@ public class InformationPresenterWithLineTracker extends AbstractTooltipInformat
         PythonConsoleLineTracker lineTracker = new PythonConsoleLineTracker();
         lineTracker.init(new ILinkContainer() {
 
+            @Override
             public void addLink(IHyperlink link, int offset, int length) {
                 StyleRangeWithCustomData range = new StyleRangeWithCustomData();
                 range.underline = true;
@@ -83,6 +87,7 @@ public class InformationPresenterWithLineTracker extends AbstractTooltipInformat
                 presentation.addStyleRange(range);
             }
 
+            @Override
             public String getContents(int lineOffset, int lineLength) throws BadLocationException {
                 if (lineLength <= 0) {
                     return "";

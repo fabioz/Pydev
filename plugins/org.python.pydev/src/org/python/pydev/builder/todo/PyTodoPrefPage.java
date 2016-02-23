@@ -39,6 +39,7 @@ public class PyTodoPrefPage extends FieldEditorPreferencePage implements IWorkbe
     /* (non-Javadoc)
      * @see org.eclipse.jface.preference.FieldEditorPreferencePage#createFieldEditors()
      */
+    @Override
     protected void createFieldEditors() {
         Composite p = getFieldEditorParent();
         addField(new StringFieldEditor(PY_TODO_TAGS, "Todo tags (separated by spaces)", p));
@@ -47,6 +48,7 @@ public class PyTodoPrefPage extends FieldEditorPreferencePage implements IWorkbe
     /* (non-Javadoc)
      * @see org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
      */
+    @Override
     public void init(IWorkbench workbench) {
 
     }

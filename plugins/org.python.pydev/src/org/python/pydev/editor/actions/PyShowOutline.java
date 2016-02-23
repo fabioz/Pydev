@@ -27,6 +27,7 @@ public class PyShowOutline extends PyAction {
     /* (non-Javadoc)
      * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
      */
+    @Override
     public void run(IAction action) {
         IEditorActionDelegate participant = getParticipant();
         if (participant != null) {
@@ -34,6 +35,7 @@ public class PyShowOutline extends PyAction {
         }
     }
 
+    @Override
     public void setActiveEditor(IAction action, IEditorPart targetEditor) {
         IEditorActionDelegate participant = getParticipant();
         if (participant != null) {

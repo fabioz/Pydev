@@ -52,6 +52,7 @@ public class PyContextInformationValidator implements IContextInformationValidat
     /**
      * IContextInformationPresenter
      */
+    @Override
     public void install(IContextInformation info, ITextViewer viewer, int offset) {
         install(info, viewer.getDocument(), offset);
     }
@@ -59,6 +60,7 @@ public class PyContextInformationValidator implements IContextInformationValidat
     /**
      * @see IContextInformationValidator#isContextInformationValid(int)
      */
+    @Override
     public boolean isContextInformationValid(int position) {
         if (doc == null) {
             this.returnedFalseOnce = true;
@@ -100,6 +102,7 @@ public class PyContextInformationValidator implements IContextInformationValidat
     /**
      * @see IContextInformationPresenter#updatePresentation(int, TextPresentation)
      */
+    @Override
     public boolean updatePresentation(int position, TextPresentation presentation) {
         return false;
     }

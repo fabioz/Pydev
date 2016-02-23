@@ -12,26 +12,32 @@ import org.eclipse.ui.IPersistableElement;
 
 public class PydevFileEditorInputStub implements IEditorInput {
 
+    @Override
     public boolean exists() {
         return true;
     }
 
+    @Override
     public ImageDescriptor getImageDescriptor() {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public String getName() {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public IPersistableElement getPersistable() {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public String getToolTipText() {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public <T> T getAdapter(Class<T> adapter) {
         throw new RuntimeException("Not implemented");
     }

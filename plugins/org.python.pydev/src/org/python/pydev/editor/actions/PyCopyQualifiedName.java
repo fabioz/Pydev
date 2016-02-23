@@ -30,6 +30,7 @@ import org.python.pydev.shared_ui.EditorUtils;
 
 public class PyCopyQualifiedName extends PyAction {
 
+    @Override
     public void run(IAction action) {
         FastStringBuffer buf = new FastStringBuffer();
         try {

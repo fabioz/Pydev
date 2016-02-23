@@ -25,6 +25,7 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
  */
 public class JythonEclipseInterpreterManager implements IInterpreterManager {
 
+    @Override
     public int getInterpreterType() {
 
         return IInterpreterManager.INTERPRETER_TYPE_JYTHON_ECLIPSE;
@@ -35,21 +36,25 @@ public class JythonEclipseInterpreterManager implements IInterpreterManager {
         return getInterpreterInfos()[0];
     }
 
+    @Override
     public IInterpreterInfo[] getInterpreterInfos() {
         InterpreterInfo interpreterInfo = new InterpreterInfo("2.1", "Jython Eclipse", new ArrayList<String>());
         return new IInterpreterInfo[] { interpreterInfo };
     }
 
+    @Override
     public void setInfos(IInterpreterInfo[] infos, Set<String> interpreterNamesToRestore, IProgressMonitor monitor) {
         //do nothing
     }
 
+    @Override
     public IInterpreterInfo getInterpreterInfo(String nameOrExecutableOrJar, IProgressMonitor monitor)
             throws MisconfigurationException {
 
         return null;
     }
 
+    @Override
     public void addListener(IInterpreterManagerListener listener) {
 
     }
@@ -59,6 +64,7 @@ public class JythonEclipseInterpreterManager implements IInterpreterManager {
         return null;
     }
 
+    @Override
     public IInterpreterInfo createInterpreterInfo(String executable, IProgressMonitor monitor, boolean askUser) {
 
         return null;
@@ -68,6 +74,7 @@ public class JythonEclipseInterpreterManager implements IInterpreterManager {
 
     }
 
+    @Override
     public IInterpreterInfo[] getInterpretersFromPersistedString(String persisted) {
 
         return null;
@@ -91,11 +98,13 @@ public class JythonEclipseInterpreterManager implements IInterpreterManager {
 
     }
 
+    @Override
     public String getManagerRelatedName() {
 
         return null;
     }
 
+    @Override
     public String getPersistedString() {
 
         return null;
@@ -105,6 +114,7 @@ public class JythonEclipseInterpreterManager implements IInterpreterManager {
 
     }
 
+    @Override
     public boolean isConfigured() {
 
         return true;
@@ -115,24 +125,29 @@ public class JythonEclipseInterpreterManager implements IInterpreterManager {
         return false;
     }
 
+    @Override
     public void clearBuiltinCompletions(String projectInterpreterName) {
 
     }
 
+    @Override
     public IToken[] getBuiltinCompletions(String projectInterpreterName) {
 
         return null;
     }
 
+    @Override
     public IModule getBuiltinMod(String projectInterpreterName) {
 
         return null;
     }
 
+    @Override
     public void clearBuiltinMod(String projectInterpreterName) {
 
     }
 
+    @Override
     public void clearCaches() {
 
     }
@@ -141,6 +156,7 @@ public class JythonEclipseInterpreterManager implements IInterpreterManager {
 
     }
 
+    @Override
     public IInterpreterInfo getDefaultInterpreterInfo(boolean autoConfigure) throws MisconfigurationException {
         return getDefaultInterpreterInfo();
     }

@@ -39,6 +39,7 @@ public class EasyASTIteratorVisitor extends EasyAstIteratorBase {
     /** 
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitImport(org.python.pydev.parser.jython.ast.Import)
      */
+    @Override
     public Object visitImport(Import node) throws Exception {
         atomic(node);
         return super.visitImport(node);
@@ -47,6 +48,7 @@ public class EasyASTIteratorVisitor extends EasyAstIteratorBase {
     /** 
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitImportFrom(org.python.pydev.parser.jython.ast.ImportFrom)
      */
+    @Override
     public Object visitImportFrom(ImportFrom node) throws Exception {
         atomic(node);
         return super.visitImportFrom(node);
@@ -55,6 +57,7 @@ public class EasyASTIteratorVisitor extends EasyAstIteratorBase {
     /** 
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitAssign(org.python.pydev.parser.jython.ast.Assign)
      */
+    @Override
     public Object visitAssign(Assign node) throws Exception {
         exprType[] targets = node.targets;
         for (int i = 0; i < targets.length; i++) {

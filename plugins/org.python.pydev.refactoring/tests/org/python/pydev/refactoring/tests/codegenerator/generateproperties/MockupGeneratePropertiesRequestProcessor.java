@@ -64,6 +64,7 @@ public class MockupGeneratePropertiesRequestProcessor implements IRequestProcess
                 config.getPropertyOffsetStrategy(), config.getMethodSelection(), config.getAccessModifier());
     }
 
+    @Override
     public List<GeneratePropertiesRequest> getRefactoringRequests() {
         IClassDefAdapter clazz = module.getClasses().get(classSelection);
 
@@ -83,6 +84,7 @@ public class MockupGeneratePropertiesRequestProcessor implements IRequestProcess
             req = new GeneratePropertiesRequest(clazz, elem, properties, methodOffsetStrategy, propertyOffsetStrategy,
                     accessModifier, new AdapterPrefs("\n", new IGrammarVersionProvider() {
 
+                        @Override
                         public int getGrammarVersion() throws MisconfigurationException {
                             return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
                         }

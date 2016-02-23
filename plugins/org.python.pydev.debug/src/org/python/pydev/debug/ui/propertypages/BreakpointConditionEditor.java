@@ -97,9 +97,11 @@ public class BreakpointConditionEditor {
 
         // listener for check the value
         fDocumentListener = new IDocumentListener() {
+            @Override
             public void documentAboutToBeChanged(DocumentEvent event) {
             }
 
+            @Override
             public void documentChanged(DocumentEvent event) {
                 valueChanged();
             }
@@ -139,6 +141,7 @@ public class BreakpointConditionEditor {
         valueChanged();
 
         IHandler handler = new AbstractHandler() {
+            @Override
             public Object execute(Map parameter) throws ExecutionException {
                 fViewer.doOperation(ISourceViewer.CONTENTASSIST_PROPOSALS);
                 return null;

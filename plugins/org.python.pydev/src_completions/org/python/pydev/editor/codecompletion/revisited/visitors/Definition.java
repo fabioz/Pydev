@@ -122,6 +122,7 @@ public class Definition implements IDefinition {
     /** 
      * @see java.lang.Object#toString()
      */
+    @Override
     public String toString() {
         FastStringBuffer buffer = new FastStringBuffer("Definition=", 30 + value.length());
         buffer.append(value);
@@ -141,6 +142,7 @@ public class Definition implements IDefinition {
     /** 
      * @see java.lang.Object#equals(java.lang.Object)
      */
+    @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof Definition)) {
             return false;
@@ -179,18 +181,22 @@ public class Definition implements IDefinition {
         return value.hashCode() + col + line;
     }
 
+    @Override
     public IModule getModule() {
         return module;
     }
 
+    @Override
     public int getLine() {
         return line;
     }
 
+    @Override
     public int getCol() {
         return col;
     }
 
+    @Override
     public String getDocstring(IPythonNature nature, ICompletionCache cache) {
         if (this.ast != null) {
             return NodeUtils.getNodeDocString(this.ast);

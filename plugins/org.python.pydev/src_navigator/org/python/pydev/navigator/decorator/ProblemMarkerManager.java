@@ -49,6 +49,7 @@ public class ProblemMarkerManager implements IResourceChangeListener {
             fChangedElements = changedElements;
         }
 
+        @Override
         public boolean visit(IResourceDelta delta) throws CoreException {
             IResource res = delta.getResource();
             if (res instanceof IProject && delta.getKind() == IResourceDelta.CHANGED) {
@@ -123,6 +124,7 @@ public class ProblemMarkerManager implements IResourceChangeListener {
     /*
      * @see IResourceChangeListener#resourceChanged
      */
+    @Override
     public void resourceChanged(IResourceChangeEvent event) {
         HashSet<IResource> changedElements = new HashSet<IResource>();
 
@@ -182,6 +184,7 @@ public class ProblemMarkerManager implements IResourceChangeListener {
     private void postAsyncUpdate(final Display display) {
         if (fNotifierJob == null) {
             fNotifierJob = new UIJob(display, "Update problem marker decorations") {
+                @Override
                 public IStatus runInUIThread(IProgressMonitor monitor) {
                     //Yes, MUST be called on UI thread!
                     IResource[] markerResources = null;

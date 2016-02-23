@@ -54,6 +54,7 @@ public class Location {
         return startOk && endOk;
     }
 
+    @Override
     public String toString() {
         return "L:" + Integer.toString(line) + " C:" + Integer.toString(column);
     }

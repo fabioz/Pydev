@@ -82,6 +82,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
         /*
          * @see ITextListener#textChanged
          */
+        @Override
         public void textChanged(TextEvent e) {
             if (fTextViewer != null && e.getDocumentEvent() == null && e.getViewerRedrawState()) {
                 // handle only changes of visible document
@@ -92,6 +93,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
         /*
          * @see IAnnotationModelListener#modelChanged(IAnnotationModel)
          */
+        @Override
         public void modelChanged(IAnnotationModel model) {
             update();
         }
@@ -100,6 +102,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
          * @see org.eclipse.jface.text.source.IAnnotationModelListenerExtension#modelChanged(org.eclipse.jface.text.source.AnnotationModelEvent)
          * @since 3.3
          */
+        @Override
         public void modelChanged(AnnotationModelEvent event) {
             if (!event.isValid()) {
                 return;
@@ -230,6 +233,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
         /*
          * @see Iterator#hasNext()
          */
+        @Override
         public boolean hasNext() {
             return fNext != null;
         }
@@ -237,6 +241,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
         /*
          * @see Iterator#next()
          */
+        @Override
         public Object next() {
             try {
                 return fNext;
@@ -250,6 +255,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
         /*
          * @see Iterator#remove()
          */
+        @Override
         public void remove() {
             throw new UnsupportedOperationException();
         }
@@ -289,6 +295,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
             gc.drawLine(x, y + h, x + w, y + h);
         }
 
+        @Override
         public void paintControl(PaintEvent e) {
             if (fIndicatorColor == null) {
                 return;
@@ -427,6 +434,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
      * @since 3.3
      */
     private Runnable fRunnable = new Runnable() {
+        @Override
         public void run() {
             synchronized (fRunnableLock) {
                 fIsRunnablePosted = false;
@@ -480,6 +488,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
     /*
      * @see org.eclipse.jface.text.source.IVerticalRulerInfo#getControl()
      */
+    @Override
     public Control getControl() {
         return fCanvas;
     }
@@ -487,6 +496,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
     /*
      * @see org.eclipse.jface.text.source.IVerticalRulerInfo#getWidth()
      */
+    @Override
     public int getWidth() {
         return fWidth;
     }
@@ -494,6 +504,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
     /*
      * @see org.eclipse.jface.text.source.IVerticalRuler#setModel(org.eclipse.jface.text.source.IAnnotationModel)
      */
+    @Override
     public void setModel(IAnnotationModel model) {
         if (model != fModel || model != null) {
 
@@ -514,6 +525,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
     /*
      * @see org.eclipse.jface.text.source.IVerticalRuler#createControl(org.eclipse.swt.widgets.Composite, org.eclipse.jface.text.ITextViewer)
      */
+    @Override
     public Control createControl(Composite parent, ITextViewer textViewer) {
 
         fTextViewer = textViewer;
@@ -538,6 +550,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
         fCanvas = new Canvas(parent, SWT.NO_BACKGROUND);
 
         fCanvas.addPaintListener(new PaintListener() {
+            @Override
             public void paintControl(PaintEvent event) {
                 if (fTextViewer != null) {
                     doubleBufferPaint(event.gc);
@@ -546,6 +559,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
         });
 
         fCanvas.addDisposeListener(new DisposeListener() {
+            @Override
             public void widgetDisposed(DisposeEvent event) {
                 handleDispose();
                 fTextViewer = null;
@@ -565,6 +579,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
         });
 
         fCanvas.addMouseMoveListener(new MouseMoveListener() {
+            @Override
             public void mouseMove(MouseEvent event) {
                 handleMouseMove(event);
             }
@@ -778,6 +793,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
     /*
      * @see org.eclipse.jface.text.source.IVerticalRuler#update()
      */
+    @Override
     public void update() {
         if (fCanvas != null && !fCanvas.isDisposed()) {
             Display d = fCanvas.getDisplay();
@@ -1010,6 +1026,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
     /*
      * @see org.eclipse.jface.text.source.IOverviewRuler#addAnnotationType(java.lang.Object)
      */
+    @Override
     public void addAnnotationType(Object annotationType) {
         fConfiguredAnnotationTypes.add(annotationType);
         fAllowedAnnotationTypes.clear();
@@ -1018,6 +1035,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
     /*
      * @see org.eclipse.jface.text.source.IOverviewRuler#removeAnnotationType(java.lang.Object)
      */
+    @Override
     public void removeAnnotationType(Object annotationType) {
         fConfiguredAnnotationTypes.remove(annotationType);
         fAllowedAnnotationTypes.clear();
@@ -1026,6 +1044,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
     /*
      * @see org.eclipse.jface.text.source.IOverviewRuler#setAnnotationTypeLayer(java.lang.Object, int)
      */
+    @Override
     public void setAnnotationTypeLayer(Object annotationType, int layer) {
         int j = fAnnotationsSortedByLayer.indexOf(annotationType);
         if (j != -1) {
@@ -1048,6 +1067,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
     /*
      * @see org.eclipse.jface.text.source.IOverviewRuler#setAnnotationTypeColor(java.lang.Object, org.eclipse.swt.graphics.Color)
      */
+    @Override
     public void setAnnotationTypeColor(Object annotationType, Color color) {
         if (color != null) {
             fAnnotationTypes2Colors.put(annotationType, color);
@@ -1243,6 +1263,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
     /*
      * @see IVerticalRulerInfo#getLineOfLastMouseButtonActivity()
      */
+    @Override
     public int getLineOfLastMouseButtonActivity() {
         if (fLastMouseButtonActivityLine >= fTextViewer.getDocument().getNumberOfLines()) {
             fLastMouseButtonActivityLine = -1;
@@ -1253,6 +1274,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
     /*
      * @see IVerticalRulerInfo#toDocumentLineNumber(int)
      */
+    @Override
     public int toDocumentLineNumber(int y_coordinate) {
 
         if (fTextViewer == null || y_coordinate == -1) {
@@ -1270,6 +1292,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
     /*
      * @see org.eclipse.jface.text.source.IVerticalRuler#getModel()
      */
+    @Override
     public IAnnotationModel getModel() {
         return fModel;
     }
@@ -1277,6 +1300,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
     /*
      * @see org.eclipse.jface.text.source.IOverviewRuler#getAnnotationHeight()
      */
+    @Override
     public int getAnnotationHeight() {
         return fAnnotationHeight;
     }
@@ -1284,6 +1308,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
     /*
      * @see org.eclipse.jface.text.source.IOverviewRuler#hasAnnotation(int)
      */
+    @Override
     public boolean hasAnnotation(int y) {
         return findBestMatchingLineNumber(toLineNumbers(y)) != -1;
     }
@@ -1291,6 +1316,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
     /*
      * @see org.eclipse.jface.text.source.IOverviewRuler#getHeaderControl()
      */
+    @Override
     public Control getHeaderControl() {
         return fHeader;
     }
@@ -1298,6 +1324,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
     /*
      * @see org.eclipse.jface.text.source.IOverviewRuler#addHeaderAnnotationType(java.lang.Object)
      */
+    @Override
     public void addHeaderAnnotationType(Object annotationType) {
         fConfiguredHeaderAnnotationTypes.add(annotationType);
         fAllowedHeaderAnnotationTypes.clear();
@@ -1306,6 +1333,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
     /*
      * @see org.eclipse.jface.text.source.IOverviewRuler#removeHeaderAnnotationType(java.lang.Object)
      */
+    @Override
     public void removeHeaderAnnotationType(Object annotationType) {
         fConfiguredHeaderAnnotationTypes.remove(annotationType);
         fAllowedHeaderAnnotationTypes.clear();

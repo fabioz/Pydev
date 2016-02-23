@@ -78,6 +78,7 @@ public class PyLoggingPreferencesPage extends FieldEditorPreferencePage implemen
 
     }
 
+    @Override
     public void init(IWorkbench workbench) {
     }
 

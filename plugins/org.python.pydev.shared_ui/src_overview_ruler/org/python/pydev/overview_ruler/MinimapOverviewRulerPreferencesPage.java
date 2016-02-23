@@ -34,6 +34,7 @@ public class MinimapOverviewRulerPreferencesPage extends FieldEditorPreferencePa
         setPreferenceStore(SharedUiPlugin.getDefault().getPreferenceStore());
     }
 
+    @Override
     public void init(IWorkbench workbench) {
     }
 

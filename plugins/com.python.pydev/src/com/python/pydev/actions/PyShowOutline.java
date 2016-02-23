@@ -17,6 +17,7 @@ import org.python.pydev.shared_ui.dialogs.TreeSelectionDialog;
 
 public class PyShowOutline extends PyAction {
 
+    @Override
     public void run(IAction action) {
 
         PyEdit pyEdit = getPyEdit();

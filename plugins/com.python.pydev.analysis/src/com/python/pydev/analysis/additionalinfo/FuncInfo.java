@@ -24,6 +24,7 @@ public final class FuncInfo extends AbstractInfo {
         super(defName, moduleDeclared, path, doNotInternOnThisContstruct);
     }
 
+    @Override
     public int getType() {
         return METHOD_WITH_IMPORT_TYPE;
     }

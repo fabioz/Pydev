@@ -103,6 +103,7 @@ public final class CompletionRequest implements ICompletionRequest {
      */
     public File editorFile;
 
+    @Override
     public File getEditorFile() {
         return editorFile;
     }
@@ -112,6 +113,7 @@ public final class CompletionRequest implements ICompletionRequest {
      */
     public IPythonNature nature;
 
+    @Override
     public IPythonNature getNature() {
         return nature;
     }
@@ -248,6 +250,7 @@ public final class CompletionRequest implements ICompletionRequest {
      * @return
      * @throws MisconfigurationException 
      */
+    @Override
     public IModule getModule() throws MisconfigurationException {
         if (module == null) {
             module = AbstractASTManager.createModule(this.editorFile, this.doc, this.nature);

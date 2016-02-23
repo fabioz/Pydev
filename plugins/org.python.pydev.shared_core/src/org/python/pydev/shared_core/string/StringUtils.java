@@ -63,6 +63,7 @@ public final class StringUtils {
             this.len = string.length();
         }
 
+        @Override
         public boolean hasNext() {
             if (!calculatedNext) {
                 calculatedNext = true;
@@ -101,6 +102,7 @@ public final class StringUtils {
             return false;
         }
 
+        @Override
         public String next() {
             if (!hasNext()) {
                 throw new NoSuchElementException();
@@ -111,6 +113,7 @@ public final class StringUtils {
             return n;
         }
 
+        @Override
         public void remove() {
             throw new UnsupportedOperationException();
         }
@@ -130,6 +133,7 @@ public final class StringUtils {
     public static Iterable<String> iterLines(final String string) {
         return new Iterable<String>() {
 
+            @Override
             public Iterator<String> iterator() {
                 return new IterLines(string);
             }

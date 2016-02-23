@@ -60,6 +60,7 @@ public class InterpreterInfoBuilder implements IInterpreterInfoBuilder {
         }
     }
 
+    @Override
     public BuilderResult syncInfoToPythonPath(IProgressMonitor monitor, InterpreterInfo info) {
         PythonPathHelper pythonPathHelper = new PythonPathHelper();
         pythonPathHelper.setPythonPath(info.libs);

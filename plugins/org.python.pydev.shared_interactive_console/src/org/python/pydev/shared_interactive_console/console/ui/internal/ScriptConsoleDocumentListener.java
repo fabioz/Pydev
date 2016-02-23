@@ -223,10 +223,12 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
 
         final ICallback<Object, Tuple<String, String>> onContentsReceived = new ICallback<Object, Tuple<String, String>>() {
 
+            @Override
             public Object call(final Tuple<String, String> result) {
                 if (result.o1.length() > 0 || result.o2.length() > 0) {
                     Runnable runnable = new Runnable() {
 
+                        @Override
                         public void run() {
                             startDisconnected();
                             PromptContext pc;
@@ -327,6 +329,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
     /**
      * Ignore
      */
+    @Override
     public void documentAboutToBeChanged(DocumentEvent event) {
 
     }
@@ -553,10 +556,12 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
 
         final ICallback<Object, InterpreterResponse> onResponseReceived = new ICallback<Object, InterpreterResponse>() {
 
+            @Override
             public Object call(final InterpreterResponse arg) {
                 //When we receive the response, we must handle it in the UI thread.
                 Runnable runnable = new Runnable() {
 
+                    @Override
                     public void run() {
                         try {
                             processResult(arg);
@@ -616,10 +621,12 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
     }
 
     private static class TabCompletionSingletonRule implements ISchedulingRule {
+        @Override
         public boolean contains(ISchedulingRule rule) {
             return rule == this;
         }
 
+        @Override
         public boolean isConflicting(ISchedulingRule rule) {
             return rule instanceof TabCompletionSingletonRule;
         }
@@ -704,6 +711,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
                 final String fLongestCommonPrefix = longestCommonPrefix;
                 final int maxLength = length;
                 Runnable r = new Runnable() {
+                    @Override
                     public void run() {
                         // Get the viewer width + format the auto-completion output appropriately
                         int consoleWidth = viewer.getConsoleWidthInCharacters();
@@ -840,6 +848,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      * Whenever the document changes, we stop listening to change the document from
      * within this listener (passing commands to the handler if needed, getting results, etc).
      */
+    @Override
     public void documentChanged(DocumentEvent event) {
         lastChangeMillis = System.currentTimeMillis();
         startDisconnected();

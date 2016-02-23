@@ -42,6 +42,7 @@ public class AnyPyStackFrameSelected implements IPyStackFrameProvider, IDebugCon
      * a frame that matches the passed console. If no selected / suspended frame is found or the console
      * doesn't match, null is returned.
      */
+    @Override
     public PyStackFrame getLastSelectedFrame() {
         updateContext(DebugUITools.getDebugContext());
 
@@ -99,6 +100,7 @@ public class AnyPyStackFrameSelected implements IPyStackFrameProvider, IDebugCon
      *
      * @param isLinkedWithDebug
      */
+    @Override
     public void linkWithDebugSelection(boolean isLinkedWithDebug) {
         this.isLinkedWithDebug = isLinkedWithDebug;
     }

@@ -26,6 +26,7 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
     /* (non-Javadoc)
      * @see org.python.pydev.editor.codecompletion.IPyCodeCompletion#getImportsTipperStr(org.python.pydev.editor.codecompletion.CompletionRequest)
      */
+    @Override
     public ImportInfo getImportsTipperStr(CompletionRequest request) {
 
         IDocument doc = request.doc;

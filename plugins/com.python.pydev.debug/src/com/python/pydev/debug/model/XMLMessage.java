@@ -59,6 +59,7 @@ public class XMLMessage extends DefaultHandler {
     Tuple<String, Integer> info = new Tuple<String, Integer>("", 0);
 
     //message == <xml><io s="%s" ctx="%s"/></xml>
+    @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
         try {
             if (qName.equals("io")) {

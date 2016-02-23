@@ -30,6 +30,7 @@ public abstract class BaseParsedItem implements IParsedItem, Comparable<Object> 
      * This is usually only called when the structure actually changes (different number of nodes). A common case
      * is having a syntax error...
      */
+    @Override
     public void updateTo(IParsedItem item) {
         IParsedItem updateToItem = item;
         this.toStringCache = null;
@@ -78,6 +79,7 @@ public abstract class BaseParsedItem implements IParsedItem, Comparable<Object> 
         this.children = newChildren.toArray(new IParsedItem[newChildren.size()]);
     }
 
+    @Override
     public void setParent(IParsedItem parsedItem) {
         this.parent = parsedItem;
     }
@@ -91,6 +93,7 @@ public abstract class BaseParsedItem implements IParsedItem, Comparable<Object> 
         return null;
     }
 
+    @Override
     public IParsedItem getParent() {
         return parent;
     }
@@ -100,6 +103,7 @@ public abstract class BaseParsedItem implements IParsedItem, Comparable<Object> 
      */
     protected String toStringCache;
 
+    @Override
     public String toString() {
         if (toStringCache == null) {
             toStringCache = calcToString();
@@ -109,6 +113,7 @@ public abstract class BaseParsedItem implements IParsedItem, Comparable<Object> 
 
     protected abstract String calcToString();
 
+    @Override
     public ErrorDescription getErrorDesc() {
         return errorDesc;
     }

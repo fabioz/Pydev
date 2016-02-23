@@ -122,6 +122,7 @@ public class ParseException extends Exception {
      */
     public static boolean verboseExceptions = false;
 
+    @Override
     public String getMessage() {
         if (!specialConstructor) {
             return super.getMessage();

@@ -17,6 +17,7 @@ import org.python.pydev.plugin.PydevPlugin;
 
 public class JythonUnitTestLaunchShortcut extends AbstractLaunchShortcut {
 
+    @Override
     protected String getLaunchConfigurationType() {
         return Constants.ID_JYTHON_UNITTEST_LAUNCH_CONFIGURATION_TYPE;
     }

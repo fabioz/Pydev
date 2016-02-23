@@ -25,6 +25,7 @@ public class PyTemplateVariableResolver extends TemplateVariableResolver {
      * @param context {@inheritDoc}
      * @return <code>true</code>
      */
+    @Override
     protected boolean isUnambiguous(TemplateContext context) {
         return true;
     }

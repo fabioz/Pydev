@@ -263,6 +263,7 @@ public abstract class AbstractHistoryElementListSelectionDialog extends Selectio
      * Creates the message text widget and sets layout data.
      * @param composite the parent composite of the message area.
      */
+    @Override
     protected Label createMessageArea(Composite composite) {
         Label label = super.createMessageArea(composite);
 
@@ -321,6 +322,7 @@ public abstract class AbstractHistoryElementListSelectionDialog extends Selectio
     /*
      * @see Dialog#cancelPressed
      */
+    @Override
     protected void cancelPressed() {
         setResult(null);
         super.cancelPressed();
@@ -349,10 +351,12 @@ public abstract class AbstractHistoryElementListSelectionDialog extends Selectio
         list.setFilter((fFilter == null ? "" : fFilter)); //$NON-NLS-1$        
 
         list.addSelectionListener(new SelectionListener() {
+            @Override
             public void widgetDefaultSelected(SelectionEvent e) {
                 handleDefaultSelected();
             }
 
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 handleWidgetSelected();
             }
@@ -395,6 +399,7 @@ public abstract class AbstractHistoryElementListSelectionDialog extends Selectio
         text.setText((fFilter == null ? "" : fFilter)); //$NON-NLS-1$
 
         Listener listener = new Listener() {
+            @Override
             public void handleEvent(Event e) {
                 fFilteredList.setFilter(fFilterText.getText());
             }
@@ -402,12 +407,14 @@ public abstract class AbstractHistoryElementListSelectionDialog extends Selectio
         text.addListener(SWT.Modify, listener);
 
         text.addKeyListener(new KeyListener() {
+            @Override
             public void keyPressed(KeyEvent e) {
                 if (e.keyCode == SWT.ARROW_UP) {
                     fFilteredList.setFocus();
                 }
             }
 
+            @Override
             public void keyReleased(KeyEvent e) {
             }
         });
@@ -421,6 +428,7 @@ public abstract class AbstractHistoryElementListSelectionDialog extends Selectio
      *  (non-Javadoc)
      * @see org.eclipse.jface.window.Window#open()
      */
+    @Override
     public int open() {
         super.open();
         return getReturnCode();
@@ -434,9 +442,11 @@ public abstract class AbstractHistoryElementListSelectionDialog extends Selectio
      *  (non-Javadoc)
      * @see org.eclipse.jface.window.Window#create()
      */
+    @Override
     public void create() {
 
         BusyIndicator.showWhile(null, new Runnable() {
+            @Override
             public void run() {
                 access$superCreate();
 

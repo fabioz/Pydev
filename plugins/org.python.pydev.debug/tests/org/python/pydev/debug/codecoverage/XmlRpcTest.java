@@ -89,9 +89,11 @@ public class XmlRpcTest extends TestCase {
         XmlRpcServer serverToHandleRawInput = this.webServer.getXmlRpcServer();
         serverToHandleRawInput.setHandlerMapping(new XmlRpcHandlerMapping() {
 
+            @Override
             public XmlRpcHandler getHandler(String handlerName) throws XmlRpcNoSuchHandlerException, XmlRpcException {
                 return new XmlRpcHandler() {
 
+                    @Override
                     public Object execute(XmlRpcRequest request) throws XmlRpcException {
                         return "input_request";
                     }
@@ -173,6 +175,7 @@ public class XmlRpcTest extends TestCase {
             Object[] completions = (Object[]) client.execute("getCompletions", new Object[] { "fo" });
             //the completions may come in any order, we must sort it for the test and remove things we don't expect.
             Arrays.sort(completions, new Comparator<Object>() {
+                @Override
                 public int compare(Object o1, Object o2) {
                     String s1 = (String) ((Object[]) o1)[0];
                     String s2 = (String) ((Object[]) o2)[0];

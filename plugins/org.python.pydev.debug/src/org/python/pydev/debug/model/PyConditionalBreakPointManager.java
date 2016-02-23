@@ -95,6 +95,7 @@ public class PyConditionalBreakPointManager {
             final String[] exceptionDetailList = payload.split(DELIMETER);
 
             RunInUiThread.async(new Runnable() {
+                @Override
                 public void run() {
                     // adding exception detail with error message
                     String errorMessage = ERROR_MESSAGE + "\n" + exceptionDetailList[0];

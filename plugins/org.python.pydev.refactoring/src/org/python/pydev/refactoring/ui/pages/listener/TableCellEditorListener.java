@@ -50,6 +50,7 @@ public class TableCellEditorListener extends Observable implements Listener {
     /**
      * http://www.eclipse.org/swt/snippets/
      */
+    @Override
     public void handleEvent(Event event) {
 
         final TableEditor editor = new TableEditor(table);
@@ -104,6 +105,7 @@ public class TableCellEditorListener extends Observable implements Listener {
             this.text = text;
         }
 
+        @Override
         public void handleEvent(final Event e) {
             if (e.type == SWT.FocusOut) {
                 tableItem.setText(text.getText());

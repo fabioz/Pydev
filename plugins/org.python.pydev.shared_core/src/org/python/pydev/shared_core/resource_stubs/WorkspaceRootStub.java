@@ -32,18 +32,22 @@ public class WorkspaceRootStub extends AbstractIWorkspaceRootStub implements IWo
         children.add(child);
     }
 
+    @Override
     public Object[] getChildren(Object o) {
         return children.toArray();
     }
 
+    @Override
     public ImageDescriptor getImageDescriptor(Object object) {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public String getLabel(Object o) {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public Object getParent(Object o) {
         throw new RuntimeException("Not implemented");
     }

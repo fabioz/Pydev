@@ -50,6 +50,7 @@ public class InlineLocalTestCase extends AbstractIOTestCase {
                 data.sourceSelection.getLength());
         RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
 
+            @Override
             public int getGrammarVersion() throws MisconfigurationException {
                 return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
             }

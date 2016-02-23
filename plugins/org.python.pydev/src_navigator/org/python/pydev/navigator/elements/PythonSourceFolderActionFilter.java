@@ -37,6 +37,7 @@ public class PythonSourceFolderActionFilter implements IActionFilter {
     /**
      * Adds a way to check for the app_engine (currently hardcoded) property from this plugin.
      */
+    @Override
     public boolean testAttribute(Object target, String name, String value) {
         //For now let's leave it checking only app_engine, but this could grow if needed.
         if ("app_engine".equals(name)) {

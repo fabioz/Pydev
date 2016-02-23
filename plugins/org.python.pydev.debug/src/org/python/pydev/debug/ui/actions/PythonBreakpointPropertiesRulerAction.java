@@ -58,16 +58,20 @@ public class PythonBreakpointPropertiesRulerAction extends AbstractBreakpointRul
         if (breakPoint != null) {
             PythonBreakpointDialogAction action = new PythonBreakpointDialogAction(getTextEditor().getEditorSite(),
                     new ISelectionProvider() {
+                        @Override
                         public void addSelectionChangedListener(ISelectionChangedListener listener) {
                         }
 
+                        @Override
                         public ISelection getSelection() {
                             return new StructuredSelection(getBreakpoint());
                         }
 
+                        @Override
                         public void removeSelectionChangedListener(ISelectionChangedListener listener) {
                         }
 
+                        @Override
                         public void setSelection(ISelection selection) {
                         }
                     });
@@ -75,6 +79,7 @@ public class PythonBreakpointPropertiesRulerAction extends AbstractBreakpointRul
         }
     }
 
+    @Override
     public void update() {
         IBreakpoint breakpoint = getBreakpointFromLastLineOfActivityInCurrentEditor();
         if (breakpoint == null || !(breakpoint instanceof PyBreakpoint)) {

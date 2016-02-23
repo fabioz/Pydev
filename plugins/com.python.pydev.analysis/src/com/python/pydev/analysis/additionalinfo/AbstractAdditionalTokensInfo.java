@@ -147,10 +147,12 @@ public abstract class AbstractAdditionalTokensInfo {
      * A filter that checks if tokens are equal
      */
     private final Filter equalsFilter = new Filter() {
+        @Override
         public boolean doCompare(String qualifier, IInfo info) {
             return info.getName().equals(qualifier);
         }
 
+        @Override
         public boolean doCompare(String qualifier, String infoName) {
             return infoName.equals(qualifier);
         }
@@ -161,10 +163,12 @@ public abstract class AbstractAdditionalTokensInfo {
      */
     private final Filter startingWithFilter = new Filter() {
 
+        @Override
         public boolean doCompare(String lowerCaseQual, IInfo info) {
             return doCompare(lowerCaseQual, info.getName());
         }
 
+        @Override
         public boolean doCompare(String qualifier, String infoName) {
             return infoName.toLowerCase().startsWith(qualifier);
         }

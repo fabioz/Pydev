@@ -42,6 +42,7 @@ public class HistoryElementListSelectionDialog extends AbstractHistoryElementLis
     /*
      * @see SelectionStatusDialog#computeResult()
      */
+    @Override
     protected void computeResult() {
         setResult(Arrays.asList(getSelectedElements()));
     }
@@ -49,6 +50,7 @@ public class HistoryElementListSelectionDialog extends AbstractHistoryElementLis
     /*
      * @see Dialog#createDialogArea(Composite)
      */
+    @Override
     protected Control createDialogArea(Composite parent) {
         Composite contents = (Composite) super.createDialogArea(parent);
 

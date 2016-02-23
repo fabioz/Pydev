@@ -45,6 +45,7 @@ public class ClassDefAdapterTestCase extends AbstractIOTestCase {
             List<IClassDefAdapter> baseClasses = adapter.getBaseClasses();
             Collections.sort(baseClasses, new Comparator<IClassDefAdapter>() {
 
+                @Override
                 public int compare(IClassDefAdapter o1, IClassDefAdapter o2) {
                     return o1.getName().compareTo(o2.getName());
                 }

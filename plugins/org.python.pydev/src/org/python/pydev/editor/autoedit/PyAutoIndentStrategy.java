@@ -342,6 +342,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
     /**
      * @see org.eclipse.jface.text.IAutoEditStrategy#customizeDocumentCommand(IDocument, DocumentCommand)
      */
+    @Override
     public void customizeDocumentCommand(IDocument document, DocumentCommand command) {
         if (blockSelection || !command.doit) {
             //in block selection, leave all as is and just change tabs/spaces.
@@ -832,6 +833,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
         }
     }
 
+    @Override
     public void customizeNewLine(IDocument document, DocumentCommand command) throws BadLocationException {
         prefs = getIndentPrefs();
         autoIndentSameAsPrevious(document, command);
@@ -1049,6 +1051,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
     /**
      * @return true if we should skip a ), ] or }
      */
+    @Override
     public boolean canSkipCloseParenthesis(IDocument document, DocumentCommand command) throws BadLocationException {
         PySelection ps = new PySelection(document, command.offset);
 
@@ -1239,6 +1242,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
         this.blockSelection = blockSelection;
     }
 
+    @Override
     public void customizeParenthesis(IDocument doc, DocumentCommand docCmd) throws BadLocationException {
         PyAutoIndentStrategy.customizeParenthesis(doc, docCmd, true, this.getIndentPrefs());
     }
@@ -1250,6 +1254,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
 
     private boolean isCython;
 
+    @Override
     public String convertTabs(String cmd) {
         DocCmd newStr = new DocCmd(0, 0, cmd);
         getIndentPrefs().convertToStd(EMPTY_DOCUMENT, newStr);

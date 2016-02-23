@@ -90,11 +90,13 @@ public class PythonPathNature implements IPythonPathNature {
         return projectVariableSubstitutionQualifiedName;
     }
 
+    @Override
     public void setProject(IProject project, IPythonNature nature) {
         this.fProject = project;
         this.fNature = (PythonNature) nature;
     }
 
+    @Override
     public IPythonNature getNature() {
         return this.fNature;
     }
@@ -107,6 +109,7 @@ public class PythonPathNature implements IPythonPathNature {
      * This includes the pythonpath for the project, all the referenced projects and the
      * system.
      */
+    @Override
     public List<String> getCompleteProjectPythonPath(IInterpreterInfo interpreter, IInterpreterManager manager) {
         IModulesManager projectModulesManager = getProjectModulesManager();
         if (projectModulesManager == null) {
@@ -148,6 +151,7 @@ public class PythonPathNature implements IPythonPathNature {
     /**
      * @return the project pythonpath with complete paths in the filesystem.
      */
+    @Override
     public String getOnlyProjectPythonPathStr(boolean addExternal) throws CoreException {
         String source = null;
         String external = null;
@@ -219,6 +223,7 @@ public class PythonPathNature implements IPythonPathNature {
      * Similar to the getOnlyProjectPythonPathStr method above but only for source files (not contributed nor external)
      * and return IResources (zip files or folders).
      */
+    @Override
     public Set<IResource> getProjectSourcePathFolderSet() throws CoreException {
         String source = null;
         IProject project = fProject;
@@ -281,6 +286,7 @@ public class PythonPathNature implements IPythonPathNature {
         return buff.toString();
     }
 
+    @Override
     public void setProjectSourcePath(String newSourcePath) throws CoreException {
         PythonNature nature = fNature;
 
@@ -289,6 +295,7 @@ public class PythonPathNature implements IPythonPathNature {
         }
     }
 
+    @Override
     public void setProjectExternalSourcePath(String newExternalSourcePath) throws CoreException {
         PythonNature nature = fNature;
         if (nature != null) {
@@ -297,6 +304,7 @@ public class PythonPathNature implements IPythonPathNature {
         }
     }
 
+    @Override
     public void setVariableSubstitution(Map<String, String> variableSubstitution) throws CoreException {
         PythonNature nature = fNature;
         if (nature != null) {
@@ -305,9 +313,11 @@ public class PythonPathNature implements IPythonPathNature {
         }
     }
 
+    @Override
     public void clearCaches() {
     }
 
+    @Override
     public Set<String> getProjectSourcePathSet(boolean replace) throws CoreException {
         String projectSourcePath;
         PythonNature nature = fNature;
@@ -318,10 +328,12 @@ public class PythonPathNature implements IPythonPathNature {
         return new HashSet<String>(StringUtils.splitAndRemoveEmptyTrimmed(projectSourcePath, '|'));
     }
 
+    @Override
     public String getProjectSourcePath(boolean replace) throws CoreException {
         return (String) getProjectSourcePath(replace, null, RETURN_STRING_WITH_SEPARATOR);
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public OrderedMap<String, String> getProjectSourcePathResolvedToUnresolvedMap() throws CoreException {
         return (OrderedMap<String, String>) getProjectSourcePath(true, null, RETURN_MAP_RESOLVED_TO_UNRESOLVED);
@@ -453,6 +465,7 @@ public class PythonPathNature implements IPythonPathNature {
         return ret;
     }
 
+    @Override
     public String getProjectExternalSourcePath(boolean replace) throws CoreException {
         return getProjectExternalSourcePath(replace, null);
     }
@@ -478,12 +491,14 @@ public class PythonPathNature implements IPythonPathNature {
         return trimAndReplaceVariablesIfNeeded(replace, extPath, nature, substitution);
     }
 
+    @Override
     public List<String> getProjectExternalSourcePathAsList(boolean replaceVariables) throws CoreException {
         String projectExternalSourcePath = getProjectExternalSourcePath(replaceVariables);
         List<String> externalPaths = StringUtils.splitAndRemoveEmptyTrimmed(projectExternalSourcePath, '|');
         return externalPaths;
     }
 
+    @Override
     public Map<String, String> getVariableSubstitution() throws CoreException, MisconfigurationException,
             PythonNatureWithoutProjectException {
         return getVariableSubstitution(true);
@@ -492,6 +507,7 @@ public class PythonPathNature implements IPythonPathNature {
     /**
      * Returns the variables in the python nature and in the interpreter.
      */
+    @Override
     public Map<String, String> getVariableSubstitution(boolean addInterpreterInfoSubstitutions) throws CoreException,
             MisconfigurationException, PythonNatureWithoutProjectException {
         PythonNature nature = this.fNature;

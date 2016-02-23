@@ -92,6 +92,7 @@ public final class InformationPresenterControlManager extends AbstractInformatio
         /*
          * @see IInformationControlCloser#setSubjectControl(Control)
          */
+        @Override
         public void setSubjectControl(Control control) {
             fSubjectControl = control;
         }
@@ -99,6 +100,7 @@ public final class InformationPresenterControlManager extends AbstractInformatio
         /*
          * @see IInformationControlCloser#setInformationControl(IInformationControl)
          */
+        @Override
         public void setInformationControl(IInformationControl control) {
             Assert.isTrue(control == null || control instanceof PyInformationControl);
             fInformationControlToClose = (PyInformationControl) control;
@@ -107,6 +109,7 @@ public final class InformationPresenterControlManager extends AbstractInformatio
         /*
          * @see IInformationControlCloser#start(Rectangle)
          */
+        @Override
         public void start(Rectangle informationArea) {
             fShellTooltipArea = fInformationControlToClose.getShellTooltipBounds();
             if (fIsActive) {
@@ -148,6 +151,7 @@ public final class InformationPresenterControlManager extends AbstractInformatio
         /*
          * @see IInformationControlCloser#stop()
          */
+        @Override
         public void stop() {
 
             if (!fIsActive) {
@@ -188,6 +192,7 @@ public final class InformationPresenterControlManager extends AbstractInformatio
         /*
          * @see ControlListener#controlResized(ControlEvent)
          */
+        @Override
         public void controlResized(ControlEvent e) {
             hideInformationControl();
         }
@@ -195,6 +200,7 @@ public final class InformationPresenterControlManager extends AbstractInformatio
         /*
          * @see ControlListener#controlMoved(ControlEvent)
          */
+        @Override
         public void controlMoved(ControlEvent e) {
             hideInformationControl();
         }
@@ -202,6 +208,7 @@ public final class InformationPresenterControlManager extends AbstractInformatio
         /*
          * @see MouseListener#mouseDown(MouseEvent)
          */
+        @Override
         public void mouseDown(MouseEvent e) {
             hideInformationControl();
         }
@@ -209,12 +216,14 @@ public final class InformationPresenterControlManager extends AbstractInformatio
         /*
          * @see MouseListener#mouseUp(MouseEvent)
          */
+        @Override
         public void mouseUp(MouseEvent e) {
         }
 
         /*
          * @see MouseListener#mouseDoubleClick(MouseEvent)
          */
+        @Override
         public void mouseDoubleClick(MouseEvent e) {
             hideInformationControl();
         }
@@ -222,16 +231,19 @@ public final class InformationPresenterControlManager extends AbstractInformatio
         /*
          * @see FocusListener#focusGained(FocusEvent)
          */
+        @Override
         public void focusGained(FocusEvent e) {
         }
 
         /*
          * @see FocusListener#focusLost(FocusEvent)
          */
+        @Override
         public void focusLost(FocusEvent e) {
             Display d = fSubjectControl.getDisplay();
             d.asyncExec(new Runnable() {
                 // Without the asyncExec, mouse clicks to the workbench window are swallowed.
+                @Override
                 public void run() {
                     if (fInformationControlToClose == null || !fInformationControlToClose.isFocusControl()) {
                         hideInformationControl();
@@ -243,6 +255,7 @@ public final class InformationPresenterControlManager extends AbstractInformatio
         /*
          * @see KeyListener#keyPressed(KeyEvent)
          */
+        @Override
         public void keyPressed(KeyEvent e) {
             hideInformationControl();
         }
@@ -250,9 +263,11 @@ public final class InformationPresenterControlManager extends AbstractInformatio
         /*
          * @see KeyListener#keyReleased(KeyEvent)
          */
+        @Override
         public void keyReleased(KeyEvent e) {
         }
 
+        @Override
         public void mouseMove(MouseEvent e) {
             if (fInformationControl != null && fInformationControl.isFocusControl()) {
                 if (!inKeepUpZone(e.x, e.y, fSubjectControl, fSubjectControl.getDisplay())) {
@@ -261,6 +276,7 @@ public final class InformationPresenterControlManager extends AbstractInformatio
             }
         }
 
+        @Override
         public void handleEvent(Event event) {
             switch (event.type) {
                 case SWT.Activate:
@@ -333,6 +349,7 @@ public final class InformationPresenterControlManager extends AbstractInformatio
     private Control fFocusControl;
     private boolean onHide;
 
+    @Override
     public void setInformationProvider(ITooltipInformationProvider provider) {
         this.fProvider = provider;
     }
@@ -395,6 +412,7 @@ public final class InformationPresenterControlManager extends AbstractInformatio
     /*
      * @see AbstractInformationControlManager#hideInformationControl()
      */
+    @Override
     public void hideInformationControl(boolean activateEditor, boolean restoreFocus) {
         //When hiding it may call hide again (because as it gets hidden our handlers are still connected).
         if (this.onHide) {
@@ -454,6 +472,7 @@ public final class InformationPresenterControlManager extends AbstractInformatio
     /*
      * @see org.eclipse.jface.text.IWidgetTokenKeeper#requestWidgetToken(IWidgetTokenOwner)
      */
+    @Override
     public boolean requestWidgetToken(IWidgetTokenOwner owner) {
         return false;
     }
@@ -462,6 +481,7 @@ public final class InformationPresenterControlManager extends AbstractInformatio
      * @see org.eclipse.jface.text.IWidgetTokenKeeperExtension#requestWidgetToken(org.eclipse.jface.text.IWidgetTokenOwner, int)
      * @since 3.0
      */
+    @Override
     public boolean requestWidgetToken(IWidgetTokenOwner owner, int priority) {
         return false;
     }
@@ -470,6 +490,7 @@ public final class InformationPresenterControlManager extends AbstractInformatio
      * @see org.eclipse.jface.text.IWidgetTokenKeeperExtension#setFocus(org.eclipse.jface.text.IWidgetTokenOwner)
      * @since 3.0
      */
+    @Override
     public boolean setFocus(IWidgetTokenOwner owner) {
         return false;
     }
@@ -477,6 +498,7 @@ public final class InformationPresenterControlManager extends AbstractInformatio
     /* (non-Javadoc)
      * @see org.python.pydev.shared_ui.tooltips.presenter.IInformationPresenterControlManager#setActivateEditorBinding(org.eclipse.jface.bindings.keys.KeySequence)
      */
+    @Override
     public void setActivateEditorBinding(KeySequence activateEditorBinding) {
         fActivateEditorBinding = activateEditorBinding;
     }
@@ -484,6 +506,7 @@ public final class InformationPresenterControlManager extends AbstractInformatio
     /* (non-Javadoc)
      * @see org.python.pydev.shared_ui.tooltips.presenter.IInformationPresenterControlManager#setInitiallyActiveShell(org.eclipse.swt.widgets.Shell)
      */
+    @Override
     public void setInitiallyActiveShell(Shell activeShell) {
         this.fInitiallyActiveShell = activeShell;
         this.fFocusControl = null;

@@ -59,6 +59,7 @@ public class EnabledTreeDragReorder {
         source.setTransfer(types);
         final TreeItem[] dragSourceItem = new TreeItem[1];
         source.addDragListener(new DragSourceListener() {
+            @Override
             public void dragStart(DragSourceEvent event) {
                 TreeItem[] selection = tree.getSelection();
                 if (selection.length > 0 && selection[0].getItemCount() == 0) {
@@ -69,6 +70,7 @@ public class EnabledTreeDragReorder {
                 }
             };
 
+            @Override
             public void dragSetData(DragSourceEvent event) {
                 TreeItem treeItem = dragSourceItem[0];
                 if (treeItem != null) {
@@ -76,6 +78,7 @@ public class EnabledTreeDragReorder {
                 }
             }
 
+            @Override
             public void dragFinished(DragSourceEvent event) {
                 if (event.detail == DND.DROP_MOVE && dragSourceItem[0] != null) {
                     dragSourceItem[0].dispose();

@@ -94,15 +94,18 @@ public class OffsetStrategyProvider implements IStructuredContentProvider {
         return this.strategies.get(i);
     }
 
+    @Override
     public Object[] getElements(Object inputElement) {
 
         return strategies.toArray();
     }
 
+    @Override
     public void dispose() {
         this.strategies = null;
     }
 
+    @Override
     public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
     }
 

@@ -27,10 +27,12 @@ public class SafeScriptConsoleCodeGenerator implements IScriptConsoleCodeGenerat
 
     private final class HasPyCodeRunnable implements ISafeRunnable {
 
+        @Override
         public void run() throws Exception {
             hasPyCode = unsafeGenerator.hasPyCode();
         }
 
+        @Override
         public void handleException(Throwable exception) {
             hasPyCode = false;
         }
@@ -38,10 +40,12 @@ public class SafeScriptConsoleCodeGenerator implements IScriptConsoleCodeGenerat
 
     private final class GetPyCodeRunnable implements ISafeRunnable {
 
+        @Override
         public void run() throws Exception {
             pyCode = unsafeGenerator.getPyCode();
         }
 
+        @Override
         public void handleException(Throwable exception) {
             pyCode = null;
         }
@@ -59,6 +63,7 @@ public class SafeScriptConsoleCodeGenerator implements IScriptConsoleCodeGenerat
      * Calls nested generators getPyCode in a SafeRunner, on any exception
      * returns null
      */
+    @Override
     public String getPyCode() {
         String ret;
         try {
@@ -74,6 +79,7 @@ public class SafeScriptConsoleCodeGenerator implements IScriptConsoleCodeGenerat
      * Calls nested generators getPyCode in a SafeRunner, on any exception
      * returns false
      */
+    @Override
     public boolean hasPyCode() {
         SafeRunner.run(new HasPyCodeRunnable());
         return hasPyCode;

@@ -161,6 +161,7 @@ public abstract class PythonListEditor extends FieldEditor {
     /*
      * (non-Javadoc) Method declared on FieldEditor.
      */
+    @Override
     protected void adjustForNumColumns(int numColumns) {
         Control control = getLabelControl();
         ((GridData) control.getLayoutData()).horizontalSpan = numColumns;
@@ -217,6 +218,7 @@ public abstract class PythonListEditor extends FieldEditor {
      */
     public void createSelectionListener() {
         selectionListener = new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 Widget widget = event.widget;
                 if (widget == addButton) {
@@ -241,6 +243,7 @@ public abstract class PythonListEditor extends FieldEditor {
     /*
      * (non-Javadoc) Method declared on FieldEditor.
      */
+    @Override
     protected void doFillIntoGrid(Composite parent, int numColumns) {
         Control control = getLabelControl(parent);
         GridData gd = new GridData();
@@ -263,16 +266,19 @@ public abstract class PythonListEditor extends FieldEditor {
     /*
      * (non-Javadoc) Method declared on FieldEditor.
      */
+    @Override
     protected abstract void doLoad();
 
     /*
      * (non-Javadoc) Method declared on FieldEditor.
      */
+    @Override
     protected abstract void doLoadDefault();
 
     /*
      * (non-Javadoc) Method declared on FieldEditor.
      */
+    @Override
     protected abstract void doStore();
 
     /**
@@ -296,6 +302,7 @@ public abstract class PythonListEditor extends FieldEditor {
             buttonBox.setLayout(layout);
             createButtons(buttonBox);
             buttonBox.addDisposeListener(new DisposeListener() {
+                @Override
                 public void widgetDisposed(DisposeEvent event) {
                     addButton = null;
                     autoConfigButton = null;
@@ -335,6 +342,7 @@ public abstract class PythonListEditor extends FieldEditor {
             treeWithInterpreters.setFont(parent.getFont());
             treeWithInterpreters.addSelectionListener(getSelectionListener());
             treeWithInterpreters.addDisposeListener(new DisposeListener() {
+                @Override
                 public void widgetDisposed(DisposeEvent event) {
                     treeWithInterpreters = null;
                 }
@@ -358,6 +366,7 @@ public abstract class PythonListEditor extends FieldEditor {
     /*
      * (non-Javadoc) Method declared on FieldEditor.
      */
+    @Override
     public int getNumberOfControls() {
         return 2;
     }
@@ -428,6 +437,7 @@ public abstract class PythonListEditor extends FieldEditor {
     /*
      * (non-Javadoc) Method declared on FieldEditor.
      */
+    @Override
     public void setFocus() {
         if (treeWithInterpreters != null) {
             treeWithInterpreters.setFocus();
@@ -482,6 +492,7 @@ public abstract class PythonListEditor extends FieldEditor {
     /*
      * @see FieldEditor.setEnabled(boolean,Composite).
      */
+    @Override
     public void setEnabled(boolean enabled, Composite parent) {
         super.setEnabled(enabled, parent);
         getListControl(parent).setEnabled(enabled);

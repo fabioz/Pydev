@@ -51,6 +51,7 @@ class HierarchyLabelProvider extends LabelProvider implements IStyledLabelProvid
     }
 
     //not there on all versions of eclipse...
+    @Override
     public StyledString getStyledText(Object element) {
         if (element instanceof DataAndImageTreeNode) {
             @SuppressWarnings("rawtypes")

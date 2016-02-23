@@ -29,6 +29,7 @@ public class SetNextCommand extends AbstractDebuggerCommand {
         this.funcName = funcName;
     }
 
+    @Override
     public String getOutgoing() {
         return makeCommand(commandId, sequence, threadId + "\t" + line + "\t" + funcName);
     }

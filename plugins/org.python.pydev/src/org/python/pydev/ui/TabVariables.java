@@ -75,6 +75,7 @@ public class TabVariables {
                     addItemWithDialog(new MapOfStringsInputDialog(getShell(), "Variable",
                             "Enter the variable name/value.", vars) {
 
+                        @Override
                         protected boolean isExistingKeyEdit() {
                             return false;
                         }
@@ -102,6 +103,7 @@ public class TabVariables {
                 MapOfStringsInputDialog dialog = new MapOfStringsInputDialog(getShell(), "Variable",
                         "Enter the variable name/value.", vars) {
 
+                    @Override
                     protected org.eclipse.swt.widgets.Control createDialogArea(Composite parent) {
                         Control control = super.createDialogArea(parent);
                         this.keyField.setText(fixedKeyText);
@@ -115,10 +117,12 @@ public class TabVariables {
                         return control;
                     }
 
+                    @Override
                     protected boolean isExistingKeyEdit() {
                         return true;
                     };
 
+                    @Override
                     protected String getInitialMessage() {
                         return null; //it starts in a valid state
                     };

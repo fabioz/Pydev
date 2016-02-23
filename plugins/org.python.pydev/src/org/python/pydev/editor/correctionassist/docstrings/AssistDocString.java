@@ -51,6 +51,7 @@ public class AssistDocString implements IAssistProps {
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps(org.python.pydev.core.docutils.PySelection,
      *      org.python.pydev.shared_ui.ImageCache)
      */
+    @Override
     public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature,
             PyEdit edit, int offset) throws BadLocationException {
         ArrayList<ICompletionProposal> l = new ArrayList<ICompletionProposal>();
@@ -126,6 +127,7 @@ public class AssistDocString implements IAssistProps {
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#isValid(org.python.pydev.core.docutils.PySelection,
      *      java.lang.String)
      */
+    @Override
     public boolean isValid(PySelection ps, String sel, PyEdit edit, int offset) {
         return ps.isInFunctionLine(true) || ps.isInClassLine();
     }

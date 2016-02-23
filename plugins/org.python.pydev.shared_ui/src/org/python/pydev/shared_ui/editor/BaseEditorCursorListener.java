@@ -34,20 +34,24 @@ class BaseEditorCursorListener implements MouseListener, KeyListener {
 
     private int lastOffset = -1;
 
+    @Override
     public void mouseDoubleClick(MouseEvent e) {
     }
 
+    @Override
     public void mouseDown(MouseEvent e) {
     }
 
     /**
      * notify when the user makes a click
      */
+    @Override
     public void mouseUp(MouseEvent e) {
         lastOffset = getOffset();
         editor.notifyCursorPositionChanged();
     }
 
+    @Override
     public void keyPressed(KeyEvent e) {
     }
 
@@ -60,6 +64,7 @@ class BaseEditorCursorListener implements MouseListener, KeyListener {
      * while doing code-completion it could make that notification when the cursor was changed in the
      * dialog -- even if it didn't affect the cursor position).
      */
+    @Override
     public void keyReleased(KeyEvent e) {
         if (e.character != '.' && e.character != ',') { // Ignoring . or , because on Ctrl+. and Ctrl+, we are navigating occurrences. 
 

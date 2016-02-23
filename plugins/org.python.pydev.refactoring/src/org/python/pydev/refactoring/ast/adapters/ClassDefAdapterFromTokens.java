@@ -55,30 +55,37 @@ public class ClassDefAdapterFromTokens implements IClassDefAdapter {
         this.adapterPrefs = adapterPrefs;
     }
 
+    @Override
     public List<SimpleAdapter> getAssignedVariables() {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public List<SimpleAdapter> getAttributes() {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public List<String> getBaseClassNames() {
         return new ArrayList<String>();
     }
 
+    @Override
     public List<IClassDefAdapter> getBaseClasses() {
         return new ArrayList<IClassDefAdapter>();
     }
 
+    @Override
     public FunctionDefAdapter getFirstInit() {
         return null;
     }
 
+    @Override
     public List<FunctionDefAdapter> getFunctions() {
         return getFunctionsInitFiltered();
     }
 
+    @Override
     public synchronized List<FunctionDefAdapter> getFunctionsInitFiltered() {
         if (cache == null) {
             cache = new ArrayList<FunctionDefAdapter>();
@@ -123,82 +130,102 @@ public class ClassDefAdapterFromTokens implements IClassDefAdapter {
         return cache;
     }
 
+    @Override
     public String getNodeBodyIndent() {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public List<PropertyAdapter> getProperties() {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public boolean hasAttributes() {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public boolean hasBaseClass() {
         return false;
     }
 
+    @Override
     public boolean hasFunctions() {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public boolean hasFunctionsInitFiltered() {
         return this.tokens.size() > 0;
     }
 
+    @Override
     public boolean hasInit() {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public boolean isNested() {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public boolean isNewStyleClass() {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public String getName() {
         return parentName;
     }
 
+    @Override
     public String getParentName() {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public ClassDef getASTNode() {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public SimpleNode getASTParent() {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public ModuleAdapter getModule() {
         return this.module;
     }
 
+    @Override
     public int getNodeFirstLine() {
         return 0;
     }
 
+    @Override
     public int getNodeIndent() {
         return 0;
     }
 
+    @Override
     public int getNodeLastLine() {
         return 0;
     }
 
+    @Override
     public AbstractNodeAdapter<? extends SimpleNode> getParent() {
         return null;
     }
 
+    @Override
     public SimpleNode getParentNode() {
         return null;
     }
 
+    @Override
     public boolean isModule() {
         return false;
     }

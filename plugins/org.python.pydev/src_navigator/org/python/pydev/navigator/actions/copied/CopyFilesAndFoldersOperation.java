@@ -236,6 +236,7 @@ public class CopyFilesAndFoldersOperation {
 
         // Dialogs need to be created and opened in the UI thread
         Runnable query = new Runnable() {
+            @Override
             public void run() {
                 String message;
                 int resultId[] = { IDialogConstants.YES_ID, IDialogConstants.YES_TO_ALL_ID, IDialogConstants.NO_ID,
@@ -728,6 +729,7 @@ public class CopyFilesAndFoldersOperation {
     private void reportFileInfoNotFound(final String fileName) {
 
         messageShell.getDisplay().syncExec(new Runnable() {
+            @Override
             public void run() {
                 ErrorDialog.openError(messageShell, getProblemsTitle(),
                         NLS.bind(IDEWorkbenchMessages.CopyFilesAndFoldersOperation_infoNotFound, fileName), null);
@@ -793,6 +795,7 @@ public class CopyFilesAndFoldersOperation {
      */
     private void displayError(final IStatus status) {
         messageShell.getDisplay().syncExec(new Runnable() {
+            @Override
             public void run() {
                 ErrorDialog.openError(messageShell, getProblemsTitle(), null, status);
             }
@@ -869,6 +872,7 @@ public class CopyFilesAndFoldersOperation {
      */
     private void displayError(final String message) {
         messageShell.getDisplay().syncExec(new Runnable() {
+            @Override
             public void run() {
                 MessageDialog.openError(messageShell, getProblemsTitle(), message);
             }
@@ -942,8 +946,10 @@ public class CopyFilesAndFoldersOperation {
         final String returnValue[] = { "" }; //$NON-NLS-1$
 
         messageShell.getDisplay().syncExec(new Runnable() {
+            @Override
             public void run() {
                 IInputValidator validator = new IInputValidator() {
+                    @Override
                     public String isValid(String string) {
                         if (resource.getName().equals(string)) {
                             return IDEWorkbenchMessages.CopyFilesAndFoldersOperation_nameMustBeDifferent;
@@ -1192,6 +1198,7 @@ public class CopyFilesAndFoldersOperation {
      */
     private void performFileImport(IFileStore[] stores, IContainer target, IProgressMonitor monitor) {
         IOverwriteQuery query = new IOverwriteQuery() {
+            @Override
             public String queryOverwrite(String pathString) {
                 if (alwaysOverwrite) {
                     return ALL;
@@ -1203,6 +1210,7 @@ public class CopyFilesAndFoldersOperation {
                 final String[] options = { IDialogConstants.YES_LABEL, IDialogConstants.YES_TO_ALL_LABEL,
                         IDialogConstants.NO_LABEL, IDialogConstants.CANCEL_LABEL };
                 messageShell.getDisplay().syncExec(new Runnable() {
+                    @Override
                     public void run() {
                         MessageDialog dialog = new MessageDialog(messageShell,
                                 IDEWorkbenchMessages.CopyFilesAndFoldersOperation_question, null, msg,

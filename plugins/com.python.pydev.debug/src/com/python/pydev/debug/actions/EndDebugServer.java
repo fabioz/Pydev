@@ -18,16 +18,20 @@ public class EndDebugServer implements IWorkbenchWindowActionDelegate {
     public EndDebugServer() {
     }
 
+    @Override
     public void run(IAction action) {
         PydevRemoteDebuggerServer.stopServer();
     }
 
+    @Override
     public void selectionChanged(IAction action, ISelection selection) {
     }
 
+    @Override
     public void dispose() {
     }
 
+    @Override
     public void init(IWorkbenchWindow window) {
     }
 }

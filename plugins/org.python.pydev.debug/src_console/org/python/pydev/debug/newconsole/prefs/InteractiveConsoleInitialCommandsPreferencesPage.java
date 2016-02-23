@@ -28,6 +28,7 @@ public class InteractiveConsoleInitialCommandsPreferencesPage extends FieldEdito
 
     }
 
+    @Override
     public void init(IWorkbench workbench) {
         setDescription("PyDev interactive console initial commands.");
         setPreferenceStore(PydevDebugPlugin.getDefault().getPreferenceStore());

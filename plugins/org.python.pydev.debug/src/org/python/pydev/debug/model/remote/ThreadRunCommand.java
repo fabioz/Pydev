@@ -24,6 +24,7 @@ public class ThreadRunCommand extends AbstractDebuggerCommand {
         this.thread = thread;
     }
 
+    @Override
     public String getOutgoing() {
         return makeCommand(CMD_THREAD_RUN, sequence, thread);
     }

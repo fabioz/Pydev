@@ -22,6 +22,7 @@ public class PyConsoleCodeGeneratorVariable implements IScriptConsoleCodeGenerat
         this.variable = variable;
     }
 
+    @Override
     public String getPyCode() {
         return variable.name;
 
@@ -46,6 +47,7 @@ public class PyConsoleCodeGeneratorVariable implements IScriptConsoleCodeGenerat
          */
     }
 
+    @Override
     public boolean hasPyCode() {
         return variable != null && variable.name != null && variable.name.length() > 0;
     }

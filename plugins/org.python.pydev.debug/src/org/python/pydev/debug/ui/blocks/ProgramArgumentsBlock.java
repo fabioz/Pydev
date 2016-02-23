@@ -41,6 +41,7 @@ public class ProgramArgumentsBlock extends AbstractLaunchConfigurationTab {
      * (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#createControl(org.eclipse.swt.widgets.Composite)
      */
+    @Override
     public void createControl(Composite parent) {
 
         Font font = parent.getFont();
@@ -61,6 +62,7 @@ public class ProgramArgumentsBlock extends AbstractLaunchConfigurationTab {
         fPrgmArgumentsText.setLayoutData(gd);
         fPrgmArgumentsText.setFont(font);
         fPrgmArgumentsText.addModifyListener(new ModifyListener() {
+            @Override
             public void modifyText(ModifyEvent evt) {
                 updateLaunchConfigurationDialog();
             }
@@ -71,6 +73,7 @@ public class ProgramArgumentsBlock extends AbstractLaunchConfigurationTab {
 
         pgrmArgVariableButton.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_END));
         pgrmArgVariableButton.addSelectionListener(new SelectionListener() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 StringVariableSelectionDialog dialog = new StringVariableSelectionDialog(getShell());
                 dialog.open();
@@ -80,6 +83,7 @@ public class ProgramArgumentsBlock extends AbstractLaunchConfigurationTab {
                 }
             }
 
+            @Override
             public void widgetDefaultSelected(SelectionEvent e) {
             }
         });
@@ -89,6 +93,7 @@ public class ProgramArgumentsBlock extends AbstractLaunchConfigurationTab {
      * (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#getName()
      */
+    @Override
     public String getName() {
         return "Program arguments";
     }
@@ -97,6 +102,7 @@ public class ProgramArgumentsBlock extends AbstractLaunchConfigurationTab {
      * (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#initializeFrom(org.eclipse.debug.core.ILaunchConfiguration)
      */
+    @Override
     public void initializeFrom(ILaunchConfiguration configuration) {
         try {
             String text = configuration.getAttribute(Constants.ATTR_PROGRAM_ARGUMENTS, "");
@@ -111,6 +117,7 @@ public class ProgramArgumentsBlock extends AbstractLaunchConfigurationTab {
      * (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#performApply(org.eclipse.debug.core.ILaunchConfigurationWorkingCopy)
      */
+    @Override
     public void performApply(ILaunchConfigurationWorkingCopy configuration) {
         configuration.setAttribute(Constants.ATTR_PROGRAM_ARGUMENTS, fPrgmArgumentsText.getText().trim());
     }
@@ -119,6 +126,7 @@ public class ProgramArgumentsBlock extends AbstractLaunchConfigurationTab {
      * (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#setDefaults(org.eclipse.debug.core.ILaunchConfigurationWorkingCopy)
      */
+    @Override
     public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
         // No defaults to set
     }

@@ -121,10 +121,13 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         return modificationChecker;
     }
 
+    @Override
     public abstract boolean canTerminate();
 
+    @Override
     public abstract boolean isTerminated();
 
+    @Override
     public void terminate() {
         PydevPlugin plugin = PydevPlugin.getDefault();
         if (plugin != null) {
@@ -175,24 +178,29 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         return debugger;
     }
 
+    @Override
     public void launchAdded(ILaunch launch) {
         // noop
     }
 
+    @Override
     public void launchChanged(ILaunch launch) {
         // noop
     }
 
     // From IDebugElement
+    @Override
     public String getModelIdentifier() {
         return PyDebugModelPresentation.PY_DEBUG_MODEL_ID;
     }
 
     // From IDebugElement
+    @Override
     public IDebugTarget getDebugTarget() {
         return this;
     }
 
+    @Override
     public String getName() throws DebugException {
         if (file != null) {
             return PythonRunnerConfig.getRunningName(file);
@@ -201,6 +209,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         }
     }
 
+    @Override
     public boolean canResume() {
         for (int i = 0; i < threads.length; i++) {
             if (threads[i].canResume()) {
@@ -210,6 +219,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         return false;
     }
 
+    @Override
     public boolean canSuspend() {
         for (int i = 0; i < threads.length; i++) {
             if (threads[i].canSuspend()) {
@@ -219,22 +229,26 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         return false;
     }
 
+    @Override
     public boolean isSuspended() {
         return false;
     }
 
+    @Override
     public void resume() throws DebugException {
         for (int i = 0; i < threads.length; i++) {
             threads[i].resume();
         }
     }
 
+    @Override
     public void suspend() throws DebugException {
         for (int i = 0; i < threads.length; i++) {
             threads[i].suspend();
         }
     }
 
+    @Override
     public IThread[] getThreads() throws DebugException {
         if (debugger == null) {
             return null;
@@ -253,6 +267,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         return threads;
     }
 
+    @Override
     public boolean hasThreads() throws DebugException {
         return true;
     }
@@ -262,6 +277,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
     /* (non-Javadoc)
      * @see org.python.pydev.debug.model.IExceptionsBreakpointListener#onSetConfiguredExceptions()
      */
+    @Override
     public void onSetConfiguredExceptions() {
         // Sending python exceptions to the debugger
         SendPyExceptionCommand sendCmd = new SendPyExceptionCommand(this);
@@ -287,6 +303,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
      * (non-Javadoc)
      * @see org.python.pydev.debug.model.IPropertyTraceListener#onSetPropertyTraceConfiguration()
      */
+    @Override
     public void onSetPropertyTraceConfiguration() {
         // Sending whether to trace python property
         SetPropertyTraceCommand sendCmd = new SetPropertyTraceCommand(this);
@@ -296,6 +313,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
     /**
      * @return true if the given breakpoint is supported by this target
      */
+    @Override
     public boolean supportsBreakpoint(IBreakpoint breakpoint) {
         return breakpoint instanceof PyBreakpoint;
     }
@@ -312,6 +330,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
     /**
      * Adds a breakpoint if it's enabled.
      */
+    @Override
     public void breakpointAdded(IBreakpoint breakpoint) {
         try {
             if (breakpoint instanceof PyBreakpoint) {
@@ -346,6 +365,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
     /**
      * Removes an existing breakpoint from the debug target.
      */
+    @Override
     public void breakpointRemoved(IBreakpoint breakpoint, IMarkerDelta delta) {
         if (breakpoint instanceof PyBreakpoint) {
             PyBreakpoint b = (PyBreakpoint) breakpoint;
@@ -361,6 +381,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
      *  - When the manager decides to enable/disable all existing markers
      *  - When the breakpoint properties (hit condition) are edited
      */
+    @Override
     public void breakpointChanged(IBreakpoint breakpoint, IMarkerDelta delta) {
         if (breakpoint instanceof PyBreakpoint) {
             breakpointRemoved(breakpoint, null);
@@ -371,10 +392,12 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
     //End Breakpoints --------------------------------------------------------------------------------------------------
 
     // Storage retrieval is not supported
+    @Override
     public boolean supportsStorageRetrieval() {
         return false;
     }
 
+    @Override
     public IMemoryBlock getMemoryBlock(long startAddress, long length) throws DebugException {
         return null;
     }
@@ -845,6 +868,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
             //let's listen the doc for the changes
             c.getDocument().addDocumentListener(new IDocumentListener() {
 
+                @Override
                 public void documentAboutToBeChanged(DocumentEvent event) {
                     //only report when we have a new line
                     if (event.fText.indexOf('\r') != -1 || event.fText.indexOf('\n') != -1) {
@@ -872,6 +896,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
 
                 }
 
+                @Override
                 public void documentChanged(DocumentEvent event) {
                     //only report when we have a new line
                     if (event.fText.indexOf('\r') != -1 || event.fText.indexOf('\n') != -1) {
@@ -901,15 +926,18 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         }
     }
 
+    @Override
     public boolean canDisconnect() {
         return !disconnected;
     }
 
+    @Override
     public void disconnect() throws DebugException {
         this.terminate();
         modificationChecker = null;
     }
 
+    @Override
     public boolean isDisconnected() {
         return disconnected;
     }
@@ -954,6 +982,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
     }
 
     //From IDebugElement
+    @Override
     public ILaunch getLaunch() {
         return launch;
     }

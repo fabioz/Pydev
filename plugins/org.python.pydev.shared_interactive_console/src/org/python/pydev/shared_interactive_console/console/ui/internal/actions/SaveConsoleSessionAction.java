@@ -35,6 +35,7 @@ public class SaveConsoleSessionAction extends Action {
         setToolTipText(tooltip);
     }
 
+    @Override
     public void run() {
         IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 
@@ -51,6 +52,7 @@ public class SaveConsoleSessionAction extends Action {
         setEnabled(true);
     }
 
+    @Override
     public ImageDescriptor getImageDescriptor() {
         return InteractiveConsolePlugin.getDefault().getImageDescriptor(ScriptConsoleUIConstants.SAVE_SESSION_ICON);
     }

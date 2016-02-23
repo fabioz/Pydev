@@ -56,6 +56,7 @@ abstract public class AbstractShowReferencesActionDelegate extends ViewerFilter 
         super();
     }
 
+    @Override
     public void run(IAction action) {
         boolean checked = action.isChecked();
         setShowReferences(checked);
@@ -79,6 +80,7 @@ abstract public class AbstractShowReferencesActionDelegate extends ViewerFilter 
         }
     }
 
+    @Override
     public void init(IAction action) {
         fAction = action;
         action.setChecked(isShowReference());
@@ -86,22 +88,27 @@ abstract public class AbstractShowReferencesActionDelegate extends ViewerFilter 
         run(fAction);
     }
 
+    @Override
     public void init(IViewPart view) {
         fView = view;
         run(fAction);
     }
 
+    @Override
     public void selectionChanged(IAction action, ISelection selection) {
     }
 
+    @Override
     public void dispose() {
         PyVariablesPreferences.removePropertyChangeListener(this);
     }
 
+    @Override
     public void runWithEvent(IAction action, Event event) {
         run(action);
     }
 
+    @Override
     public void propertyChange(PropertyChangeEvent event) {
         String property = event.getProperty();
         if (isShowReferenceProperty(property)) {

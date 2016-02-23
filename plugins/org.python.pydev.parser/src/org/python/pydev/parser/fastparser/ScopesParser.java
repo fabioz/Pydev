@@ -32,6 +32,7 @@ import org.python.pydev.shared_core.structure.Tuple3;
  */
 public class ScopesParser implements IScopesParser {
 
+    @Override
     public Scopes createScopes(IDocument doc) {
         this.scopes = new Scopes();
         this.doc = doc;

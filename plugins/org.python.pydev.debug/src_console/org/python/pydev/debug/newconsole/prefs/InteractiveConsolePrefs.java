@@ -91,6 +91,7 @@ public class InteractiveConsolePrefs extends FieldEditorPreferencePage implement
 
     }
 
+    @Override
     public void init(IWorkbench workbench) {
         setDescription("PyDev interactive console preferences.");
         setPreferenceStore(PydevDebugPlugin.getDefault().getPreferenceStore());

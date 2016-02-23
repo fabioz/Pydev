@@ -47,6 +47,7 @@ public class PyContentAssistant extends DefaultContentAssist {
 
     public static IInformationControlCreator createInformationControlCreator(ISourceViewer sourceViewer) {
         return new IInformationControlCreator() {
+            @Override
             public IInformationControl createInformationControl(Shell parent) {
                 return new DefaultInformationControl(parent, new PyInformationPresenter());
             }

@@ -38,6 +38,7 @@ public class TreeNodeSimple<T extends INodeAdapter> implements ITreeNode {
         this.parent = parent;
     }
 
+    @Override
     public ITreeNode getParent() {
         return this.parent;
     }
@@ -47,22 +48,27 @@ public class TreeNodeSimple<T extends INodeAdapter> implements ITreeNode {
         return this.adapter.getName();
     }
 
+    @Override
     public String getLabel() {
         return this.toString();
     }
 
+    @Override
     public T getAdapter() {
         return adapter;
     }
 
+    @Override
     public Object[] getChildren() {
         return null;
     }
 
+    @Override
     public boolean hasChildren() {
         return getChildren() != null;
     }
 
+    @Override
     public String getImageName() {
         if (getAdapter() instanceof PropertyTextAdapter) {
             return ITreeNode.NODE_METHOD;

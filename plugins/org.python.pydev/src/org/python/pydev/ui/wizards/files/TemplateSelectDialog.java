@@ -77,12 +77,15 @@ public class TemplateSelectDialog extends SelectionDialog {
 
                 templateList.addMouseListener(new MouseListener() {
 
+                    @Override
                     public void mouseUp(MouseEvent e) {
                     }
 
+                    @Override
                     public void mouseDown(MouseEvent e) {
                     }
 
+                    @Override
                     public void mouseDoubleClick(MouseEvent e) {
                         okPressed();
                     }
@@ -92,6 +95,7 @@ public class TemplateSelectDialog extends SelectionDialog {
                 link.setText("<a>Config available templates...</a>");
 
                 link.addSelectionListener(new SelectionListener() {
+                    @Override
                     public void widgetSelected(SelectionEvent e) {
                         PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(null,
                                 "org.python.pydev.prefs.template", null, null);
@@ -105,6 +109,7 @@ public class TemplateSelectDialog extends SelectionDialog {
                         }
                     }
 
+                    @Override
                     public void widgetDefaultSelected(SelectionEvent e) {
                     }
                 });

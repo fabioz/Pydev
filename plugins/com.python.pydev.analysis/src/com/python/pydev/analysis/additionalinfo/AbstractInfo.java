@@ -51,14 +51,17 @@ public abstract class AbstractInfo implements IInfo, Serializable {
         this.path = path;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public String getDeclaringModuleName() {
         return moduleDeclared;
     }
 
+    @Override
     public String getPath() {
         return path;
     }
@@ -112,6 +115,7 @@ public abstract class AbstractInfo implements IInfo, Serializable {
         return this.name + " (" + this.moduleDeclared + ") - Path:" + getPath();
     }
 
+    @Override
     public int compareTo(IInfo o) {
         int r = name.compareTo(o.getName());
         if (r != 0) {

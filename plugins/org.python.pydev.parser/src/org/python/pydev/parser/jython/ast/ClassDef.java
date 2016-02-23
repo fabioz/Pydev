@@ -24,6 +24,7 @@ public final class ClassDef extends stmtType {
         this.kwargs = kwargs;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -37,6 +38,7 @@ public final class ClassDef extends stmtType {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -71,10 +73,12 @@ public final class ClassDef extends stmtType {
         return true;
     }
 
+    @Override
     public ClassDef createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public ClassDef createCopy(boolean copyComments) {
         exprType[] new0;
         if (this.bases != null) {
@@ -136,6 +140,7 @@ public final class ClassDef extends stmtType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("ClassDef[");
         sb.append("name=");
@@ -162,10 +167,12 @@ public final class ClassDef extends stmtType {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitClassDef(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (name != null) {
             name.accept(visitor);

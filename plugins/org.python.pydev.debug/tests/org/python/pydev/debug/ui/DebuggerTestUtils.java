@@ -61,18 +61,22 @@ public class DebuggerTestUtils {
      */
     public PyBreakpointRulerAction createAddBreakPointAction(final int line) {
         PyBreakpointRulerAction ret = new PyBreakpointRulerAction(debugEditor, new IVerticalRulerInfo() {
+            @Override
             public int getLineOfLastMouseButtonActivity() {
                 return line;
             }
 
+            @Override
             public Control getControl() {
                 throw new RuntimeException("Not Implemented");
             }
 
+            @Override
             public int getWidth() {
                 throw new RuntimeException("Not Implemented");
             }
 
+            @Override
             public int toDocumentLineNumber(int y_coordinate) {
                 throw new RuntimeException("Not Implemented");
             }
@@ -90,6 +94,7 @@ public class DebuggerTestUtils {
 
         // Make sure to run the UI thread.
         display.syncExec(new Runnable() {
+            @Override
             public void run() {
                 JythonLaunchShortcut launchShortcut = new JythonLaunchShortcut();
                 launchShortcut.launch(debugEditor, "debug");
@@ -105,6 +110,7 @@ public class DebuggerTestUtils {
 
         waitForCondition(new ICallback() {
 
+            @Override
             public Object call(Object args) throws Exception {
                 IThread[] threads = target.getThreads();
                 for (IThread thread : threads) {
@@ -128,6 +134,7 @@ public class DebuggerTestUtils {
         final ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
         waitForCondition(new ICallback() {
 
+            @Override
             public Object call(Object args) throws Exception {
                 ILaunch[] launches = launchManager.getLaunches();
                 return launches.length > 0;
@@ -143,6 +150,7 @@ public class DebuggerTestUtils {
     public IDebugTarget waitForDebugTargetAvailable(final ILaunch launch) throws Throwable {
         waitForCondition(new ICallback() {
 
+            @Override
             public Object call(Object args) throws Exception {
                 return launch.getDebugTarget() != null;
             }
@@ -190,6 +198,7 @@ public class DebuggerTestUtils {
         // Make sure to run the UI thread.
         display.syncExec(new Runnable() {
 
+            @Override
             public void run() {
                 IWorkbenchWindow window = workBench.getActiveWorkbenchWindow();
                 try {

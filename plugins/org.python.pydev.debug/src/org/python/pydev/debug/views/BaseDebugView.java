@@ -197,6 +197,7 @@ public abstract class BaseDebugView extends ViewPart {
                         display.timerExec(100, new Runnable() {
                             int i = 0;
 
+                            @Override
                             public void run() {
                                 if (progressBar == null || progressBar.isDisposed()) {
                                     return;

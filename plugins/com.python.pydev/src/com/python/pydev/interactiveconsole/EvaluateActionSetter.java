@@ -127,12 +127,14 @@ public class EvaluateActionSetter implements IPyEditListener {
     /**
      * This method associates Ctrl+new line with the evaluation of commands in the console.
      */
+    @Override
     public void onCreateActions(ListResourceBundle resources, final BaseEditor baseEditor, IProgressMonitor monitor) {
         final PyEdit edit = (PyEdit) baseEditor;
         final EvaluateAction evaluateAction = new EvaluateAction(edit);
         evaluateAction.setActionDefinitionId(IInteractiveConsoleConstants.EVALUATE_ACTION_ID);
         evaluateAction.setId(IInteractiveConsoleConstants.EVALUATE_ACTION_ID);
         Runnable runnable = new Runnable() {
+            @Override
             public void run() {
                 if (!edit.isDisposed()) {
                     edit.setAction(IInteractiveConsoleConstants.EVALUATE_ACTION_ID, evaluateAction);
@@ -142,14 +144,17 @@ public class EvaluateActionSetter implements IPyEditListener {
         Display.getDefault().syncExec(runnable);
     }
 
+    @Override
     public void onSave(BaseEditor baseEditor, IProgressMonitor monitor) {
         //ignore
     }
 
+    @Override
     public void onDispose(BaseEditor baseEditor, IProgressMonitor monitor) {
         //ignore
     }
 
+    @Override
     public void onSetDocument(IDocument document, BaseEditor baseEditor, IProgressMonitor monitor) {
         //ignore
     }

@@ -17,6 +17,7 @@ public class GettingStartedPage extends AbstractNewProjectPage {
         super(pageName);
     }
 
+    @Override
     public void createControl(Composite parent) {
         generalInfo = new Label(parent, 0);
         generalInfo.setText("The first step in configuring Pydev is properly configuring your interpreter.\n"

@@ -51,6 +51,7 @@ public class PyShowHierarchy extends PyRefactorAction {
             try {
                 IRunnableWithProgress operation = new IRunnableWithProgress() {
 
+                    @Override
                     public void run(final IProgressMonitor monitor) throws InvocationTargetException,
                             InterruptedException {
                         try {
@@ -67,6 +68,7 @@ public class PyShowHierarchy extends PyRefactorAction {
                                     return;
                                 }
                                 Runnable r = new Runnable() {
+                                    @Override
                                     public void run() {
                                         if (!monitor.isCanceled()) {
                                             view.setHierarchy(model);

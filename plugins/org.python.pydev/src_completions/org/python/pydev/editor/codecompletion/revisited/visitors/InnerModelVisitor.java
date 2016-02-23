@@ -74,6 +74,7 @@ public class InnerModelVisitor extends AbstractVisitor {
     /**
      * @see org.python.pydev.parser.jython.ast.VisitorBase#unhandled_node(org.python.pydev.parser.jython.SimpleNode)
      */
+    @Override
     protected Object unhandled_node(SimpleNode node) throws Exception {
         return null;
     }
@@ -81,10 +82,12 @@ public class InnerModelVisitor extends AbstractVisitor {
     /**
      * @see org.python.pydev.parser.jython.ast.VisitorBase#traverse(org.python.pydev.parser.jython.SimpleNode)
      */
+    @Override
     public void traverse(SimpleNode node) throws Exception {
         node.traverse(this);
     }
 
+    @Override
     public Object visitClassDef(ClassDef node) throws Exception {
         if (visiting == VISITING_NOTHING) {
             visiting = VISITING_CLASS;
@@ -98,6 +101,7 @@ public class InnerModelVisitor extends AbstractVisitor {
         return null;
     }
 
+    @Override
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         if (visiting == VISITING_CLASS) {
             addToken(node);
@@ -116,6 +120,7 @@ public class InnerModelVisitor extends AbstractVisitor {
     /**
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitAssign(org.python.pydev.parser.jython.ast.Assign)
      */
+    @Override
     public Object visitAssign(Assign node) throws Exception {
         if (visiting == VISITING_CLASS) {
 
@@ -132,6 +137,7 @@ public class InnerModelVisitor extends AbstractVisitor {
     /**
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitCall(org.python.pydev.parser.jython.ast.Call)
      */
+    @Override
     public Object visitCall(Call node) throws Exception {
         if (visiting == VISITING_CLASS) {
 

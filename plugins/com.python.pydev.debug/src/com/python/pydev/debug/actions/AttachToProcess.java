@@ -49,6 +49,7 @@ public class AttachToProcess implements IWorkbenchWindowActionDelegate {
     public AttachToProcess() {
     }
 
+    @Override
     public void run(IAction action) {
         try {
             doIt();
@@ -155,12 +156,15 @@ public class AttachToProcess implements IWorkbenchWindowActionDelegate {
         }
     }
 
+    @Override
     public void selectionChanged(IAction action, ISelection selection) {
     }
 
+    @Override
     public void dispose() {
     }
 
+    @Override
     public void init(IWorkbenchWindow window) {
     }
 }

@@ -144,6 +144,7 @@ public class CustomizableFieldEditor extends FieldEditor {
     /*
      * (non-Javadoc) Method declared on FieldEditor.
      */
+    @Override
     protected void adjustForNumColumns(int numColumns) {
         //        GridData gd = (GridData) textField.getLayoutData();
         //        gd.horizontalSpan = 30;//numColumns - 1;
@@ -208,6 +209,7 @@ public class CustomizableFieldEditor extends FieldEditor {
      * override but must call <code>super.doFillIntoGrid</code>.
      * </p>
      */
+    @Override
     protected void doFillIntoGrid(Composite parent, int numColumns) {
         getLabelControl(parent);
 
@@ -238,6 +240,7 @@ public class CustomizableFieldEditor extends FieldEditor {
     /*
      * (non-Javadoc) Method declared on FieldEditor.
      */
+    @Override
     protected void doLoad() {
         if (textField != null) {
             String value = getPreferenceStore().getString(getPreferenceName());
@@ -249,6 +252,7 @@ public class CustomizableFieldEditor extends FieldEditor {
     /*
      * (non-Javadoc) Method declared on FieldEditor.
      */
+    @Override
     protected void doLoadDefault() {
         if (textField != null) {
             String value = getPreferenceStore().getDefaultString(getPreferenceName());
@@ -260,6 +264,7 @@ public class CustomizableFieldEditor extends FieldEditor {
     /*
      * (non-Javadoc) Method declared on FieldEditor.
      */
+    @Override
     protected void doStore() {
         getPreferenceStore().setValue(getPreferenceName(), textField.getText());
     }
@@ -276,6 +281,7 @@ public class CustomizableFieldEditor extends FieldEditor {
     /*
      * (non-Javadoc) Method declared on FieldEditor.
      */
+    @Override
     public int getNumberOfControls() {
         return 2;
     }
@@ -324,6 +330,7 @@ public class CustomizableFieldEditor extends FieldEditor {
                          * 
                          * @see org.eclipse.swt.events.KeyAdapter#keyReleased(org.eclipse.swt.events.KeyEvent)
                          */
+                        @Override
                         public void keyReleased(KeyEvent e) {
                             valueChanged();
                         }
@@ -332,15 +339,18 @@ public class CustomizableFieldEditor extends FieldEditor {
                     break;
                 case VALIDATE_ON_FOCUS_LOST:
                     textField.addKeyListener(new KeyAdapter() {
+                        @Override
                         public void keyPressed(KeyEvent e) {
                             clearErrorMessage();
                         }
                     });
                     textField.addFocusListener(new FocusAdapter() {
+                        @Override
                         public void focusGained(FocusEvent e) {
                             refreshValidState();
                         }
 
+                        @Override
                         public void focusLost(FocusEvent e) {
                             valueChanged();
                             clearErrorMessage();
@@ -351,6 +361,7 @@ public class CustomizableFieldEditor extends FieldEditor {
                     Assert.isTrue(false, "Unknown validate strategy");//$NON-NLS-1$
             }
             textField.addDisposeListener(new DisposeListener() {
+                @Override
                 public void widgetDisposed(DisposeEvent event) {
                     textField = null;
                 }
@@ -377,6 +388,7 @@ public class CustomizableFieldEditor extends FieldEditor {
     /*
      * (non-Javadoc) Method declared on FieldEditor.
      */
+    @Override
     public boolean isValid() {
         return isValid;
     }
@@ -384,6 +396,7 @@ public class CustomizableFieldEditor extends FieldEditor {
     /*
      * (non-Javadoc) Method declared on FieldEditor.
      */
+    @Override
     protected void refreshValidState() {
         isValid = checkState();
     }
@@ -409,6 +422,7 @@ public class CustomizableFieldEditor extends FieldEditor {
     /*
      * (non-Javadoc) Method declared on FieldEditor.
      */
+    @Override
     public void setFocus() {
         if (textField != null) {
             textField.setFocus();
@@ -491,6 +505,7 @@ public class CustomizableFieldEditor extends FieldEditor {
     /*
      * @see FieldEditor.setEnabled(boolean,Composite).
      */
+    @Override
     public void setEnabled(boolean enabled, Composite parent) {
         super.setEnabled(enabled, parent);
         getTextControl(parent).setEnabled(enabled);

@@ -42,6 +42,7 @@ public class SourceLocatorPrefsPage extends FieldEditorPreferencePage implements
         setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
     }
 
+    @Override
     public void init(IWorkbench workbench) {
     }
 
@@ -75,6 +76,7 @@ public class SourceLocatorPrefsPage extends FieldEditorPreferencePage implements
                 InputDialog d = new InputDialog(getShell(), "New entry",
                         "Add the entry in the format path_to_replace,new_path or path,DONTASK.", "",
                         new IInputValidator() {
+                            @Override
                             public String isValid(String newText) {
                                 String[] splitted = StringUtils.splitAndRemoveEmptyTrimmed(newText, ',').toArray(
                                         new String[0]);

@@ -56,6 +56,7 @@ public class DjangoShell extends DjangoAction {
                                 + "roject properties > pydev pythonpath > string substitution variables.",
                         selectedProject.getName() + ".settings", new IInputValidator() {
 
+                            @Override
                             public String isValid(String newText) {
                                 if (newText.length() == 0) {
                                     return "Text must be entered.";

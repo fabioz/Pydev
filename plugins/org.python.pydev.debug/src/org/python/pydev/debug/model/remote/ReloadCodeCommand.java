@@ -20,6 +20,7 @@ public class ReloadCodeCommand extends AbstractDebuggerCommand {
         this.moduleName = moduleName;
     }
 
+    @Override
     public String getOutgoing() {
         return makeCommand(CMD_RELOAD_CODE, sequence, this.moduleName);
     }

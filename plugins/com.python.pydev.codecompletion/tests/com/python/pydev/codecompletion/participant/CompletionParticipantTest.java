@@ -106,6 +106,7 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
         final Preferences prefs = new Preferences();
         PyCodeCompletionPreferencesPage.getPreferencesForTests = new ICallback<Preferences, Object>() {
 
+            @Override
             public Preferences call(Object arg) {
                 return prefs;
             }

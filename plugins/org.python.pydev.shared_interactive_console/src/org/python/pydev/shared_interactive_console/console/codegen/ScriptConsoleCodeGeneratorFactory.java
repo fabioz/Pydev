@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.IAdapterFactory;
 import org.eclipse.jface.viewers.IStructuredSelection;
 
 public class ScriptConsoleCodeGeneratorFactory implements IAdapterFactory {
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T getAdapter(Object adaptableObject, Class<T> adapterType) {
         if (adapterType == IScriptConsoleCodeGenerator.class) {
@@ -27,6 +28,7 @@ public class ScriptConsoleCodeGeneratorFactory implements IAdapterFactory {
         return null;
     }
 
+    @Override
     public Class<?>[] getAdapterList() {
         return new Class[] { IScriptConsoleCodeGenerator.class };
     }

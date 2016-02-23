@@ -67,6 +67,7 @@ public class OverrideMethodsRequestProcessor implements IRequestProcessor<Overri
         this.generateMethodComments = value;
     }
 
+    @Override
     public List<OverrideMethodsRequest> getRefactoringRequests() {
         List<OverrideMethodsRequest> requests = new ArrayList<OverrideMethodsRequest>();
 

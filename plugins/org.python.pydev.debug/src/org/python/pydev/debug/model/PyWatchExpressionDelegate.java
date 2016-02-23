@@ -34,6 +34,7 @@ public class PyWatchExpressionDelegate implements IWatchExpressionDelegate, IWat
     /* (non-Javadoc)
      * @see org.eclipse.debug.core.model.IWatchExpressionDelegate#evaluateExpression(java.lang.String, org.eclipse.debug.core.model.IDebugElement, org.eclipse.debug.core.model.IWatchExpressionListener)
      */
+    @Override
     public void evaluateExpression(String expression, IDebugElement context, IWatchExpressionListener listener) {
         this.expression = expression;
         this.context = context;
@@ -62,6 +63,7 @@ public class PyWatchExpressionDelegate implements IWatchExpressionDelegate, IWat
     /* (non-Javadoc)
      * @see org.eclipse.debug.core.model.IWatchExpressionResult#getValue()
      */
+    @Override
     public IValue getValue() {
         synchronized (variables) {
             if (variables.length == 0) {
@@ -76,6 +78,7 @@ public class PyWatchExpressionDelegate implements IWatchExpressionDelegate, IWat
     /* (non-Javadoc)
      * @see org.eclipse.debug.core.model.IWatchExpressionResult#hasErrors()
      */
+    @Override
     public boolean hasErrors() {
         return errors.length > 0;
     }
@@ -83,6 +86,7 @@ public class PyWatchExpressionDelegate implements IWatchExpressionDelegate, IWat
     /* (non-Javadoc)
      * @see org.eclipse.debug.core.model.IWatchExpressionResult#getErrorMessages()
      */
+    @Override
     public String[] getErrorMessages() {
         return errors;
     }
@@ -90,6 +94,7 @@ public class PyWatchExpressionDelegate implements IWatchExpressionDelegate, IWat
     /* (non-Javadoc)
      * @see org.eclipse.debug.core.model.IWatchExpressionResult#getExpressionText()
      */
+    @Override
     public String getExpressionText() {
         return expression;
     }
@@ -97,6 +102,7 @@ public class PyWatchExpressionDelegate implements IWatchExpressionDelegate, IWat
     /* (non-Javadoc)
      * @see org.eclipse.debug.core.model.IWatchExpressionResult#getException()
      */
+    @Override
     public DebugException getException() {
         return null;
     }
@@ -113,6 +119,7 @@ public class PyWatchExpressionDelegate implements IWatchExpressionDelegate, IWat
     /* (non-Javadoc)
      * @see org.python.pydev.debug.model.remote.ICommandResponseListener#commandComplete(org.python.pydev.debug.model.remote.AbstractDebuggerCommand)
      */
+    @Override
     public void commandComplete(AbstractDebuggerCommand cmd) {
         try {
             String payload = ((EvaluateExpressionCommand) cmd).getResponse();

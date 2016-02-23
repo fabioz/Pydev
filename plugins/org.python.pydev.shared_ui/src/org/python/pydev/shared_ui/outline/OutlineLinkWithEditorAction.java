@@ -100,18 +100,22 @@ public class OutlineLinkWithEditorAction extends AbstractOutlineFilterAction imp
         }
     }
 
+    @Override
     public void onCreateActions(ListResourceBundle resources, BaseEditor baseEditor, IProgressMonitor monitor) {
 
     }
 
+    @Override
     public void onDispose(BaseEditor baseEditor, IProgressMonitor monitor) {
 
     }
 
+    @Override
     public void onSave(BaseEditor baseEditor, IProgressMonitor monitor) {
 
     }
 
+    @Override
     public void onSetDocument(IDocument document, BaseEditor baseEditor, IProgressMonitor monitor) {
 
     }
@@ -119,6 +123,7 @@ public class OutlineLinkWithEditorAction extends AbstractOutlineFilterAction imp
     /**
      * Hear mouse selections to update the selection in the outline
      */
+    @Override
     public void handleCursorPositionChanged(BaseEditor edit, TextSelectionUtils ps) {
         BaseOutlinePage p = this.page.get();
         if (p != null && edit != null) {

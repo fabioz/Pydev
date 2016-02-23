@@ -21,6 +21,7 @@ import org.python.pydev.navigator.elements.IWrappedResource;
 
 public class PythonTypePropertyTester extends PropertyTester {
 
+    @Override
     public boolean test(Object receiver, String property, Object[] args, Object expectedValue) {
 
         IFile iFile = null;

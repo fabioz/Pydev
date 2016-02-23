@@ -199,6 +199,7 @@ public class SelectionExtenderVisitor extends VisitorBase {
         }
     }
 
+    @Override
     public Object visitCall(Call node) throws Exception {
         traverse(node);
         checkAndExtend(node, node.func);

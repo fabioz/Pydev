@@ -37,6 +37,7 @@ public class ImageWriter implements Runnable {
         this.fileName = fileName;
     }
 
+    @Override
     public void run() {
         FileOutputStream out;
         try {

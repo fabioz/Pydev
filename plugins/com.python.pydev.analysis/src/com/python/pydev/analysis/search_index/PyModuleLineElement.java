@@ -36,18 +36,22 @@ public class PyModuleLineElement implements ICustomLineElement, IAdaptable {
         return fParent.getProject();
     }
 
+    @Override
     public IResource getParent() {
         return fParent;
     }
 
+    @Override
     public int getLine() {
         return fLineNumber;
     }
 
+    @Override
     public String getContents() {
         return fLineContents;
     }
 
+    @Override
     public int getOffset() {
         return fLineStartOffset;
     }
@@ -56,10 +60,12 @@ public class PyModuleLineElement implements ICustomLineElement, IAdaptable {
         return fLineStartOffset <= offset && offset < fLineStartOffset + fLineContents.length();
     }
 
+    @Override
     public int getLength() {
         return fLineContents.length();
     }
 
+    @Override
     public PyModuleMatch[] getMatches(AbstractTextSearchResult result) {
         ArrayList<PyModuleMatch> res = new ArrayList<PyModuleMatch>();
         Match[] matches = result.getMatches(fParent);
@@ -72,6 +78,7 @@ public class PyModuleLineElement implements ICustomLineElement, IAdaptable {
         return res.toArray(new PyModuleMatch[res.size()]);
     }
 
+    @Override
     public int getNumberOfMatches(AbstractTextSearchResult result) {
         int count = 0;
         Match[] matches = result.getMatches(fParent);

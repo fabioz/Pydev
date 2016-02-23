@@ -13,6 +13,7 @@ public final class Dict extends exprType {
         this.values = values;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -21,6 +22,7 @@ public final class Dict extends exprType {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -36,10 +38,12 @@ public final class Dict extends exprType {
         return true;
     }
 
+    @Override
     public Dict createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public Dict createCopy(boolean copyComments) {
         exprType[] new0;
         if (this.keys != null) {
@@ -81,6 +85,7 @@ public final class Dict extends exprType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("Dict[");
         sb.append("keys=");
@@ -92,10 +97,12 @@ public final class Dict extends exprType {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitDict(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (keys != null) {
             for (int i = 0; i < keys.length; i++) {

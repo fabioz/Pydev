@@ -33,20 +33,24 @@ public class GlobalsTwoPaneElementSelector extends TwoPaneElementSelector {
         memento = new DialogMemento(getShell(), "com.python.pydev.analysis.actions.GlobalsTwoPaneElementSelector");
     }
 
+    @Override
     public boolean close() {
         memento.writeSettings(getShell());
         return super.close();
     }
 
+    @Override
     public Control createDialogArea(Composite parent) {
         memento.readSettings();
         return super.createDialogArea(parent);
     }
 
+    @Override
     protected Point getInitialSize() {
         return memento.getInitialSize(super.getInitialSize(), getShell());
     }
 
+    @Override
     protected Point getInitialLocation(Point initialSize) {
         return memento.getInitialLocation(initialSize, super.getInitialLocation(initialSize), getShell());
     }

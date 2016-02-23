@@ -10,6 +10,7 @@ import org.eclipse.jface.action.IAction;
 
 public class DjangoTestAction extends DjangoAction {
 
+    @Override
     public void run(IAction action) {
         launchDjangoCommand("test", false);
     }

@@ -13,6 +13,7 @@ public final class List extends exprType implements expr_contextType {
         this.ctx = ctx;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -21,6 +22,7 @@ public final class List extends exprType implements expr_contextType {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -36,10 +38,12 @@ public final class List extends exprType implements expr_contextType {
         return true;
     }
 
+    @Override
     public List createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public List createCopy(boolean copyComments) {
         exprType[] new0;
         if (this.elts != null) {
@@ -72,6 +76,7 @@ public final class List extends exprType implements expr_contextType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("List[");
         sb.append("elts=");
@@ -83,10 +88,12 @@ public final class List extends exprType implements expr_contextType {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitList(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (elts != null) {
             for (int i = 0; i < elts.length; i++) {

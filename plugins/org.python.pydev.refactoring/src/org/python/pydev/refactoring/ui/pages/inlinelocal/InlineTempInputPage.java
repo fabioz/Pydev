@@ -34,10 +34,12 @@ public class InlineTempInputPage extends MessageWizardPage {
         super(PAGE_NAME, true, MessageWizardPage.STYLE_QUESTION);
     }
 
+    @Override
     public void createControl(Composite parent) {
         super.createControl(parent);
     }
 
+    @Override
     protected String getMessageString() {
         InlineLocalRequestProcessor req = getInlineRefactoring().getRequestProcessor();
         int occurences = req.getOccurences();

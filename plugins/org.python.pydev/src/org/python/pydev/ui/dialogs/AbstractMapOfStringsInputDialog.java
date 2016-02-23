@@ -22,14 +22,17 @@ public abstract class AbstractMapOfStringsInputDialog extends AbstractKeyValueDi
         this.map = map;
     }
 
+    @Override
     protected String getInitialMessage() {
         return "Please, supply the name and value for the variable";
     }
 
+    @Override
     protected String getValueLabelText() {
         return "Value: ";
     }
 
+    @Override
     protected String getKeyLabelText() {
         return "Name: ";
     }
@@ -39,8 +42,10 @@ public abstract class AbstractMapOfStringsInputDialog extends AbstractKeyValueDi
     /**
      * @return a listened that should clear or set the error message after any change.
      */
+    @Override
     protected Listener createChangesValidator() {
         return new Listener() {
+            @Override
             public void handleEvent(Event event) {
 
                 String errorMessage = null;

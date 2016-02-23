@@ -113,6 +113,7 @@ public class FileSearchPage extends AbstractTextSearchViewPage implements IAdapt
     };
 
     private static final IShowInTargetList SHOW_IN_TARGET_LIST = new IShowInTargetList() {
+        @Override
         public String[] getShowInTargetIds() {
             return SHOW_IN_TARGETS;
         }
@@ -318,6 +319,7 @@ public class FileSearchPage extends AbstractTextSearchViewPage implements IAdapt
         }
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T getAdapter(Class<T> adapter) {
         if (IShowInTargetList.class.equals(adapter)) {

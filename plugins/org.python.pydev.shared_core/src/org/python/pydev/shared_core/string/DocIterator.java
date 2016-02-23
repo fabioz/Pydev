@@ -42,6 +42,7 @@ public class DocIterator implements Iterator<String> {
         return startingLine;
     }
 
+    @Override
     public boolean hasNext() {
         if (forward) {
             return startingLine < numberOfLines;
@@ -54,6 +55,7 @@ public class DocIterator implements Iterator<String> {
      * Note that the first thing it returns is the lineContents to cursor (and only after that
      * does it return from the full line -- if it is iterating backwards).
      */
+    @Override
     public String next() {
         try {
             String line;
@@ -77,6 +79,7 @@ public class DocIterator implements Iterator<String> {
         }
     }
 
+    @Override
     public void remove() {
         throw new RuntimeException("Remove not implemented.");
     }

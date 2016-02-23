@@ -13,6 +13,7 @@ public final class NameTok extends NameTokType implements name_contextType {
         this.ctx = ctx;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -21,6 +22,7 @@ public final class NameTok extends NameTokType implements name_contextType {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -39,10 +41,12 @@ public final class NameTok extends NameTokType implements name_contextType {
         return true;
     }
 
+    @Override
     public NameTok createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public NameTok createCopy(boolean copyComments) {
         NameTok temp = new NameTok(id, ctx);
         temp.beginLine = this.beginLine;
@@ -66,6 +70,7 @@ public final class NameTok extends NameTokType implements name_contextType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("NameTok[");
         sb.append("id=");
@@ -77,10 +82,12 @@ public final class NameTok extends NameTokType implements name_contextType {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitNameTok(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
     }
 

@@ -75,6 +75,7 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
         return locator.getThreadId();
     }
 
+    @Override
     public String getPyDBLocation() {
         if (id == null) {
             return locator.getPyDBLocation() + "\t" + name;
@@ -89,10 +90,12 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
         return getValueString();
     }
 
+    @Override
     public IValue getValue() throws DebugException {
         return this;
     }
 
+    @Override
     public String getValueString() throws DebugException {
         if (value == null) {
             return "";
@@ -103,18 +106,22 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
         return value;
     }
 
+    @Override
     public String getName() throws DebugException {
         return name;
     }
 
+    @Override
     public String getModelIdentifier() {
         return target.getModelIdentifier();
     }
 
+    @Override
     public IDebugTarget getDebugTarget() {
         return target;
     }
 
+    @Override
     public ILaunch getLaunch() {
         return target.getLaunch();
     }
@@ -123,10 +130,12 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
      * LATER valueChanging nterface has not been implemented yet.
      * When implemented, recently changed variables are shown in red.
      */
+    @Override
     public boolean supportsValueModification() {
         return this.locator != null;
     }
 
+    @Override
     public boolean hasValueChanged() throws DebugException {
         return isModified;
     }
@@ -141,6 +150,7 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
      * Note that it will (currently) only work for changing local values that are in the topmost frame.
      * -- python has no way of making it work right now (see: pydevd_vars.changeAttrExpression)
      */
+    @Override
     public void setValue(String expression) throws DebugException {
         ChangeVariableCommand changeVariableCommand = getChangeVariableCommand(target, expression);
         target.postCommand(changeVariableCommand);
@@ -148,13 +158,16 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
         target.fireEvent(new DebugEvent(this, DebugEvent.CONTENT | DebugEvent.CHANGE));
     }
 
+    @Override
     public void setValue(IValue value) throws DebugException {
     }
 
+    @Override
     public boolean verifyValue(String expression) throws DebugException {
         return true;
     }
 
+    @Override
     public boolean verifyValue(IValue value) throws DebugException {
         return false;
     }
@@ -197,18 +210,22 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
         return super.getAdapter(adapter);
     }
 
+    @Override
     public boolean isAllocated() throws DebugException {
         return true;
     }
 
+    @Override
     public IVariable[] getVariables() throws DebugException {
         return EMPTY_IVARIABLE_ARRAY;
     }
 
+    @Override
     public boolean hasVariables() throws DebugException {
         return false;
     }
 
+    @Override
     public String getReferenceTypeName() throws DebugException {
         return type;
     }

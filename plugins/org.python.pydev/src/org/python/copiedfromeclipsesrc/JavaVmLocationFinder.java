@@ -63,6 +63,7 @@ public class JavaVmLocationFinder {
      */
     public static ICallback callbackJavaExecutable = new ICallback() {
 
+        @Override
         public Object call(Object args) throws Exception {
             try {
                 IVMInstall defaultVMInstall = JavaRuntime.getDefaultVMInstall();
@@ -80,6 +81,7 @@ public class JavaVmLocationFinder {
      */
     public static ICallback callbackJavaJars = new ICallback() {
 
+        @Override
         public Object call(Object args) throws Exception {
             try {
                 IVMInstall defaultVMInstall = JavaRuntime.getDefaultVMInstall();

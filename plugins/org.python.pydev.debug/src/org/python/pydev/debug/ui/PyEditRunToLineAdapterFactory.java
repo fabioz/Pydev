@@ -15,6 +15,7 @@ public class PyEditRunToLineAdapterFactory implements IAdapterFactory {
 
     private static PyRunToLineTarget pyRunToLineTarget = new PyRunToLineTarget();
 
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T getAdapter(Object adaptableObject, Class<T> adapterType) {
         if (adaptableObject instanceof PyEdit && adapterType == IRunToLineTarget.class) {
@@ -23,6 +24,7 @@ public class PyEditRunToLineAdapterFactory implements IAdapterFactory {
         return null;
     }
 
+    @Override
     public Class<?>[] getAdapterList() {
         return new Class[] { IRunToLineTarget.class };
     }

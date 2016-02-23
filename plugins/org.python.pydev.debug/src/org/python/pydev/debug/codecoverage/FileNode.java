@@ -33,6 +33,7 @@ public class FileNode implements ICoverageLeafNode {
     /* (non-Javadoc)
      * @see java.lang.Object#equals(java.lang.Object)
      */
+    @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof FileNode)) {
             return false;
@@ -50,6 +51,7 @@ public class FileNode implements ICoverageLeafNode {
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */
+    @Override
     public String toString() {
         FastStringBuffer buf = new FastStringBuffer();
         FileNode.appendToBuffer(buf, node.toString(), stmts, miss, notExecuted,

@@ -38,10 +38,12 @@ public abstract class BaseParsingUtils {
             this.len = len;
         }
 
+        @Override
         public int len() {
             return len;
         }
 
+        @Override
         public char charAt(int i) {
             return cs[i];
         }
@@ -62,10 +64,12 @@ public abstract class BaseParsingUtils {
             this.len = len;
         }
 
+        @Override
         public int len() {
             return len;
         }
 
+        @Override
         public char charAt(int i) {
             return cs.charAt(i);
         }
@@ -86,10 +90,12 @@ public abstract class BaseParsingUtils {
             this.len = len;
         }
 
+        @Override
         public int len() {
             return len;
         }
 
+        @Override
         public char charAt(int i) {
             return cs.charAt(i);
         }
@@ -110,10 +116,12 @@ public abstract class BaseParsingUtils {
             this.len = len;
         }
 
+        @Override
         public int len() {
             return len;
         }
 
+        @Override
         public char charAt(int i) {
             return cs.charAt(i);
         }
@@ -134,10 +142,12 @@ public abstract class BaseParsingUtils {
             this.len = len;
         }
 
+        @Override
         public int len() {
             return len;
         }
 
+        @Override
         public char charAt(int i) {
             try {
                 return cs.getChar(i);
@@ -160,10 +170,12 @@ public abstract class BaseParsingUtils {
             this.cs = cs;
         }
 
+        @Override
         public int len() {
             return cs.length();
         }
 
+        @Override
         public char charAt(int i) {
             return cs.charAt(i);
         }
@@ -182,10 +194,12 @@ public abstract class BaseParsingUtils {
             this.cs = cs;
         }
 
+        @Override
         public int len() {
             return cs.length();
         }
 
+        @Override
         public char charAt(int i) {
             return cs.charAt(i);
         }
@@ -204,10 +218,12 @@ public abstract class BaseParsingUtils {
             this.cs = cs;
         }
 
+        @Override
         public int len() {
             return cs.getLength();
         }
 
+        @Override
         public char charAt(int i) {
             try {
                 return cs.getChar(i);

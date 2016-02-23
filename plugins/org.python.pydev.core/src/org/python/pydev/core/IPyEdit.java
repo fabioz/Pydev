@@ -22,6 +22,7 @@ public interface IPyEdit extends IParserObserver, IBaseEditor, IPyFormatStdProvi
      * @throws NotConfiguredInterpreterException 
      * @throws MisconfigurationException 
      */
+    @Override
     IPythonNature getPythonNature() throws MisconfigurationException;
 
     /**

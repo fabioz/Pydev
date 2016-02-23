@@ -28,6 +28,7 @@ public class PyToggleBreakpointsTarget implements IToggleBreakpointsTarget, ITog
     }
 
     // --------------- All others point to this 2 methods!
+    @Override
     public void toggleBreakpoints(IWorkbenchPart part, ISelection selection) throws CoreException {
         if (part instanceof PyEdit && selection instanceof TextSelection) {
             TextSelection textSelection = (TextSelection) selection;
@@ -46,30 +47,37 @@ public class PyToggleBreakpointsTarget implements IToggleBreakpointsTarget, ITog
 
     }
 
+    @Override
     public boolean canToggleBreakpoints(IWorkbenchPart part, ISelection selection) {
         return selection instanceof TextSelection && part instanceof PyEdit;
     }
 
+    @Override
     public void toggleLineBreakpoints(IWorkbenchPart part, ISelection selection) throws CoreException {
         toggleBreakpoints(part, selection);
     }
 
+    @Override
     public boolean canToggleLineBreakpoints(IWorkbenchPart part, ISelection selection) {
         return canToggleBreakpoints(part, selection);
     }
 
+    @Override
     public void toggleMethodBreakpoints(IWorkbenchPart part, ISelection selection) throws CoreException {
         toggleBreakpoints(part, selection);
     }
 
+    @Override
     public boolean canToggleMethodBreakpoints(IWorkbenchPart part, ISelection selection) {
         return canToggleBreakpoints(part, selection);
     }
 
+    @Override
     public void toggleWatchpoints(IWorkbenchPart part, ISelection selection) throws CoreException {
         toggleBreakpoints(part, selection);
     }
 
+    @Override
     public boolean canToggleWatchpoints(IWorkbenchPart part, ISelection selection) {
         return canToggleBreakpoints(part, selection);
     }

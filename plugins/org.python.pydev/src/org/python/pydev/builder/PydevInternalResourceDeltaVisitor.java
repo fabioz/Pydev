@@ -41,6 +41,7 @@ public abstract class PydevInternalResourceDeltaVisitor extends PyDevBuilderVisi
      *
      * @see org.eclipse.core.resources.IResourceDeltaVisitor#visit(org.eclipse.core.resources.IResourceDelta)
      */
+    @Override
     public boolean visit(IResourceDelta delta) throws CoreException {
         if (delta == null) {
             return true;

@@ -25,6 +25,7 @@ public class PyAnnotationHover implements IAnnotationHover {
     public PyAnnotationHover(ISourceViewer sourceViewer) {
     }
 
+    @Override
     public String getHoverInfo(ISourceViewer sourceViewer, int lineNumber) {
         FastStringBuffer buf = new FastStringBuffer();
 

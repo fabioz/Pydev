@@ -22,6 +22,7 @@ public final class decoratorsType extends SimpleNode {
         this.isCall = isCall;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -34,6 +35,7 @@ public final class decoratorsType extends SimpleNode {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -66,10 +68,12 @@ public final class decoratorsType extends SimpleNode {
         return true;
     }
 
+    @Override
     public decoratorsType createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public decoratorsType createCopy(boolean copyComments) {
         exprType[] new0;
         if (this.args != null) {
@@ -114,6 +118,7 @@ public final class decoratorsType extends SimpleNode {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("decorators[");
         sb.append("func=");
@@ -137,11 +142,13 @@ public final class decoratorsType extends SimpleNode {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         traverse(visitor);
         return null;
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (func != null) {
             func.accept(visitor);

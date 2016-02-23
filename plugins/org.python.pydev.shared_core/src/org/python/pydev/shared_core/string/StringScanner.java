@@ -25,6 +25,7 @@ public class StringScanner implements ICharacterScanner {
         this.length = contents.length();
     }
 
+    @Override
     public int read() {
         if (offset < length) {
             // Most common case first.
@@ -50,6 +51,7 @@ public class StringScanner implements ICharacterScanner {
         return contents.charAt(checkAt);
     }
 
+    @Override
     public void unread() {
         offset -= 1;
         if (offset < 0) {

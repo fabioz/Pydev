@@ -29,10 +29,12 @@ import org.python.pydev.plugin.PydevPlugin;
 
 public class PyRunToLineTarget implements IRunToLineTarget {
 
+    @Override
     public boolean canRunToLine(IWorkbenchPart part, ISelection selection, ISuspendResume target) {
         return true;
     }
 
+    @Override
     public void runToLine(IWorkbenchPart part, ISelection selection, ISuspendResume target) throws CoreException {
         //System.out.println("Run to line:"+target);
         PyStackFrame stack = null;

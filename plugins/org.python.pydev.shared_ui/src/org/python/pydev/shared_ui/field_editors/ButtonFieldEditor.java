@@ -91,6 +91,7 @@ public class ButtonFieldEditor extends FieldEditor {
             }
 
             button.addDisposeListener(new DisposeListener() {
+                @Override
                 public void widgetDisposed(DisposeEvent event) {
                     button = null;
                 }

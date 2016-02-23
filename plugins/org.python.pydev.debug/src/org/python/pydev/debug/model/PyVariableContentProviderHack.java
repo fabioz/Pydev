@@ -20,6 +20,7 @@ import org.eclipse.debug.internal.ui.viewers.model.provisional.IViewerUpdate;
  */
 public class PyVariableContentProviderHack extends VariableContentProvider {
 
+    @Override
     protected boolean hasChildren(Object element, IPresentationContext context, IViewerUpdate monitor)
             throws CoreException {
         if (element instanceof IWatchExpression) {

@@ -29,6 +29,7 @@ public abstract class AbstractInformationPresenter implements DefaultInformation
     /**
      * This method shouldn't really be used, but if it is, just forward it to the new method.
      */
+    @Override
     public String updatePresentation(Display display, String hoverInfo, TextPresentation presentation, int maxWidth,
             int maxHeight) {
         return updatePresentation((Drawable) display, hoverInfo, presentation, maxWidth, maxHeight);
@@ -56,6 +57,7 @@ public abstract class AbstractInformationPresenter implements DefaultInformation
         return str;
     }
 
+    @Override
     public void setInformationPresenterControlManager(
             IInformationPresenterControlManager informationPresenterControlManager) {
         this.informationPresenterControlManager = informationPresenterControlManager;
@@ -67,6 +69,7 @@ public abstract class AbstractInformationPresenter implements DefaultInformation
         }
     }
 
+    @Override
     public void setData(Object data) {
         this.data = data;
     }

@@ -224,6 +224,7 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
         });
 
         getCheckBoxTableViewer().addCheckStateListener(new ICheckStateListener() {
+            @Override
             public void checkStateChanged(CheckStateChangedEvent event) {
                 if (event.getChecked()) {
                     addToSelectedElements(event.getElement());
@@ -464,6 +465,7 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
     private void initContent() {
         listViewer.setInput(inputElement);
         Listener listener = new Listener() {
+            @Override
             public void handleEvent(Event e) {
                 if (updateInThread) {
                     if (filterJob != null) {
@@ -546,6 +548,7 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
                 Display display = Display.getDefault();
                 display.asyncExec(new Runnable() {
 
+                    @Override
                     public void run() {
                         if (!monitor.isCanceled() && filterPatternField != null && !filterPatternField.isDisposed()) {
                             doFilterUpdate(monitor);

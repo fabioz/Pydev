@@ -86,6 +86,7 @@ public class DecoratingFileSearchLabelProvider extends DecoratingStyledCellLabel
         return PlatformUI.getPreferenceStore().getBoolean(IWorkbenchPreferenceConstants.USE_COLORED_LABELS);
     }
 
+    @Override
     public void propertyChange(PropertyChangeEvent event) {
         String property = event.getProperty();
         if (property.equals(JFacePreferences.QUALIFIER_COLOR) || property.equals(JFacePreferences.COUNTER_COLOR)
@@ -93,6 +94,7 @@ public class DecoratingFileSearchLabelProvider extends DecoratingStyledCellLabel
                 || property.equals(HIGHLIGHT_BG_COLOR_NAME)
                 || property.equals(IWorkbenchPreferenceConstants.USE_COLORED_LABELS)) {
             Display.getDefault().asyncExec(new Runnable() {
+                @Override
                 public void run() {
                     refresh();
                 }
@@ -100,6 +102,7 @@ public class DecoratingFileSearchLabelProvider extends DecoratingStyledCellLabel
         }
     }
 
+    @Override
     public String getText(Object element) {
         return getStyledText(element).getString();
     }

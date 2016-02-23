@@ -28,6 +28,7 @@ public class JobProgressComunicator implements IProgressMonitor {
         this.monitor.beginTask(main, total);
     }
 
+    @Override
     public void done() {
         monitor.done();
     }
@@ -35,6 +36,7 @@ public class JobProgressComunicator implements IProgressMonitor {
     /**
      * @see org.eclipse.core.runtime.IProgressMonitor#beginTask(java.lang.String, int)
      */
+    @Override
     public void beginTask(String name, int totalWork) {
         this.monitor.beginTask(name, totalWork);
         this.job.setName(name);
@@ -43,6 +45,7 @@ public class JobProgressComunicator implements IProgressMonitor {
     /**
      * @see org.eclipse.core.runtime.IProgressMonitor#internalWorked(double)
      */
+    @Override
     public void internalWorked(double work) {
         this.monitor.internalWorked(work);
     }
@@ -50,6 +53,7 @@ public class JobProgressComunicator implements IProgressMonitor {
     /**
      * @see org.eclipse.core.runtime.IProgressMonitor#isCanceled()
      */
+    @Override
     public boolean isCanceled() {
         return this.monitor.isCanceled();
     }
@@ -57,6 +61,7 @@ public class JobProgressComunicator implements IProgressMonitor {
     /**
      * @see org.eclipse.core.runtime.IProgressMonitor#setCanceled(boolean)
      */
+    @Override
     public void setCanceled(boolean value) {
         this.monitor.setCanceled(value);
     }
@@ -64,6 +69,7 @@ public class JobProgressComunicator implements IProgressMonitor {
     /**
      * @see org.eclipse.core.runtime.IProgressMonitor#setTaskName(java.lang.String)
      */
+    @Override
     public void setTaskName(String name) {
         this.monitor.setTaskName(name);
         this.job.setName(name);
@@ -72,6 +78,7 @@ public class JobProgressComunicator implements IProgressMonitor {
     /**
      * @see org.eclipse.core.runtime.IProgressMonitor#subTask(java.lang.String)
      */
+    @Override
     public void subTask(String name) {
         this.monitor.subTask(name);
         this.job.setName(name);
@@ -80,6 +87,7 @@ public class JobProgressComunicator implements IProgressMonitor {
     /**
      * @see org.eclipse.core.runtime.IProgressMonitor#worked(int)
      */
+    @Override
     public void worked(int work) {
         this.monitor.worked(work);
     }

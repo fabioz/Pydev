@@ -151,6 +151,7 @@ public class TableCombo extends Composite {
 
         // now add a listener to listen to the events we are interested in.
         listener = new Listener() {
+            @Override
             public void handleEvent(Event event) {
                 if (isDisposed())
                     return;
@@ -187,6 +188,7 @@ public class TableCombo extends Composite {
                 // check for shell event
                 if (getShell() == event.widget) {
                     getDisplay().asyncExec(new Runnable() {
+                        @Override
                         public void run() {
                             if (isDisposed())
                                 return;
@@ -199,6 +201,7 @@ public class TableCombo extends Composite {
 
         // create new focus listener
         focusFilter = new Listener() {
+            @Override
             public void handleEvent(Event event) {
                 if (isDisposed())
                     return;
@@ -487,6 +490,7 @@ public class TableCombo extends Composite {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Point computeSize(int wHint, int hHint, boolean changed) {
         checkWidget();
         int overallWidth = 0;
@@ -745,6 +749,7 @@ public class TableCombo extends Composite {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Control[] getChildren() {
         checkWidget();
         return new Control[0];
@@ -894,6 +899,7 @@ public class TableCombo extends Composite {
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getStyle() {
         checkWidget();
 
@@ -1099,6 +1105,7 @@ public class TableCombo extends Composite {
      */
     void initAccessible() {
         AccessibleAdapter accessibleAdapter = new AccessibleAdapter() {
+            @Override
             public void getName(AccessibleEvent e) {
                 String name = null;
                 Label label = getAssociatedLabel();
@@ -1108,6 +1115,7 @@ public class TableCombo extends Composite {
                 e.result = name;
             }
 
+            @Override
             public void getKeyboardShortcut(AccessibleEvent e) {
                 String shortcut = null;
                 Label label = getAssociatedLabel();
@@ -1123,6 +1131,7 @@ public class TableCombo extends Composite {
                 e.result = shortcut;
             }
 
+            @Override
             public void getHelp(AccessibleEvent e) {
                 e.result = getToolTipText();
             }
@@ -1133,24 +1142,29 @@ public class TableCombo extends Composite {
         table.getAccessible().addAccessibleListener(accessibleAdapter);
 
         arrow.getAccessible().addAccessibleListener(new AccessibleAdapter() {
+            @Override
             public void getName(AccessibleEvent e) {
                 e.result = isDropped() ? SWT.getMessage("SWT_Close") : SWT.getMessage("SWT_Open"); //$NON-NLS-1$ //$NON-NLS-2$
             }
 
+            @Override
             public void getKeyboardShortcut(AccessibleEvent e) {
                 e.result = "Alt+Down Arrow"; //$NON-NLS-1$
             }
 
+            @Override
             public void getHelp(AccessibleEvent e) {
                 e.result = getToolTipText();
             }
         });
 
         getAccessible().addAccessibleTextListener(new AccessibleTextAdapter() {
+            @Override
             public void getCaretOffset(AccessibleTextEvent e) {
                 e.offset = text.getCaretPosition();
             }
 
+            @Override
             public void getSelectionRange(AccessibleTextEvent e) {
                 Point sel = text.getSelection();
                 e.offset = sel.x;
@@ -1159,6 +1173,7 @@ public class TableCombo extends Composite {
         });
 
         getAccessible().addAccessibleControlListener(new AccessibleControlAdapter() {
+            @Override
             public void getChildAtPoint(AccessibleControlEvent e) {
                 Point testPoint = toControl(e.x, e.y);
                 if (getBounds().contains(testPoint)) {
@@ -1166,6 +1181,7 @@ public class TableCombo extends Composite {
                 }
             }
 
+            @Override
             public void getLocation(AccessibleControlEvent e) {
                 Rectangle location = getBounds();
                 Point pt = getParent().toDisplay(location.x, location.y);
@@ -1175,30 +1191,36 @@ public class TableCombo extends Composite {
                 e.height = location.height;
             }
 
+            @Override
             public void getChildCount(AccessibleControlEvent e) {
                 e.detail = 0;
             }
 
+            @Override
             public void getRole(AccessibleControlEvent e) {
                 e.detail = ACC.ROLE_COMBOBOX;
             }
 
+            @Override
             public void getState(AccessibleControlEvent e) {
                 e.detail = ACC.STATE_NORMAL;
             }
 
+            @Override
             public void getValue(AccessibleControlEvent e) {
                 e.result = text.getText();
             }
         });
 
         text.getAccessible().addAccessibleControlListener(new AccessibleControlAdapter() {
+            @Override
             public void getRole(AccessibleControlEvent e) {
                 e.detail = text.getEditable() ? ACC.ROLE_TEXT : ACC.ROLE_LABEL;
             }
         });
 
         arrow.getAccessible().addAccessibleControlListener(new AccessibleControlAdapter() {
+            @Override
             public void getDefaultAction(AccessibleControlEvent e) {
                 e.result = isDropped() ? SWT.getMessage("SWT_Close") : SWT.getMessage("SWT_Open"); //$NON-NLS-1$ //$NON-NLS-2$
             }
@@ -1216,6 +1238,7 @@ public class TableCombo extends Composite {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isFocusControl() {
         checkWidget();
         //if (label.isFocusControl () || arrow.isFocusControl () || table.isFocusControl () || popup.isFocusControl ()) {
@@ -1427,6 +1450,7 @@ public class TableCombo extends Composite {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void redraw() {
         super.redraw();
         text.redraw();
@@ -1438,6 +1462,7 @@ public class TableCombo extends Composite {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void redraw(int x, int y, int width, int height, boolean all) {
         super.redraw(x, y, width, height, true);
     }
@@ -1556,6 +1581,7 @@ public class TableCombo extends Composite {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setBackground(Color color) {
         super.setBackground(color);
         background = color;
@@ -1589,6 +1615,7 @@ public class TableCombo extends Composite {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
         if (popup != null)
@@ -1604,6 +1631,7 @@ public class TableCombo extends Composite {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean setFocus() {
         checkWidget();
         if (!isEnabled() || !isVisible())
@@ -1617,6 +1645,7 @@ public class TableCombo extends Composite {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setFont(Font font) {
         super.setFont(font);
         this.font = font;
@@ -1628,6 +1657,7 @@ public class TableCombo extends Composite {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setForeground(Color color) {
         super.setForeground(color);
         foreground = color;
@@ -1654,6 +1684,7 @@ public class TableCombo extends Composite {
      *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
      * </ul>
      */
+    @Override
     public void setLayout(Layout layout) {
         checkWidget();
         return;
@@ -1767,6 +1798,7 @@ public class TableCombo extends Composite {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setToolTipText(String tipText) {
         checkWidget();
         super.setToolTipText(tipText);
@@ -1781,6 +1813,7 @@ public class TableCombo extends Composite {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setVisible(boolean visible) {
         super.setVisible(visible);
         /* 

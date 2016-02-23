@@ -55,6 +55,7 @@ public abstract class AbstractFileChangeProcessor<T extends IRefactoringRequest>
 
     protected abstract void processEdit() throws MisconfigurationException;
 
+    @Override
     public Change createChange() throws MisconfigurationException {
         if (info.getSourceFile() != null) {
             change = new SynchronizedTextFileChange(name, info.getSourceFile());

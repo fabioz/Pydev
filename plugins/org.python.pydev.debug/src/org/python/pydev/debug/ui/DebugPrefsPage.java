@@ -41,6 +41,7 @@ public class DebugPrefsPage extends FieldEditorPreferencePage implements IWorkbe
         setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
     }
 
+    @Override
     public void init(IWorkbench workbench) {
     }
 

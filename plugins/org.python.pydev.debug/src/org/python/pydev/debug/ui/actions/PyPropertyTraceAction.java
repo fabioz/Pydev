@@ -22,6 +22,7 @@ import org.python.pydev.shared_ui.EditorUtils;
 
 public class PyPropertyTraceAction extends PyAction implements IWorkbenchWindowActionDelegate {
 
+    @Override
     public void run(IAction arg0) {
         PyPropertyTraceDialog dialog = new PyPropertyTraceDialog(EditorUtils.getShell());
         dialog.setTitle("Enable/Disable Step Into properties");
@@ -32,9 +33,11 @@ public class PyPropertyTraceAction extends PyAction implements IWorkbenchWindowA
         }
     }
 
+    @Override
     public void dispose() {
     }
 
+    @Override
     public void init(IWorkbenchWindow arg0) {
     }
 }

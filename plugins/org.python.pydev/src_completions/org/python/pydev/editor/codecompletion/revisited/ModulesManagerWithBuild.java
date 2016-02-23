@@ -45,6 +45,7 @@ public abstract class ModulesManagerWithBuild extends ModulesManager implements 
 
     protected static ICallback<ModulesKey, String> readFromFileMethod = new ICallback<ModulesKey, String>() {
 
+        @Override
         public ModulesKey call(String arg) {
             List<String> split = StringUtils.split(arg, '|');
             if (split.size() == 1) {
@@ -60,6 +61,7 @@ public abstract class ModulesManagerWithBuild extends ModulesManager implements 
 
     protected static ICallback<String, ModulesKey> toFileMethod = new ICallback<String, ModulesKey>() {
 
+        @Override
         public String call(ModulesKey arg) {
             FastStringBuffer buf = new FastStringBuffer();
             buf.append(arg.name);
@@ -74,6 +76,7 @@ public abstract class ModulesManagerWithBuild extends ModulesManager implements 
     /** 
      * @see org.python.pydev.core.IProjectModulesManager#processUpdate(org.python.pydev.core.ModulesKey)
      */
+    @Override
     public void processUpdate(ModulesKey data) {
         //updates are ignored because we always start with 'empty modules' (so, we don't actually generate them -- updates are treated as inserts).
         throw new RuntimeException("Not impl");
@@ -82,6 +85,7 @@ public abstract class ModulesManagerWithBuild extends ModulesManager implements 
     /** 
      * @see org.python.pydev.core.IProjectModulesManager#processDelete(org.python.pydev.core.ModulesKey)
      */
+    @Override
     public void processDelete(ModulesKey key) {
         doRemoveSingleModule(key);
     }
@@ -89,6 +93,7 @@ public abstract class ModulesManagerWithBuild extends ModulesManager implements 
     /** 
      * @see org.python.pydev.core.IProjectModulesManager#processInsert(org.python.pydev.core.ModulesKey)
      */
+    @Override
     public void processInsert(ModulesKey key) {
         addModule(key);
     }

@@ -223,6 +223,7 @@ public abstract class AbstractSearchIndexResultPage extends AbstractTextSearchVi
 
     protected static final String[] SHOW_IN_TARGETS = new String[] { IPageLayout.ID_RES_NAV };
     protected static final IShowInTargetList SHOW_IN_TARGET_LIST = new IShowInTargetList() {
+        @Override
         public String[] getShowInTargetIds() {
             return SHOW_IN_TARGETS;
         }
@@ -458,6 +459,7 @@ public abstract class AbstractSearchIndexResultPage extends AbstractTextSearchVi
                 }
 
                 return new IShowInSource() {
+                    @Override
                     public ShowInContext getShowInContext() {
                         return new ShowInContext(null, new StructuredSelection(new ArrayList<>(newSelection)));
                     }

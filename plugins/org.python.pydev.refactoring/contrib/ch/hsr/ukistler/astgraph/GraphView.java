@@ -139,6 +139,7 @@ public class GraphView extends JFrame {
             saveImage = new JButton();
             saveImage.setText("Save as PNG");
             saveImage.addActionListener(new java.awt.event.ActionListener() {
+                @Override
                 public void actionPerformed(java.awt.event.ActionEvent event) {
 
                     FileFilter filter = new PNGFilter();
@@ -169,6 +170,7 @@ public class GraphView extends JFrame {
             loadPython = new JButton();
             loadPython.setText("Load Python source");
             loadPython.addActionListener(new java.awt.event.ActionListener() {
+                @Override
                 public void actionPerformed(java.awt.event.ActionEvent event) {
                     FileFilter filter = new PythonFilter();
                     try {

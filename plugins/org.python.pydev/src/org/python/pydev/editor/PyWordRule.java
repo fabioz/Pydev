@@ -111,6 +111,7 @@ public class PyWordRule implements IRule {
 
     private String lastFound = "";
 
+    @Override
     public IToken evaluate(ICharacterScanner scanner) {
         int c = scanner.read();
 

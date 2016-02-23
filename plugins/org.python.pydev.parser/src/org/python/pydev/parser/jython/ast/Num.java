@@ -15,6 +15,7 @@ public final class Num extends exprType implements num_typeType {
         this.num = num;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -24,6 +25,7 @@ public final class Num extends exprType implements num_typeType {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -47,10 +49,12 @@ public final class Num extends exprType implements num_typeType {
         return true;
     }
 
+    @Override
     public Num createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public Num createCopy(boolean copyComments) {
         Num temp = new Num(n, type, num);
         temp.beginLine = this.beginLine;
@@ -74,6 +78,7 @@ public final class Num extends exprType implements num_typeType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("Num[");
         sb.append("n=");
@@ -88,10 +93,12 @@ public final class Num extends exprType implements num_typeType {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitNum(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
     }
 

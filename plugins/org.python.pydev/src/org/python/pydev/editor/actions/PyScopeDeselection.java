@@ -18,6 +18,7 @@ import org.python.pydev.shared_ui.editor.BaseEditor;
  */
 public class PyScopeDeselection extends PyAction {
 
+    @Override
     public void run(IAction action) {
         try {
             BaseEditor pyEdit = getPyEdit();

@@ -30,6 +30,7 @@ public class PySourceLocator implements ISourceLocator, ISourcePresentation {
 
     private PySourceLocatorBase locatorBase = new PySourceLocatorBase();
 
+    @Override
     public Object getSourceElement(IStackFrame stackFrame) {
         return stackFrame;
     }
@@ -37,6 +38,7 @@ public class PySourceLocator implements ISourceLocator, ISourcePresentation {
     private IProject lastProject = null;
 
     // Returns the file
+    @Override
     public IEditorInput getEditorInput(Object element) {
         IEditorInput edInput = null;
         if (element instanceof PyStackFrame) {
@@ -57,6 +59,7 @@ public class PySourceLocator implements ISourceLocator, ISourcePresentation {
         return edInput;
     }
 
+    @Override
     public String getEditorId(IEditorInput input, Object element) {
         String name = input.getName();
         if (PythonPathHelper.isValidSourceFile(name)) {

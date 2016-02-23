@@ -23,6 +23,7 @@ public class OrganizeImportsTest extends AdditionalInfoTestsBase {
         junit.textui.TestRunner.run(OrganizeImportsTest.class);
     }
 
+    @Override
     public void setUp() throws Exception {
         super.setUp();
         organizer = new OrganizeImports();

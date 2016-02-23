@@ -67,6 +67,7 @@ public class PyThread extends PlatformObject implements IThread {
         this.stack = stack;
     }
 
+    @Override
     public String getName() throws DebugException {
         return name + " - " + getId();
     }
@@ -79,46 +80,57 @@ public class PyThread extends PlatformObject implements IThread {
         return isPydevThread;
     }
 
+    @Override
     public int getPriority() throws DebugException {
         return 0;
     }
 
+    @Override
     public String getModelIdentifier() {
         return target.getModelIdentifier();
     }
 
+    @Override
     public IDebugTarget getDebugTarget() {
         return target;
     }
 
+    @Override
     public ILaunch getLaunch() {
         return target.getLaunch();
     }
 
+    @Override
     public boolean canTerminate() {
         return !isPydevThread && !isTerminated();
     }
 
+    @Override
     public boolean isTerminated() {
         return target.isTerminated();
     }
 
+    @Override
     public void terminate() throws DebugException {
         target.terminate();
     }
 
+    @Override
     public boolean canResume() {
         return !isPydevThread && isSuspended && !isTerminated() && !isCustomFrame;
     }
 
+    @Override
     public boolean canSuspend() {
         return !isPydevThread && !isSuspended && !isTerminated() && !isCustomFrame;
     }
 
+    @Override
     public boolean isSuspended() {
         return isSuspended;
     }
 
+    @Override
     public void resume() throws DebugException {
         if (!isPydevThread) {
             stack = null;
@@ -127,6 +139,7 @@ public class PyThread extends PlatformObject implements IThread {
         }
     }
 
+    @Override
     public void suspend() throws DebugException {
         if (!isPydevThread) {
             stack = null;
@@ -134,22 +147,27 @@ public class PyThread extends PlatformObject implements IThread {
         }
     }
 
+    @Override
     public boolean canStepInto() {
         return canResume();
     }
 
+    @Override
     public boolean canStepOver() {
         return canResume();
     }
 
+    @Override
     public boolean canStepReturn() {
         return canResume();
     }
 
+    @Override
     public boolean isStepping() {
         return isStepping;
     }
 
+    @Override
     public void stepInto() throws DebugException {
         if (!isPydevThread) {
             isStepping = true;
@@ -157,6 +175,7 @@ public class PyThread extends PlatformObject implements IThread {
         }
     }
 
+    @Override
     public void stepOver() throws DebugException {
         if (!isPydevThread) {
             isStepping = true;
@@ -164,6 +183,7 @@ public class PyThread extends PlatformObject implements IThread {
         }
     }
 
+    @Override
     public void stepReturn() throws DebugException {
         if (!isPydevThread) {
             isStepping = true;
@@ -182,6 +202,7 @@ public class PyThread extends PlatformObject implements IThread {
                 funcName));
     }
 
+    @Override
     public IStackFrame[] getStackFrames() throws DebugException {
         if (isSuspended && stack != null) {
             return stack;
@@ -189,10 +210,12 @@ public class PyThread extends PlatformObject implements IThread {
         return new IStackFrame[0];
     }
 
+    @Override
     public boolean hasStackFrames() throws DebugException {
         return (stack != null && stack.length > 0);
     }
 
+    @Override
     public IStackFrame getTopStackFrame() {
         return (stack == null || stack.length == 0) ? null : stack[0];
     }
@@ -211,6 +234,7 @@ public class PyThread extends PlatformObject implements IThread {
         return null;
     }
 
+    @Override
     public IBreakpoint[] getBreakpoints() {
         // should return breakpoint that caused this thread to suspend
         // not implementing this seems to cause no harm

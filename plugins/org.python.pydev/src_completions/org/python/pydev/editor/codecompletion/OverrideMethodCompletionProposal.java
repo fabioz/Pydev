@@ -64,6 +64,7 @@ public class OverrideMethodCompletionProposal extends AbstractPyCompletionPropos
     /* (non-Javadoc)
      * @see org.eclipse.jface.text.contentassist.ICompletionProposalExtension2#apply(org.eclipse.jface.text.ITextViewer, char, int, int)
      */
+    @Override
     public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
         IDocument document = viewer.getDocument();
         int finalOffset = applyOnDocument(viewer, document, trigger, stateMask, offset);
@@ -93,6 +94,7 @@ public class OverrideMethodCompletionProposal extends AbstractPyCompletionPropos
         } else {
             versionProvider = new IGrammarVersionProvider() {
 
+                @Override
                 public int getGrammarVersion() throws MisconfigurationException {
                     return IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;
                 }

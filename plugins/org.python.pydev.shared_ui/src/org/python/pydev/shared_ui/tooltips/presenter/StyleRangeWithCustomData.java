@@ -38,6 +38,7 @@ public class StyleRangeWithCustomData extends StyleRange {
 
     public Object customData;
 
+    @Override
     public boolean similarTo(StyleRange style) {
         if (!(style instanceof StyleRangeWithCustomData)) {
             return false;

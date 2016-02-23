@@ -67,6 +67,7 @@ public class MatchHelper {
     public static boolean equalsFilter(String thisPattern, String otherPattern) {
         return checkPatternSubparts(thisPattern, otherPattern, new ICallback2<Boolean, SearchPattern, SearchPattern>() {
 
+            @Override
             public Boolean call(SearchPattern thisP, SearchPattern otherP) {
                 if (!(thisP.equalsPattern(otherP))) {
                     return false;
@@ -82,6 +83,7 @@ public class MatchHelper {
     public static boolean isSubFilter(String thisPattern, String otherPattern) {
         return checkPatternSubparts(thisPattern, otherPattern, new ICallback2<Boolean, SearchPattern, SearchPattern>() {
 
+            @Override
             public Boolean call(SearchPattern thisP, SearchPattern otherP) {
                 if (!(thisP.isSubPattern(otherP))) {
                     return false;

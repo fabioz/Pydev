@@ -195,10 +195,12 @@ public abstract class TreeWithAddRemove extends Composite {
         buttonRem.setToolTipText("Remove the selected item");
         buttonRem.addSelectionListener(new SelectionListener() {
 
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 handleRemove();
             }
 
+            @Override
             public void widgetDefaultSelected(SelectionEvent e) {
             }
 
@@ -213,10 +215,12 @@ public abstract class TreeWithAddRemove extends Composite {
         buttonEdit.setToolTipText("Edit the selected item");
         buttonEdit.addSelectionListener(new SelectionListener() {
 
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 handleEdit();
             }
 
+            @Override
             public void widgetDefaultSelected(SelectionEvent e) {
             }
 
@@ -233,10 +237,12 @@ public abstract class TreeWithAddRemove extends Composite {
     protected void customizeAddSomethingButton(Button addButton, final int nButton) {
         addButton.addSelectionListener(new SelectionListener() {
 
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 handleAddButtonSelected(nButton);
             }
 
+            @Override
             public void widgetDefaultSelected(SelectionEvent e) {
             }
 

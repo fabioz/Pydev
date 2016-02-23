@@ -120,6 +120,7 @@ public class ConstructorFieldPage extends UserInputWizardPage {
         selectAll.setText(Messages.wizardSelectAll);
         selectAll.setLayoutData(gridData2);
         selectAll.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 treeViewer.setAllChecked(true);
                 getRequestProcessor().setCheckedElements(treeViewer.getCheckedElements());
@@ -130,6 +131,7 @@ public class ConstructorFieldPage extends UserInputWizardPage {
         deselectAll.setText(Messages.wizardDeselectAll);
         deselectAll.setLayoutData(gridData1);
         deselectAll.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 treeViewer.setAllChecked(false);
                 getRequestProcessor().setCheckedElements(treeViewer.getCheckedElements());
@@ -165,6 +167,7 @@ public class ConstructorFieldPage extends UserInputWizardPage {
         methodInsertionLbl.setText(Messages.offsetStrategyInsertionPointMethod);
         methodInsertionComb = createComboViewer(comboComp);
         methodInsertionComb.addSelectionChangedListener(new ISelectionChangedListener() {
+            @Override
             public void selectionChanged(SelectionChangedEvent event) {
                 IStructuredSelection sel = (IStructuredSelection) event.getSelection();
                 if (!sel.isEmpty()) {
@@ -181,6 +184,7 @@ public class ConstructorFieldPage extends UserInputWizardPage {
     private void createTreeViewer(Composite treeComp) {
         treeViewer = new ContainerCheckedTreeViewer(treeComp);
         treeViewer.addCheckStateListener(new ICheckStateListener() {
+            @Override
             public void checkStateChanged(CheckStateChangedEvent event) {
                 getRequestProcessor().setCheckedElements(treeViewer.getCheckedElements());
                 ConstructorFieldPage.this.getWizard().getContainer().updateButtons();
@@ -194,6 +198,7 @@ public class ConstructorFieldPage extends UserInputWizardPage {
         treeViewer.setSelection(new StructuredSelection(treeViewer.getExpandedElements()[0]));
     }
 
+    @Override
     public void createControl(Composite composite) {
         Composite main = createMainComp(composite);
         main.pack();

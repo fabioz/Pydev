@@ -19,6 +19,7 @@ public final class Str extends exprType implements str_typeType {
         this.binary = binary;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -30,6 +31,7 @@ public final class Str extends exprType implements str_typeType {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -54,10 +56,12 @@ public final class Str extends exprType implements str_typeType {
         return true;
     }
 
+    @Override
     public Str createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public Str createCopy(boolean copyComments) {
         Str temp = new Str(s, type, unicode, raw, binary);
         temp.beginLine = this.beginLine;
@@ -81,6 +85,7 @@ public final class Str extends exprType implements str_typeType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("Str[");
         sb.append("s=");
@@ -101,10 +106,12 @@ public final class Str extends exprType implements str_typeType {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitStr(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
     }
 

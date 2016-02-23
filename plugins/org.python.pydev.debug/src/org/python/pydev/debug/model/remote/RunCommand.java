@@ -21,6 +21,7 @@ public class RunCommand extends AbstractDebuggerCommand {
         super(debugger);
     }
 
+    @Override
     public String getOutgoing() {
         return makeCommand(CMD_RUN, sequence, "");
     }

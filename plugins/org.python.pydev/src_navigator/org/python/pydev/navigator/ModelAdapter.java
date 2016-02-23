@@ -25,6 +25,7 @@ import org.python.pydev.navigator.elements.IWrappedResource;
  */
 public class ModelAdapter implements IAdapterFactory {
 
+    @Override
     public <T> T getAdapter(Object adaptableObject, Class<T> adapterType) {
         if (adaptableObject instanceof IAdaptable) {
             IAdaptable adaptable = (IAdaptable) adaptableObject;
@@ -36,6 +37,7 @@ public class ModelAdapter implements IAdapterFactory {
         return null;
     }
 
+    @Override
     public Class<?>[] getAdapterList() {
         return new Class[] { IWrappedResource.class, ResourceMapping.class, IResource.class, IFolder.class,
                 IFile.class, IContainer.class, IContributorResourceAdapter.class, IProject.class };

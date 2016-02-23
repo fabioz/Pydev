@@ -18,6 +18,7 @@ public class SortAction extends Action {
         fSortOrder = sortOrder;
     }
 
+    @Override
     public void run() {
         fPage.setSortOrder(fSortOrder);
     }

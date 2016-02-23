@@ -28,6 +28,7 @@ public abstract class AbstractStringScanner implements ITokenScanner {
     /*
      * @see ITokenScanner#setRange(IDocument, int, int)
      */
+    @Override
     public void setRange(final IDocument document, int offset, int length) {
         Assert.isLegal(document != null);
         final int documentLength = document.getLength();
@@ -62,6 +63,7 @@ public abstract class AbstractStringScanner implements ITokenScanner {
     /*
      * @see ITokenScanner#getTokenOffset()
      */
+    @Override
     public int getTokenOffset() {
         return fOffset + fstart;
     }
@@ -69,6 +71,7 @@ public abstract class AbstractStringScanner implements ITokenScanner {
     /*
      * @see ITokenScanner#getTokenLength()
      */
+    @Override
     public int getTokenLength() {
         return fCurrIndex - fstart;
     }
@@ -76,6 +79,7 @@ public abstract class AbstractStringScanner implements ITokenScanner {
     /*
      * @see ITokenScanner#nextToken()
      */
+    @Override
     public IToken nextToken() {
         fstart = fCurrIndex;
 

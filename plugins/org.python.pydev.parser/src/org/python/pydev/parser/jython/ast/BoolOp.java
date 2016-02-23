@@ -13,6 +13,7 @@ public final class BoolOp extends exprType implements boolopType {
         this.values = values;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -21,6 +22,7 @@ public final class BoolOp extends exprType implements boolopType {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -36,10 +38,12 @@ public final class BoolOp extends exprType implements boolopType {
         return true;
     }
 
+    @Override
     public BoolOp createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public BoolOp createCopy(boolean copyComments) {
         exprType[] new0;
         if (this.values != null) {
@@ -72,6 +76,7 @@ public final class BoolOp extends exprType implements boolopType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("BoolOp[");
         sb.append("op=");
@@ -83,10 +88,12 @@ public final class BoolOp extends exprType implements boolopType {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitBoolOp(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (values != null) {
             for (int i = 0; i < values.length; i++) {

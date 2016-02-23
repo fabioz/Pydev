@@ -13,9 +13,11 @@ import org.python.pydev.shared_ui.EditorUtils;
 
 public class DjangoCreateApp extends DjangoAction {
 
+    @Override
     public void run(IAction action) {
         IInputValidator validator = new IInputValidator() {
 
+            @Override
             public String isValid(String newText) {
                 if (newText.trim().length() == 0) {
                     return "Name cannot be empty";

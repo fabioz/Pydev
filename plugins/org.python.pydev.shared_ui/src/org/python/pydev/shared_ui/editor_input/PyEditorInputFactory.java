@@ -29,6 +29,7 @@ public class PyEditorInputFactory implements IElementFactory {
 
     public static final String FACTORY_ID = "org.python.pydev.editorinput.pyEditorInputFactory";
 
+    @Override
     public IAdaptable createElement(IMemento memento) {
         String fileStr = memento.getString(TAG_FILE);
         if (fileStr == null || fileStr.length() == 0) {

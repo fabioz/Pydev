@@ -58,6 +58,7 @@ public class Select1Dialog {
                 Control ret = super.createDialogArea(parent);
                 ret.addTraverseListener(new TraverseListener() {
 
+                    @Override
                     public void keyTraversed(TraverseEvent e) {
                         if (e.detail == SWT.TRAVERSE_RETURN) {
                             okPressed();

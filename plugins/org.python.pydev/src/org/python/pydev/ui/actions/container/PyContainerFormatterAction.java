@@ -130,6 +130,7 @@ abstract class PyContainerFormatterAction extends PyContainerAction {
                                 if (isOpenedFile) {
                                     RunInUiThread.async(new Runnable() {
 
+                                        @Override
                                         public void run() {
                                             try {
                                                 formatter.formatAll(doc, null, (IFile) c, isOpenedFile, true);

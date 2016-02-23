@@ -19,6 +19,7 @@ public final class FunctionDef extends stmtType {
         this.returns = returns;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -30,6 +31,7 @@ public final class FunctionDef extends stmtType {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -60,10 +62,12 @@ public final class FunctionDef extends stmtType {
         return true;
     }
 
+    @Override
     public FunctionDef createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public FunctionDef createCopy(boolean copyComments) {
         stmtType[] new0;
         if (this.body != null) {
@@ -107,6 +111,7 @@ public final class FunctionDef extends stmtType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("FunctionDef[");
         sb.append("name=");
@@ -127,10 +132,12 @@ public final class FunctionDef extends stmtType {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitFunctionDef(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (name != null) {
             name.accept(visitor);

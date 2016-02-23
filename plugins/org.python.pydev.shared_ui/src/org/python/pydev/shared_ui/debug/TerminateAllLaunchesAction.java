@@ -31,6 +31,7 @@ public class TerminateAllLaunchesAction extends BaseAction implements IUpdate {
     /* (non-Javadoc)
      * @see org.eclipse.ui.texteditor.IUpdate#update()
      */
+    @Override
     public void update() {
         ILaunch[] launches = DebugPlugin.getDefault().getLaunchManager().getLaunches();
         try {

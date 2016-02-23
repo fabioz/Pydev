@@ -61,6 +61,7 @@ public class PyPreferencesCache implements IPropertyChangeListener {
         return b;
     }
 
+    @Override
     public void propertyChange(PropertyChangeEvent event) {
         final Object newValue = event.getNewValue();
         cache.put(event.getProperty(), newValue); //simply override the cache (do not care about whether it is null, Boolean, etc).

@@ -23,23 +23,28 @@ public class SystemASTManager extends AbstractASTManager {
         setNature(nature);
     }
 
+    @Override
     public void setProject(IProject project, IPythonNature nature, boolean restoreDeltas) {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public void rebuildModule(File file, ICallback0<IDocument> doc, IProject project, IProgressMonitor monitor,
             IPythonNature nature) {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public void removeModule(File file, IProject project, IProgressMonitor monitor) {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public void changePythonPath(String pythonpath, IProject project, IProgressMonitor monitor) {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public void saveToFile(File astOutputFile) {
         throw new RuntimeException("Not implemented");
     }

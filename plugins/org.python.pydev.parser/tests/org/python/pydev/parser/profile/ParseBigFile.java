@@ -22,10 +22,12 @@ public class ParseBigFile extends PyParserTestBase {
         junit.textui.TestRunner.run(ParseBigFile.class);
     }
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
     }
 
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }

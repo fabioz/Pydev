@@ -45,6 +45,7 @@ public class AssistSurroundWith extends AbstractTemplateCodeCompletion implement
      * @throws BadLocationException
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps(org.python.pydev.core.docutils.PySelection, org.python.pydev.shared_ui.ImageCache)
      */
+    @Override
     public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature,
             PyEdit edit, int offset) throws BadLocationException {
 
@@ -166,10 +167,12 @@ public class AssistSurroundWith extends AbstractTemplateCodeCompletion implement
     /**
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#isValid(org.python.pydev.core.docutils.PySelection)
      */
+    @Override
     public boolean isValid(PySelection ps, String sel, PyEdit edit, int offset) {
         return ps.getTextSelection().getLength() > 0;
     }
 
+    @Override
     public List<Object> getCodeCompletionProposals(ITextViewer viewer, CompletionRequest request) throws CoreException,
             BadLocationException {
         throw new RuntimeException("Not implemented: completions should be gotten from the IAssistProps interface.");

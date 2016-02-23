@@ -22,6 +22,7 @@ public class DjangoCustomCommand extends DjangoAction {
     private static final String SHELL_MEMENTO_ID = "org.python.pydev.django.debug.ui.actions.DjangoCustomCommand.shell";
     private static final String DJANGO_CUSTOM_COMMANDS_PREFERENCE_KEY = "DJANGO_CUSTOM_COMMANDS";
 
+    @Override
     public void run(IAction action) {
         try {
 

@@ -49,6 +49,7 @@ public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWork
             this.fTag = tag;
         }
 
+        @Override
         public void widgetSelected(SelectionEvent e) {
             int testRunner = getTestRunner();
             String tag;
@@ -104,6 +105,7 @@ public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWork
             textControl.setFocus();
         }
 
+        @Override
         public void widgetDefaultSelected(SelectionEvent e) {
         }
 
@@ -296,6 +298,7 @@ public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWork
     /**
      * Initialize the preference page.
      */
+    @Override
     public void init(IWorkbench workbench) {
         // Initialize the preference page
     }

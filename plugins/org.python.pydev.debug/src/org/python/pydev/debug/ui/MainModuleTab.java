@@ -53,6 +53,7 @@ public class MainModuleTab extends AbstractLaunchConfigurationTab {
      * (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#createControl(org.eclipse.swt.widgets.Composite)
      */
+    @Override
     public void createControl(Composite parent) {
 
         Composite composite = new Composite(parent, SWT.NONE);
@@ -73,6 +74,7 @@ public class MainModuleTab extends AbstractLaunchConfigurationTab {
      * (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#setDefaults(org.eclipse.debug.core.ILaunchConfigurationWorkingCopy)
      */
+    @Override
     public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
         // No defaults to set
     }
@@ -81,6 +83,7 @@ public class MainModuleTab extends AbstractLaunchConfigurationTab {
      * (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#initializeFrom(org.eclipse.debug.core.ILaunchConfiguration)
      */
+    @Override
     public void initializeFrom(ILaunchConfiguration configuration) {
         fProjectBlock.initializeFrom(configuration);
         fMainModuleBlock.initializeFrom(configuration);
@@ -91,6 +94,7 @@ public class MainModuleTab extends AbstractLaunchConfigurationTab {
      * (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#performApply(org.eclipse.debug.core.ILaunchConfigurationWorkingCopy)
      */
+    @Override
     public void performApply(ILaunchConfigurationWorkingCopy configuration) {
         fProjectBlock.performApply(configuration);
         fMainModuleBlock.performApply(configuration);
@@ -183,6 +187,7 @@ public class MainModuleTab extends AbstractLaunchConfigurationTab {
      * (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#getName()
      */
+    @Override
     public String getName() {
         return "Main";
     }

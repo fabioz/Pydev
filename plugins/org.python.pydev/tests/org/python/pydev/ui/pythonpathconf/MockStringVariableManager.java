@@ -38,6 +38,7 @@ final class MockStringVariableManager implements IStringVariableManager {
         mockVariables.put(variable, value);
     }
 
+    @Override
     public String performStringSubstitution(String expression, boolean reportUndefinedVariables) throws CoreException {
         if (reportUndefinedVariables) {
             throw new AssertionFailedError("reportUndefinedVariables only supports false");
@@ -49,62 +50,77 @@ final class MockStringVariableManager implements IStringVariableManager {
         return expression;
     }
 
+    @Override
     public String performStringSubstitution(String expression) throws CoreException {
         throw new AssertionFailedError("Unexpected method call in MockStringVariableManager");
     }
 
+    @Override
     public void validateStringVariables(String expression) throws CoreException {
         throw new AssertionFailedError("Unexpected method call in MockStringVariableManager");
     }
 
+    @Override
     public void removeVariables(IValueVariable[] variables) {
         throw new AssertionFailedError("Unexpected method call in MockStringVariableManager");
     }
 
+    @Override
     public void removeValueVariableListener(IValueVariableListener listener) {
         throw new AssertionFailedError("Unexpected method call in MockStringVariableManager");
     }
 
+    @Override
     public IValueVariable newValueVariable(String name, String description, boolean readOnly, String value) {
         throw new AssertionFailedError("Unexpected method call in MockStringVariableManager");
     }
 
+    @Override
     public IValueVariable newValueVariable(String name, String description) {
         throw new AssertionFailedError("Unexpected method call in MockStringVariableManager");
     }
 
+    @Override
     public IStringVariable[] getVariables() {
         throw new AssertionFailedError("Unexpected method call in MockStringVariableManager");
     }
 
+    @Override
     public IValueVariable[] getValueVariables() {
         throw new AssertionFailedError("Unexpected method call in MockStringVariableManager");
     }
 
+    @Override
     public IValueVariable getValueVariable(String name) {
         throw new AssertionFailedError("Unexpected method call in MockStringVariableManager");
     }
 
+    @Override
     public IDynamicVariable[] getDynamicVariables() {
         throw new AssertionFailedError("Unexpected method call in MockStringVariableManager");
     }
 
+    @Override
     public IDynamicVariable getDynamicVariable(String name) {
         throw new AssertionFailedError("Unexpected method call in MockStringVariableManager");
     }
 
+    @Override
     public String getContributingPluginId(IStringVariable variable) {
         throw new AssertionFailedError("Unexpected method call in MockStringVariableManager");
     }
 
+    @Override
     public String generateVariableExpression(String varName, String arg) {
         throw new AssertionFailedError("Unexpected method call in MockStringVariableManager");
     }
 
+    @Override
     public void addVariables(IValueVariable[] variables) throws CoreException {
         throw new AssertionFailedError("Unexpected method call in MockStringVariableManager");
     }
 
+    @Override
     public void addValueVariableListener(IValueVariableListener listener) {
         throw new AssertionFailedError("Unexpected method call in MockStringVariableManager");
     }

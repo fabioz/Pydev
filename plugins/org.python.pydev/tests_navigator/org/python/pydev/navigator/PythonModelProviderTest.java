@@ -556,6 +556,7 @@ public class PythonModelProviderTest extends TestCase {
             final WorkingSetStub workingSetStub = new WorkingSetStub();
             PythonModelProvider.getWorkingSetsCallback = new ICallback<List<IWorkingSet>, IWorkspaceRoot>() {
 
+                @Override
                 public List<IWorkingSet> call(IWorkspaceRoot arg) {
                     ArrayList<IWorkingSet> ret = new ArrayList<IWorkingSet>();
                     ret.add(workingSetStub);

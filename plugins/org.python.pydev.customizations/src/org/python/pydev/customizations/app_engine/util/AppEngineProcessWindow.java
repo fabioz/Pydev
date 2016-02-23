@@ -19,6 +19,7 @@ public class AppEngineProcessWindow extends ProcessWindow {
         super(parentShell);
     }
 
+    @Override
     protected String[] getAvailableCommands() {
         return getAvailableCommands(container);
     }

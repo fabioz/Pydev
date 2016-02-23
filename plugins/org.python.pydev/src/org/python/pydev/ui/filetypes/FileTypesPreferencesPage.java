@@ -74,6 +74,7 @@ public class FileTypesPreferencesPage extends FieldEditorPreferencePage implemen
                 StringFieldEditor.UNLIMITED, p));
     }
 
+    @Override
     public void init(IWorkbench workbench) {
         // pass
     }
@@ -97,6 +98,7 @@ public class FileTypesPreferencesPage extends FieldEditorPreferencePage implemen
             PydevPrefs.getPreferences().addPropertyChangeListener(this);
         }
 
+        @Override
         public void propertyChange(PropertyChangeEvent event) {
             this.wildcaldValidSourceFiles = null;
             this.dottedValidSourceFiles = null;

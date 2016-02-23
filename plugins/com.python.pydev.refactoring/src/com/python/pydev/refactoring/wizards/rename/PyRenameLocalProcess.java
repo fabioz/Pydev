@@ -31,11 +31,13 @@ public class PyRenameLocalProcess extends AbstractRenameRefactorProcess {
         super(definition);
     }
 
+    @Override
     protected void findReferencesToRenameOnWorkspace(RefactoringRequest request, RefactoringStatus status) {
         //Only search in local scope
         findReferencesToRenameOnLocalScope(request, status);
     }
 
+    @Override
     protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
         //Only search in local scope if the place where the definition was found is the same place of the request.
         if (definition.module.getName().equals(request.moduleName)) {

@@ -97,6 +97,7 @@ public class PydevDebugPlugin extends AbstractUIPlugin {
     public static void errorDialog(final String message, final Throwable t) {
         Display disp = Display.getDefault();
         disp.asyncExec(new Runnable() {
+            @Override
             public void run() {
                 IWorkbenchWindow window = getDefault().getWorkbench().getActiveWorkbenchWindow();
                 Shell shell = window == null ? null : window.getShell();

@@ -30,6 +30,7 @@ public class PyDjangoOfflineAction extends Action implements IOfflineActionWithP
         this.edit = edit;
     }
 
+    @Override
     public void setParameters(List<String> parameters) {
         this.parameters = parameters;
     }

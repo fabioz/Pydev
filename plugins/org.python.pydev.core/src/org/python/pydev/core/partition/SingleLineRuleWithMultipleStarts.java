@@ -37,14 +37,17 @@ public class SingleLineRuleWithMultipleStarts implements IPredicateRule, IChange
         this.escapeContinuesLine = escapeContinuesLine;
     }
 
+    @Override
     public IToken evaluate(ICharacterScanner scanner) {
         return evaluate(scanner, false);
     }
 
+    @Override
     public IToken getSuccessToken() {
         return fToken;
     }
 
+    @Override
     public IToken evaluate(ICharacterScanner scanner, boolean resume) {
         if (resume) {
             if (detectEnd(scanner)) {

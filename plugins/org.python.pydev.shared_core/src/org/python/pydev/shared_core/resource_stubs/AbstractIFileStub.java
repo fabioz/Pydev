@@ -20,94 +20,116 @@ import org.eclipse.core.runtime.content.IContentDescription;
 
 public class AbstractIFileStub extends AbstractIResourceStub implements IFile {
 
+    @Override
     public void appendContents(InputStream source, boolean force, boolean keepHistory, IProgressMonitor monitor)
             throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public void appendContents(InputStream source, int updateFlags, IProgressMonitor monitor) throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public void create(InputStream source, boolean force, IProgressMonitor monitor) throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public void create(InputStream source, int updateFlags, IProgressMonitor monitor) throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public void createLink(IPath localLocation, int updateFlags, IProgressMonitor monitor) throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public void createLink(URI location, int updateFlags, IProgressMonitor monitor) throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public void delete(boolean force, boolean keepHistory, IProgressMonitor monitor) throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public String getCharset() throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public String getCharset(boolean checkImplicit) throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public String getCharsetFor(Reader reader) throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public IContentDescription getContentDescription() throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public InputStream getContents() throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public InputStream getContents(boolean force) throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public int getEncoding() throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public IFileState[] getHistory(IProgressMonitor monitor) throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public void move(IPath destination, boolean force, boolean keepHistory, IProgressMonitor monitor)
             throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public void setCharset(String newCharset) throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public void setCharset(String newCharset, IProgressMonitor monitor) throws CoreException {
         //no-op
     }
 
+    @Override
     public void setContents(InputStream source, boolean force, boolean keepHistory, IProgressMonitor monitor)
             throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public void setContents(IFileState source, boolean force, boolean keepHistory, IProgressMonitor monitor)
             throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public void setContents(InputStream source, int updateFlags, IProgressMonitor monitor) throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public void setContents(IFileState source, int updateFlags, IProgressMonitor monitor) throws CoreException {
         throw new RuntimeException("Not implemented");
     }

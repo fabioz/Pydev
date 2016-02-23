@@ -127,26 +127,31 @@ final class DialogNotifier extends Dialog {
             home.setImage(org.python.pydev.plugin.PydevPlugin.getImageCache().get(UIConstants.HOME));
 
             back.addListener(SWT.Selection, new Listener() {
+                @Override
                 public void handleEvent(Event event) {
                     browser.back();
                 }
             });
             forward.addListener(SWT.Selection, new Listener() {
+                @Override
                 public void handleEvent(Event event) {
                     browser.forward();
                 }
             });
             stop.addListener(SWT.Selection, new Listener() {
+                @Override
                 public void handleEvent(Event event) {
                     browser.stop();
                 }
             });
             refresh.addListener(SWT.Selection, new Listener() {
+                @Override
                 public void handleEvent(Event event) {
                     browser.refresh();
                 }
             });
             home.addListener(SWT.Selection, new Listener() {
+                @Override
                 public void handleEvent(Event event) {
                     browser.setText(html);
                 }
@@ -189,10 +194,12 @@ final class DialogNotifier extends Dialog {
         Button button = createButton(parent, IDialogConstants.OK_ID, " Show later ", true);
         button.addSelectionListener(new SelectionListener() {
 
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 doClose();
             }
 
+            @Override
             public void widgetDefaultSelected(SelectionEvent e) {
             }
 
@@ -201,12 +208,14 @@ final class DialogNotifier extends Dialog {
         button = createButton(parent, IDialogConstants.CLIENT_ID, " Read it ", true);
         button.addSelectionListener(new SelectionListener() {
 
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 doClose();
                 IPreferenceStore preferenceStore = PydevPrefs.getPreferenceStore();
                 preferenceStore.setValue(PydevShowBrowserMessage.PYDEV_FUNDING_SHOWN, true);
             }
 
+            @Override
             public void widgetDefaultSelected(SelectionEvent e) {
             }
 

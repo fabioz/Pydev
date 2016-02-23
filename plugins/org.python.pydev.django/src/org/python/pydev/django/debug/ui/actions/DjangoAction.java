@@ -54,6 +54,7 @@ public abstract class DjangoAction implements IObjectActionDelegate {
      */
     protected IProject selectedProject;
 
+    @Override
     public void setActivePart(IAction action, IWorkbenchPart targetPart) {
         // empty
     }
@@ -61,11 +62,13 @@ public abstract class DjangoAction implements IObjectActionDelegate {
     /**
      * Actually remove the python nature from the project.
      */
+    @Override
     public abstract void run(IAction action);
 
     /**
      * A project was just selected
      */
+    @Override
     public void selectionChanged(IAction action, ISelection selection) {
         selectedProject = null;
 

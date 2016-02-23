@@ -129,6 +129,7 @@ public class PyProfilePreferences {
                 if (actualRun) {
                     RunInUiThread.async(new Runnable() {
 
+                        @Override
                         public void run() {
                             PyDialogHelpers
                                     .openWarning(
@@ -145,6 +146,7 @@ public class PyProfilePreferences {
                 if (actualRun) {
                     RunInUiThread.async(new Runnable() {
 
+                        @Override
                         public void run() {
                             PyDialogHelpers
                                     .openWarning(
@@ -167,6 +169,7 @@ public class PyProfilePreferences {
                 if (actualRun) {
                     RunInUiThread.async(new Runnable() {
 
+                        @Override
                         public void run() {
                             PyDialogHelpers
                                     .openWarning(

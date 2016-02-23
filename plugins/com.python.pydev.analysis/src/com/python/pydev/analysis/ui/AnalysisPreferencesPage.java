@@ -166,10 +166,12 @@ public class AnalysisPreferencesPage extends ScopedFieldEditorPreferencePage imp
                 "Additional command line arguments (i.e.: --ignore=E5,W391). See <a>pep8 docs</a> for details.", p,
                 new SelectionListener() {
 
+                    @Override
                     public void widgetSelected(SelectionEvent e) {
                         Program.launch("http://pypi.python.org/pypi/pep8");
                     }
 
+                    @Override
                     public void widgetDefaultSelected(SelectionEvent e) {
                     }
                 }) {
@@ -212,6 +214,7 @@ public class AnalysisPreferencesPage extends ScopedFieldEditorPreferencePage imp
         return p1;
     }
 
+    @Override
     public void init(IWorkbench workbench) {
     }
 

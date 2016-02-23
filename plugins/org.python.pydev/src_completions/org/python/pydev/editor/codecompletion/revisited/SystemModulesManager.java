@@ -82,6 +82,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
         return info;
     }
 
+    @Override
     public void endProcessing() {
         save();
     }
@@ -89,10 +90,12 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
     /**
      * @see org.python.pydev.core.ISystemModulesManager#getBuiltins()
      */
+    @Override
     public String[] getBuiltins() {
         return this.info.getBuiltins();
     }
 
+    @Override
     public void setPythonNature(IPythonNature nature) {
         Assert.isTrue(nature instanceof SystemPythonNature);
         Assert.isTrue(((SystemPythonNature) nature).info == this.info);
@@ -100,6 +103,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
         this.nature = nature;
     }
 
+    @Override
     public IPythonNature getNature() {
         if (nature == null) {
             IInterpreterManager manager = getInterpreterManager();
@@ -108,6 +112,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
         return nature;
     }
 
+    @Override
     public IInterpreterManager getInterpreterManager() {
         int interpreterType = this.info.getInterpreterType();
         switch (interpreterType) {
@@ -125,18 +130,22 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
         }
     }
 
+    @Override
     public ISystemModulesManager getSystemModulesManager() {
         return this; //itself
     }
 
+    @Override
     public IModule getModule(String name, IPythonNature nature, boolean checkSystemManager, boolean dontSearchInit) {
         return getModule(name, nature, dontSearchInit);
     }
 
+    @Override
     public String resolveModule(String full, boolean checkSystemManager) {
         return super.resolveModule(full);
     }
 
+    @Override
     public List<String> getCompletePythonPath(IInterpreterInfo interpreter, IInterpreterManager manager) {
         if (interpreter == null) {
             throw new RuntimeException("The interpreter must be specified (received null)");
@@ -145,6 +154,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
         }
     }
 
+    @Override
     public IModule getRelativeModule(String name, IPythonNature nature) {
         return super.getModule(name, nature, true);
     }
@@ -189,6 +199,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
      */
     private transient Map<File, Long> predefinedFilesNotParsedToTimestamp;
 
+    @Override
     public AbstractModule getBuiltinModule(String name, boolean dontSearchInit) {
         AbstractModule n = null;
 
@@ -244,6 +255,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
                     doc = FileUtilsFileBuffer.getDocFromFile(predefinedModule);
                     IGrammarVersionProvider provider = new IGrammarVersionProvider() {
 
+                        @Override
                         public int getGrammarVersion() throws MisconfigurationException {
                             return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0; // Always Python 3.0 here
                         }
@@ -353,10 +365,12 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
         return super.getModule(name, nature, dontSearchInit);
     }
 
+    @Override
     public IModule getModuleWithoutBuiltins(String name, IPythonNature nature, boolean dontSearchInit) {
         return super.getModule(name, nature, dontSearchInit);
     }
 
+    @Override
     public Tuple<IModule, IModulesManager> getModuleAndRelatedModulesManager(String name, IPythonNature nature,
             boolean checkSystemManager, boolean dontSearchInit) {
         IModule module = this.getModule(name, nature, checkSystemManager, dontSearchInit);
@@ -366,6 +380,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
         return null;
     }
 
+    @Override
     public void load() throws IOException {
         final File workspaceMetadataFile = getIoDirectory();
         ModulesManager.loadFromFile(this, workspaceMetadataFile);
@@ -376,6 +391,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
         d.processDeltas(this); //process the current deltas (clears current deltas automatically and saves it when the processing is concluded)
     }
 
+    @Override
     public void save() {
         final File workspaceMetadataFile = getIoDirectory();
         DeltaSaver<ModulesKey> d = deltaSaver;
@@ -386,6 +402,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
 
     }
 
+    @Override
     public File getIoDirectory() {
         return info.getIoDirectory();
     }
@@ -435,6 +452,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
     /**
      * Gets the directory where compiled modules should be saved.
      */
+    @Override
     public File getCompiledModuleCacheFile(String name) {
         File ioDirectory = getIoDirectory();
         if (ioDirectory != null) {

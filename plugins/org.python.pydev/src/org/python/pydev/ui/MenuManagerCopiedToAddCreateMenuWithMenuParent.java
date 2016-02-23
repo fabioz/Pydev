@@ -172,6 +172,7 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
     /* (non-Javadoc)
      * @see org.eclipse.jface.action.IMenuManager#addMenuListener(org.eclipse.jface.action.IMenuListener)
      */
+    @Override
     public void addMenuListener(IMenuListener listener) {
         listeners.add(listener);
     }
@@ -240,6 +241,7 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
      * not clean up references between this menu manager and its associated
      * contribution items. Use <code>removeAll</code> for that purpose.
      */
+    @Override
     public void dispose() {
         if (menuExist()) {
             menu.dispose();
@@ -264,18 +266,21 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
     /* (non-Javadoc)
      * @see org.eclipse.jface.action.IContributionItem#fill(org.eclipse.swt.widgets.Composite)
      */
+    @Override
     public void fill(Composite parent) {
     }
 
     /* (non-Javadoc)
      * @see org.eclipse.jface.action.IContributionItem#fill(org.eclipse.swt.widgets.CoolBar, int)
      */
+    @Override
     public void fill(CoolBar parent, int index) {
     }
 
     /* (non-Javadoc)
      * @see org.eclipse.jface.action.IContributionItem#fill(org.eclipse.swt.widgets.Menu, int)
      */
+    @Override
     public void fill(Menu parent, int index) {
         if (menuItem == null || menuItem.isDisposed()) {
             if (index >= 0) {
@@ -311,12 +316,14 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
     /* (non-Javadoc)
      * @see org.eclipse.jface.action.IContributionItem#fill(org.eclipse.swt.widgets.ToolBar, int)
      */
+    @Override
     public void fill(ToolBar parent, int index) {
     }
 
     /* (non-Javadoc)
      * @see org.eclipse.jface.action.IMenuManager#findMenuUsingPath(java.lang.String)
      */
+    @Override
     public IMenuManager findMenuUsingPath(String path) {
         IContributionItem item = findUsingPath(path);
         if (item instanceof IMenuManager) {
@@ -328,6 +335,7 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
     /* (non-Javadoc)
      * @see org.eclipse.jface.action.IMenuManager#findUsingPath(java.lang.String)
      */
+    @Override
     public IContributionItem findUsingPath(String path) {
         String id = path;
         String rest = null;
@@ -386,6 +394,7 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
      * 
      * @return the menu id
      */
+    @Override
     public String getId() {
         return id;
     }
@@ -433,26 +442,32 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
     /* (non-Javadoc)
      * @see org.eclipse.jface.action.IContributionManager#getOverrides()
      */
+    @Override
     public IContributionManagerOverrides getOverrides() {
         if (overrides == null) {
             if (parent == null) {
                 overrides = new IContributionManagerOverrides() {
+                    @Override
                     public Integer getAccelerator(IContributionItem item) {
                         return null;
                     }
 
+                    @Override
                     public String getAcceleratorText(IContributionItem item) {
                         return null;
                     }
 
+                    @Override
                     public Boolean getEnabled(IContributionItem item) {
                         return false;
                     }
 
+                    @Override
                     public String getText(IContributionItem item) {
                         return null;
                     }
 
+                    @Override
                     public Boolean getVisible(IContributionItem item) {
                         return false;
                     }
@@ -478,6 +493,7 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
     /* (non-Javadoc)
      * @see org.eclipse.jface.action.IMenuManager#getRemoveAllWhenShown()
      */
+    @Override
     public boolean getRemoveAllWhenShown() {
         return removeAllWhenShown;
     }
@@ -505,11 +521,13 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
      */
     private void initializeMenu() {
         menu.addMenuListener(new MenuAdapter() {
+            @Override
             public void menuHidden(MenuEvent e) {
                 //			ApplicationWindow.resetDescription(e.widget);
                 handleAboutToHide();
             }
 
+            @Override
             public void menuShown(MenuEvent e) {
                 handleAboutToShow();
             }
@@ -521,6 +539,7 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
     /* (non-Javadoc)
      * @see org.eclipse.jface.action.IContributionItem#isDynamic()
      */
+    @Override
     public boolean isDynamic() {
         return false;
     }
@@ -536,6 +555,7 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
      * @return <code>true</code> if enabled, and
      *   <code>false</code> if disabled
      */
+    @Override
     public boolean isEnabled() {
         return true;
     }
@@ -543,6 +563,7 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
     /* (non-Javadoc)
      * @see org.eclipse.jface.action.IContributionItem#isGroupMarker()
      */
+    @Override
     public boolean isGroupMarker() {
         return false;
     }
@@ -550,6 +571,7 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
     /* (non-Javadoc)
      * @see org.eclipse.jface.action.IContributionItem#isSeparator()
      */
+    @Override
     public boolean isSeparator() {
         return false;
     }
@@ -569,6 +591,7 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
     /* (non-Javadoc)
      * @see org.eclipse.jface.action.IContributionItem#isVisible()
      */
+    @Override
     public boolean isVisible() {
         if (!visible) {
             return false; // short circuit calculations in this case
@@ -598,6 +621,7 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
      * 
      * @since 3.1
      */
+    @Override
     public void markDirty() {
         super.markDirty();
         // Can't optimize by short-circuiting when the first dirty manager is encountered,
@@ -628,6 +652,7 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
     /* (non-Javadoc)
      * @see org.eclipse.jface.action.IMenuManager#removeMenuListener(org.eclipse.jface.action.IMenuListener)
      */
+    @Override
     public void removeMenuListener(IMenuListener listener) {
         listeners.remove(listener);
     }
@@ -635,6 +660,7 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
     /* (non-Javadoc)
      * @see org.eclipse.jface.action.IContributionItem#saveWidgetState()
      */
+    @Override
     public void saveWidgetState() {
     }
 
@@ -644,6 +670,7 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
      * @param newOverrides the overrides for the items of this manager
      * @since 2.0
      */
+    @Override
     public void setOverrides(IContributionManagerOverrides newOverrides) {
         overrides = newOverrides;
         super.setOverrides(overrides);
@@ -652,6 +679,7 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
     /* (non-Javadoc)
      * @see org.eclipse.jface.action.IContributionItem#setParent(org.eclipse.jface.action.IContributionManager)
      */
+    @Override
     public void setParent(IContributionManager manager) {
         parent = manager;
     }
@@ -659,6 +687,7 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
     /* (non-Javadoc)
      * @see org.eclipse.jface.action.IMenuManager#setRemoveAllWhenShown(boolean)
      */
+    @Override
     public void setRemoveAllWhenShown(boolean removeAll) {
         this.removeAllWhenShown = removeAll;
     }
@@ -666,6 +695,7 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
     /* (non-Javadoc)
      * @see org.eclipse.jface.action.IContributionItem#setVisible(boolean)
      */
+    @Override
     public void setVisible(boolean visible) {
         this.visible = visible;
     }
@@ -686,6 +716,7 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
     /* (non-Javadoc)
      * @see org.eclipse.jface.action.IContributionItem#update()
      */
+    @Override
     public void update() {
         updateMenuItem();
     }
@@ -696,6 +727,7 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
      *
      * @see #updateAll
      */
+    @Override
     public void update(boolean force) {
         update(force, false);
     }
@@ -889,6 +921,7 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
     /* (non-Javadoc)
      * @see org.eclipse.jface.action.IContributionItem#update(java.lang.String)
      */
+    @Override
     public void update(String property) {
         IContributionItem items[] = getItems();
 
@@ -947,6 +980,7 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
     /* (non-Javadoc)
      * @see org.eclipse.jface.action.IMenuManager#updateAll(boolean)
      */
+    @Override
     public void updateAll(boolean force) {
         update(force, true);
     }

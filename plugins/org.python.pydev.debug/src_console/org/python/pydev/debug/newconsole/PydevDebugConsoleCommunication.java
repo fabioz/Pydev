@@ -97,6 +97,7 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
         //can't interrupt in the debug console for now...
     }
 
+    @Override
     public void execInterpreter(final String command, final ICallback<Object, InterpreterResponse> onResponseReceived) {
 
         nextResponse = null;
@@ -175,6 +176,7 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
         onResponseReceived.call(nextResponse);
     }
 
+    @Override
     public ICompletionProposal[] getCompletions(String text, String actTok, int offset, boolean showForTabCompletion)
             throws Exception {
         ICompletionProposal[] receivedCompletions = {};
@@ -198,6 +200,7 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
         return receivedCompletions;
     }
 
+    @Override
     public String getDescription(String text) throws Exception {
         return null;
     }
@@ -205,10 +208,12 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
     /**
      * Enable/Disable linking of the debug console with the suspended frame.
      */
+    @Override
     public void linkWithDebugSelection(boolean isLinkedWithDebug) {
         consoleFrameProvider.linkWithDebugSelection(isLinkedWithDebug);
     }
 
+    @Override
     public void close() throws Exception {
         //Do nothing on console close.
     }

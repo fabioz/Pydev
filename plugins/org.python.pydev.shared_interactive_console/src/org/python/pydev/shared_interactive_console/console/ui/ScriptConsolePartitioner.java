@@ -95,6 +95,7 @@ public class ScriptConsolePartitioner implements IConsoleDocumentPartitioner {
     /**
      * @return the ranges that intersect with the given offset/length.
      */
+    @Override
     public ScriptStyleRange[] getStyleRanges(int offset, int length) {
         int lastOffset = -1;
 
@@ -135,35 +136,44 @@ public class ScriptConsolePartitioner implements IConsoleDocumentPartitioner {
 
     //-------------------- Just return default content type for any related request ------------------------------------
 
+    @Override
     public boolean isReadOnly(int offset) {
         return false;
     }
 
+    @Override
     public ITypedRegion[] computePartitioning(int offset, int length) {
         return new TypedRegion[] { new TypedRegion(offset, length, IDocument.DEFAULT_CONTENT_TYPE) };
     }
 
+    @Override
     public void connect(IDocument document) {
     }
 
+    @Override
     public void disconnect() {
     }
 
+    @Override
     public void documentAboutToBeChanged(DocumentEvent event) {
     }
 
+    @Override
     public boolean documentChanged(DocumentEvent event) {
         return false;
     }
 
+    @Override
     public String getContentType(int offset) {
         return IDocument.DEFAULT_CONTENT_TYPE;
     }
 
+    @Override
     public String[] getLegalContentTypes() {
         return LEGAL_CONTENT_TYPES;
     }
 
+    @Override
     public ITypedRegion getPartition(int offset) {
         return new TypedRegion(offset, 1, IDocument.DEFAULT_CONTENT_TYPE);
     }

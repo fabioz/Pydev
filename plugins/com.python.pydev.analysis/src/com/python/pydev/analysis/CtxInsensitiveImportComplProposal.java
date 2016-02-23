@@ -96,6 +96,7 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
     /**
      * This is the apply that should actually be called!
      */
+    @Override
     public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
         IDocument document = viewer.getDocument();
         IAdaptable projectAdaptable;
@@ -367,6 +368,7 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
         return new Point(pos, 0);
     }
 
+    @Override
     public final String getInternalDisplayStringRepresentation() {
         return fReplacementString;
     }

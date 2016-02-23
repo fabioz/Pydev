@@ -118,6 +118,7 @@ class OrganizeImportsFixesUnused {
     private void sortInReverseDocumentOrder(ArrayList<MarkerAnnotationAndPosition> unusedImportsMarkers) {
         Collections.sort(unusedImportsMarkers, new Comparator<MarkerAnnotationAndPosition>() {
 
+            @Override
             public int compare(MarkerAnnotationAndPosition arg0, MarkerAnnotationAndPosition arg1) {
                 try {
                     return getCharStart(arg1) - getCharStart(arg0);

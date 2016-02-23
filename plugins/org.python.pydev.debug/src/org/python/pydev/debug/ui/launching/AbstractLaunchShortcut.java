@@ -69,6 +69,7 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
     //=============================================================================================
     // ILaunchShortcut IMPL
     //=============================================================================================
+    @Override
     @SuppressWarnings("unchecked")
     public void launch(ISelection selection, String mode) {
         boolean requireFile = getRequireFile();
@@ -180,6 +181,7 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
     /**
      * Launch for a selected editor.
      */
+    @Override
     public void launch(IEditorPart editor, String mode) {
         //we have an editor to run
         IEditorInput input = editor.getEditorInput();
@@ -307,6 +309,7 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
             } else {
                 RunInUiThread.sync(new Runnable() {
 
+                    @Override
                     public void run() {
                         ProjectSelectionDialog dialog = new ProjectSelectionDialog(EditorUtils.getShell(),
                                 PythonNature.PYTHON_NATURE_ID);

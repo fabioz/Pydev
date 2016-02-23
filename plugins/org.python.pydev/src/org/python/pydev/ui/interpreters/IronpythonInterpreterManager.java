@@ -78,10 +78,12 @@ public class IronpythonInterpreterManager extends AbstractInterpreterManager {
         return new Tuple<InterpreterInfo, String>(info, outTup.o1);
     }
 
+    @Override
     public int getInterpreterType() {
         return IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON;
     }
 
+    @Override
     public String getManagerRelatedName() {
         return "ironpython";
     }

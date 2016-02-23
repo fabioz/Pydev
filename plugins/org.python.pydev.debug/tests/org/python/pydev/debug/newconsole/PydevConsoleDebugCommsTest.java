@@ -148,10 +148,12 @@ public class PydevConsoleDebugCommsTest extends TestCase {
             System.out.println(sCmdCode + ":" + sSeqCode + ":" + payload);
         }
 
+        @Override
         public IProcess getProcess() {
             return null;
         }
 
+        @Override
         public void launchRemoved(ILaunch launch) {
         }
 
@@ -214,6 +216,7 @@ public class PydevConsoleDebugCommsTest extends TestCase {
         final InterpreterResponse response[] = new InterpreterResponse[1];
         ICallback<Object, InterpreterResponse> onResponseReceived = new ICallback<Object, InterpreterResponse>() {
 
+            @Override
             public Object call(InterpreterResponse arg) {
                 response[0] = arg;
                 return null;
@@ -245,6 +248,7 @@ public class PydevConsoleDebugCommsTest extends TestCase {
         execInterpreter("my_var=1");
 
         IVariableLocator frameLocator = new IVariableLocator() {
+            @Override
             public String getPyDBLocation() {
                 // Make a reference to the virtual frame representing the interactive console
                 return PyThreadConsole.VIRTUAL_CONSOLE_ID + "\t" + PyStackFrameConsole.VIRTUAL_FRAME_ID + "\tFRAME";

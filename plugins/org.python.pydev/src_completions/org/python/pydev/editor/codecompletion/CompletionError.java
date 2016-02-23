@@ -24,33 +24,41 @@ public class CompletionError implements ICompletionProposal, IPyCompletionPropos
         this.error = e;
     }
 
+    @Override
     public void apply(IDocument document) {
     }
 
+    @Override
     public String getAdditionalProposalInfo() {
         return getErrorMessage();
     }
 
+    @Override
     public IContextInformation getContextInformation() {
         return null;
     }
 
+    @Override
     public String getDisplayString() {
         return getErrorMessage();
     }
 
+    @Override
     public Image getImage() {
         return PydevPlugin.getImageCache().get(UIConstants.ERROR);
     }
 
+    @Override
     public Point getSelection(IDocument document) {
         return null;
     }
 
+    @Override
     public int getPriority() {
         return -1;
     }
 
+    @Override
     public boolean isAutoInsertable() {
         return false;
     }

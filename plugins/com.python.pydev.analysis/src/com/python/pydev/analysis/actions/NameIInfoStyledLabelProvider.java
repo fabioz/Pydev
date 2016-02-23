@@ -23,6 +23,7 @@ public class NameIInfoStyledLabelProvider extends NameIInfoLabelProvider impleme
     /**
      * @return the text with a style for the module part
      */
+    @Override
     public StyledString getStyledText(Object element) {
         IInfo info = getInfo(element);
         if (info == null) {

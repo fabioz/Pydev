@@ -7,6 +7,7 @@ import org.eclipse.swt.widgets.Composite;
 
 public class PyContentViewerCreator implements IViewerCreator {
 
+    @Override
     public Viewer createViewer(Composite parent, CompareConfiguration mp) {
         return new PyContentViewer(parent, mp);
     }

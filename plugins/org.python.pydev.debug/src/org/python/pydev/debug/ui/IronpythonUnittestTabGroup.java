@@ -19,6 +19,7 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class IronpythonUnittestTabGroup extends AbstractLaunchConfigurationTabGroup {
 
+    @Override
     public void createTabs(ILaunchConfigurationDialog arg0, String arg1) {
         MainModuleTab mainModuleTab = new MainModuleTab();
         ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] { mainModuleTab,

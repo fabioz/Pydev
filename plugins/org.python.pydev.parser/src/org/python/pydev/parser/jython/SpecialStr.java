@@ -36,10 +36,12 @@ public final class SpecialStr implements ISpecialStr {
         return str.equals(((SpecialStr) obj).str);
     }
 
+    @Override
     public int getBeginCol() {
         return beginCol;
     }
 
+    @Override
     public int getBeginLine() {
         return beginLine;
     }

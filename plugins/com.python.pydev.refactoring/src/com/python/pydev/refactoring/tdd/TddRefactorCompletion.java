@@ -65,6 +65,7 @@ public final class TddRefactorCompletion extends AbstractTddRefactorCompletion {
         return null;
     }
 
+    @Override
     public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
         if (edit != null) {
             //We have to reparse to make sure that we'll have an accurate AST.
@@ -91,12 +92,15 @@ public final class TddRefactorCompletion extends AbstractTddRefactorCompletion {
         return executed;
     }
 
+    @Override
     public void selected(ITextViewer viewer, boolean smartToggle) {
     }
 
+    @Override
     public void unselected(ITextViewer viewer) {
     }
 
+    @Override
     public boolean validate(IDocument document, int offset, DocumentEvent event) {
         return false;
     }

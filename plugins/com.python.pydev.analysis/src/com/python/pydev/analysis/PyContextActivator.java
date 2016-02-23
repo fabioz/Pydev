@@ -67,6 +67,7 @@ public class PyContextActivator implements ICallbackListener {
         }
     }
 
+    @Override
     public Object call(Object obj) {
         //Context changed!
         handleStateChange();

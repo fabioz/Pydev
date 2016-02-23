@@ -20,6 +20,7 @@ public class PyQuickFix implements IMarkerResolutionGenerator {
 
     public static String CONTENT_GENERATOR_MARKER = "org.python.pydev.editor.markers.pycontentgeneratormarker";
 
+    @Override
     public IMarkerResolution[] getResolutions(IMarker mk) {
         return new IMarkerResolution[] {};
         //        try {

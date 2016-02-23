@@ -41,6 +41,7 @@ public abstract class AbstractReplaceEdit extends AbstractTextEdit {
         return new ReplaceEdit(getOffset(), getReplaceLength(), getFormattedNode());
     }
 
+    @Override
     protected String getFormattedNode() throws MisconfigurationException {
         String source = Rewriter.createSourceFromAST(getEditNode(), adapterPrefs);
         return source.trim();

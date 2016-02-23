@@ -119,6 +119,7 @@ public class PythonRunner {
             final Display display = Display.getDefault();
             display.syncExec(new Runnable() {
 
+                @Override
                 public void run() {
                     MessageDialog.openError(display.getActiveShell(), "Unable to run the selected configuration.",
                             e.getMessage());

@@ -15,6 +15,7 @@ public final class IfExp extends exprType {
         this.orelse = orelse;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -24,6 +25,7 @@ public final class IfExp extends exprType {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -50,10 +52,12 @@ public final class IfExp extends exprType {
         return true;
     }
 
+    @Override
     public IfExp createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public IfExp createCopy(boolean copyComments) {
         IfExp temp = new IfExp(test != null ? (exprType) test.createCopy(copyComments) : null,
                 body != null ? (exprType) body.createCopy(copyComments) : null,
@@ -79,6 +83,7 @@ public final class IfExp extends exprType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("IfExp[");
         sb.append("test=");
@@ -93,10 +98,12 @@ public final class IfExp extends exprType {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitIfExp(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (test != null) {
             test.accept(visitor);

@@ -107,6 +107,7 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
     protected DeltaSaver<Object> createDeltaSaver() {
         return new DeltaSaver<Object>(getPersistingFolder(), "v1_projectinfodelta", new ICallback<Object, String>() {
 
+            @Override
             public Object call(String arg) {
                 if (arg.startsWith("STR")) {
                     return arg.substring(3);
@@ -142,6 +143,7 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
                      * Tuple<String (module name), List<IInfo>) -- on addition
                      * String (module name) -- on deletion
                      */
+                    @Override
                     public String call(Object arg) {
                         if (arg instanceof String) {
                             return "STR" + (String) arg;
@@ -170,10 +172,12 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
                 });
     }
 
+    @Override
     public void processUpdate(Object data) {
         throw new RuntimeException("There is no update generation, only add.");
     }
 
+    @Override
     public void processDelete(Object data) {
         synchronized (lock) {
             //the moduleName is generated on delete
@@ -181,6 +185,7 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
         }
     }
 
+    @Override
     public void processInsert(Object data) {
         synchronized (lock) {
             if (data instanceof Tuple) {
@@ -189,6 +194,7 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
         }
     }
 
+    @Override
     public void endProcessing() {
         //save it when the processing is finished
         synchronized (lock) {

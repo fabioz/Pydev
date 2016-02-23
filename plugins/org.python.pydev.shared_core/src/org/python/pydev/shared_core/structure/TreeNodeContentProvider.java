@@ -17,16 +17,20 @@ import org.eclipse.jface.viewers.Viewer;
 @SuppressWarnings("rawtypes")
 public class TreeNodeContentProvider implements ITreeContentProvider {
 
+    @Override
     public void dispose() {
     }
 
+    @Override
     public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
     }
 
+    @Override
     public Object[] getElements(Object inputElement) {
         return getChildren(inputElement);
     }
 
+    @Override
     public Object[] getChildren(Object parentElement) {
         if (parentElement == null) {
             return new Object[0];
@@ -35,11 +39,13 @@ public class TreeNodeContentProvider implements ITreeContentProvider {
         return m.children.toArray();
     }
 
+    @Override
     public Object getParent(Object element) {
         TreeNode m = (TreeNode) element;
         return m.getParent();
     }
 
+    @Override
     public boolean hasChildren(Object element) {
         TreeNode m = (TreeNode) element;
         return m.children.size() > 0;

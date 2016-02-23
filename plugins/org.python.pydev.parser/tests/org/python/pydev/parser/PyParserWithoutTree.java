@@ -27,6 +27,7 @@ public class PyParserWithoutTree extends TestCase {
                 + "        a+b #should not be code-formatted\n" + "    '''\n" + "'''\n" + "\n";
         IGrammarVersionProvider grammarProvider = new IGrammarVersionProvider() {
 
+            @Override
             public int getGrammarVersion() throws MisconfigurationException {
                 return IPythonNature.GRAMMAR_PYTHON_VERSION_2_7;
             }

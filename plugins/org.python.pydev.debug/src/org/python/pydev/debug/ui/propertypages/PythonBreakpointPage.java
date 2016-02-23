@@ -86,6 +86,7 @@ public class PythonBreakpointPage extends PropertyPage {
         try {
             if (getBreakpoint().getMarker().getAttribute(ATTR_DELETE_ON_CANCEL) != null) {
                 getShell().addShellListener(new ShellListener() {
+                    @Override
                     public void shellActivated(ShellEvent e) {
                         Shell shell = (Shell) e.getSource();
                         shell.setText(MessageFormat.format(
@@ -93,15 +94,19 @@ public class PythonBreakpointPage extends PropertyPage {
                         shell.removeShellListener(this);
                     }
 
+                    @Override
                     public void shellClosed(ShellEvent e) {
                     }
 
+                    @Override
                     public void shellDeactivated(ShellEvent e) {
                     }
 
+                    @Override
                     public void shellDeiconified(ShellEvent e) {
                     }
 
+                    @Override
                     public void shellIconified(ShellEvent e) {
                     }
                 });
@@ -266,6 +271,7 @@ public class PythonBreakpointPage extends PropertyPage {
     @Override
     public boolean performOk() {
         IWorkspaceRunnable wr = new IWorkspaceRunnable() {
+            @Override
             public void run(IProgressMonitor monitor) throws CoreException {
                 PyBreakpoint breakpoint = getBreakpoint();
                 boolean delOnCancel = breakpoint.getMarker().getAttribute(ATTR_DELETE_ON_CANCEL) != null;

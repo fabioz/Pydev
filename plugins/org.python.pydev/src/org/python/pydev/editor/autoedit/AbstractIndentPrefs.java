@@ -26,10 +26,12 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs {
 
     private boolean forceTabs = false;
 
+    @Override
     public boolean getForceTabs() {
         return forceTabs;
     }
 
+    @Override
     public void setForceTabs(boolean forceTabs) {
         this.forceTabs = forceTabs;
     }
@@ -40,6 +42,7 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs {
      * 
      * @see org.python.pydev.core.IIndentPrefs#getIndentationString()
      */
+    @Override
     public String getIndentationString() {
         if (getUseSpaces(true)) {
             return StringUtils.createSpaceString(getTabWidth());
@@ -51,6 +54,7 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs {
     /**
      * Converts spaces to tabs or vice-versa depending on the user preferences
      */
+    @Override
     public void convertToStd(IDocument document, DocumentCommand command) {
         try {
             if (getUseSpaces(true)) {

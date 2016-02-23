@@ -15,6 +15,7 @@ public final class keywordType extends SimpleNode {
         this.afterstarargs = afterstarargs;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -24,6 +25,7 @@ public final class keywordType extends SimpleNode {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -47,10 +49,12 @@ public final class keywordType extends SimpleNode {
         return true;
     }
 
+    @Override
     public keywordType createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public keywordType createCopy(boolean copyComments) {
         keywordType temp = new keywordType(arg != null ? (NameTokType) arg.createCopy(copyComments) : null,
                 value != null ? (exprType) value.createCopy(copyComments) : null, afterstarargs);
@@ -75,6 +79,7 @@ public final class keywordType extends SimpleNode {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("keyword[");
         sb.append("arg=");
@@ -89,11 +94,13 @@ public final class keywordType extends SimpleNode {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         traverse(visitor);
         return null;
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (arg != null) {
             arg.accept(visitor);

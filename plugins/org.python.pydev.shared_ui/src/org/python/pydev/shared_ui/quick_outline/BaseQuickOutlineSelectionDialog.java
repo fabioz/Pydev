@@ -130,25 +130,31 @@ public abstract class BaseQuickOutlineSelectionDialog extends TreeSelectionDialo
         //Whenever the shell is deactivated, we want to go on and close it (i.e.: work as a popup dialog)
         shell.addShellListener(new ShellListener() {
 
+            @Override
             public void shellIconified(ShellEvent e) {
             }
 
+            @Override
             public void shellDeiconified(ShellEvent e) {
             }
 
+            @Override
             public void shellDeactivated(ShellEvent e) {
                 shell.close();
             }
 
+            @Override
             public void shellClosed(ShellEvent e) {
             }
 
+            @Override
             public void shellActivated(ShellEvent e) {
             }
         });
 
     }
 
+    @Override
     public Control createDialogArea(Composite parent) {
         if (memento != null) {
             memento.readSettings();
@@ -157,9 +163,11 @@ public abstract class BaseQuickOutlineSelectionDialog extends TreeSelectionDialo
         if (canShowParentHierarchy) {
             ctrlOlistener = new KeyListener() {
 
+                @Override
                 public void keyReleased(KeyEvent e) {
                 }
 
+                @Override
                 public void keyPressed(KeyEvent e) {
                     if ((e.keyCode == 'o' || e.keyCode == 'O') && e.stateMask == SWT.CTRL) {
                         toggleShowParentHierarchy();
@@ -171,9 +179,11 @@ public abstract class BaseQuickOutlineSelectionDialog extends TreeSelectionDialo
 
         this.text.addKeyListener(new KeyListener() {
 
+            @Override
             public void keyReleased(KeyEvent e) {
             }
 
+            @Override
             public void keyPressed(KeyEvent e) {
                 if (e.keyCode == SWT.CR || e.keyCode == SWT.LF || e.keyCode == SWT.KEYPAD_CR) {
                     okPressed();
@@ -210,6 +220,7 @@ public abstract class BaseQuickOutlineSelectionDialog extends TreeSelectionDialo
         }
     }
 
+    @Override
     public boolean close() {
         if (memento != null) {
             memento.writeSettings(getShell());
@@ -217,6 +228,7 @@ public abstract class BaseQuickOutlineSelectionDialog extends TreeSelectionDialo
         return super.close();
     }
 
+    @Override
     protected Point getInitialSize() {
         if (memento != null) {
             return memento.getInitialSize(super.getInitialSize(), getShell());
@@ -224,6 +236,7 @@ public abstract class BaseQuickOutlineSelectionDialog extends TreeSelectionDialo
         return new Point(640, 480);
     }
 
+    @Override
     protected Point getInitialLocation(Point initialSize) {
         if (memento != null) {
             return memento.getInitialLocation(initialSize, super.getInitialLocation(initialSize), getShell());

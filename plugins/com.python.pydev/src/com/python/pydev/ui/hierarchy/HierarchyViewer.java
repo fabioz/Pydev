@@ -117,6 +117,7 @@ public class HierarchyViewer {
 
         treeClassesViewer.addDoubleClickListener(new IDoubleClickListener() {
 
+            @Override
             public void doubleClick(DoubleClickEvent event) {
                 ISelection selection = event.getSelection();
                 handleSelection(selection, 2);
@@ -125,6 +126,7 @@ public class HierarchyViewer {
 
         treeClassesViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 
+            @Override
             public void selectionChanged(SelectionChangedEvent event) {
                 ISelection selection = event.getSelection();
                 handleSelection(selection, 1);
@@ -134,6 +136,7 @@ public class HierarchyViewer {
         treeMembers = new Tree(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 
         treeMembers.addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseDoubleClick(MouseEvent e) {
                 TreeItem[] selection = treeMembers.getSelection();
                 if (selection.length > 0) {
@@ -206,6 +209,7 @@ public class HierarchyViewer {
 
             Runnable r = new Runnable() {
 
+                @Override
                 public void run() {
                     synchronized (lock) {
                         if (treeMembers.getItemCount() > 0) {

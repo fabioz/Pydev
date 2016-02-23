@@ -13,6 +13,7 @@ public final class aliasType extends SimpleNode {
         this.asname = asname;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -21,6 +22,7 @@ public final class aliasType extends SimpleNode {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -42,10 +44,12 @@ public final class aliasType extends SimpleNode {
         return true;
     }
 
+    @Override
     public aliasType createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public aliasType createCopy(boolean copyComments) {
         aliasType temp = new aliasType(name != null ? (NameTokType) name.createCopy(copyComments) : null,
                 asname != null ? (NameTokType) asname.createCopy(copyComments) : null);
@@ -70,6 +74,7 @@ public final class aliasType extends SimpleNode {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("alias[");
         sb.append("name=");
@@ -81,11 +86,13 @@ public final class aliasType extends SimpleNode {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         traverse(visitor);
         return null;
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (name != null) {
             name.accept(visitor);

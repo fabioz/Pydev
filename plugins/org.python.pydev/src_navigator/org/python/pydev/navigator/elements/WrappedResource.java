@@ -38,22 +38,27 @@ public class WrappedResource<X extends IResource> implements IWrappedResource, I
         this.rank = rank;
     }
 
+    @Override
     public X getActualObject() {
         return actualObject;
     }
 
+    @Override
     public IWrappedResource getParentElement() {
         return parentElement;
     }
 
+    @Override
     public PythonSourceFolder getSourceFolder() {
         return pythonSourceFolder;
     }
 
+    @Override
     public int getRank() {
         return rank;
     }
 
+    @Override
     public IResource getAdaptedResource(IAdaptable adaptable) {
         return getActualObject();
     }
@@ -84,6 +89,7 @@ public class WrappedResource<X extends IResource> implements IWrappedResource, I
         return this.getActualObject().hashCode();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T getAdapter(Class<T> adapter) {
         if (adapter == IContributorResourceAdapter.class) {

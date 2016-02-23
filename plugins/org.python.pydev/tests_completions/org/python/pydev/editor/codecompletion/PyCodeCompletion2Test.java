@@ -39,6 +39,7 @@ public class PyCodeCompletion2Test extends CodeCompletionTestsBase {
     /*
      * @see TestCase#setUp()
      */
+    @Override
     public void setUp() throws Exception {
         super.setUp();
         CompiledModule.COMPILED_MODULES_ENABLED = false;
@@ -49,6 +50,7 @@ public class PyCodeCompletion2Test extends CodeCompletionTestsBase {
         codeCompletion = new PyCodeCompletion();
         PyCodeCompletion.onCompletionRecursionException = new ICallback<Object, CompletionRecursionException>() {
 
+            @Override
             public Object call(CompletionRecursionException e) {
                 throw new RuntimeException("Recursion error:" + Log.getExceptionStr(e));
             }

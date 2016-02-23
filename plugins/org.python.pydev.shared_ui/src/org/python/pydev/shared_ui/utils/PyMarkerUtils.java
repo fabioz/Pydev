@@ -246,6 +246,7 @@ public class PyMarkerUtils {
             final boolean removeUserEditable, IProgressMonitor monitor) {
         IWorkspaceRunnable r = new IWorkspaceRunnable() {
 
+            @Override
             public void run(IProgressMonitor monitor) throws CoreException {
                 if (!resource.exists()) {
                     return;
@@ -260,6 +261,7 @@ public class PyMarkerUtils {
                         //we don't want to remove the user-editable markers, so, let's filter them out!
                         existingMarkers = ArrayUtils.filter(existingMarkers, new ICallback<Boolean, IMarker>() {
 
+                            @Override
                             public Boolean call(IMarker marker) {
                                 //if it's user-editable, it should not be included in the list
                                 return !marker.getAttribute(IMarker.USER_EDITABLE, true); //default for user-editable is true.

@@ -34,6 +34,7 @@ public class AutoImportsPreferencesPage extends FieldEditorPreferencePage implem
         setPreferenceStore(null);
     }
 
+    @Override
     public void init(IWorkbench workbench) {
     }
 

@@ -24,6 +24,7 @@ public final class NameInfo extends AbstractInfo {
         super(name, moduleDeclared, path, doNotInternOnThisContstruct);
     }
 
+    @Override
     public int getType() {
         return NAME_WITH_IMPORT_TYPE;
     }

@@ -40,6 +40,7 @@ public class JythonEclipseProcess extends Process {
             lock = new Object();
 
             thread = new Thread() {
+                @Override
                 public void run() {
                     File fileToExec = new File(script);
                     HashMap<String, Object> locals = new HashMap<String, Object>();
@@ -67,16 +68,19 @@ public class JythonEclipseProcess extends Process {
         }
     }
 
+    @Override
     public OutputStream getOutputStream() {
 
         return outputStream.internalOutputStream;
     }
 
+    @Override
     public InputStream getInputStream() {
 
         return outputStream;
     }
 
+    @Override
     public InputStream getErrorStream() {
 
         return errorStream;

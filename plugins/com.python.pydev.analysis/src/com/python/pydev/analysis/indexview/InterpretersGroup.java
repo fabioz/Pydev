@@ -16,6 +16,7 @@ public class InterpretersGroup extends ElementWithChildren {
         super(parent);
     }
 
+    @Override
     public boolean hasChildren() {
         return true;
     }

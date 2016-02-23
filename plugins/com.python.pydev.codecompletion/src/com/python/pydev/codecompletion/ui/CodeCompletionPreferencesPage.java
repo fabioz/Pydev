@@ -81,6 +81,7 @@ public class CodeCompletionPreferencesPage extends FieldEditorPreferencePage imp
                 InputDialog d = new InputDialog(getShell(), "New word", "Add the word you wish.", "",
                         new IInputValidator() {
 
+                            @Override
                             public String isValid(String newText) {
                                 if (newText.indexOf(' ') != -1) {
                                     return "The input cannot have spaces";
@@ -111,6 +112,7 @@ public class CodeCompletionPreferencesPage extends FieldEditorPreferencePage imp
         });
     }
 
+    @Override
     public void init(IWorkbench workbench) {
     }
 

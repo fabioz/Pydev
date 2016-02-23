@@ -19,6 +19,7 @@ public class PyWrapParagraph extends PyAction {
     /**
      * Makes the wrap paragraph (registered from the scripting engine).
      */
+    @Override
     public void run(IAction action) {
         try {
             if (!canModifyEditor()) {

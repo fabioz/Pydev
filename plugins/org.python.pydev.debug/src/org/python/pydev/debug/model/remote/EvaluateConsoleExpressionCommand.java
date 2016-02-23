@@ -38,10 +38,12 @@ public class EvaluateConsoleExpressionCommand extends AbstractDebuggerCommand {
         return makeCommand(cmd, sequence, locator);
     }
 
+    @Override
     public boolean needResponse() {
         return true; // Allows the command to wait till a response is received.
     }
 
+    @Override
     public void processOKResponse(int cmdCode, String payload) {
         this.responseCode = cmdCode;
         if (responseCode == CMD_EVALUATE_CONSOLE_EXPRESSION)
@@ -52,6 +54,7 @@ public class EvaluateConsoleExpressionCommand extends AbstractDebuggerCommand {
         }
     }
 
+    @Override
     public void processErrorResponse(int cmdCode, String payload) {
         this.responseCode = cmdCode;
         this.payload = payload;

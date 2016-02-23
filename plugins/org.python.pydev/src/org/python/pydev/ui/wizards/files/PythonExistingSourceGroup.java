@@ -124,6 +124,7 @@ public class PythonExistingSourceGroup {
         singleSelectionText.setLayoutData(gd);
         singleSelectionText.setFont(font);
         singleSelectionText.addModifyListener(new ModifyListener() {
+            @Override
             public void modifyText(ModifyEvent evt) {
                 clearAllProblems();
                 selectLinkTarget(Path.fromOSString(singleSelectionText.getText()));

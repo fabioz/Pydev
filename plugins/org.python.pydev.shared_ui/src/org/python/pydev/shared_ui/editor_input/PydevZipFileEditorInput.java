@@ -35,6 +35,7 @@ public class PydevZipFileEditorInput implements IStorageEditorInput, IPathEditor
         this.storage = storage;
     }
 
+    @Override
     public IStorage getStorage() throws CoreException {
         return this.storage;
     }
@@ -47,19 +48,23 @@ public class PydevZipFileEditorInput implements IStorageEditorInput, IPathEditor
         return this.storage.zipPath;
     }
 
+    @Override
     public boolean exists() {
         return true;
     }
 
+    @Override
     public ImageDescriptor getImageDescriptor() {
         IEditorRegistry registry = PlatformUI.getWorkbench().getEditorRegistry();
         return registry.getImageDescriptor(getContentType());
     }
 
+    @Override
     public String getName() {
         return this.storage.getName();
     }
 
+    @Override
     public IPersistableElement getPersistable() {
         return this;
     }
@@ -68,6 +73,7 @@ public class PydevZipFileEditorInput implements IStorageEditorInput, IPathEditor
         return this.storage.getFullPath().getFileExtension();
     }
 
+    @Override
     public String getToolTipText() {
         IPath fullPath = storage.getFullPath();
         if (fullPath == null) {
@@ -76,6 +82,7 @@ public class PydevZipFileEditorInput implements IStorageEditorInput, IPathEditor
         return fullPath.toString();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T getAdapter(Class<T> adapter) {
         if (adapter.isInstance(this)) {
@@ -84,14 +91,17 @@ public class PydevZipFileEditorInput implements IStorageEditorInput, IPathEditor
         return null;
     }
 
+    @Override
     public IPath getPath() {
         return storage.getFullPath();
     }
 
+    @Override
     public void saveState(IMemento memento) {
         PyEditorInputFactory.saveState(memento, this);
     }
 
+    @Override
     public String getFactoryId() {
         return PyEditorInputFactory.FACTORY_ID;
     }

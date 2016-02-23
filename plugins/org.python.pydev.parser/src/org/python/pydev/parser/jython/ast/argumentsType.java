@@ -31,6 +31,7 @@ public final class argumentsType extends SimpleNode {
         this.kwonlyargannotation = kwonlyargannotation;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -47,6 +48,7 @@ public final class argumentsType extends SimpleNode {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -90,10 +92,12 @@ public final class argumentsType extends SimpleNode {
         return true;
     }
 
+    @Override
     public argumentsType createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public argumentsType createCopy(boolean copyComments) {
         exprType[] new0;
         if (this.args != null) {
@@ -177,6 +181,7 @@ public final class argumentsType extends SimpleNode {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("arguments[");
         sb.append("args=");
@@ -212,11 +217,13 @@ public final class argumentsType extends SimpleNode {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         traverse(visitor);
         return null;
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (args != null) {
             for (int i = 0; i < args.length; i++) {

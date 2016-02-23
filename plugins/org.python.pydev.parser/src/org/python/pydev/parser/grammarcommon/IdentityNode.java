@@ -16,18 +16,22 @@ public class IdentityNode extends SimpleNode {
         this.id = id;
     }
 
+    @Override
     public int getId() {
         return id;
     }
 
+    @Override
     public void setImage(Object image) {
         this.image = image;
     }
 
+    @Override
     public Object getImage() {
         return image;
     }
 
+    @Override
     public String toString() {
         return "IdNode[" + id + ", " + image + "]";
     }

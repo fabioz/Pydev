@@ -85,6 +85,7 @@ public class PyParserTest extends PyParserTestBase {
     public void testCorrectArgs() throws Throwable {
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
+            @Override
             public Boolean call(Integer arg) {
                 String s = "" +
                         "class Class1:         \n" +
@@ -137,6 +138,7 @@ public class PyParserTest extends PyParserTestBase {
 
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
+            @Override
             public Boolean call(Integer arg) {
                 parseLegalDocStr(s);
                 return true;
@@ -148,6 +150,7 @@ public class PyParserTest extends PyParserTestBase {
     public void testPassSame() throws Throwable {
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
+            @Override
             public Boolean call(Integer arg) {
                 String s = "" +
                         "pass\n" +
@@ -167,6 +170,7 @@ public class PyParserTest extends PyParserTestBase {
     public void testErr() throws Throwable {
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
+            @Override
             public Boolean call(Integer arg) {
                 String s = "" +
                         "def m():\n" +
@@ -189,6 +193,7 @@ public class PyParserTest extends PyParserTestBase {
                 "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
+            @Override
             public Boolean call(Integer arg) {
                 if (arg == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4) {
                     parseILegalDocSuccessfully(s);
@@ -206,6 +211,7 @@ public class PyParserTest extends PyParserTestBase {
                 "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
+            @Override
             public Boolean call(Integer arg) {
                 if (arg == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0) {
                     //yeap, invalid in python 3.0
@@ -224,6 +230,7 @@ public class PyParserTest extends PyParserTestBase {
                 "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
+            @Override
             public Boolean call(Integer arg) {
                 if (arg == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0) {
                     //yeap, invalid in python 3.0
@@ -242,6 +249,7 @@ public class PyParserTest extends PyParserTestBase {
                 "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
+            @Override
             public Boolean call(Integer arg) {
                 if (arg == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0) {
                     //yeap, invalid in python 3.0
@@ -260,6 +268,7 @@ public class PyParserTest extends PyParserTestBase {
                 "    yield 1";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
+            @Override
             public Boolean call(Integer arg) {
                 parseLegalDocStr(s);
                 return true;
@@ -277,6 +286,7 @@ public class PyParserTest extends PyParserTestBase {
                 "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
+            @Override
             public Boolean call(Integer arg) {
                 parseLegalDocStr(s);
                 return true;
@@ -295,6 +305,7 @@ public class PyParserTest extends PyParserTestBase {
                 "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
+            @Override
             public Boolean call(Integer arg) {
                 parseLegalDocStr(s);
                 return true;
@@ -313,6 +324,7 @@ public class PyParserTest extends PyParserTestBase {
                 "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
+            @Override
             public Boolean call(Integer arg) {
                 parseLegalDocStr(s);
                 return true;
@@ -329,6 +341,7 @@ public class PyParserTest extends PyParserTestBase {
                 "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
+            @Override
             public Boolean call(Integer arg) {
                 parseLegalDocStr(s);
                 return true;
@@ -346,6 +359,7 @@ public class PyParserTest extends PyParserTestBase {
                 "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
+            @Override
             public Boolean call(Integer arg) {
                 parseLegalDocStr(s);
                 return true;
@@ -366,6 +380,7 @@ public class PyParserTest extends PyParserTestBase {
                 "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
+            @Override
             public Boolean call(Integer arg) {
                 parseLegalDocStr(s);
                 return true;
@@ -383,6 +398,7 @@ public class PyParserTest extends PyParserTestBase {
                 "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
+            @Override
             public Boolean call(Integer arg) {
                 parseLegalDocStr(s);
                 return true;
@@ -446,6 +462,7 @@ public class PyParserTest extends PyParserTestBase {
         final String s = "dict((day, index) for index, daysRep in enumeratedDays for day in daysRep)";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
+            @Override
             public Boolean call(Integer arg) {
                 parseLegalDocStr(s);
                 return true;
@@ -496,6 +513,7 @@ public class PyParserTest extends PyParserTestBase {
                 "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
+            @Override
             public Boolean call(Integer arg) {
                 parseLegalDocStr(s);
                 return true;
@@ -568,6 +586,7 @@ public class PyParserTest extends PyParserTestBase {
                 "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
+            @Override
             public Boolean call(Integer arg) {
                 parseLegalDocStr(s);
                 return true;
@@ -585,6 +604,7 @@ public class PyParserTest extends PyParserTestBase {
                 "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
+            @Override
             public Boolean call(Integer arg) {
                 parseLegalDocStr(s);
                 return true;
@@ -602,6 +622,7 @@ public class PyParserTest extends PyParserTestBase {
                 "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
+            @Override
             public Boolean call(Integer arg) {
                 parseILegalDocStr(s);
                 //        Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
@@ -621,6 +642,7 @@ public class PyParserTest extends PyParserTestBase {
     public void testEndWithComment() throws Throwable {
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
+            @Override
             public Boolean call(Integer arg) {
                 String s = "class C: \n" +
                         "    pass\n" +
@@ -640,6 +662,7 @@ public class PyParserTest extends PyParserTestBase {
     public void testOnlyComment() throws Throwable {
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
+            @Override
             public Boolean call(Integer arg) {
                 String s = "#end\n" +
                         "\n" +
@@ -658,6 +681,7 @@ public class PyParserTest extends PyParserTestBase {
     public void testEmpty() throws Throwable {
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
+            @Override
             public Boolean call(Integer arg) {
                 String s = "";
                 Module ast = (Module) parseLegalDocStr(s);
@@ -703,6 +727,7 @@ public class PyParserTest extends PyParserTestBase {
         final String s = "plural = lambda : None";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
+            @Override
             public Boolean call(Integer arg) {
                 parseLegalDocStr(s);
                 return true;
@@ -761,6 +786,7 @@ public class PyParserTest extends PyParserTestBase {
     public void testParser10() throws Throwable {
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
+            @Override
             public Boolean call(Integer arg) {
                 String s = "" +
                         "l = [ \"encode\", \"decode\" ] \n" +
@@ -787,6 +813,7 @@ public class PyParserTest extends PyParserTestBase {
                 "\n";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
+            @Override
             public Boolean call(Integer arg) {
                 parseLegalDocStr(s);
                 return true;
@@ -800,6 +827,7 @@ public class PyParserTest extends PyParserTestBase {
                 "\n";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
+            @Override
             public Boolean call(Integer arg) {
                 parseLegalDocStr(s);
                 return true;
@@ -816,6 +844,7 @@ public class PyParserTest extends PyParserTestBase {
 
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
+            @Override
             public Boolean call(Integer arg) {
                 parseLegalDocStr(s);
                 return true;
@@ -830,6 +859,7 @@ public class PyParserTest extends PyParserTestBase {
 
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
+            @Override
             public Boolean call(Integer arg) {
                 parseILegalDocStr(s);
                 return true;
@@ -844,6 +874,7 @@ public class PyParserTest extends PyParserTestBase {
 
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
+            @Override
             public Boolean call(Integer arg) {
                 parseLegalDocStr(s);
                 return true;
@@ -857,6 +888,7 @@ public class PyParserTest extends PyParserTestBase {
 
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
+            @Override
             public Boolean call(Integer grammar) {
                 parseILegalDocSuccessfully(s);
                 return true;
@@ -924,6 +956,7 @@ public class PyParserTest extends PyParserTestBase {
 
         ICallback<Object, Boolean> callback = new ICallback<Object, Boolean>() {
 
+            @Override
             public Object call(Boolean failTest) {
                 synchronized (calls) {
                     calls[0] = calls[0] + 1;

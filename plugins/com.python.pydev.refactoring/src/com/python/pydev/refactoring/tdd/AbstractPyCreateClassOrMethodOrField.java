@@ -59,6 +59,7 @@ public abstract class AbstractPyCreateClassOrMethodOrField extends AbstractPyCre
                 InputDialog dialog = new InputDialog(EditorUtils.getShell(), asTitle + " name",
                         "Please enter the name of the " + asTitle + " to be created.", "", new IInputValidator() {
 
+                            @Override
                             public String isValid(String newText) {
                                 if (newText.length() == 0) {
                                     return "The " + asTitle + " name may not be empty";

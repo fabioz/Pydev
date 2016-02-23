@@ -40,6 +40,7 @@ public class BeforeCurrentOffset extends BeginOffset {
         this.scopeAdapter = scopeAdapter;
     }
 
+    @Override
     protected int getLine() {
         if (scopeAdapter != null) {
             return scopeAdapter.getNodeFirstLine() - 1;

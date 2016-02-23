@@ -63,6 +63,7 @@ public class AutoEditStrategyScopeCreationHelper {
 
             private final AutoEditStrategyScopeCreationHelper scopeHelper = new AutoEditStrategyScopeCreationHelper();
 
+            @Override
             public void verifyKey(VerifyEvent event) {
                 if (!event.doit || event.character == '\0') {
                     return;

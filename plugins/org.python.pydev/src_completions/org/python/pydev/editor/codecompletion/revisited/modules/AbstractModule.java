@@ -56,26 +56,31 @@ public abstract class AbstractModule implements IModule {
     /** 
      * @see org.python.pydev.core.IModule#getWildImportedModules()
      */
+    @Override
     public abstract IToken[] getWildImportedModules();
 
     /** 
      * @see org.python.pydev.core.IModule#getFile()
      */
+    @Override
     public abstract File getFile();
 
     /** 
      * @see org.python.pydev.core.IModule#getTokenImportedModules()
      */
+    @Override
     public abstract IToken[] getTokenImportedModules();
 
     /** 
      * @see org.python.pydev.core.IModule#getGlobalTokens()
      */
+    @Override
     public abstract IToken[] getGlobalTokens();
 
     /**
      * Don't deal with zip files unless specifically specified
      */
+    @Override
     public String getZipFilePath() {
         return null;
     }
@@ -83,6 +88,7 @@ public abstract class AbstractModule implements IModule {
     /** 
      * @see org.python.pydev.core.IModule#getLocalTokens(int, int, ILocalScope)
      */
+    @Override
     public IToken[] getLocalTokens(int line, int col, ILocalScope scope) {
         return EMPTY_TOKEN_ARRAY;
     }
@@ -92,12 +98,14 @@ public abstract class AbstractModule implements IModule {
      * @param tok the token we are looking for
      * @return true if it was found and false otherwise
      */
+    @Override
     public abstract boolean isInDirectGlobalTokens(String tok, ICompletionCache completionCache);
 
     /** 
      * @throws CompletionRecursionException 
      * @see org.python.pydev.core.IModule#isInGlobalTokens(java.lang.String, org.python.pydev.plugin.nature.PythonNature)
      */
+    @Override
     public boolean isInGlobalTokens(String tok, IPythonNature nature, ICompletionCache completionCache)
             throws CompletionRecursionException {
         return isInGlobalTokens(tok, nature, true, completionCache);
@@ -107,11 +115,13 @@ public abstract class AbstractModule implements IModule {
      * @throws CompletionRecursionException 
      * @see org.python.pydev.core.IModule#isInGlobalTokens(java.lang.String, org.python.pydev.plugin.nature.PythonNature, boolean)
      */
+    @Override
     public boolean isInGlobalTokens(String tok, IPythonNature nature, boolean searchSameLevelMods,
             ICompletionCache completionCache) throws CompletionRecursionException {
         return isInGlobalTokens(tok, nature, searchSameLevelMods, false, completionCache) != IModule.NOT_FOUND;
     }
 
+    @Override
     public int isInGlobalTokens(String tok, IPythonNature nature, boolean searchSameLevelMods,
             boolean ifHasGetAttributeConsiderInTokens, ICompletionCache completionCache)
             throws CompletionRecursionException {
@@ -224,17 +234,20 @@ public abstract class AbstractModule implements IModule {
     /**
      * The token we're looking for must be the state activation token
      */
+    @Override
     public abstract Definition[] findDefinition(ICompletionState state, int line, int col, IPythonNature nature)
             throws Exception;
 
     /** 
      * @see org.python.pydev.core.IModule#getGlobalTokens(org.python.pydev.editor.codecompletion.revisited.CompletionState, org.python.pydev.core.ICodeCompletionASTManager)
      */
+    @Override
     public abstract IToken[] getGlobalTokens(ICompletionState state, ICodeCompletionASTManager manager);
 
     /** 
      * @see org.python.pydev.core.IModule#getDocString()
      */
+    @Override
     public abstract String getDocString();
 
     /**
@@ -245,6 +258,7 @@ public abstract class AbstractModule implements IModule {
     /** 
      * @see org.python.pydev.core.IModule#getName()
      */
+    @Override
     public String getName() {
         return name;
     }
@@ -354,6 +368,7 @@ public abstract class AbstractModule implements IModule {
         }
     }
 
+    @Override
     public ILocalScope getLocalScope(int line, int col) {
         return null;
     }
@@ -371,10 +386,12 @@ public abstract class AbstractModule implements IModule {
     /**
      * @return true if the name we have ends with .__init__ (default for packages -- others are modules)
      */
+    @Override
     public boolean isPackage() {
         return this.name != null && this.name.endsWith(".__init__");
     }
 
+    @Override
     public String getPackageFolderName() {
         return FullRepIterable.getParentModule(this.name);
     }

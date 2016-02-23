@@ -39,6 +39,7 @@ public class InlineLocalRequestProcessor implements IRequestProcessor<InlineLoca
         this.info = info;
     }
 
+    @Override
     public List<InlineLocalRequest> getRefactoringRequests() {
         return ListUtils.wrap(new InlineLocalRequest(info, assignment, variables));
     }

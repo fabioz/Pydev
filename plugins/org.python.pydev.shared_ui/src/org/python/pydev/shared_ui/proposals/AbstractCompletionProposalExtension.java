@@ -53,6 +53,7 @@ public abstract class AbstractCompletionProposalExtension extends PyCompletionPr
      * Called when Ctrl is selected during the completions
      * @see org.eclipse.jface.text.contentassist.ICompletionProposalExtension2#selected(org.eclipse.jface.text.ITextViewer, boolean)
      */
+    @Override
     public void selected(ITextViewer viewer, boolean smartToggle) {
         if (smartToggle) {
             StyledText text = viewer.getTextWidget();
@@ -104,20 +105,25 @@ public abstract class AbstractCompletionProposalExtension extends PyCompletionPr
         return Character.isJavaIdentifierPart(c);
     }
 
+    @Override
     public void unselected(ITextViewer viewer) {
         this.getPresentationUpdater().repairPresentation(viewer);
     }
 
+    @Override
     public abstract boolean validate(IDocument document, int offset, DocumentEvent event);
 
+    @Override
     public void apply(IDocument document, char trigger, int offset) {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public int getContextInformationPosition() {
         return this.fCursorPosition;
     }
 
+    @Override
     public boolean isValidFor(IDocument document, int offset) {
         return validate(document, offset, null);
     }

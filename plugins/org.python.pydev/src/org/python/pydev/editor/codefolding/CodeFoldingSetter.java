@@ -117,6 +117,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener, IPy
      * 
      * @see org.python.pydev.editor.model.IModelListener#modelChanged(org.python.pydev.editor.model.AbstractNode)
      */
+    @Override
     public synchronized void modelChanged(final ISimpleNode ast) {
         final SimpleNode root2 = (SimpleNode) ast;
         if (!firstInputChangedCalled) {
@@ -279,6 +280,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener, IPy
      * 
      * @see org.eclipse.ui.IPropertyListener#propertyChanged(java.lang.Object, int)
      */
+    @Override
     public void propertyChanged(Object source, int propId) {
         if (propId == PyEditProjection.PROP_FOLDING_CHANGED) {
             modelChanged(editor.getAST());
@@ -360,6 +362,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener, IPy
 
         Collections.sort(ret, new Comparator<FoldingEntry>() {
 
+            @Override
             public int compare(FoldingEntry o1, FoldingEntry o2) {
                 if (o1.startLine < o2.startLine) {
                     return -1;
@@ -560,6 +563,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener, IPy
         }
     }
 
+    @Override
     public void errorChanged(ErrorDescription errorDesc) {
         //ignore the errors (we're just interested in the ast in this class)
     }
