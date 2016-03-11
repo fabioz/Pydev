@@ -108,7 +108,7 @@ public class MarkerStub implements IMarker {
         this.attrs = attributes;
     }
 
-    public Object getAdapter(Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
         throw new RuntimeException("not impl");
     }
 

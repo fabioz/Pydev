@@ -9,8 +9,6 @@ package org.python.pydev.dltk.console.ui.internal;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.debug.ui.console.IConsoleLineTracker;
 import org.eclipse.jface.text.Document;
@@ -29,6 +27,8 @@ import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleSess
 import org.python.pydev.shared_interactive_console.console.ui.internal.ICommandHandler;
 import org.python.pydev.shared_interactive_console.console.ui.internal.IScriptConsoleViewer2ForDocumentListener;
 import org.python.pydev.shared_interactive_console.console.ui.internal.ScriptConsoleDocumentListener;
+
+import junit.framework.TestCase;
 
 public class ScriptConsoleDocumentListenerTest extends TestCase {
 
@@ -111,7 +111,7 @@ public class ScriptConsoleDocumentListenerTest extends TestCase {
                 new PyAutoIndentStrategy(new IAdaptable() {
 
                     @Override
-                    public Object getAdapter(Class adapter) {
+                    public <T> T getAdapter(Class<T> adapter) {
                         return null;
                     }
                 }));

@@ -218,8 +218,9 @@ public class PyThread extends PlatformObject implements IThread {
         return breaks;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Object getAdapter(Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
         AdapterDebug.print(this, adapter);
 
         if (adapter.equals(ILaunch.class) || adapter.equals(IResource.class)) {
@@ -229,10 +230,10 @@ public class PyThread extends PlatformObject implements IThread {
             return null;
 
         } else if (adapter.equals(IDebugTarget.class)) {
-            return target;
+            return (T) target;
 
         } else if (adapter.equals(org.eclipse.debug.ui.actions.IRunToLineTarget.class)) {
-            return this.target.getRunToLineTarget();
+            return (T) this.target.getRunToLineTarget();
 
         } else if (adapter.equals(IPropertySource.class) || adapter.equals(ITaskListResourceAdapter.class)
                 || adapter.equals(org.eclipse.debug.ui.actions.IToggleBreakpointsTarget.class)

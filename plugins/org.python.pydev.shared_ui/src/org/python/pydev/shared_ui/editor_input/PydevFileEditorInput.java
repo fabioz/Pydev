@@ -117,12 +117,13 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
     /*
      * @see org.eclipse.core.runtime.IAdaptable#getAdapter(java.lang.Class)
      */
-    public Object getAdapter(Class adapter) {
+    @SuppressWarnings("unchecked")
+    public <T> T getAdapter(Class<T> adapter) {
         if (adapter.isInstance(this)) {
-            return this;
+            return (T) this;
         }
         if (IWorkbenchAdapter.class.equals(adapter)) {
-            return fWorkbenchAdapter;
+            return (T) fWorkbenchAdapter;
         }
         return Platform.getAdapterManager().getAdapter(this, adapter);
     }

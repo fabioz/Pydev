@@ -32,7 +32,7 @@ public class PydevFileEditorInputStub implements IEditorInput {
         throw new RuntimeException("Not implemented");
     }
 
-    public Object getAdapter(Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
         throw new RuntimeException("Not implemented");
     }
 

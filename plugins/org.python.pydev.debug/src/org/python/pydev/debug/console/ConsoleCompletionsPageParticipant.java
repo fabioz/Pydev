@@ -78,7 +78,8 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
         /**
          * Gets the completions at the passed offset.
          */
-        public ICompletionProposal[] getCompletions(String text, String actTok, int offset, boolean showForTabCompletion)
+        public ICompletionProposal[] getCompletions(String text, String actTok, int offset,
+                boolean showForTabCompletion)
                 throws Exception {
             this.text = text;
             this.actTok = actTok;
@@ -119,7 +120,8 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
                 return EMPTY_COMPLETION_PROPOSALS;
             }
             List<ICompletionProposal> ret = new ArrayList<ICompletionProposal>(fromServer.size());
-            PydevConsoleCommunication.convertConsoleCompletionsToICompletions(text, actTok, offset, fromServer, ret, false);
+            PydevConsoleCommunication.convertConsoleCompletionsToICompletions(text, actTok, offset, fromServer, ret,
+                    false);
             return ret.toArray(new ICompletionProposal[0]);
         }
 
@@ -170,7 +172,7 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
      */
     private PyContentAssistant contentAssist;
 
-    public Object getAdapter(Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
 
         return null;
     }

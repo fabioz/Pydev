@@ -9,8 +9,6 @@ package org.python.pydev.parser;
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.jface.text.Document;
@@ -24,6 +22,8 @@ import org.python.pydev.core.parser.IPyParser;
 import org.python.pydev.shared_core.editor.IBaseEditor;
 import org.python.pydev.shared_core.model.IModelListener;
 import org.python.pydev.shared_core.model.ISimpleNode;
+
+import junit.framework.TestCase;
 
 public class PyParserEditorIntegrationTest extends TestCase {
 
@@ -63,7 +63,7 @@ public class PyParserEditorIntegrationTest extends TestCase {
         }
 
         @Override
-        public Object getAdapter(Class adapter) {
+        public <T> T getAdapter(Class<T> adapter) {
             return null;
         }
 

@@ -10,13 +10,13 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.resource_stubs.ProjectStub;
+
+import junit.framework.TestCase;
 
 public class ScopedPreferencesTest extends TestCase {
 
@@ -63,7 +63,7 @@ public class ScopedPreferencesTest extends TestCase {
         IAdaptable adaptable = new IAdaptable() {
 
             @Override
-            public Object getAdapter(Class adapter) {
+            public <T> T getAdapter(Class<T> adapter) {
                 return null;
             }
         };
@@ -102,9 +102,9 @@ public class ScopedPreferencesTest extends TestCase {
         IAdaptable adaptable = new IAdaptable() {
 
             @Override
-            public Object getAdapter(Class adapter) {
+            public <T> T getAdapter(Class<T> adapter) {
                 if (IProject.class == adapter) {
-                    return project;
+                    return (T) project;
                 }
                 return null;
             }

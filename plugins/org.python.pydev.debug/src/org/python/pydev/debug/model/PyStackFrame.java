@@ -55,7 +55,8 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
     private AbstractDebugTarget target;
     private volatile boolean onAskGetNewVars = true;
 
-    public PyStackFrame(PyThread in_thread, String in_id, String name, IPath file, int line, AbstractDebugTarget target) {
+    public PyStackFrame(PyThread in_thread, String in_id, String name, IPath file, int line,
+            AbstractDebugTarget target) {
         this.id = in_id;
         this.name = name;
         this.path = file;
@@ -325,8 +326,9 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
         thread.terminate();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Object getAdapter(Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
         AdapterDebug.print(this, adapter);
 
         if (adapter.equals(ILaunch.class) || adapter.equals(IResource.class)) {
@@ -338,11 +340,11 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
         }
 
         if (adapter.equals(IDebugTarget.class)) {
-            return thread.getDebugTarget();
+            return (T) thread.getDebugTarget();
         }
 
         if (adapter.equals(org.eclipse.debug.ui.actions.IRunToLineTarget.class)) {
-            return this.target.getRunToLineTarget();
+            return (T) this.target.getRunToLineTarget();
         }
 
         if (adapter.equals(IPropertySource.class) || adapter.equals(ITaskListResourceAdapter.class)
@@ -351,7 +353,7 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
         }
 
         if (adapter.equals(IDeferredWorkbenchAdapter.class)) {
-            return new DeferredWorkbenchAdapter(this);
+            return (T) new DeferredWorkbenchAdapter(this);
         }
 
         AdapterDebug.printDontKnow(this, adapter);

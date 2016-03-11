@@ -30,7 +30,7 @@ import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
  * It sets packages with a package icon and python files with a python icon (other files/folders
  * have default icons)
  */
-public class PythonpathTreeNode extends TreeNode<LabelAndImage>implements ISortedElement, IAdaptable {
+public class PythonpathTreeNode extends TreeNode<LabelAndImage> implements ISortedElement, IAdaptable {
 
     private static final File[] EMPTY_FILES = new File[0];
 
@@ -64,10 +64,11 @@ public class PythonpathTreeNode extends TreeNode<LabelAndImage>implements ISorte
         this(parent, file, null, false);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Object getAdapter(Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
         if (adapter == URI.class) {
-            return file.toURI();
+            return (T) file.toURI();
         }
         return null;
     }

@@ -21,7 +21,7 @@ public class PromptOverlayConsolePageParticipant implements IConsolePageParticip
     private PromptOverlay promptOverlay;
 
     @Override
-    public Object getAdapter(Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
         return null;
     }
 

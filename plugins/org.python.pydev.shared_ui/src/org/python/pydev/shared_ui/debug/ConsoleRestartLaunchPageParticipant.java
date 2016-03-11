@@ -81,7 +81,7 @@ public class ConsoleRestartLaunchPageParticipant implements IConsolePageParticip
         return fConsole != null ? fConsole.getProcess() : null;
     }
 
-    public Object getAdapter(Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
         return null;
     }
 

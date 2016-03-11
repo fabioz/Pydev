@@ -90,7 +90,7 @@ public class WorkingSetStub implements IWorkingSet {
         throw new RuntimeException("Not implemented");
     }
 
-    public Object getAdapter(Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
         throw new RuntimeException("Not implemented");
     }
 

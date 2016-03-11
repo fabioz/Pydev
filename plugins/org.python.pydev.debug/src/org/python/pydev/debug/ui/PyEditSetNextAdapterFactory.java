@@ -19,15 +19,15 @@ public class PyEditSetNextAdapterFactory implements IAdapterFactory {
 
     private static PySetNextTarget pySetNextTarget = new PySetNextTarget();
 
-    public Object getAdapter(Object adaptableObject, Class adapterType) {
+    @SuppressWarnings("unchecked")
+    public <T> T getAdapter(Object adaptableObject, Class<T> adapterType) {
         if (adaptableObject instanceof PyEdit && adapterType == ISetNextTarget.class) {
-            return pySetNextTarget;
-
+            return (T) pySetNextTarget;
         }
         return null;
     }
 
-    public Class[] getAdapterList() {
+    public Class<?>[] getAdapterList() {
         return new Class[] { IRunToLineTarget.class };
     }
 

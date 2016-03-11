@@ -546,6 +546,7 @@ public class FileUtils {
      *      FastStringBuffer.class
      *
      */
+    @SuppressWarnings("unchecked")
     public static <T> T getStreamContents(InputStream contentStream, String encoding, IProgressMonitor monitor,
             Class<T> returnType) throws IOException {
 

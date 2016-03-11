@@ -39,14 +39,13 @@ import org.eclipse.ui.model.IWorkbenchAdapter;
 import org.eclipse.ui.model.IWorkbenchAdapter2;
 import org.python.pydev.core.log.Log;
 
-
 /**
  * Provides basic labels for adaptable objects that have the
  * <code>IWorkbenchAdapter</code> adapter associated with them.  All dispensed
  * images are cached until the label provider is explicitly disposed.
  * This class provides a facility for subclasses to define annotations
  * on the labels and icons of adaptable objects.
- * 
+ *
  * Copied just so that we can have getText and getImage overridden.
  */
 public class CopiedWorkbenchLabelProvider extends LabelProvider implements IColorProvider, IFontProvider {
@@ -54,7 +53,7 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements IColo
     /**
      * Returns a workbench label provider that is hooked up to the decorator
      * mechanism.
-     * 
+     *
      * @return a new <code>DecoratingLabelProvider</code> which wraps a <code>
      *   new <code>CopiedWorkbenchLabelProvider</code>
      */
@@ -92,7 +91,7 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements IColo
      *
      * Subclasses may reimplement this method to decorate an object's
      * image.
-     * 
+     *
      * @param input The base image to decorate.
      * @param element The element used to look up decorations.
      * @return the resuling ImageDescriptor.
@@ -120,6 +119,7 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements IColo
     /* (non-Javadoc)
      * Method declared on ILabelProvider
      */
+    @Override
     public void dispose() {
         PlatformUI.getWorkbench().getEditorRegistry().removePropertyListener(editorRegistryListener);
         resourceManager.dispose();
@@ -129,10 +129,10 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements IColo
 
     /**
      * Copied from Util.getAdapter (from eclipse 3.3: not available in eclipse 3.2)
-     * 
+     *
      * If it is possible to adapt the given object to the given type, this
      * returns the adapter. Performs the following checks:
-     * 
+     *
      * <ol>
      * <li>Returns <code>sourceObject</code> if it is an instance of the
      * adapter type.</li>
@@ -140,9 +140,9 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements IColo
      * <li>If sourceObject is not an instance of PlatformObject (which would have
      * already done so), the adapter manager is queried for adapters</li>
      * </ol>
-     * 
+     *
      * Otherwise returns null.
-     * 
+     *
      * @param sourceObject
      *            object to adapt, or null
      * @param adapterType
@@ -150,19 +150,20 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements IColo
      * @return a representation of sourceObject that is assignable to the
      *         adapter type, or null if no such representation exists
      */
-    public static Object utilGetAdapter(Object sourceObject, Class adapterType) {
+    @SuppressWarnings("unchecked")
+    public static <T> T utilGetAdapter(Object sourceObject, Class<T> adapterType) {
         Assert.isNotNull(adapterType);
         if (sourceObject == null) {
             return null;
         }
         if (adapterType.isInstance(sourceObject)) {
-            return sourceObject;
+            return (T) sourceObject;
         }
 
         if (sourceObject instanceof IAdaptable) {
             IAdaptable adaptable = (IAdaptable) sourceObject;
 
-            Object result = adaptable.getAdapter(adapterType);
+            T result = adaptable.getAdapter(adapterType);
             if (result != null) {
                 // Sanity-check
                 Assert.isTrue(adapterType.isInstance(result));
@@ -171,7 +172,7 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements IColo
         }
 
         if (!(sourceObject instanceof PlatformObject)) {
-            Object result = Platform.getAdapterManager().getAdapter(sourceObject, adapterType);
+            T result = Platform.getAdapterManager().getAdapter(sourceObject, adapterType);
             if (result != null) {
                 return result;
             }
@@ -182,29 +183,30 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements IColo
 
     /**
      * Returns the implementation of IWorkbenchAdapter for the given
-     * object.  
+     * object.
      * @param o the object to look up.
      * @return IWorkbenchAdapter or<code>null</code> if the adapter is not defined or the
-     * object is not adaptable. 
+     * object is not adaptable.
      */
     protected final IWorkbenchAdapter getAdapter(Object o) {
-        return (IWorkbenchAdapter) utilGetAdapter(o, IWorkbenchAdapter.class);
+        return utilGetAdapter(o, IWorkbenchAdapter.class);
     }
 
     /**
      * Returns the implementation of IWorkbenchAdapter2 for the given
-     * object.  
+     * object.
      * @param o the object to look up.
      * @return IWorkbenchAdapter2 or<code>null</code> if the adapter is not defined or the
-     * object is not adaptable. 
+     * object is not adaptable.
      */
     protected final IWorkbenchAdapter2 getAdapter2(Object o) {
-        return (IWorkbenchAdapter2) utilGetAdapter(o, IWorkbenchAdapter2.class);
+        return utilGetAdapter(o, IWorkbenchAdapter2.class);
     }
 
     /* (non-Javadoc)
      * Method declared on ILabelProvider
      */
+    @Override
     public Image getImage(Object element) {
         //obtain the base image by querying the element
         IWorkbenchAdapter adapter = getAdapter(element);
@@ -230,6 +232,7 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements IColo
     /* (non-Javadoc)
      * Method declared on ILabelProvider
      */
+    @Override
     public String getText(Object element) {
         //query the element for its label
         IWorkbenchAdapter adapter = getAdapter(element);
