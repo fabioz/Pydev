@@ -17,25 +17,28 @@ import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
+import org.eclipse.jface.text.ITextViewer;
+import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.ui.actions.EvalExpressionAction;
-import org.python.pydev.editor.codefolding.PySourceViewer;
-import org.python.pydev.editor.hover.IPyHoverParticipant;
+import org.python.pydev.editor.hover.AbstractPyEditorTextHover;
 import org.python.pydev.editor.hover.PyHoverPreferencesPage;
-
 
 /**
  * Gathers hover info during a debug session.
  * 
  * @author Fabio
  */
-public class PyDebugHover implements IPyHoverParticipant {
+public class PyDebugHover extends AbstractPyEditorTextHover {
+
+    public static String ID = "org.python.pydev.debug.ui.hover.PyDebugHover";
 
     /**
      * Gets the value from the debugger for the currently hovered string.
      */
-    public String getHoverText(IRegion hoverRegion, PySourceViewer s, PySelection ps, ITextSelection selection) {
+    @Override
+    public String getHoverInfo(final ITextViewer textViewer, IRegion hoverRegion) {
         if (!PyHoverPreferencesPage.getShowValuesWhileDebuggingOnHover()) {
             return null;
         }
@@ -55,11 +58,26 @@ public class PyDebugHover implements IPyHoverParticipant {
                 return null;
             }
             String act = null;
-            ITextSelection textSelection = (ITextSelection) selection;
+            final ITextSelection[] textSelection = new ITextSelection[1];
+            if (Thread.currentThread() == textViewer.getTextWidget().getDisplay().getThread()) {
+                textSelection[0] = (ITextSelection) textViewer.getSelectionProvider().getSelection();
+            } else {
+                textViewer.getTextWidget().getDisplay().syncExec(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        textSelection[0] = (ITextSelection) textViewer.getSelectionProvider().getSelection();
+                    }
+
+                });
+            }
+
+            PySelection ps = new PySelection(textViewer.getDocument(),
+                    hoverRegion.getOffset() + hoverRegion.getLength());
             int mouseOffset = ps.getAbsoluteCursorOffset();
 
-            int offset = textSelection.getOffset();
-            int len = textSelection.getLength();
+            int offset = textSelection[0].getOffset();
+            int len = textSelection[0].getLength();
             boolean reportSyntaxErrors = false;
             if (len > 0 && mouseOffset >= offset && offset + len >= mouseOffset) {
                 try {
@@ -99,6 +117,20 @@ public class PyDebugHover implements IPyHoverParticipant {
         }
 
         return null;
+    }
+
+    @Override
+    public boolean isContentTypeSupported(String contentType) {
+        boolean pythonCommentOrMultiline = false;
+
+        for (String type : IPythonPartitions.types) {
+            if (type.equals(contentType)) {
+                pythonCommentOrMultiline = true;
+                break;
+            }
+        }
+
+        return !pythonCommentOrMultiline;
     }
 
 }
