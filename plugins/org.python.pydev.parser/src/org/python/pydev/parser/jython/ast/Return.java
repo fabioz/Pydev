@@ -11,6 +11,7 @@ public final class Return extends stmtType {
         this.value = value;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -18,6 +19,7 @@ public final class Return extends stmtType {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -34,10 +36,12 @@ public final class Return extends stmtType {
         return true;
     }
 
+    @Override
     public Return createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public Return createCopy(boolean copyComments) {
         Return temp = new Return(value != null ? (exprType) value.createCopy(copyComments) : null);
         temp.beginLine = this.beginLine;
@@ -61,6 +65,7 @@ public final class Return extends stmtType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("Return[");
         sb.append("value=");
@@ -69,10 +74,12 @@ public final class Return extends stmtType {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitReturn(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (value != null) {
             value.accept(visitor);

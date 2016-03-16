@@ -72,10 +72,12 @@ public class HistoryFilteredList extends Composite {
     private class DefaultFilterMatcher implements FilterMatcher {
         private StringMatcher fMatcher;
 
+        @Override
         public void setFilter(String pattern, boolean ignoreCase, boolean ignoreWildCards) {
             fMatcher = new StringMatcher(pattern + '*', ignoreCase, ignoreWildCards);
         }
 
+        @Override
         public boolean match(Object element) {
             return fMatcher.match(fLabelProvider.getText(element));
         }
@@ -195,6 +197,7 @@ public class HistoryFilteredList extends Composite {
         fList.setLayoutData(new GridData(GridData.FILL_BOTH));
         fList.setFont(parent.getFont());
         fList.addDisposeListener(new DisposeListener() {
+            @Override
             public void widgetDisposed(DisposeEvent e) {
                 fLabelProvider.dispose();
                 if (fUpdateJob != null) {
@@ -510,6 +513,7 @@ public class HistoryFilteredList extends Composite {
          * 
          * @see org.eclipse.ui.progress.UIJob#runInUIThread(org.eclipse.core.runtime.IProgressMonitor)
          */
+        @Override
         public IStatus runInUIThread(IProgressMonitor monitor) {
             if (fTable.isDisposed()) {
                 return Status.CANCEL_STATUS;
@@ -711,6 +715,7 @@ public class HistoryFilteredList extends Composite {
      * 
      * @since 3.3
      */
+    @Override
     public Accessible getAccessible() {
         return fList.getAccessible();
     }

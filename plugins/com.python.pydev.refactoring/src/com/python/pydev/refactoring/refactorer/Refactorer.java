@@ -49,6 +49,7 @@ import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
  */
 public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2 {
 
+    @Override
     public String getName() {
         return "PyDev Extensions Refactorer";
     }
@@ -60,6 +61,7 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
      * 
      * @see org.python.pydev.editor.refactoring.IPyRefactoring#rename(org.python.pydev.editor.refactoring.RefactoringRequest)
      */
+    @Override
     public String rename(IPyRefactoringRequest request) {
         try {
             List<RefactoringRequest> actualRequests = request.getRequests();
@@ -111,20 +113,24 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
         return null;
     }
 
+    @Override
     public ItemPointer[] findDefinition(RefactoringRequest request)
             throws TooManyMatchesException, BadLocationException {
         return new RefactorerFindDefinition().findDefinition(request);
     }
 
     // --------------------------------------------------------- IPyRefactoring2
+    @Override
     public boolean areAllInSameClassHierarchy(List<AssignDefinition> defs) {
         return new RefactorerFinds(this).areAllInSameClassHierarchy(defs);
     }
 
+    @Override
     public HierarchyNodeModel findClassHierarchy(RefactoringRequest request, boolean findOnlyParents) {
         return new RefactorerFinds(this).findClassHierarchy(request, findOnlyParents);
     }
 
+    @Override
     public Map<Tuple<String, File>, HashSet<ASTEntry>> findAllOccurrences(RefactoringRequest req)
             throws OperationCanceledException, CoreException {
         PyReferenceSearcher pyReferenceSearcher = new PyReferenceSearcher(req);

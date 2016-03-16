@@ -98,6 +98,7 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener 
     /**
      * When the background changes, we need to update the background color (for the next refresh).
      */
+    @Override
     public void propertyChange(PropertyChangeEvent event) {
         String prop = event.getProperty();
         if (PyEdit.PREFERENCE_COLOR_BACKGROUND.equals(prop)

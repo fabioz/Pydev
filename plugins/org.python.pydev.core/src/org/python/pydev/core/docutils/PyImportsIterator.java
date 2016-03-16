@@ -124,6 +124,7 @@ public class PyImportsIterator implements Iterator<ImportHandle> {
     /**
      * From the iterator interface
      */
+    @Override
     public boolean hasNext() {
         return this.hasNext;
     }
@@ -131,6 +132,7 @@ public class PyImportsIterator implements Iterator<ImportHandle> {
     /**
      * From the iterator interface
      */
+    @Override
     public ImportHandle next() {
         ImportHandle ret = this.nextImport;
         calcNext(); //pre-compute the next step
@@ -140,6 +142,7 @@ public class PyImportsIterator implements Iterator<ImportHandle> {
     /**
      * From the iterator interface (not implemented)
      */
+    @Override
     public void remove() {
         throw new RuntimeException("Not implemented");
     }

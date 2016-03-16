@@ -58,10 +58,12 @@ public class ExtractLocalRequest implements IRefactoringRequest {
         return 0;
     }
 
+    @Override
     public IASTNodeAdapter<? extends SimpleNode> getOffsetNode() {
         return info.getScopeAdapter();
     }
 
+    @Override
     public AdapterPrefs getAdapterPrefs() {
         return info.getAdapterPrefs();
     }

@@ -135,6 +135,7 @@ public class PyParser extends BaseParser implements IPyParser {
         super(PyParserManager.getPyParserManager(new PreferenceStore()));
         if (grammarVersionProvider == null) {
             grammarVersionProvider = new IGrammarVersionProvider() {
+                @Override
                 public int getGrammarVersion() {
                     return IPythonNature.LATEST_GRAMMAR_VERSION;
                 }

@@ -225,6 +225,7 @@ public class SimpleNode implements Node, ISimpleNode {
        toString(String), otherwise overriding toString() is probably all
        you need to do. */
 
+    @Override
     public String toString() {
         return super.toString() + " at line " + beginLine;
     }

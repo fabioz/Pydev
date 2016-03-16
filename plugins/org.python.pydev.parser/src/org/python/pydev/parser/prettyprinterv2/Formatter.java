@@ -22,6 +22,7 @@ import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
 
 public class Formatter implements IFormatter {
 
+    @Override
     public void formatAll(IDocument doc, IPyFormatStdProvider edit, IFile f, boolean isOpenedFile,
             boolean throwSyntaxError)
             throws SyntaxErrorException {
@@ -50,6 +51,7 @@ public class Formatter implements IFormatter {
         }
     }
 
+    @Override
     public void formatSelection(IDocument doc, int[] regionsToFormat, IPyFormatStdProvider edit, PySelection ps) {
     }
 

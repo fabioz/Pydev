@@ -50,6 +50,7 @@ public class PrettyPrinterV2 {
         if (versionProvider == null) {
             versionProvider = new IGrammarVersionProvider() {
 
+                @Override
                 public int getGrammarVersion() throws MisconfigurationException {
                     return IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;
                 }

@@ -31,6 +31,7 @@ public class StreamConsumer extends Thread {
         bReader = new BufferedReader(new InputStreamReader(inputStream));
     }
 
+    @Override
     public void run() {
         try {
             String line;

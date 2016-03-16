@@ -43,6 +43,7 @@ public interface IScriptConsoleViewer extends ITextViewer {
     /**
      * @return the document being viewed by this console viewer
      */
+    @Override
     public IDocument getDocument();
 
     /**

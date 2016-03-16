@@ -70,6 +70,7 @@ public final class TddRefactorCompletionInInexistentModule extends AbstractTddRe
         return null;
     }
 
+    @Override
     public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
         //Now, we need to go on and create the module
         List<File> parents = new ArrayList<File>();
@@ -138,12 +139,15 @@ public final class TddRefactorCompletionInInexistentModule extends AbstractTddRe
         forceReparseInBaseEditorAnd(pyEdit);
     }
 
+    @Override
     public void selected(ITextViewer viewer, boolean smartToggle) {
     }
 
+    @Override
     public void unselected(ITextViewer viewer) {
     }
 
+    @Override
     public boolean validate(IDocument document, int offset, DocumentEvent event) {
         return false;
     }

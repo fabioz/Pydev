@@ -15,6 +15,7 @@ public final class Comprehension extends comprehensionType {
         this.ifs = ifs;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -24,6 +25,7 @@ public final class Comprehension extends comprehensionType {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -47,10 +49,12 @@ public final class Comprehension extends comprehensionType {
         return true;
     }
 
+    @Override
     public Comprehension createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public Comprehension createCopy(boolean copyComments) {
         exprType[] new0;
         if (this.ifs != null) {
@@ -84,6 +88,7 @@ public final class Comprehension extends comprehensionType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("Comprehension[");
         sb.append("target=");
@@ -98,10 +103,12 @@ public final class Comprehension extends comprehensionType {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitComprehension(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (target != null) {
             target.accept(visitor);

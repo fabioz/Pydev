@@ -128,10 +128,12 @@ public class PathWatchTest extends TestCase {
                 IFilesystemChangesListener.class);
         list.add(new IFilesystemChangesListener() {
 
+            @Override
             public void removed(File file) {
                 changes.add(new Tuple<String, File>("removed", file));
             }
 
+            @Override
             public void added(File file) {
                 changes.add(new Tuple<String, File>("added", file));
             }
@@ -308,20 +310,24 @@ public class PathWatchTest extends TestCase {
         final List<Tuple<String, File>> changes = Collections.synchronizedList(new ArrayList<Tuple<String, File>>());
         IFilesystemChangesListener listener = new IFilesystemChangesListener() {
 
+            @Override
             public void removed(File file) {
                 changes.add(new Tuple<String, File>("removed", file));
             }
 
+            @Override
             public void added(File file) {
                 changes.add(new Tuple<String, File>("added", file));
             }
         };
         IFilesystemChangesListener listener2 = new IFilesystemChangesListener() {
 
+            @Override
             public void removed(File file) {
                 changes.add(new Tuple<String, File>("removed", file));
             }
 
+            @Override
             public void added(File file) {
                 changes.add(new Tuple<String, File>("added", file));
             }
@@ -335,6 +341,7 @@ public class PathWatchTest extends TestCase {
 
         waitUntilCondition(new ICallback<String, Object>() {
 
+            @Override
             public String call(Object arg) {
                 Tuple<String, File>[] array = createChangesArray(changes);
 
@@ -364,6 +371,7 @@ public class PathWatchTest extends TestCase {
         }
         waitUntilCondition(new ICallback<String, Object>() {
 
+            @Override
             public String call(Object arg) {
 
                 int foundRemovals = 0;
@@ -388,6 +396,7 @@ public class PathWatchTest extends TestCase {
 
         waitUntilCondition(new ICallback<String, Object>() {
 
+            @Override
             public String call(Object arg) {
 
                 Tuple<String, File>[] array = createChangesArray(changes);

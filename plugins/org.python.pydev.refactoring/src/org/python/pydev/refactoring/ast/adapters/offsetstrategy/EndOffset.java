@@ -35,6 +35,7 @@ public class EndOffset extends AbstractOffsetStrategy {
         super(adapter, doc, adapterPrefs);
     }
 
+    @Override
     protected int getLine() {
         int endLine = adapter.getNodeLastLine();
         if (endLine < 0) {

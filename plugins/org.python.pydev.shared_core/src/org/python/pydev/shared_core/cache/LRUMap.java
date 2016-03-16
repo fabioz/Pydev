@@ -28,6 +28,7 @@ public final class LRUMap<Key, Val> extends LinkedHashMap<Key, Val> {
     }
 
     // This method is called just after a new entry has been added
+    @Override
     public boolean removeEldestEntry(Map.Entry eldest) {
         return size() > this.maxSize;
     }

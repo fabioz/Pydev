@@ -27,6 +27,7 @@ public class PyUnCollapseAll extends PyFoldingAction {
     /* (non-Javadoc)
      * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
      */
+    @Override
     public void run(IAction action) {
         final ProjectionAnnotationModel model = getModel();
 

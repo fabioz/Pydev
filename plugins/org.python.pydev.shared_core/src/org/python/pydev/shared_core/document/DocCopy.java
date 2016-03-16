@@ -242,42 +242,52 @@ public class DocCopy implements IDocument, IDocumentExtension4 {
         return document.getDocumentPartitioner();
     }
 
+    @Override
     public int getLineLength(int line) throws BadLocationException {
         return getLineTracker().getLineLength(line);
     }
 
+    @Override
     public int getLineOfOffset(int pos) throws BadLocationException {
         return getLineTracker().getLineNumberOfOffset(pos);
     }
 
+    @Override
     public int getLineOffset(int line) throws BadLocationException {
         return getLineTracker().getLineOffset(line);
     }
 
+    @Override
     public IRegion getLineInformation(int line) throws BadLocationException {
         return getLineTracker().getLineInformation(line);
     }
 
+    @Override
     public IRegion getLineInformationOfOffset(int offset) throws BadLocationException {
         return getLineTracker().getLineInformationOfOffset(offset);
     }
 
+    @Override
     public int getNumberOfLines() {
         return getLineTracker().getNumberOfLines();
     }
 
+    @Override
     public int getNumberOfLines(int offset, int length) throws BadLocationException {
         return getLineTracker().getNumberOfLines(offset, length);
     }
 
+    @Override
     public int computeNumberOfLines(String text) {
         return getLineTracker().computeNumberOfLines(text);
     }
 
+    @Override
     public String[] getLegalLineDelimiters() {
         return getLineTracker().getLegalLineDelimiters();
     }
 
+    @Override
     public String getLineDelimiter(int line) throws BadLocationException {
         return getLineTracker().getLineDelimiter(line);
     }

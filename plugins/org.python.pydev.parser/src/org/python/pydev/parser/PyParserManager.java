@@ -71,6 +71,7 @@ public class PyParserManager extends BaseParserManager {
         //singleton: private constructor
         IPropertyChangeListener prefListener = new IPropertyChangeListener() {
 
+            @Override
             public void propertyChange(PropertyChangeEvent event) {
                 String property = event.getProperty();
                 if (property.equals(USE_PYDEV_ANALYSIS_ONLY_ON_DOC_SAVE)

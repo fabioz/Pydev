@@ -30,11 +30,13 @@ public class InterpreterObserver implements IInterpreterObserver {
      * 
      * @see org.python.pydev.ui.interpreters.IInterpreterObserver#notifyDefaultPythonpathRestored(org.python.pydev.ui.interpreters.AbstractInterpreterManager, org.eclipse.core.runtime.IProgressMonitor)
      */
+    @Override
     public void notifyDefaultPythonpathRestored(IInterpreterManager manager, String interpreter,
             IProgressMonitor monitor) {
         AdditionalSystemInterpreterInfo.recreateAllInfo(manager, interpreter, monitor);
     }
 
+    @Override
     public void notifyProjectPythonpathRestored(final PythonNature nature, IProgressMonitor monitor) {
         AdditionalProjectInterpreterInfo.recreateAllInfo(nature, monitor);
     }
@@ -44,10 +46,12 @@ public class InterpreterObserver implements IInterpreterObserver {
      *  
      * @see org.python.pydev.ui.interpreters.IInterpreterObserver#notifyInterpreterManagerRecreated(org.python.pydev.ui.interpreters.AbstractInterpreterManager)
      */
+    @Override
     public void notifyInterpreterManagerRecreated(final IInterpreterManager iManager) {
         //no-op: the additional info is recreated lazily now (so, the first time it's asked for, it's restored).
     }
 
+    @Override
     public void notifyNatureRecreated(final PythonNature nature, IProgressMonitor monitor) {
         //no-op: the additional info is recreated lazily now (so, the first time it's asked for, it's restored).
     }

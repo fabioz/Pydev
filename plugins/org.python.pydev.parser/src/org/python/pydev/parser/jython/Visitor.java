@@ -14,6 +14,7 @@ public class Visitor extends VisitorBase {
      * Visit each of the children one by one.
      * @args node The node whose children will be visited.
      */
+    @Override
     public void traverse(SimpleNode node) throws Exception {
         node.traverse(this);
     }
@@ -34,6 +35,7 @@ public class Visitor extends VisitorBase {
         return ret;
     }
 
+    @Override
     protected Object unhandled_node(SimpleNode node) throws Exception {
         return this;
     }

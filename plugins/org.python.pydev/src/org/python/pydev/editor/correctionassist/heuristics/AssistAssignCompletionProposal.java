@@ -76,6 +76,7 @@ public class AssistAssignCompletionProposal extends PyCompletionProposal {
             final LinkedModeUI ui = new EditorLinkedModeUI(model, viewer);
             ui.setExitPosition(viewer, lineOffset + lineLength - lineDelimiterLen, 0, Integer.MAX_VALUE);
             Runnable r = new Runnable() {
+                @Override
                 public void run() {
                     ui.enter();
                 }

@@ -10,6 +10,7 @@ import org.eclipse.jface.action.IAction;
 
 public class AppEngineManageAction extends AbstractAppEngineAction {
 
+    @Override
     public void run(IAction action) {
         AppEngineManage manage = new AppEngineManage();
         manage.executeInObject(sourceFolder);

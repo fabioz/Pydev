@@ -31,14 +31,17 @@ public class PyOutlineSelectionDialogTest extends SWTTest {
         junit.textui.TestRunner.run(PyOutlineSelectionDialogTest.class);
     }
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
     }
 
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }
 
+    @Override
     public void testIt() throws Exception {
         if (display != null) {
             String barDoc = "\n" +
@@ -64,6 +67,7 @@ public class PyOutlineSelectionDialogTest extends SWTTest {
 
             IGrammarVersionProvider grammarVersionProvider = new IGrammarVersionProvider() {
 
+                @Override
                 public int getGrammarVersion() throws MisconfigurationException {
                     return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
                 }

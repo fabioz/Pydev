@@ -88,6 +88,7 @@ public abstract class BaseParser implements IParser {
 
         documentListener = new IDocumentListener() {
 
+            @Override
             public void documentChanged(DocumentEvent event) {
                 if (useAnalysisOnlyOnDocSave) {
                     //if we're doing analysis only on doc change, the parser will not give any changes
@@ -117,6 +118,7 @@ public abstract class BaseParser implements IParser {
                 }
             }
 
+            @Override
             public void documentAboutToBeChanged(DocumentEvent event) {
             }
         };
@@ -126,6 +128,7 @@ public abstract class BaseParser implements IParser {
     /**
      * should be called when the editor is disposed
      */
+    @Override
     public void dispose() {
         this.disposed = true;
         this.scheduler.dispose();
@@ -143,6 +146,7 @@ public abstract class BaseParser implements IParser {
         return root;
     }
 
+    @Override
     public void notifySaved() {
         //force parse on save
         forceReparse();
@@ -151,6 +155,7 @@ public abstract class BaseParser implements IParser {
     /**
      * @return false if we asked a reparse and it will not be scheduled because a reparse is already in action.
      */
+    @Override
     public boolean forceReparse(Object... argsToReparse) {
         if (disposed) {
             return true; //reparse didn't happen, but no matter what happens, it won't happen anyways
@@ -163,6 +168,7 @@ public abstract class BaseParser implements IParser {
      */
     protected/*IEditorInput*/Object input;
 
+    @Override
     public void setDocument(IDocument document, Object input) {
         setDocument(document, true, input);
     }
@@ -191,6 +197,7 @@ public abstract class BaseParser implements IParser {
 
     // ---------------------------------------------------------------------------- listeners
     /** stock listener implementation */
+    @Override
     public void addParseListener(IParserObserver listener) {
         Assert.isNotNull(listener);
         synchronized (parserListeners) {
@@ -201,6 +208,7 @@ public abstract class BaseParser implements IParser {
     }
 
     /** stock listener implementation */
+    @Override
     public void removeParseListener(IParserObserver listener) {
         Assert.isNotNull(listener);
         synchronized (parserListeners) {
@@ -298,6 +306,7 @@ public abstract class BaseParser implements IParser {
      * @return a tuple with the SimpleNode root(if parsed) and the error (if any).
      *         if we are able to recover from a reparse, we have both, the root and the error.
      */
+    @Override
     public abstract ParseOutput reparseDocument(Object... argsToReparse);
 
     /**
@@ -312,6 +321,7 @@ public abstract class BaseParser implements IParser {
         }
     }
 
+    @Override
     public void resetTimeoutPreferences(boolean useAnalysisOnlyOnDocSave) {
         this.useAnalysisOnlyOnDocSave = useAnalysisOnlyOnDocSave;
     }

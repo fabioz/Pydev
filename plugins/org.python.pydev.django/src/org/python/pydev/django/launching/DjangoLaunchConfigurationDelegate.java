@@ -21,6 +21,7 @@ import org.python.pydev.plugin.nature.PythonNature;
  */
 public class DjangoLaunchConfigurationDelegate extends AbstractLaunchConfigurationDelegate {
 
+    @Override
     protected String getRunnerConfigRun(ILaunchConfiguration conf, String mode, ILaunch launch) {
         try {
             IProject project = PythonRunnerConfig.getProjectFromConfiguration(conf);

@@ -158,6 +158,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
 
         Collections.sort(occurrences, new Comparator<ASTEntry>() {
 
+            @Override
             public int compare(ASTEntry o1, ASTEntry o2) {
                 int o1Found = (Integer) o1
                         .getAdditionalInfo(AstEntryScopeAnalysisConstants.AST_ENTRY_FOUND_LOCATION, 0);
@@ -180,6 +181,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
      * This function is used to redirect where the initial should should target
      * (in the local or workspace scope).
      */
+    @Override
     public void findReferencesToRename(RefactoringRequest request, RefactoringStatus status) {
         this.request = request;
 
@@ -234,6 +236,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
      *
      * @see com.python.pydev.refactoring.wizards.IRefactorRenameProcess#getOccurrences()
      */
+    @Override
     public HashSet<ASTEntry> getOccurrences() {
         return docOccurrences;
     }
@@ -244,6 +247,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
      *
      * @see com.python.pydev.refactoring.wizards.IRefactorRenameProcess#getOccurrencesInOtherFiles()
      */
+    @Override
     public Map<Tuple<String, File>, HashSet<ASTEntry>> getOccurrencesInOtherFiles() {
         return this.fileOccurrences;
     }

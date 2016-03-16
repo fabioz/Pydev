@@ -44,10 +44,12 @@ public class InlineLocalRequest implements IRefactoringRequest {
         this.variables = variables;
     }
 
+    @Override
     public IASTNodeAdapter<? extends SimpleNode> getOffsetNode() {
         return info.getScopeAdapter();
     }
 
+    @Override
     public AdapterPrefs getAdapterPrefs() {
         return info.getAdapterPrefs();
     }

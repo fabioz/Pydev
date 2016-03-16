@@ -41,6 +41,7 @@ public class EmptyModule extends AbstractModule {
         this.f = f;
     }
 
+    @Override
     public boolean hasFutureImportAbsoluteImportDeclared() {
         throw new RuntimeException("Not intended to be called");
     }
@@ -48,6 +49,7 @@ public class EmptyModule extends AbstractModule {
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#getWildImportedModules()
      */
+    @Override
     public IToken[] getWildImportedModules() {
         throw new RuntimeException("Not intended to be called");
     }
@@ -55,6 +57,7 @@ public class EmptyModule extends AbstractModule {
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#getTokenImportedModules()
      */
+    @Override
     public IToken[] getTokenImportedModules() {
         throw new RuntimeException("Not intended to be called");
     }
@@ -62,6 +65,7 @@ public class EmptyModule extends AbstractModule {
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#getGlobalTokens()
      */
+    @Override
     public IToken[] getGlobalTokens() {
         throw new RuntimeException("Not intended to be called");
     }
@@ -69,6 +73,7 @@ public class EmptyModule extends AbstractModule {
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#getDocString()
      */
+    @Override
     public String getDocString() {
         throw new RuntimeException("Not intended to be called");
     }
@@ -76,6 +81,7 @@ public class EmptyModule extends AbstractModule {
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#getGlobalTokens(java.lang.String)
      */
+    @Override
     public IToken[] getGlobalTokens(ICompletionState state, ICodeCompletionASTManager manager) {
         throw new RuntimeException("Not intended to be called");
     }
@@ -83,6 +89,7 @@ public class EmptyModule extends AbstractModule {
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#findDefinition(java.lang.String, int, int)
      */
+    @Override
     public Definition[] findDefinition(ICompletionState state, int line, int col, IPythonNature nature)
             throws Exception {
         throw new RuntimeException("Not intended to be called");

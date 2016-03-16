@@ -75,10 +75,12 @@ public class TokensIteratorTest extends TestCase {
 
         return new ITokenManager() {
 
+            @Override
             public void indenting(int i) {
 
             }
 
+            @Override
             public Token getNextToken() {
                 final Token ret = new Token();
 
@@ -111,46 +113,57 @@ public class TokensIteratorTest extends TestCase {
                 return ret;
             }
 
+            @Override
             public FastCharStream getInputStream() {
                 return stream;
             }
 
+            @Override
             public int getIndentId() {
                 return 30;
             }
 
+            @Override
             public int getIfId() {
                 return 31;
             }
 
+            @Override
             public int getForId() {
                 return 32;
             }
 
+            @Override
             public int getEofId() {
                 return 0; //this one is 'special' and must be 0!
             }
 
+            @Override
             public int getDefId() {
                 return 34;
             }
 
+            @Override
             public int getDedentId() {
                 return 35;
             }
 
+            @Override
             public int getClassId() {
                 return 36;
             }
 
+            @Override
             public int getAtId() {
                 return 37;
             }
 
+            @Override
             public int getWhileId() {
                 return 38;
             }
 
+            @Override
             public int getTryId() {
                 return 39;
             }

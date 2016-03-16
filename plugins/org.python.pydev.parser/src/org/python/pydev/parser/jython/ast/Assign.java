@@ -13,6 +13,7 @@ public final class Assign extends stmtType {
         this.value = value;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -21,6 +22,7 @@ public final class Assign extends stmtType {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -39,10 +41,12 @@ public final class Assign extends stmtType {
         return true;
     }
 
+    @Override
     public Assign createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public Assign createCopy(boolean copyComments) {
         exprType[] new0;
         if (this.targets != null) {
@@ -75,6 +79,7 @@ public final class Assign extends stmtType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("Assign[");
         sb.append("targets=");
@@ -86,10 +91,12 @@ public final class Assign extends stmtType {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitAssign(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (targets != null) {
             for (int i = 0; i < targets.length; i++) {

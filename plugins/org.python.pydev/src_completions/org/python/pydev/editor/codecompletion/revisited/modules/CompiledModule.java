@@ -131,6 +131,7 @@ public class CompiledModule extends AbstractModule {
         return file;
     }
 
+    @Override
     public boolean hasFutureImportAbsoluteImportDeclared() {
         return false;
     }

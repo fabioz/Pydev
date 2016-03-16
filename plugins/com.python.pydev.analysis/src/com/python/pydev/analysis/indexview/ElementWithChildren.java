@@ -20,6 +20,7 @@ public abstract class ElementWithChildren extends ElementWithParent {
     private List<Object> calculatingChildren;
     private Object[] calculatedChildren;
 
+    @Override
     public Object[] getChildren() {
         if (calculatedChildren == null) {
             calculatingChildren = new ArrayList<Object>();

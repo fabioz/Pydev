@@ -46,6 +46,7 @@ public abstract class PyContainerAction implements IObjectActionDelegate {
      */
     protected List<IContainer> selectedContainers;
 
+    @Override
     public void setActivePart(IAction action, IWorkbenchPart targetPart) {
         //empty
     }
@@ -53,6 +54,7 @@ public abstract class PyContainerAction implements IObjectActionDelegate {
     /**
      * When the selection changes, we've to keep the selected containers...
      */
+    @Override
     @SuppressWarnings("unchecked")
     public void selectionChanged(IAction action, ISelection selection) {
         if (selection.isEmpty() || !(selection instanceof IStructuredSelection)) {
@@ -83,6 +85,7 @@ public abstract class PyContainerAction implements IObjectActionDelegate {
     /**
      * Act on the selection to do the needed action (will confirm and make a refresh before executing)
      */
+    @Override
     public void run(IAction action) {
         //should not happen
         if (selectedContainers == null) {
@@ -100,6 +103,7 @@ public abstract class PyContainerAction implements IObjectActionDelegate {
         try {
             IRunnableWithProgress operation = new IRunnableWithProgress() {
 
+                @Override
                 public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
                     for (Iterator<IContainer> iter = selectedContainers.iterator(); iter.hasNext();) {
                         IContainer next = iter.next();

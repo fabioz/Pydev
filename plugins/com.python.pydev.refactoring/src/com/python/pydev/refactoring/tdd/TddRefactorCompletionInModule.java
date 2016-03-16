@@ -64,6 +64,7 @@ public final class TddRefactorCompletionInModule extends AbstractTddRefactorComp
         return null;
     }
 
+    @Override
     public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
         //Upon creation, opens the new editor and creates the class.
         PyOpenAction openAction = new PyOpenAction();
@@ -79,12 +80,15 @@ public final class TddRefactorCompletionInModule extends AbstractTddRefactorComp
         forceReparseInBaseEditorAnd(pyEdit);
     }
 
+    @Override
     public void selected(ITextViewer viewer, boolean smartToggle) {
     }
 
+    @Override
     public void unselected(ITextViewer viewer) {
     }
 
+    @Override
     public boolean validate(IDocument document, int offset, DocumentEvent event) {
         return false;
     }

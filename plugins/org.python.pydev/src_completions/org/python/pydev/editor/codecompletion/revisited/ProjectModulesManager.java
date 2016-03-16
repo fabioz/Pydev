@@ -60,6 +60,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
     /**
      * @see org.python.pydev.core.IProjectModulesManager#setProject(org.eclipse.core.resources.IProject, boolean)
      */
+    @Override
     public void setProject(IProject project, IPythonNature nature, boolean restoreDeltas) {
         this.project = project;
         this.nature = nature;
@@ -84,6 +85,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
     /**
      * @see org.python.pydev.core.IProjectModulesManager#endProcessing()
      */
+    @Override
     public void endProcessing() {
         //save it with the updated info
         nature.saveAstManager();
@@ -94,6 +96,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
     /**
      * @see org.python.pydev.core.IProjectModulesManager#setPythonNature(org.python.pydev.core.IPythonNature)
      */
+    @Override
     public void setPythonNature(IPythonNature nature) {
         this.nature = nature;
     }
@@ -101,6 +104,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
     /**
      * @see org.python.pydev.core.IProjectModulesManager#getNature()
      */
+    @Override
     public IPythonNature getNature() {
         return nature;
     }
@@ -109,6 +113,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
      * @param defaultSelectedInterpreter
      * @see org.python.pydev.core.IProjectModulesManager#getSystemModulesManager()
      */
+    @Override
     public ISystemModulesManager getSystemModulesManager() {
         if (nature == null) {
             Log.log("Nature still not set");
@@ -162,6 +167,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
     /**
      * When looking for relative, we do not check dependencies
      */
+    @Override
     public IModule getRelativeModule(String name, IPythonNature nature) {
         return super.getModule(false, name, nature, true); //cannot be a compiled module
     }
@@ -169,6 +175,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
     /**
      * @see org.python.pydev.core.IProjectModulesManager#getModule(java.lang.String, org.python.pydev.plugin.nature.PythonNature, boolean, boolean)
      */
+    @Override
     public IModule getModule(String name, IPythonNature nature, boolean checkSystemManager, boolean dontSearchInit) {
         Tuple<IModule, IModulesManager> ret = getModuleAndRelatedModulesManager(name, nature, checkSystemManager,
                 dontSearchInit);
@@ -181,6 +188,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
     /**
      * @return a tuple with the IModule requested and the IModulesManager that contained that module.
      */
+    @Override
     public Tuple<IModule, IModulesManager> getModuleAndRelatedModulesManager(String name, IPythonNature nature,
             boolean checkSystemManager, boolean dontSearchInit) {
 
@@ -230,6 +238,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
     /**
      * Only searches the modules contained in the direct modules manager.
      */
+    @Override
     public IModule getModuleInDirectManager(String name, IPythonNature nature, boolean dontSearchInit) {
         return super.getModule(name, nature, dontSearchInit);
     }
@@ -283,6 +292,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
         return null;
     }
 
+    @Override
     public String resolveModuleInDirectManager(String full) {
         if (nature != null) {
             return pythonPathHelper.resolveModule(full, false, nature.getProject());
@@ -290,6 +300,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
         return super.resolveModule(full);
     }
 
+    @Override
     public String resolveModuleInDirectManager(IFile member) {
         File inOs = member.getRawLocation().toFile();
         return resolveModuleInDirectManager(FileUtils.getFileAbsolutePath(inOs));
@@ -315,6 +326,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
     /**
      * @see org.python.pydev.core.IProjectModulesManager#getBuiltins()
      */
+    @Override
     public String[] getBuiltins() {
         String[] builtins = null;
         ISystemModulesManager systemModulesManager = getSystemModulesManager();
@@ -476,6 +488,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
     /**
      * @see org.python.pydev.core.IProjectModulesManager#getCompletePythonPath()
      */
+    @Override
     public List<String> getCompletePythonPath(IInterpreterInfo interpreter, IInterpreterManager manager) {
         List<String> l = new ArrayList<String>();
         IModulesManager[] managersInvolved = getManagersInvolved(true);

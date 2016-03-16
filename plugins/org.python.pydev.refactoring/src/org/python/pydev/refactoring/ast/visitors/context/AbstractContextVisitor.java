@@ -196,6 +196,7 @@ public abstract class AbstractContextVisitor<T> extends VisitorBase {
         }
     }
 
+    @Override
     public Object visitClassDef(ClassDef node) throws Exception {
         trackContext(node);
         return null;

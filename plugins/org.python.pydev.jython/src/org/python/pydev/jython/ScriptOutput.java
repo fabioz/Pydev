@@ -50,6 +50,7 @@ public class ScriptOutput extends OutputStream {
     public ScriptOutput(ICallback0<IOConsoleOutputStream> outputStream) {
         this(outputStream, JyScriptingPreferencesPage.getShowScriptingOutput());
         IPropertyChangeListener listener = new Preferences.IPropertyChangeListener() {
+            @Override
             public void propertyChange(PropertyChangeEvent event) {
                 writeToConsole = JyScriptingPreferencesPage.getShowScriptingOutput();
             }

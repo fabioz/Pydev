@@ -15,6 +15,7 @@ public final class AugAssign extends stmtType implements operatorType {
         this.value = value;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -24,6 +25,7 @@ public final class AugAssign extends stmtType implements operatorType {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -47,10 +49,12 @@ public final class AugAssign extends stmtType implements operatorType {
         return true;
     }
 
+    @Override
     public AugAssign createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public AugAssign createCopy(boolean copyComments) {
         AugAssign temp = new AugAssign(target != null ? (exprType) target.createCopy(copyComments) : null,
                 op, value != null ? (exprType) value.createCopy(copyComments) : null);
@@ -75,6 +79,7 @@ public final class AugAssign extends stmtType implements operatorType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("AugAssign[");
         sb.append("target=");
@@ -89,10 +94,12 @@ public final class AugAssign extends stmtType implements operatorType {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitAugAssign(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (target != null) {
             target.accept(visitor);

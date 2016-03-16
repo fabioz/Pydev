@@ -29,6 +29,7 @@ public class PyUnitLaunch implements IPyUnitLaunch {
         this.configuration = configuration;
     }
 
+    @Override
     public void stop() {
         try {
             this.launch.terminate(); //doing this should call dispose later on.
@@ -37,14 +38,17 @@ public class PyUnitLaunch implements IPyUnitLaunch {
         }
     }
 
+    @Override
     public void relaunch() {
         RestartLaunchAction.relaunch(launch, configuration);
     }
 
+    @Override
     public void relaunchTestResults(List<PyUnitTestResult> runsToRelaunch) {
         this.relaunchTestResults(runsToRelaunch, null);
     }
 
+    @Override
     public void relaunchTestResults(List<PyUnitTestResult> runsToRelaunch, String mode) {
         FastStringBuffer buf = new FastStringBuffer(100 * runsToRelaunch.size());
         for (PyUnitTestResult pyUnitTestResult : runsToRelaunch) {

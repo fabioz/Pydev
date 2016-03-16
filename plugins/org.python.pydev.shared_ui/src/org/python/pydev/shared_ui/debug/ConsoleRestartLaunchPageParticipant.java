@@ -23,6 +23,7 @@ public class ConsoleRestartLaunchPageParticipant implements IConsolePageParticip
     private TerminateAllLaunchesAction terminateAllLaunchesAction;
     private ProcessConsole fConsole;
 
+    @Override
     public void init(IPageBookViewPage page, IConsole console) {
         if (!(console instanceof ProcessConsole)) {
             return;
@@ -57,11 +58,13 @@ public class ConsoleRestartLaunchPageParticipant implements IConsolePageParticip
     /* (non-Javadoc)
      * @see org.eclipse.debug.core.IDebugEventSetListener#handleDebugEvents(org.eclipse.debug.core.DebugEvent[])
      */
+    @Override
     public void handleDebugEvents(DebugEvent[] events) {
         for (int i = 0; i < events.length; i++) {
             DebugEvent event = events[i];
             if (event.getSource().equals(getProcess())) {
                 Runnable r = new Runnable() {
+                    @Override
                     public void run() {
                         if (restartLaunchAction != null) {
                             restartLaunchAction.update();
@@ -81,6 +84,7 @@ public class ConsoleRestartLaunchPageParticipant implements IConsolePageParticip
         return fConsole != null ? fConsole.getProcess() : null;
     }
 
+    @Override
     public <T> T getAdapter(Class<T> adapter) {
         return null;
     }

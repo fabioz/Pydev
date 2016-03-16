@@ -64,6 +64,7 @@ public abstract class AbstractNodeAdapter<T extends SimpleNode> implements IASTN
      * 
      * @see org.python.pydev.refactoring.ast.adapters.IASTNodeAdapte#getASTNode()
      */
+    @Override
     public T getASTNode() {
         return adaptee;
     }
@@ -73,10 +74,12 @@ public abstract class AbstractNodeAdapter<T extends SimpleNode> implements IASTN
      * 
      * @see org.python.pydev.refactoring.ast.adapters.IASTNodeAdapte#getASTParent()
      */
+    @Override
     public SimpleNode getASTParent() {
         return getParent().getASTNode();
     }
 
+    @Override
     public String getName() {
         return nodeHelper.getName(getASTNode());
     }
@@ -86,6 +89,7 @@ public abstract class AbstractNodeAdapter<T extends SimpleNode> implements IASTN
      * 
      * @see org.python.pydev.refactoring.ast.adapters.IASTNodeAdapte#getNodeBodyIndent()
      */
+    @Override
     public String getNodeBodyIndent() {
         return module.getIndentationFromAst(getASTNode());
     }
@@ -95,6 +99,7 @@ public abstract class AbstractNodeAdapter<T extends SimpleNode> implements IASTN
      * 
      * @see org.python.pydev.refactoring.ast.adapters.IASTNodeAdapte#getNodeFirstLine()
      */
+    @Override
     public int getNodeFirstLine() {
         return getASTNode().beginLine;
     }
@@ -129,6 +134,7 @@ public abstract class AbstractNodeAdapter<T extends SimpleNode> implements IASTN
      * 
      * @see org.python.pydev.refactoring.ast.adapters.IASTNodeAdapte#getNodeIndent()
      */
+    @Override
     public int getNodeIndent() {
         IndentVisitor visitor = VisitorFactory.createVisitor(IndentVisitor.class, getASTNode());
         return visitor.getIndent();
@@ -139,6 +145,7 @@ public abstract class AbstractNodeAdapter<T extends SimpleNode> implements IASTN
      * 
      * @see org.python.pydev.refactoring.ast.adapters.IASTNodeAdapte#getNodeLastLine()
      */
+    @Override
     public int getNodeLastLine() {
         LastLineVisitor visitor = VisitorFactory.createVisitor(LastLineVisitor.class, getASTNode());
         return visitor.getLastLine();
@@ -149,10 +156,12 @@ public abstract class AbstractNodeAdapter<T extends SimpleNode> implements IASTN
      * 
      * @see org.python.pydev.refactoring.ast.adapters.IASTNodeAdapte#getParent()
      */
+    @Override
     public AbstractScopeNode<? extends SimpleNode> getParent() {
         return parent;
     }
 
+    @Override
     public String getParentName() {
         return nodeHelper.getName(getASTParent());
     }
@@ -162,6 +171,7 @@ public abstract class AbstractNodeAdapter<T extends SimpleNode> implements IASTN
      * 
      * @see org.python.pydev.refactoring.ast.adapters.IASTNodeAdapte#getParentNode()
      */
+    @Override
     public SimpleNode getParentNode() {
         return getASTParent();
     }
@@ -171,6 +181,7 @@ public abstract class AbstractNodeAdapter<T extends SimpleNode> implements IASTN
      * 
      * @see org.python.pydev.refactoring.ast.adapters.IASTNodeAdapte#isModule()
      */
+    @Override
     public boolean isModule() {
         return getParent() == null;
     }
@@ -180,6 +191,7 @@ public abstract class AbstractNodeAdapter<T extends SimpleNode> implements IASTN
      * 
      * @see org.python.pydev.refactoring.ast.adapters.IASTNodeAdapte#getModule()
      */
+    @Override
     public ModuleAdapter getModule() {
         return this.module;
     }

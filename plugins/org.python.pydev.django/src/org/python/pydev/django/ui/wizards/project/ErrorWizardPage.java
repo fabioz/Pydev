@@ -22,6 +22,7 @@ public class ErrorWizardPage extends WizardPage {
         this.msg = msg;
     }
 
+    @Override
     public void createControl(Composite parent) {
         Composite composite = new Composite(parent, SWT.NULL);
         composite.setLayout(new GridLayout());

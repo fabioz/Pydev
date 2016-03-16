@@ -71,6 +71,7 @@ public class PyBreakpointRulerAction extends AbstractBreakpointRulerAction {
     /**
      * @see IUpdate#update()
      */
+    @Override
     public void update() {
         fMarkers = getMarkersFromCurrentFile(true);
         setText(fMarkers.isEmpty() ? fAddLabel : fRemoveLabel);
@@ -143,6 +144,7 @@ public class PyBreakpointRulerAction extends AbstractBreakpointRulerAction {
             }
 
             IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
+                @Override
                 public void run(IProgressMonitor monitor) throws CoreException {
                     IMarker marker;
                     if (type.equals(PyBreakpoint.PY_BREAK_TYPE_DJANGO)) {

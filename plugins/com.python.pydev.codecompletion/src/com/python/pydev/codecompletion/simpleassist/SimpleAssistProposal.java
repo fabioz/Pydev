@@ -86,6 +86,7 @@ public class SimpleAssistProposal extends PyCompletionProposal implements ICompl
         return new Point(fReplacementOffset + fCursorPosition + changeInCursorPos, 0);
     }
 
+    @Override
     public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
         try {
             IDocument doc = viewer.getDocument();
@@ -167,12 +168,15 @@ public class SimpleAssistProposal extends PyCompletionProposal implements ICompl
         }
     }
 
+    @Override
     public void selected(ITextViewer viewer, boolean smartToggle) {
     }
 
+    @Override
     public void unselected(ITextViewer viewer) {
     }
 
+    @Override
     public boolean validate(IDocument document, int offset, DocumentEvent event) {
         String[] strs = PySelection.getActivationTokenAndQual(document, offset, false);
 

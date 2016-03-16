@@ -30,6 +30,7 @@ public class CloseScriptConsoleAction extends Action {
         setToolTipText(tooltip);
     }
 
+    @Override
     public void run() {
         ScriptConsoleManager.getInstance().close(console);
     }
@@ -38,6 +39,7 @@ public class CloseScriptConsoleAction extends Action {
         setEnabled(true);
     }
 
+    @Override
     public ImageDescriptor getImageDescriptor() {
         return InteractiveConsolePlugin.getDefault().getImageDescriptor(ScriptConsoleUIConstants.TERMINATE_ICON);
     }

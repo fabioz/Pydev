@@ -87,6 +87,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
     private final Object lock = new Object();
 
+    @Override
     public Object getLock() {
         return lock;
     }
@@ -96,6 +97,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
      */
     public volatile IModulesManager modulesManager;
 
+    @Override
     public IModulesManager getModulesManager() {
         return modulesManager;
     }
@@ -107,15 +109,19 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         getModulesManager().setPythonNature(nature);
     }
 
+    @Override
     public IPythonNature getNature() {
         return getModulesManager().getNature();
     }
 
+    @Override
     public abstract void setProject(IProject project, IPythonNature nature, boolean restoreDeltas);
 
+    @Override
     public abstract void rebuildModule(File file, ICallback0<IDocument> doc, IProject project,
             IProgressMonitor monitor, IPythonNature nature);
 
+    @Override
     public abstract void removeModule(File file, IProject project, IProgressMonitor monitor);
 
     /**
@@ -127,6 +133,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
      * @throws CompletionRecursionException
      * @throws MisconfigurationException
      */
+    @Override
     public IToken[] getCompletionsForImport(ImportInfo importInfo, ICompletionRequest r, boolean onlyGetDirectModules)
             throws CompletionRecursionException, MisconfigurationException {
 
@@ -418,6 +425,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getCompletionsForToken(org.eclipse.jface.text.IDocument, org.python.pydev.editor.codecompletion.revisited.CompletionState)
      */
+    @Override
     public IToken[] getCompletionsForToken(IDocument doc, ICompletionState state) {
         IToken[] completionsForModule;
         try {
@@ -447,6 +455,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     /**
      * By default does not look for relative import
      */
+    @Override
     public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit) {
         return modulesManager.getModule(name, nature, dontSearchInit, false);
     }
@@ -459,6 +468,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
      * not check in other places... only in the module)
      * @return the module represented by this name
      */
+    @Override
     public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit, boolean lookingForRelative) {
         if (lookingForRelative) {
             return modulesManager.getRelativeModule(name, nature);
@@ -506,6 +516,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
      * @throws CompletionRecursionException
      * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getCompletionsForModule(org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule, org.python.pydev.editor.codecompletion.revisited.CompletionState)
      */
+    @Override
     public IToken[] getCompletionsForModule(IModule module, ICompletionState state)
             throws CompletionRecursionException {
         return getCompletionsForModule(module, state, true);
@@ -515,6 +526,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
      * @throws CompletionRecursionException
      * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getCompletionsForModule(org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule, org.python.pydev.editor.codecompletion.revisited.CompletionState, boolean)
      */
+    @Override
     public IToken[] getCompletionsForModule(IModule module, ICompletionState state, boolean searchSameLevelMods)
             throws CompletionRecursionException {
         return getCompletionsForModule(module, state, true, false);
@@ -523,6 +535,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getCompletionsForModule(org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule, org.python.pydev.editor.codecompletion.revisited.CompletionState, boolean, boolean)
      */
+    @Override
     public IToken[] getCompletionsForModule(IModule module, ICompletionState state, boolean searchSameLevelMods,
             boolean lookForArgumentCompletion) throws CompletionRecursionException {
         return getCompletionsForModule(module, state, searchSameLevelMods, lookForArgumentCompletion, false);
@@ -804,6 +817,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         return EMPTY_ITOKEN_ARRAY;
     }
 
+    @Override
     public IToken[] getCompletionsFromTokenInLocalScope(IModule module, ICompletionState state,
             boolean searchSameLevelMods, boolean lookForArgumentCompletion, ILocalScope localScope)
                     throws CompletionRecursionException {
@@ -1088,6 +1102,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
      * @param unpackPos which position are we unpacking? -1 for 'don't care' (i.e.: for a in b) -- 0 would be for a,b in x (when
      * asking for completions in a).s
      */
+    @Override
     public IToken[] getCompletionsUnpackingObject(IModule module, ICompletionState state, ILocalScope scope,
             UnpackInfo unpackPos)
                     throws CompletionRecursionException {
@@ -1469,6 +1484,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     /**
      * @see ICodeCompletionASTManager#getCompletionsForClassInLocalScope(IModule, ICompletionState, boolean, boolean, List, HashSet)
      */
+    @Override
     public void getCompletionsForClassInLocalScope(IModule module, ICompletionState state, boolean searchSameLevelMods,
             boolean lookForArgumentCompletion, List<String> lookForClass, HashSet<IToken> hashSet)
                     throws CompletionRecursionException {
@@ -1554,6 +1570,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     /**
      * @see ICodeCompletionASTManager#getGlobalCompletions
      */
+    @Override
     public List<IToken> getGlobalCompletions(IToken[] globalTokens, IToken[] importedModules,
             IToken[] wildImportedModules, ICompletionState state, IModule current) {
         if (DebugSettings.DEBUG_CODE_COMPLETION) {
@@ -1598,6 +1615,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     /**
      * @return the builtin completions
      */
+    @Override
     public List<IToken> getBuiltinCompletions(ICompletionState state, List<IToken> completions) {
         IPythonNature nature = state.getNature();
         IToken[] builtinCompletions = getBuiltinComps(nature);
@@ -1631,6 +1649,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
      * @return the resolved token or the original token in case no additional information could be obtained.
      * @throws CompletionRecursionException
      */
+    @Override
     public ImmutableTuple<IModule, IToken> resolveImport(ICompletionState state, final IToken imported, IModule current)
             throws CompletionRecursionException {
         String currModName = imported.getParentPackage();
@@ -1662,6 +1681,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
      * @throws CompletionRecursionException
      * @see org.python.pydev.core.ICodeCompletionASTManager#getRepInModule(org.python.pydev.core.IModule, java.lang.String, org.python.pydev.core.IPythonNature)
      */
+    @Override
     public IToken getRepInModule(IModule module, String tokName, IPythonNature nature)
             throws CompletionRecursionException {
         return getRepInModule(module, tokName, nature, null);
@@ -1714,6 +1734,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     /* (non-Javadoc)
      * @see ICodeCompletionASTManager#getCompletionsForWildImport(ICompletionState, IModule, List, IToken)
      */
+    @Override
     public boolean getCompletionsForWildImport(ICompletionState state, IModule current, List<IToken> completions,
             IToken name) {
         try {
@@ -1778,6 +1799,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         return false;
     }
 
+    @Override
     public IToken[] findTokensOnImportedMods(IToken[] importedModules, ICompletionState state, IModule current)
             throws CompletionRecursionException {
         Tuple3<IModule, String, IToken> o = findOnImportedMods(importedModules, state, current.getName(), current);
@@ -1856,6 +1878,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
      * 1: tok
      * @throws CompletionRecursionException
      */
+    @Override
     public Tuple3<IModule, String, IToken> findOnImportedMods(ICompletionState state, IModule current)
             throws CompletionRecursionException {
         IToken[] importedModules = current.getTokenImportedModules();
@@ -1879,6 +1902,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
      * 2: actual tok
      * @throws CompletionRecursionException
      */
+    @Override
     public Tuple3<IModule, String, IToken> findOnImportedMods(IToken[] importedModules, ICompletionState state,
             String currentModuleName, IModule current) throws CompletionRecursionException {
 
@@ -1907,6 +1931,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         return null;
     }
 
+    @Override
     public Tuple<IModule, String> findModule(String moduleToFind, String currentModule, ICompletionState state,
             IModule current) throws CompletionRecursionException, MisconfigurationException {
         NameTok name = new NameTok(moduleToFind, NameTok.ImportModule);

@@ -64,37 +64,45 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
         this.thread = in_thread;
 
         localsLocator = new IVariableLocator() {
+            @Override
             public String getPyDBLocation() {
                 return thread.getId() + "\t" + id + "\tLOCAL";
             }
 
+            @Override
             public String getThreadId() {
                 return thread.getId();
             }
         };
         frameLocator = new IVariableLocator() {
+            @Override
             public String getPyDBLocation() {
                 return thread.getId() + "\t" + id + "\tFRAME";
             }
 
+            @Override
             public String getThreadId() {
                 return thread.getId();
             }
         };
         globalsLocator = new IVariableLocator() {
+            @Override
             public String getPyDBLocation() {
                 return thread.getId() + "\t" + id + "\tGLOBAL";
             }
 
+            @Override
             public String getThreadId() {
                 return thread.getId();
             }
         };
         expressionLocator = new IVariableLocator() {
+            @Override
             public String getPyDBLocation() {
                 return thread.getId() + "\t" + id + "\tEXPRESSION";
             }
 
+            @Override
             public String getThreadId() {
                 return thread.getId();
             }
@@ -110,6 +118,7 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
         return id;
     }
 
+    @Override
     public String getThreadId() {
         return this.thread.getId();
     }
@@ -146,6 +155,7 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
         return path;
     }
 
+    @Override
     public IThread getThread() {
         return thread;
     }
@@ -165,6 +175,7 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
      *
      * @see org.eclipse.debug.core.model.IStackFrame#getVariables()
      */
+    @Override
     public IVariable[] getVariables() throws DebugException {
         if (onAskGetNewVars) {
             synchronized (lock) {
@@ -213,6 +224,7 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
         }
     }
 
+    @Override
     public boolean hasVariables() throws DebugException {
         return true;
     }
@@ -220,14 +232,17 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
     /**
      * Note: line 1-based.
      */
+    @Override
     public int getLineNumber() throws DebugException {
         return line;
     }
 
+    @Override
     public int getCharStart() throws DebugException {
         return -1;
     }
 
+    @Override
     public int getCharEnd() throws DebugException {
         return -1;
     }
@@ -238,6 +253,7 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
         this.currentStackFrame = true;
     }
 
+    @Override
     public String getName() throws DebugException {
         String ret = StringUtils.join("", name, " [", path.lastSegment(), ":", Integer.toString(line), "]");
         if (currentStackFrame) {
@@ -246,82 +262,102 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
         return ret;
     }
 
+    @Override
     public IRegisterGroup[] getRegisterGroups() throws DebugException {
         return new IRegisterGroup[0];
     }
 
+    @Override
     public boolean hasRegisterGroups() throws DebugException {
         return false;
     }
 
+    @Override
     public String getModelIdentifier() {
         return thread.getModelIdentifier();
     }
 
+    @Override
     public IDebugTarget getDebugTarget() {
         return thread.getDebugTarget();
     }
 
+    @Override
     public ILaunch getLaunch() {
         return thread.getLaunch();
     }
 
+    @Override
     public boolean canStepInto() {
         return thread.canStepInto();
     }
 
+    @Override
     public boolean canStepOver() {
         return thread.canStepOver();
     }
 
+    @Override
     public boolean canStepReturn() {
         return thread.canStepReturn();
     }
 
+    @Override
     public boolean isStepping() {
         return thread.isStepping();
     }
 
+    @Override
     public void stepInto() throws DebugException {
         thread.stepInto();
     }
 
+    @Override
     public void stepOver() throws DebugException {
         thread.stepOver();
     }
 
+    @Override
     public void stepReturn() throws DebugException {
         thread.stepReturn();
     }
 
+    @Override
     public boolean canResume() {
         return thread.canResume();
     }
 
+    @Override
     public boolean canSuspend() {
         return thread.canSuspend();
     }
 
+    @Override
     public boolean isSuspended() {
         return thread.isSuspended();
     }
 
+    @Override
     public void resume() throws DebugException {
         thread.resume();
     }
 
+    @Override
     public void suspend() throws DebugException {
         thread.suspend();
     }
 
+    @Override
     public boolean canTerminate() {
         return thread.canTerminate();
     }
 
+    @Override
     public boolean isTerminated() {
         return thread.isTerminated();
     }
 
+    @Override
     public void terminate() throws DebugException {
         thread.terminate();
     }
@@ -388,6 +424,7 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
         return new GetFrameCommand(dbg, frameLocator.getPyDBLocation());
     }
 
+    @Override
     public String getPyDBLocation() {
         return this.frameLocator.getPyDBLocation();
     }
@@ -403,6 +440,7 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
 
     private String fileContents = null;
 
+    @Override
     public String getFileContents() {
         if (fileContents == null) {
             // send the command, and then busy-wait
@@ -413,6 +451,7 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
 
             cmd.setCompletionListener(new ICommandResponseListener() {
 
+                @Override
                 public void commandComplete(AbstractDebuggerCommand cmd) {
                     try {
                         response[0] = ((GetFileContentsCommand) cmd).getResponse();

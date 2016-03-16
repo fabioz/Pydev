@@ -149,6 +149,7 @@ public class PyCodeCoverageTestWorkbench extends AbstractWorkbenchTestCase {
         final PyEdit modCovEditor = (PyEdit) PyOpenEditor.doOpenEditor(modCov);
         try {
             display.syncExec(new Runnable() {
+                @Override
                 public void run() {
                     LaunchShortcut launchShortcut = new LaunchShortcut();
                     launchShortcut.launch(modCovEditor, "run");
@@ -159,6 +160,7 @@ public class PyCodeCoverageTestWorkbench extends AbstractWorkbenchTestCase {
             //Should be enough time for the refresh to happen!
             goToManual(10000, new ICallback<Boolean, Object>() {
 
+                @Override
                 public Boolean call(Object arg) {
                     return modCovCoverageText.equals(StringUtils.replaceNewLines(view.getCoverageText(), "\n"));
                 }

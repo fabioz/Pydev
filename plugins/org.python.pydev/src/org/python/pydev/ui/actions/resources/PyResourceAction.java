@@ -98,6 +98,7 @@ public abstract class PyResourceAction {
         try {
             IRunnableWithProgress operation = new IRunnableWithProgress() {
 
+                @Override
                 public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
                     for (Iterator<IResource> iter = selectedResources.iterator(); iter.hasNext();) {
                         IResource next = iter.next();

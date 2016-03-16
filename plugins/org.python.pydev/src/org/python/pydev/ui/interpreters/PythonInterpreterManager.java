@@ -80,10 +80,12 @@ public class PythonInterpreterManager extends AbstractInterpreterManager {
         return new Tuple<InterpreterInfo, String>(info, outTup.o1);
     }
 
+    @Override
     public int getInterpreterType() {
         return IInterpreterManager.INTERPRETER_TYPE_PYTHON;
     }
 
+    @Override
     public String getManagerRelatedName() {
         return "python";
     }

@@ -68,10 +68,12 @@ public final class CompletionState implements ICompletionState {
     private long initialMillis = 0;
     private long maxMillisToComplete;
 
+    @Override
     public ICompletionState getCopy() {
         return new CompletionStateWrapper(this);
     }
 
+    @Override
     public ICompletionState getCopyForResolveImportWithActTok(String actTok) {
         CompletionState state = (CompletionState) CompletionStateFactory.getEmptyCompletionState(actTok, this.nature,
                 this.completionCache);
@@ -177,6 +179,7 @@ public final class CompletionState implements ICompletionState {
      * @param module
      * @param base
      */
+    @Override
     public void checkWildImportInMemory(IModule caller, IModule wild) throws CompletionRecursionException {
         if (this.wildImportMemory.isInRecursion(caller, wild)) {
             throw new CompletionRecursionException(
@@ -190,6 +193,7 @@ public final class CompletionState implements ICompletionState {
      * @param module
      * @param definition
      */
+    @Override
     public void checkDefinitionMemory(IModule module, IDefinition definition) throws CompletionRecursionException {
         if (this.definitionMemory.isInRecursion(module, (Definition) definition)) {
             throw new CompletionRecursionException(
@@ -202,6 +206,7 @@ public final class CompletionState implements ICompletionState {
     /**
      * @param module
      */
+    @Override
     public void checkFindMemory(IModule module, String value) throws CompletionRecursionException {
         if (this.findMemory.isInRecursion(module, value)) {
             throw new CompletionRecursionException(
@@ -215,6 +220,7 @@ public final class CompletionState implements ICompletionState {
      * @param module
      * @throws CompletionRecursionException
      */
+    @Override
     public void checkResolveImportMemory(IModule module, String value) throws CompletionRecursionException {
         if (this.resolveImportMemory.isInRecursion(module, value)) {
             throw new CompletionRecursionException(
@@ -224,6 +230,7 @@ public final class CompletionState implements ICompletionState {
 
     }
 
+    @Override
     public void checkFindDefinitionMemory(IModule mod, String tok) throws CompletionRecursionException {
         if (this.findDefinitionMemory.isInRecursion(mod, tok)) {
             throw new CompletionRecursionException(
@@ -232,6 +239,7 @@ public final class CompletionState implements ICompletionState {
         }
     }
 
+    @Override
     public void checkFindLocalDefinedDefinitionMemory(IModule mod, String tok) throws CompletionRecursionException {
         if (this.findLocalDefinedDefinitionMemory.isInRecursion(mod, tok)) {
             throw new CompletionRecursionException(
@@ -244,6 +252,7 @@ public final class CompletionState implements ICompletionState {
      * @param module
      * @param base
      */
+    @Override
     public void checkMemory(IModule module, String base) throws CompletionRecursionException {
         if (this.memory.isInRecursion(module, base)) {
             throw new CompletionRecursionException(
@@ -252,6 +261,7 @@ public final class CompletionState implements ICompletionState {
         }
     }
 
+    @Override
     public void checkMaxTimeForCompletion() throws CompletionRecursionException {
         if (this.initialMillis <= 0) {
             this.initialMillis = System.currentTimeMillis();
@@ -274,6 +284,7 @@ public final class CompletionState implements ICompletionState {
 
     Set<Tuple3<Integer, Integer, IModule>> foundSameDefinitionMemory = new HashSet<Tuple3<Integer, Integer, IModule>>();
 
+    @Override
     public boolean checkFoudSameDefinition(int line, int col, IModule mod) {
         Tuple3<Integer, Integer, IModule> key = new Tuple3<Integer, Integer, IModule>(line, col, mod);
         if (foundSameDefinitionMemory.contains(key)) {
@@ -283,6 +294,7 @@ public final class CompletionState implements ICompletionState {
         return false;
     }
 
+    @Override
     public boolean canStillCheckFindSourceFromCompiled(IModule mod, String tok) {
         if (!findSourceFromCompiledMemory.isInRecursion(mod, tok)) {
             return true;
@@ -296,6 +308,7 @@ public final class CompletionState implements ICompletionState {
      *  This check is used when resolving things from imports, so, it may check for recursions found when in previous context, but
      *  if a recursion is found in the current context, that's ok (because it's simply trying to get the actual representation for a token)
      */
+    @Override
     public void checkFindResolveImportMemory(IToken token) throws CompletionRecursionException {
         Iterator<Memo<IToken>> it = findResolveImportMemory.iterator();
         while (it.hasNext()) {
@@ -310,10 +323,12 @@ public final class CompletionState implements ICompletionState {
         }
     }
 
+    @Override
     public void popFindResolveImportMemoryCtx() {
         findResolveImportMemory.pop();
     }
 
+    @Override
     public void pushFindResolveImportMemoryCtx() {
         findResolveImportMemory.push(new Memo<IToken>());
     }
@@ -322,6 +337,7 @@ public final class CompletionState implements ICompletionState {
      * @param module
      * @param base
      */
+    @Override
     public void checkFindModuleCompletionsMemory(IModule mod, String tok) throws CompletionRecursionException {
         if (this.findModuleCompletionsMemory.isInRecursion(mod, tok)) {
             throw new CompletionRecursionException(
@@ -330,26 +346,32 @@ public final class CompletionState implements ICompletionState {
         }
     }
 
+    @Override
     public String getActivationToken() {
         return activationToken;
     }
 
+    @Override
     public IPythonNature getNature() {
         return nature;
     }
 
+    @Override
     public void setActivationToken(String string) {
         activationToken = string;
     }
 
+    @Override
     public String getFullActivationToken() {
         return this.fullActivationToken;
     }
 
+    @Override
     public void setFullActivationToken(String act) {
         this.fullActivationToken = act;
     }
 
+    @Override
     public void setBuiltinsGotten(boolean b) {
         builtinsGotten = b;
     }
@@ -357,6 +379,7 @@ public final class CompletionState implements ICompletionState {
     /**
      * @param i: starting at 0
      */
+    @Override
     public void setCol(int i) {
         col = i;
     }
@@ -364,30 +387,37 @@ public final class CompletionState implements ICompletionState {
     /**
      * @param i: starting at 0
      */
+    @Override
     public void setLine(int i) {
         line = i;
     }
 
+    @Override
     public void setLocalImportsGotten(boolean b) {
         localImportsGotten = b;
     }
 
+    @Override
     public boolean getLocalImportsGotten() {
         return localImportsGotten;
     }
 
+    @Override
     public int getLine() {
         return line;
     }
 
+    @Override
     public int getCol() {
         return col;
     }
 
+    @Override
     public boolean getBuiltinsGotten() {
         return builtinsGotten;
     }
 
+    @Override
     public void raiseNFindTokensOnImportedModsCalled(IModule mod, String tok) throws CompletionRecursionException {
         if (this.importedModsCalled.isInRecursion(mod, tok)) {
             throw new CompletionRecursionException("Possible recursion found (mod: " + mod.getName() + ", tok: " + tok
@@ -395,14 +425,17 @@ public final class CompletionState implements ICompletionState {
         }
     }
 
+    @Override
     public boolean getIsInCalltip() {
         return isInCalltip;
     }
 
+    @Override
     public void setLookingFor(int b) {
         this.setLookingFor(b, false);
     }
 
+    @Override
     public void setLookingFor(int b, boolean force) {
         //the 1st is the one that counts (or it can be forced)
         if (this.lookingForInstance == ICompletionState.LOOKING_FOR_INSTANCE_UNDEFINED || force) {
@@ -410,24 +443,29 @@ public final class CompletionState implements ICompletionState {
         }
     }
 
+    @Override
     public int getLookingFor() {
         return this.lookingForInstance;
     }
 
+    @Override
     public ICompletionState getCopyWithActTok(String value) {
         ICompletionState copy = getCopy();
         copy.setActivationToken(value);
         return copy;
     }
 
+    @Override
     public String getQualifier() {
         return this.qualifier;
     }
 
+    @Override
     public void setIsInCalltip(boolean isInCalltip) {
         this.isInCalltip = isInCalltip;
     }
 
+    @Override
     public void setTokenImportedModules(List<IToken> tokenImportedModules) {
         if (tokenImportedModules != null) {
             if (this.tokenImportedModules == null) {
@@ -436,28 +474,34 @@ public final class CompletionState implements ICompletionState {
         }
     }
 
+    @Override
     public List<IToken> getTokenImportedModules() {
         return this.tokenImportedModules;
     }
 
     // ICompletionCache interface implementation -----------------------------------------------------------------------
 
+    @Override
     public void add(Object key, Object n) {
         this.completionCache.add(key, n);
     }
 
+    @Override
     public Object getObj(Object o) {
         return this.completionCache.getObj(o);
     }
 
+    @Override
     public void remove(Object key) {
         this.completionCache.remove(key);
     }
 
+    @Override
     public void removeStaleEntries() {
         this.completionCache.removeStaleEntries();
     }
 
+    @Override
     public void clear() {
         this.completionCache.clear();
     }

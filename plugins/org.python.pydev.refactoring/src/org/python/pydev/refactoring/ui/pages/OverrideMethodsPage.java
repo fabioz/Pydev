@@ -130,6 +130,7 @@ public class OverrideMethodsPage extends UserInputWizardPage {
         selectAll.setText(Messages.wizardSelectAll);
         selectAll.setLayoutData(gridData2);
         selectAll.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 treeViewer.setAllChecked(true);
                 processSelectionChange();
@@ -139,6 +140,7 @@ public class OverrideMethodsPage extends UserInputWizardPage {
         deselectAll.setText(Messages.wizardDeselectAll);
         deselectAll.setLayoutData(gridData1);
         deselectAll.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 treeViewer.setAllChecked(false);
                 processSelectionChange();
@@ -173,6 +175,7 @@ public class OverrideMethodsPage extends UserInputWizardPage {
         insertionPointLbl.setText(Messages.offsetStrategyInsertionPointMethod);
         insertionPointCmb = createComboViewer(comboComp);
         insertionPointCmb.addSelectionChangedListener(new ISelectionChangedListener() {
+            @Override
             public void selectionChanged(SelectionChangedEvent event) {
                 IStructuredSelection sel = (IStructuredSelection) event.getSelection();
                 if (!sel.isEmpty()) {
@@ -188,6 +191,7 @@ public class OverrideMethodsPage extends UserInputWizardPage {
     private void createTreeViewer(Composite treeComp) {
         treeViewer = new ContainerCheckedTreeViewer(treeComp);
         treeViewer.addCheckStateListener(new ICheckStateListener() {
+            @Override
             public void checkStateChanged(CheckStateChangedEvent event) {
                 processSelectionChange();
             }
@@ -202,6 +206,7 @@ public class OverrideMethodsPage extends UserInputWizardPage {
         treeViewer.setSelection(new StructuredSelection(treeViewer.getExpandedElements()[0]));
     }
 
+    @Override
     public void createControl(Composite composite) {
         Composite main = createMainComp(composite);
         main.pack();

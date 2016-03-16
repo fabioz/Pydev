@@ -36,14 +36,17 @@ public class PyContextActivatorViewCreatedObserver implements IViewCreatedObserv
             PyContextActivator.getSingleton().registerPyContextObserver(this);
         }
 
+        @Override
         public boolean isPyContextActive() {
             return active;
         }
 
+        @Override
         public CallbackWithListeners getOnStateChange() {
             return onStateChange;
         }
 
+        @Override
         public void focusLost(FocusEvent e) {
             Widget widget = e.widget;
             stop(widget);
@@ -59,6 +62,7 @@ public class PyContextActivatorViewCreatedObserver implements IViewCreatedObserv
             }
         }
 
+        @Override
         public void focusGained(FocusEvent e) {
             if (e.widget == currWidget) {
                 return; //Nothing did really change...
@@ -90,6 +94,7 @@ public class PyContextActivatorViewCreatedObserver implements IViewCreatedObserv
             }
         }
 
+        @Override
         public void widgetDisposed(DisposeEvent e) {
             if (e.widget != currWidget) {
                 Log.log("Heard disposed on non current widget?");
@@ -107,6 +112,7 @@ public class PyContextActivatorViewCreatedObserver implements IViewCreatedObserv
     public PyContextActivatorViewCreatedObserver() {
         onControlCreated = new ICallbackListener() {
 
+            @Override
             public Object call(Object obj) {
                 if (obj instanceof TreeViewer) {
                     TreeViewer treeViewer = (TreeViewer) obj;
@@ -123,6 +129,7 @@ public class PyContextActivatorViewCreatedObserver implements IViewCreatedObserv
 
         onControlDisposed = new ICallbackListener() {
 
+            @Override
             public Object call(Object obj) {
                 if (obj instanceof TreeViewer) {
                     TreeViewer treeViewer = (TreeViewer) obj;
@@ -140,6 +147,7 @@ public class PyContextActivatorViewCreatedObserver implements IViewCreatedObserv
         };
     }
 
+    @Override
     public void notifyViewCreated(IViewWithControls view) {
         view.getOnControlCreated().registerListener(this.onControlCreated);
         view.getOnControlDisposed().registerListener(this.onControlDisposed);

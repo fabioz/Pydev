@@ -142,20 +142,24 @@ public class GeneratePropertiesPage extends UserInputWizardPage {
         publicVis.setSelection(true);
         publicVis.setText(wizardAccessPublic);
         publicVis.addSelectionListener(new SelectionListener() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 getRequestProcsseor().setAccessModifier(NodeHelper.ACCESS_PUBLIC);
             }
 
+            @Override
             public void widgetDefaultSelected(SelectionEvent e) {
             }
         });
         pseudoprivateVis = new Button(visibilityGroup, SWT.RADIO);
         pseudoprivateVis.setText(wizardAccessPseudo);
         pseudoprivateVis.addSelectionListener(new SelectionListener() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 getRequestProcsseor().setAccessModifier(NodeHelper.ACCESS_PSEUDO);
             }
 
+            @Override
             public void widgetDefaultSelected(SelectionEvent e) {
             }
         });
@@ -177,6 +181,7 @@ public class GeneratePropertiesPage extends UserInputWizardPage {
         selectAll.setText(wizardSelectAll);
         selectAll.setLayoutData(gridData2);
         selectAll.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 treeViewer.setAllChecked(true);
                 getRequestProcsseor().setCheckedElements(treeViewer.getCheckedElements());
@@ -187,6 +192,7 @@ public class GeneratePropertiesPage extends UserInputWizardPage {
         deselectAll.setText(wizardDeselectAll);
         deselectAll.setLayoutData(gridData1);
         deselectAll.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 treeViewer.setAllChecked(false);
                 getRequestProcsseor().setCheckedElements(treeViewer.getCheckedElements());
@@ -222,6 +228,7 @@ public class GeneratePropertiesPage extends UserInputWizardPage {
         methodInsertionLbl.setText(offsetStrategyInsertionPointMethod);
         methodInsertionComb = createComboViewer(comboComp);
         methodInsertionComb.addSelectionChangedListener(new ISelectionChangedListener() {
+            @Override
             public void selectionChanged(SelectionChangedEvent event) {
                 IStructuredSelection sel = (IStructuredSelection) event.getSelection();
                 if (!sel.isEmpty()) {
@@ -238,6 +245,7 @@ public class GeneratePropertiesPage extends UserInputWizardPage {
         propertyInsertionComb = createComboViewer(comboComp);
 
         propertyInsertionComb.addSelectionChangedListener(new ISelectionChangedListener() {
+            @Override
             public void selectionChanged(SelectionChangedEvent event) {
                 IStructuredSelection sel = (IStructuredSelection) event.getSelection();
                 if (!sel.isEmpty()) {
@@ -255,6 +263,7 @@ public class GeneratePropertiesPage extends UserInputWizardPage {
     private void createTreeViewer(Composite treeComp) {
         treeViewer = new ContainerCheckedTreeViewer(treeComp);
         treeViewer.addCheckStateListener(new ICheckStateListener() {
+            @Override
             public void checkStateChanged(CheckStateChangedEvent event) {
                 getRequestProcsseor().setCheckedElements(treeViewer.getCheckedElements());
                 GeneratePropertiesPage.this.getWizard().getContainer().updateButtons();
@@ -268,6 +277,7 @@ public class GeneratePropertiesPage extends UserInputWizardPage {
         treeViewer.setSelection(new StructuredSelection(treeViewer.getExpandedElements()[0]));
     }
 
+    @Override
     public void createControl(Composite composite) {
         Composite main = createMainComp(composite);
         main.pack();

@@ -15,6 +15,7 @@ public class InterpreterInfoTreeNode<X> extends TreeNode<X> implements ISortedEl
         super(parent, data);
     }
 
+    @Override
     public int getRank() {
         return ISortedElement.RANK_LIBS;
     }

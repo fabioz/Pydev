@@ -56,6 +56,7 @@ public class OutlineCreatorVisitor extends EasyASTIteratorWithChildrenVisitor {
     /** 
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitImport(org.python.pydev.parser.jython.ast.Import)
      */
+    @Override
     public Object visitImport(Import node) throws Exception {
         atomic(node);
         return super.visitImport(node);
@@ -64,6 +65,7 @@ public class OutlineCreatorVisitor extends EasyASTIteratorWithChildrenVisitor {
     /** 
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitImportFrom(org.python.pydev.parser.jython.ast.ImportFrom)
      */
+    @Override
     public Object visitImportFrom(ImportFrom node) throws Exception {
         atomic(node);
         return super.visitImportFrom(node);

@@ -179,6 +179,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase {
         goToIdleLoopUntilCondition(
 
                 new ICallback<Boolean, Object>() {
+                    @Override
                     public Boolean call(Object arg) {
                         return new HashSet<String>(Arrays.asList(new String[] { "pack1.pack2.new_mod" })).equals(info
                                 .getAllModulesWithTokens());
@@ -186,6 +187,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase {
                 },
 
                 new ICallback<String, Object>() {
+                    @Override
                     public String call(Object arg) {
                         return "Was expecting only: 'pack1.pack2.new_mod'. Found: " + info.getAllModulesWithTokens();
                     }
@@ -201,6 +203,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase {
         goToIdleLoopUntilCondition(
 
                 new ICallback<Boolean, Object>() {
+                    @Override
                     public Boolean call(Object arg) {
                         return new HashSet<String>(Arrays.asList(new String[] { "pack1.pack2.mod1" })).equals(info
                                 .getAllModulesWithTokens());
@@ -208,6 +211,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase {
                 },
 
                 new ICallback<String, Object>() {
+                    @Override
                     public String call(Object arg) {
                         return "Was expecting only: 'pack1.pack2.mod1'. Found: " + info.getAllModulesWithTokens();
                     }
@@ -244,6 +248,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase {
     private ICallback<String, Object> getResourcesAnalyzed() {
         return new ICallback<String, Object>() {
 
+            @Override
             public String call(Object arg) {
                 return resourcesAnalyzed.toString();
             }
@@ -254,6 +259,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase {
     private ICallback<Boolean, Object> get1ResourceAnalyzed() {
         return new ICallback<Boolean, Object>() {
 
+            @Override
             public Boolean call(Object arg) {
                 return resourcesAnalyzed.size() == 1;
             }
@@ -392,6 +398,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase {
     private ICallback<Object, IResource> getAnalysisErrorCallback() {
         return new ICallback<Object, IResource>() {
 
+            @Override
             public Object call(IResource arg) {
                 throw new RuntimeException("Should not be called in this case!!");
             }
@@ -402,6 +409,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase {
     private ICallback<Object, Tuple<String, SimpleNode>> getParseFastDefinitionsCallback() {
         return new ICallback<Object, Tuple<String, SimpleNode>>() {
 
+            @Override
             public Object call(Tuple<String, SimpleNode> arg) {
                 synchronized (lock) {
                     fastParsesDone.add(arg);
@@ -415,6 +423,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase {
     private ICallback<String, Object> getMarkers() {
         return new ICallback<String, Object>() {
 
+            @Override
             public String call(Object arg) {
                 try {
                     StringBuffer buf = new StringBuffer();
@@ -444,6 +453,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase {
     private ICallback<Object, IResource> getAnalysisCallback() {
         return new ICallback<Object, IResource>() {
 
+            @Override
             public Object call(IResource arg) {
                 resourcesAnalyzed.add(arg);
                 return null;
@@ -462,6 +472,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase {
             return getModulesParsedCondition("pack1.pack2.mod1", "pack1.pack2.__init__", "pack1.__init__");
         } else {
             return new ICallback<Boolean, Object>() {
+                @Override
                 public Boolean call(Object arg) {
                     return true;
                 }
@@ -473,6 +484,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase {
     private ICallback<String, Object> getParsesDone() {
         return new ICallback<String, Object>() {
 
+            @Override
             public String call(Object arg) {
                 HashSet<String> hashSet = new HashSet<String>();
                 synchronized (lock) {
@@ -492,6 +504,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase {
     protected ICallback<Boolean, Object> getModulesParsedCondition(final String... modulesParsed) {
         return new ICallback<Boolean, Object>() {
 
+            @Override
             public Boolean call(Object arg) {
                 HashSet<String> hashSet = new HashSet<String>();
                 synchronized (lock) {
@@ -515,6 +528,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase {
     private ICallback<Boolean, Object> getFastModulesParsedCondition(final String... modulesParsed) {
         return new ICallback<Boolean, Object>() {
 
+            @Override
             public Boolean call(Object arg) {
                 HashSet<String> hashSet = new HashSet<String>();
                 synchronized (lock) {
@@ -540,6 +554,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase {
     private ICallback<Object, Tuple3<ISimpleNode, Throwable, ParserInfo>> getAddParsesToListListener() {
         return new ICallback<Object, Tuple3<ISimpleNode, Throwable, ParserInfo>>() {
 
+            @Override
             public Object call(Tuple3<ISimpleNode, Throwable, ParserInfo> arg) {
                 //                if(arg.o3.moduleName == null){
                 //                    print("null");
@@ -571,6 +586,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase {
     private ICallback<Boolean, Object> getHasBothErrorMarkersCondition(final IFile file) {
         return new ICallback<Boolean, Object>() {
 
+            @Override
             public Boolean call(Object arg) {
                 try {
                     //must have both problems: syntax and analysis error!!
@@ -597,6 +613,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase {
     private ICallback<Boolean, Object> getHasSyntaxErrorMarkersCondition(final IFile file) {
         return new ICallback<Boolean, Object>() {
 
+            @Override
             public Boolean call(Object arg) {
                 try {
                     //must have only syntax error
@@ -627,6 +644,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase {
     private ICallback<Boolean, Object> getNoErrorMarkersCondition(final IFile file) {
         return new ICallback<Boolean, Object>() {
 
+            @Override
             public Boolean call(Object arg) {
                 try {
                     IMarker[] markers = file.findMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);

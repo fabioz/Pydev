@@ -61,6 +61,7 @@ public class InterpreterInputDialog extends AbstractKeyValueDialog {
     @Override
     protected Listener createChangesValidator() {
         return new Listener() {
+            @Override
             public void handleEvent(Event event) {
 
                 String errorMessage = null;

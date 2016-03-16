@@ -30,6 +30,7 @@ public class IronpythonInterpreterManagerStub extends PythonInterpreterManagerSt
         super(prefs);
     }
 
+    @Override
     public String getDefaultInterpreter() {
         return TestDependent.IRONPYTHON_EXE;
     }
@@ -49,6 +50,7 @@ public class IronpythonInterpreterManagerStub extends PythonInterpreterManagerSt
      * @throws MisconfigurationException 
      * @see org.python.pydev.core.IInterpreterManager#getInterpreterInfo(java.lang.String, org.eclipse.core.runtime.IProgressMonitor)
      */
+    @Override
     public InterpreterInfo getInterpreterInfo(String executable, IProgressMonitor monitor)
             throws MisconfigurationException {
         InterpreterInfo info = super.getInterpreterInfo(executable, monitor);
@@ -61,6 +63,7 @@ public class IronpythonInterpreterManagerStub extends PythonInterpreterManagerSt
     /**
      * @see org.python.pydev.core.IInterpreterManager#getDefaultJavaLocation()
      */
+    @Override
     public String getDefaultJavaLocation() {
         throw new RuntimeException("not impl");
     }
@@ -81,10 +84,12 @@ public class IronpythonInterpreterManagerStub extends PythonInterpreterManagerSt
         return IronpythonInterpreterManager.doCreateInterpreterInfo(executable, monitor, askUser);
     }
 
+    @Override
     public int getInterpreterType() {
         return IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON;
     }
 
+    @Override
     public String getManagerRelatedName() {
         return "ipy";
     }

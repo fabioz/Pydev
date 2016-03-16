@@ -22,17 +22,21 @@ import org.python.pydev.shared_ui.editor.IPyEditListener;
  */
 public class DjangoActionCreatorPyEditListener implements IPyEditListener {
 
+    @Override
     public void onSave(BaseEditor baseEditor, IProgressMonitor monitor) {
     }
 
+    @Override
     public void onCreateActions(ListResourceBundle resources, BaseEditor baseEditor, IProgressMonitor monitor) {
         PyEdit edit = (PyEdit) baseEditor;
         edit.addOfflineActionListener("dj", new PyDjangoOfflineAction(edit), "Execute django action", true);
     }
 
+    @Override
     public void onDispose(BaseEditor baseEditor, IProgressMonitor monitor) {
     }
 
+    @Override
     public void onSetDocument(IDocument document, BaseEditor baseEditor, IProgressMonitor monitor) {
     }
 

@@ -99,23 +99,27 @@ public final class ConsoleStyleProvider implements IConsoleStyleProvider {
         return ret;
     }
 
+    @Override
     public Tuple<List<ScriptStyleRange>, String> createInterpreterErrorStyle(String content, int offset) {
         ColorManager colorManager = ColorManager.getDefault();
         TextAttribute attr = colorManager.getConsoleErrorTextAttribute();
         return createInterpreterStdStyle(content, offset, err, colorManager, attr, ScriptStyleRange.STDERR);
     }
 
+    @Override
     public Tuple<List<ScriptStyleRange>, String> createInterpreterOutputStyle(String content, int offset) {
         ColorManager colorManager = ColorManager.getDefault();
         TextAttribute attr = colorManager.getConsoleOutputTextAttribute();
         return createInterpreterStdStyle(content, offset, out, colorManager, attr, ScriptStyleRange.STDOUT);
     }
 
+    @Override
     public ScriptStyleRange createPromptStyle(String content, int offset) {
         TextAttribute attr = ColorManager.getDefault().getConsolePromptTextAttribute();
         return getIt(content, offset, attr, ScriptStyleRange.PROMPT);
     }
 
+    @Override
     public ScriptStyleRange createUserInputStyle(String content, int offset) {
         TextAttribute attr = ColorManager.getDefault().getConsoleInputTextAttribute();
         return getIt(content, offset, attr, ScriptStyleRange.STDIN);

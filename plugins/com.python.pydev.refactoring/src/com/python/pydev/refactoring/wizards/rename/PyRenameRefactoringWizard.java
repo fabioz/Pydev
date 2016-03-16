@@ -149,6 +149,7 @@ public class PyRenameRefactoringWizard extends RefactoringWizard {
                 }
             }
 
+            @Override
             public void createControl(Composite parent) {
                 Composite superComposite = new Composite(parent, SWT.NONE);
                 setControl(superComposite);

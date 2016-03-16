@@ -9,12 +9,14 @@ public final class Continue extends stmtType {
     public Continue() {
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -26,10 +28,12 @@ public final class Continue extends stmtType {
         return true;
     }
 
+    @Override
     public Continue createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public Continue createCopy(boolean copyComments) {
         Continue temp = new Continue();
         temp.beginLine = this.beginLine;
@@ -53,16 +57,19 @@ public final class Continue extends stmtType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("Continue[");
         sb.append("]");
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitContinue(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
     }
 

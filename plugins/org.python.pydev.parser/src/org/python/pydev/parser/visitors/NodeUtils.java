@@ -111,6 +111,7 @@ public class NodeUtils {
                 if (functionDef.args != null) {
                     String printed = PrettyPrinterV2.printArguments(new IGrammarVersionProvider() {
 
+                        @Override
                         public int getGrammarVersion() throws MisconfigurationException {
                             return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0;
                         }

@@ -19,6 +19,7 @@ import org.python.pydev.shared_ui.actions.ScopeSelectionAction;
  */
 public class PyScopeSelection extends PyAction {
 
+    @Override
     public void run(IAction action) {
         try {
             PyEdit editor = getPyEdit();

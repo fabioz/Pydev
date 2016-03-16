@@ -21,6 +21,7 @@ public class PyDocumentSetupParticipant implements IDocumentSetupParticipant {
         super();
     }
 
+    @Override
     public void setup(IDocument document) {
         PyPartitionScanner.addPartitionScanner(document, null);
     }

@@ -14,6 +14,7 @@ public abstract class ElementWithParent implements ITreeElement {
         this.parent = parent;
     }
 
+    @Override
     public ITreeElement getParent() {
         return this.parent;
     }

@@ -12,16 +12,20 @@ import org.python.pydev.shared_core.structure.DataAndImageTreeNode;
 
 public class DataAndImageTreeNodeContentProvider implements ITreeContentProvider {
 
+    @Override
     public void dispose() {
     }
 
+    @Override
     public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
     }
 
+    @Override
     public Object[] getElements(Object inputElement) {
         return getChildren(inputElement);
     }
 
+    @Override
     public Object[] getChildren(Object parentElement) {
         if (parentElement == null) {
             return new Object[0];
@@ -31,12 +35,14 @@ public class DataAndImageTreeNodeContentProvider implements ITreeContentProvider
         return m.childrenAsArray();
     }
 
+    @Override
     public Object getParent(Object element) {
         @SuppressWarnings("rawtypes")
         DataAndImageTreeNode m = (DataAndImageTreeNode) element;
         return m.getParent();
     }
 
+    @Override
     public boolean hasChildren(Object element) {
         @SuppressWarnings("rawtypes")
         DataAndImageTreeNode m = (DataAndImageTreeNode) element;

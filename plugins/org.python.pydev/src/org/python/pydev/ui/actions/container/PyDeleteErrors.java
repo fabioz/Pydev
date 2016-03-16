@@ -29,6 +29,7 @@ public class PyDeleteErrors extends PyContainerAction {
      * @param container the folder from where we want to remove the markers
      * @return the number of markers deleted
      */
+    @Override
     protected int doActionOnContainer(IContainer container, IProgressMonitor monitor) {
         try {
             container.refreshLocal(IResource.DEPTH_INFINITE, monitor);

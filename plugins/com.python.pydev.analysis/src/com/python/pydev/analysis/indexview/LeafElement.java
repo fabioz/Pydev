@@ -17,10 +17,12 @@ public class LeafElement extends ElementWithParent {
         this.o = o;
     }
 
+    @Override
     public boolean hasChildren() {
         return false;
     }
 
+    @Override
     public Object[] getChildren() {
         return EMPTY;
     }

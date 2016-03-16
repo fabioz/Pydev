@@ -13,6 +13,7 @@ public final class Lambda extends exprType {
         this.body = body;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -21,6 +22,7 @@ public final class Lambda extends exprType {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -42,10 +44,12 @@ public final class Lambda extends exprType {
         return true;
     }
 
+    @Override
     public Lambda createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public Lambda createCopy(boolean copyComments) {
         Lambda temp = new Lambda(args != null ? (argumentsType) args.createCopy(copyComments) : null,
                 body != null ? (exprType) body.createCopy(copyComments) : null);
@@ -70,6 +74,7 @@ public final class Lambda extends exprType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("Lambda[");
         sb.append("args=");
@@ -81,10 +86,12 @@ public final class Lambda extends exprType {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitLambda(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (args != null) {
             args.accept(visitor);

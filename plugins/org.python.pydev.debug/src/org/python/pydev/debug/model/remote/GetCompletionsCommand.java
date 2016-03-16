@@ -28,15 +28,18 @@ public class GetCompletionsCommand extends AbstractDebuggerCommand {
         this.actTok = actTok;
     }
 
+    @Override
     public String getOutgoing() {
         int cmd = CMD_GET_COMPLETIONS;
         return makeCommand(cmd, sequence, locator + "\t" + actTok);
     }
 
+    @Override
     public boolean needResponse() {
         return true; //The response are the completions!
     }
 
+    @Override
     public void processOKResponse(int cmdCode, String payload) {
         responseCode = cmdCode;
         if (responseCode == CMD_GET_COMPLETIONS)
@@ -47,6 +50,7 @@ public class GetCompletionsCommand extends AbstractDebuggerCommand {
         }
     }
 
+    @Override
     public void processErrorResponse(int cmdCode, String payload) {
         responseCode = cmdCode;
         this.payload = payload;

@@ -22,6 +22,7 @@ public class DefaultScriptConsoleTextHover extends AbstractScriptConsoleTextHove
         this.interpreterShell = interpreterShell;
     }
 
+    @Override
     protected String getHoverInfoImpl(IScriptConsoleViewer viewer, IRegion hoverRegion) {
         try {
             IDocument document = viewer.getDocument();

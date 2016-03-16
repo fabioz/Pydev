@@ -41,6 +41,7 @@ public class ProblemsLabelDecorator implements ILabelDecorator, ILightweightLabe
     /* (non-Javadoc)
      * @see ILabelDecorator#decorateText(String, Object)
      */
+    @Override
     public String decorateText(String text, Object element) {
         return text;
     }
@@ -48,6 +49,7 @@ public class ProblemsLabelDecorator implements ILabelDecorator, ILightweightLabe
     /* (non-Javadoc)
      * @see ILabelDecorator#decorateImage(Image, Object)
      */
+    @Override
     public Image decorateImage(Image image, Object obj) {
         Log.log("Did not expect this module to be called -- implementing org.eclipse.jface.viewers.ILightweightLabelDecorator.");
         return image;
@@ -79,6 +81,7 @@ public class ProblemsLabelDecorator implements ILabelDecorator, ILightweightLabe
     /* (non-Javadoc)
      * @see IBaseLabelProvider#dispose()
      */
+    @Override
     public void dispose() {
         if (fProblemChangedListener != null) {
             ProblemMarkerManager.getSingleton().removeListener(fProblemChangedListener);
@@ -89,6 +92,7 @@ public class ProblemsLabelDecorator implements ILabelDecorator, ILightweightLabe
     /* (non-Javadoc)
      * @see IBaseLabelProvider#isLabelProperty(Object, String)
      */
+    @Override
     public boolean isLabelProperty(Object element, String property) {
         return true;
     }
@@ -96,6 +100,7 @@ public class ProblemsLabelDecorator implements ILabelDecorator, ILightweightLabe
     /* (non-Javadoc)
      * @see IBaseLabelProvider#addListener(ILabelProviderListener)
      */
+    @Override
     public void addListener(ILabelProviderListener listener) {
         if (fListeners == null) {
             fListeners = new ListenerList();
@@ -103,6 +108,7 @@ public class ProblemsLabelDecorator implements ILabelDecorator, ILightweightLabe
         fListeners.add(listener);
         if (fProblemChangedListener == null) {
             fProblemChangedListener = new IProblemChangedListener() {
+                @Override
                 public void problemsChanged(IResource[] changedResources, boolean isMarkerChange) {
                     if (fListeners != null && !fListeners.isEmpty()) {
                         LabelProviderChangedEvent event = new ProblemsLabelChangedEvent(ProblemsLabelDecorator.this,
@@ -121,6 +127,7 @@ public class ProblemsLabelDecorator implements ILabelDecorator, ILightweightLabe
     /* (non-Javadoc)
      * @see IBaseLabelProvider#removeListener(ILabelProviderListener)
      */
+    @Override
     public void removeListener(ILabelProviderListener listener) {
         if (fListeners != null) {
             fListeners.remove(listener);
@@ -134,6 +141,7 @@ public class ProblemsLabelDecorator implements ILabelDecorator, ILightweightLabe
     /* (non-Javadoc)
      * @see org.eclipse.jface.viewers.ILightweightLabelDecorator#decorate(java.lang.Object, org.eclipse.jface.viewers.IDecoration)
      */
+    @Override
     public void decorate(Object element, IDecoration decoration) {
         int errorState = getErrorState(element);
         if (errorState == IMarker.SEVERITY_ERROR) {

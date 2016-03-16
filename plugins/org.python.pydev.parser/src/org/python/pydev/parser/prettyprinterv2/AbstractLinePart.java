@@ -25,6 +25,7 @@ public abstract class AbstractLinePart implements ILinePart {
     /* (non-Javadoc)
      * @see org.python.pydev.parser.prettyprinterv2.ILinePart2#getToken()
      */
+    @Override
     public Object getToken() {
         return token;
     }
@@ -32,6 +33,7 @@ public abstract class AbstractLinePart implements ILinePart {
     /* (non-Javadoc)
      * @see org.python.pydev.parser.prettyprinterv2.ILinePart2#getBeginCol()
      */
+    @Override
     public int getBeginCol() {
         return beginCol;
     }
@@ -39,18 +41,22 @@ public abstract class AbstractLinePart implements ILinePart {
     /* (non-Javadoc)
      * @see org.python.pydev.parser.prettyprinterv2.ILinePart2#getLine()
      */
+    @Override
     public int getLine() {
         return this.lineEntry.line;
     }
 
+    @Override
     public int getLinePosition() {
         return this.lineEntry.getSortedParts().indexOf(this);
     }
 
+    @Override
     public void setMarkAsFound() {
         this.found = true;
     }
 
+    @Override
     public boolean isMarkedAsFound() {
         return found;
     }

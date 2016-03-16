@@ -75,6 +75,7 @@ public abstract class AbstractIOTestSuite extends TestSuite {
     }
 
     private final class TestFilenameFilter implements FilenameFilter {
+        @Override
         public boolean accept(File dir, String name) {
             return name.matches(System.getProperty("filter", FILE_FILTER));
         }

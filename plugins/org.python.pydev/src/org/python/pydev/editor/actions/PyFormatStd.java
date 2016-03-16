@@ -239,6 +239,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
         return participant;
     }
 
+    @Override
     public void formatSelection(IDocument doc, int[] regionsForSave, IPyFormatStdProvider edit, PySelection ps) {
         FormatStd formatStd = getFormat(edit);
         formatSelection(doc, regionsForSave, edit, ps, formatStd);
@@ -331,6 +332,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @throws SyntaxErrorException
      * @see IFormatter
      */
+    @Override
     public void formatAll(IDocument doc, IPyFormatStdProvider edit, IFile f, boolean isOpenedFile,
             boolean throwSyntaxError)
                     throws SyntaxErrorException {

@@ -22,6 +22,7 @@ public class InteractiveConsoleCommandsPreferencesPage extends PreferencePage im
         editor = new InterativeConsoleCommandsPreferencesEditor();
     }
 
+    @Override
     public void init(IWorkbench workbench) {
         setDescription("PyDev interactive console custom commands.");
         setPreferenceStore(PydevDebugPlugin.getDefault().getPreferenceStore());

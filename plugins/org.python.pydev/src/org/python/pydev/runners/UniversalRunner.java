@@ -134,6 +134,7 @@ public class UniversalRunner {
             super(nature);
         }
 
+        @Override
         public String[] getCommandLine(List<String> argumentsAfterPython) {
             String interpreter;
             try {
@@ -156,6 +157,7 @@ public class UniversalRunner {
             super(nature);
         }
 
+        @Override
         public String[] getCommandLine(List<String> argumentsAfterPython) {
             try {
                 return SimpleJythonRunner.makeExecutableCommandStr(nature.getProjectInterpreter().getExecutableOrJar(),
@@ -176,6 +178,7 @@ public class UniversalRunner {
             super(nature);
         }
 
+        @Override
         public String[] getCommandLine(List<String> argumentsAfterPython) {
             try {
                 argumentsAfterPython.add(0, "-u");

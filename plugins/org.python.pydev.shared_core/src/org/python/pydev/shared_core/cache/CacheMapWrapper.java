@@ -21,22 +21,27 @@ public class CacheMapWrapper<Key, Val> implements Cache<Key, Val> {
     //Create cache
     protected final Map<Key, Val> cache;
 
+    @Override
     public Val getObj(Key key) {
         return cache.get(key);
     }
 
+    @Override
     public void remove(Key key) {
         cache.remove(key);
     }
 
+    @Override
     public void add(Key key, Val val) {
         cache.put(key, val);
     }
 
+    @Override
     public void clear() {
         cache.clear();
     }
 
+    @Override
     public void removeStaleEntries() {
         //Subclasses need to override if they have this concept (i.e.: SoftHashMap)
     }

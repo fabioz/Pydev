@@ -38,6 +38,7 @@ public class PropertyTreeProvider implements ITreeContentProvider {
         this.adapters = adapters;
     }
 
+    @Override
     public Object[] getChildren(Object parentElement) {
         if (parentElement instanceof ITreeNode) {
             return ((ITreeNode) parentElement).getChildren();
@@ -45,10 +46,12 @@ public class PropertyTreeProvider implements ITreeContentProvider {
         return null;
     }
 
+    @Override
     public Object getParent(Object element) {
         return null;
     }
 
+    @Override
     public boolean hasChildren(Object element) {
         if (element instanceof ITreeNode) {
             ITreeNode node = (ITreeNode) element;
@@ -57,6 +60,7 @@ public class PropertyTreeProvider implements ITreeContentProvider {
         return false;
     }
 
+    @Override
     public Object[] getElements(Object inputElement) {
         Collection<TreeClassNode> elements = new ArrayList<TreeClassNode>();
         for (IClassDefAdapter elem : adapters) {
@@ -67,9 +71,11 @@ public class PropertyTreeProvider implements ITreeContentProvider {
         return elements.toArray();
     }
 
+    @Override
     public void dispose() {
     }
 
+    @Override
     public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
     }
 

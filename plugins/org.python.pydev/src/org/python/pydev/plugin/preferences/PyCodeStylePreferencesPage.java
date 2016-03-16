@@ -53,6 +53,7 @@ public class PyCodeStylePreferencesPage extends FieldEditorPreferencePage implem
     /**
      * @see org.eclipse.jface.preference.FieldEditorPreferencePage#createFieldEditors()
      */
+    @Override
     public void createFieldEditors() {
         Composite p = getFieldEditorParent();
 
@@ -100,6 +101,7 @@ public class PyCodeStylePreferencesPage extends FieldEditorPreferencePage implem
     /**
      * @see org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
      */
+    @Override
     public void init(IWorkbench workbench) {
     }
 

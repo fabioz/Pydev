@@ -45,30 +45,37 @@ public class ScriptConsoleDocumentListenerTest extends TestCase {
         listener = new ScriptConsoleDocumentListener(
                 new IScriptConsoleViewer2ForDocumentListener() {
 
+                    @Override
                     public IDocument getDocument() {
                         return doc;
                     }
 
+                    @Override
                     public IConsoleStyleProvider getStyleProvider() {
                         return null;
                     }
 
+                    @Override
                     public void revealEndOfDocument() {
                         //do nothing
                     }
 
+                    @Override
                     public void setCaretOffset(int length, boolean async) {
                         //do nothing
                     }
 
+                    @Override
                     public int getCommandLineOffset() {
                         return 0;
                     }
 
+                    @Override
                     public int getConsoleWidthInCharacters() {
                         return 0;
                     }
 
+                    @Override
                     public int getCaretOffset() {
                         return 0;
                     }
@@ -87,6 +94,7 @@ public class ScriptConsoleDocumentListenerTest extends TestCase {
                         commandsHandled.add(userInput);
                     }
 
+                    @Override
                     public void handleCommand(String userInput,
                             ICallback<Object, InterpreterResponse> onResponseReceived) {
                         boolean more = false;
@@ -96,6 +104,7 @@ public class ScriptConsoleDocumentListenerTest extends TestCase {
                         onResponseReceived.call(new InterpreterResponse(more, false));
                     }
 
+                    @Override
                     public ICompletionProposal[] getTabCompletions(String commandLine, int cursorPosition) {
                         return null;
                     }

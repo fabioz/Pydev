@@ -37,6 +37,7 @@ public class PyImportsHandling implements Iterable<ImportHandle> {
     /**
      * @return an iterator that will yield the imports available
      */
+    @Override
     public Iterator<ImportHandle> iterator() {
         return new PyImportsIterator(this.doc, addOnlyGlobalImports, allowBadInput);
     }

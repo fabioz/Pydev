@@ -19,25 +19,31 @@ import org.eclipse.jface.viewers.Viewer;
  */
 public class ParsedContentProvider implements ITreeContentProvider {
 
+    @Override
     public Object[] getElements(Object inputElement) {
         return ((IParsedItem) inputElement).getChildren();
     }
 
+    @Override
     public void dispose() {
     }
 
+    @Override
     public Object[] getChildren(Object parentElement) {
         return ((IParsedItem) parentElement).getChildren();
     }
 
+    @Override
     public Object getParent(Object element) {
         return ((IParsedItem) element).getParent();
     }
 
+    @Override
     public boolean hasChildren(Object element) {
         return (((IParsedItem) element).getChildren().length > 0);
     }
 
+    @Override
     public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
     }
 }

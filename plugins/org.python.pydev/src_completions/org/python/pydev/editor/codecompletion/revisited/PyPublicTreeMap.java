@@ -140,6 +140,7 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
      *
      * @return the number of key-value mappings in this map.
      */
+    @Override
     public int size() {
         return size;
     }
@@ -158,6 +159,7 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
      *                  natural ordering, or its comparator does not tolerate
      *            <tt>null</tt> keys.
      */
+    @Override
     public boolean containsKey(Object key) {
         return getEntry(key) != null;
     }
@@ -175,6 +177,7 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
      *      <tt>false</tt> otherwise.
      * @since 1.2
      */
+    @Override
     public boolean containsValue(Object value) {
         return (root == null ? false : (value == null ? valueSearchNull(root) : valueSearchNonNull(root, value)));
     }
@@ -216,6 +219,7 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
      *
      * @see #containsKey(Object)
      */
+    @Override
     public V get(Object key) {
         Entry<K, V> p = getEntry(key);
         return (p == null ? null : p.value);
@@ -228,6 +232,7 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
      * @return the comparator associated with this sorted map, or
      *                <tt>null</tt> if it uses its keys' natural sort method.
      */
+    @Override
     public Comparator<? super K> comparator() {
         return comparator;
     }
@@ -238,6 +243,7 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
      * @return the first (lowest) key currently in this sorted map.
      * @throws    NoSuchElementException Map is empty.
      */
+    @Override
     public K firstKey() {
         return key(firstEntry());
     }
@@ -248,6 +254,7 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
      * @return the last (highest) key currently in this sorted map.
      * @throws    NoSuchElementException Map is empty.
      */
+    @Override
     public K lastKey() {
         return key(lastEntry());
     }
@@ -265,6 +272,7 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
      *         this map does not permit <tt>null</tt> keys and a
      *         key in the specified map is <tt>null</tt>.
      */
+    @Override
     public void putAll(Map<? extends K, ? extends V> map) {
         int mapSize = map.size();
         if (size == 0 && mapSize != 0 && map instanceof SortedMap) {
@@ -406,6 +414,7 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
      *         natural order, or its comparator does not tolerate
      *         <tt>null</tt> keys.
      */
+    @Override
     public V put(K key, V value) {
         Entry<K, V> t = root;
 
@@ -456,6 +465,7 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
      *         natural order, or its comparator does not tolerate
      *         <tt>null</tt> keys.
      */
+    @Override
     public V remove(Object key) {
         Entry<K, V> p = getEntry(key);
         if (p == null)
@@ -469,6 +479,7 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
     /**
      * Removes all mappings from this TreeMap.
      */
+    @Override
     public void clear() {
         modCount++;
         size = 0;
@@ -481,6 +492,7 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
      *
      * @return a shallow copy of this Map.
      */
+    @Override
     public Object clone() {
         PyPublicTreeMap<K, V> clone = null;
         try {
@@ -526,26 +538,32 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
      *
      * @return a set view of the keys contained in this TreeMap.
      */
+    @Override
     public Set<K> keySet() {
         return new AbstractSet<K>() {
+            @Override
             public Iterator<K> iterator() {
                 return new KeyIterator();
             }
 
+            @Override
             public int size() {
                 return PyPublicTreeMap.this.size();
             }
 
+            @Override
             public boolean contains(Object o) {
                 return containsKey(o);
             }
 
+            @Override
             public boolean remove(Object o) {
                 int oldSize = size;
                 PyPublicTreeMap.this.remove(o);
                 return size != oldSize;
             }
 
+            @Override
             public void clear() {
                 PyPublicTreeMap.this.clear();
             }
@@ -565,16 +583,20 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
      *
      * @return a collection view of the values contained in this map.
      */
+    @Override
     public Collection<V> values() {
         return new AbstractCollection<V>() {
+            @Override
             public Iterator<V> iterator() {
                 return new ValueIterator();
             }
 
+            @Override
             public int size() {
                 return PyPublicTreeMap.this.size();
             }
 
+            @Override
             public boolean contains(Object o) {
                 for (Entry<K, V> e = firstEntry(); e != null; e = successor(e))
                     if (valEquals(e.getValue(), o))
@@ -582,6 +604,7 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
                 return false;
             }
 
+            @Override
             public boolean remove(Object o) {
                 for (Entry<K, V> e = firstEntry(); e != null; e = successor(e)) {
                     if (valEquals(e.getValue(), o)) {
@@ -592,6 +615,7 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
                 return false;
             }
 
+            @Override
             public void clear() {
                 PyPublicTreeMap.this.clear();
             }
@@ -612,13 +636,16 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
      * @return a set view of the mappings contained in this map.
      * @see Map.Entry
      */
+    @Override
     public Set<Map.Entry<K, V>> entrySet() {
         if (entrySet == null) {
             entrySet = new AbstractSet<Map.Entry<K, V>>() {
+                @Override
                 public Iterator<Map.Entry<K, V>> iterator() {
                     return new EntryIterator();
                 }
 
+                @Override
                 public boolean contains(Object o) {
                     if (!(o instanceof Map.Entry))
                         return false;
@@ -628,6 +655,7 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
                     return p != null && valEquals(p.getValue(), value);
                 }
 
+                @Override
                 public boolean remove(Object o) {
                     if (!(o instanceof Map.Entry))
                         return false;
@@ -641,10 +669,12 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
                     return false;
                 }
 
+                @Override
                 public int size() {
                     return PyPublicTreeMap.this.size();
                 }
 
+                @Override
                 public void clear() {
                     PyPublicTreeMap.this.clear();
                 }
@@ -697,6 +727,7 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
      *               <tt>null</tt> and this map uses natural order, or its
      *               comparator does not tolerate <tt>null</tt> keys.
      */
+    @Override
     public SortedMap<K, V> subMap(K fromKey, K toKey) {
         return new SubMap(fromKey, toKey);
     }
@@ -738,6 +769,7 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
      *               this map uses natural order, or its comparator does not
      *               tolerate <tt>null</tt> keys.
      */
+    @Override
     public SortedMap<K, V> headMap(K toKey) {
         return new SubMap(toKey, true);
     }
@@ -777,6 +809,7 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
      *               this map uses natural order, or its comparator does not
      *               tolerate <tt>null</tt> keys.
      */
+    @Override
     public SortedMap<K, V> tailMap(K fromKey) {
         return new SubMap(fromKey, false);
     }
@@ -817,30 +850,36 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
             this.toKey = toKey;
         }
 
+        @Override
         public boolean isEmpty() {
             return entrySet.isEmpty();
         }
 
+        @Override
         public boolean containsKey(Object key) {
             return inRange((K) key) && PyPublicTreeMap.this.containsKey(key);
         }
 
+        @Override
         public V get(Object key) {
             if (!inRange((K) key))
                 return null;
             return PyPublicTreeMap.this.get(key);
         }
 
+        @Override
         public V put(K key, V value) {
             if (!inRange(key))
                 throw new IllegalArgumentException("key out of range");
             return PyPublicTreeMap.this.put(key, value);
         }
 
+        @Override
         public Comparator<? super K> comparator() {
             return comparator;
         }
 
+        @Override
         public K firstKey() {
             PyPublicTreeMap.Entry<K, V> e = fromStart ? firstEntry() : getCeilEntry(fromKey);
             K first = key(e);
@@ -849,6 +888,7 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
             return first;
         }
 
+        @Override
         public K lastKey() {
             PyPublicTreeMap.Entry<K, V> e = toEnd ? lastEntry() : getPrecedingEntry(toKey);
             K last = key(e);
@@ -859,6 +899,7 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
 
         private transient Set<Map.Entry<K, V>> entrySet = new EntrySetView();
 
+        @Override
         public Set<Map.Entry<K, V>> entrySet() {
             return entrySet;
         }
@@ -866,6 +907,7 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
         private class EntrySetView extends AbstractSet<Map.Entry<K, V>> {
             private transient int size = -1, sizeModCount;
 
+            @Override
             public int size() {
                 if (size == -1 || sizeModCount != PyPublicTreeMap.this.modCount) {
                     size = 0;
@@ -879,10 +921,12 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
                 return size;
             }
 
+            @Override
             public boolean isEmpty() {
                 return !iterator().hasNext();
             }
 
+            @Override
             public boolean contains(Object o) {
                 if (!(o instanceof Map.Entry))
                     return false;
@@ -894,6 +938,7 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
                 return node != null && valEquals(node.getValue(), entry.getValue());
             }
 
+            @Override
             public boolean remove(Object o) {
                 if (!(o instanceof Map.Entry))
                     return false;
@@ -909,12 +954,14 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
                 return false;
             }
 
+            @Override
             public Iterator<Map.Entry<K, V>> iterator() {
                 return new SubMapEntryIterator((fromStart ? firstEntry() : getCeilEntry(fromKey)), (toEnd ? null
                         : getCeilEntry(toKey)));
             }
         }
 
+        @Override
         public SortedMap<K, V> subMap(K fromKey, K toKey) {
             if (!inRange2(fromKey))
                 throw new IllegalArgumentException("fromKey out of range");
@@ -923,12 +970,14 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
             return new SubMap(fromKey, toKey);
         }
 
+        @Override
         public SortedMap<K, V> headMap(K toKey) {
             if (!inRange2(toKey))
                 throw new IllegalArgumentException("toKey out of range");
             return new SubMap(fromStart, fromKey, false, toKey);
         }
 
+        @Override
         public SortedMap<K, V> tailMap(K fromKey) {
             if (!inRange2(fromKey))
                 throw new IllegalArgumentException("fromKey out of range");
@@ -962,6 +1011,7 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
             next = first;
         }
 
+        @Override
         public boolean hasNext() {
             return next != null;
         }
@@ -976,6 +1026,7 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
             return lastReturned;
         }
 
+        @Override
         public void remove() {
             if (lastReturned == null)
                 throw new IllegalStateException();
@@ -990,18 +1041,21 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
     }
 
     private class EntryIterator extends PrivateEntryIterator<Map.Entry<K, V>> {
+        @Override
         public Map.Entry<K, V> next() {
             return nextEntry();
         }
     }
 
     private class KeyIterator extends PrivateEntryIterator<K> {
+        @Override
         public K next() {
             return nextEntry().key;
         }
     }
 
     private class ValueIterator extends PrivateEntryIterator<V> {
+        @Override
         public V next() {
             return nextEntry().value;
         }
@@ -1015,10 +1069,12 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
             firstExcludedKey = (firstExcluded == null ? null : firstExcluded.key);
         }
 
+        @Override
         public boolean hasNext() {
             return next != null && next.key != firstExcludedKey;
         }
 
+        @Override
         public Map.Entry<K, V> next() {
             if (next == null || next.key == firstExcludedKey)
                 throw new NoSuchElementException();
@@ -1072,6 +1128,7 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
          *
          * @return the key.
          */
+        @Override
         public K getKey() {
             return key;
         }
@@ -1081,6 +1138,7 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
          *
          * @return the value associated with the key.
          */
+        @Override
         public V getValue() {
             return value;
         }
@@ -1092,12 +1150,14 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
          * @return the value associated with the key before this method was
          *           called.
          */
+        @Override
         public V setValue(V value) {
             V oldValue = this.value;
             this.value = value;
             return oldValue;
         }
 
+        @Override
         public boolean equals(Object o) {
             if (!(o instanceof Map.Entry))
                 return false;
@@ -1106,12 +1166,14 @@ public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements So
             return valEquals(key, e.getKey()) && valEquals(value, e.getValue());
         }
 
+        @Override
         public int hashCode() {
             int keyHash = (key == null ? 0 : key.hashCode());
             int valueHash = (value == null ? 0 : value.hashCode());
             return keyHash ^ valueHash;
         }
 
+        @Override
         public String toString() {
             return key + "=" + value;
         }

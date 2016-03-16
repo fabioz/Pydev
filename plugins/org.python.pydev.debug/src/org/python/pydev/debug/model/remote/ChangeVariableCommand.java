@@ -31,10 +31,12 @@ public class ChangeVariableCommand extends AbstractDebuggerCommand {
         this.expression = expression;
     }
 
+    @Override
     public String getOutgoing() {
         return makeCommand(getCommandId(), sequence, locator + "\t" + expression);
     }
 
+    @Override
     public boolean needResponse() {
         return false;
     }

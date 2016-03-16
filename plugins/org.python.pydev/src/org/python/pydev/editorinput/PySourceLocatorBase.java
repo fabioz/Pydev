@@ -421,6 +421,7 @@ public class PySourceLocatorBase {
         final List<String> l = new ArrayList<String>();
         Runnable r = new Runnable() {
 
+            @Override
             public void run() {
                 Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
                 FileDialog dialog = new FileDialog(shell);
@@ -499,6 +500,7 @@ public class PySourceLocatorBase {
         final List<IFile> selected = new ArrayList<IFile>();
 
         Runnable r = new Runnable() {
+            @Override
             public void run() {
                 Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
                 ElementListSelectionDialog dialog = new ElementListSelectionDialog(shell, new PyFileLabelProvider());

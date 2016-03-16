@@ -44,6 +44,7 @@ public class PythonModulePickerDialog extends ElementTreeSelectionDialog {
         // Do not allow multiple selection of packages / modules for non-Unittest runs
         if (!unitTesting) {
             this.setValidator(new ISelectionStatusValidator() {
+                @Override
                 public IStatus validate(Object selection[]) {
                     if (selection.length >= 1) {
                         if (selection[0] instanceof IFile) {
@@ -73,6 +74,7 @@ public class PythonModulePickerDialog extends ElementTreeSelectionDialog {
         }
         else {
             this.setValidator(new ISelectionStatusValidator() {
+                @Override
                 public IStatus validate(Object selection[]) {
                     for (int i = 0; i < selection.length; i++) {
                         if (!(selection[i] instanceof IFolder)) {
@@ -123,12 +125,14 @@ class PythonModuleContentProvider implements ITreeContentProvider {
      * The visual part that is using this content provider is about
      * to be disposed. Deallocate all allocated SWT resources.
      */
+    @Override
     public void dispose() {
     }
 
     /*
      * @see org.eclipse.jface.viewers.ITreeContentProvider#getChildren(java.lang.Object)
      */
+    @Override
     public Object[] getChildren(Object element) {
 
         if (element instanceof IContainer) {
@@ -166,6 +170,7 @@ class PythonModuleContentProvider implements ITreeContentProvider {
     /*
      * @see org.eclipse.jface.viewers.IStructuredContentProvider#getElements(java.lang.Object)
      */
+    @Override
     public Object[] getElements(Object element) {
         return getChildren(element);
     }
@@ -173,6 +178,7 @@ class PythonModuleContentProvider implements ITreeContentProvider {
     /*
      * @see org.eclipse.jface.viewers.ITreeContentProvider#getParent(java.lang.Object)
      */
+    @Override
     public Object getParent(Object element) {
         if (element instanceof IResource) {
             return ((IResource) element).getParent();
@@ -183,6 +189,7 @@ class PythonModuleContentProvider implements ITreeContentProvider {
     /*
      * @see org.eclipse.jface.viewers.ITreeContentProvider#hasChildren(java.lang.Object)
      */
+    @Override
     public boolean hasChildren(Object element) {
         return getChildren(element).length > 0;
     }
@@ -190,6 +197,7 @@ class PythonModuleContentProvider implements ITreeContentProvider {
     /*
      * @see org.eclipse.jface.viewers.IContentProvider#inputChanged
      */
+    @Override
     public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
     }
 

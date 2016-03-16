@@ -25,10 +25,12 @@ public class FileTreeLabelProvider extends LabelProvider {
         imageCache = SharedUiPlugin.getImageCache();
     }
 
+    @Override
     public String getText(Object element) {
         return ((File) element).getName();
     }
 
+    @Override
     public Image getImage(Object element) {
         if (((File) element).isDirectory()) {
             return imageCache.get(UIConstants.FOLDER_ICON);

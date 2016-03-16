@@ -37,6 +37,7 @@ public class TreeLabelProvider implements ILabelProvider {
         cache = new PepticImageCache();
     }
 
+    @Override
     public Image getImage(Object element) {
         Image image = null;
         ITreeNode node = (ITreeNode) element;
@@ -45,6 +46,7 @@ public class TreeLabelProvider implements ILabelProvider {
         return image;
     }
 
+    @Override
     public String getText(Object element) {
         if (element instanceof ITreeNode) {
             return ((ITreeNode) element).getLabel();
@@ -53,18 +55,22 @@ public class TreeLabelProvider implements ILabelProvider {
         return "";
     }
 
+    @Override
     public void addListener(ILabelProviderListener listener) {
     }
 
+    @Override
     public void dispose() {
         cache.dispose();
         cache = null;
     }
 
+    @Override
     public boolean isLabelProperty(Object element, String property) {
         return false;
     }
 
+    @Override
     public void removeListener(ILabelProviderListener listener) {
     }
 

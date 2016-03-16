@@ -48,6 +48,7 @@ public class ScriptXmlRpcClient implements IXmlRpcClient {
      * Sets the port where the server is started.
      * @throws MalformedURLException
      */
+    @Override
     public void setPort(int port) throws MalformedURLException {
         XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
         config.setServerURL(new URL("http://" + LocalHost.getLocalHost() + ":" + port));
@@ -63,6 +64,7 @@ public class ScriptXmlRpcClient implements IXmlRpcClient {
      *
      * @return the result from executing the given command in the server.
      */
+    @Override
     public Object execute(String command, Object[] args) throws XmlRpcException {
         if (process != null) {
             try {
@@ -79,10 +81,12 @@ public class ScriptXmlRpcClient implements IXmlRpcClient {
         //make an async call so that we can keep track of not actually having an answer.
         this.impl.executeAsync(command, args, new AsyncCallback() {
 
+            @Override
             public void handleError(XmlRpcRequest request, Throwable error) {
                 result.set(error.getMessage());
             }
 
+            @Override
             public void handleResult(XmlRpcRequest request, Object receivedResult) {
                 result.set(receivedResult);
             }

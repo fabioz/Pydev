@@ -84,6 +84,7 @@ public class GeneratePropertiesRequest implements IRefactoringRequest {
         }
     }
 
+    @Override
     public AdapterPrefs getAdapterPrefs() {
         return adapterPrefs;
     }
@@ -92,6 +93,7 @@ public class GeneratePropertiesRequest implements IRefactoringRequest {
         return state;
     }
 
+    @Override
     public IASTNodeAdapter<? extends SimpleNode> getOffsetNode() {
         return classAdapter;
     }

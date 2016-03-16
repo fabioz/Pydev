@@ -675,6 +675,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         final List<PyEdit> pyEditCreated = new ArrayList<PyEdit>();
         ICallbackListener<PyEdit> listener = new ICallbackListener<PyEdit>() {
 
+            @Override
             public Object call(PyEdit obj) {
                 pyEditCreated.add(obj);
                 return null;
@@ -716,6 +717,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         final List<PyEdit> pyEditCreated = new ArrayList<PyEdit>();
         ICallbackListener<PyEdit> listener = new ICallbackListener<PyEdit>() {
 
+            @Override
             public Object call(PyEdit obj) {
                 pyEditCreated.add(obj);
                 return null;
@@ -758,6 +760,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         final List<PyEdit> pyEditCreated = new ArrayList<PyEdit>();
         ICallbackListener<PyEdit> listener = new ICallbackListener<PyEdit>() {
 
+            @Override
             public Object call(PyEdit obj) {
                 pyEditCreated.add(obj);
                 return null;
@@ -802,6 +805,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         final List<PyEdit> pyEditCreated = new ArrayList<PyEdit>();
         ICallbackListener<PyEdit> listener = new ICallbackListener<PyEdit>() {
 
+            @Override
             public Object call(PyEdit obj) {
                 pyEditCreated.add(obj);
                 return null;
@@ -943,6 +947,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         final List<PyEdit> pyEditCreated = new ArrayList<PyEdit>();
         ICallbackListener<PyEdit> listener = new ICallbackListener<PyEdit>() {
 
+            @Override
             public Object call(PyEdit obj) {
                 pyEditCreated.add(obj);
                 return null;
@@ -988,6 +993,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         final List<PyEdit> pyEditCreated = new ArrayList<PyEdit>();
         ICallbackListener<PyEdit> listener = new ICallbackListener<PyEdit>() {
 
+            @Override
             public Object call(PyEdit obj) {
                 pyEditCreated.add(obj);
                 return null;
@@ -1033,6 +1039,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         final List<PyEdit> pyEditCreated = new ArrayList<PyEdit>();
         ICallbackListener<PyEdit> listener = new ICallbackListener<PyEdit>() {
 
+            @Override
             public Object call(PyEdit obj) {
                 pyEditCreated.add(obj);
                 return null;
@@ -1654,11 +1661,13 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                 StringUtils.replaceNewLines(generated, "\n"));
     }
 
+    @Override
     public void parserChanged(ISimpleNode root, IAdaptable file, IDocument doc, long docModificationStamp) {
         parser.removeParseListener(this);
         this.parserNotified += 1;
     }
 
+    @Override
     public void parserError(Throwable error, IAdaptable file, IDocument doc) {
         parser.removeParseListener(this);
         this.parserNotified += 1;
@@ -1668,6 +1677,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         final int currentNotified = this.parserNotified;
         return new ICallback<Boolean, Object>() {
 
+            @Override
             public Boolean call(Object arg) {
                 return parserNotified > currentNotified;
             }
@@ -1680,6 +1690,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
     private ICallback<Boolean, Object> getHasBothErrorMarkersCondition(final IFile file) {
         return new ICallback<Boolean, Object>() {
 
+            @Override
             public Boolean call(Object arg) {
                 try {
                     //must have both problems: syntax and analysis error!!

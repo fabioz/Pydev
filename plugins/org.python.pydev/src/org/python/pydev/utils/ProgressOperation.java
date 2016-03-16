@@ -39,6 +39,7 @@ public class ProgressOperation extends WorkspaceModifyOperation {
         this.action = action;
     }
 
+    @Override
     protected void execute(IProgressMonitor monitor) throws CoreException, InvocationTargetException,
             InterruptedException {
 

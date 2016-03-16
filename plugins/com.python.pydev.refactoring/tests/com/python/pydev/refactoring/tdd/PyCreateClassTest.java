@@ -40,6 +40,7 @@ public class PyCreateClassTest extends TestCaseUtils {
         ITextSelection selection = new TextSelection(document, 0, 0);
         RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
 
+            @Override
             public int getGrammarVersion() throws MisconfigurationException {
                 return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
             }
@@ -73,6 +74,7 @@ public class PyCreateClassTest extends TestCaseUtils {
         ITextSelection selection = new TextSelection(document, document.getLength() - 5, 0);
         RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
 
+            @Override
             public int getGrammarVersion() throws MisconfigurationException {
                 return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
             }
@@ -115,6 +117,7 @@ public class PyCreateClassTest extends TestCaseUtils {
         ITextSelection selection = new TextSelection(document, document.getLength() - 5, 0);
         RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
 
+            @Override
             public int getGrammarVersion() throws MisconfigurationException {
                 return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
             }
@@ -156,6 +159,7 @@ public class PyCreateClassTest extends TestCaseUtils {
         ITextSelection selection = new TextSelection(document, document.getLength() - 5, 0);
         RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
 
+            @Override
             public int getGrammarVersion() throws MisconfigurationException {
                 return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
             }
@@ -189,6 +193,7 @@ public class PyCreateClassTest extends TestCaseUtils {
         ITextSelection selection = new TextSelection(document, 0, 0);
         RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
 
+            @Override
             public int getGrammarVersion() throws MisconfigurationException {
                 return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
             }
@@ -217,6 +222,7 @@ public class PyCreateClassTest extends TestCaseUtils {
         ITextSelection selection = new TextSelection(document, 0, 0);
         RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
 
+            @Override
             public int getGrammarVersion() throws MisconfigurationException {
                 return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
             }
@@ -251,6 +257,7 @@ public class PyCreateClassTest extends TestCaseUtils {
         ITextSelection selection = new TextSelection(document, source.length() - 4, 0);
         RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
 
+            @Override
             public int getGrammarVersion() throws MisconfigurationException {
                 return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
             }
@@ -288,6 +295,7 @@ public class PyCreateClassTest extends TestCaseUtils {
         ITextSelection selection = new TextSelection(document, source.length() - 4, 0);
         RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
 
+            @Override
             public int getGrammarVersion() throws MisconfigurationException {
                 return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
             }
@@ -330,6 +338,7 @@ public class PyCreateClassTest extends TestCaseUtils {
         ITextSelection selection = new TextSelection(document, source.length() - 4, 0);
         RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
 
+            @Override
             public int getGrammarVersion() throws MisconfigurationException {
                 return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
             }
@@ -364,6 +373,7 @@ public class PyCreateClassTest extends TestCaseUtils {
         ITextSelection selection = new TextSelection(document, 0, 0);
         RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
 
+            @Override
             public int getGrammarVersion() throws MisconfigurationException {
                 return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
             }

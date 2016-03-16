@@ -23,10 +23,12 @@ public class DeltaSaverTest extends TestCase {
         junit.textui.TestRunner.run(DeltaSaverTest.class);
     }
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
     }
 
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
         new DeltaSaver<Object>(new File("."), "deltatest", null, null).clearAll(); //leave no traces
@@ -38,20 +40,24 @@ public class DeltaSaverTest extends TestCase {
 
         public int processed;
 
+        @Override
         public void processUpdate(String data) {
             throw new RuntimeException("should not be called");
         }
 
+        @Override
         public void processDelete(String data) {
             processed += 1;
             state.remove(data);
         }
 
+        @Override
         public void processInsert(String data) {
             processed += 1;
             state.add((String) data);
         }
 
+        @Override
         public void endProcessing() {
         }
 
@@ -83,19 +89,23 @@ public class DeltaSaverTest extends TestCase {
 
         public int processed;
 
+        @Override
         public void processUpdate(Integer data) {
             throw new RuntimeException("should not be called");
         }
 
+        @Override
         public void processDelete(Integer data) {
             throw new RuntimeException("should not be called");
         }
 
+        @Override
         public void processInsert(Integer data) {
             assertEquals((Object) processed, (Object) data);
             processed += 1;
         }
 
+        @Override
         public void endProcessing() {
         }
 
@@ -115,6 +125,7 @@ public class DeltaSaverTest extends TestCase {
     private ICallback<String, Integer> getToFile() {
         return new ICallback<String, Integer>() {
 
+            @Override
             public String call(Integer arg) {
                 return Integer.toString(arg);
             }
@@ -124,6 +135,7 @@ public class DeltaSaverTest extends TestCase {
     private ICallback<Integer, String> getCallBack() {
         return new ICallback<Integer, String>() {
 
+            @Override
             public Integer call(String arg) {
                 return Integer.parseInt(arg);
             }
@@ -133,6 +145,7 @@ public class DeltaSaverTest extends TestCase {
     private ICallback<String, String> getToFileStr() {
         return new ICallback<String, String>() {
 
+            @Override
             public String call(String arg) {
                 return arg;
             }
@@ -142,6 +155,7 @@ public class DeltaSaverTest extends TestCase {
     private ICallback<String, String> getCallBackStr() {
         return new ICallback<String, String>() {
 
+            @Override
             public String call(String arg) {
                 return arg;
             }

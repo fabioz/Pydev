@@ -119,6 +119,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
     /* (non-Javadoc)
      * @see org.python.pydev.plugin.nature.IPythonNatureStore#setProject(org.eclipse.core.resources.IProject)
      */
+    @Override
     public void setProject(IProject project) {
         synchronized (this) {
             if (project == null) {
@@ -167,6 +168,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
     /* (non-Javadoc)
      * @see org.python.pydev.plugin.nature.IPythonNatureStore#getPathProperty(org.eclipse.core.runtime.QualifiedName)
      */
+    @Override
     public synchronized String getPathProperty(QualifiedName key) throws CoreException {
         if (this.project == null) {
             return "";
@@ -180,6 +182,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
     /* (non-Javadoc)
      * @see org.python.pydev.plugin.nature.IPythonNatureStore#getMapProperty(org.eclipse.core.runtime.QualifiedName)
      */
+    @Override
     public synchronized Map<String, String> getMapProperty(QualifiedName key) throws CoreException {
         if (this.project == null) {
             return null;
@@ -211,11 +214,13 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
     /* (non-Javadoc)
      * @see org.python.pydev.plugin.nature.IPythonNatureStore#setPathProperty(org.eclipse.core.runtime.QualifiedName, java.lang.String)
      */
+    @Override
     public synchronized void setPathProperty(QualifiedName key, String value) throws CoreException {
         checkLoad("setPathProperty");
         setPathPropertyToXml(key, getArrayFromPathString(value), true);
     }
 
+    @Override
     public synchronized void setMapProperty(QualifiedName key, Map<String, String> value) throws CoreException {
         checkLoad("setMapProperty");
         traceFunc("setMapProperty");
@@ -585,6 +590,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
     /* (non-Javadoc)
      * @see org.python.pydev.plugin.nature.IPythonNatureStore#getPropertyFromXml(org.eclipse.core.runtime.QualifiedName)
      */
+    @Override
     public synchronized String getPropertyFromXml(QualifiedName key) {
         if (this.project == null) {
             return "";
@@ -614,6 +620,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
     /* (non-Javadoc)
      * @see org.python.pydev.plugin.nature.IPythonNatureStore#setPropertyToXml(org.eclipse.core.runtime.QualifiedName, java.lang.String, boolean)
      */
+    @Override
     public synchronized void setPropertyToXml(QualifiedName key, String value, boolean store) throws CoreException {
         traceFunc(StringUtils.format("setPropertyToXml key:%s value:%s store:%s", key, value, store));
         synchronized (this) {
@@ -837,6 +844,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
         }
     }
 
+    @Override
     public void resourceChanged(IResourceChangeEvent event) {
         if (project == null) {
             return;
@@ -930,10 +938,12 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
         }
     }
 
+    @Override
     public void startInit() {
         inInit = true;
     }
 
+    @Override
     public void endInit() {
         inInit = false;
         doStore();

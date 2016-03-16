@@ -106,6 +106,7 @@ public class SourceToken extends AbstractToken {
     /**
      * @return line starting at 1
      */
+    @Override
     public int getLineDefinition() {
         return NodeUtils.getLineDefinition(getRepresentationNode());
     }
@@ -135,6 +136,7 @@ public class SourceToken extends AbstractToken {
     /**
      * @return col starting at 1
      */
+    @Override
     public int getColDefinition() {
         return NodeUtils.getColDefinition(ast);
     }
@@ -194,6 +196,7 @@ public class SourceToken extends AbstractToken {
         return 7 * getLineDefinition() * getColDefinition();
     }
 
+    @Override
     public boolean isImport() {
         if (ast instanceof Import || ast instanceof ImportFrom) {
             return true;
@@ -202,14 +205,17 @@ public class SourceToken extends AbstractToken {
         return false;
     }
 
+    @Override
     public boolean isImportFrom() {
         return ast instanceof ImportFrom;
     }
 
+    @Override
     public boolean isWildImport() {
         return ast instanceof ImportFrom && AbstractVisitor.isWildImport((ImportFrom) ast);
     }
 
+    @Override
     public boolean isString() {
         return AbstractVisitor.isString(ast);
     }
@@ -217,6 +223,7 @@ public class SourceToken extends AbstractToken {
     /**
      * This representation may not be accurate depending on which tokens we are dealing with. 
      */
+    @Override
     public int[] getLineColEnd() {
         if (ast instanceof NameTok || ast instanceof Name) {
             //those are the ones that we can be certain of...

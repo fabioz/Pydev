@@ -14,6 +14,7 @@ import org.python.pydev.parser.prettyprinterv2.MakeAstValidForPrettyPrintingVisi
 
 public class MessLinesAndColumnsVisitor extends MakeAstValidForPrettyPrintingVisitor {
 
+    @Override
     protected void fixNode(SimpleNode node) {
         node.beginLine = -1;
         node.beginColumn = -1;

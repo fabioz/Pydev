@@ -47,6 +47,7 @@ public class PythonApplyCompletionsTest extends CodeCompletionTestsBase {
         codeCompletion = new PyCodeCompletion();
         PyCodeCompletion.onCompletionRecursionException = new ICallback<Object, CompletionRecursionException>() {
 
+            @Override
             public Object call(CompletionRecursionException e) {
                 throw new RuntimeException("Recursion error:" + Log.getExceptionStr(e));
             }

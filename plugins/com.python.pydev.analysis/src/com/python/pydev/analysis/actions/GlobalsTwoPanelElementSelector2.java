@@ -205,6 +205,7 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
         super.fillViewMenu(menuManager);
 
         workingSetFilterActionGroup = new WorkingSetFilterActionGroup(getShell(), new IPropertyChangeListener() {
+            @Override
             public void propertyChange(PropertyChangeEvent event) {
                 String property = event.getProperty();
 
@@ -347,6 +348,7 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
              * @see java.util.Comparator#compare(java.lang.Object,
              *      java.lang.Object)
              */
+            @Override
             public int compare(AdditionalInfoAndIInfo resource1, AdditionalInfoAndIInfo resource2) {
                 Collator collator = Collator.getInstance();
                 String s1 = resource1.info.getName();
@@ -622,10 +624,12 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
 
     }
 
+    @Override
     public ICallbackWithListeners getOnControlCreated() {
         return onControlCreated;
     }
 
+    @Override
     public ICallbackWithListeners getOnControlDisposed() {
         return onControlDisposed;
     }

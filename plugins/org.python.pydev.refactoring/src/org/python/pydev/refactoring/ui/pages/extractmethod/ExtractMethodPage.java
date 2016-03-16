@@ -46,6 +46,7 @@ public class ExtractMethodPage extends PyDevInputWizardPage {
         super(PAGE_NAME);
     }
 
+    @Override
     public void createControl(Composite parent) {
         this.parent = parent;
         setupComposite();
@@ -80,6 +81,7 @@ public class ExtractMethodPage extends PyDevInputWizardPage {
         return isPageComplete();
     }
 
+    @Override
     public void validate() {
         setErrorMessage(null);
         extractComposite.validate();
@@ -116,6 +118,7 @@ public class ExtractMethodPage extends PyDevInputWizardPage {
         return (ExtractMethodRefactoring) getRefactoring();
     }
 
+    @Override
     public void handleEvent(Event event) {
         validate();
     }

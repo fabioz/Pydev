@@ -59,6 +59,7 @@ public class TopLevelProjectsOrWorkingSetChoice {
      */
     private IPropertyChangeListener rootModeListener = new IPropertyChangeListener() {
 
+        @Override
         public void propertyChange(PropertyChangeEvent event) {
             if (DEBUG) {
                 System.out.println("Property change: " + event.getProperty());

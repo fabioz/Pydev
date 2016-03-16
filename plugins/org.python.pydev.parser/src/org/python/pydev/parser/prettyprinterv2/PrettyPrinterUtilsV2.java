@@ -146,6 +146,7 @@ public class PrettyPrinterUtilsV2 extends VisitorBase {
 
     protected SimpleNode lastNode;
 
+    @Override
     protected Object unhandled_node(SimpleNode node) throws Exception {
         this.lastNode = node;
         return null;

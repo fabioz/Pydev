@@ -382,6 +382,7 @@ public class ImportArranger {
         TreeMap<String, FromImportEntries> importsWithFrom = new TreeMap<String, FromImportEntries>(
                 new Comparator<String>() {
 
+                    @Override
                     public int compare(String o1, String o2) {
                         Tuple<String, String> splitted1 = StringUtils.splitOnFirst(o1, '.');
                         Tuple<String, String> splitted2 = StringUtils.splitOnFirst(o2, '.');
@@ -446,6 +447,7 @@ public class ImportArranger {
     protected void sortImports(List<Tuple3<Integer, String, ImportHandle>> list) {
         Collections.sort(list, new Comparator<Tuple3<Integer, String, ImportHandle>>() {
 
+            @Override
             public int compare(Tuple3<Integer, String, ImportHandle> o1, Tuple3<Integer, String, ImportHandle> o2) {
                 //When it's __future__, it has to appear before the others.
                 List<ImportHandleInfo> info1 = o1.o3.getImportInfo();
@@ -477,6 +479,7 @@ public class ImportArranger {
         List<Tuple<Integer, String>> linesToDelete = new ArrayList<>();
         Collections.sort(list, new Comparator<Tuple3<Integer, String, ImportHandle>>() {
 
+            @Override
             public int compare(Tuple3<Integer, String, ImportHandle> o1, Tuple3<Integer, String, ImportHandle> o2) {
                 return o2.o1.compareTo(o1.o1);
             }

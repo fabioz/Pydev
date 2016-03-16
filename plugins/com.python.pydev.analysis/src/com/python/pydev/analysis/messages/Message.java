@@ -36,6 +36,7 @@ public class Message extends AbstractMessage {
         Assert.isNotNull(generator);
     }
 
+    @Override
     public Object getShortMessage() {
         return message;
     }

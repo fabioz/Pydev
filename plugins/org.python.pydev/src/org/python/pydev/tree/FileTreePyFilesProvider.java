@@ -20,6 +20,7 @@ import org.python.pydev.utils.PyFileListing;
  */
 public class FileTreePyFilesProvider extends FileTreeContentProvider {
 
+    @Override
     public Object[] getChildren(Object element) {
         Object[] kids = ((File) element).listFiles(PyFileListing.getPyFilesFileFilter(true));
         return kids == null ? new Object[0] : kids;

@@ -65,6 +65,7 @@ public class ExtractMethodRequest implements IRefactoringRequest, IExtractMethod
         this.adapterPrefs = adapterPrefs;
     }
 
+    @Override
     public IASTNodeAdapter<? extends SimpleNode> getOffsetNode() {
         IASTNodeAdapter<? extends SimpleNode> offsetNode = scopeAdapter;
         while (offsetNode instanceof FunctionDefAdapter) {
@@ -74,10 +75,12 @@ public class ExtractMethodRequest implements IRefactoringRequest, IExtractMethod
         return offsetNode;
     }
 
+    @Override
     public AdapterPrefs getAdapterPrefs() {
         return adapterPrefs;
     }
 
+    @Override
     public AbstractScopeNode<?> getScopeAdapter() {
         return this.scopeAdapter;
     }

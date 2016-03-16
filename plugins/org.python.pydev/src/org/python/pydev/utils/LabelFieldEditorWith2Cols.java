@@ -48,6 +48,7 @@ public abstract class LabelFieldEditorWith2Cols extends LabelFieldEditor {
             }
 
             labelCol1.addDisposeListener(new DisposeListener() {
+                @Override
                 public void widgetDisposed(DisposeEvent event) {
                     labelCol1 = null;
                 }
@@ -66,10 +67,12 @@ public abstract class LabelFieldEditorWith2Cols extends LabelFieldEditor {
      */
     public abstract String getLabelTextCol1();
 
+    @Override
     public int getNumberOfControls() {
         return 2;
     }
 
+    @Override
     protected void doFillIntoGrid(Composite parent, int numColumns) {
         getLabelControl2(parent);
         getLabelControl(parent);

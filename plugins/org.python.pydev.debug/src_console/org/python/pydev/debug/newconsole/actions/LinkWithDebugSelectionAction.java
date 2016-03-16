@@ -37,12 +37,14 @@ public class LinkWithDebugSelectionAction extends Action {
         setChecked(true);
     }
 
+    @Override
     public ImageDescriptor getImageDescriptor() {
         String imagePath = ScriptConsoleUIConstants.ICONS_PATH + File.separator
                 + ScriptConsoleUIConstants.LINK_WITH_DEBUGGER;
         return ImageDescriptor.createFromImage(PydevPlugin.getImageCache().get(imagePath));
     }
 
+    @Override
     public void run() {
         boolean isChecked = isChecked();
         ScriptConsoleManager.getInstance().linkWithDebugSelection(console, isChecked);

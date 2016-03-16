@@ -32,10 +32,12 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class PySetNextTarget implements ISetNextTarget {
 
+    @Override
     public boolean canSetNextToLine(IWorkbenchPart part, ISelection selection, ISuspendResume target) {
         return true;
     }
 
+    @Override
     public boolean setNextToLine(IWorkbenchPart part, ISelection selection, ISuspendResume target) throws CoreException {
         // System.out.println("Run to line:"+target);
         PyStackFrame stack = null;

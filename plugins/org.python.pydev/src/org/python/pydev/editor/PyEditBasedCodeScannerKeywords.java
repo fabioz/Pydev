@@ -49,6 +49,7 @@ public class PyEditBasedCodeScannerKeywords implements ICodeScannerKeywords {
             }
         }
 
+        @Override
         @SuppressWarnings("unchecked")
         public void onInputChanged(BaseEditor baseEditor, IEditorInput oldInput, IEditorInput input,
                 IProgressMonitor monitor) {
@@ -65,15 +66,19 @@ public class PyEditBasedCodeScannerKeywords implements ICodeScannerKeywords {
             }
         }
 
+        @Override
         public void onSave(BaseEditor baseEditor, IProgressMonitor monitor) {
         }
 
+        @Override
         public void onCreateActions(ListResourceBundle resources, BaseEditor baseEditor, IProgressMonitor monitor) {
         }
 
+        @Override
         public void onDispose(BaseEditor baseEditor, IProgressMonitor monitor) {
         }
 
+        @Override
         public void onSetDocument(IDocument document, BaseEditor baseEditor, IProgressMonitor monitor) {
         }
 
@@ -84,10 +89,12 @@ public class PyEditBasedCodeScannerKeywords implements ICodeScannerKeywords {
         pyEdit.addPyeditListener(new CythonStatusChangeNotifier(this));
     }
 
+    @Override
     public CallbackWithListeners getOnChangeCallbackWithListeners() {
         return callbackWithListeners;
     }
 
+    @Override
     public String[] getKeywords() {
         PyEdit pyEdit = edit.get();
         if (pyEdit == null) {

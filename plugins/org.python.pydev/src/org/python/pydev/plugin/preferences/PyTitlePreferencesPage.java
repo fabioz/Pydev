@@ -66,9 +66,11 @@ public class PyTitlePreferencesPage extends FieldEditorPreferencePage implements
         setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
     }
 
+    @Override
     public void init(IWorkbench workbench) {
     }
 
+    @Override
     protected void createFieldEditors() {
         Composite p = getFieldEditorParent();
 
@@ -117,6 +119,7 @@ public class PyTitlePreferencesPage extends FieldEditorPreferencePage implements
 
     }
 
+    @Override
     public void dispose() {
         super.dispose();
 

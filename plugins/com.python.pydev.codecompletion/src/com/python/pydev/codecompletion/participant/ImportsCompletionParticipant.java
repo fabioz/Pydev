@@ -51,6 +51,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
 
     // Console completions ---------------------------------------------------------------------------------------------
 
+    @Override
     public Collection<ICompletionProposal> computeConsoleCompletions(ActivationTokenAndQual tokenAndQual,
             List<IPythonNature> naturesUsed, IScriptConsoleViewer viewer, int requestOffset) {
         ArrayList<ICompletionProposal> completions = new ArrayList<ICompletionProposal>();
@@ -258,34 +259,40 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
         return importedNames;
     }
 
+    @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Collection getGlobalCompletions(CompletionRequest request, ICompletionState state)
             throws MisconfigurationException {
         return getThem(request, state, AutoImportsPreferencesPage.doAutoImport());
     }
 
+    @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Collection getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope,
             Collection<IToken> interfaceForLocal) {
         return Collections.emptyList();
     }
 
+    @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Collection getStringGlobalCompletions(CompletionRequest request, ICompletionState state)
             throws MisconfigurationException {
         return getThem(request, state, false);
     }
 
+    @Override
     public Collection<Object> getArgsCompletion(ICompletionState state, ILocalScope localScope,
             Collection<IToken> interfaceForLocal) {
         throw new RuntimeException("Deprecated");
     }
 
+    @Override
     public Collection<IToken> getCompletionsForTokenWithUndefinedType(ICompletionState state, ILocalScope localScope,
             Collection<IToken> interfaceForLocal) {
         return Collections.emptyList();
     }
 
+    @Override
     public Collection<IToken> getCompletionsForType(ICompletionState state) {
         return null;
     }

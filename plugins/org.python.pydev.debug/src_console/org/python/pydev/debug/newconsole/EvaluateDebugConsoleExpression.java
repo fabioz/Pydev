@@ -43,6 +43,7 @@ public class EvaluateDebugConsoleExpression implements ICommandResponseListener 
      * This method will get called from AbstractDebugTarget when
      * output arrives for the posted command
      */
+    @Override
     public void commandComplete(AbstractDebuggerCommand cmd) {
         try {
             this.payload = ((EvaluateConsoleExpressionCommand) cmd).getResponse();
@@ -64,6 +65,7 @@ public class EvaluateDebugConsoleExpression implements ICommandResponseListener 
         AbstractDebuggerCommand cmd = new EvaluateConsoleExpressionCommand(target, locator,
                 new ICommandResponseListener() {
 
+                    @Override
                     public void commandComplete(AbstractDebuggerCommand cmd) {
                         frame.forceGetNewVariables();
                         EvaluateDebugConsoleExpression.this.commandComplete(cmd);

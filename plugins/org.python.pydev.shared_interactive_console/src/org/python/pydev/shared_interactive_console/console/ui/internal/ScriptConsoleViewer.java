@@ -133,6 +133,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
 
         }
 
+        @Override
         public void verifyKey(VerifyEvent event) {
             try {
                 if (event.character != '\0') { // Printable character
@@ -262,6 +263,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
              */
             addVerifyListener(new VerifyListener() {
 
+                @Override
                 public void verifyText(VerifyEvent e) {
                     internalCaretSet = -1;
                 }
@@ -272,6 +274,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
              */
             addExtendedModifyListener(new ExtendedModifyListener() {
 
+                @Override
                 public void modifyText(ExtendedModifyEvent event) {
                     if (internalCaretSet != -1) {
                         if (internalCaretSet != getCaretOffset()) {
@@ -304,6 +307,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
             private String selectionText = null;
             private boolean selectionIsEditable;
 
+            @Override
             public void dragStart(DragSourceEvent event) {
                 thisConsoleInitiatedDrag = false;
                 selectionText = null;
@@ -319,6 +323,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
                 }
             }
 
+            @Override
             public void dragSetData(DragSourceEvent event) {
                 if (TextTransfer.getInstance().isSupportedType(event.dataType)) {
                     event.data = selectionText;
@@ -326,6 +331,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
                 }
             }
 
+            @Override
             public void dragFinished(DragSourceEvent event) {
                 try {
                     if (event.detail == DND.DROP_MOVE && selectionIsEditable) {
@@ -379,23 +385,28 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
                 }
             }
 
+            @Override
             public void dragEnter(DropTargetEvent event) {
                 thisConsoleInitiatedDrag = false;
                 adjustEventDetail(event);
             }
 
+            @Override
             public void dragOver(DropTargetEvent event) {
                 event.feedback |= DND.FEEDBACK_SCROLL;
             }
 
+            @Override
             public void dragOperationChanged(DropTargetEvent event) {
                 adjustEventDetail(event);
             }
 
+            @Override
             public void dropAccept(DropTargetEvent event) {
                 adjustEventDetail(event);
             }
 
+            @Override
             public void drop(DropTargetEvent event) {
                 if (event.operations == DND.DROP_NONE) {
                     // nothing to do
@@ -437,6 +448,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
 
             }
 
+            @Override
             public void dragLeave(DropTargetEvent event) {
             }
         }
@@ -608,6 +620,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
     /**
      * @return the style provider that should be used.
      */
+    @Override
     public IConsoleStyleProvider getStyleProvider() {
         return styleProvider;
     }
@@ -615,6 +628,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
     /**
      * @return the number of characters visible on a line
      */
+    @Override
     public int getConsoleWidthInCharacters() {
         return getTextWidget().getSize().x / getWidthInPixels("a");
     }
@@ -622,10 +636,12 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
     /**
      * @return the caret offset (based on the document)
      */
+    @Override
     public int getCaretOffset() {
         return getTextWidget().getCaretOffset();
     }
 
+    @Override
     public Object getInterpreterInfo() {
         return this.console.getInterpreterInfo();
     }
@@ -635,6 +651,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
      *
      * TODO: async should not be allowed (only clearing the shell at the constructor still uses that)
      */
+    @Override
     public void setCaretOffset(final int offset, boolean async) {
         final StyledText textWidget = getTextWidget();
         if (textWidget != null) {
@@ -642,6 +659,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
                 Display display = textWidget.getDisplay();
                 if (display != null) {
                     display.asyncExec(new Runnable() {
+                        @Override
                         public void run() {
                             textWidget.setCaretOffset(offset);
                         }
@@ -747,6 +765,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
         //should do that action and not close the console).
         styledText.addTraverseListener(new TraverseListener() {
 
+            @Override
             public void keyTraversed(TraverseEvent e) {
                 if (e.detail == SWT.TRAVERSE_ESCAPE) {
                     e.doit = false;
@@ -756,9 +775,11 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
 
         getDocument().addDocumentListener(new IDocumentListener() {
 
+            @Override
             public void documentAboutToBeChanged(DocumentEvent event) {
             }
 
+            @Override
             public void documentChanged(DocumentEvent event) {
                 if (inHistoryRequests == 0) {
                     changedAfterLastHistoryRequest = true;
@@ -771,12 +792,14 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
             /**
              * When the initial focus is gained, set the caret position to the last position (just after the prompt)
              */
+            @Override
             public void focusGained(FocusEvent e) {
                 setCaretOffset(getDocument().getLength(), true);
                 //just a 1-time listener
                 styledText.removeFocusListener(this);
             }
 
+            @Override
             public void focusLost(FocusEvent e) {
 
             }
@@ -789,6 +812,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
 
         //verify if it was a content assist
         styledText.addVerifyKeyListener(new VerifyKeyListener() {
+            @Override
             public void verifyKey(VerifyEvent event) {
                 if (KeyBindingHelper.matchesContentAssistKeybinding(event)
                         || KeyBindingHelper.matchesQuickAssistKeybinding(event)) {
@@ -800,6 +824,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
 
         // IPython tab completion
         styledText.addVerifyKeyListener(new VerifyKeyListener() {
+            @Override
             public void verifyKey(VerifyEvent event) {
                 if (!ScriptConsoleViewer.this.tabCompletionEnabled ||
                         inCompletion // if we're already doing a code-completion with Ctrl+Space, we shouldn't do the tab completion.
@@ -818,6 +843,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
 
         //execute the content assist
         styledText.addKeyListener(new KeyListener() {
+            @Override
             public void keyPressed(KeyEvent e) {
                 if (getCaretOffset() >= getCommandLineOffset()) {
                     if (KeyBindingHelper.matchesContentAssistKeybinding(e)) {
@@ -829,6 +855,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
                 }
             }
 
+            @Override
             public void keyReleased(KeyEvent e) {
             }
         });
@@ -847,14 +874,17 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
         super.configure(configuration);
         ICompletionListener completionListener = new ICompletionListener() {
 
+            @Override
             public void assistSessionStarted(ContentAssistEvent event) {
                 inCompletion = true;
             }
 
+            @Override
             public void assistSessionEnded(ContentAssistEvent event) {
                 inCompletion = false;
             }
 
+            @Override
             public void selectionChanged(ICompletionProposal proposal, boolean smartToggle) {
             }
         };
@@ -886,6 +916,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
     /**
      * @return the contents of the current buffer (text edited still not passed to the shell)
      */
+    @Override
     public String getCommandLine() {
         return listener.getCommandLine();
     }
@@ -893,6 +924,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
     /**
      * @return the offset where the current buffer starts (editable area of the document)
      */
+    @Override
     public int getCommandLineOffset() {
         try {
             return listener.getCommandLineOffset();

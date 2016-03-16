@@ -39,6 +39,7 @@ public class CustomRuleBasedPartitionScanner extends AbstractCustomBufferedRuleB
      * (non-Javadoc)
      * @see com.brainwy.liclipse.editor.epl.rules.IDocumentScanner#getDocument()
      */
+    @Override
     public IDocument getDocument() {
         return fDocument;
     }
@@ -76,6 +77,7 @@ public class CustomRuleBasedPartitionScanner extends AbstractCustomBufferedRuleB
      * that match the given content type.
      * </p>
      */
+    @Override
     public void setPartialRange(IDocument document, int offset, int length, String contentType, int partitionOffset) {
         fContentType = contentType;
         fPartitionOffset = partitionOffset;

@@ -120,10 +120,12 @@ public class PyProjectProperties extends PropertyPage {
         button.setText("Force restore internal info");
         button.addSelectionListener(new SelectionListener() {
 
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 doIt(true);
             }
 
+            @Override
             public void widgetDefaultSelected(SelectionEvent e) {
             }
 

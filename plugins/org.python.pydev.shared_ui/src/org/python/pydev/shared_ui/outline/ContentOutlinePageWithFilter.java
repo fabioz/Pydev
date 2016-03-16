@@ -41,6 +41,7 @@ public abstract class ContentOutlinePageWithFilter extends Page implements ICont
     protected PatternFilter patternFilter;
     protected FilteredTree filter;
 
+    @Override
     public void createControl(Composite parent) {
         patternFilter = new PatternFilter();
         filter = PyFilteredTree.create(parent, patternFilter, false);
@@ -48,6 +49,7 @@ public abstract class ContentOutlinePageWithFilter extends Page implements ICont
         treeViewer.addSelectionChangedListener(this);
     }
 
+    @Override
     public void init(IPageSite pageSite) {
         super.init(pageSite);
         pageSite.setSelectionProvider(this);
@@ -55,14 +57,17 @@ public abstract class ContentOutlinePageWithFilter extends Page implements ICont
 
     // Selection ---------------------------------------------------------------
 
+    @Override
     public void addSelectionChangedListener(ISelectionChangedListener listener) {
         selectionChangedListeners.add(listener);
     }
 
+    @Override
     public void removeSelectionChangedListener(ISelectionChangedListener listener) {
         selectionChangedListeners.remove(listener);
     }
 
+    @Override
     public void selectionChanged(SelectionChangedEvent event) {
         fireSelectionChanged(event.getSelection());
     }
@@ -74,6 +79,7 @@ public abstract class ContentOutlinePageWithFilter extends Page implements ICont
         for (int i = 0; i < listeners.length; ++i) {
             final ISelectionChangedListener l = (ISelectionChangedListener) listeners[i];
             SafeRunner.run(new SafeRunnable() {
+                @Override
                 public void run() {
                     l.selectionChanged(event);
                 }
@@ -81,6 +87,7 @@ public abstract class ContentOutlinePageWithFilter extends Page implements ICont
         }
     }
 
+    @Override
     public ISelection getSelection() {
         if (treeViewer == null) {
             return StructuredSelection.EMPTY;
@@ -88,6 +95,7 @@ public abstract class ContentOutlinePageWithFilter extends Page implements ICont
         return treeViewer.getSelection();
     }
 
+    @Override
     public Control getControl() {
         if (filter == null) {
             return null;
@@ -99,10 +107,12 @@ public abstract class ContentOutlinePageWithFilter extends Page implements ICont
         return treeViewer;
     }
 
+    @Override
     public void setFocus() {
         filter.getFilterControl().setFocus();
     }
 
+    @Override
     public void setSelection(ISelection selection) {
         if (treeViewer != null) {
             treeViewer.setSelection(selection);

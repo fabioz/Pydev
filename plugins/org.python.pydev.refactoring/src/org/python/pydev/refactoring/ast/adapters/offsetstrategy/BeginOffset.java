@@ -42,6 +42,7 @@ public class BeginOffset extends AbstractOffsetStrategy {
         super(adapter, doc, adapterPrefs);
     }
 
+    @Override
     protected int getLine() {
         SimpleNode node = adapter.getASTNode();
         if (nodeHelper.isClassDef(node)) {

@@ -115,6 +115,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
         if (root.isDirectory()) {
             FileFilter filter = new FileFilter() {
 
+                @Override
                 public boolean accept(File pathname) {
                     if (pathname.isFile()) {
                         return isValidFileMod(FileUtils.getFileAbsolutePath(pathname));
@@ -277,6 +278,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
      * @return a dot-separated qualified name of the Python module that the file or folder should
      *      represent. E.g.: {@code compiler.ast}.
      */
+    @Override
     public String resolveModule(String absoluteModuleLocation, IProject project) {
         return resolveModule(absoluteModuleLocation, false, getPythonpath(), project);
     }
@@ -585,6 +587,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
      * @param string with paths separated by |
      * @return
      */
+    @Override
     public void setPythonPath(String string) {
         setPythonPath(parsePythonPathFromStr(string, new ArrayList<String>()));
     }
@@ -620,6 +623,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
      * the pythonpath
      * @note returns a list that's not modifiable!
      */
+    @Override
     public List<String> getPythonpath() {
         return pythonpath;
     }
@@ -627,6 +631,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
     /**
      * Collects the Python modules.
      */
+    @Override
     public ModulesFoundStructure getModulesFoundStructure(IProgressMonitor monitor) {
         return getModulesFoundStructure(null, monitor);
     }

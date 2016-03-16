@@ -86,12 +86,14 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
                 "Tab settings for PyDev may be configured at: " + "<a>Tabs</a>", appearanceComposite,
                 new SelectionListener() {
 
+                    @Override
                     public void widgetSelected(SelectionEvent e) {
                         String id = "org.python.pydev.editor.preferences.PyTabPreferencesPage";
                         IWorkbenchPreferenceContainer workbenchPreferenceContainer = ((IWorkbenchPreferenceContainer) getContainer());
                         workbenchPreferenceContainer.openPage(id, null);
                     }
 
+                    @Override
                     public void widgetDefaultSelected(SelectionEvent e) {
                     }
                 });
@@ -107,12 +109,14 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
                 "Other settings:\n\n<a>Text Editors</a>: print margin, line numbers ...", appearanceComposite,
                 new SelectionListener() {
 
+                    @Override
                     public void widgetSelected(SelectionEvent e) {
                         String id = "org.eclipse.ui.preferencePages.GeneralTextEditor";
                         IWorkbenchPreferenceContainer workbenchPreferenceContainer = ((IWorkbenchPreferenceContainer) getContainer());
                         workbenchPreferenceContainer.openPage(id, null);
                     }
 
+                    @Override
                     public void widgetDefaultSelected(SelectionEvent e) {
                     }
                 });
@@ -122,12 +126,14 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
                 "<a>Colors and Fonts</a>: text font, content assist color ...", appearanceComposite,
                 new SelectionListener() {
 
+                    @Override
                     public void widgetSelected(SelectionEvent e) {
                         String id = "org.eclipse.ui.preferencePages.ColorsAndFonts";
                         IWorkbenchPreferenceContainer workbenchPreferenceContainer = ((IWorkbenchPreferenceContainer) getContainer());
                         workbenchPreferenceContainer.openPage(id, null);
                     }
 
+                    @Override
                     public void widgetDefaultSelected(SelectionEvent e) {
                     }
                 });
@@ -136,12 +142,14 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
         colorsAndFontsLinkFieldEditor = new LinkFieldEditor("UNUSED", "<a>Annotations</a>: occurrences, markers ...",
                 appearanceComposite, new SelectionListener() {
 
+                    @Override
                     public void widgetSelected(SelectionEvent e) {
                         String id = "org.eclipse.ui.editors.preferencePages.Annotations";
                         IWorkbenchPreferenceContainer workbenchPreferenceContainer = ((IWorkbenchPreferenceContainer) getContainer());
                         workbenchPreferenceContainer.openPage(id, null);
                     }
 
+                    @Override
                     public void widgetDefaultSelected(SelectionEvent e) {
                     }
                 });
@@ -200,6 +208,7 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
         foregroundColorButton.setLayoutData(gd);
 
         SelectionListener colorDefaultSelectionListener = new SelectionListener() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 boolean systemDefault = fAppearanceColorDefault.getSelection();
                 fAppearanceColorEditor.getButton().setEnabled(!systemDefault);
@@ -211,6 +220,7 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
                 }
             }
 
+            @Override
             public void widgetDefaultSelected(SelectionEvent e) {
             }
         };
@@ -225,19 +235,23 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
         fAppearanceColorDefault.addSelectionListener(colorDefaultSelectionListener);
 
         fAppearanceColorList.addSelectionListener(new SelectionListener() {
+            @Override
             public void widgetDefaultSelected(SelectionEvent e) {
                 // do nothing
             }
 
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 handleAppearanceColorListSelection();
             }
         });
         foregroundColorButton.addSelectionListener(new SelectionListener() {
+            @Override
             public void widgetDefaultSelected(SelectionEvent e) {
                 // do nothing
             }
 
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 int i = fAppearanceColorList.getSelectionIndex();
                 String key = fAppearanceColorListModel[i][1];
@@ -333,9 +347,11 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
     public void setUpdateLabelExampleOnPrefsChanges() {
         updateLabelExampleOnPrefsChanges = new IPropertyChangeListener() {
 
+            @Override
             public void propertyChange(PropertyChangeEvent event) {
                 RunInUiThread.async(new Runnable() {
 
+                    @Override
                     public void run() {
                         updateLabelExample(PyFormatStd.getFormat(null), PydevPrefs.getChainedPrefStore());
                     }

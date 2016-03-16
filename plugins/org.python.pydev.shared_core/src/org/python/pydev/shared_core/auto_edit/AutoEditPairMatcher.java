@@ -32,6 +32,7 @@ public class AutoEditPairMatcher extends DefaultCharacterPairMatcher implements 
         this.contentType = contentType;
     }
 
+    @Override
     public int searchForClosingPeer(int offset, char openingPeer, char closingPeer, IDocument document) {
         try {
             PartitionCodeReader reader = new PartitionCodeReader(contentType);
@@ -59,6 +60,7 @@ public class AutoEditPairMatcher extends DefaultCharacterPairMatcher implements 
         }
     }
 
+    @Override
     public int searchForOpeningPeer(int offset, char openingPeer, char closingPeer, IDocument document) {
         try {
             PartitionCodeReader fReader = new PartitionCodeReader(contentType);
@@ -86,6 +88,7 @@ public class AutoEditPairMatcher extends DefaultCharacterPairMatcher implements 
         }
     }
 
+    @Override
     public int searchForAnyOpeningPeer(int offset, IDocument document) {
         try {
             PartitionCodeReader fReader = new PartitionCodeReader(contentType);

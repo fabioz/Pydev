@@ -41,6 +41,7 @@ public class CompositeChangeProcessor implements IChangeProcessor {
         this.processors = processors;
     }
 
+    @Override
     public Change createChange() throws MisconfigurationException {
         CompositeChange change = new CompositeChange(name);
         for (IChangeProcessor processor : processors) {

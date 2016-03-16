@@ -17,6 +17,7 @@ public class CoverageLaunchConfigurationDelegate extends AbstractLaunchConfigura
     /**
      * @return
      */
+    @Override
     protected String getRunnerConfigRun(ILaunchConfiguration conf, String mode, ILaunch launch) {
         return PythonRunnerConfig.RUN_COVERAGE;
     }

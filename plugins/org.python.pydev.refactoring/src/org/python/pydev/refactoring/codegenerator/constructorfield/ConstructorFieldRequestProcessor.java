@@ -56,6 +56,7 @@ public class ConstructorFieldRequestProcessor implements IRequestProcessor<Const
         this.checked = checked;
     }
 
+    @Override
     public List<ConstructorFieldRequest> getRefactoringRequests() {
         return generateRequests();
     }

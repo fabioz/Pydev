@@ -52,6 +52,7 @@ public class MockupConstructorFieldRequestProcessor implements IRequestProcessor
         this(module, config.getClassSelection(), config.getAttributeSelection(), config.getOffsetStrategy());
     }
 
+    @Override
     public List<ConstructorFieldRequest> getRefactoringRequests() {
         IClassDefAdapter clazz = module.getClasses().get(classSelection);
         List<INodeAdapter> attributes = new ArrayList<INodeAdapter>();
@@ -62,6 +63,7 @@ public class MockupConstructorFieldRequestProcessor implements IRequestProcessor
         ConstructorFieldRequest req = new ConstructorFieldRequest(clazz, attributes, this.offsetStrategy,
                 new AdapterPrefs("\n", new IGrammarVersionProvider() {
 
+                    @Override
                     public int getGrammarVersion() throws MisconfigurationException {
                         return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
                     }

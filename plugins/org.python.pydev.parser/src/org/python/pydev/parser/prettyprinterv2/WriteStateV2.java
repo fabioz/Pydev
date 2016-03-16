@@ -110,6 +110,7 @@ public class WriteStateV2 implements IWriterEraser {
     /**
      * Writes something, but indents if the last thing written was a new line.
      */
+    @Override
     public void write(String o) throws IOException {
         if ((nextMustBeNewLineOrComment || nextMustBeNewLine) && this.getBuffer().length() > 0
                 && lastState != LAST_STATE_NEW_LINE && lastState != LAST_STATE_INDENT) {
@@ -157,15 +158,18 @@ public class WriteStateV2 implements IWriterEraser {
     }
 
     // Erase
+    @Override
     public void erase(String o) {
         writer.erase(o);
     }
 
     // Temp buffer
+    @Override
     public void pushTempBuffer() {
         writer.pushTempBuffer();
     }
 
+    @Override
     public String popTempBuffer() {
         return writer.popTempBuffer();
     }
@@ -201,10 +205,12 @@ public class WriteStateV2 implements IWriterEraser {
         this.nextMustBeNewLine = true;
     }
 
+    @Override
     public boolean endsWithSpace() {
         return this.writer.endsWithSpace();
     }
 
+    @Override
     public FastStringBuffer getBuffer() {
         return writer.getBuffer();
     }

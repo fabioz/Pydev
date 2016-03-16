@@ -34,6 +34,7 @@ public class OfflineAction extends ResourceAction implements IUpdate {
     /*
      * @see IAction#run()
      */
+    @Override
     public void run() {
         if (fTarget == null)
             return;
@@ -44,6 +45,7 @@ public class OfflineAction extends ResourceAction implements IUpdate {
     /*
      * @see IUpdate#update()
      */
+    @Override
     public void update() {
         fTarget = (OfflineActionTarget) edit.getAdapter(OfflineActionTarget.class);
         setEnabled(fTarget != null);

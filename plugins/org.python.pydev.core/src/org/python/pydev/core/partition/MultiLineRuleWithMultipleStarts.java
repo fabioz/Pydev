@@ -18,6 +18,7 @@ public class MultiLineRuleWithMultipleStarts implements IPredicateRule, IChangeT
     protected final char[] fEndSequence;
     protected final char fEscapeCharacter;
 
+    @Override
     public void setToken(IToken token) {
         this.fToken = token;
     }
@@ -34,14 +35,17 @@ public class MultiLineRuleWithMultipleStarts implements IPredicateRule, IChangeT
         this.fEscapeCharacter = escapeCharacter;
     }
 
+    @Override
     public IToken evaluate(ICharacterScanner scanner) {
         return evaluate(scanner, false);
     }
 
+    @Override
     public IToken getSuccessToken() {
         return fToken;
     }
 
+    @Override
     public IToken evaluate(ICharacterScanner scanner, boolean resume) {
         if (resume) {
             return Token.UNDEFINED;

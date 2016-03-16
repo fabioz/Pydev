@@ -92,6 +92,7 @@ public abstract class BaseEditor extends TextEditor implements IBaseEditor {
             field.set(this, new ISelectionChangedListener() {
 
                 private Runnable fRunnable = new Runnable() {
+                    @Override
                     public void run() {
                         ISourceViewer sourceViewer = BaseEditor.this.getSourceViewer();
                         // check whether editor has not been disposed yet
@@ -103,6 +104,7 @@ public abstract class BaseEditor extends TextEditor implements IBaseEditor {
 
                 private Display fDisplay;
 
+                @Override
                 public void selectionChanged(SelectionChangedEvent event)
                 {
                     Display current = Display.getCurrent();
@@ -225,6 +227,7 @@ public abstract class BaseEditor extends TextEditor implements IBaseEditor {
      */
     public Map<String, Object> cache = new HashMap<String, Object>();
 
+    @Override
     public Map<String, Object> getCache() {
         return cache;
     }
@@ -234,6 +237,7 @@ public abstract class BaseEditor extends TextEditor implements IBaseEditor {
     /**
      * @return true if the editor passed as a parameter has the same input as this editor.
      */
+    @Override
     public boolean hasSameInput(IBaseEditor edit) {
         IEditorInput thisInput = this.getEditorInput();
         IEditorInput otherInput = (IEditorInput) edit.getEditorInput();
@@ -291,6 +295,7 @@ public abstract class BaseEditor extends TextEditor implements IBaseEditor {
     /**
      * @return the document that is binded to this editor (may be null)
      */
+    @Override
     public IDocument getDocument() {
         IDocumentProvider documentProvider = getDocumentProvider();
         if (documentProvider != null) {
@@ -390,6 +395,7 @@ public abstract class BaseEditor extends TextEditor implements IBaseEditor {
     protected final List<IModelListener> modelListeners = new ArrayList<IModelListener>();
 
     /** stock listener implementation */
+    @Override
     public void addModelListener(IModelListener listener) {
         Assert.isNotNull(listener);
         if (!modelListeners.contains(listener)) {
@@ -398,6 +404,7 @@ public abstract class BaseEditor extends TextEditor implements IBaseEditor {
     }
 
     /** stock listener implementation */
+    @Override
     public void removeModelListener(IModelListener listener) {
         Assert.isNotNull(listener);
         modelListeners.remove(listener);

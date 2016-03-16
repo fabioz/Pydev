@@ -74,6 +74,7 @@ public class CompositeMessage extends AbstractMessage {
     /**
      * @return the message considering all the internal messages available.
      */
+    @Override
     public String getShortMessage() {
         if (shortMessage == null) {
             FastStringBuffer buffer = new FastStringBuffer(msgs.size() * 40);

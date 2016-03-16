@@ -33,6 +33,7 @@ public class PythonCompletionZipsTest extends CodeCompletionTestsBase {
     /*
      * @see TestCase#setUp()
      */
+    @Override
     public void setUp() throws Exception {
         super.setUp();
         CompiledModule.COMPILED_MODULES_ENABLED = false;
@@ -43,6 +44,7 @@ public class PythonCompletionZipsTest extends CodeCompletionTestsBase {
         codeCompletion = new PyCodeCompletion();
         PyCodeCompletion.onCompletionRecursionException = new ICallback<Object, CompletionRecursionException>() {
 
+            @Override
             public Object call(CompletionRecursionException e) {
                 throw new RuntimeException("Recursion error:" + Log.getExceptionStr(e));
             }
@@ -53,6 +55,7 @@ public class PythonCompletionZipsTest extends CodeCompletionTestsBase {
     /*
      * @see TestCase#tearDown()
      */
+    @Override
     public void tearDown() throws Exception {
         CompiledModule.COMPILED_MODULES_ENABLED = true;
         super.tearDown();

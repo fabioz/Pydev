@@ -21,11 +21,13 @@ public class ReaderCharStreamTest extends TestCase {
         junit.textui.TestRunner.run(ReaderCharStreamTest.class);
     }
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
         FastCharStream.ACCEPT_GET_SUFFIX = true;
     }
 
+    @Override
     protected void tearDown() throws Exception {
         FastCharStream.ACCEPT_GET_SUFFIX = false;
         super.tearDown();

@@ -53,6 +53,7 @@ public class ColorEditor {
 
         fButton.setImage(fImage);
         fButton.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 ColorDialog colorDialog = new ColorDialog(fButton.getShell());
                 colorDialog.setRGB(fColorValue);
@@ -65,6 +66,7 @@ public class ColorEditor {
         });
 
         fButton.addDisposeListener(new DisposeListener() {
+            @Override
             public void widgetDisposed(DisposeEvent event) {
                 if (fImage != null) {
                     fImage.dispose();

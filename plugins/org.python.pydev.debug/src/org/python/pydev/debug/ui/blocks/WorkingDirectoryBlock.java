@@ -70,6 +70,7 @@ public class WorkingDirectoryBlock extends AbstractLaunchConfigurationTab {
      * A listener to update for text changes and widget selection
      */
     private class WidgetListener extends SelectionAdapter implements ModifyListener {
+        @Override
         public void modifyText(ModifyEvent e) {
             if (e.getSource() == fOtherWorkingText) {
 
@@ -114,6 +115,7 @@ public class WorkingDirectoryBlock extends AbstractLaunchConfigurationTab {
         this.mainModuleTab = mainModuleTab;
         this.mainModuleTab.fProjectBlock.addModifyListener(new ModifyListener() {
 
+            @Override
             public void modifyText(ModifyEvent e) {
                 //project modified
                 updateLaunchConfigurationDialog();
@@ -124,6 +126,7 @@ public class WorkingDirectoryBlock extends AbstractLaunchConfigurationTab {
     /* (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#createControl(org.eclipse.swt.widgets.Composite)
      */
+    @Override
     public void createControl(Composite parent) {
         Font font = parent.getFont();
         Group group = createGroup(parent, "Working directory:", 2, 1, GridData.FILL_HORIZONTAL);
@@ -303,6 +306,7 @@ public class WorkingDirectoryBlock extends AbstractLaunchConfigurationTab {
      * 
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#setDefaults(org.eclipse.debug.core.ILaunchConfigurationWorkingCopy)
      */
+    @Override
     public void setDefaults(ILaunchConfigurationWorkingCopy config) {
         config.setAttribute(Constants.ATTR_WORKING_DIRECTORY, (String) null);
     }
@@ -310,6 +314,7 @@ public class WorkingDirectoryBlock extends AbstractLaunchConfigurationTab {
     /* (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#initializeFrom(org.eclipse.debug.core.ILaunchConfiguration)
      */
+    @Override
     public void initializeFrom(ILaunchConfiguration configuration) {
         setLaunchConfiguration(configuration);
         try {
@@ -332,6 +337,7 @@ public class WorkingDirectoryBlock extends AbstractLaunchConfigurationTab {
     /* (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#performApply(org.eclipse.debug.core.ILaunchConfigurationWorkingCopy)
      */
+    @Override
     public void performApply(ILaunchConfigurationWorkingCopy configuration) {
 
         configuration.setAttribute(Constants.ATTR_OTHER_WORKING_DIRECTORY, fOtherWorkingText.getText().trim());
@@ -346,6 +352,7 @@ public class WorkingDirectoryBlock extends AbstractLaunchConfigurationTab {
     /* (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#getName()
      */
+    @Override
     public String getName() {
         return "Working Directory";
     }

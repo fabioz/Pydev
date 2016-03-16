@@ -95,6 +95,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
      * (non-Javadoc)
      * @see com.aptana.interactive_console.console.IScriptConsoleInterpreter#exec(java.lang.String)
      */
+    @Override
     public void exec(String command, final ICallback<Object, InterpreterResponse> onResponseReceived) {
         consoleCommunication.execInterpreter(command, onResponseReceived);
     }
@@ -113,6 +114,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
         this.frame = frame;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public ICompletionProposal[] getCompletions(IScriptConsoleViewer viewer, String commandLine, int position,
             int offset, int whatToShow) throws Exception {
@@ -135,14 +137,17 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
                 ICodeCompletionASTManager astManager = nature.getAstManager();
                 IToken[] importTokens = astManager.getCompletionsForImport(importsTipper, new ICompletionRequest() {
 
+                    @Override
                     public IPythonNature getNature() {
                         return nature;
                     }
 
+                    @Override
                     public File getEditorFile() {
                         return null;
                     }
 
+                    @Override
                     public IModule getModule() throws MisconfigurationException {
                         return null;
                     }
@@ -239,6 +244,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
      * (non-Javadoc)
      * @see com.aptana.interactive_console.console.IScriptConsoleShell#getDescription(org.eclipse.jface.text.IDocument, int)
      */
+    @Override
     public String getDescription(IDocument doc, int position) throws Exception {
         String actTok = PySelection.getTextForCompletionInConsole(doc, position);
         return consoleCommunication.getDescription(actTok);
@@ -248,6 +254,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
      * (non-Javadoc)
      * @see com.aptana.interactive_console.console.IScriptConsoleShell#close()
      */
+    @Override
     public void close() {
         if (consoleCommunication != null) {
             try {
@@ -270,10 +277,12 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
      * (non-Javadoc)
      * @see com.aptana.interactive_console.console.IConsoleRequest#setConsoleCommunication(com.aptana.interactive_console.console.IScriptConsoleCommunication)
      */
+    @Override
     public void setConsoleCommunication(IScriptConsoleCommunication protocol) {
         this.consoleCommunication = protocol;
     }
 
+    @Override
     public IScriptConsoleCommunication getConsoleCommunication() {
         return consoleCommunication;
     }
@@ -293,6 +302,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
         this.interpreterInfo = interpreterInfo;
     }
 
+    @Override
     public IInterpreterInfo getInterpreterInfo() {
         return this.interpreterInfo;
     }
@@ -320,6 +330,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
     /**
      * Enable/Disable linking of the debug console with the suspended frame.
      */
+    @Override
     public void linkWithDebugSelection(boolean isLinkedWithDebug) {
         this.consoleCommunication.linkWithDebugSelection(isLinkedWithDebug);
     }

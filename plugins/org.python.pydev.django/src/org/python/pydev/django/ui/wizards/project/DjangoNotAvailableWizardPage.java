@@ -23,6 +23,7 @@ public class DjangoNotAvailableWizardPage extends WizardPage {
         super(pageName);
     }
 
+    @Override
     public void createControl(Composite parent) {
         Composite composite = new Composite(parent, SWT.NULL);
         composite.setLayout(new GridLayout());
@@ -39,10 +40,12 @@ public class DjangoNotAvailableWizardPage extends WizardPage {
                         + "An introduction on how to get started with Django in Pydev is available at:\n"
                         + "<a>http://pydev.org/manual_adv_django.html</a>.\n", composite, new SelectionListener() {
 
+                    @Override
                     public void widgetSelected(SelectionEvent e) {
                         Program.launch("http://pydev.org/manual_adv_django.html");
                     }
 
+                    @Override
                     public void widgetDefaultSelected(SelectionEvent e) {
                     }
                 });

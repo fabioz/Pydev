@@ -137,6 +137,7 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
         Button button = new Button(p, SWT.NONE);
         button.addSelectionListener(new SelectionListener() {
 
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 final String w = "\n\nTo ignore some warning on a line in a file, you can put the comment: \n" +
                         "#IGNORE:ID, so that the id is the warning that you want to ignore. \n" +
@@ -152,6 +153,7 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
                 MessageDialog.openInformation(p.getShell(), "Help", w);
             }
 
+            @Override
             public void widgetDefaultSelected(SelectionEvent e) {
             }
 
@@ -171,6 +173,7 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
      * 
      * @see org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
      */
+    @Override
     public void init(IWorkbench workbench) {
 
     }

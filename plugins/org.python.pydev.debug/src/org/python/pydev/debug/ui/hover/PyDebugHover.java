@@ -35,6 +35,7 @@ public class PyDebugHover implements IPyHoverParticipant {
     /**
      * Gets the value from the debugger for the currently hovered string.
      */
+    @Override
     public String getHoverText(IRegion hoverRegion, PySourceViewer s, PySelection ps, ITextSelection selection) {
         if (!PyHoverPreferencesPage.getShowValuesWhileDebuggingOnHover()) {
             return null;

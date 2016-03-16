@@ -359,6 +359,7 @@ public final class FastStringBuffer implements CharSequence {
     /**
      * @return the length of this buffer
      */
+    @Override
     public int length() {
         return this.count;
     }
@@ -413,6 +414,7 @@ public final class FastStringBuffer implements CharSequence {
     /**
      * @return the char given at a specific position of the buffer (no bounds check)
      */
+    @Override
     public char charAt(int i) {
         return this.value[i];
     }
@@ -697,17 +699,21 @@ public final class FastStringBuffer implements CharSequence {
             i = fastStringBuffer.length();
         }
 
+        @Override
         public Iterator<Character> iterator() {
             return new Iterator<Character>() {
 
+                @Override
                 public boolean hasNext() {
                     return i > 0;
                 }
 
+                @Override
                 public Character next() {
                     return fastStringBuffer.value[--i];
                 }
 
+                @Override
                 public void remove() {
                     throw new RuntimeException("Not implemented");
                 }
@@ -933,10 +939,12 @@ public final class FastStringBuffer implements CharSequence {
             this.fEnd = end;
         }
 
+        @Override
         public int length() {
             return fEnd - fStart;
         }
 
+        @Override
         public char charAt(int index) {
             if (index < 0 || index >= fEnd - fStart) {
                 throw new IndexOutOfBoundsException();
@@ -944,6 +952,7 @@ public final class FastStringBuffer implements CharSequence {
             return value[fStart + index];
         }
 
+        @Override
         public CharSequence subSequence(int start, int end) {
             return new BufCharSequence(value, fStart + start, fStart + end);
         }
@@ -954,6 +963,7 @@ public final class FastStringBuffer implements CharSequence {
         }
     }
 
+    @Override
     public CharSequence subSequence(int start, int end) {
         return new BufCharSequence(this.value, start, end);
     }

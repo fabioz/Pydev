@@ -67,6 +67,7 @@ public class DjangoProjectWizard extends PythonProjectWizard {
     public DjangoProjectWizard() {
         super();
         settingsPage = createDjangoSettingsPage(new ICallback0<IWizardNewProjectNameAndLocationPage>() {
+            @Override
             public IWizardNewProjectNameAndLocationPage call() {
                 return projectPage;
             }
@@ -107,6 +108,7 @@ public class DjangoProjectWizard extends PythonProjectWizard {
 
         ICallback<Map<String, String>, IProject> getVariableSubstitutionCallback = new ICallback<Map<String, String>, IProject>() {
 
+            @Override
             public Map<String, String> call(IProject projectHandle) {
                 Map<String, String> variableSubstitution = new HashMap<String, String>();
                 String manageLocation;
@@ -183,6 +185,7 @@ public class DjangoProjectWizard extends PythonProjectWizard {
             if (output.o2.indexOf("ImportError: no module named django") != -1) {
                 RunInUiThread.async(new Runnable() {
 
+                    @Override
                     public void run() {
                         MessageDialog.openError(EditorUtils.getShell(), "Unable to create project.",
                                 "Unable to create project because the selected interpreter does not have django.");

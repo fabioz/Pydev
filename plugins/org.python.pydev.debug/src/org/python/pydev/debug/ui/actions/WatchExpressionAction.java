@@ -26,9 +26,11 @@ import org.python.pydev.debug.core.PydevDebugPlugin;
 public class WatchExpressionAction implements IEditorActionDelegate {
     private ITextSelection fSelection;
 
+    @Override
     public void setActiveEditor(IAction action, IEditorPart targetEditor) {
     }
 
+    @Override
     public void run(IAction action) {
         if (fSelection == null) {
             return;
@@ -37,6 +39,7 @@ public class WatchExpressionAction implements IEditorActionDelegate {
         createExpression(text);
     }
 
+    @Override
     public void selectionChanged(IAction action, ISelection selection) {
         fSelection = null;
         if (selection instanceof ITextSelection) {

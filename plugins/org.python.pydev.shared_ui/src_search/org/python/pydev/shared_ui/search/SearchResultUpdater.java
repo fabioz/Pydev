@@ -37,6 +37,7 @@ public class SearchResultUpdater implements IResourceChangeListener, IQueryListe
         ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
     }
 
+    @Override
     public void resourceChanged(IResourceChangeEvent event) {
         IResourceDelta delta = event.getDelta();
         if (delta != null) {
@@ -47,6 +48,7 @@ public class SearchResultUpdater implements IResourceChangeListener, IQueryListe
     private void handleDelta(IResourceDelta d) {
         try {
             d.accept(new IResourceDeltaVisitor() {
+                @Override
                 public boolean visit(IResourceDelta delta) throws CoreException {
                     switch (delta.getKind()) {
                         case IResourceDelta.ADDED:
@@ -70,10 +72,12 @@ public class SearchResultUpdater implements IResourceChangeListener, IQueryListe
         }
     }
 
+    @Override
     public void queryAdded(ISearchQuery query) {
         // don't care
     }
 
+    @Override
     public void queryRemoved(ISearchQuery query) {
         if (fResult.equals(query.getSearchResult())) {
             ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
@@ -81,10 +85,12 @@ public class SearchResultUpdater implements IResourceChangeListener, IQueryListe
         }
     }
 
+    @Override
     public void queryStarting(ISearchQuery query) {
         // don't care
     }
 
+    @Override
     public void queryFinished(ISearchQuery query) {
         // don't care
     }

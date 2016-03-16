@@ -65,6 +65,7 @@ public class PyDocIterator implements Iterator<String> {
         this.offset = offset;
     }
 
+    @Override
     public boolean hasNext() {
         return offset < doc.getLength();
     }
@@ -117,6 +118,7 @@ public class PyDocIterator implements Iterator<String> {
     /**
      * @return the next line in the document
      */
+    @Override
     public String next() {
 
         try {
@@ -209,6 +211,7 @@ public class PyDocIterator implements Iterator<String> {
         }
     }
 
+    @Override
     public void remove() {
         throw new RuntimeException("Not Impl.");
     }

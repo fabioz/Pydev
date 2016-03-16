@@ -72,6 +72,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
     /**
      * @return the last opened node.
      */
+    @Override
     public final SimpleNode getLastOpened() {
         return lastOpened;
     }
@@ -102,6 +103,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
      * in {@link #closeNode(SimpleNode, int)} to have its scope closed (and at that time it may be changed
      * for a new node that represents the scope more accurately.
      */
+    @Override
     public final SimpleNode openNode(final int id) {
         SimpleNode ret;
 
@@ -287,6 +289,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
      * @return a new node representing the node that's having it's context closed.
      * @throws Exception
      */
+    @Override
     public final SimpleNode closeNode(final SimpleNode n, final int arity) throws Exception {
         exprType value;
         suiteType orelseSuite;

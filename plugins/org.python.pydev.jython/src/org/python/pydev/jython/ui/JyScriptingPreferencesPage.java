@@ -33,6 +33,7 @@ public class JyScriptingPreferencesPage extends FieldEditorPreferencePage implem
         setPreferenceStore(JythonPlugin.getDefault().getPreferenceStore());
     }
 
+    @Override
     public void init(IWorkbench workbench) {
     }
 

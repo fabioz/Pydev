@@ -280,6 +280,7 @@ public class AutoConfigMaker {
         public ObtainInterpreterInfoOperation getOperation() {
             if (needInstall()) {
                 SafeRunner.run(new SafeRunnable() {
+                    @Override
                     public void run() throws Exception {
                         provider.runInstall();
                     }
@@ -458,6 +459,7 @@ public class AutoConfigMaker {
                 .getParticipants(ExtensionHelper.PYDEV_INTERPRETER_PROVIDER);
         for (final IInterpreterProviderFactory providerFactory : participants) {
             SafeRunner.run(new SafeRunnable() {
+                @Override
                 public void run() throws Exception {
                     IInterpreterProvider[] ips = providerFactory.getInterpreterProviders(interpreterType);
                     if (ips != null) {

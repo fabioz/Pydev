@@ -85,6 +85,7 @@ public class DjangoProjectProperties extends PropertyPage {
 
                 ModifyListener manageValidator = new ModifyListener() {
 
+                    @Override
                     public void modifyText(ModifyEvent e) {
                         try {
                             String path = textDjangoManage.getText().trim();
@@ -128,6 +129,7 @@ public class DjangoProjectProperties extends PropertyPage {
                 labelErrorSettings.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
                 ModifyListener settingsValidator = new ModifyListener() {
 
+                    @Override
                     public void modifyText(ModifyEvent e) {
                         try {
                             String moduleName = textDjangoSettings.getText().trim();

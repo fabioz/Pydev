@@ -47,6 +47,7 @@ public class PyCodeScannerTest extends TestCase {
     /*
      * @see TestCase#setUp()
      */
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
         detector = new PyCodeScanner.NumberDetector();
@@ -55,6 +56,7 @@ public class PyCodeScannerTest extends TestCase {
     /*
      * @see TestCase#tearDown()
      */
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }

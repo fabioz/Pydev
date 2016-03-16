@@ -11,6 +11,7 @@ package com.python.pydev.analysis.ctrl_1;
 
 public class AnalysisMarkersParticipants extends AbstractAnalysisMarkersParticipants {
 
+    @Override
     protected void fillParticipants() {
         participants.add(new IgnoreErrorParticipant());
         participants.add(new UndefinedVariableFixParticipant());

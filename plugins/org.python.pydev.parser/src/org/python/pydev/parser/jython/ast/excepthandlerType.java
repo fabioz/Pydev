@@ -15,6 +15,7 @@ public final class excepthandlerType extends SimpleNode {
         this.body = body;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -24,6 +25,7 @@ public final class excepthandlerType extends SimpleNode {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -47,10 +49,12 @@ public final class excepthandlerType extends SimpleNode {
         return true;
     }
 
+    @Override
     public excepthandlerType createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public excepthandlerType createCopy(boolean copyComments) {
         stmtType[] new0;
         if (this.body != null) {
@@ -84,6 +88,7 @@ public final class excepthandlerType extends SimpleNode {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("excepthandler[");
         sb.append("type=");
@@ -98,11 +103,13 @@ public final class excepthandlerType extends SimpleNode {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         traverse(visitor);
         return null;
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (type != null) {
             type.accept(visitor);

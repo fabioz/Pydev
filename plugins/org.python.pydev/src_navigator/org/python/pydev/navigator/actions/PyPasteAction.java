@@ -36,6 +36,7 @@ public class PyPasteAction extends PasteAction {
      * 
      * @see org.eclipse.jface.action.Action#isEnabled()
      */
+    @Override
     public boolean isEnabled() {
         fillSelection();
         boolean enabled = selected != null && selected.size() > 0;
@@ -83,6 +84,7 @@ public class PyPasteAction extends PasteAction {
     /*
      * (non-Javadoc) Method declared on IAction.
      */
+    @Override
     public void run() {
         if (!fillSelection()) { //will also update the list of resources (main change from the DeleteResourceAction)
             return;

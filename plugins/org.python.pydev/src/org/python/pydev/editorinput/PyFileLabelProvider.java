@@ -24,10 +24,12 @@ public class PyFileLabelProvider implements ILabelProvider {
         provider = new WorkbenchLabelProvider();
     }
 
+    @Override
     public Image getImage(Object element) {
         return provider.getImage(element);
     }
 
+    @Override
     public String getText(Object element) {
         if (element instanceof IFile) {
             IFile f = (IFile) element;
@@ -41,18 +43,22 @@ public class PyFileLabelProvider implements ILabelProvider {
         return provider.getText(element);
     }
 
+    @Override
     public void addListener(ILabelProviderListener listener) {
         provider.addListener(listener);
     }
 
+    @Override
     public void dispose() {
         provider.dispose();
     }
 
+    @Override
     public boolean isLabelProperty(Object element, String property) {
         return provider.isLabelProperty(element, property);
     }
 
+    @Override
     public void removeListener(ILabelProviderListener listener) {
         provider.removeListener(listener);
     }

@@ -21,6 +21,7 @@ import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
  */
 public final class ProposalsComparator implements Comparator<ICompletionProposal> {
 
+    @Override
     public int compare(ICompletionProposal o1, ICompletionProposal o2) {
 
         if (o1 instanceof IPyCompletionProposal && o2 instanceof IPyCompletionProposal) {

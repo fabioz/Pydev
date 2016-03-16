@@ -48,6 +48,7 @@ public class TddCodeGenerationQuickFixParticipantTest extends CodeCompletionTest
     /*
      * @see TestCase#setUp()
      */
+    @Override
     public void setUp() throws Exception {
         super.setUp();
         AbstractPyRefactoring.setPyRefactoring(new Refactorer());
@@ -62,12 +63,14 @@ public class TddCodeGenerationQuickFixParticipantTest extends CodeCompletionTest
         codeCompletion = new PyCodeCompletion();
         TddCodeGenerationQuickFixParticipant.onGetTddPropsError = new ICallback<Boolean, Exception>() {
 
+            @Override
             public Boolean call(Exception e) {
                 throw new RuntimeException("Error:" + Log.getExceptionStr(e));
             }
         };
         PyCodeCompletion.onCompletionRecursionException = new ICallback<Object, CompletionRecursionException>() {
 
+            @Override
             public Object call(CompletionRecursionException e) {
                 throw new RuntimeException("Recursion error:" + Log.getExceptionStr(e));
             }
@@ -78,6 +81,7 @@ public class TddCodeGenerationQuickFixParticipantTest extends CodeCompletionTest
     /*
      * @see TestCase#tearDown()
      */
+    @Override
     public void tearDown() throws Exception {
         CompiledModule.COMPILED_MODULES_ENABLED = true;
         super.tearDown();

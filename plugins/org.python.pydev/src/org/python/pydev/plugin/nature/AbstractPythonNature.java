@@ -27,10 +27,12 @@ public abstract class AbstractPythonNature implements IPythonNature {
      * @return whether the passed resource is in the pythonpath or not (it must be in a source folder for that).
      * @throws MisconfigurationException
      */
+    @Override
     public boolean isResourceInPythonpath(IResource resource) throws MisconfigurationException {
         return resolveModule(resource) != null;
     }
 
+    @Override
     public boolean isResourceInPythonpath(String absPath) throws MisconfigurationException {
         return resolveModule(absPath) != null;
     }
@@ -40,6 +42,7 @@ public abstract class AbstractPythonNature implements IPythonNature {
      * @return the name of the module in the environment
      * @throws MisconfigurationException
      */
+    @Override
     public String resolveModule(IResource resource) throws MisconfigurationException {
         String resourceOSString = PydevPlugin.getIResourceOSString(resource);
         if (resourceOSString == null) {
@@ -48,6 +51,7 @@ public abstract class AbstractPythonNature implements IPythonNature {
         return resolveModule(resourceOSString);
     }
 
+    @Override
     public String resolveModule(File file) throws MisconfigurationException {
         return resolveModule(FileUtils.getFileAbsolutePath(file));
     }
@@ -61,6 +65,7 @@ public abstract class AbstractPythonNature implements IPythonNature {
     /**
      * Start a request for an ast manager (start caching things)
      */
+    @Override
     public boolean startRequests() {
         ICodeCompletionASTManager astManager = this.getAstManager();
         if (astManager == null) {
@@ -79,6 +84,7 @@ public abstract class AbstractPythonNature implements IPythonNature {
     /**
      * End a request for an ast manager (end caching things)
      */
+    @Override
     public void endRequests() {
         synchronized (modulesManagerStackLock) {
             try {

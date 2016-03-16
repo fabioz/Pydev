@@ -106,6 +106,7 @@ public class LinkFieldEditor extends FieldEditor {
             }
 
             link.addDisposeListener(new DisposeListener() {
+                @Override
                 public void widgetDisposed(DisposeEvent event) {
                     link = null;
                 }

@@ -25,6 +25,7 @@ import org.python.pydev.shared_core.string.StringUtils;
 
 public class JythonInterpreterProviderFactory extends AbstractInterpreterProviderFactory {
 
+    @Override
     public IInterpreterProvider[] getInterpreterProviders(InterpreterType type) {
         if (type != IInterpreterProviderFactory.InterpreterType.JYTHON) {
             return null;

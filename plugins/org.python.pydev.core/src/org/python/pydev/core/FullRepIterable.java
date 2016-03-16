@@ -38,10 +38,12 @@ public class FullRepIterable implements Iterable<String> {
             this.fullRep = fullRep;
         }
 
+        @Override
         public boolean hasNext() {
             return fullRep.length() > 0;
         }
 
+        @Override
         public String next() {
             if (fullRep.length() == 0) {
                 throw new RuntimeException("no more items");
@@ -56,6 +58,7 @@ public class FullRepIterable implements Iterable<String> {
             return ret;
         }
 
+        @Override
         public void remove() {
             throw new RuntimeException("Not supported");
         }
@@ -72,11 +75,13 @@ public class FullRepIterable implements Iterable<String> {
             lastStep = false;
         }
 
+        @Override
         public boolean hasNext() {
             boolean ret = !lastStep || fullRep.indexOf('.', i) != -1;
             return ret;
         }
 
+        @Override
         public String next() {
             int j = fullRep.indexOf('.', i);
             if (j == -1) {
@@ -87,6 +92,7 @@ public class FullRepIterable implements Iterable<String> {
             return fullRep.substring(0, j);
         }
 
+        @Override
         public void remove() {
             throw new RuntimeException("not supported");
         }
@@ -114,6 +120,7 @@ public class FullRepIterable implements Iterable<String> {
         this.reverse = reverse;
     }
 
+    @Override
     public Iterator<String> iterator() {
         if (!reverse) {
             return new FullRepIterator(this.fullRep);

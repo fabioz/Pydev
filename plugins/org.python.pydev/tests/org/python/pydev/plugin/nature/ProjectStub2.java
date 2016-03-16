@@ -25,11 +25,13 @@ public class ProjectStub2 extends AbstractIProjectStub implements IProject {
         this.name = name;
     }
 
+    @Override
     public IFile getFile(String name) {
         fileStub = new FileStub2(name);
         return fileStub;
     }
 
+    @Override
     public boolean hasNature(String natureId) throws CoreException {
         if (PythonNature.PYTHON_NATURE_ID.equals(natureId)) {
             return true;
@@ -37,14 +39,17 @@ public class ProjectStub2 extends AbstractIProjectStub implements IProject {
         throw new RuntimeException("not expected");
     }
 
+    @Override
     public boolean isOpen() {
         return true;
     }
 
+    @Override
     public String getName() {
         return this.name;
     }
 
+    @Override
     public String getPersistentProperty(QualifiedName key) throws CoreException {
         if (key.getLocalName().equals("PYTHON_PROJECT_VERSION")) {
             // TODO the comment below says "always the latests", but it isn't!
@@ -60,6 +65,7 @@ public class ProjectStub2 extends AbstractIProjectStub implements IProject {
         throw new RuntimeException(key.getLocalName());
     }
 
+    @Override
     public void setPersistentProperty(QualifiedName key, String value) throws CoreException {
         if (value == null) {
             return;

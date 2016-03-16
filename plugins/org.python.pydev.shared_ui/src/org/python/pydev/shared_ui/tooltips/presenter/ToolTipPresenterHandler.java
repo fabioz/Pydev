@@ -86,6 +86,7 @@ public class ToolTipPresenterHandler {
          * Get out of the way if we attempt to activate the control underneath the tooltip
          */
         control.addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseDown(MouseEvent e) {
                 disposeOfCurrentTipShell();
             }
@@ -95,10 +96,12 @@ public class ToolTipPresenterHandler {
          * Trap hover events to pop-up tooltip
          */
         control.addMouseTrackListener(new MouseTrackAdapter() {
+            @Override
             public void mouseExit(MouseEvent e) {
                 disposeOfCurrentTipShell();
             }
 
+            @Override
             public void mouseHover(MouseEvent event) {
                 Point pt = new Point(event.x, event.y);
                 Widget widget = event.widget;
@@ -150,10 +153,12 @@ public class ToolTipPresenterHandler {
                 final Point pos = new Point(pt.x + 10, pt.y);
                 ITooltipInformationProvider provider = new ITooltipInformationProvider() {
 
+                    @Override
                     public Object getInformation(Control fControl) {
                         return text;
                     }
 
+                    @Override
                     public Point getPosition(Control fControl) {
                         return pos;
                     }

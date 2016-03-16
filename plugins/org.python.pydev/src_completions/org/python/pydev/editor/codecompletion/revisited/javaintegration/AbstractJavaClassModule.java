@@ -60,6 +60,7 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
         replacementMap.put("[I", "int");
     }
 
+    @Override
     public boolean hasFutureImportAbsoluteImportDeclared() {
         return false;
     }
@@ -90,6 +91,7 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
         } catch (Throwable e) {
             Display.getDefault().syncExec(new Runnable() {
 
+                @Override
                 public void run() {
                     try {
                         JavaPlugin.getImageDescriptorRegistry();

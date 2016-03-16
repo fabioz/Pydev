@@ -212,6 +212,7 @@ public class PyFileListing {
 
             private final String[] dottedValidSourceFiles = FileTypesPreferencesPage.getDottedValidSourceFiles();
 
+            @Override
             public boolean accept(File pathname) {
                 if (includeDirs) {
                     if (pathname.isDirectory()) {
@@ -255,6 +256,7 @@ public class PyFileListing {
         try {
             member.accept(new IResourceVisitor() {
 
+                @Override
                 public boolean visit(IResource resource) {
                     if (resource instanceof IFile) {
                         ret.add((IFile) resource);

@@ -15,6 +15,7 @@ public final class Slice extends sliceType {
         this.step = step;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -24,6 +25,7 @@ public final class Slice extends sliceType {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -50,10 +52,12 @@ public final class Slice extends sliceType {
         return true;
     }
 
+    @Override
     public Slice createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public Slice createCopy(boolean copyComments) {
         Slice temp = new Slice(lower != null ? (exprType) lower.createCopy(copyComments) : null,
                 upper != null ? (exprType) upper.createCopy(copyComments) : null,
@@ -79,6 +83,7 @@ public final class Slice extends sliceType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("Slice[");
         sb.append("lower=");
@@ -93,10 +98,12 @@ public final class Slice extends sliceType {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitSlice(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (lower != null) {
             lower.accept(visitor);

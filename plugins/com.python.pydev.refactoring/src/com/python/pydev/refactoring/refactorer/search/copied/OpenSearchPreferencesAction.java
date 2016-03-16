@@ -26,6 +26,7 @@ public class OpenSearchPreferencesAction extends Action {
     /* (non-Javadoc)
      * Method declared on Action.
      */
+    @Override
     public void run() {
         Shell shell = SearchPlugin.getActiveWorkbenchShell();
         PreferencesUtil.createPreferenceDialogOn(shell, SearchPreferencePage.PAGE_ID, null, null).open();

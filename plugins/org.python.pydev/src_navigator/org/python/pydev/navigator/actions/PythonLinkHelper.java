@@ -57,6 +57,7 @@ public class PythonLinkHelper implements ILinkHelper {
      * 
      * @see org.eclipse.ui.navigator.ILinkHelper#findSelection(org.eclipse.ui.IEditorInput)
      */
+    @Override
     public IStructuredSelection findSelection(IEditorInput anInput) {
         if (anInput instanceof IFileEditorInput) {
             return new StructuredSelection(((IFileEditorInput) anInput).getFile());
@@ -78,6 +79,7 @@ public class PythonLinkHelper implements ILinkHelper {
      * 
      * @see org.eclipse.ui.navigator.ILinkHelper#activateEditor(org.eclipse.ui.IWorkbenchPage, org.eclipse.jface.viewers.IStructuredSelection)
      */
+    @Override
     public void activateEditor(IWorkbenchPage aPage, IStructuredSelection aSelection) {
         if (aSelection == null || aSelection.isEmpty()) {
             return;

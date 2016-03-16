@@ -21,6 +21,7 @@ public class CallbackWithListeners<X> implements ICallbackWithListeners<X> {
         this.listeners = new OrderedSet<ICallbackListener<X>>(initialCapacity);
     }
 
+    @Override
     public Object call(X obj) {
         Object result = null;
         for (ICallbackListener<X> listener : this.listeners) {
@@ -37,10 +38,12 @@ public class CallbackWithListeners<X> implements ICallbackWithListeners<X> {
         return result;
     }
 
+    @Override
     public void registerListener(ICallbackListener<X> listener) {
         this.listeners.add(listener);
     }
 
+    @Override
     public void unregisterListener(ICallbackListener<X> listener) {
         this.listeners.remove(listener);
     }

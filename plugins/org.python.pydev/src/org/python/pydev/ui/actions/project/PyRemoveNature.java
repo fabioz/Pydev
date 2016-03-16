@@ -29,6 +29,7 @@ public class PyRemoveNature implements IObjectActionDelegate {
      */
     protected IProject selectedProject;
 
+    @Override
     public void setActivePart(IAction action, IWorkbenchPart targetPart) {
         // empty
     }
@@ -36,6 +37,7 @@ public class PyRemoveNature implements IObjectActionDelegate {
     /**
      * Actually remove the python nature from the project.
      */
+    @Override
     public void run(IAction action) {
         if (selectedProject == null) {
             return;
@@ -60,6 +62,7 @@ public class PyRemoveNature implements IObjectActionDelegate {
     /**
      * A project was just selected
      */
+    @Override
     public void selectionChanged(IAction action, ISelection selection) {
         selectedProject = null;
 

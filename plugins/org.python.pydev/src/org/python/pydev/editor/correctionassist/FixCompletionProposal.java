@@ -95,6 +95,7 @@ public class FixCompletionProposal implements ICompletionProposal {
     /*
      * @see ICompletionProposal#apply(IDocument)
      */
+    @Override
     public void apply(IDocument document) {
         try {
             document.replace(fReplacementOffset, fReplacementLength, fReplacementString);
@@ -110,6 +111,7 @@ public class FixCompletionProposal implements ICompletionProposal {
     /*
      * @see ICompletionProposal#getSelection(IDocument)
      */
+    @Override
     public Point getSelection(IDocument document) {
         if (lineToRemove >= 0 && lineToRemove <= document.getNumberOfLines()) {
             try {
@@ -127,6 +129,7 @@ public class FixCompletionProposal implements ICompletionProposal {
     /*
      * @see ICompletionProposal#getContextInformation()
      */
+    @Override
     public IContextInformation getContextInformation() {
         return fContextInformation;
     }
@@ -134,6 +137,7 @@ public class FixCompletionProposal implements ICompletionProposal {
     /*
      * @see ICompletionProposal#getImage()
      */
+    @Override
     public Image getImage() {
         return fImage;
     }
@@ -141,6 +145,7 @@ public class FixCompletionProposal implements ICompletionProposal {
     /*
      * @see ICompletionProposal#getDisplayString()
      */
+    @Override
     public String getDisplayString() {
         if (fDisplayString != null)
             return fDisplayString;
@@ -150,6 +155,7 @@ public class FixCompletionProposal implements ICompletionProposal {
     /*
      * @see ICompletionProposal#getAdditionalProposalInfo()
      */
+    @Override
     public String getAdditionalProposalInfo() {
         return fAdditionalProposalInfo;
     }

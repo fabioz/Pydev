@@ -25,6 +25,7 @@ public class ThreadKillCommand extends AbstractDebuggerCommand {
         this.thread_id = thread_id;
     }
 
+    @Override
     public String getOutgoing() {
         return makeCommand(CMD_THREAD_KILL, sequence, thread_id);
     }

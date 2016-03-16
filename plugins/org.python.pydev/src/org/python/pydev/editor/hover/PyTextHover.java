@@ -114,6 +114,7 @@ public class PyTextHover implements ITextHover, ITextHoverExtension {
         this.pythonCommentOrMultiline = pythonCommentOrMultiline;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public String getHoverInfo(ITextViewer textViewer, IRegion hoverRegion) {
         FastStringBuffer buf = new FastStringBuffer();
@@ -329,6 +330,7 @@ public class PyTextHover implements ITextHover, ITextHoverExtension {
     /*
      * @see org.eclipse.jface.text.ITextHover#getHoverRegion(org.eclipse.jface.text.ITextViewer, int)
      */
+    @Override
     public IRegion getHoverRegion(ITextViewer textViewer, int offset) {
         //we have to set it here (otherwise we don't have thread access to the UI)
         this.textSelection = (ITextSelection) textViewer.getSelectionProvider().getSelection();
@@ -338,8 +340,10 @@ public class PyTextHover implements ITextHover, ITextHoverExtension {
     /*
      * @see org.eclipse.jface.text.ITextHoverExtension#getHoverControlCreator()
      */
+    @Override
     public IInformationControlCreator getHoverControlCreator() {
         return new IInformationControlCreator() {
+            @Override
             public IInformationControl createInformationControl(Shell parent) {
                 String tooltipAffordanceString = null;
                 try {

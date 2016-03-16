@@ -14,6 +14,7 @@ import org.python.pydev.shared_core.structure.Tuple;
 
 public class PySelectWord extends PyAction {
 
+    @Override
     public void run(IAction action) {
         PyEdit pyEdit = getPyEdit();
         PySelection ps = new PySelection(pyEdit);

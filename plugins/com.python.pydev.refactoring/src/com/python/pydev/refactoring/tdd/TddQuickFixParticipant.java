@@ -73,6 +73,7 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
         }
     }
 
+    @Override
     public void addProps(MarkerAnnotationAndPosition markerAnnotation, IAnalysisPreferences analysisPreferences,
             String line, PySelection ps, int offset, IPythonNature nature, PyEdit edit, List<ICompletionProposal> props)
                     throws BadLocationException, CoreException {

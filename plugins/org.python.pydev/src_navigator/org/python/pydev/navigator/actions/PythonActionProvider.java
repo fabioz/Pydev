@@ -73,6 +73,7 @@ public class PythonActionProvider extends CommonActionProvider {
     /* (non-Javadoc)
      * @see org.eclipse.ui.actions.ActionGroup#fillActionBars(org.eclipse.ui.IActionBars)
      */
+    @Override
     public void fillActionBars(IActionBars actionBars) {
         if (openResourceAction.isEnabled()) {
             actionBars.setGlobalActionHandler(ICommonActionConstants.OPEN, openResourceAction);
@@ -94,6 +95,7 @@ public class PythonActionProvider extends CommonActionProvider {
     /* (non-Javadoc)
      * @see org.eclipse.ui.actions.ActionGroup#fillContextMenu(org.eclipse.jface.action.IMenuManager)
      */
+    @Override
     public void fillContextMenu(IMenuManager menu) {
         if (openResourceAction.isEnabledForSelectionWithoutContainers()) {
             menu.appendToGroup(ICommonMenuConstants.GROUP_OPEN, openResourceAction);

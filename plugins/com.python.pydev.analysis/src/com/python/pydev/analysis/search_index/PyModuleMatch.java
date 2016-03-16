@@ -39,6 +39,7 @@ public class PyModuleMatch extends Match implements ICustomMatch {
         super.setLength(length);
     }
 
+    @Override
     public int getOriginalOffset() {
         if (fOriginalLocation != null) {
             return fOriginalLocation.getOffset();
@@ -46,6 +47,7 @@ public class PyModuleMatch extends Match implements ICustomMatch {
         return getOffset();
     }
 
+    @Override
     public int getOriginalLength() {
         if (fOriginalLocation != null) {
             return fOriginalLocation.getLength();
@@ -53,10 +55,12 @@ public class PyModuleMatch extends Match implements ICustomMatch {
         return getLength();
     }
 
+    @Override
     public PyModuleLineElement getLineElement() {
         return fLineElement;
     }
 
+    @Override
     public IFile getFile() {
         return (IFile) getElement();
     }

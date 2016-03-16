@@ -701,6 +701,7 @@ public class PythonRunnerConfig {
             if (actualRun) {
                 RunInUiThread.async(new Runnable() {
 
+                    @Override
                     public void run() {
                         PyDialogHelpers
                                 .openWarning(
@@ -859,6 +860,7 @@ public class PythonRunnerConfig {
                         case PyUnitPrefsPage2.TEST_RUNNER_NOSE:
                             RunInUiThread.async(new Runnable() {
 
+                                @Override
                                 public void run() {
                                     PyDialogHelpers
                                             .openWarningWithIgnoreToggle(
@@ -880,6 +882,7 @@ public class PythonRunnerConfig {
                         case PyUnitPrefsPage2.TEST_RUNNER_PY_TEST:
                             RunInUiThread.async(new Runnable() {
 
+                                @Override
                                 public void run() {
                                     PyDialogHelpers
                                             .openCritical(

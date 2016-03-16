@@ -35,6 +35,7 @@ public class InteractiveConsoleUMDPrefs extends FieldEditorPreferencePage implem
         super(FLAT);
     }
 
+    @Override
     public void init(IWorkbench workbench) {
         setDescription("PyDev User Module Deleter (UMD) preferences.\n\n" +
                 "UMD forces Python to reload modules which were " +
@@ -73,6 +74,7 @@ public class InteractiveConsoleUMDPrefs extends FieldEditorPreferencePage implem
                 InputDialog d = new InputDialog(getShell(), "New Excluded Module",
                         "Add the module you want to exclude.", "",
                         new IInputValidator() {
+                            @Override
                             public String isValid(String newText) {
                                 if (newText.indexOf(',') != -1) {
                                     return "The input cannot have a comma";

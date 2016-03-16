@@ -33,6 +33,7 @@ public class RewriterTestCase extends AbstractRewriterTestCase {
         super(name, ignoreEmptyLines);
     }
 
+    @Override
     public void runTest() throws Throwable {
         super.runRewriter();
         String expected = getExpected().replace("\r\n", "\n").replace("\r", "\n");

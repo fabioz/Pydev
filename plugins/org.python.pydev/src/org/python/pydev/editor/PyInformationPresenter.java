@@ -218,12 +218,14 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
      * @see IHoverInformationPresenterExtension#updatePresentation(Drawable drawable, String, TextPresentation, int, int)
      * @since 3.2
      */
+    @Override
     public String updatePresentation(Drawable drawable, String hoverInfo, TextPresentation presentation, int maxWidth,
             int maxHeight) {
         if (drawable instanceof StyledText) {
             final StyledText styledText = (StyledText) drawable;
             styledText.addMouseListener(new MouseAdapter() {
 
+                @Override
                 public void mouseDown(MouseEvent e) {
                     int offset;
                     try {

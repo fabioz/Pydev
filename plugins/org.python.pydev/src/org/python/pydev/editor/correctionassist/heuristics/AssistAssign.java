@@ -46,6 +46,7 @@ public class AssistAssign implements IAssistProps {
     public AssistAssign() {
         this(new ICodingStd() {
 
+            @Override
             public boolean localsAndAttrsCamelcase() {
                 return PyCodeStylePreferencesPage.useLocalsAndAttrsCamelCase();
             }
@@ -67,6 +68,7 @@ public class AssistAssign implements IAssistProps {
     /**
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps
      */
+    @Override
     public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature,
             PyEdit edit, int offset) throws BadLocationException {
         PySourceViewer viewer = null;
@@ -159,6 +161,7 @@ public class AssistAssign implements IAssistProps {
     /**
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#isValid
      */
+    @Override
     public boolean isValid(PySelection ps, String sel, PyEdit edit, int offset) {
         return isValid(ps.getTextSelection().getLength(), sel, offset);
     }

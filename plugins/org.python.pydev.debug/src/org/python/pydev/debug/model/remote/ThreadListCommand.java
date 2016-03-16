@@ -49,10 +49,12 @@ public class ThreadListCommand extends AbstractDebuggerCommand {
         return threads;
     }
 
+    @Override
     public String getOutgoing() {
         return makeCommand(CMD_LIST_THREADS, sequence, "");
     }
 
+    @Override
     public boolean needResponse() {
         return true;
     }
@@ -60,6 +62,7 @@ public class ThreadListCommand extends AbstractDebuggerCommand {
     /**
      * The response is a list of threads
      */
+    @Override
     public void processOKResponse(int cmdCode, String payload) {
         if (cmdCode != 102) {
             PydevDebugPlugin.log(IStatus.ERROR, "Unexpected response to LIST THREADS" + payload, null);
@@ -74,6 +77,7 @@ public class ThreadListCommand extends AbstractDebuggerCommand {
         done = true;
     }
 
+    @Override
     public void processErrorResponse(int cmdCode, String payload) {
         PydevDebugPlugin.log(IStatus.ERROR, "LIST THREADS got an error " + payload, null);
     }

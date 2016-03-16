@@ -30,6 +30,7 @@ final class PyUnitSortListener implements Listener {
         this.view = view;
     }
 
+    @Override
     public void handleEvent(Event e) {
         Tree tree = view.getTree();
         TreeItem[] items = tree.getItems();
@@ -39,6 +40,7 @@ final class PyUnitSortListener implements Listener {
         if (column == view.colIndex) {
             col = -1;
             comparator = new Comparator<TreeItem>() {
+                @Override
                 public int compare(TreeItem o1, TreeItem o2) {
                     String txt0 = o1.getText(PyUnitView.COL_INDEX);
                     String txt1 = o2.getText(PyUnitView.COL_INDEX);
@@ -70,6 +72,7 @@ final class PyUnitSortListener implements Listener {
         } else if (column == view.colTime) {
             col = -1;
             comparator = new Comparator<TreeItem>() {
+                @Override
                 public int compare(TreeItem o1, TreeItem o2) {
                     String txt0 = o1.getText(PyUnitView.COL_TIME);
                     String txt1 = o2.getText(PyUnitView.COL_TIME);
@@ -95,6 +98,7 @@ final class PyUnitSortListener implements Listener {
 
         if (comparator == null) {
             comparator = new Comparator<TreeItem>() {
+                @Override
                 public int compare(TreeItem o1, TreeItem o2) {
                     return o1.getText(col).compareTo(o2.getText(col));
                 }
@@ -110,6 +114,7 @@ final class PyUnitSortListener implements Listener {
                 final Comparator<TreeItem> oldComparator = comparator;
                 comparator = new Comparator<TreeItem>() {
 
+                    @Override
                     public int compare(TreeItem o1, TreeItem o2) {
                         return -oldComparator.compare(o1, o2);
                     }

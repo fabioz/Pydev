@@ -24,6 +24,7 @@ public class PyShiftLeft extends PyAction {
      * 
      * Note that setting the rewrite session and undo/redo must be done from the caller.
      */
+    @Override
     public void run(IAction action) {
         try {
             if (!canModifyEditor()) {

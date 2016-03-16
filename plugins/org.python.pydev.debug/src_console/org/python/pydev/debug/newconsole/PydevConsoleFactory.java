@@ -57,6 +57,7 @@ public class PydevConsoleFactory implements IConsoleFactory {
     /**
      * @see IConsoleFactory#openConsole()
      */
+    @Override
     public void openConsole() {
         createConsole(null);
     }
@@ -344,6 +345,7 @@ public class PydevConsoleFactory implements IConsoleFactory {
         InteractiveConsolePlugin.getDefault().addConsoleLaunch(launch);
 
         consoleInterpreter.addCloseOperation(new Runnable() {
+            @Override
             public void run() {
                 InteractiveConsolePlugin.getDefault().removeConsoleLaunch(launch);
             }

@@ -36,10 +36,12 @@ public class PydevConsoleQuickAssistProcessor implements IQuickAssistProcessor {
     public PydevConsoleQuickAssistProcessor(PyCorrectionAssistant quickAssist) {
     }
 
+    @Override
     public boolean canAssist(IQuickAssistInvocationContext invocationContext) {
         return true;
     }
 
+    @Override
     public boolean canFix(Annotation annotation) {
         return false;
     }
@@ -47,6 +49,7 @@ public class PydevConsoleQuickAssistProcessor implements IQuickAssistProcessor {
     /**
      * Computes quick assists for the console.
      */
+    @Override
     public ICompletionProposal[] computeQuickAssistProposals(IQuickAssistInvocationContext invocationContext) {
         ISourceViewer sourceViewer = invocationContext.getSourceViewer();
         List<ICompletionProposal> props = new ArrayList<ICompletionProposal>();
@@ -90,6 +93,7 @@ public class PydevConsoleQuickAssistProcessor implements IQuickAssistProcessor {
         return props.toArray(new ICompletionProposal[props.size()]);
     }
 
+    @Override
     public String getErrorMessage() {
         return null;
     }

@@ -38,6 +38,7 @@ public class JythonCodeCompletionTestsBase extends CodeCompletionTestsBase {
         super.setUp();
         //we also need to set from where the info on the java env
         JavaVmLocationFinder.callbackJavaExecutable = new ICallback() {
+            @Override
             public Object call(Object args) {
                 calledJavaExecutable = true;
                 return new File(TestDependent.JAVA_LOCATION);
@@ -46,6 +47,7 @@ public class JythonCodeCompletionTestsBase extends CodeCompletionTestsBase {
 
         //and on the associated jars to the java runtime
         JavaVmLocationFinder.callbackJavaJars = new ICallback() {
+            @Override
             public Object call(Object args) {
                 calledJavaJars = true;
                 ArrayList<File> jars = new ArrayList<File>();
@@ -116,6 +118,7 @@ public class JythonCodeCompletionTestsBase extends CodeCompletionTestsBase {
      * 
      * same as the restorePythonPath function but also includes the site packages in the distribution
      */
+    @Override
     public void restorePythonPathWithSitePackages(boolean force) {
         throw new RuntimeException("not available for jython");
     }
@@ -125,6 +128,7 @@ public class JythonCodeCompletionTestsBase extends CodeCompletionTestsBase {
      * 
      * @param force whether this should be forced, even if it was previously created for this class
      */
+    @Override
     public void restorePythonPath(boolean force) {
         restoreSystemPythonPath(force, TestDependent.JYTHON_LIB_LOCATION + "|" + TestDependent.JAVA_RT_JAR_LOCATION);
         restoreProjectPythonPath(force, TestDependent.TEST_PYSRC_LOC);

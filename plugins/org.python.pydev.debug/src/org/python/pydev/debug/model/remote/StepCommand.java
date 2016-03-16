@@ -30,6 +30,7 @@ public class StepCommand extends AbstractDebuggerCommand {
         this.threadId = threadId;
     }
 
+    @Override
     public String getOutgoing() {
         return makeCommand(commandId, sequence, threadId);
     }

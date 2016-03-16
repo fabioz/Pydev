@@ -130,6 +130,7 @@ public class PythonpathZipChildTreeNode extends TreeNode<LabelAndImage>implement
         return isDir && dirContents != null && dirContents.size() > 0;
     }
 
+    @Override
     public int getRank() {
         return isDir ? ISortedElement.RANK_PYTHON_FOLDER : ISortedElement.RANK_PYTHON_FILE;
     }

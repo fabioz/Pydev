@@ -38,6 +38,7 @@ public class FileStub2 extends AbstractIFileStub implements IFile {
         return this.name;
     }
 
+    @Override
     public void create(InputStream source, boolean force, IProgressMonitor monitor) throws CoreException {
         created = true;
         try {

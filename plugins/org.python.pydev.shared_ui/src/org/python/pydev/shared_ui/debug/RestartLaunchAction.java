@@ -43,6 +43,7 @@ public class RestartLaunchAction extends BaseAction implements IUpdate, IEditorA
     /* (non-Javadoc)
      * @see org.eclipse.ui.texteditor.IUpdate#update()
      */
+    @Override
     public void update() {
         IProcess process = console.getProcess();
         setEnabled(true);

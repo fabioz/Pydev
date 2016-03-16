@@ -61,6 +61,7 @@ public class PyPeerLinker {
 
             private final PyPeerLinker pyPeerLinker = new PyPeerLinker();
 
+            @Override
             public void verifyKey(VerifyEvent event) {
                 if (!event.doit) {
                     return;
@@ -190,6 +191,7 @@ public class PyPeerLinker {
                 ui.setSimpleMode(true);
                 IExitPolicy policy = new IExitPolicy() {
 
+                    @Override
                     public ExitFlags doExit(LinkedModeModel model, VerifyEvent event, int offset, int length) {
                         //Yes, no special exit, if ' is entered again, let's do the needed treatment again instead of going
                         //to the end (only <return> goes to the end).

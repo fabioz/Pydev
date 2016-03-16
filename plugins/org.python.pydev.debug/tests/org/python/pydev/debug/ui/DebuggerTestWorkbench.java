@@ -86,6 +86,7 @@ public class DebuggerTestWorkbench extends AbstractWorkbenchTestCase {
         goToManual(DebuggerTestUtils.TOTAL_TIME_FOR_TESTS,
                 new org.python.pydev.shared_core.callbacks.ICallback<Boolean, Object>() {
 
+                    @Override
                     public Boolean call(Object arg) {
                         return finished || debuggerTestUtils.failException != null;
                     }

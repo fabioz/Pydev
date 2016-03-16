@@ -55,6 +55,7 @@ public abstract class AbstractOffsetStrategy implements IOffsetStrategy {
         return getRegion().getOffset();
     }
 
+    @Override
     public int getOffset() throws BadLocationException {
         return getLineOffset();
     }

@@ -61,27 +61,33 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
             this.pointer = pointer;
         }
 
+        @Override
         public void linkEntered() {
 
         }
 
+        @Override
         public void linkExited() {
 
         }
 
+        @Override
         public void linkActivated() {
             PyOpenAction open = new PyOpenAction();
             open.run(pointer);
         }
     }
 
+    @Override
     public void init(final IConsole console) {
         this.linkContainer = new ILinkContainer() {
 
+            @Override
             public void addLink(IHyperlink link, int offset, int length) {
                 console.addLink(link, offset, length);
             }
 
+            @Override
             public String getContents(int offset, int length) throws BadLocationException {
                 return console.getDocument().get(offset, length);
             }
@@ -97,6 +103,7 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
      * 
      * Based on org.eclipse.debug.ui.console.IConsoleLineTracker#lineAppended(org.eclipse.jface.text.IRegion)
      */
+    @Override
     public void lineAppended(IRegion line) {
         int lineOffset = line.getOffset();
         int lineLength = line.getLength();
@@ -168,6 +175,7 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
      * NOOP.
      * @see org.eclipse.debug.ui.console.IConsoleLineTracker#dispose()
      */
+    @Override
     public void dispose() {
     }
 

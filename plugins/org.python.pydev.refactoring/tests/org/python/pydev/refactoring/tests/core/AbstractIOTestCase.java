@@ -70,6 +70,7 @@ public abstract class AbstractIOTestCase extends TestCase implements IInputOutpu
     protected IGrammarVersionProvider createVersionProvider() {
         IGrammarVersionProvider versionProvider = new IGrammarVersionProvider() {
 
+            @Override
             public int getGrammarVersion() throws MisconfigurationException {
                 if (data.file.toString().contains("_grammar3")) {
                     return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0;
@@ -112,6 +113,7 @@ public abstract class AbstractIOTestCase extends TestCase implements IInputOutpu
         this.generated = source;
     }
 
+    @Override
     public void setData(TestData data) {
         this.data = data;
     }

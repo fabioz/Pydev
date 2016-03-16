@@ -18,6 +18,7 @@ import org.python.pydev.plugin.PydevPlugin;
 
 public class AppEngineLaunchShortcut extends AbstractLaunchShortcut {
 
+    @Override
     protected String getLaunchConfigurationType() {
         return AppEngineConstants.APP_ENGINE_LAUNCH_CONFIGURATION_TYPE;
     }

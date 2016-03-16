@@ -27,6 +27,7 @@ public class DjangoPropertyTester extends PropertyTester {
      * Considers as available for being a django project if there's a DJANGO_MANAGE_LOCATION variable
      * defined.
      */
+    @Override
     public boolean test(Object receiver, String property, Object[] args, Object expectedValue) {
         IPythonPathNature nature = CustomizationCommons.getPythonPathNatureFromObject(receiver);
         if (nature == null) {

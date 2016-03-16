@@ -85,6 +85,7 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
      *
      * @see org.eclipse.ui.navigator.IPipelinedTreeContentProvider#getPipelinedChildren(java.lang.Object, java.util.Set)
      */
+    @Override
     @SuppressWarnings("unchecked")
     public void getPipelinedChildren(Object parent, Set currentElements) {
         if (DEBUG) {
@@ -161,6 +162,7 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
      *
      * @see org.eclipse.ui.navigator.IPipelinedTreeContentProvider#getPipelinedElements(java.lang.Object, java.util.Set)
      */
+    @Override
     public void getPipelinedElements(Object input, Set currentElements) {
         if (DEBUG) {
             System.out.println("getPipelinedElements for: " + input);
@@ -174,6 +176,7 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
      *
      * @see org.eclipse.ui.navigator.IPipelinedTreeContentProvider#getPipelinedParent(java.lang.Object, java.lang.Object)
      */
+    @Override
     public Object getPipelinedParent(Object object, Object aSuggestedParent) {
         if (DEBUG) {
             System.out.println("getPipelinedParent for: " + object);
@@ -213,6 +216,7 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
      *
      * @see org.eclipse.ui.navigator.IPipelinedTreeContentProvider#interceptAdd(org.eclipse.ui.navigator.PipelinedShapeModification)
      */
+    @Override
     public PipelinedShapeModification interceptAdd(PipelinedShapeModification addModification) {
         if (DEBUG) {
             System.out.println("interceptAdd");
@@ -221,6 +225,7 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
         return addModification;
     }
 
+    @Override
     public boolean interceptRefresh(PipelinedViewerUpdate refreshSynchronization) {
         if (DEBUG) {
             System.out.println("interceptRefresh");
@@ -228,6 +233,7 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
         return convertToPythonElementsUpdateOrRefresh(refreshSynchronization.getRefreshTargets());
     }
 
+    @Override
     public PipelinedShapeModification interceptRemove(PipelinedShapeModification removeModification) {
         if (DEBUG) {
             System.out.println("interceptRemove");
@@ -236,6 +242,7 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
         return removeModification;
     }
 
+    @Override
     public boolean interceptUpdate(PipelinedViewerUpdate updateSynchronization) {
         if (DEBUG) {
             debug("Before interceptUpdate", updateSynchronization);
@@ -274,6 +281,7 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
     /**
      * This is the function that is responsible for restoring the paths in the tree.
      */
+    @Override
     public void restoreState(IMemento memento) {
         new PyPackageStateSaver(this, viewer, memento).restoreState();
     }
@@ -281,6 +289,7 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
     /**
      * This is the function that is responsible for saving the paths in the tree.
      */
+    @Override
     public void saveState(IMemento memento) {
         new PyPackageStateSaver(this, viewer, memento).saveState();
     }

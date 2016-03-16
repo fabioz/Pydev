@@ -19,6 +19,7 @@ import junit3.runner.TestCollector;
 public class AllTests {
 
     private static class ClassFileDetector extends ClassPathTestCollector {
+        @Override
         protected boolean isTestClass(String classFileName) {
             return classFileName.endsWith(SUFFIX + ".class") && isValidTest(classNameFromFile(classFileName));
         }

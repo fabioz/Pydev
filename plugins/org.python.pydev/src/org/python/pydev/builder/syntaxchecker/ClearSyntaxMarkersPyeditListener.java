@@ -30,9 +30,11 @@ import org.python.pydev.shared_ui.editor.IPyEditListener3;
  */
 public class ClearSyntaxMarkersPyeditListener implements IPyEditListener, IPyEditListener3 {
 
+    @Override
     public void onCreateActions(ListResourceBundle resources, BaseEditor baseEditor, IProgressMonitor monitor) {
     }
 
+    @Override
     public void onDispose(BaseEditor baseEditor, IProgressMonitor monitor) {
         //remove the markers if we want problems only in the active editor.
         PyEdit edit = (PyEdit) baseEditor;
@@ -40,12 +42,15 @@ public class ClearSyntaxMarkersPyeditListener implements IPyEditListener, IPyEdi
         removeMarkersFromInput(input);
     }
 
+    @Override
     public void onSave(BaseEditor baseEditor, IProgressMonitor monitor) {
     }
 
+    @Override
     public void onSetDocument(IDocument document, BaseEditor baseEditor, IProgressMonitor monitor) {
     }
 
+    @Override
     public void onInputChanged(BaseEditor baseEditor, IEditorInput oldInput, IEditorInput input,
             IProgressMonitor monitor) {
         removeMarkersFromInput(oldInput);

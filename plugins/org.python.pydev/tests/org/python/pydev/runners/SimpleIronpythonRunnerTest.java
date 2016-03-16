@@ -23,6 +23,7 @@ public class SimpleIronpythonRunnerTest extends JythonCodeCompletionTestsBase {
         junit.textui.TestRunner.run(SimpleIronpythonRunnerTest.class);
     }
 
+    @Override
     public void setUp() throws Exception {
         super.setUp();
         PydevPlugin.setIronpythonInterpreterManager(new IronpythonInterpreterManagerStub(getPreferences()));

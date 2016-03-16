@@ -32,6 +32,7 @@ public class FirstCharAction extends PyAction {
     /**
      * Run to the first char (other than whitespaces) or to the real first char. 
      */
+    @Override
     public void run(IAction action) {
 
         try {
@@ -82,6 +83,7 @@ public class FirstCharAction extends PyAction {
         if (forceCreation || !isDefined) {
             return new VerifyKeyListener() {
 
+                @Override
                 public void verifyKey(VerifyEvent event) {
                     if (event.doit) {
                         boolean isHome;

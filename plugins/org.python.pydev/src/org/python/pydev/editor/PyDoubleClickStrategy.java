@@ -33,6 +33,7 @@ public class PyDoubleClickStrategy implements ITextDoubleClickStrategy {
     /**
      * @see ITextDoubleClickStrategy#doubleClicked
      */
+    @Override
     public void doubleClicked(ITextViewer textViewer) {
 
         int offset = textViewer.getSelectedRange().x;

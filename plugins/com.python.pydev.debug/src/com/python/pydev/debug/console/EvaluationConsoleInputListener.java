@@ -18,6 +18,7 @@ public class EvaluationConsoleInputListener implements IConsoleInputListener {
     private static final boolean DEBUG = false;
     private StringBuffer buf = new StringBuffer();
 
+    @Override
     public void newLineReceived(String lineReceived, AbstractDebugTarget target) {
         boolean evaluateNow = !lineReceived.startsWith(" ") && !lineReceived.startsWith("\t")
                 && !lineReceived.endsWith(":") && !lineReceived.endsWith("\\");
@@ -54,6 +55,7 @@ public class EvaluationConsoleInputListener implements IConsoleInputListener {
 
     }
 
+    @Override
     public void pasteReceived(String text, AbstractDebugTarget target) {
         if (DEBUG) {
             System.out.println("paste: '" + text + "'");

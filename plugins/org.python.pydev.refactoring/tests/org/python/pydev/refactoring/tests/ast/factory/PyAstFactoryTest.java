@@ -47,6 +47,7 @@ public class PyAstFactoryTest extends PyParserTestBase {
         super.setUp();
         astFactory = new PyAstFactory(new AdapterPrefs("\n", new IGrammarVersionProvider() {
 
+            @Override
             public int getGrammarVersion() throws MisconfigurationException {
                 return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
             }
@@ -188,6 +189,7 @@ public class PyAstFactoryTest extends PyParserTestBase {
         PrettyPrinterV2 printer = new PrettyPrinterV2(new PrettyPrinterPrefsV2("\n", "    ",
                 new IGrammarVersionProvider() {
 
+                    @Override
                     public int getGrammarVersion() throws MisconfigurationException {
                         return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
                     }

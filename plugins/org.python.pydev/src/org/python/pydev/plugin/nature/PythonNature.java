@@ -267,6 +267,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         return pythonProjectInterpreter;
     }
 
+    @Override
     public boolean isResourceInPythonpathProjectSources(IResource resource, boolean addExternal)
             throws MisconfigurationException, CoreException {
         String resourceOSString = PydevPlugin.getIResourceOSString(resource);
@@ -277,11 +278,13 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
     }
 
+    @Override
     public boolean isResourceInPythonpathProjectSources(String absPath, boolean addExternal)
             throws MisconfigurationException, CoreException {
         return resolveModuleOnlyInProjectSources(absPath, addExternal) != null;
     }
 
+    @Override
     public String resolveModuleOnlyInProjectSources(IResource fileAbsolutePath, boolean addExternal)
             throws CoreException, MisconfigurationException {
 
@@ -297,12 +300,14 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      *
      * @see org.eclipse.core.resources.IProjectNature#configure()
      */
+    @Override
     public void configure() throws CoreException {
     }
 
     /**
      * @see org.eclipse.core.resources.IProjectNature#deconfigure()
      */
+    @Override
     public void deconfigure() throws CoreException {
     }
 
@@ -311,6 +316,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      *
      * @see org.eclipse.core.resources.IProjectNature#getProject()
      */
+    @Override
     public IProject getProject() {
         return project;
     }
@@ -320,6 +326,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      *
      * @see org.eclipse.core.resources.IProjectNature#setProject(org.eclipse.core.resources.IProject)
      */
+    @Override
     public synchronized void setProject(final IProject project) {
         getStore().setProject(project);
         this.project = project;
@@ -667,6 +674,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         return file;
     }
 
+    @Override
     public File getCompletionsCacheDir() {
         return getCompletionsCacheDir(getProject());
     }
@@ -686,6 +694,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * Can be called to refresh internal info (or after changing the path in the preferences).
      * @throws CoreException
      */
+    @Override
     public void rebuildPath() {
         clearCaches(true);
         //Note: pythonPathNature.getOnlyProjectPythonPathStr(true); cannot be called at this moment
@@ -700,10 +709,12 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     /**
      * @return Returns the completionsCache. Note that it can be null.
      */
+    @Override
     public ICodeCompletionASTManager getAstManager() {
         return astManager; //Change: don't wait if it's still not initialized.
     }
 
+    @Override
     public boolean isOkToUse() {
         return this.astManager != null && this.pythonPathNature != null;
     }
@@ -712,6 +723,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         this.astManager = astManager;
     }
 
+    @Override
     public IPythonPathNature getPythonPathNature() {
         return pythonPathNature;
     }
@@ -807,6 +819,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * @return the python version for the project
      * @throws CoreException
      */
+    @Override
     public String getVersion() throws CoreException {
         return getVersionAndError().o1;
     }
@@ -855,6 +868,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      *
      * @throws CoreException
      */
+    @Override
     public void setVersion(String version, String interpreter) throws CoreException {
         clearCaches(false);
 
@@ -894,10 +908,12 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         }
     }
 
+    @Override
     public String getDefaultVersion() {
         return PYTHON_VERSION_LATEST;
     }
 
+    @Override
     public void saveAstManager() {
         File astOutputFile = getAstOutputFile();
         if (astOutputFile == null) {
@@ -916,6 +932,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         }
     }
 
+    @Override
     public int getInterpreterType() throws CoreException {
         if (interpreterType == null) {
             String version = getVersion();
@@ -948,6 +965,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * @param fileAbsolutePath the absolute file path
      * @return the module name
      */
+    @Override
     public String resolveModule(String fileAbsolutePath) {
         String moduleName = null;
 
@@ -964,6 +982,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * @return the module name
      * @throws CoreException
      */
+    @Override
     public String resolveModuleOnlyInProjectSources(String fileAbsolutePath, boolean addExternal) throws CoreException {
         String moduleName = null;
 
@@ -981,6 +1000,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         return str.split("\\|");
     }
 
+    @Override
     public IInterpreterManager getRelatedInterpreterManager() {
         try {
             int interpreterType = getInterpreterType();
@@ -1017,6 +1037,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
     Integer interpreterType = null; //cache
 
+    @Override
     public void clearBuiltinCompletions() {
         try {
             this.getRelatedInterpreterManager().clearBuiltinCompletions(this.getProjectInterpreterName());
@@ -1025,6 +1046,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         }
     }
 
+    @Override
     public IToken[] getBuiltinCompletions() {
         try {
             return this.getRelatedInterpreterManager().getBuiltinCompletions(this.getProjectInterpreterName());
@@ -1033,6 +1055,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         }
     }
 
+    @Override
     public IModule getBuiltinMod() {
         try {
             return this.getRelatedInterpreterManager().getBuiltinMod(this.getProjectInterpreterName());
@@ -1041,6 +1064,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         }
     }
 
+    @Override
     public void clearBuiltinMod() {
         try {
             this.getRelatedInterpreterManager().clearBuiltinMod(this.getProjectInterpreterName());
@@ -1072,6 +1096,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     /**
      * @return the version of the grammar as defined in IPythonNature.GRAMMAR_PYTHON...
      */
+    @Override
     public int getGrammarVersion() {
         try {
             String version = getVersion();
@@ -1174,6 +1199,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      *
      * @note that an exception will be raised if the
      */
+    @Override
     public IInterpreterInfo getProjectInterpreter() throws MisconfigurationException,
             PythonNatureWithoutProjectException {
         if (this.project == null) {

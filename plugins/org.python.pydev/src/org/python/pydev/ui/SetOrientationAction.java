@@ -72,6 +72,7 @@ public class SetOrientationAction extends Action {
 
         }
 
+        @Override
         public void dispose() {
             if (fMenu != null) {
                 fMenu.dispose();
@@ -79,10 +80,12 @@ public class SetOrientationAction extends Action {
             }
         }
 
+        @Override
         public Menu getMenu(Control parent) {
             return null; //not used!
         }
 
+        @Override
         public Menu getMenu(Menu parent) {
             dispose(); // dispose if already there.
 
@@ -90,6 +93,7 @@ public class SetOrientationAction extends Action {
 
             fMenu.addMenuListener(new MenuListener() {
 
+                @Override
                 public void menuShown(MenuEvent e) {
                     List<ActionContributionItem> lst = fActions;
                     int len = lst.size();
@@ -100,6 +104,7 @@ public class SetOrientationAction extends Action {
                     }
                 }
 
+                @Override
                 public void menuHidden(MenuEvent e) {
                 }
             });

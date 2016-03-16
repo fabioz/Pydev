@@ -11,6 +11,7 @@ public final class Index extends sliceType {
         this.value = value;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -18,6 +19,7 @@ public final class Index extends sliceType {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -34,10 +36,12 @@ public final class Index extends sliceType {
         return true;
     }
 
+    @Override
     public Index createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public Index createCopy(boolean copyComments) {
         Index temp = new Index(value != null ? (exprType) value.createCopy(copyComments) : null);
         temp.beginLine = this.beginLine;
@@ -61,6 +65,7 @@ public final class Index extends sliceType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("Index[");
         sb.append("value=");
@@ -69,10 +74,12 @@ public final class Index extends sliceType {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitIndex(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (value != null) {
             value.accept(visitor);

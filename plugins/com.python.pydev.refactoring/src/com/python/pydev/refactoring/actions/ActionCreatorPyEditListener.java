@@ -21,9 +21,11 @@ import com.python.pydev.refactoring.ui.findreplace.PySearchInOpenDocumentsAction
 
 public class ActionCreatorPyEditListener implements IPyEditListener {
 
+    @Override
     public void onSave(BaseEditor edit, IProgressMonitor monitor) {
     }
 
+    @Override
     public void onCreateActions(ListResourceBundle resources, BaseEditor baseEditor, IProgressMonitor monitor) {
         PyEdit edit = (PyEdit) baseEditor;
         edit.addOfflineActionListener("r", new PyRenameInFileAction(edit), "Rename occurrences in file", false);
@@ -77,9 +79,11 @@ public class ActionCreatorPyEditListener implements IPyEditListener {
         //		edit.setAction(ITextEditorActionConstants.FIND, action);
     }
 
+    @Override
     public void onDispose(BaseEditor baseEditor, IProgressMonitor monitor) {
     }
 
+    @Override
     public void onSetDocument(IDocument document, BaseEditor baseEditor, IProgressMonitor monitor) {
     }
 

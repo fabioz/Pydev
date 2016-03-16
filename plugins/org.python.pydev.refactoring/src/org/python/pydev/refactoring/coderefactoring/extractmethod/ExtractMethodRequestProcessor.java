@@ -106,6 +106,7 @@ public class ExtractMethodRequestProcessor implements IRequestProcessor<ExtractM
         this.offsetStrategy = offsetStrategy;
     }
 
+    @Override
     public List<ExtractMethodRequest> getRefactoringRequests() {
         List<ExtractMethodRequest> requests = new ArrayList<ExtractMethodRequest>();
         requests.add(new ExtractMethodRequest(this.methodName, this.selection, this.scopeAdapter, this.parsedSelection,

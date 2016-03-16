@@ -17,6 +17,7 @@ public final class Raise extends stmtType {
         this.cause = cause;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -27,6 +28,7 @@ public final class Raise extends stmtType {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -58,10 +60,12 @@ public final class Raise extends stmtType {
         return true;
     }
 
+    @Override
     public Raise createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public Raise createCopy(boolean copyComments) {
         Raise temp = new Raise(type != null ? (exprType) type.createCopy(copyComments) : null,
                 inst != null ? (exprType) inst.createCopy(copyComments) : null,
@@ -88,6 +92,7 @@ public final class Raise extends stmtType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("Raise[");
         sb.append("type=");
@@ -105,10 +110,12 @@ public final class Raise extends stmtType {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitRaise(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (type != null) {
             type.accept(visitor);

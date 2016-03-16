@@ -15,6 +15,7 @@ public final class Name extends exprType implements expr_contextType {
         this.reserved = reserved;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -24,6 +25,7 @@ public final class Name extends exprType implements expr_contextType {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -44,10 +46,12 @@ public final class Name extends exprType implements expr_contextType {
         return true;
     }
 
+    @Override
     public Name createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public Name createCopy(boolean copyComments) {
         Name temp = new Name(id, ctx, reserved);
         temp.beginLine = this.beginLine;
@@ -71,6 +75,7 @@ public final class Name extends exprType implements expr_contextType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("Name[");
         sb.append("id=");
@@ -85,10 +90,12 @@ public final class Name extends exprType implements expr_contextType {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitName(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
     }
 

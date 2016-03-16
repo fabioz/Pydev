@@ -33,14 +33,17 @@ public class GetVariableCommand extends AbstractDebuggerCommand {
         this.locator = locator;
     }
 
+    @Override
     public String getOutgoing() {
         return makeCommand(getCommandId(), sequence, locator);
     }
 
+    @Override
     public boolean needResponse() {
         return true;
     }
 
+    @Override
     public void processOKResponse(int cmdCode, String payload) {
         responseCode = cmdCode;
         if (cmdCode == getCommandId())
@@ -55,6 +58,7 @@ public class GetVariableCommand extends AbstractDebuggerCommand {
         return CMD_GET_VARIABLE;
     }
 
+    @Override
     public void processErrorResponse(int cmdCode, String payload) {
         responseCode = cmdCode;
         this.payload = payload;

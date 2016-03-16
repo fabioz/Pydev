@@ -36,6 +36,7 @@ public class MarkOccurrencesPreferencesPage extends FieldEditorPreferencePage im
         setPreferenceStore(prefs);
     }
 
+    @Override
     protected void createFieldEditors() {
         Composite p = getFieldEditorParent();
 
@@ -46,18 +47,21 @@ public class MarkOccurrencesPreferencesPage extends FieldEditorPreferencePage im
                 "Color of the occurences may be changed at\n" + "<a>Annotations</a>: Occurrences (Pydev)", p,
                 new SelectionListener() {
 
+                    @Override
                     public void widgetSelected(SelectionEvent e) {
                         String id = "org.eclipse.ui.editors.preferencePages.Annotations";
                         IWorkbenchPreferenceContainer workbenchPreferenceContainer = ((IWorkbenchPreferenceContainer) getContainer());
                         workbenchPreferenceContainer.openPage(id, null);
                     }
 
+                    @Override
                     public void widgetDefaultSelected(SelectionEvent e) {
                     }
                 });
         colorsAndFontsLinkFieldEditor.getLinkControl(p);
     }
 
+    @Override
     public void init(IWorkbench workbench) {
     }
 

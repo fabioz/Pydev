@@ -113,6 +113,7 @@ public class PyConvertSpaceToTab extends PyAction {
             /*
              * @see IInputValidator#isValid(String)
              */
+            @Override
             public String isValid(String input) {
 
                 if (input == null || input.length() == 0) {

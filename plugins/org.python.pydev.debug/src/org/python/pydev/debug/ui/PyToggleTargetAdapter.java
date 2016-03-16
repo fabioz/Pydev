@@ -61,6 +61,7 @@ class PyDjangoToggleBreakpointsTarget implements IToggleBreakpointsTarget, ITogg
     }
 
     // --------------- All others point to this 2 methods!
+    @Override
     public void toggleBreakpoints(IWorkbenchPart part, ISelection selection) throws CoreException {
         if (part instanceof BaseEditor && selection instanceof TextSelection
                 && PyToggleTargetAdapter.canToggleFor((BaseEditor) part)) {
@@ -78,31 +79,38 @@ class PyDjangoToggleBreakpointsTarget implements IToggleBreakpointsTarget, ITogg
         }
     }
 
+    @Override
     public boolean canToggleBreakpoints(IWorkbenchPart part, ISelection selection) {
         return selection instanceof TextSelection && part instanceof ITextEditor
                 && PyToggleTargetAdapter.canToggleFor((ITextEditor) part);
     }
 
+    @Override
     public void toggleLineBreakpoints(IWorkbenchPart part, ISelection selection) throws CoreException {
         toggleBreakpoints(part, selection);
     }
 
+    @Override
     public boolean canToggleLineBreakpoints(IWorkbenchPart part, ISelection selection) {
         return canToggleBreakpoints(part, selection);
     }
 
+    @Override
     public void toggleMethodBreakpoints(IWorkbenchPart part, ISelection selection) throws CoreException {
         toggleBreakpoints(part, selection);
     }
 
+    @Override
     public boolean canToggleMethodBreakpoints(IWorkbenchPart part, ISelection selection) {
         return canToggleBreakpoints(part, selection);
     }
 
+    @Override
     public void toggleWatchpoints(IWorkbenchPart part, ISelection selection) throws CoreException {
         toggleBreakpoints(part, selection);
     }
 
+    @Override
     public boolean canToggleWatchpoints(IWorkbenchPart part, ISelection selection) {
         return canToggleBreakpoints(part, selection);
     }

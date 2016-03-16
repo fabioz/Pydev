@@ -38,10 +38,12 @@ public class PyParserEditorIntegrationTest extends TestCase {
             this.pydevFileEditorInputStub = pydevFileEditorInputStub;
         }
 
+        @Override
         public IEditorInput getEditorInput() {
             return pydevFileEditorInputStub;
         }
 
+        @Override
         public IPythonNature getPythonNature() {
             return new PythonNatureStub();
         }
@@ -50,14 +52,17 @@ public class PyParserEditorIntegrationTest extends TestCase {
             throw new RuntimeException("Not implemented");
         }
 
+        @Override
         public void parserChanged(ISimpleNode root, IAdaptable file, IDocument doc, long docModificationStamp) {
             this.parserChanged += 1;
         }
 
+        @Override
         public void parserError(Throwable error, IAdaptable file, IDocument doc) {
             throw new RuntimeException("Not implemented");
         }
 
+        @Override
         public Map<String, Object> getCache() {
             return this.cache;
         }
@@ -67,6 +72,7 @@ public class PyParserEditorIntegrationTest extends TestCase {
             return null;
         }
 
+        @Override
         public boolean hasSameInput(IBaseEditor edit) {
             if (this == edit) {
                 throw new RuntimeException(
@@ -78,6 +84,7 @@ public class PyParserEditorIntegrationTest extends TestCase {
             return false;
         }
 
+        @Override
         public IDocument getDocument() {
             return doc;
         }
@@ -90,26 +97,32 @@ public class PyParserEditorIntegrationTest extends TestCase {
             this.pydevFileEditorInputStub = input;
         }
 
+        @Override
         public void setStatusLineErrorMessage(String msg) {
             throw new RuntimeException("Not implemented");
         }
 
+        @Override
         public IGrammarVersionProvider getGrammarVersionProvider() {
             return this.getPythonNature();
         }
 
+        @Override
         public IIndentPrefs getIndentPrefs() {
             throw new RuntimeException("Not implemented");
         }
 
+        @Override
         public Object getFormatStd() {
             throw new RuntimeException("Not implemented");
         }
 
+        @Override
         public void addModelListener(IModelListener modelListener) {
             throw new RuntimeException("Not implemented");
         }
 
+        @Override
         public void removeModelListener(IModelListener modelListener) {
             throw new RuntimeException("Not implemented");
         }

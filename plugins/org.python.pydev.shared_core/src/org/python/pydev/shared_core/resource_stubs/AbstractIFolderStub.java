@@ -17,18 +17,22 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 public class AbstractIFolderStub extends AbstractIContainerStub implements IFolder {
 
+    @Override
     public void create(boolean force, boolean local, IProgressMonitor monitor) throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public void create(int updateFlags, boolean local, IProgressMonitor monitor) throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public void createLink(IPath localLocation, int updateFlags, IProgressMonitor monitor) throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public void createLink(URI location, int updateFlags, IProgressMonitor monitor) throws CoreException {
         throw new RuntimeException("Not implemented");
     }
@@ -37,18 +41,22 @@ public class AbstractIFolderStub extends AbstractIContainerStub implements IFold
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public void delete(boolean force, boolean keepHistory, IProgressMonitor monitor) throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public IFile getFile(String name) {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public IFolder getFolder(String name) {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public void move(IPath destination, boolean force, boolean keepHistory, IProgressMonitor monitor)
             throws CoreException {
         throw new RuntimeException("Not implemented");

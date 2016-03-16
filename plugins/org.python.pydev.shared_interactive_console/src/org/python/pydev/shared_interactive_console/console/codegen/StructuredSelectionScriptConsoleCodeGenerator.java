@@ -53,6 +53,7 @@ public class StructuredSelectionScriptConsoleCodeGenerator implements IScriptCon
         return generator.getPyCode();
     }
 
+    @Override
     public String getPyCode() {
         if (selection instanceof IStructuredSelection) {
             IStructuredSelection iStructuredSelection = (IStructuredSelection) selection;
@@ -85,6 +86,7 @@ public class StructuredSelectionScriptConsoleCodeGenerator implements IScriptCon
         return null;
     }
 
+    @Override
     public boolean hasPyCode() {
         if (selection instanceof IStructuredSelection) {
             IStructuredSelection iStructuredSelection = (IStructuredSelection) selection;

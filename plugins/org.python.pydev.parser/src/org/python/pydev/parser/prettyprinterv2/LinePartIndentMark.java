@@ -25,10 +25,12 @@ public class LinePartIndentMark extends AbstractLinePart implements ILinePartInd
         this.requireNewLine = requireNewLine;
     }
 
+    @Override
     public boolean getRequireNewLineOnIndent() {
         return this.requireNewLine;
     }
 
+    @Override
     public boolean isIndent() {
         return this.isIndent;
     }

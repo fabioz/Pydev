@@ -24,11 +24,13 @@ public class HierarchyViewerTest extends TestCase {
         junit.textui.TestRunner.run(HierarchyViewerTest.class);
     }
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
         PydevPlugin.setBundleInfo(new BundleInfoStub());
     }
 
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }

@@ -52,6 +52,7 @@ public abstract class AbstractRefactoringAction extends Action implements IEdito
     protected AbstractPythonRefactoring refactoring;
     protected PyEdit targetEditor;
 
+    @Override
     public void setActiveEditor(IAction action, IEditorPart targetEditor) {
         if (targetEditor instanceof ITextEditor) {
             if (targetEditor instanceof PyEdit) {
@@ -63,6 +64,7 @@ public abstract class AbstractRefactoringAction extends Action implements IEdito
         }
     }
 
+    @Override
     public void selectionChanged(IAction action, ISelection selection) {
     }
 
@@ -84,6 +86,7 @@ public abstract class AbstractRefactoringAction extends Action implements IEdito
         return RefactoringWizard.WIZARD_BASED_USER_INTERFACE;
     }
 
+    @Override
     public void run(IAction action) {
         if (targetEditor == null) {
             Status status = PydevPlugin.makeStatus(IStatus.ERROR, "Unable to do refactoring.", null);

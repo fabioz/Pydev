@@ -66,6 +66,7 @@ public class OrganizeImports implements IOrganizeImports {
      * Important: if the document is in a rewrite session, trying to highlight a given session does not work
      * (so, we cannot be in a rewrite session in this case).
      */
+    @Override
     public boolean beforePerformArrangeImports(final PySelection ps, final PyEdit edit, IFile f) {
         if ((!AutoImportsPreferencesPage.doAutoImportOnOrganizeImports()) || edit == null) {
             return true;
@@ -265,6 +266,7 @@ public class OrganizeImports implements IOrganizeImports {
     /**
      * After all the imports are arranged, let's ask for a reparse of the document
      */
+    @Override
     public void afterPerformArrangeImports(PySelection ps, PyEdit pyEdit) {
         if (!AutoImportsPreferencesPage.doAutoImportOnOrganizeImports() || !didChange) {
             return;

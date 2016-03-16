@@ -58,8 +58,10 @@ public abstract class BaseModel implements IOutlineModel {
         // make sure that the changes are propagated on the main thread
         modelListener = new IModelListener() {
 
+            @Override
             public void modelChanged(final ISimpleNode ast) {
                 Display.getDefault().asyncExec(new Runnable() {
+                    @Override
                     public void run() {
                         synchronized (this) {
                             IParsedItem newRoot = createParsedItemFromSimpleNode(ast);
@@ -70,8 +72,10 @@ public abstract class BaseModel implements IOutlineModel {
                 });
             }
 
+            @Override
             public void errorChanged(final ErrorDescription errorDesc) {
                 Display.getDefault().asyncExec(new Runnable() {
+                    @Override
                     public void run() {
                         synchronized (this) {
                             IParsedItem newRoot = duplicateRootAddingError(errorDesc);
@@ -96,6 +100,7 @@ public abstract class BaseModel implements IOutlineModel {
 
     protected abstract IParsedItem duplicateRootAddingError(ErrorDescription errorDesc);
 
+    @Override
     public void dispose() {
         if (!disposed) {
             disposed = true;
@@ -105,6 +110,7 @@ public abstract class BaseModel implements IOutlineModel {
         }
     }
 
+    @Override
     public IParsedItem getRoot() {
         return root;
     }

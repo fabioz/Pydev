@@ -18,6 +18,7 @@ public class LinePart extends AbstractLinePart implements ILinePart, ILinePart2 
     /* (non-Javadoc)
      * @see org.python.pydev.parser.prettyprinterv2.ILinePart2#setString(java.lang.String)
      */
+    @Override
     public void setString(String string) {
         this.string = string;
     }
@@ -25,6 +26,7 @@ public class LinePart extends AbstractLinePart implements ILinePart, ILinePart2 
     /* (non-Javadoc)
      * @see org.python.pydev.parser.prettyprinterv2.ILinePart2#getString()
      */
+    @Override
     public String getString() {
         return string;
     }

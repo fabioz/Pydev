@@ -19,6 +19,7 @@ public final class Call extends exprType {
         this.kwargs = kwargs;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -30,6 +31,7 @@ public final class Call extends exprType {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -60,10 +62,12 @@ public final class Call extends exprType {
         return true;
     }
 
+    @Override
     public Call createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public Call createCopy(boolean copyComments) {
         exprType[] new0;
         if (this.args != null) {
@@ -107,6 +111,7 @@ public final class Call extends exprType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("Call[");
         sb.append("func=");
@@ -127,10 +132,12 @@ public final class Call extends exprType {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitCall(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (func != null) {
             func.accept(visitor);

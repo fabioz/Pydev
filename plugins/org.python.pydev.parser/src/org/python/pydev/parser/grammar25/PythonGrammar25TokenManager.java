@@ -32,6 +32,7 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 @SuppressWarnings("unused")
 public final class PythonGrammar25TokenManager extends AbstractTokenManager implements PythonGrammar25Constants
 {
+    @Override
     protected Class<?> getConstantsClass() {
         return PythonGrammar25Constants.class;
     }
@@ -39,6 +40,7 @@ public final class PythonGrammar25TokenManager extends AbstractTokenManager impl
     /**
      * @return The current level of the indentation in the current line.
      */
+    @Override
     public int getCurrentLineIndentation() {
         return indent;
     }
@@ -46,10 +48,12 @@ public final class PythonGrammar25TokenManager extends AbstractTokenManager impl
     /**
      * @return The current level of the indentation.
      */
+    @Override
     public int getLastIndentation() {
         return indentation.atLevel();
     }
 
+    @Override
     public final void indenting(int ind) {
         indent = ind;
         if (indent == indentation.atLevel())
@@ -3468,6 +3472,7 @@ public final class PythonGrammar25TokenManager extends AbstractTokenManager impl
     int jjmatchedKind;
 
     /** Get the next Token. */
+    @Override
     public Token getNextToken()
     {
         Token specialToken = null;

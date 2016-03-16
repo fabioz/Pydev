@@ -134,10 +134,12 @@ public class ScriptConsolePage extends TextConsolePage implements IScriptConsole
         viewer.clear(false);
     }
 
+    @Override
     public void contentAssistRequired() {
         proposalsAction.run();
     }
 
+    @Override
     public void quickAssistRequired() {
         quickAssistAction.run();
     }

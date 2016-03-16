@@ -22,6 +22,7 @@ import org.python.pydev.plugin.preferences.PydevPrefs;
  */
 public class PyContentMergeViewerCreator implements IViewerCreator {
 
+    @Override
     public Viewer createViewer(Composite parent, CompareConfiguration mp) {
         return new PyMergeViewer(parent, SWT.NULL, createNewCompareConfiguration(mp));
     }

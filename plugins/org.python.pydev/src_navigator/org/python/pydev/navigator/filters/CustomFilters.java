@@ -41,6 +41,7 @@ public class CustomFilters extends AbstractFilter {
             prefs.addPropertyChangeListener(this);
         }
 
+        @Override
         public void propertyChange(PropertyChangeEvent event) {
             CustomFilters customFilters = weakCustomFilter.get();
             if (customFilters == null) {

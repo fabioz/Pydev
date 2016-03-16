@@ -30,6 +30,7 @@ public class EnableDisableBreakpointRulerAction extends AbstractBreakpointRulerA
         fTextEditor = editor;
     }
 
+    @Override
     public void update() {
         IBreakpoint breakpoint = getBreakpointFromLastLineOfActivityInCurrentEditor();
         setBreakpoint(breakpoint);
@@ -60,6 +61,7 @@ public class EnableDisableBreakpointRulerAction extends AbstractBreakpointRulerA
                         return Status.OK_STATUS;
                     } catch (final CoreException e) {
                         Display.getDefault().asyncExec(new Runnable() {
+                            @Override
                             public void run() {
                                 ErrorDialog.openError(getTextEditor().getEditorSite().getShell(),
                                         "Enabling/disabling breakpoints",

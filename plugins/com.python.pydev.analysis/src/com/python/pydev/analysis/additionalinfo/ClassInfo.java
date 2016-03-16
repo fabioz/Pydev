@@ -24,6 +24,7 @@ public final class ClassInfo extends AbstractInfo {
         super(className, moduleDeclared, path, doNotInternOnThisContstruct);
     }
 
+    @Override
     public int getType() {
         return CLASS_WITH_IMPORT_TYPE;
     }

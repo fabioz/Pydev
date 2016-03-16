@@ -45,6 +45,7 @@ public class FindDuplicatesVisitorTest extends PyParserTestBase {
 
         Comparator<? super Tuple<Integer, Integer>> comparator = new Comparator<Tuple<Integer, Integer>>() {
 
+            @Override
             public int compare(Tuple<Integer, Integer> o1, Tuple<Integer, Integer> o2) {
                 int comp = o1.o1.compareTo(o2.o1);
                 if (comp != 0) {

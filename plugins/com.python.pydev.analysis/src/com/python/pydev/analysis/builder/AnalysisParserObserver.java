@@ -88,6 +88,7 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver3
 
     public static final String ANALYSIS_PARSER_OBSERVER_FORCE = IMiscConstants.ANALYSIS_PARSER_OBSERVER_FORCE;
 
+    @Override
     public void parserChanged(final ChangedParserInfoForObservers info) {
         if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
             System.out.println("AnalysisParserObserver: parserChanged");
@@ -185,14 +186,17 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver3
 
     }
 
+    @Override
     public void parserChanged(ISimpleNode root, IAdaptable resource, IDocument doc, long docModificationStamp) {
         throw new RuntimeException("As it uses IParserObserver2, this interface should not be asked for.");
     }
 
+    @Override
     public void parserError(Throwable error, IAdaptable file, IDocument doc) {
         //ignore errors...
     }
 
+    @Override
     public void parserError(ErrorParserInfoForObservers info) {
         //ignore
     }

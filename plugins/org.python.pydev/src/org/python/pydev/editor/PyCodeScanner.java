@@ -80,6 +80,7 @@ public class PyCodeScanner extends RuleBasedScanner {
      * f$%@#$!!
      */
     static private class GreatWhite implements IWhitespaceDetector {
+        @Override
         public boolean isWhitespace(char c) {
             return Character.isWhitespace(c);
         }
@@ -93,10 +94,12 @@ public class PyCodeScanner extends RuleBasedScanner {
         public GreatKeywordDetector() {
         }
 
+        @Override
         public boolean isWordStart(char c) {
             return Character.isJavaIdentifierStart(c);
         }
 
+        @Override
         public boolean isWordPart(char c) {
             return Character.isJavaIdentifierPart(c);
         }
@@ -107,6 +110,7 @@ public class PyCodeScanner extends RuleBasedScanner {
         /**
          * @see org.eclipse.jface.text.rules.IWordDetector#isWordStart(char)
          */
+        @Override
         public boolean isWordStart(char c) {
             return c == '@';
         }
@@ -114,6 +118,7 @@ public class PyCodeScanner extends RuleBasedScanner {
         /**
          * @see org.eclipse.jface.text.rules.IWordDetector#isWordPart(char)
          */
+        @Override
         public boolean isWordPart(char c) {
             return c != '\n' && c != '\r' && c != '(';
         }
@@ -135,6 +140,7 @@ public class PyCodeScanner extends RuleBasedScanner {
         /**
          * @see org.eclipse.jface.text.rules.IWordDetector#isWordStart(char)
          */
+        @Override
         public boolean isWordStart(char c) {
             isInHexa = false;
             buffer.clear();
@@ -145,6 +151,7 @@ public class PyCodeScanner extends RuleBasedScanner {
         /**
          * Check if we are still in the number
          */
+        @Override
         public boolean isWordPart(char c) {
             //ok, we have to test for scientific notation e.g.: 10.9e10
 
@@ -195,6 +202,7 @@ public class PyCodeScanner extends RuleBasedScanner {
 
         codeScannerKeywords.getOnChangeCallbackWithListeners().registerListener(new ICallbackListener() {
 
+            @Override
             public Object call(Object obj) {
                 keywords = PyCodeScanner.this.codeScannerKeywords.getKeywords();
                 setupRules();

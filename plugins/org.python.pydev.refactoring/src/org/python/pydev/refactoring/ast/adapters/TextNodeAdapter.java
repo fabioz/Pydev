@@ -32,10 +32,12 @@ public class TextNodeAdapter implements INodeAdapter {
         this.name = name;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public String getParentName() {
         return "";
     }

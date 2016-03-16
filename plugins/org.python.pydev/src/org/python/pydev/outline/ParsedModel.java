@@ -65,6 +65,7 @@ public class ParsedModel extends BaseModel {
         return newRoot;
     }
 
+    @Override
     public SimpleNode[] getSelectionPosition(StructuredSelection sel) {
         if (sel.size() == 1) { // only sync the editing view if it is a single-selection
             Object firstElement = sel.getFirstElement();

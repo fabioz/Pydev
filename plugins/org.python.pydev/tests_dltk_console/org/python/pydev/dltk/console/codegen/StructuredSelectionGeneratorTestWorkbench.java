@@ -45,10 +45,12 @@ public class StructuredSelectionGeneratorTestWorkbench extends TestCase {
             this.hasPyCode = false;
         }
 
+        @Override
         public String getPyCode() {
             return pyCode;
         }
 
+        @Override
         public boolean hasPyCode() {
             return hasPyCode;
         }
@@ -60,10 +62,12 @@ public class StructuredSelectionGeneratorTestWorkbench extends TestCase {
      * an exception on any call to getPyCode/hasPyCode
      */
     private static class TestExceptionObject implements IScriptConsoleCodeGenerator {
+        @Override
         public String getPyCode() {
             throw new RuntimeException("getPyCode Forced Failure");
         }
 
+        @Override
         public boolean hasPyCode() {
             throw new RuntimeException("hasPyCode Forced Failure");
         }

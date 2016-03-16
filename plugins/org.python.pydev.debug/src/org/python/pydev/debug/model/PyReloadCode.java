@@ -27,12 +27,15 @@ import org.python.pydev.shared_ui.editor.IPyEditListener;
 
 public class PyReloadCode implements IPyEditListener {
 
+    @Override
     public void onCreateActions(ListResourceBundle resources, BaseEditor baseEditor, IProgressMonitor monitor) {
     }
 
+    @Override
     public void onDispose(BaseEditor baseEditor, IProgressMonitor monitor) {
     }
 
+    @Override
     public void onSave(BaseEditor baseEditor, IProgressMonitor monitor) {
         if (!DebugPrefsPage.getReloadModuleOnChange()) {
             return;
@@ -71,6 +74,7 @@ public class PyReloadCode implements IPyEditListener {
         }
     }
 
+    @Override
     public void onSetDocument(IDocument document, BaseEditor baseEditor, IProgressMonitor monitor) {
     }
 

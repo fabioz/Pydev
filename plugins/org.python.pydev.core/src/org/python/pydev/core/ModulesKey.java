@@ -54,6 +54,7 @@ public class ModulesKey implements Comparable<ModulesKey>, Serializable {
     /**
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
+    @Override
     public int compareTo(ModulesKey o) {
         return name.compareTo(o.name);
     }
@@ -102,6 +103,7 @@ public class ModulesKey implements Comparable<ModulesKey>, Serializable {
             this.startingWithLowerCase = startingWithLowerCase;
         }
 
+        @Override
         public boolean call(String mod) {
             if (mod.length() == 0) {
                 return true; //keep on going

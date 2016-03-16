@@ -122,6 +122,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
     /*
      * @see ICompletionProposal#apply(IDocument)
      */
+    @Override
     public void apply(IDocument document) {
         switch (onApplyAction) {
             case ON_APPLY_JUST_SHOW_CTX_INFO:
@@ -160,6 +161,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
     /*
      * @see ICompletionProposal#getSelection(IDocument)
      */
+    @Override
     public Point getSelection(IDocument document) {
         if (onApplyAction == ON_APPLY_JUST_SHOW_CTX_INFO) {
             return null;
@@ -176,6 +178,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
     /*
      * @see ICompletionProposal#getContextInformation()
      */
+    @Override
     public IContextInformation getContextInformation() {
         return fContextInformation;
     }
@@ -183,6 +186,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
     /*
      * @see ICompletionProposal#getImage()
      */
+    @Override
     public Image getImage() {
         return fImage;
     }
@@ -190,6 +194,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
     /*
      * @see ICompletionProposal#getDisplayString()
      */
+    @Override
     public final String getDisplayString() {
         //        if (fDisplayString == null){
         //            throw new AssertionError("This should NEVER happen!");
@@ -200,6 +205,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
     /*
      * @see ICompletionProposal#getAdditionalProposalInfo()
      */
+    @Override
     public String getAdditionalProposalInfo() {
         return fAdditionalProposalInfo;
     }
@@ -230,10 +236,12 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
     /**
      * @see org.python.pydev.shared_ui.proposals.IPyCompletionProposal#getPriority()
      */
+    @Override
     public int getPriority() {
         return priority;
     }
 
+    @Override
     public boolean isAutoInsertable() {
         return onApplyAction == ON_APPLY_JUST_SHOW_CTX_INFO
                 || onApplyAction == ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS;

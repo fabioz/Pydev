@@ -62,6 +62,7 @@ public class BaseAction extends Action implements IEditorActionDelegate {
     /**
      * This is an IEditorActionDelegate override
      */
+    @Override
     public void setActiveEditor(IAction action, IEditorPart targetEditor) {
         setEditor(targetEditor);
     }
@@ -69,6 +70,7 @@ public class BaseAction extends Action implements IEditorActionDelegate {
     /**
      * Activate action  (if we are getting text)
      */
+    @Override
     public void selectionChanged(IAction action, ISelection selection) {
         action.setEnabled(true);
     }

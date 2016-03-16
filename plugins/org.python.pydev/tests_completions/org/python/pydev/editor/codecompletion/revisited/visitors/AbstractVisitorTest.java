@@ -34,12 +34,14 @@ public class AbstractVisitorTest extends TestCase {
         junit.textui.TestRunner.run(AbstractVisitorTest.class);
     }
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
         PydevPlugin.setBundleInfo(new BundleInfoStub());
         MODULE_NAME = "testModule";
     }
 
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
         PydevPlugin.setBundleInfo(null);

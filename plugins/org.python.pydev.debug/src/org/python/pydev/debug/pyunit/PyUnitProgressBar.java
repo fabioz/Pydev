@@ -45,17 +45,20 @@ public class PyUnitProgressBar extends Canvas {
         super(parent, SWT.NONE);
 
         addControlListener(new ControlAdapter() {
+            @Override
             public void controlResized(ControlEvent e) {
                 fColorBarWidth = scale(fCurrentTickCount);
                 redraw();
             }
         });
         addPaintListener(new PaintListener() {
+            @Override
             public void paintControl(PaintEvent e) {
                 paint(e);
             }
         });
         addDisposeListener(new DisposeListener() {
+            @Override
             public void widgetDisposed(DisposeEvent e) {
                 fFailureColor.dispose();
                 fOKColor.dispose();
@@ -165,6 +168,7 @@ public class PyUnitProgressBar extends Canvas {
         gc.fillRectangle(1, 1, fColorBarWidth, rect.height - 2);
     }
 
+    @Override
     public Point computeSize(int wHint, int hHint, boolean changed) {
         checkWidget();
         Point size = new Point(DEFAULT_WIDTH, DEFAULT_HEIGHT);
