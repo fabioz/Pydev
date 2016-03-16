@@ -803,19 +803,21 @@ class PydevTestRunner(object):
 
 
 try:
-    from django.test.simple import DjangoTestSuiteRunner
+    import django
+    from django.test.runner import DiscoverRunner
 except:
-    class DjangoTestSuiteRunner:
+    class DiscoverRunner:
         def __init__(self):
             pass
 
         def run_tests(self, *args, **kwargs):
-            raise AssertionError("Unable to run suite with DjangoTestSuiteRunner because it couldn't be imported.")
+            raise AssertionError("Unable to run suite with Django's DiscoverRunner because it couldn't be imported.")
 
-class MyDjangoTestSuiteRunner(DjangoTestSuiteRunner):
+class MyDjangoTestSuiteRunner(DiscoverRunner):
 
     def __init__(self, on_run_suite):
-        DjangoTestSuiteRunner.__init__(self)
+        django.setup()
+        DiscoverRunner.__init__(self)
         self.on_run_suite = on_run_suite
 
     def build_suite(self, *args, **kwargs):
