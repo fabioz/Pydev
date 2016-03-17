@@ -1169,6 +1169,8 @@
    <extension-point id="pydev_interpreter_info_builder" name="PyDev interpreter info builder" schema="schema/pydev_interpreter_info_builder.exsd"/>
    <extension-point id="pydev_interpreter_provider" name="PyDev interpreter provider" schema="schema/pydev_interpreter_provider.exsd"/>
    <extension-point id="pydev_python_module_resolver" name="Python module resolver" schema="schema/pydev_python_module_resolver.exsd"/>
+   <extension-point id="pydev_hover2" name="PyDev Hover2" schema="schema/pydev_hover2.exsd"/>
+   <extension-point id="pydev_combiningHover" name="PyDev Combining Hover" schema="schema/pydev_combiningHover.exsd"/>
 <!-- wizards -->
    <extension point="org.eclipse.ui.newWizards">
       <category
@@ -2818,5 +2820,41 @@ if __name__ == "__main__":
                refid="org.eclipse.e4.ui.css.theme.e4_dark">
          </themeid>
       </stylesheet>
+   </extension>
+   <extension
+         point="org.python.pydev.pydev_hover2">
+      <pyTextHover
+            activate="false"
+            class="org.python.pydev.editor.hover.PyDocstringTextHover"
+            description="Provides hover text for Python docstrings"
+            id="org.python.pydev.editor.hover.pyDocstringTextHover"
+            label="PyDev Docstring Hover"
+            preempt="false"
+            priority="100">
+      </pyTextHover>
+   </extension>
+   <extension
+         point="org.python.pydev.pydev_hover2">
+      <pyTextHover
+            activate="false"
+            class="org.python.pydev.editor.hover.PyMarkerTextHover"
+            description="Provides hover text for Python markers"
+            id="org.python.pydev.editor.hover.pyMarkerTextHover"
+            label="PyDev Marker Hover"
+            preempt="false"
+            priority="150">
+      </pyTextHover>
+   </extension>
+   <extension
+         point="org.python.pydev.pydev_hover2">
+      <pyTextHover
+            activate="false"
+            class="org.python.pydev.editor.hover.DefaultPydevCombiningHover"
+            description="Combines info from enabled hovers, in priority order, until reaching a hover with preempt == true"
+            id="org.python.pydev.editor.hover.defaultCombiningHover"
+            label="Default PyDev Combining Hover"
+            preempt="true"
+            priority="10">
+      </pyTextHover>
    </extension>
  </plugin>
