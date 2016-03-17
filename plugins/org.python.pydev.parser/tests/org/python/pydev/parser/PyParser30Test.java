@@ -786,4 +786,40 @@ public class PyParser30Test extends PyParserTestBase {
         parseLegalDocStr(s);
         parseLegalDocStrWithoutTree(s);
     }
+
+    public void testUnpacking3() throws Exception {
+        String s = ""
+                + "def test():\n" +
+                "    return (1, *range(3))\n"
+                + "";
+        parseLegalDocStrWithoutTree(s);
+        parseLegalDocStr(s);
+    }
+
+    public void testUnpacking4() throws Exception {
+        String s = ""
+                + "def test():\n" +
+                "    return (1, *[x for x in (1,2)])\n"
+                + "";
+        parseLegalDocStrWithoutTree(s);
+        parseLegalDocStr(s);
+    }
+
+    public void testUnpacking5() throws Exception {
+        String s = ""
+                + "def test():\n" +
+                "    return (1, *(x for x in (1,2)))\n"
+                + "";
+        parseLegalDocStrWithoutTree(s);
+        parseLegalDocStr(s);
+    }
+
+    public void testUnpacking6() throws Exception {
+        String s = ""
+                + "def test():\n" +
+                "    return (1, *{x:x for x in (1,2)})\n"
+                + "";
+        parseLegalDocStrWithoutTree(s);
+        parseLegalDocStr(s);
+    }
 }

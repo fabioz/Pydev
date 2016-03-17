@@ -19,7 +19,7 @@ import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.expr_contextType;
 import org.python.pydev.shared_core.string.StringUtils;
 
-public final class CtxVisitor extends Visitor {
+public class CtxVisitor extends Visitor {
 
     private int ctx;
     private JJTPythonGrammarState stack;

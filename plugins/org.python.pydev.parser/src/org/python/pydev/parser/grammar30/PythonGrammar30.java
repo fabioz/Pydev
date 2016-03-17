@@ -40,7 +40,6 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     /**
      * @return the current token found.
      */
-    @Override
     protected final Token getCurrentToken() {
         return this.token;
     }
@@ -48,7 +47,6 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     /**
      * Sets the current token.
      */
-    @Override
     protected final void setCurrentToken(Token t) {
         this.token = t;
     }
@@ -57,7 +55,6 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     /**
      * @return the jjtree from this grammar
      */
-    @Override
     protected final AbstractJJTPythonGrammarState getJJTree(){
         return jjtree;
     }
@@ -66,7 +63,6 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     /**
      * @return the special tokens in the token source
      */
-    @Override
     public final List<Object> getTokenSourceSpecialTokensList(){
         return token_source.specialTokens;
     }
@@ -75,7 +71,6 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     /**
      * @return the jj_lastpos
      */
-    @Override
     protected final Token getJJLastPos(){
         return jj_lastpos;
     }
@@ -117,8 +112,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     }
 
 //file_input: (NEWLINE | stmt)* ENDMARKER
-  @Override
-final public modType file_input() throws ParseException {
+  final public modType file_input() throws ParseException {
                        /*@bgen(jjtree) file_input */
   SimpleNode jjtn000 = builder.openNode( JJTFILE_INPUT);
   boolean jjtc000 = true;
@@ -9334,8 +9328,7 @@ else
   }
 
 /** Get the specific Token. */
-  @Override
-final public Token getToken(int index) {
+  final public Token getToken(int index) {
     Token t = token;
     for (int i = 0; i < index; i++) {
       if (t.next != null) t = t.next;
@@ -9429,8 +9422,7 @@ final public Token getToken(int index) {
   }
 
   /** Enable tracing. */
-  @Override
-final public void enable_tracing() {
+  final public void enable_tracing() {
   }
 
   /** Disable tracing. */
