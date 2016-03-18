@@ -70,10 +70,12 @@ public class PyHierarchyView extends ViewPartWithOrientation implements IViewWit
         viewer.setNewOrientation(orientation);
     }
 
+    @Override
     public ICallbackWithListeners getOnControlCreated() {
         return onControlCreated;
     }
 
+    @Override
     public ICallbackWithListeners getOnControlDisposed() {
         return onControlDisposed;
     }

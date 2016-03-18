@@ -73,6 +73,7 @@ final class TokensIterator implements Iterator<Token> {
         //        this.parensLevel = 0;
     }
 
+    @Override
     public boolean hasNext() {
         if (isFirst) {
             return currentToken != null;
@@ -84,6 +85,7 @@ final class TokensIterator implements Iterator<Token> {
         return currentToken != null && currentToken.next != null;
     }
 
+    @Override
     public Token next() {
         if (isFirst) {
             isFirst = false;
@@ -148,6 +150,7 @@ final class TokensIterator implements Iterator<Token> {
 
     }
 
+    @Override
     public void remove() {
         throw new RuntimeException("Not implemented");
     }

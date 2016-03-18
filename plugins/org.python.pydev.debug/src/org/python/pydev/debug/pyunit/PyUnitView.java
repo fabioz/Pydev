@@ -206,6 +206,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
 
         lineTracker.init(new ILinkContainer() {
 
+            @Override
             public void addLink(IHyperlink link, int offset, int length) {
                 if (testOutputText == null) {
                     return;
@@ -231,6 +232,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
                 testOutputText.setStyleRange(range);
             }
 
+            @Override
             public String getContents(int lineOffset, int lineLength) throws BadLocationException {
                 if (testOutputText == null) {
                     return "";
@@ -342,6 +344,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
             colorAndStyleCache = new ColorAndStyleCache(PydevPrefs.getChainedPrefStore());
             prefListener = new IPropertyChangeListener() {
 
+                @Override
                 public void propertyChange(PropertyChangeEvent event) {
                     if (tree != null) {
                         String property = event.getProperty();
@@ -487,6 +490,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
         PyUnitView.addServerListener(serverListener);
 
         Runnable r = new Runnable() {
+            @Override
             public void run() {
                 try {
                     PyUnitView view = getView();
@@ -604,6 +608,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
     public void asyncUpdateCountersAndBar() {
         RunInUiThread.async(new Runnable() {
 
+            @Override
             public void run() {
                 updateCountersAndBar();
             }
@@ -996,10 +1001,12 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
         text.addMouseListener(this.activateLinkmouseListener);
     }
 
+    @Override
     public ICallbackWithListeners getOnControlCreated() {
         return onControlCreated;
     }
 
+    @Override
     public ICallbackWithListeners getOnControlDisposed() {
         return onControlDisposed;
     }

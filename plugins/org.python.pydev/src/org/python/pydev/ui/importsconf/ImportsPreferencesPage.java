@@ -150,6 +150,7 @@ public class ImportsPreferencesPage extends ScopedFieldEditorPreferencePage impl
         editor.getDescriptionControl(p).setToolTipText(tip);
     }
 
+    @Override
     public void init(IWorkbench workbench) {
         // pass
     }

@@ -24,6 +24,7 @@ import org.python.pydev.shared_ui.ImageCache;
 
 public final class ShowOutlineLabelProvider extends LabelProvider implements IStyledLabelProvider {
 
+    @Override
     public Image getImage(Object element) {
         SimpleNode n = null;
         if (element instanceof DataAndImageTreeNode) {
@@ -49,6 +50,7 @@ public final class ShowOutlineLabelProvider extends LabelProvider implements ISt
         return null;
     }
 
+    @Override
     public String getText(Object element) {
         if (element instanceof DataAndImageTreeNode) {
             @SuppressWarnings("rawtypes")
@@ -76,6 +78,7 @@ public final class ShowOutlineLabelProvider extends LabelProvider implements ISt
         return element.toString();
     }
 
+    @Override
     public StyledString getStyledText(Object element) {
         if (element instanceof DataAndImageTreeNode) {
             @SuppressWarnings("rawtypes")

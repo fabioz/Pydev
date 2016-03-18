@@ -15,6 +15,7 @@ public final class Compare extends exprType implements cmpopType {
         this.comparators = comparators;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -24,6 +25,7 @@ public final class Compare extends exprType implements cmpopType {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -44,10 +46,12 @@ public final class Compare extends exprType implements cmpopType {
         return true;
     }
 
+    @Override
     public Compare createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public Compare createCopy(boolean copyComments) {
         int[] new0;
         if (this.ops != null) {
@@ -89,6 +93,7 @@ public final class Compare extends exprType implements cmpopType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("Compare[");
         sb.append("left=");
@@ -103,10 +108,12 @@ public final class Compare extends exprType implements cmpopType {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitCompare(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (left != null) {
             left.accept(visitor);

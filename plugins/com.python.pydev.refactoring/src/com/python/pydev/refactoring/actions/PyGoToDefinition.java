@@ -110,6 +110,7 @@ public class PyGoToDefinition extends PyRefactorAction {
         /**
          * As soon as the reparse is done, this method is called.
          */
+        @Override
         public void parserChanged(ISimpleNode root, IAdaptable file, IDocument doc, long docModificationStamp) {
             editToReparse.getParser().removeParseListener(this); //we'll only listen for this single parse
             doFindIfLast();
@@ -118,6 +119,7 @@ public class PyGoToDefinition extends PyRefactorAction {
         /**
          * We want to work in the event of parse errors too.
          */
+        @Override
         public void parserError(Throwable error, IAdaptable file, IDocument doc) {
             editToReparse.getParser().removeParseListener(this); //we'll only listen for this single parse
             doFindIfLast();
@@ -263,13 +265,16 @@ public class PyGoToDefinition extends PyRefactorAction {
                 final Display disp = shell.getDisplay();
                 disp.syncExec(new Runnable() {
 
+                    @Override
                     public void run() {
                         ElementListSelectionDialog dialog = new ElementListSelectionDialog(shell, new ILabelProvider() {
 
+                            @Override
                             public Image getImage(Object element) {
                                 return PyCodeCompletionImages.getImageForType(IToken.TYPE_PACKAGE);
                             }
 
+                            @Override
                             public String getText(Object element) {
                                 ItemPointer pointer = (ItemPointer) element;
                                 File f = (File) (pointer).file;
@@ -277,16 +282,20 @@ public class PyGoToDefinition extends PyRefactorAction {
                                 return f.getName() + "  (" + f.getParent() + ") - line:" + line;
                             }
 
+                            @Override
                             public void addListener(ILabelProviderListener listener) {
                             }
 
+                            @Override
                             public void dispose() {
                             }
 
+                            @Override
                             public boolean isLabelProperty(Object element, String property) {
                                 return false;
                             }
 
+                            @Override
                             public void removeListener(ILabelProviderListener listener) {
                             }
                         }) {

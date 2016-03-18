@@ -92,6 +92,7 @@ public class AppEngineTemplatePage extends WizardPage {
         setErrorMessage("Please select the template to use to create the project");
     }
 
+    @Override
     public void createControl(Composite parent) {
         Font font = parent.getFont();
 
@@ -109,6 +110,7 @@ public class AppEngineTemplatePage extends WizardPage {
         setFillHorizontalLayoutDataAndFont(appIdText, font);
         appIdText.addModifyListener(new ModifyListener() {
 
+            @Override
             public void modifyText(ModifyEvent e) {
                 handleChange();
             }
@@ -139,10 +141,12 @@ public class AppEngineTemplatePage extends WizardPage {
 
         comboTemplateNames.addSelectionListener(new SelectionListener() {
 
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 handleChange();
             }
 
+            @Override
             public void widgetDefaultSelected(SelectionEvent e) {
             }
         });
@@ -230,6 +234,7 @@ public class AppEngineTemplatePage extends WizardPage {
                     FileUtils.copyDirectory(tuple.o2, sourceFolder.getLocation().toFile(),
                             new ICallback<Boolean, File>() {
 
+                                @Override
                                 public Boolean call(File arg) {
                                     //we don't want to copy description.txt
                                     String filename = arg.getName().toLowerCase();
@@ -241,6 +246,7 @@ public class AppEngineTemplatePage extends WizardPage {
                                 }
                             }, new ICallback<String, String>() {
 
+                                @Override
                                 public String call(String contents) {
                                     //We want to change any references to ${app_id} for the app id entered by the user
                                     return StringUtils.replaceAll(contents,

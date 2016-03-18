@@ -277,6 +277,7 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
      *
      * @param userInput that's the command to be evaluated by the user.
      */
+    @Override
     public void handleCommand(String userInput, final ICallback<Object, InterpreterResponse> onResponseReceived) {
         final Object[] listeners = consoleListeners.getListeners();
 
@@ -284,6 +285,7 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
         if (interpreter != null) {
             interpreter.exec(userInput, new ICallback<Object, InterpreterResponse>() {
 
+                @Override
                 public Object call(final InterpreterResponse response) {
                     //sets the new mode
                     prompt.setMode(!response.more);
@@ -304,6 +306,7 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
     /**
      * Fetch the current completions for the content presented in the user's ipython console
      */
+    @Override
     public ICompletionProposal[] getTabCompletions(String commandLine, int cursorPosition) {
         try {
             ICompletionProposal[] completions = interpreter.getCompletions(viewer.get(), commandLine, cursorPosition,

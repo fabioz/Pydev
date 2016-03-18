@@ -63,6 +63,7 @@ public class DebuggerWriter implements Runnable {
     /**
      * Loops and writes commands to the output
      */
+    @Override
     public void run() {
         while (!done) {
             AbstractDebuggerCommand cmd = null;

@@ -9,12 +9,14 @@ public final class Pass extends stmtType {
     public Pass() {
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -26,10 +28,12 @@ public final class Pass extends stmtType {
         return true;
     }
 
+    @Override
     public Pass createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public Pass createCopy(boolean copyComments) {
         Pass temp = new Pass();
         temp.beginLine = this.beginLine;
@@ -53,16 +57,19 @@ public final class Pass extends stmtType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("Pass[");
         sb.append("]");
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitPass(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
     }
 

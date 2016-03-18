@@ -17,10 +17,12 @@ public class WriterEraserV2 implements IWriterEraser {
         pushTempBuffer(); //this is the initial buffer (should never be removed)
     }
 
+    @Override
     public void write(String o) {
         buf.peek().append(o);
     }
 
+    @Override
     public void erase(String o) {
         FastStringBuffer buffer = buf.peek();
         if (buffer.toString().endsWith(o)) {
@@ -31,6 +33,7 @@ public class WriterEraserV2 implements IWriterEraser {
         }
     }
 
+    @Override
     public boolean endsWithSpace() {
         FastStringBuffer current = buf.peek();
         if (current.length() == 0) {
@@ -39,14 +42,17 @@ public class WriterEraserV2 implements IWriterEraser {
         return current.lastChar() == ' ';
     }
 
+    @Override
     public FastStringBuffer getBuffer() {
         return buf.peek();
     }
 
+    @Override
     public void pushTempBuffer() {
         buf.push(new FastStringBuffer());
     }
 
+    @Override
     public String popTempBuffer() {
         return buf.pop().toString();
     }

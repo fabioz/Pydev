@@ -90,6 +90,7 @@ public abstract class AbstractCustomRuleBasedScanner implements ICharacterScanne
     /*
      * @see ITokenScanner#setRange(IDocument, int, int)
      */
+    @Override
     public void setRange(final IDocument document, int offset, int length) {
         Assert.isLegal(document != null);
         final int documentLength = document.getLength();
@@ -129,6 +130,7 @@ public abstract class AbstractCustomRuleBasedScanner implements ICharacterScanne
     /*
      * @see ITokenScanner#getTokenOffset()
      */
+    @Override
     public int getTokenOffset() {
         return fTokenOffset;
     }
@@ -136,6 +138,7 @@ public abstract class AbstractCustomRuleBasedScanner implements ICharacterScanne
     /*
      * @see ITokenScanner#getTokenLength()
      */
+    @Override
     public int getTokenLength() {
         if (fOffset < fRangeEnd) {
             return fOffset - getTokenOffset();
@@ -146,6 +149,7 @@ public abstract class AbstractCustomRuleBasedScanner implements ICharacterScanne
     /*
      * @see ICharacterScanner#getColumn()
      */
+    @Override
     public int getColumn() {
         if (fColumn == UNDEFINED) {
             try {
@@ -163,6 +167,7 @@ public abstract class AbstractCustomRuleBasedScanner implements ICharacterScanne
     /*
      * @see ICharacterScanner#getLegalLineDelimiters()
      */
+    @Override
     public char[][] getLegalLineDelimiters() {
         return fDelimiters;
     }
@@ -181,6 +186,7 @@ public abstract class AbstractCustomRuleBasedScanner implements ICharacterScanne
      *  }
      *
      */
+    @Override
     public IToken nextToken() {
         //Treat case where we have no rules (read to the end).
         if (fRules == null) {
@@ -224,10 +230,12 @@ public abstract class AbstractCustomRuleBasedScanner implements ICharacterScanne
     /*
      * @see ICharacterScanner#read()
      */
+    @Override
     public abstract int read();
 
     /*
      * @see ICharacterScanner#unread()
      */
+    @Override
     public abstract void unread();
 }

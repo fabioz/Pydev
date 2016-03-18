@@ -40,7 +40,7 @@ import org.python.pydev.parser.jython.ast.stmtType;
 public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeConstants {
 
     protected final JJTPythonGrammarState stack;
-    protected final CtxVisitor ctx;
+    protected CtxVisitor ctx;
     protected SimpleNode lastPop;
 
     public AbstractTreeBuilderHelpers(JJTPythonGrammarState stack) {

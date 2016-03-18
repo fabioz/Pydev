@@ -48,10 +48,12 @@ public class ConstructorFieldRequest implements IRefactoringRequest {
         this.adapterPrefs = adapterPrefs;
     }
 
+    @Override
     public IASTNodeAdapter<? extends SimpleNode> getOffsetNode() {
         return classAdapter;
     }
 
+    @Override
     public AdapterPrefs getAdapterPrefs() {
         return adapterPrefs;
     }

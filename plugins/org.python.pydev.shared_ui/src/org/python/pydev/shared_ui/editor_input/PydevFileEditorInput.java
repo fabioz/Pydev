@@ -44,6 +44,7 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
         /*
          * @see org.eclipse.ui.model.IWorkbenchAdapter#getChildren(java.lang.Object)
          */
+        @Override
         public Object[] getChildren(Object o) {
             return null;
         }
@@ -51,6 +52,7 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
         /*
          * @see org.eclipse.ui.model.IWorkbenchAdapter#getImageDescriptor(java.lang.Object)
          */
+        @Override
         public ImageDescriptor getImageDescriptor(Object object) {
             return null;
         }
@@ -58,6 +60,7 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
         /*
          * @see org.eclipse.ui.model.IWorkbenchAdapter#getLabel(java.lang.Object)
          */
+        @Override
         public String getLabel(Object o) {
             return ((PydevFileEditorInput) o).getName();
         }
@@ -65,6 +68,7 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
         /*
          * @see org.eclipse.ui.model.IWorkbenchAdapter#getParent(java.lang.Object)
          */
+        @Override
         public Object getParent(Object o) {
             return null;
         }
@@ -82,6 +86,7 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
     /*
      * @see org.eclipse.ui.IEditorInput#exists()
      */
+    @Override
     public boolean exists() {
         return fFile.exists();
     }
@@ -89,6 +94,7 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
     /*
      * @see org.eclipse.ui.IEditorInput#getImageDescriptor()
      */
+    @Override
     public ImageDescriptor getImageDescriptor() {
         return null;
     }
@@ -96,6 +102,7 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
     /*
      * @see org.eclipse.ui.IEditorInput#getName()
      */
+    @Override
     public String getName() {
         return fFile.getName();
     }
@@ -103,6 +110,7 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
     /*
      * @see org.eclipse.ui.IEditorInput#getPersistable()
      */
+    @Override
     public IPersistableElement getPersistable() {
         return this;
     }
@@ -110,6 +118,7 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
     /*
      * @see org.eclipse.ui.IEditorInput#getToolTipText()
      */
+    @Override
     public String getToolTipText() {
         return fFile.getAbsolutePath();
     }
@@ -117,6 +126,7 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
     /*
      * @see org.eclipse.core.runtime.IAdaptable#getAdapter(java.lang.Class)
      */
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T getAdapter(Class<T> adapter) {
         if (adapter.isInstance(this)) {
@@ -131,6 +141,7 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
     /*
      * @see org.eclipse.ui.editors.text.ILocationProvider#getPath(java.lang.Object)
      */
+    @Override
     public IPath getPath(Object element) {
         if (element instanceof PydevFileEditorInput) {
             PydevFileEditorInput input = (PydevFileEditorInput) element;
@@ -143,6 +154,7 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
      * @see org.eclipse.ui.IPathEditorInput#getPath()
      * @since 3.1
      */
+    @Override
     public IPath getPath() {
         return Path.fromOSString(fFile.getAbsolutePath());
     }
@@ -175,6 +187,7 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
         return fFile;
     }
 
+    @Override
     public URI getURI(Object element) {
         if (element instanceof IURIEditorInput) {
             IURIEditorInput editorInput = (IURIEditorInput) element;
@@ -183,14 +196,17 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
         return null;
     }
 
+    @Override
     public URI getURI() {
         return fFile.toURI();
     }
 
+    @Override
     public void saveState(IMemento memento) {
         PyEditorInputFactory.saveState(memento, this);
     }
 
+    @Override
     public String getFactoryId() {
         return PyEditorInputFactory.FACTORY_ID;
     }

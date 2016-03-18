@@ -19,6 +19,7 @@ import org.python.pydev.plugin.nature.PythonNature;
  */
 public class PyAddNature extends PyRemoveNature {
 
+    @Override
     public void run(IAction action) {
         if (selectedProject == null) {
             return;

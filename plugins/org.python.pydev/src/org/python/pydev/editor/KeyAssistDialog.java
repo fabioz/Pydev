@@ -96,6 +96,7 @@ public class KeyAssistDialog extends PopupDialog {
      * 
      * @return Whether the shell was already closed.
      */
+    @Override
     public final boolean close() {
         return close(false);
     }
@@ -210,6 +211,7 @@ public class KeyAssistDialog extends PopupDialog {
      *            The parent composite to contain the dialog area; must not be
      *            <code>null</code>.
      */
+    @Override
     protected final Control createDialogArea(final Composite parent) {
         // First, register the shell type with the context support
         registerShellType();
@@ -295,6 +297,7 @@ public class KeyAssistDialog extends PopupDialog {
          * command.
          */
         completionsTable.addListener(SWT.DefaultSelection, new Listener() {
+            @Override
             public final void handleEvent(final Event event) {
                 executeKeyBinding(event);
             }

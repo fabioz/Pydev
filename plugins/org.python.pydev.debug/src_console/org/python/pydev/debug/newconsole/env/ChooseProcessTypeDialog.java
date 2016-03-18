@@ -120,12 +120,14 @@ final class ChooseProcessTypeDialog extends Dialog {
                 + "I.e.: send contents to console on creation,\n" + "connect to variables view, initial commands, etc.");
 
         link.addSelectionListener(new SelectionListener() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(null,
                         InteractiveConsolePrefs.PREFERENCES_ID, null, null);
                 dialog.open();
             }
 
+            @Override
             public void widgetDefaultSelected(SelectionEvent e) {
             }
         });

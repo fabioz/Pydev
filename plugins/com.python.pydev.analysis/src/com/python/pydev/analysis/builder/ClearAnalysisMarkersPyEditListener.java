@@ -27,10 +27,12 @@ import org.python.pydev.shared_ui.editor.IPyEditListener3;
  */
 public class ClearAnalysisMarkersPyEditListener implements IPyEditListener, IPyEditListener3 {
 
+    @Override
     public void onCreateActions(ListResourceBundle resources, BaseEditor baseEditor, IProgressMonitor monitor) {
 
     }
 
+    @Override
     public void onDispose(BaseEditor baseEditor, IProgressMonitor monitor) {
         PyEdit edit = (PyEdit) baseEditor;
         IEditorInput input = edit.getEditorInput();
@@ -38,14 +40,17 @@ public class ClearAnalysisMarkersPyEditListener implements IPyEditListener, IPyE
         removeMarkersFromInput(input);
     }
 
+    @Override
     public void onSave(BaseEditor baseEditor, IProgressMonitor monitor) {
 
     }
 
+    @Override
     public void onSetDocument(IDocument document, BaseEditor baseEditor, IProgressMonitor monitor) {
 
     }
 
+    @Override
     public void onInputChanged(BaseEditor baseEditor, IEditorInput oldInput, IEditorInput input,
             IProgressMonitor monitor) {
         removeMarkersFromInput(oldInput);

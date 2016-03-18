@@ -513,16 +513,19 @@ class LinePartsIterator implements Iterator<ILinePart> {
 
     }
 
+    @Override
     public void remove() {
         throw new RuntimeException("Not impl");
     }
 
+    @Override
     public ILinePart next() {
         ILinePart ret = next;
         calcNext();
         return ret;
     }
 
+    @Override
     public boolean hasNext() {
         return next != null;
     }

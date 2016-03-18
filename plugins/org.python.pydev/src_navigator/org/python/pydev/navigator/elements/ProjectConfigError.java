@@ -22,6 +22,7 @@ public class ProjectConfigError implements ISortedElement {
         return this.project;
     }
 
+    @Override
     public int getRank() {
         return ISortedElement.RANK_ERROR;
     }

@@ -60,6 +60,7 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
     /* (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#createControl(org.eclipse.swt.widgets.Composite)
      */
+    @Override
     public void createControl(Composite parent) {
         Font font = parent.getFont();
 
@@ -78,6 +79,7 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
         fMainModuleText.setLayoutData(gd);
         fMainModuleText.setFont(font);
         fMainModuleText.addModifyListener(new ModifyListener() {
+            @Override
             public void modifyText(ModifyEvent evt) {
                 updateLaunchConfigurationDialog();
             }
@@ -143,6 +145,7 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
         // Create a ModifyListener, used to listen for project modifications in the ProjectBlock. 
         // This assumes that the Project is in a Text control...
         fProjectModifyListener = new ModifyListener() {
+            @Override
             public void modifyText(ModifyEvent e) {
                 Widget widget = e.widget;
                 if (widget instanceof Text) {
@@ -169,6 +172,7 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
      * 
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#getName()
      */
+    @Override
     public String getName() {
         return "Main module";
     }
@@ -178,6 +182,7 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
      * 
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#initializeFrom(org.eclipse.debug.core.ILaunchConfiguration)
      */
+    @Override
     public void initializeFrom(ILaunchConfiguration configuration) {
 
         // Initialize the location field
@@ -211,6 +216,7 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
      * (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#performApply(org.eclipse.debug.core.ILaunchConfigurationWorkingCopy)
      */
+    @Override
     public void performApply(ILaunchConfigurationWorkingCopy configuration) {
         String value = fMainModuleText.getText().trim();
         setAttribute(configuration, Constants.ATTR_LOCATION, value);
@@ -221,6 +227,7 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
      * (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#setDefaults(org.eclipse.debug.core.ILaunchConfigurationWorkingCopy)
      */
+    @Override
     public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
         //no defaults to set
     }

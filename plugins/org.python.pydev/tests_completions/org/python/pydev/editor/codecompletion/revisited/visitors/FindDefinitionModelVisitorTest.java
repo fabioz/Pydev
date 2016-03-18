@@ -42,6 +42,7 @@ public class FindDefinitionModelVisitorTest extends CodeCompletionTestsBase {
     /*
      * @see TestCase#setUp()
      */
+    @Override
     public void setUp() throws Exception {
         super.setUp();
         restorePythonPath(false);
@@ -50,6 +51,7 @@ public class FindDefinitionModelVisitorTest extends CodeCompletionTestsBase {
     /*
      * @see TestCase#tearDown()
      */
+    @Override
     public void tearDown() throws Exception {
         super.tearDown();
     }

@@ -36,6 +36,7 @@ public abstract class AbstractBlockCommentAction extends PyAction {
     /**
      * Grabs the selection information and performs the action.
      */
+    @Override
     public void run(IAction action) {
         try {
             if (!canModifyEditor()) {

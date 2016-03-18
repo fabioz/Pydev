@@ -57,6 +57,7 @@ public class ReplaceConfigurationPage extends UserInputWizardPage {
     /* (non-Javadoc)
      * @see org.eclipse.jface.dialogs.IDialogPage#createControl(org.eclipse.swt.widgets.Composite)
      */
+    @Override
     public void createControl(Composite parent) {
         Composite result = new Composite(parent, SWT.NONE);
         GridLayout layout = new GridLayout(2, false);
@@ -97,6 +98,7 @@ public class ReplaceConfigurationPage extends UserInputWizardPage {
         fTextField.setLayoutData(gd);
         fTextField.setFocus();
         fTextField.addModifyListener(new ModifyListener() {
+            @Override
             public void modifyText(ModifyEvent e) {
                 updateOKStatus();
             }

@@ -118,6 +118,7 @@ public class CreateLocalVariableEdit extends AbstractInsertEdit {
                 try {
                     Visitor v = new Visitor() {
 
+                        @Override
                         protected Object unhandled_node(SimpleNode node) throws Exception {
                             if (node.beginLine > 0) {
                                 line[0] = Math.min(line[0], node.beginLine - 1);

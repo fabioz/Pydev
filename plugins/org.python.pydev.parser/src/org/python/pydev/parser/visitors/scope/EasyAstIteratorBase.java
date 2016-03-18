@@ -43,6 +43,7 @@ public abstract class EasyAstIteratorBase extends VisitorBase {
     /** 
      * @see org.python.pydev.parser.jython.ast.VisitorBase#unhandled_node(org.python.pydev.parser.jython.SimpleNode)
      */
+    @Override
     protected Object unhandled_node(SimpleNode node) throws Exception {
         this.lastVisited = node;
         int l = NodeUtils.getLineEnd(this.lastVisited);
@@ -71,6 +72,7 @@ public abstract class EasyAstIteratorBase extends VisitorBase {
     /** 
      * @see org.python.pydev.parser.jython.ast.VisitorBase#traverse(org.python.pydev.parser.jython.SimpleNode)
      */
+    @Override
     public void traverse(SimpleNode node) throws Exception {
         if (node instanceof FunctionDef) {
             traverse((FunctionDef) node); //the order we traverse it is different
@@ -191,6 +193,7 @@ public abstract class EasyAstIteratorBase extends VisitorBase {
     /** 
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitClassDef(org.python.pydev.parser.jython.ast.ClassDef)
      */
+    @Override
     public Object visitClassDef(ClassDef node) throws Exception {
         ASTEntry entry = before(node);
         parents.push(entry);
@@ -250,6 +253,7 @@ public abstract class EasyAstIteratorBase extends VisitorBase {
     /** 
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitFunctionDef(org.python.pydev.parser.jython.ast.FunctionDef)
      */
+    @Override
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         ASTEntry entry = before(node);
         parents.push(entry);

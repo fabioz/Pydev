@@ -102,6 +102,7 @@ public abstract class AbstractLinkedModeCompletionProposal extends AbstractCompl
         throw new RuntimeException("Unexpected apply mode:" + onApplyAction);
     }
 
+    @Override
     public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
 
         boolean eat = (stateMask & SWT.MOD1) != 0;
@@ -299,6 +300,7 @@ public abstract class AbstractLinkedModeCompletionProposal extends AbstractCompl
             ui.setDoContextInfo(true); //set it to request the ctx info from the completion processor
             ui.setExitPosition(viewer, exitPos, 0, Integer.MAX_VALUE);
             Runnable r = new Runnable() {
+                @Override
                 public void run() {
                     ui.enter();
                 }
@@ -318,6 +320,7 @@ public abstract class AbstractLinkedModeCompletionProposal extends AbstractCompl
     * 
     * If not added, it won't request the new one (and will just stop the current)
     */
+    @Override
     public char[] getTriggerCharacters() {
         return null;
     }

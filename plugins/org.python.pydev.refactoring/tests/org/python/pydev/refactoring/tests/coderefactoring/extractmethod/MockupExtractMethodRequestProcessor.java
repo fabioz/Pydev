@@ -58,12 +58,14 @@ public class MockupExtractMethodRequestProcessor implements IRequestProcessor<Ex
         this.renameMap = renameMap;
     }
 
+    @Override
     public List<ExtractMethodRequest> getRefactoringRequests() {
         List<ExtractMethodRequest> requests = new ArrayList<ExtractMethodRequest>();
         ExtractMethodRequest req = new ExtractMethodRequest("extracted_method", this.selection, this.scopeAdapter,
                 this.parsedSelection, deducer.getParameters(), deducer.getReturns(), this.renameMap,
                 this.offsetStrategy, new AdapterPrefs("\n", new IGrammarVersionProvider() {
 
+                    @Override
                     public int getGrammarVersion() throws MisconfigurationException {
                         return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
                     }

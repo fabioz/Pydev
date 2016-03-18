@@ -183,6 +183,7 @@ public class CoverageCache {
         List<ICoverageLeafNode> vals = new ArrayList<ICoverageLeafNode>(collection);
         Collections.sort(vals, new Comparator<Object>() {
 
+            @Override
             public int compare(Object o1, Object o2) {
                 return o1.toString().compareTo(o2.toString());
             }
@@ -194,6 +195,7 @@ public class CoverageCache {
         List<ICoverageNode> vals = new ArrayList<ICoverageNode>(collection);
         Collections.sort(vals, new Comparator<Object>() {
 
+            @Override
             public int compare(Object o1, Object o2) {
                 return o1.toString().compareTo(o2.toString());
             }

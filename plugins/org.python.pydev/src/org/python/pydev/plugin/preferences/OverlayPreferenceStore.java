@@ -53,6 +53,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
         /*
          * @see IPropertyChangeListener#propertyChange(PropertyChangeEvent)
          */
+        @Override
         public void propertyChange(PropertyChangeEvent event) {
             OverlayKey key = findOverlayKey(event.getProperty());
             if (key != null)
@@ -222,6 +223,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
     /*
      * @see IPreferenceStore#addPropertyChangeListener(IPropertyChangeListener)
      */
+    @Override
     public void addPropertyChangeListener(IPropertyChangeListener listener) {
         fStore.addPropertyChangeListener(listener);
     }
@@ -229,6 +231,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
     /*
      * @see IPreferenceStore#removePropertyChangeListener(IPropertyChangeListener)
      */
+    @Override
     public void removePropertyChangeListener(IPropertyChangeListener listener) {
         fStore.removePropertyChangeListener(listener);
     }
@@ -236,6 +239,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
     /*
      * @see IPreferenceStore#firePropertyChangeEvent(String, Object, Object)
      */
+    @Override
     public void firePropertyChangeEvent(String name, Object oldValue, Object newValue) {
         fStore.firePropertyChangeEvent(name, oldValue, newValue);
     }
@@ -243,6 +247,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
     /*
      * @see IPreferenceStore#contains(String)
      */
+    @Override
     public boolean contains(String name) {
         return fStore.contains(name);
     }
@@ -250,6 +255,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
     /*
      * @see IPreferenceStore#getBoolean(String)
      */
+    @Override
     public boolean getBoolean(String name) {
         return fStore.getBoolean(name);
     }
@@ -257,6 +263,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
     /*
      * @see IPreferenceStore#getDefaultBoolean(String)
      */
+    @Override
     public boolean getDefaultBoolean(String name) {
         return fStore.getDefaultBoolean(name);
     }
@@ -264,6 +271,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
     /*
      * @see IPreferenceStore#getDefaultDouble(String)
      */
+    @Override
     public double getDefaultDouble(String name) {
         return fStore.getDefaultDouble(name);
     }
@@ -271,6 +279,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
     /*
      * @see IPreferenceStore#getDefaultFloat(String)
      */
+    @Override
     public float getDefaultFloat(String name) {
         return fStore.getDefaultFloat(name);
     }
@@ -278,6 +287,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
     /*
      * @see IPreferenceStore#getDefaultInt(String)
      */
+    @Override
     public int getDefaultInt(String name) {
         return fStore.getDefaultInt(name);
     }
@@ -285,6 +295,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
     /*
      * @see IPreferenceStore#getDefaultLong(String)
      */
+    @Override
     public long getDefaultLong(String name) {
         return fStore.getDefaultLong(name);
     }
@@ -292,6 +303,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
     /*
      * @see IPreferenceStore#getDefaultString(String)
      */
+    @Override
     public String getDefaultString(String name) {
         return fStore.getDefaultString(name);
     }
@@ -299,6 +311,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
     /*
      * @see IPreferenceStore#getDouble(String)
      */
+    @Override
     public double getDouble(String name) {
         return fStore.getDouble(name);
     }
@@ -306,6 +319,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
     /*
      * @see IPreferenceStore#getFloat(String)
      */
+    @Override
     public float getFloat(String name) {
         return fStore.getFloat(name);
     }
@@ -313,6 +327,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
     /*
      * @see IPreferenceStore#getInt(String)
      */
+    @Override
     public int getInt(String name) {
         return fStore.getInt(name);
     }
@@ -320,6 +335,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
     /*
      * @see IPreferenceStore#getLong(String)
      */
+    @Override
     public long getLong(String name) {
         return fStore.getLong(name);
     }
@@ -327,6 +343,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
     /*
      * @see IPreferenceStore#getString(String)
      */
+    @Override
     public String getString(String name) {
         return fStore.getString(name);
     }
@@ -334,6 +351,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
     /*
      * @see IPreferenceStore#isDefault(String)
      */
+    @Override
     public boolean isDefault(String name) {
         return fStore.isDefault(name);
     }
@@ -341,6 +359,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
     /*
      * @see IPreferenceStore#needsSaving()
      */
+    @Override
     public boolean needsSaving() {
         return fStore.needsSaving();
     }
@@ -348,6 +367,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
     /*
      * @see IPreferenceStore#putValue(String, String)
      */
+    @Override
     public void putValue(String name, String value) {
         if (covers(name))
             fStore.putValue(name, value);
@@ -356,6 +376,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
     /*
      * @see IPreferenceStore#setDefault(String, double)
      */
+    @Override
     public void setDefault(String name, double value) {
         if (covers(name))
             fStore.setDefault(name, value);
@@ -364,6 +385,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
     /*
      * @see IPreferenceStore#setDefault(String, float)
      */
+    @Override
     public void setDefault(String name, float value) {
         if (covers(name))
             fStore.setDefault(name, value);
@@ -372,6 +394,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
     /*
      * @see IPreferenceStore#setDefault(String, int)
      */
+    @Override
     public void setDefault(String name, int value) {
         if (covers(name))
             fStore.setDefault(name, value);
@@ -380,6 +403,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
     /*
      * @see IPreferenceStore#setDefault(String, long)
      */
+    @Override
     public void setDefault(String name, long value) {
         if (covers(name))
             fStore.setDefault(name, value);
@@ -388,6 +412,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
     /*
      * @see IPreferenceStore#setDefault(String, String)
      */
+    @Override
     public void setDefault(String name, String value) {
         if (covers(name))
             fStore.setDefault(name, value);
@@ -396,6 +421,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
     /*
      * @see IPreferenceStore#setDefault(String, boolean)
      */
+    @Override
     public void setDefault(String name, boolean value) {
         if (covers(name))
             fStore.setDefault(name, value);
@@ -404,6 +430,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
     /*
      * @see IPreferenceStore#setToDefault(String)
      */
+    @Override
     public void setToDefault(String name) {
         fStore.setToDefault(name);
     }
@@ -411,6 +438,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
     /*
      * @see IPreferenceStore#setValue(String, double)
      */
+    @Override
     public void setValue(String name, double value) {
         if (covers(name))
             fStore.setValue(name, value);
@@ -419,6 +447,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
     /*
      * @see IPreferenceStore#setValue(String, float)
      */
+    @Override
     public void setValue(String name, float value) {
         if (covers(name))
             fStore.setValue(name, value);
@@ -427,6 +456,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
     /*
      * @see IPreferenceStore#setValue(String, int)
      */
+    @Override
     public void setValue(String name, int value) {
         if (covers(name))
             fStore.setValue(name, value);
@@ -435,6 +465,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
     /*
      * @see IPreferenceStore#setValue(String, long)
      */
+    @Override
     public void setValue(String name, long value) {
         if (covers(name))
             fStore.setValue(name, value);
@@ -443,6 +474,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
     /*
      * @see IPreferenceStore#setValue(String, String)
      */
+    @Override
     public void setValue(String name, String value) {
         if (covers(name))
             fStore.setValue(name, value);
@@ -451,6 +483,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
     /*
      * @see IPreferenceStore#setValue(String, boolean)
      */
+    @Override
     public void setValue(String name, boolean value) {
         if (covers(name))
             fStore.setValue(name, value);

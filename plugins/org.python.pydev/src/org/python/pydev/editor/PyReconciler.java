@@ -71,6 +71,7 @@ public class PyReconciler implements IReconcilingStrategy, IReconcilingStrategyE
         /*
          * @see org.eclipse.ui.texteditor.spelling.ISpellingProblemCollector#accept(org.eclipse.ui.texteditor.spelling.SpellingProblem)
          */
+        @Override
         public void accept(SpellingProblem problem) {
             fAddAnnotations
                     .put(new SpellingAnnotation(problem), new Position(problem.getOffset(), problem.getLength()));
@@ -79,6 +80,7 @@ public class PyReconciler implements IReconcilingStrategy, IReconcilingStrategyE
         /*
          * @see org.eclipse.ui.texteditor.spelling.ISpellingProblemCollector#beginCollecting()
          */
+        @Override
         public void beginCollecting() {
             fAddAnnotations = new HashMap<SpellingAnnotation, Position>();
         }
@@ -86,6 +88,7 @@ public class PyReconciler implements IReconcilingStrategy, IReconcilingStrategyE
         /*
          * @see org.eclipse.ui.texteditor.spelling.ISpellingProblemCollector#endCollecting()
          */
+        @Override
         public void endCollecting() {
 
             List<Object> toRemove = new ArrayList<Object>();
@@ -188,6 +191,7 @@ public class PyReconciler implements IReconcilingStrategy, IReconcilingStrategyE
     /*
      * @see org.eclipse.jface.text.reconciler.IReconcilingStrategyExtension#initialReconcile()
      */
+    @Override
     public void initialReconcile() {
         reconcile(new Region(0, fDocument.getLength()));
     }
@@ -202,6 +206,7 @@ public class PyReconciler implements IReconcilingStrategy, IReconcilingStrategyE
      * 
      * @see org.eclipse.jface.text.reconciler.IReconcilingStrategy#reconcile(org.eclipse.jface.text.reconciler.DirtyRegion,org.eclipse.jface.text.IRegion)
      */
+    @Override
     public void reconcile(DirtyRegion dirtyRegion, IRegion subRegion) {
         reconcile(subRegion);
     }
@@ -209,6 +214,7 @@ public class PyReconciler implements IReconcilingStrategy, IReconcilingStrategyE
     /*
      * @see org.eclipse.jface.text.reconciler.IReconcilingStrategy#reconcile(org.eclipse.jface.text.IRegion)
      */
+    @Override
     public void reconcile(IRegion region) {
         IAnnotationModel annotationModel = fViewer.getAnnotationModel();
 
@@ -280,6 +286,7 @@ public class PyReconciler implements IReconcilingStrategy, IReconcilingStrategyE
     /*
      * @see org.eclipse.jface.text.reconciler.IReconcilingStrategy#setDocument(org.eclipse.jface.text.IDocument)
      */
+    @Override
     public void setDocument(IDocument document) {
         fDocument = document;
 
@@ -290,6 +297,7 @@ public class PyReconciler implements IReconcilingStrategy, IReconcilingStrategyE
     /*
      * @see org.eclipse.jface.text.reconciler.IReconcilingStrategyExtension#setProgressMonitor(org.eclipse.core.runtime.IProgressMonitor)
      */
+    @Override
     public final void setProgressMonitor(IProgressMonitor monitor) {
         fProgressMonitor = monitor;
     }

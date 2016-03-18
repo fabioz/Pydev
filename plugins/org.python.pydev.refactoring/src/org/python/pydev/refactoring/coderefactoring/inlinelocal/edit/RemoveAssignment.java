@@ -97,6 +97,7 @@ public class RemoveAssignment extends AbstractRemoveEdit {
         }
     }
 
+    @Override
     protected int getDeleteLength() {
         return endOffset - beginOffset;
     }

@@ -39,6 +39,7 @@ public class PydevZipFileStorage implements IStorage {
         this.zipPath = zipPath;
     }
 
+    @Override
     public InputStream getContents() throws CoreException {
         try {
             ZipFile f = new ZipFile(this.zipFile);
@@ -72,10 +73,12 @@ public class PydevZipFileStorage implements IStorage {
         }
     }
 
+    @Override
     public IPath getFullPath() {
         return Path.fromOSString(this.zipFile.getAbsolutePath()).append(new Path(this.zipPath));
     }
 
+    @Override
     public String getName() {
         List<String> split = StringUtils.split(zipPath, '/');
         if (split.size() > 0) {
@@ -84,10 +87,12 @@ public class PydevZipFileStorage implements IStorage {
         return this.zipPath;
     }
 
+    @Override
     public boolean isReadOnly() {
         return true;
     }
 
+    @Override
     public <T> T getAdapter(Class<T> adapter) {
         return null;
     }

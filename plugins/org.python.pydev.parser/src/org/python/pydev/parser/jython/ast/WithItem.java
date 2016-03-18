@@ -13,6 +13,7 @@ public final class WithItem extends WithItemType {
         this.optional_vars = optional_vars;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -21,6 +22,7 @@ public final class WithItem extends WithItemType {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -42,10 +44,12 @@ public final class WithItem extends WithItemType {
         return true;
     }
 
+    @Override
     public WithItem createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public WithItem createCopy(boolean copyComments) {
         WithItem temp = new WithItem(context_expr != null ? (exprType) context_expr.createCopy(copyComments) : null,
                 optional_vars != null ? (exprType) optional_vars.createCopy(copyComments) : null);
@@ -70,6 +74,7 @@ public final class WithItem extends WithItemType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("WithItem[");
         sb.append("context_expr=");
@@ -81,10 +86,12 @@ public final class WithItem extends WithItemType {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitWithItem(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (context_expr != null) {
             context_expr.accept(visitor);

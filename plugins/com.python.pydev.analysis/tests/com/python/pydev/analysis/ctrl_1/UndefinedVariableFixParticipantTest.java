@@ -52,6 +52,7 @@ public class UndefinedVariableFixParticipantTest extends AdditionalInfoTestsBase
 
     }
 
+    @Override
     public void setUp() throws Exception {
         super.setUp();
         participant = new UndefinedVariableFixParticipant();

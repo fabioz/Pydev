@@ -14,6 +14,7 @@ import org.python.pydev.ui.actions.project.PyAddNature;
 
 public class DjangoAddNatureAction extends PyAddNature {
 
+    @Override
     public void run(IAction action) {
         if (selectedProject == null) {
             return;

@@ -24,6 +24,7 @@ import com.python.pydev.refactoring.ui.MarkOccurrencesPreferencesPage;
 
 public class ToggleMarkOccurrences extends AbstractHandler {
 
+    @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
         ITextEditor activeEditor = EditorUtils.getActiveEditor();
         if (!(activeEditor instanceof PyEdit)) {

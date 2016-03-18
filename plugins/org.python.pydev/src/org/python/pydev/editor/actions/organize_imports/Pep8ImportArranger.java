@@ -206,6 +206,7 @@ public class Pep8ImportArranger extends ImportArranger {
     protected void sortImports(List<Tuple3<Integer, String, ImportHandle>> list) {
         Collections.sort(list, new Comparator<Tuple3<Integer, String, ImportHandle>>() {
 
+            @Override
             public int compare(Tuple3<Integer, String, ImportHandle> o1, Tuple3<Integer, String, ImportHandle> o2) {
 
                 int class1 = classifier.classify(o1.o3);

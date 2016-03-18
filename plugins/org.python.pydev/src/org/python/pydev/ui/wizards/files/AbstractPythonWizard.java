@@ -79,6 +79,7 @@ public abstract class AbstractPythonWizard extends Wizard implements INewWizard 
         this.title = title;
     }
 
+    @Override
     public void init(IWorkbench workbench, IStructuredSelection selection) {
         this.workbench = workbench;
         this.selection = selection;
@@ -102,6 +103,7 @@ public abstract class AbstractPythonWizard extends Wizard implements INewWizard 
     /**
      * @see org.eclipse.jface.wizard.IWizard#addPages()
      */
+    @Override
     public void addPages() {
         filePage = createPathPage();
         filePage.setTitle(this.title);

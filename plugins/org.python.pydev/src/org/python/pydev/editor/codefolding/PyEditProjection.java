@@ -85,6 +85,7 @@ public abstract class PyEditProjection extends BaseEditor implements IParserObse
             fProjectionSupport.addSummarizableAnnotationType("org.eclipse.ui.workbench.texteditor.error");
             fProjectionSupport.addSummarizableAnnotationType("org.eclipse.ui.workbench.texteditor.warning");
             fProjectionSupport.setHoverControlCreator(new IInformationControlCreator() {
+                @Override
                 public IInformationControl createInformationControl(Shell shell) {
                     return new DefaultInformationControl(shell);
                 }

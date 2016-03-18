@@ -48,6 +48,7 @@ public class ExtractLocalRequestProcessor implements IRequestProcessor<ExtractLo
         this.info = info;
     }
 
+    @Override
     public List<ExtractLocalRequest> getRefactoringRequests() {
         return ListUtils.wrap(new ExtractLocalRequest(info, selection, expression, variableName, duplicates,
                 replaceDuplicates));

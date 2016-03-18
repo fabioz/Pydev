@@ -50,6 +50,7 @@ public class PyFilteredTree extends FilteredTree {
         final TreeViewer viewer = ret.getViewer();
         ret.getFilterControl().addKeyListener(new KeyAdapter() {
 
+            @Override
             public void keyPressed(KeyEvent e) {
                 //The superclass will already do the focus, but we also treat it to select some element
                 //when down is pressed.

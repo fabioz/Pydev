@@ -58,6 +58,7 @@ public abstract class AbstractTokenManager extends AbstractTokenManagerWithConst
      */
     private FastCharStream inputStream;
 
+    @Override
     public final FastCharStream getInputStream() {
         if (this.inputStream == null) {
             this.inputStream = (FastCharStream) Reflection.getAttrObj(this, "input_stream", true);
@@ -74,6 +75,7 @@ public abstract class AbstractTokenManager extends AbstractTokenManagerWithConst
      * Gets the next token. Note that indents and dedents can be skipped if we're not currently
      * in a new line (that's the reason for a number of tricks while trying to recover from errors)
      */
+    @Override
     public abstract Token getNextToken();
 
     protected AbstractTokenManager() {
@@ -226,6 +228,7 @@ public abstract class AbstractTokenManager extends AbstractTokenManagerWithConst
     /**
      * Must be called right after a new line with 0 as a parameter. Identifies the number of whitespaces in the current line.
      */
+    @Override
     public abstract void indenting(int i);
 
     /**

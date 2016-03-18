@@ -20,9 +20,11 @@ public abstract class AbstractAppEngineAction implements IObjectActionDelegate {
 
     protected Object sourceFolder;
 
+    @Override
     public void setActivePart(IAction action, IWorkbenchPart targetPart) {
     }
 
+    @Override
     public void selectionChanged(IAction action, ISelection selection) {
         sourceFolder = null;
         if (!(selection instanceof IStructuredSelection)) {

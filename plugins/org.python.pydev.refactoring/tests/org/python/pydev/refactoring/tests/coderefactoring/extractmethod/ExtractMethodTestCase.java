@@ -75,6 +75,7 @@ public class ExtractMethodTestCase extends AbstractIOTestCase {
 
         RefactoringInfo info = new RefactoringInfo(doc, selection, new IGrammarVersionProvider() {
 
+            @Override
             public int getGrammarVersion() throws MisconfigurationException {
                 return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
             }

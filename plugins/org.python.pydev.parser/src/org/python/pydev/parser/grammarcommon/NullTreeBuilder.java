@@ -18,10 +18,12 @@ public final class NullTreeBuilder implements ITreeBuilder {
 
     private final Name nameConstant = new Name("", Name.Load, false);
 
+    @Override
     public SimpleNode closeNode(SimpleNode sn, int num) throws Exception {
         return null;
     }
 
+    @Override
     public SimpleNode openNode(int id) {
         switch (id) {
 
@@ -34,6 +36,7 @@ public final class NullTreeBuilder implements ITreeBuilder {
         return null;
     }
 
+    @Override
     public SimpleNode getLastOpened() {
         return null;
     }

@@ -81,6 +81,7 @@ public class PythonSourceViewer extends BaseSourceViewer {
         });
         StyledText text = this.getTextWidget();
         text.addBidiSegmentListener(new BidiSegmentListener() {
+            @Override
             public void lineGetSegments(BidiSegmentEvent event) {
                 try {
                     event.segments = getBidiLineSegments(event.lineOffset);

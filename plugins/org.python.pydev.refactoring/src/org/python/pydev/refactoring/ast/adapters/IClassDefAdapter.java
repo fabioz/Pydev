@@ -46,6 +46,7 @@ public interface IClassDefAdapter extends INodeAdapter, IASTNodeAdapter<ClassDef
 
     List<SimpleAdapter> getAssignedVariables();
 
+    @Override
     String getNodeBodyIndent();
 
     boolean hasBaseClass();

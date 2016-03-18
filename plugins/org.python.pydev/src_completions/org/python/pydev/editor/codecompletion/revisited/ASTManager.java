@@ -48,6 +48,7 @@ public final class ASTManager extends AbstractASTManager implements ICodeComplet
     /**
      * Set the project this ast manager works with.
      */
+    @Override
     @SuppressWarnings("unchecked")
     public void setProject(IProject project, IPythonNature nature, boolean restoreDeltas) {
         getProjectModulesManager().setProject(project, nature, restoreDeltas);
@@ -63,6 +64,7 @@ public final class ASTManager extends AbstractASTManager implements ICodeComplet
         }
     }
 
+    @Override
     public IModulesManager getModulesManager() {
         return getProjectModulesManager();
     }
@@ -79,15 +81,18 @@ public final class ASTManager extends AbstractASTManager implements ICodeComplet
 
     //----------------------- AUXILIARIES
 
+    @Override
     public void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor) {
         getProjectModulesManager().changePythonPath(pythonpath, project, monitor);
     }
 
+    @Override
     public void rebuildModule(File f, ICallback0<IDocument> doc, final IProject project, IProgressMonitor monitor,
             IPythonNature nature) {
         getProjectModulesManager().rebuildModule(f, doc, project, monitor, nature);
     }
 
+    @Override
     public void removeModule(File file, IProject project, IProgressMonitor monitor) {
         getProjectModulesManager().removeModule(file, project, monitor);
     }
@@ -99,6 +104,7 @@ public final class ASTManager extends AbstractASTManager implements ICodeComplet
         return getProjectModulesManager().getSize(true);
     }
 
+    @Override
     public void saveToFile(File astOutputFile) {
         modulesManager.saveToFile(astOutputFile);
     }

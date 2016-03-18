@@ -87,6 +87,7 @@ public class PythonPairMatcher implements ICharacterPairMatcher, ICharacterPairM
      * @return the region describing the
      * @see org.eclipse.jface.text.source.ICharacterPairMatcher#match(org.eclipse.jface.text.IDocument, int)
      */
+    @Override
     public IRegion match(IDocument document, int offset) {
 
         fOffset = offset;
@@ -109,6 +110,7 @@ public class PythonPairMatcher implements ICharacterPairMatcher, ICharacterPairM
      * 
      * @see org.eclipse.jface.text.source.ICharacterPairMatcher#getAnchor()
      */
+    @Override
     public int getAnchor() {
         return fAnchor;
     }
@@ -118,6 +120,7 @@ public class PythonPairMatcher implements ICharacterPairMatcher, ICharacterPairM
      * 
      * @see org.eclipse.jface.text.source.ICharacterPairMatcher#dispose()
      */
+    @Override
     public void dispose() {
         clear();
         fDocument = null;
@@ -127,6 +130,7 @@ public class PythonPairMatcher implements ICharacterPairMatcher, ICharacterPairM
     /*
      * @see org.eclipse.jface.text.source.ICharacterPairMatcher#clear()
      */
+    @Override
     public void clear() {
         if (fReader != null) {
             try {
@@ -211,6 +215,7 @@ public class PythonPairMatcher implements ICharacterPairMatcher, ICharacterPairM
      * @return the offset of the closing peer
      * @throws IOException
      */
+    @Override
     public int searchForClosingPeer(int offset, char openingPeer, char closingPeer, IDocument document) {
         try {
             fReader.configureForwardReader(document, offset + 1, document.getLength(), true, true, true);
@@ -247,6 +252,7 @@ public class PythonPairMatcher implements ICharacterPairMatcher, ICharacterPairM
      * @return the offset of the opening peer
      * @throws IOException
      */
+    @Override
     public int searchForOpeningPeer(int offset, char openingPeer, char closingPeer, IDocument document) {
 
         try {
@@ -274,6 +280,7 @@ public class PythonPairMatcher implements ICharacterPairMatcher, ICharacterPairM
         }
     }
 
+    @Override
     public int searchForAnyOpeningPeer(int offset, IDocument document) {
         try {
             fReader.configureBackwardReader(document, offset, true, true, true);

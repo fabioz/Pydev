@@ -12,6 +12,7 @@ import org.python.pydev.editor.PyEdit;
 
 public class PyToggleForceTabs extends PyAction {
 
+    @Override
     public void run(IAction action) {
         if (targetEditor instanceof PyEdit) {
             PyEdit pyEdit = (PyEdit) targetEditor;

@@ -18,6 +18,7 @@ import org.python.pydev.shared_ui.EditorUtils;
 
 public class PyConfigureExceptionAction extends PyAction implements IWorkbenchWindowActionDelegate {
 
+    @Override
     public void run(IAction action) {
 
         PyConfigureExceptionDialog dialog = new PyConfigureExceptionDialog(EditorUtils.getShell(), "",
@@ -51,9 +52,11 @@ public class PyConfigureExceptionAction extends PyAction implements IWorkbenchWi
     public void selectionChanged(IAction action, ISelection selection) {
     }
 
+    @Override
     public void dispose() {
     }
 
+    @Override
     public void init(IWorkbenchWindow window) {
     }
 }

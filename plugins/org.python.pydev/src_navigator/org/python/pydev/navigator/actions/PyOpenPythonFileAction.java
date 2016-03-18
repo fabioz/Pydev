@@ -69,6 +69,7 @@ public class PyOpenPythonFileAction extends Action {
      * 
      * @see org.eclipse.jface.action.Action#isEnabled()
      */
+    @Override
     public boolean isEnabled() {
         return true;
     }
@@ -78,6 +79,7 @@ public class PyOpenPythonFileAction extends Action {
      * 
      * @see org.eclipse.jface.action.Action#run()
      */
+    @Override
     public synchronized void run() {
         // clear them
         fillSelections();

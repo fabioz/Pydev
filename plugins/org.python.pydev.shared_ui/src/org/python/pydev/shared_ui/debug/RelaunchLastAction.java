@@ -7,14 +7,17 @@ import org.eclipse.ui.IEditorPart;
 
 public class RelaunchLastAction implements IEditorActionDelegate {
 
+    @Override
     public void run(IAction action) {
         RestartLaunchAction.relaunchLast();
     }
 
+    @Override
     public void selectionChanged(IAction action, ISelection selection) {
 
     }
 
+    @Override
     public void setActiveEditor(IAction action, IEditorPart targetEditor) {
 
     }

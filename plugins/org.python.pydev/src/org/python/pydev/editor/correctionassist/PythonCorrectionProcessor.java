@@ -136,14 +136,17 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
         this.edit = edit;
     }
 
+    @Override
     public boolean canAssist(IQuickAssistInvocationContext invocationContext) {
         return true;
     }
 
+    @Override
     public boolean canFix(Annotation annotation) {
         return false;
     }
 
+    @Override
     public ICompletionProposal[] computeQuickAssistProposals(IQuickAssistInvocationContext invocationContext) {
         int offset = invocationContext.getOffset();
         PySelection base = edit.createPySelection();
@@ -240,6 +243,7 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
         }
     }
 
+    @Override
     public String getErrorMessage() {
         return null;
     }

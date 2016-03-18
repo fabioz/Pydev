@@ -96,6 +96,7 @@ public class PyPropertyTraceDialog extends SelectionDialog {
      */
     private void createSelectionListener() {
         disableStepIntoPropertiesCheck.addSelectionListener(new SelectionListener() {
+            @Override
             public void widgetSelected(SelectionEvent arg0) {
                 disableStepIntoGetterCheck.setSelection(false);
                 disableStepIntoGetterCheck.setEnabled(disableStepIntoPropertiesCheck.getSelection());
@@ -105,6 +106,7 @@ public class PyPropertyTraceDialog extends SelectionDialog {
                 disableStepIntoDeleterCheck.setEnabled(disableStepIntoPropertiesCheck.getSelection());
             }
 
+            @Override
             public void widgetDefaultSelected(SelectionEvent arg0) {
             }
         });

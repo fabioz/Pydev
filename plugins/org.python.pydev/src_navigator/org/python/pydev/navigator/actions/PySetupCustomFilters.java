@@ -29,14 +29,17 @@ public class PySetupCustomFilters extends Action implements IViewActionDelegate 
     public static final String CUSTOM_FILTERS_PREFERENCE_NAME = "org.python.pydev.CUSTOM_PACKAGE_EXPLORER_FILTERS";
     private IViewPart view;
 
+    @Override
     public void init(IViewPart view) {
         this.view = view;
     }
 
+    @Override
     public void run(IAction action) {
         final Display display = Display.getDefault();
         display.syncExec(new Runnable() {
 
+            @Override
             public void run() {
 
                 //ask the filters to the user
@@ -65,6 +68,7 @@ public class PySetupCustomFilters extends Action implements IViewActionDelegate 
         });
     }
 
+    @Override
     public void selectionChanged(IAction action, ISelection selection) {
         //nothing to do here
     }

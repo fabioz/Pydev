@@ -50,6 +50,7 @@ public final class SoftHashMap<Key, Val> extends AbstractMap<Key, Val> {
     public SoftHashMap() {
     }
 
+    @Override
     public Val get(Object key) {
         Val res = null;
         SoftValue<Key, Val> sr = map.get(key);
@@ -87,6 +88,7 @@ public final class SoftHashMap<Key, Val> extends AbstractMap<Key, Val> {
         }
     }
 
+    @Override
     public Val put(Key key, Val value) {
         map.put(key, new SoftValue<Key, Val>(value, key, queue));
         return value;
@@ -96,15 +98,18 @@ public final class SoftHashMap<Key, Val> extends AbstractMap<Key, Val> {
      * Different from the map, it'll always return null here (never the object that was there as we don't want the
      * overhead of getting it from the soft ref).
      */
+    @Override
     public Val remove(Object key) {
         map.remove(key);
         return null;
     }
 
+    @Override
     public int size() {
         return map.size();
     }
 
+    @Override
     public void clear() {
         map.clear();
         //No need to poll the entries of the current queue, just create a new one and let the old be garbage-collected.
@@ -113,6 +118,7 @@ public final class SoftHashMap<Key, Val> extends AbstractMap<Key, Val> {
 
     //Not implemented...
 
+    @Override
     @SuppressWarnings("rawtypes")
     public Set entrySet() {
         throw new UnsupportedOperationException("Not implemented!");

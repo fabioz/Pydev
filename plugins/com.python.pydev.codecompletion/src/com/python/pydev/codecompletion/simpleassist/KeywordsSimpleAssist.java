@@ -122,6 +122,7 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant, ISimpleAs
     /**
      * @see ISimpleAssistParticipant
      */
+    @Override
     public Collection<ICompletionProposal> computeCompletionProposals(String activationToken, String qualifier,
             PySelection ps, IPySyntaxHighlightingAndCodeCompletionEditor edit, int offset) {
         boolean isPy3Syntax = false;
@@ -143,6 +144,7 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant, ISimpleAs
     /**
      * @see ISimpleAssistParticipant2
      */
+    @Override
     public Collection<ICompletionProposal> computeConsoleProposals(String activationToken, String qualifier, int offset) {
         return innerComputeProposals(activationToken, qualifier, offset, true, false);
     }

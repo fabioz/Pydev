@@ -52,6 +52,7 @@ public class SearchIndexLabelProvider extends LabelProvider implements IStyledLa
         fPage = page;
         fLineMatchImage = SearchPluginImages.get(SearchPluginImages.IMG_OBJ_TEXT_SEARCH_LINE);
         fMatchComparator = new Comparator() {
+            @Override
             public int compare(Object o1, Object o2) {
                 return ((ICustomMatch) o1).getOriginalOffset() - ((ICustomMatch) o2).getOriginalOffset();
             }

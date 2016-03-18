@@ -54,14 +54,17 @@ public class PythonSourceFolder implements IWrappedResource, IAdaptable, IContri
         //        System.out.println("Created PythonSourceFolder:"+this+" - "+folder+" parent:"+parentElement);
     }
 
+    @Override
     public Object getParentElement() {
         return parentElement;
     }
 
+    @Override
     public IResource getActualObject() {
         return container;
     }
 
+    @Override
     public PythonSourceFolder getSourceFolder() {
         return this;
     }
@@ -121,14 +124,17 @@ public class PythonSourceFolder implements IWrappedResource, IAdaptable, IContri
         return ret;
     }
 
+    @Override
     public int getRank() {
         return IWrappedResource.RANK_SOURCE_FOLDER;
     }
 
+    @Override
     public IResource getAdaptedResource(IAdaptable adaptable) {
         return getActualObject();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T getAdapter(Class<T> adapter) {
         if (adapter == IActionFilter.class) {

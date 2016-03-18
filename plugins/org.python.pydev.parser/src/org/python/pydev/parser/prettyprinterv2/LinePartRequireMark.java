@@ -20,6 +20,7 @@ public class LinePartRequireMark extends AbstractLinePart implements ILinePart {
         this.requireOneOf = requireOneOf;
     }
 
+    @Override
     public String getToken() {
         return (String) super.getToken();
     }

@@ -171,6 +171,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
         XmlRpcServer serverToHandleRawInput = this.webServer.getXmlRpcServer();
         serverToHandleRawInput.setHandlerMapping(new XmlRpcHandlerMapping() {
 
+            @Override
             public XmlRpcHandler getHandler(String handlerName) throws XmlRpcNoSuchHandlerException, XmlRpcException {
                 return PydevConsoleCommunication.this;
             }
@@ -190,6 +191,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
     /**
      * Stops the communication with the client (passes message for it to quit).
      */
+    @Override
     public void close() throws Exception {
         if (this.client != null) {
             Job job = new Job("Close console communication") {
@@ -269,6 +271,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
     /**
      * Called when the server is requesting some input from this class.
      */
+    @Override
     public Object execute(XmlRpcRequest request) throws XmlRpcException {
         String methodName = request.getMethodName();
         if ("RequestInput".equals(methodName)) {
@@ -303,6 +306,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
 
             RunInUiThread.async(new Runnable() {
 
+                @Override
                 public void run() {
                     IEditorPart editor = PyOpenEditor.doOpenEditorOnFileStore(fileToOpen);
                     if (editor instanceof ITextEditor && lineNumber >= 0) {
@@ -366,6 +370,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
      * This requires the cooperation of the client (the call to interrupt must be processed by the XMLRPC
      * server) but in most cases is better than just terminating the process.
      */
+    @Override
     public void interrupt() {
         Job job = new Job("Interrupt console process") {
             @Override
@@ -394,6 +399,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
      *
      * @param command the command to be executed in the client
      */
+    @Override
     public void execInterpreter(String command, final ICallback<Object, InterpreterResponse> onResponseReceived) {
         setNextResponse(null);
         if (waitingForInput) {
@@ -490,6 +496,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
     /**
      * @return completions from the client
      */
+    @Override
     public ICompletionProposal[] getCompletions(String text, String actTok, int offset, boolean showForTabCompletion)
             throws Exception {
         if (waitingForInput) {
@@ -661,6 +668,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
     /**
      * @return the description of the given attribute in the shell
      */
+    @Override
     public String getDescription(String text) throws Exception {
         if (waitingForInput) {
             return "Unable to get description: waiting for input.";
@@ -810,6 +818,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
     /**
      * Not required for normal pydev console
      */
+    @Override
     public void linkWithDebugSelection(boolean isLinkedWithDebug) {
         throw new RuntimeException("Not implemented");
     }

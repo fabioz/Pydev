@@ -11,6 +11,7 @@ public final class commentType extends SimpleNode {
         this.id = id;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -18,6 +19,7 @@ public final class commentType extends SimpleNode {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -34,10 +36,12 @@ public final class commentType extends SimpleNode {
         return true;
     }
 
+    @Override
     public commentType createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public commentType createCopy(boolean copyComments) {
         commentType temp = new commentType(id);
         temp.beginLine = this.beginLine;
@@ -61,6 +65,7 @@ public final class commentType extends SimpleNode {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("comment[");
         sb.append("id=");
@@ -69,11 +74,13 @@ public final class commentType extends SimpleNode {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         traverse(visitor);
         return null;
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
     }
 

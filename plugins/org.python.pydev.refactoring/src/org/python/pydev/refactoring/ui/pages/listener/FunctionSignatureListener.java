@@ -93,6 +93,7 @@ public class FunctionSignatureListener implements Listener {
         }
     }
 
+    @Override
     public void handleEvent(Event event) {
         if (page.isPageComplete()) {
             updateSignature();

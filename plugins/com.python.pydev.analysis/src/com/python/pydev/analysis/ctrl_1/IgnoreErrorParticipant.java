@@ -53,6 +53,7 @@ public class IgnoreErrorParticipant implements IAnalysisMarkersParticipant {
      * @throws CoreException 
      * @see com.python.pydev.analysis.ctrl_1.IAnalysisMarkersParticipant#addProps(org.eclipse.core.resources.IMarker, com.python.pydev.analysis.IAnalysisPreferences, java.lang.String, org.python.pydev.core.docutils.PySelection, int, org.python.pydev.editor.PyEdit, java.util.List)
      */
+    @Override
     public void addProps(MarkerAnnotationAndPosition marker, IAnalysisPreferences analysisPreferences,
             final String line, final PySelection ps, int offset, IPythonNature nature, final PyEdit edit,
             List<ICompletionProposal> props)

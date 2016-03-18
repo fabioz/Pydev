@@ -23,9 +23,11 @@ public class PythonGettingStartedWizard extends AbstractNewProjectWizard impleme
 
     private IConfigurationElement fConfigElement;
 
+    @Override
     public void init(IWorkbench workbench, IStructuredSelection selection) {
     }
 
+    @Override
     public void addPages() {
         addGettingStartedPage();
         addProjectReferencePage();
@@ -54,6 +56,7 @@ public class PythonGettingStartedWizard extends AbstractNewProjectWizard impleme
         return true;
     }
 
+    @Override
     public void setInitializationData(IConfigurationElement config, String propertyName, Object data)
             throws CoreException {
         this.fConfigElement = config;

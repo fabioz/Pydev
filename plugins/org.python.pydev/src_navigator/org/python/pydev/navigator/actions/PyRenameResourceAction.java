@@ -76,6 +76,7 @@ public class PyRenameResourceAction extends RenameResourceAction {
         final IWorkspace workspace = IDEWorkbenchPlugin.getPluginWorkspace();
         final IPath prefix = resource.getFullPath().removeLastSegments(1);
         IInputValidator validator = new IInputValidator() {
+            @Override
             public String isValid(String string) {
                 if (resource.getName().equals(string)) {
                     return IDEWorkbenchMessages.RenameResourceAction_nameMustBeDifferent;

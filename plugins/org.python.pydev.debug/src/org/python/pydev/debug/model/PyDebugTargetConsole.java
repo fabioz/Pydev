@@ -66,6 +66,7 @@ public class PyDebugTargetConsole extends PyDebugTarget implements IPydevConsole
         return new IStackFrame[] { frame };
     }
 
+    @Override
     public void setSuspended(boolean suspended) {
         if (suspended != virtualConsoleThread.isSuspended()) {
             final int state;

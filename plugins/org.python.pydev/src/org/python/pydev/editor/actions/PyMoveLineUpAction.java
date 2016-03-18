@@ -16,6 +16,7 @@ public class PyMoveLineUpAction extends PyMoveLineAction {
         super(bundle, prefix, editor);
     }
 
+    @Override
     protected boolean getMoveUp() {
         return true;
     }

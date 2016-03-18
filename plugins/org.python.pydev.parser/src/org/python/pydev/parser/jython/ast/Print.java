@@ -15,6 +15,7 @@ public final class Print extends stmtType {
         this.nl = nl;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -24,6 +25,7 @@ public final class Print extends stmtType {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -44,10 +46,12 @@ public final class Print extends stmtType {
         return true;
     }
 
+    @Override
     public Print createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public Print createCopy(boolean copyComments) {
         exprType[] new0;
         if (this.values != null) {
@@ -80,6 +84,7 @@ public final class Print extends stmtType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("Print[");
         sb.append("dest=");
@@ -94,10 +99,12 @@ public final class Print extends stmtType {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitPrint(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (dest != null) {
             dest.accept(visitor);

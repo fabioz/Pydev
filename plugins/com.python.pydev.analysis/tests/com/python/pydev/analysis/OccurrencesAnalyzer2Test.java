@@ -697,6 +697,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
     List<String> findDefinitionDone = new ArrayList<String>();
     private ICallbackListener<ICompletionState> listener = new ICallbackListener<ICompletionState>() {
 
+        @Override
         public Object call(ICompletionState obj) {
             findDefinitionDone.add(obj.getActivationToken());
             return null;

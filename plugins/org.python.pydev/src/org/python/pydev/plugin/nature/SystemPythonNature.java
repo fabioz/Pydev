@@ -42,27 +42,33 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
      *
      */
     private final class SystemPythonPathNature implements IPythonPathNature {
+        @Override
         public void setVariableSubstitution(Map<String, String> variableSubstitution) throws CoreException {
             throw new RuntimeException("Not implemented");
         }
 
+        @Override
         public void setProjectSourcePath(String newSourcePath) throws CoreException {
             throw new RuntimeException("Not implemented");
         }
 
+        @Override
         public void setProjectExternalSourcePath(String newExternalSourcePath) throws CoreException {
             throw new RuntimeException("Not implemented");
         }
 
+        @Override
         public void setProject(IProject project, IPythonNature nature) {
             throw new RuntimeException("Not implemented");
         }
 
+        @Override
         public Map<String, String> getVariableSubstitution(boolean addInterpreterInfoSubstitutions)
                 throws CoreException, MisconfigurationException, PythonNatureWithoutProjectException {
             return getVariableSubstitution();
         }
 
+        @Override
         public Map<String, String> getVariableSubstitution() throws CoreException, MisconfigurationException,
                 PythonNatureWithoutProjectException {
             Properties stringSubstitutionVariables = SystemPythonNature.this.info.getStringSubstitutionVariables();
@@ -76,38 +82,47 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
 
         }
 
+        @Override
         public Set<String> getProjectSourcePathSet(boolean replaceVariables) throws CoreException {
             throw new RuntimeException("Not implemented");
         }
 
+        @Override
         public String getProjectSourcePath(boolean replaceVariables) throws CoreException {
             throw new RuntimeException("Not implemented");
         }
 
+        @Override
         public List<String> getProjectExternalSourcePathAsList(boolean replaceVariables) throws CoreException {
             throw new RuntimeException("Not implemented");
         }
 
+        @Override
         public String getProjectExternalSourcePath(boolean replaceVariables) throws CoreException {
             throw new RuntimeException("Not implemented");
         }
 
+        @Override
         public String getOnlyProjectPythonPathStr(boolean addExternal) throws CoreException {
             throw new RuntimeException("Not implemented");
         }
 
+        @Override
         public IPythonNature getNature() {
             return SystemPythonNature.this;
         }
 
+        @Override
         public List<String> getCompleteProjectPythonPath(IInterpreterInfo interpreter, IInterpreterManager info) {
             return interpreter.getPythonPath();
         }
 
+        @Override
         public void clearCaches() {
             //No caches anyways
         }
 
+        @Override
         public OrderedMap<String, String> getProjectSourcePathResolvedToUnresolvedMap() throws CoreException {
             throw new RuntimeException(
                     "Not implemented: We should use this only for doing path manipulation, "
@@ -133,26 +148,31 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
         this.manager = manager;
     }
 
+    @Override
     public boolean isResourceInPythonpathProjectSources(IResource resource, boolean addExternal)
             throws MisconfigurationException {
         return super.isResourceInPythonpath(resource); //no source folders in the system nature (just treat it as default)
     }
 
+    @Override
     public boolean isResourceInPythonpathProjectSources(String resource, boolean addExternal)
             throws MisconfigurationException {
         return super.isResourceInPythonpath(resource); //no source folders in the system nature (just treat it as default)
     }
 
+    @Override
     public String resolveModuleOnlyInProjectSources(IResource fileAbsolutePath, boolean addExternal)
             throws CoreException, MisconfigurationException {
         return super.resolveModule(fileAbsolutePath);
     }
 
+    @Override
     public String resolveModuleOnlyInProjectSources(String fileAbsolutePath, boolean addExternal) throws CoreException,
             MisconfigurationException {
         return super.resolveModule(new File(fileAbsolutePath));
     }
 
+    @Override
     public String getVersion() throws CoreException {
         if (this.info != null) {
             String version = this.info.getVersion();
@@ -189,6 +209,7 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
         }
     }
 
+    @Override
     public String getDefaultVersion() {
         try {
             return getVersion();
@@ -197,26 +218,32 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
         }
     }
 
+    @Override
     public void setVersion(String version, String interpreter) throws CoreException {
         throw new RuntimeException("Not Implemented: the system nature is read-only.");
     }
 
+    @Override
     public int getInterpreterType() throws CoreException {
         return this.manager.getInterpreterType();
     }
 
+    @Override
     public File getCompletionsCacheDir() {
         throw new RuntimeException("Not Implemented");
     }
 
+    @Override
     public void saveAstManager() {
         throw new RuntimeException("Not Implemented: system nature is only transient.");
     }
 
+    @Override
     public IPythonPathNature getPythonPathNature() {
         return new SystemPythonPathNature();
     }
 
+    @Override
     public String resolveModule(String file) throws MisconfigurationException {
         if (info == null) {
             return null;
@@ -224,6 +251,7 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
         return info.getModulesManager().resolveModule(file);
     }
 
+    @Override
     public ICodeCompletionASTManager getAstManager() {
         if (systemASTManager == null) {
             systemASTManager = new SystemASTManager(this.manager, this, this.info);
@@ -231,19 +259,24 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
         return systemASTManager;
     }
 
+    @Override
     public void configure() throws CoreException {
     }
 
+    @Override
     public void deconfigure() throws CoreException {
     }
 
+    @Override
     public IProject getProject() {
         return null;
     }
 
+    @Override
     public void setProject(IProject project) {
     }
 
+    @Override
     public void rebuildPath() {
         throw new RuntimeException("Not Implemented");
     }
@@ -252,12 +285,14 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
         throw new RuntimeException("Not Implemented");
     }
 
+    @Override
     public IInterpreterManager getRelatedInterpreterManager() {
         return manager;
     }
 
     //builtin completions
 
+    @Override
     public IToken[] getBuiltinCompletions() {
         if (!this.isOkToUse()) {
             return null;
@@ -265,12 +300,14 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
         return this.manager.getBuiltinCompletions(this.info.getName());
     }
 
+    @Override
     public void clearBuiltinCompletions() {
         this.manager.clearBuiltinCompletions(this.info.getName());
     }
 
     //builtin mod
 
+    @Override
     public IModule getBuiltinMod() {
         if (!this.isOkToUse()) {
             return null;
@@ -278,10 +315,12 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
         return this.manager.getBuiltinMod(this.info.getName());
     }
 
+    @Override
     public void clearBuiltinMod() {
         this.manager.clearBuiltinMod(this.info.getName());
     }
 
+    @Override
     public int getGrammarVersion() throws MisconfigurationException {
         IInterpreterInfo info = this.info;
         if (info != null) {
@@ -291,10 +330,12 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
         }
     }
 
+    @Override
     public IInterpreterInfo getProjectInterpreter() throws MisconfigurationException {
         return this.info;
     }
 
+    @Override
     public boolean isOkToUse() {
         return this.manager != null && this.info != null;
     }

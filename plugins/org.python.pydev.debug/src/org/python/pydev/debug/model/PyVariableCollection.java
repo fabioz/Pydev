@@ -54,6 +54,7 @@ public class PyVariableCollection extends PyVariable implements ICommandResponse
         super(target, name, type, value, locator);
     }
 
+    @Override
     public String getDetailText() throws DebugException {
         return super.getDetailText();
     }
@@ -74,6 +75,7 @@ public class PyVariableCollection extends PyVariable implements ICommandResponse
     /**
      * Received when the command has been completed.
      */
+    @Override
     public void commandComplete(AbstractDebuggerCommand cmd) {
         variables = getCommandVariables(cmd);
 
@@ -108,6 +110,7 @@ public class PyVariableCollection extends PyVariable implements ICommandResponse
         return tempVariables;
     }
 
+    @Override
     public IVariable[] getVariables() throws DebugException {
         if (networkState == NETWORK_REQUEST_ARRIVED) {
             return variables;
@@ -147,10 +150,12 @@ public class PyVariableCollection extends PyVariable implements ICommandResponse
         return new GetVariableCommand(dbg, getPyDBLocation());
     }
 
+    @Override
     public boolean hasVariables() throws DebugException {
         return true;
     }
 
+    @Override
     public String getReferenceTypeName() throws DebugException {
         return type;
     }

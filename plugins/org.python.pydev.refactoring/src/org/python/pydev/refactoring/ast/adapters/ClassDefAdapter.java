@@ -54,6 +54,7 @@ public class ClassDefAdapter extends AbstractScopeNode<ClassDef> implements ICla
     /* (non-Javadoc)
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#getBaseClassNames()
      */
+    @Override
     public List<String> getBaseClassNames() {
         return nodeHelper.getBaseClassName(getASTNode());
     }
@@ -61,6 +62,7 @@ public class ClassDefAdapter extends AbstractScopeNode<ClassDef> implements ICla
     /* (non-Javadoc)
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#getBaseClasses()
      */
+    @Override
     public List<IClassDefAdapter> getBaseClasses() throws MisconfigurationException {
         return getModule().getBaseClasses(this);
     }
@@ -68,6 +70,7 @@ public class ClassDefAdapter extends AbstractScopeNode<ClassDef> implements ICla
     /* (non-Javadoc)
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#hasBaseClass()
      */
+    @Override
     public boolean hasBaseClass() {
         return getBaseClassNames().size() > 0;
     }
@@ -75,6 +78,7 @@ public class ClassDefAdapter extends AbstractScopeNode<ClassDef> implements ICla
     /* (non-Javadoc)
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#getAttributes()
      */
+    @Override
     public List<SimpleAdapter> getAttributes() {
         if (attributes == null) {
             LocalAttributeVisitor visitor = VisitorFactory.createContextVisitor(LocalAttributeVisitor.class,
@@ -87,6 +91,7 @@ public class ClassDefAdapter extends AbstractScopeNode<ClassDef> implements ICla
     /* (non-Javadoc)
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#getProperties()
      */
+    @Override
     public List<PropertyAdapter> getProperties() {
         if (properties == null) {
             PropertyVisitor visitor = VisitorFactory.createContextVisitor(PropertyVisitor.class, getASTNode(),
@@ -99,6 +104,7 @@ public class ClassDefAdapter extends AbstractScopeNode<ClassDef> implements ICla
     /* (non-Javadoc)
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#getFunctionsInitFiltered()
      */
+    @Override
     public List<FunctionDefAdapter> getFunctionsInitFiltered() {
         List<FunctionDefAdapter> functionsFiltered = new ArrayList<FunctionDefAdapter>();
         for (FunctionDefAdapter adapter : getFunctions()) {
@@ -113,6 +119,7 @@ public class ClassDefAdapter extends AbstractScopeNode<ClassDef> implements ICla
     /* (non-Javadoc)
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#hasFunctions()
      */
+    @Override
     public boolean hasFunctions() {
         return getFunctions().size() > 0;
     }
@@ -120,6 +127,7 @@ public class ClassDefAdapter extends AbstractScopeNode<ClassDef> implements ICla
     /* (non-Javadoc)
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#hasFunctionsInitFiltered()
      */
+    @Override
     public boolean hasFunctionsInitFiltered() {
         return getFunctionsInitFiltered().size() > 0;
     }
@@ -127,6 +135,7 @@ public class ClassDefAdapter extends AbstractScopeNode<ClassDef> implements ICla
     /* (non-Javadoc)
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#isNested()
      */
+    @Override
     public boolean isNested() {
         return nodeHelper.isFunctionOrClassDef(getParent().getASTNode());
     }
@@ -134,6 +143,7 @@ public class ClassDefAdapter extends AbstractScopeNode<ClassDef> implements ICla
     /* (non-Javadoc)
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#hasAttributes()
      */
+    @Override
     public boolean hasAttributes() {
         return getAttributes().size() > 0;
     }
@@ -158,6 +168,7 @@ public class ClassDefAdapter extends AbstractScopeNode<ClassDef> implements ICla
     /* (non-Javadoc)
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#hasInit()
      */
+    @Override
     public boolean hasInit() {
         return (getFirstInit() != null);
     }
@@ -165,6 +176,7 @@ public class ClassDefAdapter extends AbstractScopeNode<ClassDef> implements ICla
     /* (non-Javadoc)
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#getFirstInit()
      */
+    @Override
     public FunctionDefAdapter getFirstInit() {
         for (FunctionDefAdapter func : getFunctions()) {
             if (func.isInit()) {
@@ -187,6 +199,7 @@ public class ClassDefAdapter extends AbstractScopeNode<ClassDef> implements ICla
     /* (non-Javadoc)
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#isNewStyleClass()
      */
+    @Override
     public boolean isNewStyleClass() {
         for (String base : getBaseClassNames()) {
             if (base.compareTo(OBJECT) == 0) {

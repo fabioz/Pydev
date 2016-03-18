@@ -31,6 +31,7 @@ import org.python.pydev.shared_core.utils.internal.ProcessInfo;
  */
 public class ProcessListWin32 implements IProcessList {
 
+    @Override
     public IProcessInfo[] getProcessList() {
 
         try {

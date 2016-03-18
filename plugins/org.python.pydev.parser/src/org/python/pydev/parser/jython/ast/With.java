@@ -13,6 +13,7 @@ public final class With extends stmtType {
         this.body = body;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -21,6 +22,7 @@ public final class With extends stmtType {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -39,10 +41,12 @@ public final class With extends stmtType {
         return true;
     }
 
+    @Override
     public With createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public With createCopy(boolean copyComments) {
         WithItemType[] new0;
         if (this.with_item != null) {
@@ -76,6 +80,7 @@ public final class With extends stmtType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("With[");
         sb.append("with_item=");
@@ -87,10 +92,12 @@ public final class With extends stmtType {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitWith(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (with_item != null) {
             for (int i = 0; i < with_item.length; i++) {

@@ -25,6 +25,7 @@ import org.python.pydev.shared_core.io.FileUtils;
 
 public class ProjectImportedHasAstManagerTestWorkbench extends AbstractWorkbenchTestCase {
 
+    @Override
     protected void setUp() throws Exception {
         //no setup (because we won't have the nature in this test)
         closeWelcomeView();
@@ -62,6 +63,7 @@ public class ProjectImportedHasAstManagerTestWorkbench extends AbstractWorkbench
         //Let's give it some time to run the jobs that restore the nature
         goToIdleLoopUntilCondition(new ICallback<Boolean, Object>() {
 
+            @Override
             public Boolean call(Object arg) {
                 if (nature != null) {
                     if (nature.getAstManager() != null) {

@@ -81,14 +81,17 @@ public final class GlobalModelVisitor extends AbstractVisitor {
         return tok;
     }
 
+    @Override
     protected Object unhandled_node(SimpleNode node) throws Exception {
         return null;
     }
 
+    @Override
     public void traverse(SimpleNode node) throws Exception {
         node.traverse(this);
     }
 
+    @Override
     public Object visitClassDef(ClassDef node) throws Exception {
         //when visiting the global namespace, we don't go into any inner scope.
         if ((this.visitWhat & GLOBAL_TOKENS) != 0) {
@@ -97,6 +100,7 @@ public final class GlobalModelVisitor extends AbstractVisitor {
         return null;
     }
 
+    @Override
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         //when visiting the global namespace, we don't go into any inner scope.
         if ((this.visitWhat & GLOBAL_TOKENS) != 0) {
@@ -110,6 +114,7 @@ public final class GlobalModelVisitor extends AbstractVisitor {
      * 
      * @see org.python.pydev.parser.jython.ast.VisitorIF#visitAssign(org.python.pydev.parser.jython.ast.Assign)
      */
+    @Override
     public Object visitAssign(Assign node) throws Exception {
         lastAssign.push(node);
         node.traverse(this);
@@ -122,6 +127,7 @@ public final class GlobalModelVisitor extends AbstractVisitor {
      * 
      * @see org.python.pydev.parser.jython.ast.VisitorIF#visitName(org.python.pydev.parser.jython.ast.Name)
      */
+    @Override
     public Object visitName(Name node) throws Exception {
         //when visiting the global namespace, we don't go into any inner scope.
         if ((this.visitWhat & GLOBAL_TOKENS) != 0) {
@@ -171,6 +177,7 @@ public final class GlobalModelVisitor extends AbstractVisitor {
      * Visiting some import from
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitImportFrom(org.python.pydev.parser.jython.ast.ImportFrom)
      */
+    @Override
     public Object visitImportFrom(ImportFrom node) throws Exception {
         if ((this.visitWhat & WILD_MODULES) != 0) {
             makeWildImportToken(node, this.tokens, moduleName);
@@ -186,6 +193,7 @@ public final class GlobalModelVisitor extends AbstractVisitor {
      * Visiting some import
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitImport(org.python.pydev.parser.jython.ast.Import)
      */
+    @Override
     public Object visitImport(Import node) throws Exception {
         if ((this.visitWhat & ALIAS_MODULES) != 0) {
             makeImportToken(node, this.tokens, moduleName, true);
@@ -196,6 +204,7 @@ public final class GlobalModelVisitor extends AbstractVisitor {
     /**
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitStr(org.python.pydev.parser.jython.ast.Str)
      */
+    @Override
     public Object visitStr(Str node) throws Exception {
         if ((this.visitWhat & MODULE_DOCSTRING) != 0) {
             this.tokens.add(new SourceToken(node, node.s, "", "", moduleName));

@@ -32,6 +32,7 @@ public class SWTTest extends TestCase {
     /*
      * @see TestCase#setUp()
      */
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
         PydevPlugin.setBundleInfo(new BundleInfoStub());
@@ -56,6 +57,7 @@ public class SWTTest extends TestCase {
     /*
      * @see TestCase#tearDown()
      */
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
         PydevPlugin.setBundleInfo(null);

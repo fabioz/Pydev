@@ -115,6 +115,7 @@ public class SelectExistingOrCreateNewDialog extends TreeSelectionDialog impleme
     private ISelectionStatusValidator createValidator() {
         return new ISelectionStatusValidator() {
 
+            @Override
             public IStatus validate(Object[] selection) {
                 if (selection != null && selection.length == 1) {
                     return new Status(IStatus.OK, PydevPlugin.getPluginID(), getEntry(selection[0].toString()));
@@ -171,12 +172,14 @@ public class SelectExistingOrCreateNewDialog extends TreeSelectionDialog impleme
             /**
              * Support for deleting the current selection on del or backspace.
              */
+            @Override
             public void keyReleased(KeyEvent e) {
                 if (e.keyCode == SWT.DEL || e.keyCode == SWT.BS) {
                     removeSelection();
                 }
             }
 
+            @Override
             public void keyPressed(KeyEvent e) {
 
             }
@@ -305,12 +308,14 @@ public class SelectExistingOrCreateNewDialog extends TreeSelectionDialog impleme
         }
     }
 
+    @Override
     public void widgetSelected(SelectionEvent e) {
         Object source = e.getSource();
         if (source == btAdd) {
             InputDialog dialog = new InputDialog(getShell(), "Add custom command to list",
                     "Add custom command to list", "", new IInputValidator() {
 
+                        @Override
                         public String isValid(String newText) {
                             if (newText.trim().length() == 0) {
                                 return "Command not entered.";
@@ -334,6 +339,7 @@ public class SelectExistingOrCreateNewDialog extends TreeSelectionDialog impleme
         }
     }
 
+    @Override
     public void widgetDefaultSelected(SelectionEvent e) {
         //Do nothing.
     }
@@ -491,6 +497,7 @@ final class ToStringLabelProvider extends LabelProvider {
  */
 final class StringFromListContentProvider implements ITreeContentProvider {
 
+    @Override
     public Object[] getChildren(Object element) {
         if (element instanceof List) {
             List list = (List) element;
@@ -499,22 +506,27 @@ final class StringFromListContentProvider implements ITreeContentProvider {
         return new Object[0];
     }
 
+    @Override
     public Object getParent(Object element) {
         return null;
     }
 
+    @Override
     public boolean hasChildren(Object element) {
         return element instanceof List && ((List) element).size() > 0;
     }
 
+    @Override
     public Object[] getElements(Object inputElement) {
         return getChildren(inputElement);
     }
 
+    @Override
     public void dispose() {
         //do nothing
     }
 
+    @Override
     public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
         //do nothing
     }

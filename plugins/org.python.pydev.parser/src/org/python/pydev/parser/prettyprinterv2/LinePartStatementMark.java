@@ -15,6 +15,7 @@ public class LinePartStatementMark extends AbstractLinePart implements ILinePart
         this.isStart = isStart;
     }
 
+    @Override
     public boolean isStart() {
         return isStart;
     }

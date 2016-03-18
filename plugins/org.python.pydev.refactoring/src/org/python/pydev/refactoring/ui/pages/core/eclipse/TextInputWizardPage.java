@@ -132,6 +132,7 @@ public abstract class TextInputWizardPage extends UserInputWizardPage {
     protected Text createTextInputField(Composite parent, int style) {
         fTextField = new Text(parent, style);
         fTextField.addModifyListener(new ModifyListener() {
+            @Override
             public void modifyText(ModifyEvent e) {
                 textModified(getText());
             }
@@ -177,6 +178,7 @@ public abstract class TextInputWizardPage extends UserInputWizardPage {
     /* (non-Javadoc)
      * Method declared in IDialogPage
      */
+    @Override
     public void dispose() {
         fTextField = null;
     }
@@ -184,6 +186,7 @@ public abstract class TextInputWizardPage extends UserInputWizardPage {
     /* (non-Javadoc)
      * Method declared in WizardPage
      */
+    @Override
     public void setVisible(boolean visible) {
         if (visible) {
             textModified(getText());

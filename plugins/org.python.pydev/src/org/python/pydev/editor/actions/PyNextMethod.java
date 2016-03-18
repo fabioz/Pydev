@@ -16,6 +16,7 @@ package org.python.pydev.editor.actions;
  */
 public class PyNextMethod extends PyMethodNavigation {
 
+    @Override
     protected boolean getSearchForward() {
         return true;
     }

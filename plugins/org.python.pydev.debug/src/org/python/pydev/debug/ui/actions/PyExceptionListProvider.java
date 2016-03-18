@@ -22,6 +22,7 @@ public class PyExceptionListProvider implements IStructuredContentProvider {
 
     }
 
+    @Override
     public Object[] getElements(Object inputElement) {
 
         if (this.newInput == null) {
@@ -30,11 +31,13 @@ public class PyExceptionListProvider implements IStructuredContentProvider {
         return elementsForCurrentInput == null ? EMPTY : elementsForCurrentInput;
     }
 
+    @Override
     public void dispose() {
         elementsForCurrentInput = null;
         newInput = null;
     }
 
+    @Override
     public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
         if (newInput == this.newInput) {
             return;

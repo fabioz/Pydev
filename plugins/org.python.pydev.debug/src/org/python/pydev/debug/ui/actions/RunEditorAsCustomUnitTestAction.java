@@ -73,6 +73,7 @@ class ShiftListener implements Listener {
     public ShiftListener() {
     }
 
+    @Override
     public void handleEvent(Event event) {
         if (event.keyCode == SWT.SHIFT) {
             if (event.type == SWT.KeyDown) {
@@ -123,6 +124,7 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction {
                     Control ret = super.createDialogArea(parent);
                     ret.addTraverseListener(new TraverseListener() {
 
+                        @Override
                         public void keyTraversed(TraverseEvent e) {
                             if (e.detail == SWT.TRAVERSE_RETURN) {
                                 okPressed();
@@ -370,6 +372,7 @@ final class SelectTestTreeContentProvider implements ITreeContentProvider {
     private EasyASTIteratorVisitor visitor;
     private Map<Object, ASTEntry[]> cache = new HashMap<Object, ASTEntry[]>();
 
+    @Override
     public Object[] getChildren(Object element) {
         Object[] ret = cache.get(element);
         if (ret != null) {
@@ -396,11 +399,13 @@ final class SelectTestTreeContentProvider implements ITreeContentProvider {
         return null;
     }
 
+    @Override
     public Object getParent(Object element) {
         ASTEntry entry = (ASTEntry) element;
         return entry.parent;
     }
 
+    @Override
     public boolean hasChildren(Object element) {
         ASTEntry entry = (ASTEntry) element;
 
@@ -411,6 +416,7 @@ final class SelectTestTreeContentProvider implements ITreeContentProvider {
         return false;
     }
 
+    @Override
     public Object[] getElements(Object inputElement) {
         visitor = EasyASTIteratorVisitor.create((SimpleNode) inputElement);
         if (visitor == null) {
@@ -441,10 +447,12 @@ final class SelectTestTreeContentProvider implements ITreeContentProvider {
         return list.toArray(new ASTEntry[0]);
     }
 
+    @Override
     public void dispose() {
         //do nothing
     }
 
+    @Override
     public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
         //do nothing
     }

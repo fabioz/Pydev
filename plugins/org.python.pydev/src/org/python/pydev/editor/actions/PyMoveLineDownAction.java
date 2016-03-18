@@ -16,6 +16,7 @@ public class PyMoveLineDownAction extends PyMoveLineAction {
         super(bundle, prefix, editor);
     }
 
+    @Override
     protected boolean getMoveUp() {
         return false;
     }

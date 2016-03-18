@@ -131,6 +131,7 @@ public class CommentBlocksPreferences extends FieldEditorPreferencePage implemen
         labelMulti.setText("Result:\n" + buf.toString() + "\n\n\n");
     }
 
+    @Override
     public void init(IWorkbench workbench) {
         // pass
     }

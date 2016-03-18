@@ -84,6 +84,7 @@ public class RelaunchInBackgroundAction extends Action implements IResourceChang
 
         }
 
+        @Override
         public void dispose() {
             if (fMenu != null) {
                 fMenu.dispose();
@@ -91,6 +92,7 @@ public class RelaunchInBackgroundAction extends Action implements IResourceChang
             }
         }
 
+        @Override
         public Menu getMenu(Control parent) {
             if (fMenu != null) {
                 fMenu.dispose();
@@ -99,9 +101,11 @@ public class RelaunchInBackgroundAction extends Action implements IResourceChang
             final MenuManager manager = new MenuManager();
             manager.setRemoveAllWhenShown(true);
             manager.addMenuListener(new IMenuListener() {
+                @Override
                 public void menuAboutToShow(final IMenuManager manager2) {
                     fillMenuManager(new IActionsMenu() {
 
+                        @Override
                         public void add(IAction action) {
                             manager2.add(action);
                         }
@@ -113,6 +117,7 @@ public class RelaunchInBackgroundAction extends Action implements IResourceChang
             return fMenu;
         }
 
+        @Override
         public Menu getMenu(Menu parent) {
             return null; //yes, return null here (no sub children)
         }
@@ -185,6 +190,7 @@ public class RelaunchInBackgroundAction extends Action implements IResourceChang
         }
     }
 
+    @Override
     public void resourceChanged(final IResourceChangeEvent event) {
         //Handle cases where the view was closed...
         if (view == null) {
@@ -202,6 +208,7 @@ public class RelaunchInBackgroundAction extends Action implements IResourceChang
         try {
             event.getDelta().accept(new IResourceDeltaVisitor() {
 
+                @Override
                 public boolean visit(IResourceDelta delta) {
                     switch (delta.getKind()) {
                         case IResourceDelta.CHANGED:

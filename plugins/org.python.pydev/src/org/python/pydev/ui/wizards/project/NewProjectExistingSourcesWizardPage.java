@@ -46,6 +46,7 @@ public class NewProjectExistingSourcesWizardPage extends AbstractNewProjectPage
     /* (non-Javadoc)
      * Method declared on IDialogPage.
      */
+    @Override
     public void createControl(Composite parent) {
         Composite composite = new Composite(parent, SWT.NULL);
         composite.setLayout(new GridLayout());
@@ -53,6 +54,7 @@ public class NewProjectExistingSourcesWizardPage extends AbstractNewProjectPage
 
         group = new PythonExistingSourceListGroup(composite, new SelectionListener() {
 
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 if (validatePage()) {
                     setPageComplete(true);
@@ -64,6 +66,7 @@ public class NewProjectExistingSourcesWizardPage extends AbstractNewProjectPage
                 }
             }
 
+            @Override
             public void widgetDefaultSelected(SelectionEvent e) {
             }
         });
@@ -99,6 +102,7 @@ public class NewProjectExistingSourcesWizardPage extends AbstractNewProjectPage
         return true;
     }
 
+    @Override
     public List<IPath> getExistingSourceFolders() {
         return group.getLinkTargets();
     }

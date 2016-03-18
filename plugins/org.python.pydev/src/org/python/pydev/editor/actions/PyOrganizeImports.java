@@ -179,12 +179,14 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
         pep8PerformArrangeImports(doc, false, endLineDelim, project, indentStr, automatic, edit);
     }
 
+    @Override
     public void formatAll(IDocument doc, IPyFormatStdProvider edit, IFile f, boolean isOpenedFile,
             boolean throwSyntaxError)
                     throws SyntaxErrorException {
         organizeImports((PyEdit) edit, doc, f, new PySelection(doc));
     }
 
+    @Override
     public void formatSelection(IDocument doc, int[] regionsToFormat, IPyFormatStdProvider edit, PySelection ps) {
         throw new UnsupportedOperationException();
     }

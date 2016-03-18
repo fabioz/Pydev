@@ -41,6 +41,7 @@ public class PyHoverPreferencesPage extends FieldEditorPreferencePage implements
                 p));
     }
 
+    @Override
     public void init(IWorkbench workbench) {
         // pass
     }

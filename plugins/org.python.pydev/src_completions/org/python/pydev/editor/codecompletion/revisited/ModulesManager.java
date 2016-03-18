@@ -161,6 +161,7 @@ public abstract class ModulesManager implements IModulesManager {
      * This method starts a new cache for this manager, so that needed info is kept while the request is happening
      * (so, some info may not need to be re-asked over and over for requests)
      */
+    @Override
     public boolean startCompletionCache() {
         synchronized (lockCompletionCache) {
             if (completionCache == null) {
@@ -171,6 +172,7 @@ public abstract class ModulesManager implements IModulesManager {
         return true;
     }
 
+    @Override
     public void endCompletionCache() {
         synchronized (lockCompletionCache) {
             completionCacheI -= 1;
@@ -202,10 +204,12 @@ public abstract class ModulesManager implements IModulesManager {
      */
     protected final PythonPathHelper pythonPathHelper = new PythonPathHelper();
 
+    @Override
     public PythonPathHelper getPythonPathHelper() {
         return pythonPathHelper;
     }
 
+    @Override
     public void saveToFile(File workspaceMetadataFile) {
         if (workspaceMetadataFile.exists() && !workspaceMetadataFile.isDirectory()) {
             try {
@@ -432,29 +436,35 @@ public abstract class ModulesManager implements IModulesManager {
 
                 private int i = 0;
 
+                @Override
                 public boolean hasNext() {
                     return i < size;
                 }
 
+                @Override
                 public Object next() {
                     final ModulesKey next = lst.get(i);
                     i++;
                     return new Map.Entry() {
 
+                        @Override
                         public Object getKey() {
                             return next;
                         }
 
+                        @Override
                         public Object getValue() {
                             return next;
                         }
 
+                        @Override
                         public Object setValue(Object value) {
                             throw new UnsupportedOperationException();
                         }
                     };
                 }
 
+                @Override
                 public void remove() {
                     throw new UnsupportedOperationException();
                 }
@@ -506,6 +516,7 @@ public abstract class ModulesManager implements IModulesManager {
      * @param project: may be null
      * @param defaultSelectedInterpreter: may be null
      */
+    @Override
     public void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor) {
         if (monitor == null) {
             monitor = new NullProgressMonitor();
@@ -531,6 +542,7 @@ public abstract class ModulesManager implements IModulesManager {
      * modules manager) and the keys to be removed from the modules manager (i.e.: found in the modules manager but
      * not in the keysFound)
      */
+    @Override
     public Tuple<List<ModulesKey>, List<ModulesKey>> diffModules(AbstractMap<ModulesKey, ModulesKey> keysFound) {
         ArrayList<ModulesKey> newKeys = new ArrayList<ModulesKey>();
         ArrayList<ModulesKey> removedKeys = new ArrayList<ModulesKey>();
@@ -676,10 +688,12 @@ public abstract class ModulesManager implements IModulesManager {
         }
     }
 
+    @Override
     public void removeModules(Collection<ModulesKey> toRem) {
         removeThem(toRem);
     }
 
+    @Override
     public IModule addModule(final ModulesKey key) {
         AbstractModule ret = AbstractModule.createEmptyModule(key);
         doAddSingleModule(key, ret);
@@ -715,6 +729,7 @@ public abstract class ModulesManager implements IModulesManager {
      *
      * Note: addDependencies ignored at this point.
      */
+    @Override
     public Set<String> getAllModuleNames(boolean addDependencies, String partStartingWithLowerCase) {
         Set<String> s = new HashSet<String>();
         synchronized (modulesKeysLock) {
@@ -727,6 +742,7 @@ public abstract class ModulesManager implements IModulesManager {
         return s;
     }
 
+    @Override
     public SortedMap<ModulesKey, ModulesKey> getAllDirectModulesStartingWith(String strStartingWith) {
         if (strStartingWith.length() == 0) {
             synchronized (modulesKeysLock) {
@@ -744,10 +760,12 @@ public abstract class ModulesManager implements IModulesManager {
         }
     }
 
+    @Override
     public SortedMap<ModulesKey, ModulesKey> getAllModulesStartingWith(String strStartingWith) {
         return getAllDirectModulesStartingWith(strStartingWith);
     }
 
+    @Override
     public ModulesKey[] getOnlyDirectModules() {
         synchronized (modulesKeysLock) {
             return this.modulesKeys.keySet().toArray(new ModulesKey[0]);
@@ -757,12 +775,14 @@ public abstract class ModulesManager implements IModulesManager {
     /**
      * Note: no dependencies at this point (so, just return the keys)
      */
+    @Override
     public int getSize(boolean addDependenciesSize) {
         synchronized (modulesKeysLock) {
             return this.modulesKeys.size();
         }
     }
 
+    @Override
     public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit) {
         return getModule(true, name, nature, dontSearchInit);
     }
@@ -777,6 +797,7 @@ public abstract class ModulesManager implements IModulesManager {
     /**
      * Returns the handle to be used to remove the module added later on!
      */
+    @Override
     public int pushTemporaryModule(String moduleName, IModule module) {
         synchronized (lockTemporaryModules) {
             SortedMap<Integer, IModule> map = temporaryModules.get(moduleName);
@@ -794,6 +815,7 @@ public abstract class ModulesManager implements IModulesManager {
 
     }
 
+    @Override
     public void popTemporaryModule(String moduleName, int handle) {
         synchronized (lockTemporaryModules) {
             SortedMap<Integer, IModule> stack = temporaryModules.get(moduleName);
@@ -1040,6 +1062,7 @@ public abstract class ModulesManager implements IModulesManager {
                             IDocument doc = FileUtilsFileBuffer.getDocFromFile(managerBody);
                             IGrammarVersionProvider provider = new IGrammarVersionProvider() {
 
+                                @Override
                                 public int getGrammarVersion() throws MisconfigurationException {
                                     return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0; // Always Python 3.0 here
                                 }
@@ -1098,6 +1121,7 @@ public abstract class ModulesManager implements IModulesManager {
     /**
      * @see org.python.pydev.core.IProjectModulesManager#isInPythonPath(org.eclipse.core.resources.IResource, org.eclipse.core.resources.IProject)
      */
+    @Override
     public boolean isInPythonPath(IResource member, IProject container) {
         return resolveModule(member, container) != null;
     }
@@ -1105,6 +1129,7 @@ public abstract class ModulesManager implements IModulesManager {
     /**
      * @see org.python.pydev.core.IProjectModulesManager#resolveModule(org.eclipse.core.resources.IResource, org.eclipse.core.resources.IProject)
      */
+    @Override
     public String resolveModule(IResource member, IProject container) {
         File inOs = member.getRawLocation().toFile();
         return pythonPathHelper.resolveModule(FileUtils.getFileAbsolutePath(inOs), false, container);
@@ -1119,6 +1144,7 @@ public abstract class ModulesManager implements IModulesManager {
      * @param full
      * @return
      */
+    @Override
     public String resolveModule(String full) {
         return pythonPathHelper.resolveModule(full, false, null);
     }

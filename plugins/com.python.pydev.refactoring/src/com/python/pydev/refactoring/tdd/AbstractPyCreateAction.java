@@ -33,6 +33,7 @@ public abstract class AbstractPyCreateAction extends Action implements IEditorAc
 
     protected PyEdit targetEditor;
 
+    @Override
     public void setActiveEditor(IAction action, IEditorPart targetEditor) {
         if (targetEditor instanceof ITextEditor) {
             if (targetEditor instanceof PyEdit) {
@@ -44,6 +45,7 @@ public abstract class AbstractPyCreateAction extends Action implements IEditorAc
         }
     }
 
+    @Override
     public void selectionChanged(IAction action, ISelection selection) {
     }
 
@@ -51,6 +53,7 @@ public abstract class AbstractPyCreateAction extends Action implements IEditorAc
      * (non-Javadoc)
      * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
      */
+    @Override
     public void run(IAction action) {
         if (targetEditor == null) {
             Status status = PydevPlugin.makeStatus(IStatus.ERROR, "Unable to do refactoring.", null);

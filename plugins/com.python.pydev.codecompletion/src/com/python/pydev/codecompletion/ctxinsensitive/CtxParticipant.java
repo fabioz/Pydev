@@ -58,6 +58,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
     /**
      * IPyDevCompletionParticipant2
      */
+    @Override
     public Collection<ICompletionProposal> computeConsoleCompletions(ActivationTokenAndQual tokenAndQual,
             List<IPythonNature> naturesUsed, IScriptConsoleViewer viewer, int requestOffset) {
         List<ICompletionProposal> completions = new ArrayList<ICompletionProposal>();
@@ -251,6 +252,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
         return importedNames;
     }
 
+    @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Collection getGlobalCompletions(CompletionRequest request, ICompletionState state)
             throws MisconfigurationException {
@@ -260,6 +262,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
     /**
      * IPyDevCompletionParticipant
      */
+    @Override
     public Collection<IToken> getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope,
             Collection<IToken> interfaceForLocal) {
         ArrayList<IToken> ret = new ArrayList<IToken>();
@@ -286,22 +289,26 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
      * IPyDevCompletionParticipant
      * @throws MisconfigurationException 
      */
+    @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Collection getStringGlobalCompletions(CompletionRequest request, ICompletionState state)
             throws MisconfigurationException {
         return getThem(request, state, false);
     }
 
+    @Override
     public Collection<Object> getArgsCompletion(ICompletionState state, ILocalScope localScope,
             Collection<IToken> interfaceForLocal) {
         throw new RuntimeException("Deprecated");
     }
 
+    @Override
     public Collection<IToken> getCompletionsForTokenWithUndefinedType(ICompletionState state, ILocalScope localScope,
             Collection<IToken> interfaceForLocal) {
         return getCompletionsForMethodParameter(state, localScope, interfaceForLocal);
     }
 
+    @Override
     public Collection<IToken> getCompletionsForType(ICompletionState state) throws CompletionRecursionException {
         String activationToken = state.getActivationToken();
         String qual = activationToken;

@@ -42,6 +42,7 @@ public class DeferredWorkbenchAdapter extends DeferredDebugElementWorkbenchAdapt
     /* (non-Javadoc)
      * @see org.eclipse.ui.progress.IDeferredWorkbenchAdapter#fetchDeferredChildren(java.lang.Object, org.eclipse.ui.progress.IElementCollector, org.eclipse.core.runtime.IProgressMonitor)
      */
+    @Override
     public void fetchDeferredChildren(Object object, IElementCollector collector, IProgressMonitor monitor) {
         this.monitor = monitor;
         if (monitor.isCanceled()) {
@@ -57,6 +58,7 @@ public class DeferredWorkbenchAdapter extends DeferredDebugElementWorkbenchAdapt
         collector.done();
     }
 
+    @Override
     public Object[] getChildren(Object o) {
         if (parent != o) {
             throw new RuntimeException("This is valid only for a single getChildren!");
@@ -123,11 +125,13 @@ public class DeferredWorkbenchAdapter extends DeferredDebugElementWorkbenchAdapt
         return new PyVariable[0];
     }
 
+    @Override
     public Object getParent(Object o) {
         //do we really need that?
         return parent;
     }
 
+    @Override
     public void commandComplete(AbstractDebuggerCommand cmd) {
         PyVariable[] temp = PyVariableCollection.getCommandVariables(cmd, target, locator);
         if (parent instanceof PyVariableCollection) {

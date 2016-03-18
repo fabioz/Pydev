@@ -62,6 +62,7 @@ public class PyCalltipsContextInformationFromIToken implements IPyCalltipsContex
     /*
      * @see IContextInformation#equals(Object)
      */
+    @Override
     public boolean equals(Object object) {
         if (object instanceof PyCalltipsContextInformationFromIToken) {
             PyCalltipsContextInformationFromIToken contextInformation = (PyCalltipsContextInformationFromIToken) object;
@@ -96,6 +97,7 @@ public class PyCalltipsContextInformationFromIToken implements IPyCalltipsContex
      * @see java.lang.Object#hashCode()
      * @since 3.1
      */
+    @Override
     public int hashCode() {
         calculateArgumentsWithParens();
         return argumentsWithParens.hashCode();
@@ -104,6 +106,7 @@ public class PyCalltipsContextInformationFromIToken implements IPyCalltipsContex
     /*
      * @see IContextInformation#getInformationDisplayString()
      */
+    @Override
     public String getInformationDisplayString() {
         if (argumentsWithoutParens == null) {
             calculateArgumentsWithParens();
@@ -115,6 +118,7 @@ public class PyCalltipsContextInformationFromIToken implements IPyCalltipsContex
     /*
      * @see IContextInformation#getImage()
      */
+    @Override
     public Image getImage() {
         return fImage;
     }
@@ -122,10 +126,12 @@ public class PyCalltipsContextInformationFromIToken implements IPyCalltipsContex
     /*
      * @see IContextInformation#getContextDisplayString()
      */
+    @Override
     public String getContextDisplayString() {
         return getInformationDisplayString();
     }
 
+    @Override
     public int getShowCalltipsOffset() {
         return this.fReplacementOffset;
     }

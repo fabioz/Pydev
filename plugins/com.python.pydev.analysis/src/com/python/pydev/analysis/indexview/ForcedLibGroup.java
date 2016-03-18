@@ -27,6 +27,7 @@ public class ForcedLibGroup extends ElementWithChildren {
         this.forcedLib = forcedLib;
     }
 
+    @Override
     public boolean hasChildren() {
         return true;
     }
@@ -44,6 +45,7 @@ public class ForcedLibGroup extends ElementWithChildren {
         }
         Collections.sort(lst, new Comparator<LeafElement>() {
 
+            @Override
             public int compare(LeafElement o1, LeafElement o2) {
                 return o1.toString().compareTo(o2.toString());
             }

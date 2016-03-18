@@ -84,6 +84,7 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog implements I
                 Display display = Display.getDefault();
                 display.asyncExec(new Runnable() {
 
+                    @Override
                     public void run() {
                         if (!monitor.isCanceled()) {
                             doFilterUpdate(monitor);
@@ -230,6 +231,7 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog implements I
         text.setLayoutData(data);
 
         Listener listener = new Listener() {
+            @Override
             public void handleEvent(Event e) {
                 if (updateInThread) {
                     if (updateJob != null) {
@@ -246,6 +248,7 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog implements I
         text.addListener(SWT.Modify, listener);
 
         text.addKeyListener(new KeyListener() {
+            @Override
             public void keyPressed(KeyEvent e) {
                 if (e.keyCode == SWT.ARROW_DOWN || e.keyCode == SWT.PAGE_DOWN) {
                     Tree tree = getTreeViewer().getTree();
@@ -254,6 +257,7 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog implements I
                 }
             }
 
+            @Override
             public void keyReleased(KeyEvent e) {
             }
         });
@@ -413,10 +417,12 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog implements I
         return false;
     }
 
+    @Override
     public ICallbackWithListeners getOnControlCreated() {
         return onControlCreated;
     }
 
+    @Override
     public ICallbackWithListeners getOnControlDisposed() {
         return onControlDisposed;
     }

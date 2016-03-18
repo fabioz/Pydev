@@ -81,6 +81,7 @@ public class LocalScope implements ILocalScope {
         this.scope.addAll(scope);
     }
 
+    @Override
     public FastStack<SimpleNode> getScopeStack() {
         return scope;
     }
@@ -112,6 +113,7 @@ public class LocalScope implements ILocalScope {
     /**
      * @see org.python.pydev.core.ILocalScope#isOuterOrSameScope(org.python.pydev.editor.codecompletion.revisited.visitors.LocalScope)
      */
+    @Override
     public boolean isOuterOrSameScope(ILocalScope s) {
         if (this.scope.size() > s.getScopeStack().size()) {
             return false;
@@ -163,6 +165,7 @@ public class LocalScope implements ILocalScope {
     /**
      * @see org.python.pydev.core.ILocalScope#getAllLocalTokens()
      */
+    @Override
     public IToken[] getAllLocalTokens() {
         return getLocalTokens(Integer.MAX_VALUE, Integer.MAX_VALUE, false);
     }
@@ -170,6 +173,7 @@ public class LocalScope implements ILocalScope {
     /**
      * @see org.python.pydev.core.ILocalScope#getLocalTokens(int, int, boolean)
      */
+    @Override
     public IToken[] getLocalTokens(int endLine, int col, boolean onlyArgs) {
         Set<SourceToken> comps = new HashSet<SourceToken>();
 
@@ -252,6 +256,7 @@ public class LocalScope implements ILocalScope {
      * Note that argName == activationToken first part before the dot (they may be equal)
      * @return a list of tokens for the local
      */
+    @Override
     public Collection<IToken> getInterfaceForLocal(String activationToken) {
         return getInterfaceForLocal(activationToken, true, true);
     }
@@ -318,6 +323,7 @@ public class LocalScope implements ILocalScope {
     /**
      * @see org.python.pydev.core.ILocalScope#getLocalImportedModules(int, int, java.lang.String)
      */
+    @Override
     public List<IToken> getLocalImportedModules(int line, int col, String moduleName) {
         ArrayList<IToken> importedModules = new ArrayList<IToken>();
         for (Iterator<SimpleNode> iter = this.scope.iterator(); iter.hasNext();) {
@@ -340,6 +346,7 @@ public class LocalScope implements ILocalScope {
     /**
      * @see org.python.pydev.core.ILocalScope#getClassDef()
      */
+    @Override
     public ClassDef getClassDef() {
         for (Iterator<SimpleNode> it = this.scope.topDownIterator(); it.hasNext();) {
             SimpleNode node = it.next();
@@ -353,6 +360,7 @@ public class LocalScope implements ILocalScope {
     /**
      * @see org.python.pydev.core.ILocalScope#isLastClassDef()
      */
+    @Override
     public boolean isLastClassDef() {
         if (this.scope.size() > 0 && this.scope.peek() instanceof ClassDef) {
             return true;
@@ -360,22 +368,27 @@ public class LocalScope implements ILocalScope {
         return false;
     }
 
+    @Override
     public Iterator iterator() {
         return scope.topDownIterator();
     }
 
+    @Override
     public int getIfMainLine() {
         return ifMainLine;
     }
 
+    @Override
     public int getScopeEndLine() {
         return scopeEndLine;
     }
 
+    @Override
     public void setIfMainLine(int original) {
         this.ifMainLine = original;
     }
 
+    @Override
     public void setScopeEndLine(int beginLine) {
         this.scopeEndLine = beginLine;
     }
@@ -404,6 +417,7 @@ public class LocalScope implements ILocalScope {
     /**
      * @see {@link ILocalScope#getPossibleClassesForActivationToken(String)}
      */
+    @Override
     public List<String> getPossibleClassesForActivationToken(String actTok) {
         ArrayList<String> ret = new ArrayList<String>();
 

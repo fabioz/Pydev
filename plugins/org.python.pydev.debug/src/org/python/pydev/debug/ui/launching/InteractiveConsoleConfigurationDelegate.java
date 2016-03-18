@@ -22,6 +22,7 @@ import org.python.pydev.debug.newconsole.PydevConsoleFactory;
 
 public class InteractiveConsoleConfigurationDelegate extends LaunchConfigurationDelegate {
 
+    @Override
     public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor)
             throws CoreException {
 
@@ -29,6 +30,7 @@ public class InteractiveConsoleConfigurationDelegate extends LaunchConfiguration
         monitor.setCanceled(true);
         Display.getDefault().asyncExec(new Runnable() {
 
+            @Override
             public void run() {
                 PydevConsoleFactory pydevConsoleFactory = new PydevConsoleFactory();
                 pydevConsoleFactory.openConsole();

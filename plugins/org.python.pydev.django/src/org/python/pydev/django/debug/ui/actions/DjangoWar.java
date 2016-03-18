@@ -14,6 +14,7 @@ import org.python.pydev.runners.SimpleRunner;
 
 public class DjangoWar extends DjangoAction {
 
+    @Override
     public void run(IAction action) {
         try {
             PythonNature nature = PythonNature.getPythonNature(selectedProject);

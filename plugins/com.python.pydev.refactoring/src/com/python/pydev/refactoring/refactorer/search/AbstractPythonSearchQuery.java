@@ -24,14 +24,17 @@ public abstract class AbstractPythonSearchQuery implements ISearchQuery, ICustom
         this(searchText, false, true, true, null);
     }
 
+    @Override
     public boolean canRerun() {
         return false;
     }
 
+    @Override
     public boolean canRunInBackground() {
         return true;
     }
 
+    @Override
     public String getLabel() {
         return "Python Search";
     }
@@ -63,8 +66,10 @@ public abstract class AbstractPythonSearchQuery implements ISearchQuery, ICustom
         return fScope;
     }
 
+    @Override
     public abstract IStatus run(final IProgressMonitor monitor);
 
+    @Override
     public String getSearchString() {
         return fSearchText;
     }
@@ -82,14 +87,17 @@ public abstract class AbstractPythonSearchQuery implements ISearchQuery, ICustom
         return fSearchText.length() == 0;
     }
 
+    @Override
     public boolean isRegexSearch() {
         return fIsRegEx;
     }
 
+    @Override
     public boolean isCaseSensitive() {
         return fIsCaseSensitive;
     }
 
+    @Override
     public ISearchResult getSearchResult() {
         if (fResult == null) {
             fResult = new PythonFileSearchResult(this);

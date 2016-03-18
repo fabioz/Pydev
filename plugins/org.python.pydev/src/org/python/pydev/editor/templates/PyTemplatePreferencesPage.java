@@ -27,10 +27,12 @@ public class PyTemplatePreferencesPage extends TemplatePreferencePage implements
         setDescription("Templates for editor and new modules");
     }
 
+    @Override
     protected boolean isShowFormatterSetting() {
         return true;
     }
 
+    @Override
     public boolean performOk() {
         boolean ok = super.performOk();
 

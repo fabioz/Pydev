@@ -386,6 +386,7 @@ public class PyBackspace extends PyAction {
     public static VerifyKeyListener createVerifyKeyListener(final TextViewer viewer, final PyEdit edit) {
         return new VerifyKeyListener() {
 
+            @Override
             public void verifyKey(VerifyEvent event) {
                 if ((event.doit && event.character == SWT.BS && event.stateMask == 0 && viewer != null && viewer
                         .isEditable())) { //isBackspace

@@ -26,6 +26,7 @@ public class JythonInterpreterManagerStub extends PythonInterpreterManagerStub {
         super(prefs);
     }
 
+    @Override
     public String getDefaultInterpreter() {
         return TestDependent.JYTHON_JAR_LOCATION;
     }
@@ -38,6 +39,7 @@ public class JythonInterpreterManagerStub extends PythonInterpreterManagerStub {
      * @throws MisconfigurationException 
      * @see org.python.pydev.core.IInterpreterManager#getInterpreterInfo(java.lang.String, org.eclipse.core.runtime.IProgressMonitor)
      */
+    @Override
     public InterpreterInfo getInterpreterInfo(String executable, IProgressMonitor monitor)
             throws MisconfigurationException {
         InterpreterInfo info = super.getInterpreterInfo(executable, monitor);
@@ -50,6 +52,7 @@ public class JythonInterpreterManagerStub extends PythonInterpreterManagerStub {
     /**
      * @see org.python.pydev.core.IInterpreterManager#getDefaultJavaLocation()
      */
+    @Override
     public String getDefaultJavaLocation() {
         return TestDependent.JAVA_LOCATION;
     }

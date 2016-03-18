@@ -24,12 +24,15 @@ public class PyGlobalsBrowserWorkbench implements IWorkbenchWindowActionDelegate
 
     private ISelection selection;
 
+    @Override
     public void dispose() {
     }
 
+    @Override
     public void init(IWorkbenchWindow window) {
     }
 
+    @Override
     public void run(IAction action) {
         String text = null;
         if (this.selection instanceof ITextSelection) {
@@ -55,6 +58,7 @@ public class PyGlobalsBrowserWorkbench implements IWorkbenchWindowActionDelegate
         PyGlobalsBrowser.getFromWorkspace(text);
     }
 
+    @Override
     public void selectionChanged(IAction action, ISelection selection) {
         this.selection = selection;
     }

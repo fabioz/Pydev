@@ -47,6 +47,7 @@ public abstract class AbstractOutlineFilterAction extends Action {
         setImageDescriptor(imageCache.getDescriptor(uiConstant));
     }
 
+    @Override
     public void run() {
         setActionEnabled(isChecked());
     }

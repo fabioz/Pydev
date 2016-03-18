@@ -100,14 +100,17 @@ public class FastStack<E> implements Iterable<E> {
         final ListIterator<E> l = new ListItr(this.size);
         return new Iterator<E>() {
 
+            @Override
             public boolean hasNext() {
                 return l.hasPrevious();
             }
 
+            @Override
             public E next() {
                 return l.previous();
             }
 
+            @Override
             public void remove() {
                 throw new RuntimeException("Not Impl");
             }
@@ -119,6 +122,7 @@ public class FastStack<E> implements Iterable<E> {
         return size;
     }
 
+    @Override
     public ListIterator<E> iterator() {
         return new ListItr(0);
     }
@@ -186,10 +190,12 @@ public class FastStack<E> implements Iterable<E> {
          */
         int lastRet = -1;
 
+        @Override
         public boolean hasNext() {
             return cursor != size();
         }
 
+        @Override
         public E next() {
             try {
                 E next = get(cursor);
@@ -200,10 +206,12 @@ public class FastStack<E> implements Iterable<E> {
             }
         }
 
+        @Override
         public void remove() {
             throw new RuntimeException("Not implemented");
         }
 
+        @Override
         public void add(E o) {
             throw new RuntimeException("Not implemented");
         }
@@ -212,10 +220,12 @@ public class FastStack<E> implements Iterable<E> {
             cursor = index;
         }
 
+        @Override
         public boolean hasPrevious() {
             return cursor != 0;
         }
 
+        @Override
         public E previous() {
             try {
                 int i = cursor - 1;
@@ -227,14 +237,17 @@ public class FastStack<E> implements Iterable<E> {
             }
         }
 
+        @Override
         public int nextIndex() {
             return cursor;
         }
 
+        @Override
         public int previousIndex() {
             return cursor - 1;
         }
 
+        @Override
         public void set(E o) {
             throw new RuntimeException("Not implemented");
         }

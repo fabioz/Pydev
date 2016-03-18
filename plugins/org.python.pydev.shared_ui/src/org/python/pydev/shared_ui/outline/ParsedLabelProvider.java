@@ -26,11 +26,13 @@ public class ParsedLabelProvider extends LabelProvider {
         this.imageCache = imageCache;
     }
 
+    @Override
     public String getText(Object element) {
         return element.toString();
     }
 
     // returns images based upon element type
+    @Override
     public Image getImage(Object element) {
         return ((IParsedItem) element).getImage();
     }

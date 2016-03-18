@@ -45,26 +45,32 @@ public class PythonNatureStub implements IPythonNature {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public ICodeCompletionASTManager getAstManager() {
         return new CodeCompletionASTManagerStub();
     }
 
+    @Override
     public IToken[] getBuiltinCompletions() {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public IModule getBuiltinMod() {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public File getCompletionsCacheDir() {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public String getDefaultVersion() {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public IPythonPathNature getPythonPathNature() {
         throw new RuntimeException("Not implemented");
     }
@@ -73,10 +79,12 @@ public class PythonNatureStub implements IPythonNature {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public IInterpreterManager getRelatedInterpreterManager() {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public String getVersion() throws CoreException {
         throw new RuntimeException("Not implemented");
     }
@@ -89,6 +97,7 @@ public class PythonNatureStub implements IPythonNature {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public void rebuildPath() {
         throw new RuntimeException("Not implemented");
     }
@@ -97,18 +106,22 @@ public class PythonNatureStub implements IPythonNature {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public String resolveModule(File file) {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public void saveAstManager() {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public void clearBuiltinCompletions() {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public void clearBuiltinMod() {
         throw new RuntimeException("Not implemented");
     }
@@ -117,82 +130,101 @@ public class PythonNatureStub implements IPythonNature {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public void configure() throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public void deconfigure() throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public IProject getProject() {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public void setProject(IProject project) {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public int getGrammarVersion() {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public void endRequests() {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public boolean isResourceInPythonpath(IResource resource) {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public boolean isResourceInPythonpath(String resource) {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public boolean isResourceInPythonpathProjectSources(IResource resource, boolean addExternal)
             throws MisconfigurationException {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public boolean isResourceInPythonpathProjectSources(String resource, boolean addExternal)
             throws MisconfigurationException {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public String resolveModule(String fileAbsolutePath) {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public String resolveModule(IResource resource) {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public boolean startRequests() {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public int getInterpreterType() throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public IInterpreterInfo getProjectInterpreter() throws MisconfigurationException,
             PythonNatureWithoutProjectException {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public boolean isOkToUse() {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public void setVersion(String version, String interpreter) throws CoreException {
         throw new RuntimeException("Not implemented");
 
     }
 
+    @Override
     public String resolveModuleOnlyInProjectSources(String fileAbsolutePath, boolean addExternal) throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public String resolveModuleOnlyInProjectSources(IResource fileAbsolutePath, boolean addExternal)
             throws CoreException {
         throw new RuntimeException("Not implemented");

@@ -216,6 +216,7 @@ public class DjangoSettingsPage extends WizardPage {
         }
     }
 
+    @Override
     @SuppressWarnings("unused")
     public void createControl(Composite parent) {
         Composite topComp = new Composite(parent, SWT.NONE);
@@ -262,10 +263,12 @@ public class DjangoSettingsPage extends WizardPage {
 
         engineCombo.addSelectionListener(new SelectionListener() {
 
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 updateSqlitePathIfNeeded(projectPage);
             }
 
+            @Override
             public void widgetDefaultSelected(SelectionEvent e) {
             }
         });

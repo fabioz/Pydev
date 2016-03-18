@@ -217,6 +217,7 @@ public abstract class ProcessWindow extends Dialog {
 
             Display.getDefault().asyncExec(new Runnable() {
 
+                @Override
                 public void run() {
                     if (split.size() > 0) {
                         String last = split.get(split.size() - 1);
@@ -274,9 +275,11 @@ public abstract class ProcessWindow extends Dialog {
         link.setText("See <a>http://code.google.com/appengine/docs/python/tools/uploadinganapp.html</a>");
         link.addSelectionListener(new SelectionListener() {
 
+            @Override
             public void widgetDefaultSelected(SelectionEvent e) {
             }
 
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 Program.launch("http://code.google.com/appengine/docs/python/tools/uploadinganapp.html");
             }
@@ -318,12 +321,14 @@ public abstract class ProcessWindow extends Dialog {
         sendToText = createText(composite, NUMBER_OF_COLUMNS - 2); //1 from the label and 1 from the button
         sendToText.addKeyListener(new KeyListener() {
 
+            @Override
             public void keyReleased(KeyEvent e) {
                 if (e.character == '\r' || e.character == '\n') {
                     addCurrentCommand();
                 }
             }
 
+            @Override
             public void keyPressed(KeyEvent e) {
             }
         });
@@ -427,6 +432,7 @@ public abstract class ProcessWindow extends Dialog {
 
         Display.getDefault().asyncExec(new Runnable() {
 
+            @Override
             public void run() {
                 commandToExecuteLabel.setText(COMMAND_TO_EXECUTE_LABEL);
                 commandToExecute.setEnabled(true);

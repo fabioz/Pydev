@@ -91,6 +91,7 @@ public abstract class AbstractLaunchConfigurationDelegate extends LaunchConfigur
      * Modelled after Ant & Java runners
      * see WorkbenchLaunchConfigurationDelegate::launch
      */
+    @Override
     public void launch(ILaunchConfiguration conf, String mode, ILaunch launch, IProgressMonitor monitor)
             throws CoreException {
 
@@ -122,6 +123,7 @@ public abstract class AbstractLaunchConfigurationDelegate extends LaunchConfigur
     private void handleError(ILaunch launch, final Exception e) {
         Display.getDefault().asyncExec(new Runnable() {
 
+            @Override
             public void run() {
                 ErrorDialog.openError(EditorUtils.getShell(), "Invalid launch configuration",
                         "Unable to make launch because launch configuration is not valid",

@@ -138,6 +138,7 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
      * It's done this way (and not final) because we want to mock it on tests.
      */
     protected static ICallback<List<IWorkingSet>, IWorkspaceRoot> getWorkingSetsCallback = new ICallback<List<IWorkingSet>, IWorkspaceRoot>() {
+        @Override
         public List<IWorkingSet> call(IWorkspaceRoot arg) {
             return Arrays.asList(PlatformUI.getWorkbench().getWorkingSetManager().getWorkingSets());
         }
@@ -254,6 +255,7 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
     /**
      * Notification received when the pythonpath has been changed or rebuilt.
      */
+    @Override
     public void notifyPythonPathRebuilt(IProject project, IPythonNature nature) {
         if (project == null) {
             return;
@@ -277,6 +279,7 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
         createAndStartUpdater(project, projectPythonpath);
     }
 
+    @Override
     public void propertyChange(PropertyChangeEvent event) {
         //When a property that'd change an icon changes, the tree must be updated.
         String property = event.getProperty();
@@ -963,6 +966,7 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
     /*
      * (non-Javadoc) Method declared on IResourceChangeListener.
      */
+    @Override
     public final void resourceChanged(final IResourceChangeEvent event) {
         processDelta(event.getDelta());
     }
@@ -1009,6 +1013,7 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
                  *
                  * @see java.lang.Runnable#run()
                  */
+                @Override
                 public void run() {
                     runUpdates(runnables);
                 }
@@ -1185,6 +1190,7 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
         final boolean hasRename = numMovedFrom > 0 && numMovedTo > 0;
 
         Runnable addAndRemove = new Runnable() {
+            @Override
             public void run() {
                 if (viewer instanceof AbstractTreeViewer) {
                     AbstractTreeViewer treeViewer = viewer;
@@ -1272,6 +1278,7 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
      */
     private Runnable getRefreshRunnable(final IResource resource) {
         return new Runnable() {
+            @Override
             public void run() {
                 ((StructuredViewer) viewer).refresh(getResourceInPythonModel(resource));
             }
@@ -1283,6 +1290,7 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
      */
     private Runnable getUpdateRunnable(final IResource resource) {
         return new Runnable() {
+            @Override
             public void run() {
                 ((StructuredViewer) viewer).update(getResourceInPythonModel(resource), null);
             }

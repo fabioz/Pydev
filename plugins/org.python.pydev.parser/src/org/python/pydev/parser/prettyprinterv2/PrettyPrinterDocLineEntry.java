@@ -90,6 +90,7 @@ public class PrettyPrinterDocLineEntry {
         if (!lineSorted) {
             Collections.sort(lineParts, new Comparator<ILinePart>() {
 
+                @Override
                 public int compare(ILinePart o1, ILinePart o2) {
                     return (o1.getBeginCol() < o2.getBeginCol() ? -1 : (o1.getBeginCol() == o2.getBeginCol() ? 0 : 1));
                 }

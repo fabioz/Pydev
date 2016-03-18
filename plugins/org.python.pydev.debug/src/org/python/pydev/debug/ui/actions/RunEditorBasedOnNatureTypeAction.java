@@ -15,6 +15,7 @@ import org.python.pydev.shared_core.structure.Tuple;
 
 public class RunEditorBasedOnNatureTypeAction extends AbstractRunEditorAction {
 
+    @Override
     public void run(IAction action) {
 
         PyEdit pyEdit = getPyEdit();

@@ -119,6 +119,7 @@ public final class VisitorFactory {
             if (FileTypesPreferencesPage.isCythonFile(file.getName())) {
                 versionProvider = new IGrammarVersionProvider() {
 
+                    @Override
                     public int getGrammarVersion() throws MisconfigurationException {
                         return IPythonNature.GRAMMAR_PYTHON_VERSION_CYTHON;
                     }

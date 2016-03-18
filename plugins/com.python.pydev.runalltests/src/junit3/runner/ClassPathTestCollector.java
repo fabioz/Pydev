@@ -33,7 +33,8 @@ public abstract class ClassPathTestCollector implements TestCollector {
 	public ClassPathTestCollector() {
 	}
 	
-	public Enumeration<String> collectTests() {
+	@Override
+    public Enumeration<String> collectTests() {
 		String classPath= System.getProperty("java.class.path");
 		Hashtable<String, String> result = collectFilesInPath(classPath);
 		return result.elements();

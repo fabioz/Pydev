@@ -53,6 +53,7 @@ public class PyAstFactoryWithPrettyPrinting extends AbstractPrettyPrinterTestBas
 
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
+            @Override
             public Boolean call(Integer version) {
                 Module module = (Module) parseLegalDocStr(s);
                 exprType value = ((Expr) module.body[0]).value;

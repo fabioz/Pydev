@@ -27,6 +27,7 @@ public class PythonCorrectionProcessorTest extends TestCase {
     /*
      * @see TestCase#setUp()
      */
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
     }
@@ -34,6 +35,7 @@ public class PythonCorrectionProcessorTest extends TestCase {
     /*
      * @see TestCase#tearDown()
      */
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }

@@ -57,6 +57,7 @@ public class PythonLabelProvider implements ILabelProvider {
     /**
      * @see org.eclipse.jface.viewers.ILabelProvider#getImage(java.lang.Object)
      */
+    @Override
     public Image getImage(Object element) {
         if (element instanceof PythonProjectSourceFolder) {
             return SharedUiPlugin.getImageCache().get(UIConstants.PROJECT_SOURCE_FOLDER_ICON);
@@ -241,6 +242,7 @@ public class PythonLabelProvider implements ILabelProvider {
     /**
      * @see org.eclipse.jface.viewers.ILabelProvider#getText(java.lang.Object)
      */
+    @Override
     public String getText(Object element) {
         if (element instanceof PythonNode) {
             PythonNode node = (PythonNode) element;
@@ -271,18 +273,22 @@ public class PythonLabelProvider implements ILabelProvider {
     /**
      * @see org.eclipse.jface.viewers.IBaseLabelProvider#addListener(org.eclipse.jface.viewers.ILabelProviderListener)
      */
+    @Override
     public void addListener(ILabelProviderListener listener) {
         provider.addListener(listener);
     }
 
+    @Override
     public void dispose() {
         provider.dispose();
     }
 
+    @Override
     public boolean isLabelProperty(Object element, String property) {
         return provider.isLabelProperty(element, property);
     }
 
+    @Override
     public void removeListener(ILabelProviderListener listener) {
         provider.removeListener(listener);
     }

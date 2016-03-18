@@ -23,6 +23,7 @@ import org.eclipse.jface.text.TypedPosition;
 public class PartitionMerger {
 
     private static final class PositionComparator implements Comparator<Position> {
+        @Override
         public int compare(Position o1, Position o2) {
             return o1.offset - o2.offset;
         }

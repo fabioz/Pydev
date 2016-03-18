@@ -315,6 +315,7 @@ public abstract class BaseOutlinePage extends ContentOutlinePageWithFilter imple
             // selecting an item in the outline scrolls the document
             selectionListener = new ISelectionChangedListener() {
 
+                @Override
                 public void selectionChanged(SelectionChangedEvent event) {
                     if (linkWithEditor == null) {
                         return;
@@ -361,13 +362,16 @@ public abstract class BaseOutlinePage extends ContentOutlinePageWithFilter imple
 
             tree.addMouseListener(new MouseListener() {
 
+                @Override
                 public void mouseDoubleClick(MouseEvent e) {
                     tryToMakeSelection();
                 }
 
+                @Override
                 public void mouseDown(MouseEvent e) {
                 }
 
+                @Override
                 public void mouseUp(MouseEvent e) {
                     tryToMakeSelection();
                 }
@@ -375,9 +379,11 @@ public abstract class BaseOutlinePage extends ContentOutlinePageWithFilter imple
 
             tree.addKeyListener(new KeyListener() {
 
+                @Override
                 public void keyPressed(KeyEvent e) {
                 }
 
+                @Override
                 public void keyReleased(KeyEvent e) {
                     if (e.keyCode == SWT.ARROW_UP || e.keyCode == SWT.ARROW_DOWN) {
                         tryToMakeSelection();
@@ -413,12 +419,14 @@ public abstract class BaseOutlinePage extends ContentOutlinePageWithFilter imple
         return controls;
     }
 
+    @Override
     public boolean show(ShowInContext context) {
         linkWithEditor.doLinkOutlinePosition(this.editorView, this,
                 EditorUtils.createTextSelectionUtils(this.editorView));
         return true;
     }
 
+    @Override
     public Object getAdapter(Class adapter) {
         if (adapter == IShowInTarget.class) {
             return this;

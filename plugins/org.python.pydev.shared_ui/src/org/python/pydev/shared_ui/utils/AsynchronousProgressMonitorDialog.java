@@ -42,6 +42,7 @@ public class AsynchronousProgressMonitorDialog extends ProgressMonitorDialog {
         synchronized (updateStatusLock) {
             if (updateStatus == null) {
                 updateStatus = new Runnable() {
+                    @Override
                     public void run() {
                         try {
                             IProgressMonitor monitor = AsynchronousProgressMonitorDialog.super.getProgressMonitor();
@@ -72,14 +73,17 @@ public class AsynchronousProgressMonitorDialog extends ProgressMonitorDialog {
         if (progressMonitor == null) {
             final IProgressMonitor m = super.getProgressMonitor();
             progressMonitor = new IProgressMonitor() {
+                @Override
                 public void worked(int work) {
                     m.worked(work);
                 }
 
+                @Override
                 public void subTask(String name) {
                     m.subTask(name);
                 }
 
+                @Override
                 public void setTaskName(String name) {
                     if (updateStatus == null) {
                         scheduleTaskNameChange();
@@ -87,22 +91,27 @@ public class AsynchronousProgressMonitorDialog extends ProgressMonitorDialog {
                     lastTaskName = name;
                 }
 
+                @Override
                 public void setCanceled(boolean value) {
                     m.setCanceled(value);
                 }
 
+                @Override
                 public boolean isCanceled() {
                     return m.isCanceled();
                 }
 
+                @Override
                 public void internalWorked(double work) {
                     m.internalWorked(work);
                 }
 
+                @Override
                 public void done() {
                     m.done();
                 }
 
+                @Override
                 public void beginTask(String name, int totalWork) {
                     m.beginTask(name, totalWork);
                 }
@@ -122,6 +131,7 @@ public class AsynchronousProgressMonitorDialog extends ProgressMonitorDialog {
         try {
             dlg.run(true, true, new IRunnableWithProgress() {
 
+                @Override
                 public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
                     monitor.beginTask("Testing", 100000);
                     for (long i = 0; i < 100000 && !monitor.isCanceled(); i++) {

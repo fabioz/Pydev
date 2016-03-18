@@ -25,10 +25,12 @@ public class FileTableContentProvider implements IStructuredContentProvider, IFi
         fPage = page;
     }
 
+    @Override
     public void dispose() {
         // nothing to do
     }
 
+    @Override
     public Object[] getElements(Object inputElement) {
         if (inputElement instanceof PythonFileSearchResult) {
             int elementLimit = getElementLimit();
@@ -43,12 +45,14 @@ public class FileTableContentProvider implements IStructuredContentProvider, IFi
         return EMPTY_ARR;
     }
 
+    @Override
     public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
         if (newInput instanceof PythonFileSearchResult) {
             fResult = (PythonFileSearchResult) newInput;
         }
     }
 
+    @Override
     public void elementsChanged(Object[] updatedElements) {
         TableViewer viewer = getViewer();
         int elementLimit = getElementLimit();
@@ -79,6 +83,7 @@ public class FileTableContentProvider implements IStructuredContentProvider, IFi
         return (TableViewer) fPage.getViewer();
     }
 
+    @Override
     public void clear() {
         getViewer().refresh();
     }

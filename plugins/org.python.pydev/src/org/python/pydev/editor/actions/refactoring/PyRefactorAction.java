@@ -151,6 +151,7 @@ public abstract class PyRefactorAction extends PyAction {
      * 
      * Checks preconditions... if 
      */
+    @Override
     public void run(final IAction action) {
         // Select from text editor
         request = null; //clear the cache from previous runs

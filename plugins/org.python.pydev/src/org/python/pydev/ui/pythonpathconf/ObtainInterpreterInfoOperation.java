@@ -74,6 +74,7 @@ public class ObtainInterpreterInfoOperation implements IRunnableWithProgress {
     /**
      * @see org.eclipse.jface.operation.IRunnableWithProgress#run(org.eclipse.core.runtime.IProgressMonitor)
      */
+    @Override
     public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
         monitor = new OperationMonitor(monitor, logger);
         monitor.beginTask("Getting libs", 100);

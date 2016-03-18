@@ -208,10 +208,12 @@ public class PyMergeViewer extends TextMergeViewer {
 
         IPySyntaxHighlightingAndCodeCompletionEditor editor = new IPySyntaxHighlightingAndCodeCompletionEditor() {
 
+            @Override
             public void resetForceTabs() {
 
             }
 
+            @Override
             public void resetIndentPrefixes() {
                 SourceViewerConfiguration configuration = getEditConfiguration();
                 String[] types = configuration.getConfiguredContentTypes(sourceViewer);
@@ -223,22 +225,27 @@ public class PyMergeViewer extends TextMergeViewer {
                 }
             }
 
+            @Override
             public IIndentPrefs getIndentPrefs() {
                 return indentPrefs;
             }
 
+            @Override
             public ISourceViewer getEditorSourceViewer() {
                 return sourceViewer;
             }
 
+            @Override
             public PyEditConfigurationWithoutEditor getEditConfiguration() {
                 return sourceViewerConfigurationObj[0].get();
             }
 
+            @Override
             public ColorAndStyleCache getColorCache() {
                 return c;
             }
 
+            @Override
             public PySelection createPySelection() {
                 ISelection selection = sourceViewer.getSelection();
                 if (selection instanceof ITextSelection) {
@@ -248,6 +255,7 @@ public class PyMergeViewer extends TextMergeViewer {
                 }
             }
 
+            @Override
             public File getEditorFile() {
                 IResource file = PyMergeViewer.this.getResource(PyMergeViewer.this.getInput());
                 if (file != null && file instanceof IFile) {
@@ -257,6 +265,7 @@ public class PyMergeViewer extends TextMergeViewer {
                 return null;
             }
 
+            @Override
             public IPythonNature getPythonNature() throws MisconfigurationException {
                 return PyMergeViewer.this.getPythonNature(PyMergeViewer.this.getInput());
             }
@@ -271,6 +280,7 @@ public class PyMergeViewer extends TextMergeViewer {
                 return pythonNature.getGrammarVersion();
             }
 
+            @Override
             public Object getAdapter(Class adapter) {
                 if (adapter == IResource.class) {
                     return PyMergeViewer.this.getResource(PyMergeViewer.this.getInput());

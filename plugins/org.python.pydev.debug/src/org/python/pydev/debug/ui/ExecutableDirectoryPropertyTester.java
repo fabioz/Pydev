@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.IAdaptable;
 
 public class ExecutableDirectoryPropertyTester extends PropertyTester {
 
+    @Override
     public boolean test(Object receiver, String property, Object[] args, Object expectedValue) {
 
         IFolder iFolder = null;

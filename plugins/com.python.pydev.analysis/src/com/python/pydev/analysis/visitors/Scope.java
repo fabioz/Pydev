@@ -374,6 +374,7 @@ public final class Scope implements Iterable<ScopeItems> {
         return scope.getFirst();
     }
 
+    @Override
     public Iterator<ScopeItems> iterator() {
         return this.scope.iterator();
     }

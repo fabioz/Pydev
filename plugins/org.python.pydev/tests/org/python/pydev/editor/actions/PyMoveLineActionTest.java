@@ -33,6 +33,7 @@ public class PyMoveLineActionTest extends TestCase {
     private PyMoveLineDownAction actionDown;
     private PyMoveLineUpAction actionUp;
 
+    @Override
     protected void setUp() throws Exception {
         resources = new PyEdit.MyResources();
         actionDown = new PyMoveLineDownAction(resources, null, null);

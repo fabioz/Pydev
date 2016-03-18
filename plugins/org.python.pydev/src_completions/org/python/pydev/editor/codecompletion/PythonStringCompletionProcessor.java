@@ -24,6 +24,7 @@ public class PythonStringCompletionProcessor extends PythonCompletionProcessor {
         return new char[] { '@' };
     }
 
+    @Override
     protected IPyCodeCompletion getCodeCompletionEngine() {
         return new PyStringCodeCompletion();
     }
@@ -32,12 +33,15 @@ public class PythonStringCompletionProcessor extends PythonCompletionProcessor {
      * 
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getContextInformationValidator()
      */
+    @Override
     public IContextInformationValidator getContextInformationValidator() {
         return new IContextInformationValidator() {
 
+            @Override
             public void install(IContextInformation info, ITextViewer viewer, int offset) {
             }
 
+            @Override
             public boolean isContextInformationValid(int offset) {
                 return true;
             }
@@ -45,6 +49,7 @@ public class PythonStringCompletionProcessor extends PythonCompletionProcessor {
         };
     }
 
+    @Override
     public IContextInformation[] computeContextInformation(ITextViewer viewer, int documentOffset) {
         return new IContextInformation[] {};
     }

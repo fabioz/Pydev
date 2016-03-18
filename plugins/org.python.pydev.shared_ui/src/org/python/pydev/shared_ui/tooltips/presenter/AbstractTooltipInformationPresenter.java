@@ -23,12 +23,14 @@ import org.eclipse.swt.graphics.Point;
  */
 public abstract class AbstractTooltipInformationPresenter extends AbstractInformationPresenter {
 
+    @Override
     public String updatePresentation(Drawable drawable, String hoverInfo, TextPresentation presentation, int maxWidth,
             int maxHeight) {
         if (drawable instanceof StyledText) {
             final StyledText styledText = (StyledText) drawable;
             styledText.addMouseListener(new MouseAdapter() {
 
+                @Override
                 public void mouseDown(MouseEvent e) {
                     try {
                         int offset = styledText.getOffsetAtLocation(new Point(e.x, e.y));
@@ -45,6 +47,7 @@ public abstract class AbstractTooltipInformationPresenter extends AbstractInform
             });
 
             styledText.addKeyListener(new KeyAdapter() {
+                @Override
                 public void keyPressed(KeyEvent e) {
                     try {
                         if (e.keyCode == SWT.CR || e.keyCode == SWT.LF || e.keyCode == SWT.KEYPAD_CR) {

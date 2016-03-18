@@ -22,6 +22,7 @@ public class InterpreterGroup extends ElementWithChildren {
         this.interpreterInfo = (InterpreterInfo) interpreterInfo;
     }
 
+    @Override
     public boolean hasChildren() {
         return true;
     }

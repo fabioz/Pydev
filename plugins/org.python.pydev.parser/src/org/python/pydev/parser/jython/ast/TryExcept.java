@@ -15,6 +15,7 @@ public final class TryExcept extends stmtType {
         this.orelse = orelse;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -24,6 +25,7 @@ public final class TryExcept extends stmtType {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -44,10 +46,12 @@ public final class TryExcept extends stmtType {
         return true;
     }
 
+    @Override
     public TryExcept createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public TryExcept createCopy(boolean copyComments) {
         stmtType[] new0;
         if (this.body != null) {
@@ -91,6 +95,7 @@ public final class TryExcept extends stmtType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("TryExcept[");
         sb.append("body=");
@@ -105,10 +110,12 @@ public final class TryExcept extends stmtType {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitTryExcept(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (body != null) {
             for (int i = 0; i < body.length; i++) {

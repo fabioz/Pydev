@@ -205,6 +205,7 @@ public abstract class PasteAction extends SelectionListenerAction {
         final String returnValue[] = { null };
 
         final IInputValidator validator = new IInputValidator() {
+            @Override
             public String isValid(String string) {
                 IStatus status = workspace.validateName(string, IResource.FILE);
                 if (!status.isOK()) {
@@ -235,6 +236,7 @@ public abstract class PasteAction extends SelectionListenerAction {
         final String initialValue = base;
 
         this.shell.getDisplay().syncExec(new Runnable() {
+            @Override
             public void run() {
 
                 InputDialog dialog = new InputDialog(shell, "Enter file name",
@@ -296,6 +298,7 @@ public abstract class PasteAction extends SelectionListenerAction {
 
         final IResource[][] clipboardData = new IResource[1][];
         shell.getDisplay().syncExec(new Runnable() {
+            @Override
             public void run() {
                 // clipboard must have resources or files
                 ResourceTransfer resTransfer = ResourceTransfer.getInstance();

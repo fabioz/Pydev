@@ -19,10 +19,12 @@ package org.python.pydev.ui.pythonpathconf;
  * IInterpreterProvider that are not installable.
  */
 public abstract class AlreadyInstalledInterpreterProvider implements IInterpreterProvider {
+    @Override
     public boolean isInstalled() {
         return true;
     }
 
+    @Override
     public void runInstall() {
         // Nothing to do
     }
@@ -66,10 +68,12 @@ public abstract class AlreadyInstalledInterpreterProvider implements IInterprete
 
             providers[i] = new AlreadyInstalledInterpreterProvider() {
 
+                @Override
                 public String getExecutableOrJar() {
                     return executableOrJar;
                 }
 
+                @Override
                 public String getName() {
                     return name;
                 }

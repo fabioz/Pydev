@@ -15,6 +15,7 @@ public final class Exec extends stmtType {
         this.locals = locals;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -24,6 +25,7 @@ public final class Exec extends stmtType {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -50,10 +52,12 @@ public final class Exec extends stmtType {
         return true;
     }
 
+    @Override
     public Exec createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public Exec createCopy(boolean copyComments) {
         Exec temp = new Exec(body != null ? (exprType) body.createCopy(copyComments) : null,
                 globals != null ? (exprType) globals.createCopy(copyComments) : null,
@@ -79,6 +83,7 @@ public final class Exec extends stmtType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("Exec[");
         sb.append("body=");
@@ -93,10 +98,12 @@ public final class Exec extends stmtType {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitExec(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (body != null) {
             body.accept(visitor);

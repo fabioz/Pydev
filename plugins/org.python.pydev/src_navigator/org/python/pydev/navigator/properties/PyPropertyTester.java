@@ -31,6 +31,7 @@ public class PyPropertyTester extends PropertyTester {
         return true;
     }
 
+    @Override
     public boolean test(Object receiver, String property, Object[] args, Object expectedValue) {
         if (expectedValue == null) {
             return false;

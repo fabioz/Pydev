@@ -47,6 +47,7 @@ public class PythonNode implements Comparable, IWrappedResource {
         return entry.toString();
     }
 
+    @Override
     public int compareTo(Object o) {
         if (!(o instanceof PythonNode)) {
             return 0;
@@ -54,14 +55,17 @@ public class PythonNode implements Comparable, IWrappedResource {
         return entry.compareTo(((PythonNode) o).entry);
     }
 
+    @Override
     public Object getParentElement() {
         return parent;
     }
 
+    @Override
     public ParsedItem getActualObject() {
         return entry;
     }
 
+    @Override
     public PythonSourceFolder getSourceFolder() {
         return pythonFile.getSourceFolder();
     }
@@ -70,10 +74,12 @@ public class PythonNode implements Comparable, IWrappedResource {
         return pythonFile;
     }
 
+    @Override
     public int getRank() {
         return IWrappedResource.RANK_PYTHON_NODE;
     }
 
+    @Override
     public <T> T getAdapter(Class<T> adapter) {
         //return pythonFile.getAdapter(adapter);
         return null;

@@ -93,11 +93,13 @@ public class ProjectFolderSelectionDialog extends SelectionDialog {
     /*
      * (non-Javadoc) Method declared on Dialog.
      */
+    @Override
     protected Control createDialogArea(Composite parent) {
         // create composite
         Composite area = (Composite) super.createDialogArea(parent);
 
         Listener listener = new Listener() {
+            @Override
             public void handleEvent(Event event) {
                 if (statusMessage != null && validator != null) {
                     String errorMsg = validator.isValid(group.getContainerFullPath());
@@ -131,6 +133,7 @@ public class ProjectFolderSelectionDialog extends SelectionDialog {
      * The <code>ContainerSelectionDialog</code> implementation of this <code>Dialog</code> method builds a list of the selected
      * resource containers for later retrieval by the client and closes this dialog.
      */
+    @Override
     protected void okPressed() {
 
         List<IPath> chosenContainerPathList = new ArrayList<IPath>();

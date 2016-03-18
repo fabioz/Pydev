@@ -38,6 +38,7 @@ public class AppEngineConfigWizardPageTestWorkbench extends AbstractWorkbenchTes
         super.setUp();
         AppEngineConfigWizardPage.selectLibraries = new ICallback<List<String>, List<String>>() {
 
+            @Override
             public List<String> call(List<String> arg) {
                 return arg;
             }
@@ -56,6 +57,7 @@ public class AppEngineConfigWizardPageTestWorkbench extends AbstractWorkbenchTes
         final Boolean[] executed = new Boolean[] { false };
         display.syncExec(new Runnable() {
 
+            @Override
             public void run() {
                 final Shell shell = new Shell(display);
                 shell.setLayout(new FillLayout());
@@ -63,35 +65,43 @@ public class AppEngineConfigWizardPageTestWorkbench extends AbstractWorkbenchTes
                 AppEngineWizard appEngineWizard = new AppEngineWizard();
                 appEngineWizard.setContainer(new IWizardContainer() {
 
+                    @Override
                     public void run(boolean fork, boolean cancelable, IRunnableWithProgress runnable)
                             throws InvocationTargetException, InterruptedException {
                         runnable.run(new NullProgressMonitor());
                     }
 
+                    @Override
                     public void updateWindowTitle() {
                         throw new RuntimeException("Not implemented");
                     }
 
+                    @Override
                     public void updateTitleBar() {
                         throw new RuntimeException("Not implemented");
                     }
 
+                    @Override
                     public void updateMessage() {
                         throw new RuntimeException("Not implemented");
                     }
 
+                    @Override
                     public void updateButtons() {
                         throw new RuntimeException("Not implemented");
                     }
 
+                    @Override
                     public void showPage(IWizardPage page) {
                         throw new RuntimeException("Not implemented");
                     }
 
+                    @Override
                     public Shell getShell() {
                         throw new RuntimeException("Not implemented");
                     }
 
+                    @Override
                     public IWizardPage getCurrentPage() {
                         return null;
                     }

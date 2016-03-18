@@ -94,13 +94,16 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
 
         pyContentAssistant.addCompletionListener(new ICompletionListener() {
 
+            @Override
             public void assistSessionEnded(ContentAssistEvent event) {
             }
 
+            @Override
             public void assistSessionStarted(ContentAssistEvent event) {
                 startCycle();
             }
 
+            @Override
             public void selectionChanged(ICompletionProposal proposal, boolean smartToggle) {
                 //ignore
             }
@@ -118,6 +121,7 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
      * 
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#computeCompletionProposals(org.eclipse.jface.text.ITextViewer, int)
      */
+    @Override
     @SuppressWarnings("unchecked")
     public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int documentOffset) {
         updateStatus();
@@ -239,6 +243,7 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
      * Ok, if we have 
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#computeContextInformation(org.eclipse.jface.text.ITextViewer, int)
      */
+    @Override
     public IContextInformation[] computeContextInformation(ITextViewer viewer, int documentOffset) {
         //System.out.println("computeContextInformation");
         if (viewer.getDocument() != this.contextInformationValidator.doc) {
@@ -256,6 +261,7 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
     /**
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getCompletionProposalAutoActivationCharacters()
      */
+    @Override
     public char[] getCompletionProposalAutoActivationCharacters() {
         return getStaticCompletionProposalAutoActivationCharacters();
     }
@@ -274,6 +280,7 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
             IPreferenceStore preferenceStore = PydevPlugin.getDefault().getPreferenceStore();
             preferenceStore.addPropertyChangeListener(new IPropertyChangeListener() {
 
+                @Override
                 public void propertyChange(PropertyChangeEvent event) {
                     activationChars = null; //clear the cache when it changes
                 }
@@ -305,6 +312,7 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
      * 
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getContextInformationAutoActivationCharacters()
      */
+    @Override
     public char[] getContextInformationAutoActivationCharacters() {
         return null;
     }
@@ -314,6 +322,7 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
      * 
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getErrorMessage()
      */
+    @Override
     public java.lang.String getErrorMessage() {
         String ret = this.error;
         this.error = null;
@@ -324,6 +333,7 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
      * 
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getContextInformationValidator()
      */
+    @Override
     public IContextInformationValidator getContextInformationValidator() {
         return this.contextInformationValidator;
     }

@@ -98,10 +98,12 @@ public class JythonInterpreterManager extends AbstractInterpreterManager {
         return new Tuple<InterpreterInfo, String>(info, output);
     }
 
+    @Override
     public int getInterpreterType() {
         return IInterpreterManager.INTERPRETER_TYPE_JYTHON;
     }
 
+    @Override
     public String getManagerRelatedName() {
         return "jython";
     }

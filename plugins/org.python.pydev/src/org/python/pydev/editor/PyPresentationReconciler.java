@@ -17,6 +17,7 @@ public class PyPresentationReconciler extends PresentationReconciler {
         if (viewer != null) {
             RunInUiThread.async(new Runnable() {
 
+                @Override
                 public void run() {
                     ITextViewer v = viewer;
                     if (v != null && v instanceof SourceViewer) {

@@ -27,6 +27,7 @@ public class PythonElementHyperlinkDetector extends AbstractHyperlinkDetector {
     /**
      * Will basically hyperlink any non keyword word (and let the PythonHyperlink work later on to open it if that's possible)
      */
+    @Override
     public IHyperlink[] detectHyperlinks(ITextViewer textViewer, IRegion region, boolean canShowMultipleHyperlinks) {
         ITextEditor textEditor = (ITextEditor) getAdapter(ITextEditor.class);
         if (region == null || !(textEditor instanceof PyEdit)) {

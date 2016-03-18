@@ -17,6 +17,7 @@ import org.python.pydev.plugin.PydevPlugin;
 
 public class CoverageLaunchShortcut extends AbstractLaunchShortcut {
 
+    @Override
     protected String getLaunchConfigurationType() {
         return Constants.ID_PYTHON_COVERAGE_LAUNCH_CONFIGURATION_TYPE;
     }

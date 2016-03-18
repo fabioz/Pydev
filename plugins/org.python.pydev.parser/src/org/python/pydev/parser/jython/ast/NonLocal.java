@@ -13,6 +13,7 @@ public final class NonLocal extends stmtType {
         this.value = value;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -21,6 +22,7 @@ public final class NonLocal extends stmtType {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -39,10 +41,12 @@ public final class NonLocal extends stmtType {
         return true;
     }
 
+    @Override
     public NonLocal createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public NonLocal createCopy(boolean copyComments) {
         NameTokType[] new0;
         if (this.names != null) {
@@ -76,6 +80,7 @@ public final class NonLocal extends stmtType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("NonLocal[");
         sb.append("names=");
@@ -87,10 +92,12 @@ public final class NonLocal extends stmtType {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitNonLocal(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (names != null) {
             for (int i = 0; i < names.length; i++) {

@@ -78,6 +78,7 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
         final Set<String> s = new HashSet<String>(Arrays.asList(lower.split("\\|")));
         InterpreterInfo.configurePathsCallback = new ICallback<Boolean, Tuple<List<String>, List<String>>>() {
 
+            @Override
             public Boolean call(Tuple<List<String>, List<String>> arg) {
                 List<String> toAsk = arg.o1;
                 List<String> l = arg.o2;

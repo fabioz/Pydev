@@ -34,6 +34,7 @@ public class DontAnalyzeFileMarkerParticipant implements IAssistProps {
         annotationImage = analysisImageCache.get(UIConstants.ASSIST_ANNOTATION);
     }
 
+    @Override
     public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature,
             PyEdit edit, int offset) throws BadLocationException {
         List<ICompletionProposal> props = new ArrayList<ICompletionProposal>();
@@ -57,6 +58,7 @@ public class DontAnalyzeFileMarkerParticipant implements IAssistProps {
         return props;
     }
 
+    @Override
     public boolean isValid(PySelection ps, String sel, PyEdit edit, int offset) {
         return ps.getCursorLine() == 0
                 && ps.getCursorLineContents().indexOf(AnalysisRunner.PYDEV_CODE_ANALYSIS_IGNORE) == -1;

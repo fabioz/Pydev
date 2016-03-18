@@ -13,6 +13,7 @@ import org.python.pydev.plugin.PydevPlugin;
 
 public class IronpythonLaunchShortcut extends AbstractLaunchShortcut {
 
+    @Override
     protected String getLaunchConfigurationType() {
         return Constants.ID_IRONPYTHON_LAUNCH_CONFIGURATION_TYPE;
     }

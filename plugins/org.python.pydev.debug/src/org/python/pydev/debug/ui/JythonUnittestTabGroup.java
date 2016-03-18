@@ -23,6 +23,7 @@ public class JythonUnittestTabGroup extends AbstractLaunchConfigurationTabGroup 
      * (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTabGroup#createTabs(org.eclipse.debug.ui.ILaunchConfigurationDialog, java.lang.String)
      */
+    @Override
     public void createTabs(ILaunchConfigurationDialog dialog, String mode) {
         MainModuleTab mainModuleTab = new MainModuleTab();
         ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] { mainModuleTab,

@@ -88,6 +88,7 @@ public abstract class AbstractKeyValueDialog extends Dialog {
     /*
      * (non-Javadoc) Method declared on Dialog.
      */
+    @Override
     protected void buttonPressed(int buttonId) {
         if (buttonId == IDialogConstants.OK_ID) {
             finalKeyValue = keyField.getText().trim();
@@ -111,6 +112,7 @@ public abstract class AbstractKeyValueDialog extends Dialog {
      * 
      * @see org.eclipse.jface.window.Window#configureShell(org.eclipse.swt.widgets.Shell)
      */
+    @Override
     protected void configureShell(Shell shell) {
         super.configureShell(shell);
         if (title != null)
@@ -133,6 +135,7 @@ public abstract class AbstractKeyValueDialog extends Dialog {
     /*
      * (non-Javadoc) Method declared on Dialog.
      */
+    @Override
     protected Control createDialogArea(Composite parent) {
         Composite main = new Composite(parent, SWT.NONE);
         GridLayout layout = new GridLayout();
@@ -178,6 +181,7 @@ public abstract class AbstractKeyValueDialog extends Dialog {
      * 
      * @see org.eclipse.jface.dialogs.Dialog#createButtonsForButtonBar(org.eclipse.swt.widgets.Composite)
      */
+    @Override
     protected void createButtonsForButtonBar(Composite parent) {
         // create OK and Cancel buttons by default
         okButton = createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, true);
@@ -221,6 +225,7 @@ public abstract class AbstractKeyValueDialog extends Dialog {
         browserButton.setLayoutData(data);
         browserButton.addSelectionListener(new SelectionAdapter() {
 
+            @Override
             public void widgetSelected(SelectionEvent evt) {
                 String file = handleBrowseButton();
                 if (file != null) {

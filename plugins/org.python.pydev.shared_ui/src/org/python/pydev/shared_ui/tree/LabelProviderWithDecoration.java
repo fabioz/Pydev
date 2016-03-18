@@ -31,6 +31,7 @@ public final class LabelProviderWithDecoration extends DecoratingStyledCellLabel
         this.labelProvider = (ILabelProvider) labelProvider;
     }
 
+    @Override
     public String getText(Object element) {
         return labelProvider.getText(element);
     }

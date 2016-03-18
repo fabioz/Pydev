@@ -50,6 +50,7 @@ public class OutlineSortByNameAction extends Action {
             p.getStore().setValue(PREF_ALPHA_SORT, doSort);
             if (sortByNameSorter == null) {
                 sortByNameSorter = new ViewerSorter() {
+                    @Override
                     @SuppressWarnings("unchecked")
                     public int compare(Viewer viewer, Object e1, Object e2) {
                         return ((Comparable<Object>) e1).compareTo(e2);
@@ -60,6 +61,7 @@ public class OutlineSortByNameAction extends Action {
         }
     }
 
+    @Override
     public void run() {
         setAlphaSort(isChecked());
     }

@@ -90,24 +90,30 @@ public class ScriptConsoleHistorySelector {
     private static ILabelProvider getLabelProvider() {
         return new ILabelProvider() {
 
+            @Override
             public Image getImage(Object element) {
                 return null;
             }
 
+            @Override
             public String getText(Object element) {
                 return element.toString();
             }
 
+            @Override
             public void addListener(ILabelProviderListener listener) {
             }
 
+            @Override
             public void dispose() {
             }
 
+            @Override
             public boolean isLabelProperty(Object element, String property) {
                 return true;
             }
 
+            @Override
             public void removeListener(ILabelProviderListener listener) {
             }
         };

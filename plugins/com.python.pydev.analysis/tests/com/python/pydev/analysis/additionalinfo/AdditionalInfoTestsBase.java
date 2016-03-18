@@ -49,6 +49,7 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
 
     protected ArrayList<IToken> imports;
 
+    @Override
     public ICompletionProposal[] requestCompl(File file, String strDoc, int documentOffset, int returned,
             String[] retCompl, PythonNature nature) throws Exception {
         if (useOriginalRequestCompl) {

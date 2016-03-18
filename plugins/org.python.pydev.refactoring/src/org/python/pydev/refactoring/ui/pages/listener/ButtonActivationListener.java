@@ -46,6 +46,7 @@ public class ButtonActivationListener implements Listener {
         this.editButton = editButton;
     }
 
+    @Override
     public void handleEvent(Event event) {
         updateButtonState();
     }

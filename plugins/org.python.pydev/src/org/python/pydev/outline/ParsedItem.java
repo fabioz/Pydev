@@ -86,6 +86,7 @@ public class ParsedItem extends BaseParsedItem {
         super.updateTo(item);
     }
 
+    @Override
     public int getBeginLine() {
         ASTEntryWithChildren astThis = getAstThis();
         if (astThis != null && astThis.node != null) {
@@ -137,6 +138,7 @@ public class ParsedItem extends BaseParsedItem {
     }
 
     // returns images based upon element type
+    @Override
     public Image getImage() {
         ImageCache imageCache = PydevPlugin.getImageCache();
         if (astThis == null) {
@@ -243,6 +245,7 @@ public class ParsedItem extends BaseParsedItem {
         }
     }
 
+    @Override
     public IParsedItem[] getChildren() {
         if (children != null) {
             return children;
@@ -354,6 +357,7 @@ public class ParsedItem extends BaseParsedItem {
         return rank;
     }
 
+    @Override
     public int compareTo(Object o) {
         if (!(o instanceof ParsedItem)) {
             return 0;
@@ -374,6 +378,7 @@ public class ParsedItem extends BaseParsedItem {
         }
     }
 
+    @Override
     public boolean sameNodeType(IParsedItem newItem) {
         ASTEntryWithChildren astThisOld = this.getAstThis();
         ASTEntryWithChildren astThisNew = ((ParsedItem) newItem).getAstThis();
@@ -386,6 +391,7 @@ public class ParsedItem extends BaseParsedItem {
         return true; //still the same
     }
 
+    @Override
     public void updateShallow(IParsedItem newItem) {
         setAstThis(((ParsedItem) newItem).getAstThis());
         setErrorDesc(newItem.getErrorDesc());

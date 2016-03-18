@@ -31,24 +31,31 @@ import org.python.pydev.shared_ui.editor.IPyEditListener2;
  */
 public class MarkOccurrencesDispatcher implements IPyEditListener, IDocumentListener, IPyEditListener2 {
 
+    @Override
     public void onSave(BaseEditor baseEditor, IProgressMonitor monitor) {
     }
 
+    @Override
     public void onCreateActions(ListResourceBundle resources, BaseEditor baseEditor, IProgressMonitor monitor) {
     }
 
+    @Override
     public void onDispose(BaseEditor baseEditor, IProgressMonitor monitor) {
     }
 
+    @Override
     public void onSetDocument(IDocument document, BaseEditor baseEditor, IProgressMonitor monitor) {
     }
 
+    @Override
     public void documentAboutToBeChanged(DocumentEvent event) {
     }
 
+    @Override
     public void documentChanged(DocumentEvent event) {
     }
 
+    @Override
     public void handleCursorPositionChanged(BaseEditor baseEditor, TextSelectionUtils ps) {
         PyEdit edit = (PyEdit) baseEditor;
         MarkOccurrencesJob.scheduleRequest(new WeakReference<BaseEditor>(edit), ps);

@@ -149,6 +149,7 @@ public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionPr
     /*
      * @see ICompletionProposal#getSelection(IDocument)
      */
+    @Override
     public Point getSelection(IDocument document) {
         if (newForcedOffset >= 0) {
             return new Point(newForcedOffset, 0);
@@ -169,6 +170,7 @@ public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionPr
         throw new RuntimeException("Unexpected apply mode:" + onApplyAction);
     }
 
+    @Override
     public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
 
         boolean eat = (stateMask & SWT.MOD1) != 0;
@@ -366,6 +368,7 @@ public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionPr
             ui.setDoContextInfo(true); //set it to request the ctx info from the completion processor
             ui.setExitPosition(viewer, exitPos, 0, Integer.MAX_VALUE);
             Runnable r = new Runnable() {
+                @Override
                 public void run() {
                     ui.enter();
                 }
@@ -385,6 +388,7 @@ public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionPr
      * 
      * If not added, it won't request the new one (and will just stop the current)
      */
+    @Override
     public char[] getTriggerCharacters() {
         if (onApplyAction != ON_APPLY_DEFAULT) {
             return null;

@@ -81,64 +81,76 @@ public class IndentVisitor extends VisitorBase {
         }
     }
 
+    @Override
     public Object visitAssert(Assert node) throws Exception {
         handleDefault(node);
         this.indent -= 7;
         return null;
     }
 
+    @Override
     public Object visitAssign(Assign node) throws Exception {
         visit(node.targets[0]);
         return null;
     }
 
+    @Override
     public Object visitAttribute(Attribute node) throws Exception {
         visit(node.value);
         return null;
     }
 
+    @Override
     public Object visitAugAssign(AugAssign node) throws Exception {
         visit(node.target);
         return null;
     }
 
+    @Override
     public Object visitBinOp(BinOp node) throws Exception {
         visit(node.left);
         return null;
     }
 
+    @Override
     public Object visitBoolOp(BoolOp node) throws Exception {
         visit(node.values[0]);
         return null;
     }
 
+    @Override
     public Object visitCall(Call node) throws Exception {
         visit(node.func);
         return null;
     }
 
+    @Override
     public Object visitCompare(Compare node) throws Exception {
         visit(node.left);
         return null;
     }
 
+    @Override
     public Object visitDelete(Delete node) throws Exception {
         handleDefault(node);
         this.indent -= 4;
         return null;
     }
 
+    @Override
     public Object visitExec(Exec node) throws Exception {
         visit(node);
         this.indent -= 5;
         return null;
     }
 
+    @Override
     public Object visitExpr(Expr node) throws Exception {
         visit(node.value);
         return null;
     }
 
+    @Override
     public Object visitGeneratorExp(GeneratorExp node) throws Exception {
         visit(node.elt);
         return null;
@@ -158,17 +170,20 @@ public class IndentVisitor extends VisitorBase {
         return null;
     }
 
+    @Override
     public Object visitPrint(Print node) throws Exception {
         handleDefault(node);
         this.indent -= 6;
         return null;
     }
 
+    @Override
     public Object visitSuite(Suite node) throws Exception {
         visit(node.body[0]);
         return null;
     }
 
+    @Override
     public Object visitTryFinally(TryFinally node) throws Exception {
         handleDefault(node);
         return null;

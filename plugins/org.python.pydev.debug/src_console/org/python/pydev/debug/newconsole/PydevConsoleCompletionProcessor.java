@@ -47,10 +47,12 @@ public class PydevConsoleCompletionProcessor extends AbstractCompletionProcessor
 
     }
 
+    @Override
     public char[] getContextInformationAutoActivationCharacters() {
         return null;
     }
 
+    @Override
     public char[] getCompletionProposalAutoActivationCharacters() {
         return PythonCompletionProcessor.getStaticCompletionProposalAutoActivationCharacters();
     }
@@ -58,6 +60,7 @@ public class PydevConsoleCompletionProcessor extends AbstractCompletionProcessor
     /**
      * Get the completions (and cycle the completion mode if needed).
      */
+    @Override
     public ICompletionProposal[] computeCompletionProposals(ITextViewer v, int offset) {
         //cycle if we're in a new activation for requests (a second ctrl+space or
         //a new request)
@@ -98,10 +101,12 @@ public class PydevConsoleCompletionProcessor extends AbstractCompletionProcessor
         }
     }
 
+    @Override
     public IContextInformation[] computeContextInformation(ITextViewer v, int offset) {
         return null;
     }
 
+    @Override
     public IContextInformationValidator getContextInformationValidator() {
         if (contextInformationValidator == null) {
             contextInformationValidator = new PyContextInformationValidator();
@@ -113,21 +118,25 @@ public class PydevConsoleCompletionProcessor extends AbstractCompletionProcessor
     /**
      * @return an error message that happened while getting the completions
      */
+    @Override
     public String getErrorMessage() {
         String msg = errorMessage;
         errorMessage = null;
         return msg;
     }
 
+    @Override
     public void assistSessionEnded(ContentAssistEvent event) {
     }
 
+    @Override
     public void assistSessionStarted(ContentAssistEvent event) {
         this.lastActivationCount = -1;
         //we have to start with templates because it'll start already cycling.
         startCycle();
     }
 
+    @Override
     public void selectionChanged(ICompletionProposal proposal, boolean smartToggle) {
     }
 }

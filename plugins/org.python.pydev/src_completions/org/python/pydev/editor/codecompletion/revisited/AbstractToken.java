@@ -76,6 +76,7 @@ public abstract class AbstractToken implements IToken {
     /**
      * @see org.python.pydev.core.IToken#getArgs()
      */
+    @Override
     public String getArgs() {
         return args;
     }
@@ -83,6 +84,7 @@ public abstract class AbstractToken implements IToken {
     /**
      * @see org.python.pydev.core.IToken#setArgs(java.lang.String)
      */
+    @Override
     public void setArgs(String args) {
         this.args = args;
     }
@@ -90,6 +92,7 @@ public abstract class AbstractToken implements IToken {
     /**
      * @see org.python.pydev.editor.javacodecompletion.IToken#getRepresentation()
      */
+    @Override
     public String getRepresentation() {
         return rep;
     }
@@ -97,6 +100,7 @@ public abstract class AbstractToken implements IToken {
     /**
      * @see org.python.pydev.core.IToken#setDocStr(java.lang.String)
      */
+    @Override
     public void setDocStr(String docStr) {
         this.doc = docStr;
     }
@@ -104,6 +108,7 @@ public abstract class AbstractToken implements IToken {
     /**
      * @see org.python.pydev.editor.javacodecompletion.IToken#getDocStr()
      */
+    @Override
     public String getDocStr() {
         return doc;
     }
@@ -111,6 +116,7 @@ public abstract class AbstractToken implements IToken {
     /**
      * @see org.python.pydev.core.IToken#getParentPackage()
      */
+    @Override
     public String getParentPackage() {
         return parentPackage;
     }
@@ -118,10 +124,12 @@ public abstract class AbstractToken implements IToken {
     /**
      * @see org.python.pydev.core.IToken#getType()
      */
+    @Override
     public int getType() {
         return type;
     }
 
+    @Override
     public Image getImage() {
         return PyCodeCompletionImages.getImageForType(type);
     }
@@ -164,6 +172,7 @@ public abstract class AbstractToken implements IToken {
     /**
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
+    @Override
     public int compareTo(Object o) {
         AbstractToken comp = (AbstractToken) o;
 
@@ -236,12 +245,14 @@ public abstract class AbstractToken implements IToken {
      *
      * @see org.python.pydev.core.IToken#getAsRelativeImport(java.lang.String)
      */
+    @Override
     public String getAsRelativeImport(String baseModule) {
         String completePath = getOriginalRep(true);
 
         return makeRelative(baseModule, completePath);
     }
 
+    @Override
     public String getAsAbsoluteImport() {
         return getAsRelativeImport(".");
     }
@@ -282,6 +293,7 @@ public abstract class AbstractToken implements IToken {
      * @return the original representation (useful for imports)
      * e.g.: if it was import coilib.Exceptions as Exceptions, would return coilib.Exceptions
      */
+    @Override
     public String getOriginalRep() {
         return originalRep;
     }
@@ -295,6 +307,7 @@ public abstract class AbstractToken implements IToken {
      *
      * @note: if the rep is not a part of the original representation, this function will return an empty string.
      */
+    @Override
     public String getOriginalWithoutRep() {
         int i = originalRep.length() - rep.length() - 1;
         if (!originalHasRep) {
@@ -303,26 +316,32 @@ public abstract class AbstractToken implements IToken {
         return i > 0 ? originalRep.substring(0, i) : "";
     }
 
+    @Override
     public int getLineDefinition() {
         return UNDEFINED;
     }
 
+    @Override
     public int getColDefinition() {
         return UNDEFINED;
     }
 
+    @Override
     public boolean isImport() {
         return false;
     }
 
+    @Override
     public boolean isImportFrom() {
         return false;
     }
 
+    @Override
     public boolean isWildImport() {
         return false;
     }
 
+    @Override
     public boolean isString() {
         return false;
     }
@@ -330,6 +349,7 @@ public abstract class AbstractToken implements IToken {
     /**
      * This representation may not be accurate depending on which tokens we are dealing with.
      */
+    @Override
     public int[] getLineColEnd() {
         return new int[] { UNDEFINED, UNDEFINED };
     }

@@ -117,6 +117,7 @@ public class PythonModuleWizard extends AbstractPythonWizard {
 
         RunInUiThread.async(new Runnable() {
 
+            @Override
             public void run() {
                 PyEdit pyEdit = (PyEdit) openEditor;
                 if (pyEdit.isDisposed()) {

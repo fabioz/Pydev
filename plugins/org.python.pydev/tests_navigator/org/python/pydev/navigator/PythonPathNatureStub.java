@@ -28,68 +28,83 @@ public class PythonPathNatureStub implements IPythonPathNature {
         this.projectSourcePathSet = projectSourcePathSet;
     }
 
+    @Override
     public List<String> getCompleteProjectPythonPath(IInterpreterInfo interpreter, IInterpreterManager manager) {
         throw new RuntimeException("Not impl");
 
     }
 
+    @Override
     public String getOnlyProjectPythonPathStr(boolean b) throws CoreException {
         throw new RuntimeException("Not impl");
 
     }
 
+    @Override
     public String getProjectExternalSourcePath(boolean resolve) throws CoreException {
         throw new RuntimeException("Not impl");
 
     }
 
+    @Override
     public List<String> getProjectExternalSourcePathAsList(boolean replaceVariables) throws CoreException {
         throw new RuntimeException("Not impl");
     }
 
+    @Override
     public String getProjectSourcePath(boolean resolve) throws CoreException {
         throw new RuntimeException("Not impl");
 
     }
 
+    @Override
     public Set<String> getProjectSourcePathSet(boolean resolve) throws CoreException {
         return projectSourcePathSet;
     }
 
+    @Override
     public void setProject(IProject project, IPythonNature nature) {
         throw new RuntimeException("Not impl");
 
     }
 
+    @Override
     public void setProjectExternalSourcePath(String newExternalSourcePath) throws CoreException {
         throw new RuntimeException("Not impl");
 
     }
 
+    @Override
     public void setProjectSourcePath(String newSourcePath) throws CoreException {
         throw new RuntimeException("Not impl");
 
     }
 
+    @Override
     public void clearCaches() {
     }
 
+    @Override
     public void setVariableSubstitution(Map<String, String> variableSubstitution) {
         throw new RuntimeException("Not impl");
     }
 
+    @Override
     public Map<String, String> getVariableSubstitution() {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public Map<String, String> getVariableSubstitution(boolean b) {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public IPythonNature getNature() {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public OrderedMap<String, String> getProjectSourcePathResolvedToUnresolvedMap() throws CoreException {
         throw new RuntimeException("Not implemented");
     }

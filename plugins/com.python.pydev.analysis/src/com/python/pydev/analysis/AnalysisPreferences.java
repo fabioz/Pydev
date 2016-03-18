@@ -107,6 +107,7 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences {
      *  
      * @see com.python.pydev.analysis.IAnalysisPreferences#getSeverityForType(int)
      */
+    @Override
     public int getSeverityForType(int type) {
         Map<Integer, Integer> severityTypeMap = getSeverityTypeMap();
         Integer sev = severityTypeMap.get(type);
@@ -121,6 +122,7 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences {
      *  
      * @see com.python.pydev.analysis.IAnalysisPreferences#makeCodeAnalysis()
      */
+    @Override
     public boolean makeCodeAnalysis() {
         AnalysisPlugin plugin = AnalysisPlugin.getDefault();
         if (plugin == null) {
@@ -133,10 +135,12 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences {
     /**
      * @see com.python.pydev.analysis.IAnalysisPreferences#getNamesIgnoredByUnusedVariable()
      */
+    @Override
     public Set<String> getNamesIgnoredByUnusedVariable() {
         return getSetOfNames(AnalysisPreferenceInitializer.NAMES_TO_IGNORE_UNUSED_VARIABLE);
     }
 
+    @Override
     public Set<String> getTokensAlwaysInGlobals() {
         return getSetOfNames(AnalysisPreferenceInitializer.NAMES_TO_CONSIDER_GLOBALS);
     }
@@ -161,6 +165,7 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences {
     /**
      * @see com.python.pydev.analysis.IAnalysisPreferences#getModuleNamePatternsToBeIgnored()
      */
+    @Override
     public Set<String> getModuleNamePatternsToBeIgnored() {
         Set<String> setOfNames = getSetOfNames(AnalysisPreferenceInitializer.NAMES_TO_IGNORE_UNUSED_IMPORT);
         HashSet<String> ret = new HashSet<String>();
@@ -174,6 +179,7 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences {
     /**
      * @see com.python.pydev.analysis.IAnalysisPreferences#getWhenAnalyze()
      */
+    @Override
     public int getWhenAnalyze() {
         return PyAnalysisScopedPreferences.getInt(AnalysisPreferenceInitializer.WHEN_ANALYZE,
                 projectAdaptable, 0);

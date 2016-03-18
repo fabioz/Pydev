@@ -152,6 +152,7 @@ public class EventsStackerRunnable implements Runnable {
      * When run, it'll notify clients about the events that were stacked as it makes sense (i.e.: if multiple additions
      * or removals of a file were issued, only the last one will actually be seen by clients).
      */
+    @Override
     public void run() {
         while (!initializationFinished) {
             synchronized (lockInitialization) {

@@ -94,6 +94,7 @@ public class AbstractWorkbenchTestCase extends TestCase {
         if (!interpretersConfigured) {
             interpretersConfigured = true;
             InterpreterInfo.configurePathsCallback = new ICallback<Boolean, Tuple<List<String>, List<String>>>() {
+                @Override
                 public Boolean call(Tuple<List<String>, List<String>> arg) {
                     return Boolean.TRUE;
                 }
@@ -214,6 +215,7 @@ public class AbstractWorkbenchTestCase extends TestCase {
         goToIdleLoopUntilCondition(
 
                 new ICallback<Boolean, Object>() {
+                    @Override
                     public Boolean call(Object arg) {
                         SortedMap<ModulesKey, ModulesKey> allDirectModulesStartingWith = modulesManager.getAllDirectModulesStartingWith("pack1");
                         Set<ModulesKey> keySet = allDirectModulesStartingWith.keySet();
@@ -226,6 +228,7 @@ public class AbstractWorkbenchTestCase extends TestCase {
                 },
 
                 new ICallback<String, Object>() {
+                    @Override
                     public String call(Object arg) {
                         SortedMap<ModulesKey, ModulesKey> allDirectModulesStartingWith = modulesManager
                                 .getAllDirectModulesStartingWith("pack1");

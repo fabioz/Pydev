@@ -15,6 +15,7 @@ public final class BinOp extends exprType implements operatorType {
         this.right = right;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -24,6 +25,7 @@ public final class BinOp extends exprType implements operatorType {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -47,10 +49,12 @@ public final class BinOp extends exprType implements operatorType {
         return true;
     }
 
+    @Override
     public BinOp createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public BinOp createCopy(boolean copyComments) {
         BinOp temp = new BinOp(left != null ? (exprType) left.createCopy(copyComments) : null, op,
                 right != null ? (exprType) right.createCopy(copyComments) : null);
@@ -75,6 +79,7 @@ public final class BinOp extends exprType implements operatorType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("BinOp[");
         sb.append("left=");
@@ -89,10 +94,12 @@ public final class BinOp extends exprType implements operatorType {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitBinOp(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (left != null) {
             left.accept(visitor);

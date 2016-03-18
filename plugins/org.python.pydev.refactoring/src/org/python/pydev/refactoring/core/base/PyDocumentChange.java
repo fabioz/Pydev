@@ -34,6 +34,7 @@ public class PyDocumentChange extends DocumentChange {
         //We need to sync it to have UI access because otherwise we're unable to start a document rewrite session.
         RunInUiThread.sync(new Runnable() {
 
+            @Override
             public void run() {
                 try {
                     superPerform[0] = superPerform(pm);

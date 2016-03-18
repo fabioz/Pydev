@@ -251,6 +251,7 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
         return ret;
     }
 
+    @Override
     public void traverse(SimpleNode node) throws Exception {
         if (node instanceof If) {
             traverse((If) node);
@@ -275,6 +276,7 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
     /**
      * @param foundTok
      */
+    @Override
     protected void onAddUndefinedVarInImportMessage(IToken foundTok, Found foundAs) {
         messagesManager.addUndefinedVarInImportMessage(foundTok, foundTok.getRepresentation());
     }
@@ -282,6 +284,7 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
     /**
      * @param foundTok
      */
+    @Override
     protected void onAddAssignmentToBuiltinMessage(IToken foundTok, String representation) {
         messagesManager.onAddAssignmentToBuiltinMessage(foundTok, representation);
     }
@@ -289,6 +292,7 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
     /**
      * @param token
      */
+    @Override
     protected void onAddUndefinedMessage(IToken token, Found foundAs) {
         if ("...".equals(token.getRepresentation())) {
             return; //Ellipsis -- when found in the grammar, it's added as a name, which we can safely ignore at this point.
@@ -301,6 +305,7 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
     /**
      * @param m
      */
+    @Override
     protected void onLastScope(ScopeItems m) {
         for (Found n : probablyNotDefined) {
             String rep = n.getSingle().tok.getRepresentation();
@@ -315,6 +320,7 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
      * @param reportUnused
      * @param m
      */
+    @Override
     protected void onAfterEndScope(SimpleNode node, ScopeItems m) {
         boolean reportUnused = true;
         if (node != null && node instanceof FunctionDef) {
@@ -425,6 +431,7 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
                         //Still not found: register a callback to be called if it's found later on.
                         found.found.registerCallOnDefined(new ICallbackListener<Found>() {
 
+                            @Override
                             public Object call(Found f) {
                                 try {
                                     List<GenAndTok> all = f.getAll();

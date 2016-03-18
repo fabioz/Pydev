@@ -78,6 +78,7 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      * Compares them by priority (they are ordered before visiting by priority, so, this can
      * be useful if some visitor needs to run only after some other visitor was executed).
      */
+    @Override
     public int compareTo(PyDevBuilderVisitor o) {
         int priority = getPriority();
         int otherPriority = o.getPriority();

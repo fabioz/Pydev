@@ -54,10 +54,12 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
             this.defaultContextInformationValidator = defaultContextInformationValidator;
         }
 
+        @Override
         public void install(IContextInformation info, ITextViewer viewer, int offset) {
             defaultContextInformationValidator.install(info, viewer, offset);
         }
 
+        @Override
         public boolean isContextInformationValid(int offset) {
             if (showDefault()) {
                 return defaultContextInformationValidator.isContextInformationValid(offset);
@@ -65,6 +67,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
             return true;
         }
 
+        @Override
         public boolean updatePresentation(int offset, TextPresentation presentation) {
             return ((IContextInformationPresenter) defaultContextInformationValidator).updatePresentation(offset,
                     presentation);
@@ -152,9 +155,11 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
         this.participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_SIMPLE_ASSIST);
 
         assistant.addCompletionListener(new ICompletionListener() {
+            @Override
             public void assistSessionEnded(ContentAssistEvent event) {
             }
 
+            @Override
             public void assistSessionStarted(ContentAssistEvent event) {
                 startCycle();
                 lastCompletionAutoActivated = assistant.getLastCompletionAutoActivated();
@@ -164,6 +169,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
                 }
             }
 
+            @Override
             public void selectionChanged(ICompletionProposal proposal, boolean smartToggle) {
                 //ignore
             }
@@ -176,6 +182,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
      *  
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#computeCompletionProposals(org.eclipse.jface.text.ITextViewer, int)
      */
+    @Override
     public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int offset) {
         try {
             if (showDefault()) {
@@ -251,6 +258,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
     /**
      * Compute context information
      */
+    @Override
     public IContextInformation[] computeContextInformation(ITextViewer viewer, int offset) {
         if (showDefault()) {
             return defaultPythonProcessor.computeContextInformation(viewer, offset);
@@ -263,6 +271,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
      *  
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getCompletionProposalAutoActivationCharacters()
      */
+    @Override
     public char[] getCompletionProposalAutoActivationCharacters() {
         return getStaticAutoActivationCharacters();
     }
@@ -280,6 +289,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
     public synchronized static char[] getStaticAutoActivationCharacters() {
         if (!listenerToClearAutoActivationAlreadySetup) {
             PydevPlugin.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
+                @Override
                 public void propertyChange(PropertyChangeEvent event) {
                     autoActivationCharsCache = null;
                 }
@@ -308,6 +318,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
     /**
      * @return chars that are used for context information auto-activation
      */
+    @Override
     public char[] getContextInformationAutoActivationCharacters() {
         return null;
     }
@@ -315,6 +326,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
     /**
      * @return some error that might have happened in the completion
      */
+    @Override
     public String getErrorMessage() {
         String ret = this.lastError;
         if (ret == null && showDefault()) {
@@ -327,6 +339,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
     /**
      * @return the validator we should use
      */
+    @Override
     public IContextInformationValidator getContextInformationValidator() {
         final IContextInformationValidator defaultContextInformationValidator = defaultPythonProcessor
                 .getContextInformationValidator();

@@ -30,6 +30,7 @@ public class PythonRefactorActionProvider extends CommonActionProvider {
         }
     }
 
+    @Override
     public void fillActionBars(IActionBars actionBars) {
         if (renameResourceAction.isEnabled()) {
             actionBars.setGlobalActionHandler(ActionFactory.RENAME.getId(), renameResourceAction);
@@ -39,6 +40,7 @@ public class PythonRefactorActionProvider extends CommonActionProvider {
     /* (non-Javadoc)
      * @see org.eclipse.ui.actions.ActionGroup#fillContextMenu(org.eclipse.jface.action.IMenuManager)
      */
+    @Override
     public void fillContextMenu(IMenuManager menu) {
         if (renameResourceAction.isEnabled()) {
             menu.appendToGroup(ICommonMenuConstants.GROUP_EDIT, renameResourceAction);

@@ -111,6 +111,7 @@ public class ConsoleColorCache implements IPreferenceChangeListener {
     private void updateConsole(final IOConsole console) {
         Runnable r = new Runnable() {
 
+            @Override
             public void run() {
                 //Should be: DebugUIPlugin.getPreferenceColor(IDebugPreferenceConstants.CONSOLE_BAKGROUND_COLOR)
                 //but we don't want to add that dependency.
@@ -176,6 +177,7 @@ public class ConsoleColorCache implements IPreferenceChangeListener {
         }
     }
 
+    @Override
     public void preferenceChange(PreferenceChangeEvent event) {
         String key = event.getKey();
         if ("org.eclipse.debug.ui.consoleBackground".equals(key) || "org.eclipse.debug.ui.outColor".equals(key)

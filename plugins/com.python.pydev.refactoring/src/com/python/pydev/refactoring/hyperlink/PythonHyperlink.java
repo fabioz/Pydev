@@ -30,14 +30,17 @@ public class PythonHyperlink implements IHyperlink {
         fEditor = editor;
     }
 
+    @Override
     public IRegion getHyperlinkRegion() {
         return fRegion;
     }
 
+    @Override
     public String getHyperlinkText() {
         return null;
     }
 
+    @Override
     public String getTypeLabel() {
         return null;
     }
@@ -45,6 +48,7 @@ public class PythonHyperlink implements IHyperlink {
     /**
      * Try to find a definition and open it.
      */
+    @Override
     public void open() {
         PyGoToDefinition pyGoToDefinition = new PyGoToDefinition();
         pyGoToDefinition.setEditor(this.fEditor);

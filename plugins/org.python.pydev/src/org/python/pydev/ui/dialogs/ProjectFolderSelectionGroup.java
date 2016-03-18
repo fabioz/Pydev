@@ -68,12 +68,14 @@ public class ProjectFolderSelectionGroup extends Composite {
          * The visual part that is using this content provider is about
          * to be disposed. Deallocate all allocated SWT resources.
          */
+        @Override
         public void dispose() {
         }
 
         /*
          * @see org.eclipse.jface.viewers.ITreeContentProvider#getChildren(java.lang.Object)
          */
+        @Override
         public Object[] getChildren(Object element) {
             if (element instanceof IWorkspace) {
                 // check if closed projects should be shown
@@ -111,6 +113,7 @@ public class ProjectFolderSelectionGroup extends Composite {
         /*
          * @see org.eclipse.jface.viewers.IStructuredContentProvider#getElements(java.lang.Object)
          */
+        @Override
         public Object[] getElements(Object element) {
             return getChildren(element);
         }
@@ -118,6 +121,7 @@ public class ProjectFolderSelectionGroup extends Composite {
         /*
          * @see org.eclipse.jface.viewers.ITreeContentProvider#getParent(java.lang.Object)
          */
+        @Override
         public Object getParent(Object element) {
             if (element instanceof IResource)
                 return ((IResource) element).getParent();
@@ -127,6 +131,7 @@ public class ProjectFolderSelectionGroup extends Composite {
         /*
          * @see org.eclipse.jface.viewers.ITreeContentProvider#hasChildren(java.lang.Object)
          */
+        @Override
         public boolean hasChildren(Object element) {
             return getChildren(element).length > 0;
         }
@@ -134,6 +139,7 @@ public class ProjectFolderSelectionGroup extends Composite {
         /*
          * @see org.eclipse.jface.viewers.IContentProvider#inputChanged
          */
+        @Override
         public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
         }
 
@@ -291,6 +297,7 @@ public class ProjectFolderSelectionGroup extends Composite {
         //
         //
         CopiedContainerContentProvider cp = new CopiedContainerContentProvider() {
+            @Override
             public Object[] getChildren(Object element) {
                 if (element instanceof IWorkspace) {
                     return new Object[] { project };
@@ -320,12 +327,14 @@ public class ProjectFolderSelectionGroup extends Composite {
         treeViewer.setLabelProvider(WorkbenchLabelProvider.getDecoratingWorkbenchLabelProvider());
         treeViewer.setSorter(new ViewerSorter());
         treeViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+            @Override
             public void selectionChanged(SelectionChangedEvent event) {
                 IStructuredSelection selection = (IStructuredSelection) event.getSelection();
                 containerSelectionChanged((IContainer) selection.getFirstElement()); // allow null
             }
         });
         treeViewer.addDoubleClickListener(new IDoubleClickListener() {
+            @Override
             public void doubleClick(DoubleClickEvent event) {
                 ISelection selection = event.getSelection();
                 if (selection instanceof IStructuredSelection) {

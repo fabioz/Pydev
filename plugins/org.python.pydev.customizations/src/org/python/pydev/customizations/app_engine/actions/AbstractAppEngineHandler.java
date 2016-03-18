@@ -26,6 +26,7 @@ import org.python.pydev.shared_ui.EditorUtils;
  */
 public abstract class AbstractAppEngineHandler extends AbstractHandler {
 
+    @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
         throw new RuntimeException("Not used anymore!");
         //Note: HandlerUtil is not available in eclipse 3.2

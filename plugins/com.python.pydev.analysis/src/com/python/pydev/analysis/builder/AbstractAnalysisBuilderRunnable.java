@@ -25,11 +25,13 @@ public abstract class AbstractAnalysisBuilderRunnable implements IAnalysisBuilde
     protected IProgressMonitor monitorSetExternally;
 
     //from IRunnableWithMonitor
+    @Override
     public void setMonitor(IProgressMonitor monitor) {
         monitorSetExternally = monitor;
     }
 
     final protected IProgressMonitor internalCancelMonitor = new NullProgressMonitor() {
+        @Override
         public final boolean isCanceled() {
             if (super.isCanceled()) {
                 return true;
@@ -71,30 +73,37 @@ public abstract class AbstractAnalysisBuilderRunnable implements IAnalysisBuilde
         this.resourceModificationStamp = resourceModificationStamp;
     }
 
+    @Override
     public long getDocumentTime() {
         return documentTime;
     }
 
+    @Override
     public long getResourceModificationStamp() {
         return resourceModificationStamp;
     }
 
+    @Override
     public int getAnalysisCause() {
         return analysisCause;
     }
 
+    @Override
     public boolean getForceAnalysis() {
         return forceAnalysis;
     }
 
+    @Override
     public synchronized boolean getRunFinished() {
         return runFinished;
     }
 
+    @Override
     public String getModuleName() {
         return moduleName;
     }
 
+    @Override
     public String getAnalysisCauseStr() {
         String analysisCauseStr;
         if (analysisCause == ANALYSIS_CAUSE_BUILDER) {
@@ -119,6 +128,7 @@ public abstract class AbstractAnalysisBuilderRunnable implements IAnalysisBuilde
      * 
      * This method will do that and call doAnalysis() if it hasn't been cancelled itself.
      */
+    @Override
     public void run() {
         try {
             try {
@@ -185,6 +195,7 @@ public abstract class AbstractAnalysisBuilderRunnable implements IAnalysisBuilde
     /**
      * Stops the analysis whenever it gets a chance to do so.
      */
+    @Override
     public synchronized void stopAnalysis() {
         this.internalCancelMonitor.setCanceled(true);
     }

@@ -51,6 +51,7 @@ public class PythonInterpreterManagerStub extends AbstractInterpreterManager imp
      * @throws MisconfigurationException 
      * @see org.python.pydev.core.IInterpreterManager#getInterpreterInfo(java.lang.String, org.eclipse.core.runtime.IProgressMonitor)
      */
+    @Override
     public InterpreterInfo getInterpreterInfo(String executable, IProgressMonitor monitor)
             throws MisconfigurationException {
         InterpreterInfo info = super.getInterpreterInfo(executable, monitor);
@@ -88,10 +89,12 @@ public class PythonInterpreterManagerStub extends AbstractInterpreterManager imp
         return PythonInterpreterManager.doCreateInterpreterInfo(executable, monitor, askUser);
     }
 
+    @Override
     public int getInterpreterType() {
         return IInterpreterManager.INTERPRETER_TYPE_PYTHON;
     }
 
+    @Override
     public String getManagerRelatedName() {
         return "python";
     }

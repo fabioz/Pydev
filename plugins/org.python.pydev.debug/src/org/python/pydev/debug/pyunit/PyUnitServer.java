@@ -104,17 +104,21 @@ public class PyUnitServer implements IPyUnitServer {
      */
     private XmlRpcHandler handler = new XmlRpcHandler() {
 
+        @Override
         public Object execute(final XmlRpcRequest request) throws XmlRpcException {
             return execute(new IRequest() {
 
+                @Override
                 public int getParameterCount() {
                     return request.getParameterCount();
                 }
 
+                @Override
                 public Object getParameter(int i) {
                     return request.getParameter(i);
                 }
 
+                @Override
                 public String getMethodName() {
                     return request.getMethodName();
                 }
@@ -246,14 +250,17 @@ public class PyUnitServer implements IPyUnitServer {
                             if (d != null) {
                                 d.handle(new IRequest() {
 
+                                    @Override
                                     public int getParameterCount() {
                                         return params.length;
                                     }
 
+                                    @Override
                                     public Object getParameter(int i) {
                                         return params[i];
                                     }
 
+                                    @Override
                                     public String getMethodName() {
                                         return methodName;
                                     }
@@ -269,6 +276,7 @@ public class PyUnitServer implements IPyUnitServer {
      */
     private ILaunchesListener2 launchListener = new ILaunchesListener2() {
 
+        @Override
         public void launchesRemoved(ILaunch[] launches) {
             if (!disposed) {
                 for (ILaunch iLaunch : launches) {
@@ -279,12 +287,15 @@ public class PyUnitServer implements IPyUnitServer {
             }
         }
 
+        @Override
         public void launchesAdded(ILaunch[] launches) {
         }
 
+        @Override
         public void launchesChanged(ILaunch[] launches) {
         }
 
+        @Override
         public void launchesTerminated(ILaunch[] launches) {
             if (!disposed) {
                 for (ILaunch iLaunch : launches) {
@@ -311,6 +322,7 @@ public class PyUnitServer implements IPyUnitServer {
         XmlRpcServer serverToHandleRawInput = this.webServer.getXmlRpcServer();
         serverToHandleRawInput.setHandlerMapping(new XmlRpcHandlerMapping() {
 
+            @Override
             public XmlRpcHandler getHandler(String handlerName) throws XmlRpcNoSuchHandlerException, XmlRpcException {
                 return handler;
             }
@@ -327,6 +339,7 @@ public class PyUnitServer implements IPyUnitServer {
     /**
      * Want to hear about what happens in the test running session?
      */
+    @Override
     public void registerOnNotifyTest(IPyUnitServerListener listener) {
         if (!this.disposed) {
             this.listeners.add(listener);
@@ -370,6 +383,7 @@ public class PyUnitServer implements IPyUnitServer {
         }
     }
 
+    @Override
     public IPyUnitLaunch getPyUnitLaunch() {
         return new PyUnitLaunch(launch, configuration);
     }

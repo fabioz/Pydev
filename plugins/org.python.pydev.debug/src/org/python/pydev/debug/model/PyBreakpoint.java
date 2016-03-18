@@ -84,6 +84,7 @@ public class PyBreakpoint extends LineBreakpoint {
         }
     }
 
+    @Override
     public String getModelIdentifier() {
         return PyDebugModelPresentation.PY_DEBUG_MODEL_ID;
     }

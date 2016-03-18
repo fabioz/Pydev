@@ -284,6 +284,7 @@ public class ExtractMethodComposite extends Composite {
 
         createArgumentsButton(argumentsComposite);
         argumentsComposite.addControlListener(new ControlAdapter() {
+            @Override
             public void controlResized(ControlEvent e) {
                 Rectangle area = argumentsTable.getClientArea();
                 Point preferredSize = argumentsTable.computeSize(SWT.DEFAULT, SWT.DEFAULT);
@@ -404,6 +405,7 @@ public class ExtractMethodComposite extends Composite {
         }
 
         methodInsertionComb.addSelectionChangedListener(new ISelectionChangedListener() {
+            @Override
             public void selectionChanged(SelectionChangedEvent event) {
                 IStructuredSelection sel = (IStructuredSelection) event.getSelection();
                 if (!sel.isEmpty()) {

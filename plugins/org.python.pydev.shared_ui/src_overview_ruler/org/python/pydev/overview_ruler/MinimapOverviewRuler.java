@@ -348,6 +348,7 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
                         disposeOfImage = false;
                         RunInUiThread.async(new Runnable() {
 
+                            @Override
                             public void run() {
                                 //The baseImage should only be disposed in the UI thread (so, no locks are needed to
                                 //replace/dispose the image)
@@ -407,6 +408,7 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
         this.fOutlineModel = outlineModel;
         propertyListener = new IPropertyChangeListener() {
 
+            @Override
             public void propertyChange(PropertyChangeEvent event) {
                 if (MinimapOverviewRulerPreferencesPage.MINIMAP_WIDTH.equals(event.getProperty())) {
                     updateWidth();
@@ -437,6 +439,7 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
 
     private final PaintListener paintListener = new PaintListener() {
 
+        @Override
         public void paintControl(PaintEvent e) {
             if (!fCanvas.isDisposed()) {
                 MinimapOverviewRuler.this.redraw();
@@ -474,12 +477,14 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
     public Control createControl(Composite parent, ITextViewer textViewer) {
         Control ret = super.createControl(parent, textViewer);
         fCanvas.addMouseMoveListener(new MouseMoveListener() {
+            @Override
             public void mouseMove(MouseEvent event) {
                 onMouseMove(event);
             }
         });
 
         fCanvas.addDisposeListener(new DisposeListener() {
+            @Override
             public void widgetDisposed(DisposeEvent event) {
                 onDispose();
             }

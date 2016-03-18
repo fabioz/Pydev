@@ -38,6 +38,7 @@ public class RestorePinHistoryAction extends Action implements ICallbackListener
         this.setToolTipText("Click to restore pinned test run.");
     }
 
+    @Override
     public Object call(PyUnitTestRun obj) {
         if (obj != null) {
             this.setToolTipText("Click to restore test run: " + obj.name);

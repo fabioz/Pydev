@@ -152,6 +152,7 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
      * Needed interface for adding the completions on a request
      * @throws MisconfigurationException 
      */
+    @Override
     @SuppressWarnings("unchecked")
     public List getCodeCompletionProposals(ITextViewer viewer, CompletionRequest request) throws CoreException,
             BadLocationException, MisconfigurationException {

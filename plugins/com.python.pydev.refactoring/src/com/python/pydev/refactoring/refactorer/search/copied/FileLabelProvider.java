@@ -48,6 +48,7 @@ public class FileLabelProvider extends LabelProvider {
 
         fLineMatchImage = SharedUiPlugin.getImageCache().get(UIConstants.LINE_MATCH);
         fMatchComparator = new Comparator<FileMatch>() {
+            @Override
             public int compare(FileMatch o1, FileMatch o2) {
                 return o1.getOriginalOffset() - o2.getOriginalOffset();
             }

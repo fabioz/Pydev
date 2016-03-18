@@ -13,6 +13,7 @@ public final class Starred extends exprType implements expr_contextType {
         this.ctx = ctx;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -21,6 +22,7 @@ public final class Starred extends exprType implements expr_contextType {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -39,10 +41,12 @@ public final class Starred extends exprType implements expr_contextType {
         return true;
     }
 
+    @Override
     public Starred createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public Starred createCopy(boolean copyComments) {
         Starred temp = new Starred(value != null ? (exprType) value.createCopy(copyComments) : null, ctx);
         temp.beginLine = this.beginLine;
@@ -66,6 +70,7 @@ public final class Starred extends exprType implements expr_contextType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("Starred[");
         sb.append("value=");
@@ -77,10 +82,12 @@ public final class Starred extends exprType implements expr_contextType {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitStarred(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (value != null) {
             value.accept(visitor);

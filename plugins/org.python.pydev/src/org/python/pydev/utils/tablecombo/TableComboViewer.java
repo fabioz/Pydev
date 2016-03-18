@@ -69,6 +69,7 @@ public class TableComboViewer extends AbstractTableViewer {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected void doClear(int index) {
         tableCombo.getTable().clear(index);
 
@@ -77,6 +78,7 @@ public class TableComboViewer extends AbstractTableViewer {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected void doClearAll() {
         tableCombo.getTable().clearAll();
 
@@ -85,6 +87,7 @@ public class TableComboViewer extends AbstractTableViewer {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected void doDeselectAll() {
         tableCombo.getTable().deselectAll();
 
@@ -93,6 +96,7 @@ public class TableComboViewer extends AbstractTableViewer {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected Widget doGetColumn(int index) {
         return tableCombo.getTable().getColumn(index);
     }
@@ -100,6 +104,7 @@ public class TableComboViewer extends AbstractTableViewer {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected Item doGetItem(int index) {
         return tableCombo.getTable().getItem(index);
     }
@@ -107,6 +112,7 @@ public class TableComboViewer extends AbstractTableViewer {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected int doGetItemCount() {
         return tableCombo.getTable().getItemCount();
     }
@@ -114,6 +120,7 @@ public class TableComboViewer extends AbstractTableViewer {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected Item[] doGetItems() {
         return tableCombo.getTable().getItems();
     }
@@ -121,6 +128,7 @@ public class TableComboViewer extends AbstractTableViewer {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected Item[] doGetSelection() {
         return tableCombo.getTable().getSelection();
     }
@@ -128,6 +136,7 @@ public class TableComboViewer extends AbstractTableViewer {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected int[] doGetSelectionIndices() {
         return tableCombo.getTable().getSelectionIndices();
     }
@@ -135,6 +144,7 @@ public class TableComboViewer extends AbstractTableViewer {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected int doIndexOf(Item item) {
         return tableCombo.getTable().indexOf((TableItem) item);
     }
@@ -142,6 +152,7 @@ public class TableComboViewer extends AbstractTableViewer {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected void doRemove(int[] indices) {
         tableCombo.getTable().remove(indices);
     }
@@ -149,6 +160,7 @@ public class TableComboViewer extends AbstractTableViewer {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected void doRemove(int start, int end) {
         tableCombo.getTable().remove(start, end);
     }
@@ -156,6 +168,7 @@ public class TableComboViewer extends AbstractTableViewer {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected void doRemoveAll() {
         tableCombo.getTable().removeAll();
     }
@@ -163,6 +176,7 @@ public class TableComboViewer extends AbstractTableViewer {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected void doResetItem(Item item) {
         TableItem tableItem = (TableItem) item;
         int columnCount = Math.max(1, tableCombo.getTable().getColumnCount());
@@ -177,6 +191,7 @@ public class TableComboViewer extends AbstractTableViewer {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected void doSelect(int[] indices) {
         tableCombo.select(indices != null && indices.length > 0 ? indices[0] : -1);
     }
@@ -184,6 +199,7 @@ public class TableComboViewer extends AbstractTableViewer {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected void doSetItemCount(int count) {
         tableCombo.getTable().setItemCount(count);
     }
@@ -191,6 +207,7 @@ public class TableComboViewer extends AbstractTableViewer {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected void doSetSelection(Item[] items) {
         if (items != null && items.length > 0) {
             tableCombo.select(tableCombo.getTable().indexOf((TableItem) items[0]));
@@ -202,6 +219,7 @@ public class TableComboViewer extends AbstractTableViewer {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected void doSetSelection(int[] indices) {
         tableCombo.select(indices != null && indices.length > 0 ? indices[0] : -1);
     }
@@ -209,6 +227,7 @@ public class TableComboViewer extends AbstractTableViewer {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected void doShowItem(Item item) {
         tableCombo.getTable().showItem((TableItem) item);
     }
@@ -216,6 +235,7 @@ public class TableComboViewer extends AbstractTableViewer {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected void doShowSelection() {
         tableCombo.getTable().showSelection();
     }
@@ -223,6 +243,7 @@ public class TableComboViewer extends AbstractTableViewer {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected ViewerRow internalCreateNewRowPart(int style, int rowIndex) {
         TableItem item;
 
@@ -238,6 +259,7 @@ public class TableComboViewer extends AbstractTableViewer {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected ColumnViewerEditor createViewerEditor() {
         return null;
     }
@@ -245,6 +267,7 @@ public class TableComboViewer extends AbstractTableViewer {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected int doGetColumnCount() {
         return tableCombo.getTable().getColumnCount();
     }
@@ -252,6 +275,7 @@ public class TableComboViewer extends AbstractTableViewer {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected Item getItemAt(Point point) {
         return tableCombo.getTable().getItem(point);
     }
@@ -259,6 +283,7 @@ public class TableComboViewer extends AbstractTableViewer {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected ViewerRow getViewerRowFromItem(Widget item) {
         if (cachedRow == null) {
             cachedRow = new TableComboViewerRow((TableItem) item);
@@ -272,6 +297,7 @@ public class TableComboViewer extends AbstractTableViewer {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Control getControl() {
         return tableCombo;
     }
@@ -287,6 +313,7 @@ public class TableComboViewer extends AbstractTableViewer {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected void handleLabelProviderChanged(LabelProviderChangedEvent event) {
         super.handleLabelProviderChanged(event);
         setSelection(getSelection());

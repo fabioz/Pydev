@@ -90,6 +90,7 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
 
     private SelectionListener fSelectionListener = new SelectionListener() {
 
+        @Override
         public void widgetSelected(SelectionEvent e) {
             if (e.getSource() == fButtonSeeResultingCommandLine) {
                 try {
@@ -116,6 +117,7 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
             }
         }
 
+        @Override
         public void widgetDefaultSelected(SelectionEvent e) {
         }
     };
@@ -172,6 +174,7 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
      * (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#createControl(org.eclipse.swt.widgets.Composite)
      */
+    @Override
     public void createControl(Composite parent) {
         Composite comp = new Composite(parent, SWT.NONE);
         setControl(comp);
@@ -193,6 +196,7 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
         data.horizontalSpan = 2;
         fInterpreterComboField.setLayoutData(data);
         fInterpreterComboField.addModifyListener(new ModifyListener() {
+            @Override
             public void modifyText(ModifyEvent e) {
                 updateLaunchConfigurationDialog();
             }
@@ -223,6 +227,7 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
      * (non-Javadoc)
      * @see org.eclipse.debug.ui.AbstractLaunchConfigurationTab#isValid(org.eclipse.debug.core.ILaunchConfiguration)
      */
+    @Override
     public boolean isValid(ILaunchConfiguration launchConfig) {
         setErrorMessage(null);
         setMessage(null);
@@ -252,6 +257,7 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
      * (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#getName()
      */
+    @Override
     public String getName() {
         return "Interpreter";
     }
@@ -260,6 +266,7 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
      * (non-Javadoc)
      * @see org.eclipse.debug.ui.AbstractLaunchConfigurationTab#getImage()
      */
+    @Override
     public Image getImage() {
         return PydevPlugin.getImageCache().get(Constants.PYTHON_ORG_ICON);
     }
@@ -268,6 +275,7 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
      * (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#setDefaults(org.eclipse.debug.core.ILaunchConfigurationWorkingCopy)
      */
+    @Override
     public void setDefaults(ILaunchConfigurationWorkingCopy arg0) {
         //no defaults to set
     }
@@ -276,6 +284,7 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
      * (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#initializeFrom(org.eclipse.debug.core.ILaunchConfiguration)
      */
+    @Override
     public void initializeFrom(ILaunchConfiguration configuration) {
         try {
             fWorkingCopyForCommandLineGeneration = configuration.getWorkingCopy();
@@ -342,6 +351,7 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
      * (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#performApply(org.eclipse.debug.core.ILaunchConfigurationWorkingCopy)
      */
+    @Override
     public void performApply(ILaunchConfigurationWorkingCopy configuration) {
         String value;
 
@@ -401,6 +411,7 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
      * (non-Javadoc)
      * @see org.eclipse.debug.ui.AbstractLaunchConfigurationTab#setLaunchConfigurationDialog(org.eclipse.debug.ui.ILaunchConfigurationDialog)
      */
+    @Override
     public void setLaunchConfigurationDialog(ILaunchConfigurationDialog dialog) {
         super.setLaunchConfigurationDialog(dialog);
     }

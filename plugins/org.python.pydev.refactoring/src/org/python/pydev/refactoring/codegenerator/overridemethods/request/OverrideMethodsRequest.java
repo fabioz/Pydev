@@ -51,6 +51,7 @@ public class OverrideMethodsRequest implements IRefactoringRequest {
         this.adapterPrefs = adapterPrefs;
     }
 
+    @Override
     public IASTNodeAdapter<? extends SimpleNode> getOffsetNode() {
         return classAdapter;
     }
@@ -59,6 +60,7 @@ public class OverrideMethodsRequest implements IRefactoringRequest {
         return getOffsetNode().getModule().getBaseContextName(this.classAdapter, baseClassName);
     }
 
+    @Override
     public AdapterPrefs getAdapterPrefs() {
         return adapterPrefs;
     }

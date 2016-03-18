@@ -136,6 +136,7 @@ public class PyProjectPythonDetails extends PropertyPage {
             interpretersChoice = new Combo(topComp, SWT.READ_ONLY);
             selectionListener = new SelectionListener() {
 
+                @Override
                 public void widgetDefaultSelected(SelectionEvent e) {
 
                 }
@@ -143,6 +144,7 @@ public class PyProjectPythonDetails extends PropertyPage {
                 /**
                  * @param e can be null to force an update.
                  */
+                @Override
                 public void widgetSelected(SelectionEvent e) {
                     if (e != null) {
                         Button source = (Button) e.getSource();
@@ -215,6 +217,7 @@ public class PyProjectPythonDetails extends PropertyPage {
             interpreterNoteText.setLayoutData(gd);
 
             interpreterNoteText.addSelectionListener(new SelectionListener() {
+                @Override
                 public void widgetSelected(SelectionEvent e) {
                     String interpreterName = getProjectInterpreter();
                     if (interpreterName != null) {
@@ -252,6 +255,7 @@ public class PyProjectPythonDetails extends PropertyPage {
                                 public void done(IJobChangeEvent event) {
                                     //Update the display when the configuration has ended.
                                     Display.getDefault().asyncExec(new Runnable() {
+                                        @Override
                                         public void run() {
                                             //Only update if the page is still there.
                                             //If something is disposed, it has been closed.
@@ -275,6 +279,7 @@ public class PyProjectPythonDetails extends PropertyPage {
                     }
                 }
 
+                @Override
                 public void widgetDefaultSelected(SelectionEvent e) {
                 }
             });

@@ -31,6 +31,7 @@ public class PyParserTestBase extends TestCase {
     private static int defaultVersion;
     protected static IGrammarVersionProvider versionProvider = new IGrammarVersionProvider() {
 
+        @Override
         public int getGrammarVersion() {
             return defaultVersion;
         }

@@ -94,15 +94,18 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
      * @see IPythonNature#JYTHON_VERSION_XXX
      * @see IPythonNature#IRONPYTHON_VERSION_XXX
      */
+    @Override
     public String getProjectType() {
         return details.getSelectedPythonOrJythonAndGrammarVersion();
     }
 
+    @Override
     public String getProjectInterpreter() {
         return details.getProjectInterpreter();
     }
 
     private Listener nameModifyListener = new Listener() {
+        @Override
         public void handleEvent(Event e) {
             setLocationForSelection();
             setPageComplete(validatePage());
@@ -110,6 +113,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
     };
 
     private Listener locationModifyListener = new Listener() {
+        @Override
         public void handleEvent(Event e) {
             setPageComplete(validatePage());
         }
@@ -177,6 +181,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
     /* (non-Javadoc)
      * Method declared on IDialogPage.
      */
+    @Override
     public void createControl(Composite parent) {
         Composite composite = new Composite(parent, SWT.NULL);
         composite.setLayout(new GridLayout());
@@ -222,6 +227,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
 
         checkSrcFolder.addSelectionListener(new SelectionListener() {
 
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 if (e.widget == checkSrcFolder) {
                     IPreferenceStore preferences = PydevPrefs.getPreferences();
@@ -233,12 +239,14 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
                 }
             }
 
+            @Override
             public void widgetDefaultSelected(SelectionEvent e) {
             }
         });
 
         projectAsSrcFolder.addSelectionListener(new SelectionListener() {
 
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 if (e.widget == projectAsSrcFolder) {
                     IPreferenceStore preferences = PydevPrefs.getPreferences();
@@ -251,12 +259,14 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
                 }
             }
 
+            @Override
             public void widgetDefaultSelected(SelectionEvent e) {
             }
         });
 
         exSrcFolder.addSelectionListener(new SelectionListener() {
 
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 if (e.widget == exSrcFolder) {
                     IPreferenceStore preferences = PydevPrefs.getPreferences();
@@ -268,12 +278,14 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
                 }
             }
 
+            @Override
             public void widgetDefaultSelected(SelectionEvent e) {
             }
         });
 
         noSrcFolder.addSelectionListener(new SelectionListener() {
 
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 if (e.widget == noSrcFolder) {
                     IPreferenceStore preferences = PydevPrefs.getPreferences();
@@ -285,6 +297,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
                 }
             }
 
+            @Override
             public void widgetDefaultSelected(SelectionEvent e) {
             }
         });
@@ -315,6 +328,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
      *
      * @return the selected working sets to which the new project should be added
      */
+    @Override
     public IWorkingSet[] getWorkingSets() {
         return fWorkingSetGroup.getSelectedWorkingSets();
     }
@@ -350,6 +364,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
         details = new PyProjectPythonDetails.ProjectInterpreterAndGrammarConfig(new ICallback() {
 
             //Whenever the configuration changes there, we must evaluate whether the page is complete
+            @Override
             public Object call(Object args) throws Exception {
                 setPageComplete(NewProjectNameAndLocationWizardPage.this.validatePage());
                 return null;
@@ -502,6 +517,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
      * @return the project location path, its anticipated initial value, or <code>null</code>
      *   if no project location path is known
      */
+    @Override
     public IPath getLocationPath() {
         if (useDefaults) {
             return initialLocationFieldValue;
@@ -519,6 +535,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
      *
      * @return the new project resource handle
      */
+    @Override
     public IProject getProjectHandle() {
         return PyStructureConfigHelpers.getProjectHandle(getProjectName());
     }
@@ -530,6 +547,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
      * @return the project name, its anticipated initial value, or <code>null</code>
      *   if no project name is known
      */
+    @Override
     public String getProjectName() {
         if (projectNameField == null) {
             return initialProjectFieldValue;
@@ -732,6 +750,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
         }
     }
 
+    @Override
     public int getSourceFolderConfigurationStyle() {
         IPreferenceStore preferences = PydevPrefs.getPreferences();
         int srcFolderCreate = preferences

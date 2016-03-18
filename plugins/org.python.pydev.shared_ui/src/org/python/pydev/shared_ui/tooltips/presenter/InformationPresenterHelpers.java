@@ -35,9 +35,11 @@ public class InformationPresenterHelpers {
             if (presenter == null) {
                 presenter = new AbstractTooltipInformationPresenter() {
 
+                    @Override
                     protected void onUpdatePresentation(String hoverInfo, TextPresentation presentation) {
                     }
 
+                    @Override
                     protected void onHandleClick(Object data) {
 
                     }
@@ -46,6 +48,7 @@ public class InformationPresenterHelpers {
             this.presenter = presenter;
         }
 
+        @Override
         public IInformationControl createInformationControl(Shell parent) {
 
             //            try { -- this would show the 'F2' for focus, but we don't actually handle that, so, don't use it.

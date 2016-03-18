@@ -372,6 +372,7 @@ public class AutoEditStrategyBackspaceHelper {
             final IIndentationStringProvider indentationStringProvider) {
         return new VerifyKeyListener() {
 
+            @Override
             public void verifyKey(VerifyEvent event) {
                 if ((event.doit && event.character == SWT.BS && event.stateMask == 0 && viewer != null && viewer
                         .isEditable())) { //isBackspace

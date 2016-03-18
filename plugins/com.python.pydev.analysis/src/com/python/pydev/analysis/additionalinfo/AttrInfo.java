@@ -24,6 +24,7 @@ public final class AttrInfo extends AbstractInfo {
         super(name, moduleDeclared, path, doNotInternOnThisContstruct);
     }
 
+    @Override
     public int getType() {
         return ATTRIBUTE_WITH_IMPORT_TYPE;
     }

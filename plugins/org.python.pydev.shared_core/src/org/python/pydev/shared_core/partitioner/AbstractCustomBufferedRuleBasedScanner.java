@@ -113,6 +113,7 @@ public abstract class AbstractCustomBufferedRuleBasedScanner extends AbstractCus
         shiftBuffer(offset);
     }
 
+    @Override
     public int getMark() {
         return fOffset;
     }
@@ -131,6 +132,7 @@ public abstract class AbstractCustomBufferedRuleBasedScanner extends AbstractCus
         }
     }
 
+    @Override
     public void setMark(int offset) {
         fOffset = offset;
         fColumn = UNDEFINED;

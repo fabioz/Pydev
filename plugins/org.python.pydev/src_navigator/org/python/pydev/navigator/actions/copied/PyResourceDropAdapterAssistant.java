@@ -464,6 +464,7 @@ public class PyResourceDropAdapterAssistant extends ResourceDropAdapterAssistant
         // Otherwise the drag source (e.g., Windows Explorer) will be blocked
         // while the operation executes. Fixes bug 16478.
         Display.getCurrent().asyncExec(new Runnable() {
+            @Override
             public void run() {
                 getShell().forceActive();
                 CopyFilesAndFoldersOperation operation = new CopyFilesAndFoldersOperation(getShell());

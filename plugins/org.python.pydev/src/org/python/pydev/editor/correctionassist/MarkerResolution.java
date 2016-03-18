@@ -33,10 +33,12 @@ public class MarkerResolution implements IMarkerResolution {
     /* (non-Javadoc)
      * @see org.eclipse.ui.IMarkerResolution#getLabel()
      */
+    @Override
     public String getLabel() {
         return label;
     }
 
+    @Override
     public void run(IMarker marker) {
         MessageDialog.openInformation(null, "QuickFix Demo", "This quick-fix is not yet implemented");
     }

@@ -34,21 +34,26 @@ import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo
  */
 public class PreloadAdditionalInfoPyEditListener implements IPyEditListener, IPyEditListener3 {
 
+    @Override
     public void onCreateActions(ListResourceBundle resources, BaseEditor baseEditor, IProgressMonitor monitor) {
 
     }
 
+    @Override
     public void onDispose(BaseEditor baseEditor, IProgressMonitor monitor) {
     }
 
+    @Override
     public void onSave(BaseEditor baseEditor, IProgressMonitor monitor) {
 
     }
 
+    @Override
     public void onSetDocument(IDocument document, BaseEditor baseEditor, IProgressMonitor monitor) {
 
     }
 
+    @Override
     public void onInputChanged(BaseEditor baseEditor, IEditorInput oldInput, IEditorInput input,
             IProgressMonitor monitor) {
         if (input != null) {

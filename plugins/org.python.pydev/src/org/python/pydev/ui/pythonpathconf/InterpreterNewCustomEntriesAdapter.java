@@ -25,18 +25,22 @@ import java.util.Map;
  */
 public class InterpreterNewCustomEntriesAdapter implements IInterpreterNewCustomEntries {
 
+    @Override
     public Collection<String> getAdditionalLibraries() {
         return Collections.emptyList();
     }
 
+    @Override
     public Collection<String> getAdditionalEnvVariables() {
         return Collections.emptyList();
     }
 
+    @Override
     public Collection<String> getAdditionalBuiltins() {
         return Collections.emptyList();
     }
 
+    @Override
     public Map<String, String> getAdditionalStringSubstitutionVariables() {
         return Collections.emptyMap();
     }

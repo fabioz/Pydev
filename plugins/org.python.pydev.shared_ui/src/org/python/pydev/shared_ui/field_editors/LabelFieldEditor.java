@@ -20,22 +20,28 @@ public class LabelFieldEditor extends FieldEditor {
         createControl(parent);
     }
 
+    @Override
     protected void adjustForNumColumns(int numColumns) {
     }
 
+    @Override
     protected void doFillIntoGrid(Composite parent, int numColumns) {
         getLabelControl(parent);
     }
 
+    @Override
     protected void doLoad() {
     }
 
+    @Override
     protected void doLoadDefault() {
     }
 
+    @Override
     protected void doStore() {
     }
 
+    @Override
     public int getNumberOfControls() {
         return 1;
     }

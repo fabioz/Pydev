@@ -26,6 +26,7 @@ public class ThreadSuspendCommand extends AbstractDebuggerCommand {
         this.thread = thread;
     }
 
+    @Override
     public String getOutgoing() {
         return makeCommand(CMD_THREAD_SUSPEND, sequence, thread);
     }

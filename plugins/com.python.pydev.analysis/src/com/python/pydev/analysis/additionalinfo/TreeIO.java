@@ -122,14 +122,17 @@ public class TreeIO {
             this.set = set;
         }
 
+        @Override
         public Object getKey() {
             return key;
         }
 
+        @Override
         public Object getValue() {
             return set;
         }
 
+        @Override
         public Object setValue(Object value) {
             throw new UnsupportedOperationException();
         }
@@ -246,16 +249,19 @@ public class TreeIO {
             tree.buildFromSorted(size, new Iterator() {
                 private int iNext;
 
+                @Override
                 public boolean hasNext() {
                     return iNext > size;
                 }
 
+                @Override
                 public Object next() {
                     Object o = entries[iNext];
                     iNext++;
                     return o;
                 }
 
+                @Override
                 public void remove() {
                 }
 

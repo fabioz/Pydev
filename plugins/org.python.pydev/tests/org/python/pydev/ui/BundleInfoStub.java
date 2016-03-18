@@ -22,6 +22,7 @@ import org.python.pydev.shared_ui.bundle.IBundleInfo;
 
 public class BundleInfoStub implements IBundleInfo {
 
+    @Override
     public File getRelativePath(IPath relative) throws CoreException {
         if (relative.toString().indexOf("interpreterInfo.py") != -1) {
             return new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "pysrc/interpreterInfo.py");
@@ -44,10 +45,12 @@ public class BundleInfoStub implements IBundleInfo {
         throw new RuntimeException("Not available info on: " + relative);
     }
 
+    @Override
     public String getPluginID() {
         return "plugin_id";
     }
 
+    @Override
     public ImageCache getImageCache() {
         try {
             return new ImageCache(new URL("file:///" + TestDependent.TEST_PYDEV_PLUGIN_LOC));

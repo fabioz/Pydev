@@ -13,6 +13,7 @@ public final class GeneratorExp extends exprType {
         this.generators = generators;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -21,6 +22,7 @@ public final class GeneratorExp extends exprType {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -39,10 +41,12 @@ public final class GeneratorExp extends exprType {
         return true;
     }
 
+    @Override
     public GeneratorExp createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public GeneratorExp createCopy(boolean copyComments) {
         comprehensionType[] new0;
         if (this.generators != null) {
@@ -77,6 +81,7 @@ public final class GeneratorExp extends exprType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("GeneratorExp[");
         sb.append("elt=");
@@ -88,10 +93,12 @@ public final class GeneratorExp extends exprType {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitGeneratorExp(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (elt != null) {
             elt.accept(visitor);

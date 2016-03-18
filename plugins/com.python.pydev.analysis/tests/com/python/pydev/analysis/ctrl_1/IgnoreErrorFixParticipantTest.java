@@ -52,6 +52,7 @@ public class IgnoreErrorFixParticipantTest extends AdditionalInfoTestsBase {
 
     }
 
+    @Override
     public void setUp() throws Exception {
         super.setUp();
         format = new FormatStd();

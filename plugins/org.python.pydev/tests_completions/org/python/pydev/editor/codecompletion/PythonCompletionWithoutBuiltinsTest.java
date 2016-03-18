@@ -121,21 +121,25 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     }
 
     private static final class ParticipantWithBarToken implements IPyDevCompletionParticipant {
+        @Override
         public Collection<Object> getStringGlobalCompletions(CompletionRequest request, ICompletionState state)
                 throws MisconfigurationException {
             throw new RuntimeException("Not implemented");
         }
 
+        @Override
         public Collection<Object> getGlobalCompletions(CompletionRequest request, ICompletionState state)
                 throws MisconfigurationException {
             throw new RuntimeException("Not implemented");
         }
 
+        @Override
         public Collection<IToken> getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope,
                 Collection<IToken> interfaceForLocal) {
             throw new RuntimeException("Not implemented");
         }
 
+        @Override
         public Collection<IToken> getCompletionsForTokenWithUndefinedType(ICompletionState state,
                 ILocalScope localScope, Collection<IToken> interfaceForLocal) {
             ArrayList<IToken> ret = new ArrayList<IToken>();
@@ -143,11 +147,13 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             return ret;
         }
 
+        @Override
         public Collection<Object> getArgsCompletion(ICompletionState state, ILocalScope localScope,
                 Collection<IToken> interfaceForLocal) {
             throw new RuntimeException("Not implemented");
         }
 
+        @Override
         public Collection<IToken> getCompletionsForType(ICompletionState state) {
             throw new RuntimeException("Not implemented");
         }
@@ -170,6 +176,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         codeCompletion = new PyCodeCompletion();
         PyCodeCompletion.onCompletionRecursionException = new ICallback<Object, CompletionRecursionException>() {
 
+            @Override
             public Object call(CompletionRecursionException e) {
                 throw new RuntimeException("Recursion error:" + Log.getExceptionStr(e));
             }

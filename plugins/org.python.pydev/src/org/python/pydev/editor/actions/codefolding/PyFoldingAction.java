@@ -45,6 +45,7 @@ public abstract class PyFoldingAction extends PyAction {
 
             Collections.sort(expanded, new Comparator() {
 
+                @Override
                 public int compare(Object o1, Object o2) {
                     PyProjectionAnnotation e1 = (PyProjectionAnnotation) o1;
                     PyProjectionAnnotation e2 = (PyProjectionAnnotation) o2;

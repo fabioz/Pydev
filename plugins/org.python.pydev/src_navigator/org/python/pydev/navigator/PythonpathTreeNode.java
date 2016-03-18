@@ -142,6 +142,7 @@ public class PythonpathTreeNode extends TreeNode<LabelAndImage> implements ISort
         return (isDir && dirFiles != null && dirFiles.length > 0) || (!isDir && isZipFile());
     }
 
+    @Override
     public int getRank() {
         return isDir ? ISortedElement.RANK_PYTHON_FOLDER : ISortedElement.RANK_PYTHON_FILE;
     }

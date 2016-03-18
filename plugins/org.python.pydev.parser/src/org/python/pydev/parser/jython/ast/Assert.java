@@ -13,6 +13,7 @@ public final class Assert extends stmtType {
         this.msg = msg;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -21,6 +22,7 @@ public final class Assert extends stmtType {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -42,10 +44,12 @@ public final class Assert extends stmtType {
         return true;
     }
 
+    @Override
     public Assert createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public Assert createCopy(boolean copyComments) {
         Assert temp = new Assert(test != null ? (exprType) test.createCopy(copyComments) : null,
                 msg != null ? (exprType) msg.createCopy(copyComments) : null);
@@ -70,6 +74,7 @@ public final class Assert extends stmtType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("Assert[");
         sb.append("test=");
@@ -81,10 +86,12 @@ public final class Assert extends stmtType {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitAssert(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (test != null) {
             test.accept(visitor);

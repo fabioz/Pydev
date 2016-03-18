@@ -174,6 +174,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
 
     private Boolean hasFutureImportAbsoluteImportDeclared = null;
 
+    @Override
     public boolean hasFutureImportAbsoluteImportDeclared() {
         if (hasFutureImportAbsoluteImportDeclared == null) {
             hasFutureImportAbsoluteImportDeclared = false;
@@ -1174,6 +1175,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         return FileUtils.lastModified(this.file) == this.lastModified;
     }
 
+    @Override
     public SimpleNode getAst() {
         return ast;
     }
@@ -1307,6 +1309,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                             File folder = file.getParentFile();
                                             File[] validBootsrappedDlls = folder.listFiles(new FilenameFilter() {
 
+                                                @Override
                                                 public boolean accept(File dir, String name) {
                                                     int i = name.lastIndexOf('.');
                                                     if (i > 0) {

@@ -69,10 +69,12 @@ public class ScriptConsoleViewerWrapper implements ITextViewer, IScriptConsoleVi
         this.info = info;
     }
 
+    @Override
     public IInterpreterInfo getInterpreterInfo() {
         return info;
     }
 
+    @Override
     public String getCommandLine() {
 
         IDocument document = this.viewer.getDocument();
@@ -81,6 +83,7 @@ public class ScriptConsoleViewerWrapper implements ITextViewer, IScriptConsoleVi
         return ps.getCursorLineContents();
     }
 
+    @Override
     public int getCommandLineOffset() {
         IDocument document = this.viewer.getDocument();
         ITextSelection selection = (ITextSelection) this.viewer.getSelection();
@@ -88,16 +91,19 @@ public class ScriptConsoleViewerWrapper implements ITextViewer, IScriptConsoleVi
         return ps.getStartLineOffset();
     }
 
+    @Override
     public int getCaretOffset() {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public void setCaretOffset(int offset, boolean async) {
         throw new RuntimeException("Not implemented");
     }
 
     // Delegates
 
+    @Override
     public int hashCode() {
         return viewer.hashCode();
     }
@@ -106,6 +112,7 @@ public class ScriptConsoleViewerWrapper implements ITextViewer, IScriptConsoleVi
         viewer.addHelpListener(listener);
     }
 
+    @Override
     public boolean equals(Object obj) {
         return viewer.equals(obj);
     }
@@ -142,6 +149,7 @@ public class ScriptConsoleViewerWrapper implements ITextViewer, IScriptConsoleVi
         return viewer.scrollDown(x, y);
     }
 
+    @Override
     public String toString() {
         return viewer.toString();
     }
@@ -222,14 +230,17 @@ public class ScriptConsoleViewerWrapper implements ITextViewer, IScriptConsoleVi
         viewer.setHoverEnrichMode(mode);
     }
 
+    @Override
     public void activatePlugins() {
         viewer.activatePlugins();
     }
 
+    @Override
     public void setDocument(IDocument document) {
         viewer.setDocument(document);
     }
 
+    @Override
     public void setDocument(IDocument document, int visibleRegionOffset, int visibleRegionLength) {
         viewer.setDocument(document, visibleRegionOffset, visibleRegionLength);
     }
@@ -307,14 +318,17 @@ public class ScriptConsoleViewerWrapper implements ITextViewer, IScriptConsoleVi
         return viewer.getCurrentAnnotationHover();
     }
 
+    @Override
     public void resetPlugins() {
         viewer.resetPlugins();
     }
 
+    @Override
     public StyledText getTextWidget() {
         return viewer.getTextWidget();
     }
 
+    @Override
     public void setAutoIndentStrategy(IAutoIndentStrategy strategy, String contentType) {
         viewer.setAutoIndentStrategy(strategy, contentType);
     }
@@ -327,30 +341,37 @@ public class ScriptConsoleViewerWrapper implements ITextViewer, IScriptConsoleVi
         viewer.removeAutoEditStrategy(strategy, contentType);
     }
 
+    @Override
     public void setEventConsumer(IEventConsumer consumer) {
         viewer.setEventConsumer(consumer);
     }
 
+    @Override
     public void setIndentPrefixes(String[] indentPrefixes, String contentType) {
         viewer.setIndentPrefixes(indentPrefixes, contentType);
     }
 
+    @Override
     public int getTopInset() {
         return viewer.getTopInset();
     }
 
+    @Override
     public boolean isEditable() {
         return viewer.isEditable();
     }
 
+    @Override
     public void setEditable(boolean editable) {
         viewer.setEditable(editable);
     }
 
+    @Override
     public void setDefaultPrefixes(String[] defaultPrefixes, String contentType) {
         viewer.setDefaultPrefixes(defaultPrefixes, contentType);
     }
 
+    @Override
     public void setUndoManager(IUndoManager undoManager) {
         viewer.setUndoManager(undoManager);
     }
@@ -359,6 +380,7 @@ public class ScriptConsoleViewerWrapper implements ITextViewer, IScriptConsoleVi
         return viewer.getUndoManager();
     }
 
+    @Override
     public void setTextHover(ITextHover hover, String contentType) {
         viewer.setTextHover(hover, contentType);
     }
@@ -387,10 +409,12 @@ public class ScriptConsoleViewerWrapper implements ITextViewer, IScriptConsoleVi
         viewer.releaseWidgetToken(tokenKeeper);
     }
 
+    @Override
     public Point getSelectedRange() {
         return viewer.getSelectedRange();
     }
 
+    @Override
     public void setSelectedRange(int selectionOffset, int selectionLength) {
         viewer.setSelectedRange(selectionOffset, selectionLength);
     }
@@ -403,6 +427,7 @@ public class ScriptConsoleViewerWrapper implements ITextViewer, IScriptConsoleVi
         return viewer.getSelection();
     }
 
+    @Override
     public ISelectionProvider getSelectionProvider() {
         return viewer.getSelectionProvider();
     }
@@ -415,18 +440,22 @@ public class ScriptConsoleViewerWrapper implements ITextViewer, IScriptConsoleVi
         viewer.removePostSelectionChangedListener(listener);
     }
 
+    @Override
     public void addTextListener(ITextListener listener) {
         viewer.addTextListener(listener);
     }
 
+    @Override
     public void removeTextListener(ITextListener listener) {
         viewer.removeTextListener(listener);
     }
 
+    @Override
     public void addTextInputListener(ITextInputListener listener) {
         viewer.addTextInputListener(listener);
     }
 
+    @Override
     public void removeTextInputListener(ITextInputListener listener) {
         viewer.removeTextInputListener(listener);
     }
@@ -435,6 +464,7 @@ public class ScriptConsoleViewerWrapper implements ITextViewer, IScriptConsoleVi
         return viewer.getInput();
     }
 
+    @Override
     public IDocument getDocument() {
         return viewer.getDocument();
     }
@@ -443,34 +473,42 @@ public class ScriptConsoleViewerWrapper implements ITextViewer, IScriptConsoleVi
         viewer.setInput(input);
     }
 
+    @Override
     public void addViewportListener(IViewportListener listener) {
         viewer.addViewportListener(listener);
     }
 
+    @Override
     public void removeViewportListener(IViewportListener listener) {
         viewer.removeViewportListener(listener);
     }
 
+    @Override
     public int getTopIndex() {
         return viewer.getTopIndex();
     }
 
+    @Override
     public void setTopIndex(int index) {
         viewer.setTopIndex(index);
     }
 
+    @Override
     public int getBottomIndex() {
         return viewer.getBottomIndex();
     }
 
+    @Override
     public int getTopIndexStartOffset() {
         return viewer.getTopIndexStartOffset();
     }
 
+    @Override
     public int getBottomIndexEndOffset() {
         return viewer.getBottomIndexEndOffset();
     }
 
+    @Override
     public void revealRange(int start, int length) {
         viewer.revealRange(start, length);
     }
@@ -479,6 +517,7 @@ public class ScriptConsoleViewerWrapper implements ITextViewer, IScriptConsoleVi
         viewer.refresh();
     }
 
+    @Override
     public final void invalidateTextPresentation() {
         viewer.invalidateTextPresentation();
     }
@@ -487,22 +526,27 @@ public class ScriptConsoleViewerWrapper implements ITextViewer, IScriptConsoleVi
         viewer.invalidateTextPresentation(offset, length);
     }
 
+    @Override
     public IRegion getVisibleRegion() {
         return viewer.getVisibleRegion();
     }
 
+    @Override
     public boolean overlapsWithVisibleRegion(int start, int length) {
         return viewer.overlapsWithVisibleRegion(start, length);
     }
 
+    @Override
     public void setVisibleRegion(int start, int length) {
         viewer.setVisibleRegion(start, length);
     }
 
+    @Override
     public void resetVisibleRegion() {
         viewer.resetVisibleRegion();
     }
 
+    @Override
     public void setTextDoubleClickStrategy(ITextDoubleClickStrategy strategy, String contentType) {
         viewer.setTextDoubleClickStrategy(strategy, contentType);
     }
@@ -511,22 +555,27 @@ public class ScriptConsoleViewerWrapper implements ITextViewer, IScriptConsoleVi
         viewer.print(options);
     }
 
+    @Override
     public void setTextColor(Color color) {
         viewer.setTextColor(color);
     }
 
+    @Override
     public void setTextColor(Color color, int start, int length, boolean controlRedraw) {
         viewer.setTextColor(color, start, length, controlRedraw);
     }
 
+    @Override
     public void changeTextPresentation(TextPresentation presentation, boolean controlRedraw) {
         viewer.changeTextPresentation(presentation, controlRedraw);
     }
 
+    @Override
     public IFindReplaceTarget getFindReplaceTarget() {
         return viewer.getFindReplaceTarget();
     }
 
+    @Override
     public ITextOperationTarget getTextOperationTarget() {
         return viewer.getTextOperationTarget();
     }

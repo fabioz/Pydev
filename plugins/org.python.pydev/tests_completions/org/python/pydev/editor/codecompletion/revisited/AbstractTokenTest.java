@@ -17,10 +17,12 @@ public class AbstractTokenTest extends TestCase {
         junit.textui.TestRunner.run(AbstractTokenTest.class);
     }
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
     }
 
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }

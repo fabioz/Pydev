@@ -89,6 +89,7 @@ public class GeneratePropertiesRequestProcessor implements IRequestProcessor<Gen
         return props;
     }
 
+    @Override
     public List<GeneratePropertiesRequest> getRefactoringRequests() {
         List<GeneratePropertiesRequest> requests = generateRequests();
 

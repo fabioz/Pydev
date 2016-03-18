@@ -32,10 +32,12 @@ public class GetGeneratorTestWorkbench extends TestCase {
             this.adaptable = adaptable;
         }
 
+        @Override
         public String getPyCode() {
             return null;
         }
 
+        @Override
         public boolean hasPyCode() {
             return false;
         }
@@ -46,10 +48,12 @@ public class GetGeneratorTestWorkbench extends TestCase {
     }
 
     private static final class SelfGenerator implements IScriptConsoleCodeGenerator {
+        @Override
         public boolean hasPyCode() {
             return false;
         }
 
+        @Override
         public String getPyCode() {
             return null;
         }
@@ -57,6 +61,7 @@ public class GetGeneratorTestWorkbench extends TestCase {
 
     private static final class SelfAdaptable implements IAdaptable {
 
+        @Override
         @SuppressWarnings("unchecked")
         public <T> T getAdapter(Class<T> adapter) {
             if (adapter == IScriptConsoleCodeGenerator.class) {
@@ -71,6 +76,7 @@ public class GetGeneratorTestWorkbench extends TestCase {
     }
 
     private static final class TestAdapterFactory implements IAdapterFactory {
+        @Override
         @SuppressWarnings("unchecked")
         public <T> T getAdapter(Object adaptableObject, Class<T> adapterType) {
             if (adapterType == IScriptConsoleCodeGenerator.class) {
@@ -82,6 +88,7 @@ public class GetGeneratorTestWorkbench extends TestCase {
             return null;
         }
 
+        @Override
         public Class<?>[] getAdapterList() {
             return new Class[] { IScriptConsoleCodeGenerator.class };
         }

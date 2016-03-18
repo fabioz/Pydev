@@ -123,6 +123,7 @@ public abstract class TableEditor extends FieldEditor {
     /* (non-Javadoc)
      * Method declared on FieldEditor.
      */
+    @Override
     protected void adjustForNumColumns(int numColumns) {
         Control control = getLabelControl();
         ((GridData) control.getLayoutData()).horizontalSpan = numColumns;
@@ -178,6 +179,7 @@ public abstract class TableEditor extends FieldEditor {
      */
     public void createSelectionListener() {
         selectionListener = new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 Widget widget = event.widget;
                 if (widget == addButton) {
@@ -198,6 +200,7 @@ public abstract class TableEditor extends FieldEditor {
     /* (non-Javadoc)
      * Method declared on FieldEditor.
      */
+    @Override
     protected void doFillIntoGrid(Composite parent, int numColumns) {
         Control control = getLabelControl(parent);
         GridData gd = new GridData();
@@ -220,6 +223,7 @@ public abstract class TableEditor extends FieldEditor {
     /* (non-Javadoc)
      * Method declared on FieldEditor.
      */
+    @Override
     protected void doLoad() {
         if (table != null) {
             String s = getPreferenceStore().getString(getPreferenceName());
@@ -234,6 +238,7 @@ public abstract class TableEditor extends FieldEditor {
     /* (non-Javadoc)
      * Method declared on FieldEditor.
      */
+    @Override
     protected void doLoadDefault() {
         if (table != null) {
             table.removeAll();
@@ -249,6 +254,7 @@ public abstract class TableEditor extends FieldEditor {
     /* (non-Javadoc)
      * Method declared on FieldEditor.
      */
+    @Override
     protected void doStore() {
         TableItem[] items = table.getItems();
         ArrayList<String[]> list = new ArrayList<String[]>();
@@ -283,6 +289,7 @@ public abstract class TableEditor extends FieldEditor {
             buttonBox.setLayout(layout);
             createButtons(buttonBox);
             buttonBox.addDisposeListener(new DisposeListener() {
+                @Override
                 public void widgetDisposed(DisposeEvent event) {
                     addButton = null;
                     removeButton = null;
@@ -322,6 +329,7 @@ public abstract class TableEditor extends FieldEditor {
             table.setFont(parent.getFont());
             table.addSelectionListener(getSelectionListener());
             table.addDisposeListener(new DisposeListener() {
+                @Override
                 public void widgetDisposed(DisposeEvent event) {
                     col1 = null;
                     col2 = null;
@@ -347,6 +355,7 @@ public abstract class TableEditor extends FieldEditor {
     /* (non-Javadoc)
      * Method declared on FieldEditor.
      */
+    @Override
     public int getNumberOfControls() {
         return 2;
     }
@@ -421,6 +430,7 @@ public abstract class TableEditor extends FieldEditor {
     /* (non-Javadoc)
      * Method declared on FieldEditor.
      */
+    @Override
     public void setFocus() {
         if (table != null) {
             table.setFocus();
@@ -463,6 +473,7 @@ public abstract class TableEditor extends FieldEditor {
     /*
      * @see FieldEditor.setEnabled(boolean,Composite).
      */
+    @Override
     public void setEnabled(boolean enabled, Composite parent) {
         super.setEnabled(enabled, parent);
         getTableControl(parent).setEnabled(enabled);

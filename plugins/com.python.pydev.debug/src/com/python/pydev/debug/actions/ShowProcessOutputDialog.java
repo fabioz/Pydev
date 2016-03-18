@@ -44,6 +44,7 @@ public class ShowProcessOutputDialog extends Dialog {
 
         parentShell.getDisplay().timerExec(250, new Runnable() {
 
+            @Override
             public void run() {
                 // Will run in UI thread, so, no need for locking.
                 if (disposed) {

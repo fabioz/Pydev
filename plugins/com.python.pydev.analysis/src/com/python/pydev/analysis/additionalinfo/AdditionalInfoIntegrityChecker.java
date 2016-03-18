@@ -233,6 +233,7 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener {
         }
     }
 
+    @Override
     public void onCreateActions(ListResourceBundle resources, final BaseEditor baseEditor, IProgressMonitor monitor) {
         PyEdit edit = (PyEdit) baseEditor;
         edit.addOfflineActionListener("--internal-test-modules", new Action() {
@@ -252,14 +253,17 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener {
         }, "Used just for testing (do not use).", true);
     }
 
+    @Override
     public void onDispose(BaseEditor edit, IProgressMonitor monitor) {
 
     }
 
+    @Override
     public void onSave(BaseEditor edit, IProgressMonitor monitor) {
 
     }
 
+    @Override
     public void onSetDocument(IDocument document, BaseEditor edit, IProgressMonitor monitor) {
 
     }

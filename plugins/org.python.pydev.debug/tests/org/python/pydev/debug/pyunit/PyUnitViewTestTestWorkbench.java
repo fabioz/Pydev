@@ -51,24 +51,30 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase {
 
         IPyUnitServer pyUnitServer = new IPyUnitServer() {
 
+            @Override
             public void registerOnNotifyTest(IPyUnitServerListener pyUnitViewServerListener) {
                 PyUnitViewTestTestWorkbench.this.pyUnitViewServerListener = pyUnitViewServerListener;
             }
 
+            @Override
             public IPyUnitLaunch getPyUnitLaunch() {
                 return new IPyUnitLaunch() {
 
+                    @Override
                     public void stop() {
                         terminated1 = true;
                     }
 
+                    @Override
                     public void relaunch() {
                         relaunched1 = true;
                     }
 
+                    @Override
                     public void relaunchTestResults(List<PyUnitTestResult> arrayList) {
                     }
 
+                    @Override
                     public void relaunchTestResults(List<PyUnitTestResult> arrayList, String mode) {
                     }
 
@@ -78,24 +84,30 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase {
 
         IPyUnitServer pyUnitServer2 = new IPyUnitServer() {
 
+            @Override
             public void registerOnNotifyTest(IPyUnitServerListener pyUnitViewServerListener) {
                 PyUnitViewTestTestWorkbench.this.pyUnitViewServerListener = pyUnitViewServerListener;
             }
 
+            @Override
             public IPyUnitLaunch getPyUnitLaunch() {
                 return new IPyUnitLaunch() {
 
+                    @Override
                     public void stop() {
                         terminated2 = true;
                     }
 
+                    @Override
                     public void relaunch() {
                         relaunched2 = true;
                     }
 
+                    @Override
                     public void relaunchTestResults(List<PyUnitTestResult> arrayList) {
                     }
 
+                    @Override
                     public void relaunchTestResults(List<PyUnitTestResult> arrayList, String mode) {
                     }
                 };
@@ -163,6 +175,7 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase {
         final List<ClearTerminatedAction> terminatedActions = new ArrayList<ClearTerminatedAction>();
         IActionsMenu actionsMenu = new IActionsMenu() {
 
+            @Override
             public void add(IAction action) {
                 if (action instanceof SetCurrentRunAction) {
                     actions.add((SetCurrentRunAction) action);

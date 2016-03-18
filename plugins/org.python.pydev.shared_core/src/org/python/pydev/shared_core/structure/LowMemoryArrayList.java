@@ -49,6 +49,7 @@ public class LowMemoryArrayList<E> extends AbstractCollection<E>implements List<
         return new Iterator() {
             private int curr;
 
+            @Override
             public boolean hasNext() {
                 if (data == null) {
                     return false;
@@ -56,12 +57,14 @@ public class LowMemoryArrayList<E> extends AbstractCollection<E>implements List<
                 return curr < size;
             }
 
+            @Override
             public Object next() {
                 E e = data[curr];
                 curr++;
                 return e;
             }
 
+            @Override
             public void remove() {
                 throw new UnsupportedOperationException();
             }
@@ -195,6 +198,7 @@ public class LowMemoryArrayList<E> extends AbstractCollection<E>implements List<
         return numNew != 0;
     }
 
+    @Override
     public boolean addAll(int index, Collection<? extends E> c) {
         throw new RuntimeException("Not implemented");
     }
@@ -225,16 +229,19 @@ public class LowMemoryArrayList<E> extends AbstractCollection<E>implements List<
         }
     }
 
+    @Override
     public E get(int index) {
         RangeCheck(index);
         //No need to check for null here!
         return data[index];
     }
 
+    @Override
     public E set(int index, E element) {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public void add(int index, E element) {
         if (index > size || index < 0) {
             throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
@@ -246,6 +253,7 @@ public class LowMemoryArrayList<E> extends AbstractCollection<E>implements List<
         size++;
     }
 
+    @Override
     public E remove(int index) {
         RangeCheck(index);
 
@@ -260,6 +268,7 @@ public class LowMemoryArrayList<E> extends AbstractCollection<E>implements List<
         return oldValue;
     }
 
+    @Override
     public int indexOf(Object elem) {
         if (data == null) {
             return -1;
@@ -280,6 +289,7 @@ public class LowMemoryArrayList<E> extends AbstractCollection<E>implements List<
         return -1;
     }
 
+    @Override
     public int lastIndexOf(Object elem) {
         if (data == null) {
             return -1;
@@ -300,14 +310,17 @@ public class LowMemoryArrayList<E> extends AbstractCollection<E>implements List<
         return -1;
     }
 
+    @Override
     public ListIterator<E> listIterator() {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public ListIterator<E> listIterator(int index) {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public List<E> subList(int fromIndex, int toIndex) {
         throw new RuntimeException("Not implemented");
     }

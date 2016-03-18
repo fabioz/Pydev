@@ -68,6 +68,7 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements IColo
      * associations in the registry.
      */
     private IPropertyListener editorRegistryListener = new IPropertyListener() {
+        @Override
         public void propertyChanged(Object source, int propId) {
             if (propId == IEditorRegistry.PROP_CONTENTS) {
                 fireLabelProviderChanged(new LabelProviderChangedEvent(CopiedWorkbenchLabelProvider.this));
@@ -248,6 +249,7 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements IColo
     /* (non-Javadoc)
      * @see org.eclipse.jface.viewers.IColorProvider#getForeground(java.lang.Object)
      */
+    @Override
     public Color getForeground(Object element) {
         return getColor(element, true);
     }
@@ -255,6 +257,7 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements IColo
     /* (non-Javadoc)
      * @see org.eclipse.jface.viewers.IColorProvider#getBackground(java.lang.Object)
      */
+    @Override
     public Color getBackground(Object element) {
         return getColor(element, false);
     }
@@ -262,6 +265,7 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements IColo
     /* (non-Javadoc)
      * @see org.eclipse.jface.viewers.IFontProvider#getFont(java.lang.Object)
      */
+    @Override
     public Font getFont(Object element) {
         IWorkbenchAdapter2 adapter = getAdapter2(element);
         if (adapter == null) {

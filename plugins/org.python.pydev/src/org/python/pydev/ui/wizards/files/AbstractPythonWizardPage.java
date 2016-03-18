@@ -140,6 +140,7 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
         }
     }
 
+    @Override
     public void createControl(Composite parent) {
         // top level group
         Composite topLevel = new Composite(parent, SWT.NONE);
@@ -248,6 +249,7 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
 
         btBrowseProject.addSelectionListener(new SelectionListener() {
 
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 ElementListSelectionDialog dialog = new ElementListSelectionDialog(getShell(),
                         new WorkbenchLabelProvider());
@@ -263,6 +265,7 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
                 }
             }
 
+            @Override
             public void widgetDefaultSelected(SelectionEvent e) {
             }
 
@@ -321,6 +324,7 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
 
             btBrowsePackage.addSelectionListener(new SelectionListener() {
 
+                @Override
                 public void widgetSelected(SelectionEvent e) {
                     try {
                         PythonPackageSelectionDialog dialog = new PythonPackageSelectionDialog(getShell(), false);
@@ -345,6 +349,7 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
 
                 }
 
+                @Override
                 public void widgetDefaultSelected(SelectionEvent e) {
                 }
 
@@ -414,6 +419,7 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
 
         btBrowseSourceFolder.addSelectionListener(new SelectionListener() {
 
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 try {
                     PythonPackageSelectionDialog dialog = new PythonPackageSelectionDialog(getShell(), true);
@@ -431,6 +437,7 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
 
             }
 
+            @Override
             public void widgetDefaultSelected(SelectionEvent e) {
             }
 
@@ -487,6 +494,7 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
     private void createSourceListGroup(Composite parent) {
         existingSourceGroup = new PythonExistingSourceGroup(parent, getValidatedProject(), new ModifyListener() {
 
+            @Override
             public void modifyText(ModifyEvent e) {
                 sourceToLink = existingSourceGroup.getLinkTarget();
                 if (sourceToLink != null) {
@@ -541,9 +549,11 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
     }
 
     //listener interface
+    @Override
     public void keyPressed(KeyEvent e) {
     }
 
+    @Override
     public void keyReleased(KeyEvent e) {
         validatePage();
     }

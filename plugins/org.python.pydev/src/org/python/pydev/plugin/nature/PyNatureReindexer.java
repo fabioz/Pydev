@@ -18,6 +18,7 @@ import org.python.pydev.shared_ui.editor.IPyEditListener;
 
 public class PyNatureReindexer implements IPyEditListener {
 
+    @Override
     public void onCreateActions(ListResourceBundle resources, BaseEditor baseEditor, IProgressMonitor monitor) {
         PyEdit edit = (PyEdit) baseEditor;
         edit.addOfflineActionListener("--reindex", new Action() {
@@ -30,12 +31,15 @@ public class PyNatureReindexer implements IPyEditListener {
         }, "Rebuilds the internal structure for all Pydev projects.", true);
     }
 
+    @Override
     public void onDispose(BaseEditor baseEditor, IProgressMonitor monitor) {
     }
 
+    @Override
     public void onSave(BaseEditor baseEditor, IProgressMonitor monitor) {
     }
 
+    @Override
     public void onSetDocument(IDocument document, BaseEditor baseEditor, IProgressMonitor monitor) {
     }
 

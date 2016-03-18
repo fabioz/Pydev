@@ -49,6 +49,7 @@ public abstract class ViewPartWithOrientation extends ViewPart implements IPrope
     @SuppressWarnings("rawtypes")
     public final ICallbackWithListeners onControlDisposed = new CallbackWithListeners();
 
+    @Override
     public void createPartControl(Composite parent) {
         fParent = parent;
         addResizeListener(parent);
@@ -89,9 +90,11 @@ public abstract class ViewPartWithOrientation extends ViewPart implements IPrope
 
     private void addResizeListener(Composite parent) {
         parent.addControlListener(new ControlListener() {
+            @Override
             public void controlMoved(ControlEvent e) {
             }
 
+            @Override
             public void controlResized(ControlEvent e) {
                 updateOrientation();
             }
@@ -109,6 +112,7 @@ public abstract class ViewPartWithOrientation extends ViewPart implements IPrope
     /* (non-Javadoc)
      * @see org.eclipse.jface.util.IPropertyChangeListener#propertyChange(org.eclipse.jface.util.PropertyChangeEvent)
      */
+    @Override
     public void propertyChange(PropertyChangeEvent event) {
         if (event.getProperty().equals(this.getOrientationPreferencesKey())) {
             orientationPreference = (Integer) event.getNewValue();

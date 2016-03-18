@@ -33,6 +33,7 @@ public abstract class AbstractSearchIndexTreeContentProvider extends TreeNodeCon
         this.viewer = viewer;
     }
 
+    @Override
     public void setGroupWith(int groupWith) {
         if (this.groupWith == groupWith) {
             return;

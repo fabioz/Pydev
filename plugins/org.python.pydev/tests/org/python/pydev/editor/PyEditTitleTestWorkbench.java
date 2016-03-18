@@ -34,6 +34,7 @@ public class PyEditTitleTestWorkbench extends AbstractWorkbenchTestCase {
         }
     }
 
+    @Override
     protected void setUp() throws Exception {
         //no need for default setup
         closeWelcomeView();
@@ -67,6 +68,7 @@ public class PyEditTitleTestWorkbench extends AbstractWorkbenchTestCase {
             //otherwise it won't work).
             goToManual(10000, new ICallback<Boolean, Object>() {
 
+                @Override
                 public Boolean call(Object arg) {
                     return "my_file (pydev_title_project)".equals(editorRef.getPartName())
                             && "my_file (folder)".equals(editor2final.getPartName());

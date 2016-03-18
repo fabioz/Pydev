@@ -56,6 +56,7 @@ public class PydevSaveActionsPrefPage extends ScopedFieldEditorPreferencePage im
         public PydevSaveActionsPageLinkListener() {
         }
 
+        @Override
         public void widgetSelected(SelectionEvent e) {
             try {
                 URL url = new URL("http://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html");
@@ -65,6 +66,7 @@ public class PydevSaveActionsPrefPage extends ScopedFieldEditorPreferencePage im
             }
         }
 
+        @Override
         public void widgetDefaultSelected(SelectionEvent e) {
         }
 
@@ -230,6 +232,7 @@ public class PydevSaveActionsPrefPage extends ScopedFieldEditorPreferencePage im
 
     }
 
+    @Override
     public void init(IWorkbench workbench) {
     }
 

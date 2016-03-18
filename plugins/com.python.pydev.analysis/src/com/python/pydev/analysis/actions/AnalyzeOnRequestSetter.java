@@ -29,24 +29,29 @@ public class AnalyzeOnRequestSetter implements IPyEditListener {
             this.edit = edit;
         }
 
+        @Override
         public void run() {
             PyParser parser = edit.getParser();
             parser.forceReparse(new Tuple<String, Boolean>(AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE, true));
         }
     }
 
+    @Override
     public void onSave(BaseEditor edit, IProgressMonitor monitor) {
     }
 
+    @Override
     public void onCreateActions(ListResourceBundle resources, BaseEditor baseEditor, IProgressMonitor monitor) {
         PyEdit edit = (PyEdit) baseEditor;
         AnalyzeOnRequestAction action = new AnalyzeOnRequestAction(edit);
         edit.addOfflineActionListener("c", action, "Code-analysis on request", false);
     }
 
+    @Override
     public void onDispose(BaseEditor edit, IProgressMonitor monitor) {
     }
 
+    @Override
     public void onSetDocument(IDocument document, BaseEditor edit, IProgressMonitor monitor) {
     }
 

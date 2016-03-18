@@ -33,6 +33,7 @@ public class PythonPerspectiveFactory implements IPerspectiveFactory {
      * 
      * Copied from org.eclipse.jdt.internal.ui.JavaPerspectiveFactory
      */
+    @Override
     public void createInitialLayout(IPageLayout layout) {
         defineLayout(layout);
         defineActions(layout);

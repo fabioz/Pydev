@@ -11,6 +11,7 @@ public final class Set extends exprType {
         this.elts = elts;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -18,6 +19,7 @@ public final class Set extends exprType {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -31,10 +33,12 @@ public final class Set extends exprType {
         return true;
     }
 
+    @Override
     public Set createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public Set createCopy(boolean copyComments) {
         exprType[] new0;
         if (this.elts != null) {
@@ -67,6 +71,7 @@ public final class Set extends exprType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("Set[");
         sb.append("elts=");
@@ -75,10 +80,12 @@ public final class Set extends exprType {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitSet(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (elts != null) {
             for (int i = 0; i < elts.length; i++) {

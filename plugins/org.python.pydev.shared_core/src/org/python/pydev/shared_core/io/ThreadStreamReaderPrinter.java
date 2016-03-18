@@ -29,6 +29,7 @@ public class ThreadStreamReaderPrinter extends Thread {
         this.is = is;
     }
 
+    @Override
     public void run() {
         try {
             int c;

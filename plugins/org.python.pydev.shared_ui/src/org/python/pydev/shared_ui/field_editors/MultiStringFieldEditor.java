@@ -64,6 +64,7 @@ public class MultiStringFieldEditor extends StringFieldEditor {
      * @param parent the parent
      * @return the text control
      */
+    @Override
     public Text getTextControl(Composite parent) {
         if (textField == null) {
             textField = new Text(parent, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
@@ -75,6 +76,7 @@ public class MultiStringFieldEditor extends StringFieldEditor {
                         /* (non-Javadoc)
                          * @see org.eclipse.swt.events.KeyAdapter#keyReleased(org.eclipse.swt.events.KeyEvent)
                          */
+                        @Override
                         public void keyReleased(KeyEvent e) {
                             valueChanged();
                         }
@@ -83,15 +85,18 @@ public class MultiStringFieldEditor extends StringFieldEditor {
                     break;
                 case VALIDATE_ON_FOCUS_LOST:
                     textField.addKeyListener(new KeyAdapter() {
+                        @Override
                         public void keyPressed(KeyEvent e) {
                             clearErrorMessage();
                         }
                     });
                     textField.addFocusListener(new FocusAdapter() {
+                        @Override
                         public void focusGained(FocusEvent e) {
                             refreshValidState();
                         }
 
+                        @Override
                         public void focusLost(FocusEvent e) {
                             valueChanged();
                             clearErrorMessage();
@@ -102,6 +107,7 @@ public class MultiStringFieldEditor extends StringFieldEditor {
                     Assert.isTrue(false, "Unknown validate strategy");//$NON-NLS-1$
             }
             textField.addDisposeListener(new DisposeListener() {
+                @Override
                 public void widgetDisposed(DisposeEvent event) {
                     textField = null;
                 }
@@ -118,6 +124,7 @@ public class MultiStringFieldEditor extends StringFieldEditor {
     /* (non-Javadoc)
      * Method declared on FieldEditor.
      */
+    @Override
     protected void adjustForNumColumns(int numColumns) {
         GridData gd = (GridData) textField.getLayoutData();
         gd.horizontalSpan = numColumns - 1;
@@ -140,6 +147,7 @@ public class MultiStringFieldEditor extends StringFieldEditor {
      * but must call <code>super.doFillIntoGrid</code>.
      * </p>
      */
+    @Override
     protected void doFillIntoGrid(Composite parent, int numColumns) {
         super.doFillIntoGrid(parent, numColumns);
         adjustForNumColumns(numColumns);

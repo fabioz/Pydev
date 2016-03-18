@@ -24,14 +24,17 @@ public class PipedInputStream extends InputStream {
 
     public final OutputStream internalOutputStream = new OutputStream() {
 
+        @Override
         public void write(int b) throws IOException {
             PipedInputStream.this.write(b);
         };
 
+        @Override
         public void write(byte[] b) throws IOException {
             PipedInputStream.this.write(b);
         }
 
+        @Override
         public void close() throws IOException {
             PipedInputStream.this.close();
         };

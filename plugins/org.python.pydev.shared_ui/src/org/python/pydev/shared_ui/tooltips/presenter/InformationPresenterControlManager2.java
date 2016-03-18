@@ -34,6 +34,7 @@ public class InformationPresenterControlManager2 extends AbstractHoverInformatio
     private Control fControl;
     private ITooltipInformationProvider fProvider;
 
+    @Override
     public void setInformationProvider(ITooltipInformationProvider provider) {
         this.fProvider = provider;
     }
@@ -48,6 +49,7 @@ public class InformationPresenterControlManager2 extends AbstractHoverInformatio
     /*
      * @see AbstractInformationControlManager#computeInformation()
      */
+    @Override
     protected void computeInformation() {
         if (fProvider == null)
             return;
@@ -66,6 +68,7 @@ public class InformationPresenterControlManager2 extends AbstractHoverInformatio
     /* (non-Javadoc)
      * @see org.python.pydev.shared_ui.tooltips.presenter.IInformationPresenterControlManager#setActivateEditorBinding(org.eclipse.jface.bindings.keys.KeySequence)
      */
+    @Override
     public void setActivateEditorBinding(KeySequence activateEditorBinding) {
 
     }
@@ -73,6 +76,7 @@ public class InformationPresenterControlManager2 extends AbstractHoverInformatio
     /* (non-Javadoc)
      * @see org.python.pydev.shared_ui.tooltips.presenter.IInformationPresenterControlManager#setInitiallyActiveShell(org.eclipse.swt.widgets.Shell)
      */
+    @Override
     public void setInitiallyActiveShell(Shell activeShell) {
 
     }
@@ -80,6 +84,7 @@ public class InformationPresenterControlManager2 extends AbstractHoverInformatio
     /* (non-Javadoc)
      * @see org.python.pydev.shared_ui.tooltips.presenter.IInformationPresenterControlManager#hideInformationControl(boolean, boolean)
      */
+    @Override
     public void hideInformationControl(boolean activateEditor, boolean restoreFocus) {
 
     }

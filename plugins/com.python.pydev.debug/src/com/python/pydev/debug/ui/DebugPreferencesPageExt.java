@@ -39,6 +39,7 @@ public class DebugPreferencesPageExt implements IDebugPreferencesPageParticipant
                     Integer.toString(DebugPluginPrefsInitializer.DEBUG_SERVER_KEEY_ALWAYS_ON) },
     };
 
+    @Override
     public void createFieldEditors(DebugPrefsPage page, Composite parent) {
         page.addField(new IntegerFieldEditor(DebugPluginPrefsInitializer.PYDEV_REMOTE_DEBUGGER_PORT,
                 "Port for remote debugger:", parent, 10));

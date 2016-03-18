@@ -127,6 +127,7 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
         // to ensure that PYTHONPATH updates happen.
         private CommonDropAdapterAssistant[] pySortAssistants(CommonDropAdapterAssistant[] array) {
             Arrays.sort(array, new Comparator() {
+                @Override
                 public int compare(Object arg0, Object arg1) {
                     CommonDropAdapterAssistant a = (CommonDropAdapterAssistant) arg0;
                     CommonDropAdapterAssistant b = (CommonDropAdapterAssistant) arg1;
@@ -263,6 +264,7 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
             //as if they were the same thing.
             setComparer(new IElementComparer() {
 
+                @Override
                 public int hashCode(Object element) {
                     if (element instanceof IWrappedResource) {
                         IWrappedResource wrappedResource = (IWrappedResource) element;
@@ -271,6 +273,7 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
                     return element.hashCode();
                 }
 
+                @Override
                 public boolean equals(Object a, Object b) {
                     if (a instanceof IWrappedResource) {
                         IWrappedResource wrappedResource = (IWrappedResource) a;
@@ -606,10 +609,12 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
         return !getSite().getSelectionProvider().getSelection().isEmpty();
     }
 
+    @Override
     public ICallbackWithListeners getOnControlCreated() {
         return onControlCreated;
     }
 
+    @Override
     public ICallbackWithListeners getOnControlDisposed() {
         return onControlDisposed;
     }

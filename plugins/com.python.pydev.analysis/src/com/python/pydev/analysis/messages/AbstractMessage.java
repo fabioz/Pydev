@@ -101,14 +101,17 @@ public abstract class AbstractMessage implements IMessage {
 
     }
 
+    @Override
     public int getSeverity() {
         return severity;
     }
 
+    @Override
     public int getType() {
         return type;
     }
 
+    @Override
     public int getStartLine(IDocument doc) {
         if (startLine < 0) {
             startLine = getStartLine(generator, doc);
@@ -162,6 +165,7 @@ public abstract class AbstractMessage implements IMessage {
      *  
      * @see com.python.pydev.analysis.messages.IMessage#getStartCol(org.eclipse.jface.text.IDocument)
      */
+    @Override
     public int getStartCol(IDocument doc) {
         if (startCol >= 0) {
             return startCol;
@@ -282,6 +286,7 @@ public abstract class AbstractMessage implements IMessage {
      */
     int endLine = -1;
 
+    @Override
     public int getEndLine(IDocument doc) {
         return getEndLine(doc, true);
     }
@@ -308,6 +313,7 @@ public abstract class AbstractMessage implements IMessage {
 
     int endCol = -1;
 
+    @Override
     public int getEndCol(IDocument doc) {
         return getEndCol(doc, true);
     }
@@ -384,10 +390,12 @@ public abstract class AbstractMessage implements IMessage {
         return getMessage();
     }
 
+    @Override
     public List<String> getAdditionalInfo() {
         return additionalInfo;
     }
 
+    @Override
     public void addAdditionalInfo(String info) {
         if (this.additionalInfo == null) {
             this.additionalInfo = new ArrayList<String>();
@@ -397,6 +405,7 @@ public abstract class AbstractMessage implements IMessage {
 
     String message = null;
 
+    @Override
     public String getMessage() {
         if (message != null) {
             return message;
@@ -437,6 +446,7 @@ public abstract class AbstractMessage implements IMessage {
         return message;
     }
 
+    @Override
     public IToken getGenerator() {
         return generator;
     }

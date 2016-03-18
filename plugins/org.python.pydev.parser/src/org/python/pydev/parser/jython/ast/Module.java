@@ -11,6 +11,7 @@ public final class Module extends modType {
         this.body = body;
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -18,6 +19,7 @@ public final class Module extends modType {
         return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -31,10 +33,12 @@ public final class Module extends modType {
         return true;
     }
 
+    @Override
     public Module createCopy() {
         return createCopy(true);
     }
 
+    @Override
     public Module createCopy(boolean copyComments) {
         stmtType[] new0;
         if (this.body != null) {
@@ -67,6 +71,7 @@ public final class Module extends modType {
         return temp;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("Module[");
         sb.append("body=");
@@ -75,10 +80,12 @@ public final class Module extends modType {
         return sb.toString();
     }
 
+    @Override
     public Object accept(VisitorIF visitor) throws Exception {
         return visitor.visitModule(this);
     }
 
+    @Override
     public void traverse(VisitorIF visitor) throws Exception {
         if (body != null) {
             for (int i = 0; i < body.length; i++) {

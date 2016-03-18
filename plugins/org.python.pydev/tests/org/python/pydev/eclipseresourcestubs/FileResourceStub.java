@@ -60,18 +60,22 @@ public class FileResourceStub extends AbstractIFileStub implements IFile {
         return actualFile.hashCode();
     }
 
+    @Override
     public String getName() {
         return this.actualFile.getName();
     }
 
+    @Override
     public boolean exists() {
         return actualFile.exists();
     }
 
+    @Override
     public IProject getProject() {
         return project;
     }
 
+    @Override
     public IPath getRawLocation() {
         return Path.fromOSString(FileUtils.getFileAbsolutePath(actualFile));
     }

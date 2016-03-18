@@ -24,18 +24,22 @@ public class SelectionKeeperTest extends TestCase {
         private SelectionProvider() {
         }
 
+        @Override
         public void setSelection(ISelection selection) {
             sel = (TextSelection) selection;
         }
 
+        @Override
         public void removeSelectionChangedListener(ISelectionChangedListener listener) {
             throw new RuntimeException("Not implemented");
         }
 
+        @Override
         public ISelection getSelection() {
             return sel;
         }
 
+        @Override
         public void addSelectionChangedListener(ISelectionChangedListener listener) {
             throw new RuntimeException("Not implemented");
         }

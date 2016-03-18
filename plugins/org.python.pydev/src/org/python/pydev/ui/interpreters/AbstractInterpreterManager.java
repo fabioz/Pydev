@@ -91,6 +91,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      */
     protected final Map<String, IModule> builtinMod = new HashMap<String, IModule>();
 
+    @Override
     public void clearBuiltinCompletions(String projectInterpreterName) {
         this.builtinCompletions.remove(projectInterpreterName);
     }
@@ -103,6 +104,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         listeners.add(listener);
     }
 
+    @Override
     public IToken[] getBuiltinCompletions(String projectInterpreterName) {
         //Cache with the internal name.
         projectInterpreterName = getInternalName(projectInterpreterName);
@@ -122,6 +124,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         return this.builtinCompletions.get(projectInterpreterName);
     }
 
+    @Override
     public IModule getBuiltinMod(String projectInterpreterName) {
         //Cache with the internal name.
         projectInterpreterName = getInternalName(projectInterpreterName);
@@ -165,6 +168,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         return projectInterpreterName;
     }
 
+    @Override
     public void clearBuiltinMod(String projectInterpreterName) {
         this.builtinMod.remove(projectInterpreterName);
     }
@@ -187,6 +191,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         }
     }
 
+    @Override
     public boolean isConfigured() {
         try {
             String defaultInterpreter = getDefaultInterpreterInfo(false).getExecutableOrJar();
@@ -202,6 +207,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         return true;
     }
 
+    @Override
     public void clearCaches() {
         builtinMod.clear();
         builtinCompletions.clear();
@@ -217,6 +223,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      * @throws NotConfiguredInterpreterException
      * @see org.python.pydev.core.IInterpreterManager#getDefaultInterpreterInfo()
      */
+    @Override
     public IInterpreterInfo getDefaultInterpreterInfo(boolean autoConfigureIfNotConfigured)
             throws NotConfiguredInterpreterException {
         IInterpreterInfo[] interpreters = getInterpreterInfos();
@@ -320,6 +327,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 
     private volatile IInterpreterInfo[] interpreterInfosFromPersistedString;
 
+    @Override
     public IInterpreterInfo[] getInterpreterInfos() {
         return internalRecreateCacheGetInterpreterInfos();
 
@@ -370,6 +378,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     /**
      * Creates the information for the passed interpreter.
      */
+    @Override
     public IInterpreterInfo createInterpreterInfo(String executable, IProgressMonitor monitor, boolean askUser) {
 
         monitor.worked(5);
@@ -406,6 +415,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
             try {
                 final Display disp = Display.getDefault();
                 disp.asyncExec(new Runnable() {
+                    @Override
                     public void run() {
                         ErrorDialog.openError(null, title, msg, new Status(Status.ERROR, PydevPlugin.getPluginID(), 0,
                                 reason, null));
@@ -448,6 +458,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      * @throws MisconfigurationException
      * @see org.python.pydev.core.IInterpreterManager#getInterpreterInfo(java.lang.String)
      */
+    @Override
     public InterpreterInfo getInterpreterInfo(String nameOrExecutableOrJar, IProgressMonitor monitor)
             throws MisconfigurationException {
         synchronized (lock) {
@@ -475,6 +486,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     /**
      * @see org.python.pydev.core.IInterpreterManager#getInterpretersFromPersistedString(java.lang.String)
      */
+    @Override
     public IInterpreterInfo[] getInterpretersFromPersistedString(String persisted) {
         synchronized (lock) {
             if (persisted == null || persisted.trim().length() == 0) {
@@ -604,6 +616,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 
     String persistedString;
 
+    @Override
     public String getPersistedString() {
         if (persistedString == null) {
             persistedString = prefs.getString(getPreferenceName());
@@ -614,6 +627,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     /* (non-Javadoc)
      * @see org.python.pydev.core.IInterpreterManager#setInfos(org.python.pydev.core.IInterpreterInfo[], java.util.Set, org.eclipse.core.runtime.IProgressMonitor)
      */
+    @Override
     public void setInfos(IInterpreterInfo[] infos, Set<String> interpreterNamesToRestore, IProgressMonitor monitor) {
         //Set the string to persist!
         String s = AbstractInterpreterManager.getStringToPersist(infos);

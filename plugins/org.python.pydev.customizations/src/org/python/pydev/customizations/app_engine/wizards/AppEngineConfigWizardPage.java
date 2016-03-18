@@ -70,6 +70,7 @@ public class AppEngineConfigWizardPage extends WizardPage {
     private final Map<String, String> variableSubstitution = new HashMap<String, String>();
 
     private Listener locationModifyListener = new Listener() {
+        @Override
         public void handleEvent(Event e) {
             setPageComplete(validatePage());
         }
@@ -86,6 +87,7 @@ public class AppEngineConfigWizardPage extends WizardPage {
         imageSystemLib = PydevPlugin.getImageCache().get(UIConstants.LIB_SYSTEM);
     }
 
+    @Override
     public void createControl(Composite parent) {
 
         Font font = parent.getFont();

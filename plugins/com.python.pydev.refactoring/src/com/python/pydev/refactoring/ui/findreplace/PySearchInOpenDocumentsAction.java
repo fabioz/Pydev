@@ -37,6 +37,7 @@ public class PySearchInOpenDocumentsAction extends Action implements IOfflineAct
         this.edit = edit;
     }
 
+    @Override
     public void setParameters(List<String> parameters) {
         this.parameters = parameters;
     }

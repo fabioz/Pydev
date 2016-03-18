@@ -41,6 +41,7 @@ public class VMArgumentsBlock extends AbstractLaunchConfigurationTab {
     /*
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#createControl(Composite)
      */
+    @Override
     public void createControl(Composite parent) {
         Font font = parent.getFont();
 
@@ -60,6 +61,7 @@ public class VMArgumentsBlock extends AbstractLaunchConfigurationTab {
         fVMArgumentsText.setLayoutData(gd);
         fVMArgumentsText.setFont(font);
         fVMArgumentsText.addModifyListener(new ModifyListener() {
+            @Override
             public void modifyText(ModifyEvent evt) {
                 updateLaunchConfigurationDialog();
             }
@@ -69,6 +71,7 @@ public class VMArgumentsBlock extends AbstractLaunchConfigurationTab {
         fPgrmArgVariableButton.setFont(font);
         fPgrmArgVariableButton.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_END));
         fPgrmArgVariableButton.addSelectionListener(new SelectionListener() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 StringVariableSelectionDialog dialog = new StringVariableSelectionDialog(getShell());
                 dialog.open();
@@ -78,6 +81,7 @@ public class VMArgumentsBlock extends AbstractLaunchConfigurationTab {
                 }
             }
 
+            @Override
             public void widgetDefaultSelected(SelectionEvent e) {
             }
         });
@@ -86,6 +90,7 @@ public class VMArgumentsBlock extends AbstractLaunchConfigurationTab {
     /*
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#setDefaults(ILaunchConfigurationWorkingCopy)
      */
+    @Override
     public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
         configuration.setAttribute(Constants.ATTR_VM_ARGUMENTS, (String) null);
     }
@@ -93,6 +98,7 @@ public class VMArgumentsBlock extends AbstractLaunchConfigurationTab {
     /*
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#initializeFrom(ILaunchConfiguration)
      */
+    @Override
     public void initializeFrom(ILaunchConfiguration configuration) {
         try {
             fVMArgumentsText.setText(configuration.getAttribute(Constants.ATTR_VM_ARGUMENTS, "")); //$NON-NLS-1$
@@ -105,6 +111,7 @@ public class VMArgumentsBlock extends AbstractLaunchConfigurationTab {
     /*
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#performApply(ILaunchConfigurationWorkingCopy)
      */
+    @Override
     public void performApply(ILaunchConfigurationWorkingCopy configuration) {
         configuration.setAttribute(Constants.ATTR_VM_ARGUMENTS, getAttributeValueFrom(fVMArgumentsText));
     }
@@ -112,6 +119,7 @@ public class VMArgumentsBlock extends AbstractLaunchConfigurationTab {
     /*
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#getName()
      */
+    @Override
     public String getName() {
         return "VM arguments";
     }
