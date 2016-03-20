@@ -1641,7 +1641,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "    def __foo__(self):\n" +
                 "        pass\n" +
 
-        "    def _bar(self):\n" +
+                "    def _bar(self):\n" +
                 "        pass\n" +
                 "\n" +
                 "class B(A):\n" +
@@ -3004,6 +3004,37 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "Foo().";
         ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
                 new String[] { "m1" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionSuper() throws Exception {
+        String s;
+        s = "" +
+                "class Foo:\n" +
+                "    def m1(self):\n" +
+                "        pass\n" +
+                "class Bar(Foo):\n" +
+                "    def m2(self):\n" +
+                "        super(usnth, snuteh).";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "m1()" });
+        assertEquals(1, comps.length);
+    }
+
+    public void testCodeCompletionSuper2() throws Exception {
+        String s;
+        s = "" +
+                "class Another:\n" +
+                "    def another(self):\n" +
+                "        pass\n" +
+                "class Foo:\n" +
+                "    def m1(self):\n" +
+                "        return Another\n" +
+                "class Bar(Foo):\n" +
+                "    def m2(self):\n" +
+                "        super(usnth, snuteh).m1().";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "another()" });
         assertEquals(1, comps.length);
     }
 
