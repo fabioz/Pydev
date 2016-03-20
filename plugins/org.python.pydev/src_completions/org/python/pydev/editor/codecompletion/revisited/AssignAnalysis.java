@@ -38,12 +38,14 @@ import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Index;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Return;
+import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.UnaryOp;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ReturnVisitor;
+import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * This class is used to analyse the assigns in the code and bring actual completions for them.
@@ -250,6 +252,53 @@ public class AssignAnalysis {
                 if (assign.value instanceof Call) {
                     Call call = (Call) assign.value;
                     String lastPart = FullRepIterable.getLastPart(assignDefinition.value);
+
+                    if ("namedtuple".equals(lastPart)) {
+                        //throw new AssertionError("deal with named tuple");
+                        if (call.args != null && call.args.length > 1) {
+                            exprType args = call.args[1];
+                            exprType[] elts = null;
+                            if (args instanceof org.python.pydev.parser.jython.ast.List) {
+                                org.python.pydev.parser.jython.ast.List list = (org.python.pydev.parser.jython.ast.List) args;
+                                elts = list.elts;
+                            } else if (args instanceof org.python.pydev.parser.jython.ast.Tuple) {
+                                org.python.pydev.parser.jython.ast.Tuple tuple = (org.python.pydev.parser.jython.ast.Tuple) args;
+                                elts = tuple.elts;
+                            } else if (args instanceof org.python.pydev.parser.jython.ast.Set) {
+                                org.python.pydev.parser.jython.ast.Set set = (org.python.pydev.parser.jython.ast.Set) args;
+                                elts = set.elts;
+                            }
+                            if (elts != null) {
+                                for (exprType exprType : elts) {
+                                    if (exprType instanceof Str) {
+                                        ret.add(new SourceToken(exprType, ((Str) exprType).s, "",
+                                                "", sourceModule.getName()));
+                                    }
+                                }
+                                return ret;
+                            }
+                            if (args instanceof Call) {
+                                Call call2 = (Call) args;
+                                if (call2.func instanceof Attribute) {
+                                    Attribute attribute = (Attribute) call2.func;
+                                    if ("split".equals(NodeUtils.getRepresentationString(attribute.attr))) {
+                                        if (attribute.value instanceof Str) {
+                                            Str str = (Str) attribute.value;
+                                            if (str.s != null) {
+                                                List<String> split = StringUtils.split(str.s, " ");
+                                                for (String string : split) {
+                                                    ret.add(new SourceToken(str, string, "",
+                                                            "", sourceModule.getName()));
+                                                }
+                                                return ret;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     Integer parameterIndex = CALLS_FOR_ASSIGN_WITH_RESULTING_CLASS.get(lastPart.toLowerCase());
                     if (parameterIndex != null && call.args.length >= parameterIndex) {
                         String rep = NodeUtils.getFullRepresentationString(call.args[parameterIndex - 1]);

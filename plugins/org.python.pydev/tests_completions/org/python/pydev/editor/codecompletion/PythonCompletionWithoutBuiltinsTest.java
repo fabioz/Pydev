@@ -3038,4 +3038,26 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals(1, comps.length);
     }
 
+    public void testCodeCompletionNamedTuple() throws Exception {
+        String s;
+        s = "" +
+                "Point = namedtuple('Point', ['x', 'y'])\n" +
+                "a = Point()\n" +
+                "a.";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "x", "y" });
+        assertEquals(2, comps.length);
+    }
+
+    public void testCodeCompletionNamedTuple2() throws Exception {
+        String s;
+        s = "" +
+                "Point = namedtuple('Point', 'x y'.split())\n" +
+                "a = Point()\n" +
+                "a.";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "x", "y" });
+        assertEquals(2, comps.length);
+    }
+
 }
