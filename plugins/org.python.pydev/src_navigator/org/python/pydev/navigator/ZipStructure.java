@@ -46,8 +46,8 @@ public class ZipStructure {
                 ZipEntry element = entries.nextElement();
                 name = element.getName();
             } catch (Exception e) {
-                name = "" + e.getMessage();
                 Log.log(e);
+                continue;
             }
             final List<String> split = StringUtils.split(name, '/');
             int size = split.size();
