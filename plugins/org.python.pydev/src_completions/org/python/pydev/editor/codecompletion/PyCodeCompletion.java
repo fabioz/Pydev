@@ -13,6 +13,7 @@ package org.python.pydev.editor.codecompletion;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -113,107 +114,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
         int lineCtx = ps.isInDeclarationLine();
         if (lineCtx != PySelection.DECLARATION_NONE) {
             if (lineCtx == PySelection.DECLARATION_METHOD) {
-                Image imageOverride = PydevPlugin.getImageCache().get(UIConstants.METHOD_ICON);
-                String lineContentsToCursor = ps.getLineContentsToCursor();
-                LineStartingScope scopeStart = ps.getPreviousLineThatStartsScope(PySelection.CLASS_TOKEN, false,
-                        PySelection.getFirstCharPosition(lineContentsToCursor));
-
-                String className = null;
-                if (scopeStart != null) {
-                    className = PySelection.getClassNameInLine(scopeStart.lineStartingScope);
-                    if (className != null && className.length() > 0) {
-                        Tuple<List<String>, Integer> insideParensBaseClasses = ps.getInsideParentesisToks(true,
-                                scopeStart.iLineStartingScope);
-                        if (insideParensBaseClasses != null) {
-
-                            //representation -> token and base class
-                            OrderedMap<String, ImmutableTuple<IToken, String>> map = new OrderedMap<String, ImmutableTuple<IToken, String>>();
-
-                            for (String baseClass : insideParensBaseClasses.o1) {
-                                try {
-                                    ICompletionState state = new CompletionState(-1, -1, null, request.nature,
-                                            baseClass);
-                                    state.setActivationToken(baseClass);
-                                    state.setIsInCalltip(false);
-
-                                    IPythonNature pythonNature = request.nature;
-                                    checkPythonNature(pythonNature);
-
-                                    ICodeCompletionASTManager astManager = pythonNature.getAstManager();
-                                    if (astManager == null) {
-                                        //we're probably still loading it.
-                                        return ret;
-                                    }
-                                    //Ok, looking for a token in globals.
-                                    IModule module = request.getModule();
-                                    if (module == null) {
-                                        continue;
-                                    }
-                                    IToken[] comps = astManager.getCompletionsForModule(module, state, true, true);
-                                    for (int i = 0; i < comps.length; i++) {
-                                        IToken iToken = comps[i];
-                                        String representation = iToken.getRepresentation();
-                                        ImmutableTuple<IToken, String> curr = map.get(representation);
-                                        if (curr != null && curr.o1 instanceof SourceToken) {
-                                            continue; //source tokens are never reset!
-                                        }
-
-                                        int type = iToken.getType();
-                                        if (iToken instanceof SourceToken
-                                                && ((SourceToken) iToken).getAst() instanceof FunctionDef) {
-                                            map.put(representation, new ImmutableTuple<IToken, String>(iToken,
-                                                    baseClass));
-
-                                        } else if (type == IToken.TYPE_FUNCTION || type == IToken.TYPE_UNKNOWN
-                                                || type == IToken.TYPE_BUILTIN) {
-                                            map.put(representation, new ImmutableTuple<IToken, String>(iToken,
-                                                    baseClass));
-
-                                        }
-                                    }
-                                } catch (Exception e) {
-                                    Log.log(e);
-                                }
-                            }
-
-                            for (ImmutableTuple<IToken, String> tokenAndBaseClass : map.values()) {
-                                FunctionDef functionDef = null;
-
-                                //No checkings needed for type (we already did that above).
-                                if (tokenAndBaseClass.o1 instanceof SourceToken) {
-                                    SourceToken sourceToken = (SourceToken) tokenAndBaseClass.o1;
-                                    SimpleNode ast = sourceToken.getAst();
-                                    if (ast instanceof FunctionDef) {
-                                        functionDef = (FunctionDef) ast;
-                                    } else {
-                                        functionDef = sourceToken.getAliased().createCopy();
-                                        NameTok t = (NameTok) functionDef.name;
-                                        t.id = sourceToken.getRepresentation();
-                                    }
-                                } else {
-                                    //unfortunately, for builtins we usually cannot trust the parameters.
-                                    String representation = tokenAndBaseClass.o1.getRepresentation();
-                                    PyAstFactory factory = new PyAstFactory(new AdapterPrefs(ps.getEndLineDelim(),
-                                            request.nature));
-                                    functionDef = factory.createFunctionDef(representation);
-                                    functionDef.args = factory.createArguments(true);
-                                    functionDef.args.vararg = new NameTok("args", NameTok.VarArg);
-                                    functionDef.args.kwarg = new NameTok("kwargs", NameTok.KwArg);
-                                    if (!representation.equals("__init__")) {
-                                        functionDef.body = new stmtType[] { new Return(null) }; //signal that the return should be added
-                                    }
-                                }
-
-                                if (functionDef != null) {
-                                    ret.add(new OverrideMethodCompletionProposal(ps.getAbsoluteCursorOffset(), 0, 0,
-                                            imageOverride, functionDef, tokenAndBaseClass.o2, //baseClass
-                                            className));
-                                }
-                            }
-
-                        }
-                    }
-                }
+                createOverrideCodeCompletions(request, ret, ps);
             }
             request.showTemplates = false;
             return ret;
@@ -246,7 +147,10 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
 
             boolean importsTip = false;
 
-            if (importsTipper.importsTipperStr.length() != 0) {
+            if (request.activationToken.startsWith("super()")) {
+                createSuperCodeCompletions(request, tokensList, ps);
+
+            } else if (importsTipper.importsTipperStr.length() != 0) {
                 //code completion in imports
                 request.isInCalltip = false; //if found after (, but in an import, it is not a calltip!
                 request.isInMethodKeywordParam = false; //if found after (, but in an import, it is not a calltip!
@@ -376,6 +280,151 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
         }
 
         return ret;
+    }
+
+    private void createSuperCodeCompletions(CompletionRequest request, List<Object> tokensList,
+            PySelection ps) throws BadLocationException, CompletionRecursionException, MisconfigurationException {
+        String lineContentsToCursor = ps.getLineContentsToCursor();
+        LineStartingScope scopeStart = ps.getPreviousLineThatStartsScope(PySelection.CLASS_TOKEN, false,
+                PySelection.getFirstCharPosition(lineContentsToCursor));
+        String className = null;
+        if (scopeStart != null) {
+            className = PySelection.getClassNameInLine(scopeStart.lineStartingScope);
+            if (className != null && className.length() > 0) {
+                Tuple<List<String>, Integer> insideParensBaseClasses = ps.getInsideParentesisToks(true,
+                        scopeStart.iLineStartingScope);
+                if (insideParensBaseClasses != null) {
+                    for (String baseClass : insideParensBaseClasses.o1) {
+                        ICompletionState state = new CompletionState(-1, -1, null, request.nature,
+                                baseClass);
+                        state.setActivationToken(request.activationToken.replace("super()", baseClass));
+                        state.setIsInCalltip(false);
+
+                        IPythonNature pythonNature = request.nature;
+                        checkPythonNature(pythonNature);
+
+                        ICodeCompletionASTManager astManager = pythonNature.getAstManager();
+                        if (astManager == null) {
+                            //we're probably still loading it.
+                            return;
+                        }
+                        //Ok, looking for a token in globals.
+                        IModule module = request.getModule();
+                        if (module == null) {
+                            continue;
+                        }
+                        IToken[] comps = astManager.getCompletionsForModule(module, state, true, true);
+                        tokensList.addAll(Arrays.asList(comps));
+                    }
+                }
+            }
+        }
+    }
+
+    private void createOverrideCodeCompletions(CompletionRequest request,
+            ArrayList<ICompletionProposal> ret,
+            PySelection ps) throws BadLocationException {
+        Image imageOverride = PydevPlugin.getImageCache().get(UIConstants.METHOD_ICON);
+        String lineContentsToCursor = ps.getLineContentsToCursor();
+        LineStartingScope scopeStart = ps.getPreviousLineThatStartsScope(PySelection.CLASS_TOKEN, false,
+                PySelection.getFirstCharPosition(lineContentsToCursor));
+
+        String className = null;
+        if (scopeStart != null) {
+            className = PySelection.getClassNameInLine(scopeStart.lineStartingScope);
+            if (className != null && className.length() > 0) {
+                Tuple<List<String>, Integer> insideParensBaseClasses = ps.getInsideParentesisToks(true,
+                        scopeStart.iLineStartingScope);
+                if (insideParensBaseClasses != null) {
+
+                    //representation -> token and base class
+                    OrderedMap<String, ImmutableTuple<IToken, String>> map = new OrderedMap<String, ImmutableTuple<IToken, String>>();
+
+                    for (String baseClass : insideParensBaseClasses.o1) {
+                        try {
+                            ICompletionState state = new CompletionState(-1, -1, null, request.nature,
+                                    baseClass);
+                            state.setActivationToken(baseClass);
+                            state.setIsInCalltip(false);
+
+                            IPythonNature pythonNature = request.nature;
+                            checkPythonNature(pythonNature);
+
+                            ICodeCompletionASTManager astManager = pythonNature.getAstManager();
+                            if (astManager == null) {
+                                //we're probably still loading it.
+                                return;
+                            }
+                            //Ok, looking for a token in globals.
+                            IModule module = request.getModule();
+                            if (module == null) {
+                                continue;
+                            }
+                            IToken[] comps = astManager.getCompletionsForModule(module, state, true, true);
+                            for (int i = 0; i < comps.length; i++) {
+                                IToken iToken = comps[i];
+                                String representation = iToken.getRepresentation();
+                                ImmutableTuple<IToken, String> curr = map.get(representation);
+                                if (curr != null && curr.o1 instanceof SourceToken) {
+                                    continue; //source tokens are never reset!
+                                }
+
+                                int type = iToken.getType();
+                                if (iToken instanceof SourceToken
+                                        && ((SourceToken) iToken).getAst() instanceof FunctionDef) {
+                                    map.put(representation, new ImmutableTuple<IToken, String>(iToken,
+                                            baseClass));
+
+                                } else if (type == IToken.TYPE_FUNCTION || type == IToken.TYPE_UNKNOWN
+                                        || type == IToken.TYPE_BUILTIN) {
+                                    map.put(representation, new ImmutableTuple<IToken, String>(iToken,
+                                            baseClass));
+
+                                }
+                            }
+                        } catch (Exception e) {
+                            Log.log(e);
+                        }
+                    }
+
+                    for (ImmutableTuple<IToken, String> tokenAndBaseClass : map.values()) {
+                        FunctionDef functionDef = null;
+
+                        //No checkings needed for type (we already did that above).
+                        if (tokenAndBaseClass.o1 instanceof SourceToken) {
+                            SourceToken sourceToken = (SourceToken) tokenAndBaseClass.o1;
+                            SimpleNode ast = sourceToken.getAst();
+                            if (ast instanceof FunctionDef) {
+                                functionDef = (FunctionDef) ast;
+                            } else {
+                                functionDef = sourceToken.getAliased().createCopy();
+                                NameTok t = (NameTok) functionDef.name;
+                                t.id = sourceToken.getRepresentation();
+                            }
+                        } else {
+                            //unfortunately, for builtins we usually cannot trust the parameters.
+                            String representation = tokenAndBaseClass.o1.getRepresentation();
+                            PyAstFactory factory = new PyAstFactory(new AdapterPrefs(ps.getEndLineDelim(),
+                                    request.nature));
+                            functionDef = factory.createFunctionDef(representation);
+                            functionDef.args = factory.createArguments(true);
+                            functionDef.args.vararg = new NameTok("args", NameTok.VarArg);
+                            functionDef.args.kwarg = new NameTok("kwargs", NameTok.KwArg);
+                            if (!representation.equals("__init__")) {
+                                functionDef.body = new stmtType[] { new Return(null) }; //signal that the return should be added
+                            }
+                        }
+
+                        if (functionDef != null) {
+                            ret.add(new OverrideMethodCompletionProposal(ps.getAbsoluteCursorOffset(), 0, 0,
+                                    imageOverride, functionDef, tokenAndBaseClass.o2, //baseClass
+                                    className));
+                        }
+                    }
+
+                }
+            }
+        }
     }
 
     private void fillTokensWithJediCompletions(CompletionRequest request, PySelection ps, IPythonNature nature,

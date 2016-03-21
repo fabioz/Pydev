@@ -17,6 +17,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.eclipse.core.runtime.Assert;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.string.StringUtils;
 
 /**
@@ -27,7 +28,7 @@ public class ZipStructure {
     private Map<Integer, TreeSet<String>> levelToContents = new HashMap<Integer, TreeSet<String>>();
     public final File file;
 
-    /*package*/ZipStructure() { //just for testing
+    /*package*/ ZipStructure() { //just for testing
         this.file = null;
     }
 
@@ -40,8 +41,14 @@ public class ZipStructure {
         Enumeration<? extends ZipEntry> entries = zipFile.entries();
 
         while (entries.hasMoreElements()) {
-            ZipEntry element = entries.nextElement();
-            String name = element.getName();
+            String name;
+            try {
+                ZipEntry element = entries.nextElement();
+                name = element.getName();
+            } catch (Exception e) {
+                Log.log(e);
+                continue;
+            }
             final List<String> split = StringUtils.split(name, '/');
             int size = split.size();
             int level = size - 1;

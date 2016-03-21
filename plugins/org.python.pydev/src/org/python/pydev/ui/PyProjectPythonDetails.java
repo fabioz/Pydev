@@ -119,6 +119,7 @@ public class PyProjectPythonDetails extends PropertyPage {
 
             comboGrammarVersion = new Combo(topComp, SWT.READ_ONLY);
             for (String s : IPythonNature.Versions.VERSION_NUMBERS) {
+                s = numberToUi(s);
                 comboGrammarVersion.add(s);
             }
 
@@ -132,7 +133,8 @@ public class PyProjectPythonDetails extends PropertyPage {
             interpreterLabel.setLayoutData(gd);
 
             //interpreter configured in the project
-            final String[] idToConfig = new String[] { "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPagePython" };
+            final String[] idToConfig = new String[] {
+                    "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPagePython" };
             interpretersChoice = new Combo(topComp, SWT.READ_ONLY);
             selectionListener = new SelectionListener() {
 
@@ -226,8 +228,7 @@ public class PyProjectPythonDetails extends PropertyPage {
                         dialog.open();
                         //just to re-update it again
                         selectionListener.widgetSelected(null);
-                    }
-                    else {
+                    } else {
                         MessageDialog mdialog = new MessageDialog(null, "Configure interpreter", null,
                                 "How would you like to configure the interpreter?", MessageDialog.QUESTION,
                                 InterpreterConfigHelpers.CONFIG_NAMES, 0);
@@ -238,8 +239,7 @@ public class PyProjectPythonDetails extends PropertyPage {
                             dialog.open();
                             //just to re-update it again
                             selectionListener.widgetSelected(null);
-                        }
-                        else if (open != PyDialogHelpers.INTERPRETER_CANCEL_CONFIG) {
+                        } else if (open != PyDialogHelpers.INTERPRETER_CANCEL_CONFIG) {
                             //auto-config
                             InterpreterType interpreterType;
                             if (radioJy.getSelection()) {
@@ -305,15 +305,21 @@ public class PyProjectPythonDetails extends PropertyPage {
          */
         public String getSelectedPythonOrJythonAndGrammarVersion() {
             if (radioPy.getSelection()) {
-                return "python " + comboGrammarVersion.getText();
+                return "python " + getGrammarVersionSelectedFromCombo();
             }
             if (radioJy.getSelection()) {
-                return "jython " + comboGrammarVersion.getText();
+                return "jython " + getGrammarVersionSelectedFromCombo();
             }
             if (radioIron.getSelection()) {
-                return "ironpython " + comboGrammarVersion.getText();
+                return "ironpython " + getGrammarVersionSelectedFromCombo();
             }
             throw new RuntimeException("Some radio must be selected");
+        }
+
+        private String getGrammarVersionSelectedFromCombo() {
+            String ret = comboGrammarVersion.getText();
+            ret = numberFromUi(ret);
+            return ret;
         }
 
         public String getProjectInterpreter() {
@@ -325,11 +331,25 @@ public class PyProjectPythonDetails extends PropertyPage {
 
         public void setDefaultSelection() {
             radioPy.setSelection(true);
-            comboGrammarVersion.setText(IPythonNature.Versions.LAST_VERSION_NUMBER);
+            comboGrammarVersion.setText(numberToUi(IPythonNature.Versions.LAST_VERSION_NUMBER));
             //Just to update things
             this.selectionListener.widgetSelected(null);
         }
 
+    }
+
+    static String numberFromUi(String s) {
+        if ("3.0 - 3.5".equals(s)) {
+            s = "3.0";
+        }
+        return s;
+    }
+
+    static String numberToUi(String s) {
+        if ("3.0".equals(s)) {
+            s = "3.0 - 3.5";
+        }
+        return s;
     }
 
     /**
@@ -358,7 +378,7 @@ public class PyProjectPythonDetails extends PropertyPage {
     }
 
     public IProject getProject() {
-        return (IProject) getElement().getAdapter(IProject.class);
+        return getElement().getAdapter(IProject.class);
     }
 
     @Override
@@ -386,7 +406,7 @@ public class PyProjectPythonDetails extends PropertyPage {
             //We must set the grammar version too (that's from a string in the format "Python 2.4" and we only want
             //the version).
             String v = StringUtils.split(version, ' ').get(1);
-            projectConfig.comboGrammarVersion.setText(v);
+            projectConfig.comboGrammarVersion.setText(numberToUi(v));
 
             //Update interpreter
             projectConfig.selectionListener.widgetSelected(null);

@@ -27,6 +27,8 @@ $IMPORTS
 public final class PythonGrammar30 extends AbstractPythonGrammar implements IGrammar
 {
 
+	private boolean insideAsync;
+
 $COMMOM_METHODS
 
     private void handleFutureImports(String importName){
@@ -51,18 +53,6 @@ $COMMOM_METHODS
 
     }
 
-    @Override
-    protected Token handleErrorInName(ParseException e) throws ParseException {
-        try {
-            return jj_consume_token(ASYNC);
-        } catch (ParseException e1) {
-            try {
-                return jj_consume_token(AWAIT);
-            } catch (ParseException e2) {
-                return super.handleErrorInName(e);
-            }
-        }
-    }
 }
 
 
@@ -545,8 +535,31 @@ void fplist() #tuple: {}
 { fpdef() (LOOKAHEAD(2) $COMMA fpdef())* [Comma()] }
 
 
-$STMT
+//stmt: simple_stmt | compound_stmt
+void stmt() #void: {}
+{
+		// Note: this is different from the Python AST because simple_stmt() can actually become Name() which can consume the <async> keyword...
+		// So, the async_stmt() was moved from the compound_stmt to the stmt() level to be processed first (as we have to find
+		// an async def/async with/ async for, while Name() would match the <async> in a single step).
+		LOOKAHEAD(2)
+		
+		async_stmt()
+	|
+		non_async_stmt()
+}
 
+
+void non_async_stmt() #void: {}
+{
+        simple_stmt()
+    |
+        try{
+            compound_stmt()
+        }catch(ParseException e){
+            handleErrorInCompountStmt(e);
+        }
+	
+}
 
 $SIMPLE_STMT
 
@@ -720,13 +733,19 @@ $ASSERT
 //compound_stmt: if_stmt | while_stmt | for_stmt | try_stmt | with_stmt | funcdef | classdef | decorated | async_stmt
 void compound_stmt() #void : {}
 {
-    if_stmt() | while_stmt() | for_stmt() | try_stmt() | with_stmt() | funcdef() | classdef() | decorated()  | async_stmt()
+    if_stmt() | while_stmt() | for_stmt() | try_stmt() | with_stmt() | funcdef() | classdef() | decorated()
+    // Note: async_stmt() moved to stmt to fix issue resolving async name/async statement.
 }
 
 //async_stmt: ASYNC (funcdef | with_stmt | for_stmt)
-void async_stmt() #void : {}
+void async_stmt() #void :{}
 {
-	<ASYNC> (funcdef() | with_stmt() | for_stmt())
+		{insideAsync = true;}
+		try{
+			<ASYNC> (funcdef() | with_stmt() | for_stmt())
+		}finally{
+			insideAsync = false;
+		}
 }
 
 $IF
@@ -894,7 +913,20 @@ void power() #void: {}
 
 //atom_expr: [AWAIT] atom trailer*
 void atom_expr() #void: {}
-{ [<AWAIT>] atom() (trailer())*}
+{ 
+	{
+		if(insideAsync){
+			// The await statement is only valid inside an async block!
+			consume_await();
+		}
+	}
+	 atom() (trailer())*
+}
+
+void consume_await() #void: {}
+{
+	[<AWAIT>]
+}
 
 //trailer: '(' [arglist] ')' | '[' subscriptlist ']' | '.' NAME
 void trailer() #void: {Object spStr;Object spStr2;}
@@ -1035,7 +1067,12 @@ void decorated():{}
 //async_funcdef: ASYNC funcdef
 void async_funcdef() #void : {}
 {
-    <ASYNC> funcdef()
+	{insideAsync = true;}
+	try{
+	    <ASYNC> funcdef()
+	}finally{
+		insideAsync=false;
+	}
 }
 
 //classdef: 'class' NAME ['(' [arglist] ')'] ':' suite
@@ -1111,7 +1148,29 @@ void Complex(): {}
 { <FLOAT>   }
 
 
-$NAME_DEFINITION
+Token Name() #Name:
+{
+    Token t;
+}
+{
+    try{
+        (
+        	t = <NAME> 
+         | 
+        	t = <ASYNC> 
+         | 
+        	t = <AWAIT>
+        )
+    }catch(ParseException e){
+        t = handleErrorInName(e);
+    }
+    
+
+        { 
+        ((Name)jjtThis).id = t.image; return t;
+        }
+
+}
 
 
 void String() #void :

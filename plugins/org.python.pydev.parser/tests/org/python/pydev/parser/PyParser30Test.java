@@ -822,4 +822,22 @@ public class PyParser30Test extends PyParserTestBase {
         parseLegalDocStrWithoutTree(s);
         parseLegalDocStr(s);
     }
+
+    public void testAsyncBackwardCompatibility() throws Exception {
+        String s = "async = 10\n" +
+                "print(async)\n" +
+                "";
+        parseLegalDocStrWithoutTree(s);
+        parseLegalDocStr(s);
+
+    }
+
+    public void testAwaitBackwardCompatibility() throws Exception {
+        String s = "await = 10\n" +
+                "\n" +
+                "";
+        parseLegalDocStrWithoutTree(s);
+        parseLegalDocStr(s);
+
+    }
 }
