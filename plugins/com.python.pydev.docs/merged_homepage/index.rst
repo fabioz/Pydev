@@ -148,6 +148,36 @@ Companies have the option of sponsoring PyDev through corporate sponsorship. See
 .. _`Getting started guide`: manual_101_root.html
 
 
+Release 4.5.5
+==========================
+
+* Code Completion
+
+	* namedtuple now recognized in code-completion.
+	* Code completion now available for super() (#PyDev-592).
+
+* PyTest integration
+	
+	* Files in tracebacks now clickable in latest pytest.
+	* Skips not marked as errors in the latest pytest.
+	
+* Parser:
+ 
+	* async and await should also be valid as names in Python 3 grammar (#PyDev-593).
+	* Additional Unpacking Generalizations from PEP 448 recognized (#PyDev-667).
+	* Made clearer in the UI that Python 3 grammar should support Python 3.0 to Python 3.5.
+	
+* Debugger:
+
+	* tests package should no longer pollute name space (Removed tests directories from build: #PyDev-663). 
+	* Multiprocessing working properly under debugger (Celery Cannot Run in Debug Mode: #PyDev-662).
+	
+* Others: 
+
+	* Introduce source features/plugins (patch by Andreas Pakulat).
+	* Default test runner now works with Django >= 1.8 (#PyDev 614, patch by Ville Skyttä).
+
+
 Release 4.5.4
 ==========================
 
@@ -205,58 +235,6 @@ Release 4.5.1
 * Preventing a freeze if some code-analysis takes too much time (#PyDev-636).
 
 * Ctrl+1 can be used to wrap/unwrap the contents of brackets (patch by yohell).
-
-
-Release 4.4.0
-==========================
-
-* Improved PyDev Package Explorer to give more information when all elements are filtered.
-
-* Code completion improvements: when parameter is typed in the docstring, assigning it to an instance gives proper code-completion results whe accessing the instance.
-
-* Fixed issues dealing with ansi colors in the interactive console.
-
-* When autopep8 is applied as the code formatting engine, the region selected is used to specify the lines for formatting.
-
-* Minor improvements in the debugger.
-
-
-Release 4.3.0
-==========================
-
-* Fixed parser for Python 3.x to support async and await as regular names too (PyDev-593).
-
-* The new search dialog now has a 'whole word' option which automatically adds `*` to the search
-
-* Search backend updated to Lucene 5.2.1.
-
-* When bringing up the search dialog the search text is initially selected.
-
-
-Release 4.2.0
-==========================
-
-* New search page for Python contents
-
-	* Text-searches using a Lucene index allows for fast matches.
-	* Matches can be flattened and grouped by project, folders and modules.
-	* Results page allows additional filtering based on module name.
-
-	|
-
-	.. image:: images/search/search_results.png
-	   :class: no_border
-
-
-* Further improvements on code completion unpacking compound types.
-
-* Not adding auto 'import' token in cython files (to accept cimport).
-
-* PyDev Mylyn integration no longer depends on a specific PyDev release.
-
-* Fixed halting condition when unable to create native file watches.
-
-* Vertical indent guide no longer slows down the editor on Linux (PyDev-582).
 
 
 `View release notes for previous releases`_

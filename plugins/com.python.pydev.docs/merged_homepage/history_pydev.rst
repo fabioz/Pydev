@@ -1,6 +1,34 @@
 History For PyDev
 ~~~~~~~~~~~~~~~~~
 
+Release 4.5.5
+==========================
+
+* Code Completion
+
+	* namedtuple now recognized in code-completion.
+	* Code completion now available for super() (#PyDev-592).
+
+* PyTest integration
+	
+	* Files in tracebacks now clickable in latest pytest.
+	* Skips not marked as errors in the latest pytest.
+	
+* Parser:
+ 
+	* async and await should also be valid as names in Python 3 grammar (#PyDev-593).
+	* Additional Unpacking Generalizations from PEP 448 recognized (#PyDev-667).
+	* Made clearer in the UI that Python 3 grammar should support Python 3.0 to Python 3.5.
+	
+* Debugger:
+
+	* tests package should no longer pollute name space (Removed tests directories from build: #PyDev-663). 
+	* Multiprocessing working properly under debugger (Celery Cannot Run in Debug Mode: #PyDev-662).
+	
+* Others: 
+
+	* Introduce source features/plugins (patch by Andreas Pakulat).
+	* Default test runner now works with Django >= 1.8 (#PyDev 614, patch by Ville Skyttä).
 
 Release 4.5.4
 ==========================
