@@ -210,6 +210,7 @@ def get_closer_offset(text, offset, closer):
     is_wrapped_already = True
     pos = offset + 1
     while pos < len(text):
+        old_pos = pos
         char = text[pos]
         if char == ',':
             has_commas = True
@@ -223,6 +224,8 @@ def get_closer_offset(text, offset, closer):
             pos = skip_over_string_literal(text, pos)
             if pos < 0:
                 break
+            if pos < old_pos:
+                pos = old_pos # Make sure we always go forward
         pos += 1
     return -1, False, True
 
