@@ -172,8 +172,7 @@ public class CheckDefaultPreferencesDialog extends TrayDialog {
                             "Launch operation: always launch the previously selected application.",
                             "\tReason: On PyDev, F9 launches the current selection (and Ctrl+F9 launches unit-tests),\n"
                                     + "\tso it's recommended that Ctrl+F11 is set to re-launch the last launch and\n"
-                                    + "\tF11 to debug the last launch."
-                    )
+                                    + "\tF11 to debug the last launch.")
             };
             ArrayList<CheckInfo> lst = new ArrayList<>(infos.length);
 
@@ -235,7 +234,7 @@ public class CheckDefaultPreferencesDialog extends TrayDialog {
                         return;
                     }
                     Display disp = Display.getCurrent();
-                    Shell shell = new Shell(disp);
+                    Shell shell = disp.getActiveShell();
                     CheckDefaultPreferencesDialog dialog = new CheckDefaultPreferencesDialog(shell, missing);
                     showing = true;
                     try {
