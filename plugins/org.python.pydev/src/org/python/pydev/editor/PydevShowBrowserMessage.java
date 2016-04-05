@@ -44,7 +44,8 @@ final class DialogNotifier extends Dialog {
 
     public DialogNotifier(Shell shell) {
         super(shell);
-        setShellStyle(SWT.CLOSE | SWT.MODELESS | SWT.BORDER | SWT.TITLE | SWT.RESIZE | SWT.MAX | getDefaultOrientation());
+        setShellStyle(
+                SWT.CLOSE | SWT.MODELESS | SWT.BORDER | SWT.TITLE | SWT.RESIZE | SWT.MAX | getDefaultOrientation());
         setBlockOnOpen(true);
     }
 
@@ -103,7 +104,7 @@ final class DialogNotifier extends Dialog {
                     "p.s.: Sorry for the dialog. It won't be shown again in this workspace after you click the \"Read it\" button."
                     +
 
-            "</body></html>";
+                    "</body></html>";
             ToolBar navBar = new ToolBar(composite, SWT.NONE);
             //this is the place where it might fail
             final Browser browser = new Browser(composite, SWT.BORDER);
@@ -159,11 +160,14 @@ final class DialogNotifier extends Dialog {
 
         } catch (Throwable e) {
             //some error might happen creating it according to the docs, so, let's put another text into the widget
-            String msg2 = "I'm reaching out for you today to ask for your help to keep PyDev properly supported.\n"
+            String msg2 = "I'm reaching out for you today to ask for your help to keep PyDev\n"
+                    + "properly supported.\n"
                     +
                     "\n"
                     +
-                    "PyDev is kept as an open source product and relies on contributions to remain being developed, so, if you feel that's a worthy goal, please take a look at http://pydev.org and contribute if you can.\n"
+                    "PyDev is kept as an open source product and relies on contributions\n"
+                    + "to remain being developed, so, if you feel that's a worthy goal, please\n"
+                    + "take a look at http://pydev.org and contribute if you can.\n"
                     +
                     "\n"
                     +
@@ -175,7 +179,8 @@ final class DialogNotifier extends Dialog {
                     +
                     "\n"
                     +
-                    "p.s.: Sorry for the dialog. It won't be shown again in this workspace after you click the \"Read it\" button.\n"
+                    "p.s.: Sorry for the dialog. It won't be shown again in this workspace after\n"
+                    + "you click the \"Read it\" button.\n"
                     +
                     "";
             createText(composite, msg2, 1);
@@ -278,7 +283,10 @@ public class PydevShowBrowserMessage {
                 @Override
                 public void run() {
                     Display disp = Display.getCurrent();
-                    Shell shell = new Shell(disp);
+                    Shell shell = disp.getActiveShell();
+                    if (shell == null) {
+                        shell = new Shell(disp);
+                    }
                     DialogNotifier notifier = new DialogNotifier(shell);
                     notifier.open();
                 }
