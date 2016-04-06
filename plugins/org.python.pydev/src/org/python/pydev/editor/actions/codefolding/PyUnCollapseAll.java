@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
 import org.python.pydev.editor.codefolding.PyProjectionAnnotation;
 
@@ -33,7 +34,7 @@ public class PyUnCollapseAll extends PyFoldingAction {
 
         if (model != null) {
 
-            Iterator<PyProjectionAnnotation> iter = getAnnotationsIterator(model, true);
+            Iterator<Annotation> iter = getAnnotationsIterator(model, true);
 
             if (iter != null) {
                 //we just want to expand the roots, and we are working only with the collapsed sorted by offset.
