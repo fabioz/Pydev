@@ -128,6 +128,8 @@ Silver Sponsors
 
 .. raw:: html
 
+   <!--Added 2016-04-02-->
+   <a href="http://www.chameleonjohn.com" border=0><img class="sponsors" src="images/sponsors/logo_chameleon_john.png" alt="ChameleonJohn Coupons" title="http://www.chameleonjohn.com" /></a>
    <!--Added 2014-09-02-->
    <a href="http://www.orsoft.net" border=0><img class="sponsors" src="images/sponsors/logo_orsoft.png" alt="ORSOFT GmbH" title="http://www.orsoft.net" /></a>
    <!--Added 2014-07-16-->

@@ -152,7 +152,10 @@ if __name__ == '__main__':
     os.chdir(os.path.join(this_script_dir, 'merged_homepage', 'scripts'))
     import build_merged  # @UnresolvedImport
     os.chdir(os.path.join(this_script_dir, 'merged_homepage'))
+    
+    import datetime
     build_merged.LAST_VERSION_TAG = LAST_VERSION_TAG
+    build_merged.CURRENT_DATE = datetime.datetime(day=22, month=3, year=2016)
     build_merged.DoIt()
 
     sys.stdout.write('Finished\n')

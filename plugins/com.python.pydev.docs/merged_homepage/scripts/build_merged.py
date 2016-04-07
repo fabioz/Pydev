@@ -1,6 +1,5 @@
 import os
 import sys
-import datetime
 
 manualAdv = (
     ('templateManual.html', 'manual_adv_features'                      , 'Features'),
@@ -95,7 +94,7 @@ def template(template, contents, title, **kwargs):
         contents = contents.replace('%(' + r + ')s', c)
 
     contents = contents.replace('%(title)s', title)
-    contents = contents.replace('%(date)s', datetime.datetime.now().strftime('%d %B %Y'))
+    contents = contents.replace('%(date)s', CURRENT_DATE.strftime('%d %B %Y'))
     contents = contents.replace('LAST_VERSION_TAG', LAST_VERSION_TAG) #@UndefinedVariable
 
     #If a page didn't specify the image properly, just remove the image declaration.
