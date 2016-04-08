@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -45,7 +45,6 @@ import org.python.pydev.editor.correctionassist.heuristics.AssistSurroundWith;
 import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_ui.ImageCache;
-
 
 /**
  * This class should be used to give context help
@@ -206,9 +205,9 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
             ICompletionProposal[] spellProps = null;
 
             IAnnotationModel annotationModel = editor.getPySourceViewer().getAnnotationModel();
-            Iterator<Object> it = annotationModel.getAnnotationIterator();
+            Iterator<Annotation> it = annotationModel.getAnnotationIterator();
             while (it.hasNext()) {
-                Object annotation = it.next();
+                Annotation annotation = it.next();
                 if (annotation instanceof SpellingAnnotation) {
                     SpellingAnnotation spellingAnnotation = (SpellingAnnotation) annotation;
                     SpellingProblem spellingProblem = spellingAnnotation.getSpellingProblem();
@@ -225,11 +224,11 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
 
             if (spellProps == null || (spellProps.length == 1 && spellProps[0] instanceof NoCompletionsProposal)) {
                 //no proposals from the spelling
-                return (ICompletionProposal[]) results.toArray(new ICompletionProposal[results.size()]);
+                return results.toArray(new ICompletionProposal[results.size()]);
             }
 
             //ok, add the spell problems and return...
-            ICompletionProposal[] ret = (ICompletionProposal[]) results.toArray(new ICompletionProposal[results.size()
+            ICompletionProposal[] ret = results.toArray(new ICompletionProposal[results.size()
                     + spellProps.length]);
             System.arraycopy(spellProps, 0, ret, results.size(), spellProps.length);
             return ret;
@@ -237,7 +236,7 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
             if (e instanceof ClassNotFoundException || e instanceof LinkageError || e instanceof NoSuchMethodException
                     || e instanceof NoSuchMethodError || e instanceof NoClassDefFoundError) {
                 //Eclipse 3.2 support
-                return (ICompletionProposal[]) results.toArray(new ICompletionProposal[results.size()]);
+                return results.toArray(new ICompletionProposal[results.size()]);
             }
             throw new RuntimeException(e);
         }

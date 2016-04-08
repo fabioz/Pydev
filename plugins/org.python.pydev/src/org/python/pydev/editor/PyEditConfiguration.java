@@ -13,6 +13,7 @@ package org.python.pydev.editor;
 
 import java.util.Map;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextHover;
@@ -80,11 +81,9 @@ public class PyEditConfiguration extends PyEditConfigurationWithoutEditor {
      * @since 3.3
      */
     @Override
-    @SuppressWarnings("unchecked")
-    protected Map<String, IPySyntaxHighlightingAndCodeCompletionEditor> getHyperlinkDetectorTargets(
+    protected Map<String, IAdaptable> getHyperlinkDetectorTargets(
             ISourceViewer sourceViewer) {
-        Map<String, IPySyntaxHighlightingAndCodeCompletionEditor> targets = super
-                .getHyperlinkDetectorTargets(sourceViewer);
+        Map<String, IAdaptable> targets = super.getHyperlinkDetectorTargets(sourceViewer);
         targets.put("org.python.pydev.editor.PythonEditor", edit); //$NON-NLS-1$
         return targets;
     }

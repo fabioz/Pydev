@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -167,16 +167,15 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener, IPy
     /**
      * Given the ast, create the needed marks and set them in the passed model.
      */
-    @SuppressWarnings("unchecked")
     private synchronized void addMarksToModel(SimpleNode root2, ProjectionAnnotationModel model) {
         try {
             if (model != null) {
-                ArrayList<PyProjectionAnnotation> existing = new ArrayList<PyProjectionAnnotation>();
+                ArrayList<Annotation> existing = new ArrayList<Annotation>();
 
                 //get the existing annotations
-                Iterator<PyProjectionAnnotation> iter = model.getAnnotationIterator();
+                Iterator<Annotation> iter = model.getAnnotationIterator();
                 while (iter != null && iter.hasNext()) {
-                    PyProjectionAnnotation element = iter.next();
+                    Annotation element = iter.next();
                     existing.add(element);
                 }
 
@@ -211,7 +210,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener, IPy
      * If we don't find that, the end of the selection is the end of the file.
      */
     private Map<ProjectionAnnotation, Position> getAnnotationsToAdd(List<FoldingEntry> nodes,
-            ProjectionAnnotationModel model, List<PyProjectionAnnotation> existing) {
+            ProjectionAnnotationModel model, List<Annotation> existing) {
 
         Map<ProjectionAnnotation, Position> annotationsToAdd = new HashMap<ProjectionAnnotation, Position>();
         try {
@@ -235,7 +234,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener, IPy
      * added for it).
      */
     private Tuple<ProjectionAnnotation, Position> getAnnotationToAdd(FoldingEntry node, int start, int end,
-            ProjectionAnnotationModel model, List<PyProjectionAnnotation> existing) throws BadLocationException {
+            ProjectionAnnotationModel model, List<Annotation> existing) throws BadLocationException {
         try {
             IDocument document = editor.getDocumentProvider().getDocument(editor.getEditorInput());
             int offset = document.getLineOffset(start);
@@ -261,9 +260,9 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener, IPy
      * We have to be careful not to remove existing annotations because if this happens, previous code folding is not correct.
      */
     private Tuple<ProjectionAnnotation, Position> getAnnotationToAdd(Position position, FoldingEntry node,
-            ProjectionAnnotationModel model, List<PyProjectionAnnotation> existing) {
-        for (Iterator<PyProjectionAnnotation> iter = existing.iterator(); iter.hasNext();) {
-            PyProjectionAnnotation element = iter.next();
+            ProjectionAnnotationModel model, List<Annotation> existing) {
+        for (Iterator<Annotation> iter = existing.iterator(); iter.hasNext();) {
+            Annotation element = iter.next();
             Position existingPosition = model.getPosition(element);
             if (existingPosition.equals(position)) {
                 //ok, do nothing to this annotation (neither remove nor add, as it already exists in the correct place).

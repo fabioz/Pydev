@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-201 6by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jface.text.Position;
+import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codefolding.PyProjectionAnnotation;
@@ -29,13 +30,14 @@ public abstract class PyFoldingAction extends PyAction {
      * @param model
      * @return
      */
-    protected Iterator<PyProjectionAnnotation> getAnnotationsIterator(final ProjectionAnnotationModel model, boolean useExpanded) {
+    protected Iterator<Annotation> getAnnotationsIterator(final ProjectionAnnotationModel model,
+            boolean useExpanded) {
         //put annotations in array list.
-        Iterator<PyProjectionAnnotation> iter = model.getAnnotationIterator();
+        Iterator<Annotation> iter = model.getAnnotationIterator();
         if (iter != null) {
 
             //get the not collapsed (expanded) and sort them
-            ArrayList<PyProjectionAnnotation> expanded = new ArrayList<PyProjectionAnnotation>();
+            ArrayList<Annotation> expanded = new ArrayList<Annotation>();
             while (iter.hasNext()) {
                 PyProjectionAnnotation element = (PyProjectionAnnotation) iter.next();
                 if (element.isCollapsed() == useExpanded) {
@@ -70,7 +72,7 @@ public abstract class PyFoldingAction extends PyAction {
      * @return
      */
     protected ProjectionAnnotationModel getModel() {
-        final ProjectionAnnotationModel model = (ProjectionAnnotationModel) getTextEditor().getAdapter(
+        final ProjectionAnnotationModel model = getTextEditor().getAdapter(
                 ProjectionAnnotationModel.class);
         return model;
     }

@@ -29,6 +29,7 @@ import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -282,6 +283,13 @@ public class WorkspaceStub implements IWorkspace {
     @Override
     public void build(IBuildConfiguration[] buildConfigs, int kind, boolean buildReferences, IProgressMonitor monitor)
             throws CoreException {
+    }
+
+    public void run(ICoreRunnable action, ISchedulingRule rule, int flags, IProgressMonitor monitor)
+            throws CoreException {
+    }
+
+    public void run(ICoreRunnable action, IProgressMonitor monitor) throws CoreException {
     }
 
 }
