@@ -544,7 +544,8 @@ public class JythonPlugin extends AbstractUIPlugin {
                 PyException pE = (PyException) e;
                 if (pE.type instanceof PyJavaType) {
                     PyJavaType t = (PyJavaType) pE.type;
-                    if (t.getName() != null && t.getName().equals("org.python.pydev.jython.ExitScriptException")) {
+                    if (t.getName() != null
+                            && t.getName().indexOf("ExitScriptException") != -1) {
                         return null;
                     }
                 } else if (pE.type instanceof PyClass) {
