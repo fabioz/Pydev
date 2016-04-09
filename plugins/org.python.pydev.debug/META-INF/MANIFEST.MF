@@ -44,4 +44,4 @@ Export-Package: org.python.pydev.debug.codecoverage,org.python.pydev.d
  rtypages,org.python.pydev.debug.ui.variables,org.python.pydev.debug.v
  iews
 Import-Package: org.eclipse.core.filesystem
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8

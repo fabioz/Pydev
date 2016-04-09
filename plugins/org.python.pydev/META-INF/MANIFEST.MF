@@ -78,4 +78,4 @@ Export-Package: org.python.copiedfromeclipsesrc,org.python.pydev.build
  rg.python.pydev.ui.perspective,org.python.pydev.ui.pythonpathconf,org
  .python.pydev.ui.wizards.files,org.python.pydev.ui.wizards.gettingsta
  rted,org.python.pydev.ui.wizards.project,org.python.pydev.utils, org.python.pydev.consoles
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8

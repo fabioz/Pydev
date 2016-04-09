@@ -29,4 +29,4 @@ Export-Package: org.python.pydev.core,
  org.python.pydev.core.partition,
  org.python.pydev.core.performanceeval,
  org.python.pydev.core.structure
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8

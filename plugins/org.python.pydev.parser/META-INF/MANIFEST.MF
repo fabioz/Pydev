@@ -26,4 +26,4 @@ Export-Package: org.python.pydev.parser,org.python.pydev.parser.fastpa
  .prettyprinter,org.python.pydev.parser.prettyprinterv2,org.python.pyd
  ev.parser.profile,org.python.pydev.parser.visitors,org.python.pydev.p
  arser.visitors.comparator,org.python.pydev.parser.visitors.scope
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8

@@ -29,4 +29,4 @@ Require-Bundle: org.junit;bundle-version="4.0.0";resolution:=optional,
  org.python.pydev.shared_ui
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8

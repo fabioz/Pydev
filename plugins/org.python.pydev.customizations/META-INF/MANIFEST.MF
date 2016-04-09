@@ -25,4 +25,4 @@ Export-Package: org.python.pydev.customizations,org.python.pydev.custo
  on.pydev.customizations.app_engine.wizards,org.python.pydev.customiza
  tions.common
 Bundle-Vendor: Aptana
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
