@@ -182,7 +182,7 @@ public class AbstractIResourceStub implements IResource {
 
     @Override
     public String getPersistentProperty(QualifiedName key) throws CoreException {
-        throw new RuntimeException("Not implemented");
+        return null;
     }
 
     @Override
@@ -232,7 +232,7 @@ public class AbstractIResourceStub implements IResource {
 
     @Override
     public boolean isAccessible() {
-        throw new RuntimeException("Not implemented");
+        return false;
     }
 
     @Override
@@ -242,45 +242,45 @@ public class AbstractIResourceStub implements IResource {
 
     @Override
     public boolean isDerived(int options) {
-        throw new RuntimeException("Not implemented");
+        return false;
     }
 
     @Override
     public boolean isHidden() {
-        throw new RuntimeException("Not implemented");
+        return false;
     }
 
     @Override
     public boolean isHidden(int options) {
-        throw new RuntimeException("Not implemented");
+        return false;
     }
 
     @Override
     public boolean isLinked() {
-        throw new RuntimeException("Not implemented");
+        return false;
     }
 
     public boolean isGroup() {
-        throw new RuntimeException("Not implemented");
+        return false;
     }
 
     public boolean hasFilters() {
-        throw new RuntimeException("Not implemented");
+        return false;
     }
 
     @Override
     public boolean isLinked(int options) {
-        throw new RuntimeException("Not implemented");
+        return false;
     }
 
     @Override
     public boolean isLocal(int depth) {
-        throw new RuntimeException("Not implemented");
+        return true;
     }
 
     @Override
     public boolean isPhantom() {
-        throw new RuntimeException("Not implemented");
+        return false;
     }
 
     @Override
@@ -295,63 +295,53 @@ public class AbstractIResourceStub implements IResource {
 
     @Override
     public boolean isTeamPrivateMember() {
-        throw new RuntimeException("Not implemented");
+        return false;
     }
 
     @Override
     public boolean isTeamPrivateMember(int options) {
-        throw new RuntimeException("Not implemented");
+        return false;
     }
 
     @Override
     public void move(IPath destination, boolean force, IProgressMonitor monitor) throws CoreException {
-        throw new RuntimeException("Not implemented");
     }
 
     @Override
     public void move(IPath destination, int updateFlags, IProgressMonitor monitor) throws CoreException {
-        throw new RuntimeException("Not implemented");
     }
 
     @Override
     public void move(IProjectDescription description, boolean force, boolean keepHistory, IProgressMonitor monitor)
             throws CoreException {
-        throw new RuntimeException("Not implemented");
     }
 
     @Override
     public void move(IProjectDescription description, int updateFlags, IProgressMonitor monitor) throws CoreException {
-        throw new RuntimeException("Not implemented");
     }
 
     @Override
     public void refreshLocal(int depth, IProgressMonitor monitor) throws CoreException {
-        throw new RuntimeException("Not implemented");
     }
 
     @Override
     public void revertModificationStamp(long value) throws CoreException {
-        throw new RuntimeException("Not implemented");
     }
 
     @Override
     public void setDerived(boolean isDerived) throws CoreException {
-        throw new RuntimeException("Not implemented");
     }
 
     @Override
     public void setDerived(boolean isDerived, IProgressMonitor monitor) throws CoreException {
-        throw new RuntimeException("Not implemented");
     }
 
     @Override
     public void setHidden(boolean isHidden) throws CoreException {
-        throw new RuntimeException("Not implemented");
     }
 
     @Override
     public void setLocal(boolean flag, int depth, IProgressMonitor monitor) throws CoreException {
-        throw new RuntimeException("Not implemented");
     }
 
     @Override
@@ -366,27 +356,24 @@ public class AbstractIResourceStub implements IResource {
 
     @Override
     public void setReadOnly(boolean readOnly) {
-        throw new RuntimeException("Not implemented");
     }
 
     @Override
     public void setResourceAttributes(ResourceAttributes attributes) throws CoreException {
-        throw new RuntimeException("Not implemented");
+
     }
 
     @Override
     public void setSessionProperty(QualifiedName key, Object value) throws CoreException {
-        throw new RuntimeException("Not implemented");
+
     }
 
     @Override
     public void setTeamPrivateMember(boolean isTeamPrivate) throws CoreException {
-        throw new RuntimeException("Not implemented");
     }
 
     @Override
     public void touch(IProgressMonitor monitor) throws CoreException {
-        throw new RuntimeException("Not implemented");
     }
 
     @Override
@@ -406,16 +393,15 @@ public class AbstractIResourceStub implements IResource {
 
     @Override
     public boolean isVirtual() {
-        throw new RuntimeException("Not implemented");
+        return false;
     }
 
     public boolean isFiltered() {
-        throw new RuntimeException("Not implemented");
+        return false;
     }
 
     @Override
     public void accept(IResourceProxyVisitor visitor, int depth, int memberFlags) throws CoreException {
-        throw new RuntimeException("Not implemented");
     }
 
 }
