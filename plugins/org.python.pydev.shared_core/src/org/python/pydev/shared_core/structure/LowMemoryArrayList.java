@@ -6,7 +6,6 @@
  */
 package org.python.pydev.shared_core.structure;
 
-import java.util.AbstractCollection;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -19,7 +18,7 @@ import java.util.ListIterator;
  *
  * @author Fabio
  */
-public class LowMemoryArrayList<E> extends AbstractCollection<E>implements List<E> {
+public class LowMemoryArrayList<E> implements List<E> {
 
     private transient E[] data;
     private int size;
@@ -223,15 +222,11 @@ public class LowMemoryArrayList<E> extends AbstractCollection<E>implements List<
         size = 0;
     }
 
-    private void RangeCheck(int index) {
+    @Override
+    public E get(int index) {
         if (index >= size) {
             throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
         }
-    }
-
-    @Override
-    public E get(int index) {
-        RangeCheck(index);
         //No need to check for null here!
         return data[index];
     }
@@ -255,7 +250,9 @@ public class LowMemoryArrayList<E> extends AbstractCollection<E>implements List<
 
     @Override
     public E remove(int index) {
-        RangeCheck(index);
+        if (index >= size) {
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
+        }
 
         E oldValue = data[index];
 
