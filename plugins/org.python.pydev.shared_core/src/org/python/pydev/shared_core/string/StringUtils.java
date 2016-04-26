@@ -22,6 +22,7 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -430,7 +431,7 @@ public final class StringUtils {
                 return obj;
             }
             try {
-                byte[] bytes = str.getBytes("UTF-8");
+                byte[] bytes = str.getBytes(StandardCharsets.UTF_8);
                 MessageDigest md = MessageDigest.getInstance("MD5");
                 //MAX_RADIX because we'll generate the shortest string possible... (while still
                 //using only numbers 0-9 and letters a-z)
@@ -945,15 +946,6 @@ public final class StringUtils {
         return count;
     }
 
-    private static Charset latin1Charset;
-
-    private static Charset getLatin1Charset() {
-        if (latin1Charset == null) {
-            latin1Charset = Charset.forName("iso8859-1");
-        }
-        return latin1Charset;
-    }
-
     /**
      * Returns whether the given input (to the number of bytes passed in len) is to be considered a valid text string
      * (otherwise, it's considered a binary string).
@@ -967,7 +959,7 @@ public final class StringUtils {
         if (len > buffer.length) {
             len = buffer.length;
         }
-        String s = new String(buffer, 0, len, getLatin1Charset()); //Decode as latin1
+        String s = new String(buffer, 0, len, StandardCharsets.ISO_8859_1); //Decode as latin1
         int maxLen = s.length();
         for (int i = 0; i < maxLen; i++) {
             char c = s.charAt(i);
@@ -1602,7 +1594,7 @@ public final class StringUtils {
     public static String safeDecodeByteArray(byte[] b, String baseCharset) {
         try {
             if (baseCharset == null) {
-                baseCharset = "ISO-8859-1";
+                return new String(b, StandardCharsets.ISO_8859_1);
             }
             return new String(b, baseCharset);
         } catch (Exception e) {

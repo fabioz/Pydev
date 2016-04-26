@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -687,7 +688,7 @@ public class XMLUtils {
         try {
             SAXParser parser = getSAXParser();
             ExceptionStackTraceXMLInfo info = new ExceptionStackTraceXMLInfo(target);
-            parser.parse(new ByteArrayInputStream(payload.getBytes("utf-8")), info);
+            parser.parse(new ByteArrayInputStream(payload.getBytes(StandardCharsets.UTF_8)), info);
             exceptionStackTraceList = info.exceptionStackTraceList;
         } catch (SAXException e) {
             throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML error", e));

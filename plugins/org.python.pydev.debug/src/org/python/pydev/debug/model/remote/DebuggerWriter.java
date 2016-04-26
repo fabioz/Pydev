@@ -9,6 +9,7 @@ package org.python.pydev.debug.model.remote;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +45,7 @@ public class DebuggerWriter implements Runnable {
 
     public DebuggerWriter(Socket s) throws IOException {
         socket = s;
-        out = new OutputStreamWriter(s.getOutputStream(), "utf-8");
+        out = new OutputStreamWriter(s.getOutputStream(), StandardCharsets.UTF_8);
     }
 
     /**

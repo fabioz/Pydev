@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -302,7 +303,7 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
                             ModulesKeyForZip forZip = (ModulesKeyForZip) completeIndexKey2.key;
                             try (InputStream inputStream = zipFile
                                     .getInputStream(zipFile.getEntry(forZip.zipModulePath));) {
-                                InputStreamReader reader = new InputStreamReader(inputStream, "utf-8");
+                                InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
                                 mustCommitChange = true;
                                 if (DEBUG) {
                                     System.out.println("Indexing: " + completeIndexKey2);
