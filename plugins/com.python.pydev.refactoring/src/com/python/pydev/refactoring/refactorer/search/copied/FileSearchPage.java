@@ -125,7 +125,7 @@ public class FileSearchPage extends AbstractTextSearchViewPage implements IAdapt
         fSortByPathAction = new SortAction(SearchMessages.FileSearchPage_sort_path_label, this,
                 FileLabelProvider.SHOW_PATH_LABEL);
 
-        setElementLimit(new Integer(DEFAULT_ELEMENT_LIMIT));
+        setElementLimit(DEFAULT_ELEMENT_LIMIT);
     }
 
     @Override
@@ -305,7 +305,7 @@ public class FileSearchPage extends AbstractTextSearchViewPage implements IAdapt
                 elementLimit = value.intValue();
             }
         }
-        setElementLimit(new Integer(elementLimit));
+        setElementLimit(elementLimit);
     }
 
     @Override
@@ -342,13 +342,13 @@ public class FileSearchPage extends AbstractTextSearchViewPage implements IAdapt
                     int matchCount = getInput().getMatchCount();
                     if (itemCount < matchCount) {
                         return MessageFormat.format(SearchMessages.FileSearchPage_limited_format_matches, new Object[] {
-                                label, new Integer(itemCount), new Integer(matchCount) });
+                                label, itemCount, matchCount });
                     }
                 } else {
                     int fileCount = getInput().getElements().length;
                     if (itemCount < fileCount) {
                         return MessageFormat.format(SearchMessages.FileSearchPage_limited_format_files, new Object[] {
-                                label, new Integer(itemCount), new Integer(fileCount) });
+                                label, itemCount, fileCount });
                     }
                 }
             }

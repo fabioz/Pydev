@@ -106,7 +106,7 @@ public class FileLabelProvider extends LabelProvider {
     private String getLineElementLabel(LineElement lineElement) {
         int lineNumber = lineElement.getLine();
         String lineNumberString = MessageFormat
-                .format(SearchMessages.FileLabelProvider_line_number, new Integer(lineNumber));
+                .format(SearchMessages.FileLabelProvider_line_number, lineNumber);
 
         String str = new String(lineNumberString);
 
@@ -216,7 +216,7 @@ public class FileLabelProvider extends LabelProvider {
             return coloredName;
         }
 
-        String countInfo = MessageFormat.format(SearchMessages.FileLabelProvider_count_format, new Integer(matchCount));
+        String countInfo = MessageFormat.format(SearchMessages.FileLabelProvider_count_format, matchCount);
         coloredName += " ";
         coloredName += countInfo;
         return coloredName;

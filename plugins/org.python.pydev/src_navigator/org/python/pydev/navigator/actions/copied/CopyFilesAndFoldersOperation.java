@@ -112,8 +112,8 @@ public class CopyFilesAndFoldersOperation {
             String nameSegment;
 
             if (counter > 1) {
-                nameSegment = NLS.bind("Copy ({0}) of {1}", new Integer(
-                        counter), resourceName);
+                nameSegment = NLS.bind("Copy ({0}) of {1}",
+                        counter, resourceName);
             } else {
                 nameSegment = NLS.bind("Copy of {0}", resourceName);
             }

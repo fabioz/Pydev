@@ -142,7 +142,7 @@ public class FileNode implements ICoverageLeafNode {
                 continue;
             }
             if (tok.indexOf("-") == -1) {
-                Integer startEnd = new Integer(tok);
+                Integer startEnd = Integer.valueOf(tok);
                 l.add(new Tuple<Integer, Integer>(startEnd, startEnd));
             } else {
                 String[] begEnd = tok.split("-");

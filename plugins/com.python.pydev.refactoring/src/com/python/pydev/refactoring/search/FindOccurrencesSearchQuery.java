@@ -156,7 +156,7 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery {
                             getDescription());
                 }
                 return StringUtils.format("%s - %s matches in %s", searchString,
-                        new Integer(nMatches),
+                        nMatches,
                         getDescription());
             }
             // search selected file extensions
@@ -165,7 +165,7 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery {
                         getDescription());
             }
             return StringUtils.format("%s - %s matches in %s", searchString,
-                    new Integer(nMatches), getDescription());
+                    nMatches, getDescription());
         }
         throw new RuntimeException("Unexpected condition when finding: " + searchString);
     }

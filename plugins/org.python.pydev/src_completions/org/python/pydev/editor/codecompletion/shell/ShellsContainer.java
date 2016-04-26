@@ -38,7 +38,7 @@ public class ShellsContainer {
     public static void stopServerShell(IInterpreterInfo interpreter, int id) {
         synchronized (shells) {
             Map<Integer, AbstractShell> typeToShell = getTypeToShellFromId(interpreter);
-            AbstractShell pythonShell = typeToShell.get(new Integer(id));
+            AbstractShell pythonShell = typeToShell.get(id);
 
             if (pythonShell != null) {
                 try {
@@ -153,7 +153,7 @@ public class ShellsContainer {
         synchronized (shells) {
             try {
                 Map<Integer, AbstractShell> typeToShell = getTypeToShellFromId(nature.getProjectInterpreter());
-                typeToShell.put(new Integer(id), shell);
+                typeToShell.put(id, shell);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -207,7 +207,7 @@ public class ShellsContainer {
                                 + interpreter.getExecutableOrJar(), AbstractShell.class);
             }
             Map<Integer, AbstractShell> typeToShell = getTypeToShellFromId(interpreter);
-            pythonShell = typeToShell.get(new Integer(id));
+            pythonShell = typeToShell.get(id);
 
             if (pythonShell == null) {
                 if (DebugSettings.DEBUG_CODE_COMPLETION) {
@@ -236,7 +236,7 @@ public class ShellsContainer {
                 }
 
                 //then make it accessible
-                typeToShell.put(new Integer(id), pythonShell);
+                typeToShell.put(id, pythonShell);
             }
 
         }

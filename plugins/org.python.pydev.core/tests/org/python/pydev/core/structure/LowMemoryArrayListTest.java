@@ -24,11 +24,11 @@ public class LowMemoryArrayListTest extends TestCase {
         assertEquals(0, array.size());
         assertTrue(array.isEmpty());
 
-        array.add(new Integer(0));
-        array.add(0, new Integer(1));
-        array.add(1, new Integer(2));
-        array.add(new Integer(3));
-        array.add(new Integer(1));
+        array.add(0);
+        array.add(0, 1);
+        array.add(1, 2);
+        array.add(3);
+        array.add(1);
 
         assertEquals(5, array.size());
         assertFalse(array.isEmpty());
@@ -40,11 +40,11 @@ public class LowMemoryArrayListTest extends TestCase {
         assertEquals(1, array.get(4).intValue());
 
         assertFalse(array.contains(null));
-        assertTrue(array.contains(new Integer(2)));
-        assertEquals(0, array.indexOf(new Integer(1)));
-        assertEquals(4, array.lastIndexOf(new Integer(1)));
-        assertTrue(array.indexOf(new Integer(5)) < 0);
-        assertTrue(array.lastIndexOf(new Integer(5)) < 0);
+        assertTrue(array.contains(2));
+        assertEquals(0, array.indexOf(1));
+        assertEquals(4, array.lastIndexOf(1));
+        assertTrue(array.indexOf(5) < 0);
+        assertTrue(array.lastIndexOf(5) < 0);
 
         array.remove(1);
         array.remove(1);
@@ -56,18 +56,18 @@ public class LowMemoryArrayListTest extends TestCase {
         assertEquals(1, array.get(2).intValue());
 
         assertFalse(array.contains(null));
-        assertFalse(array.contains(new Integer(2)));
-        assertEquals(0, array.indexOf(new Integer(1)));
-        assertEquals(2, array.lastIndexOf(new Integer(1)));
-        assertTrue(array.indexOf(new Integer(5)) < 0);
-        assertTrue(array.lastIndexOf(new Integer(5)) < 0);
+        assertFalse(array.contains(2));
+        assertEquals(0, array.indexOf(1));
+        assertEquals(2, array.lastIndexOf(1));
+        assertTrue(array.indexOf(5) < 0);
+        assertTrue(array.lastIndexOf(5) < 0);
 
         array.clear();
 
         assertEquals(0, array.size());
         assertTrue(array.isEmpty());
-        assertTrue(array.indexOf(new Integer(5)) < 0);
-        assertTrue(array.lastIndexOf(new Integer(5)) < 0);
+        assertTrue(array.indexOf(5) < 0);
+        assertTrue(array.lastIndexOf(5) < 0);
 
         List<Comparable<?>> al = new LowMemoryArrayList<Comparable<?>>();
 
