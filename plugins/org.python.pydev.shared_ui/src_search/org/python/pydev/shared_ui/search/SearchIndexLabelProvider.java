@@ -106,7 +106,7 @@ public class SearchIndexLabelProvider extends LabelProvider implements IStyledLa
     private StyledString getLineElementLabel(ICustomLineElement lineElement) {
         int lineNumber = lineElement.getLine();
         String lineNumberString = MessageFormat.format("{0}:",
-                new Integer(lineNumber));
+                lineNumber);
 
         StyledString str = new StyledString(lineNumberString, StyledString.QUALIFIER_STYLER);
 
@@ -217,7 +217,7 @@ public class SearchIndexLabelProvider extends LabelProvider implements IStyledLa
             return coloredName;
         }
 
-        String countInfo = MessageFormat.format("({0} matches)", new Integer(matchCount));
+        String countInfo = MessageFormat.format("({0} matches)", matchCount);
         coloredName.append(' ').append(countInfo, StyledString.COUNTER_STYLER);
         return coloredName;
     }

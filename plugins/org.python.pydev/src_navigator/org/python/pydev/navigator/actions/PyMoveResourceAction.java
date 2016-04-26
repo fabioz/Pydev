@@ -91,7 +91,7 @@ public class PyMoveResourceAction extends MoveResourceAction {
         if (selected.size() == 1) {
             title = "Choose destination for ''" + selected.get(0).getName() + "'':";
         } else {
-            title = "Choose destination for " + new Integer(selected.size()) + " selected resources:";
+            title = "Choose destination for " + selected.size() + " selected resources:";
         }
         ContainerSelectionDialog dialog = new ContainerSelectionDialog(shellProvider.getShell(),
                 selected.get(0).getParent(), true, title);

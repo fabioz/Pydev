@@ -1058,8 +1058,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
             while (i < size && layer >= ((Integer) fLayersSortedByLayer.get(i)).intValue()) {
                 i++;
             }
-            Integer layerObj = new Integer(layer);
-            fLayersSortedByLayer.add(i, layerObj);
+            fLayersSortedByLayer.add(i, layer);
             fAnnotationsSortedByLayer.add(i, annotationType);
         }
     }
@@ -1429,7 +1428,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
                 {
                     overview += "\n"; //$NON-NLS-1$
                 }
-                overview += annotationTypeLabel + ":" + new Integer(count); //$NON-NLS-1$ fabioz change; not user internal formatter
+                overview += annotationTypeLabel + ":" + count; //$NON-NLS-1$ fabioz change; not user internal formatter
             }
         }
 

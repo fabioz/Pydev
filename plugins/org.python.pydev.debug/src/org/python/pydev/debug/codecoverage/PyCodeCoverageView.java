@@ -1056,11 +1056,11 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
                                 int errorEnd = region.getOffset() + region.getLength();
 
                                 map.put(IMarker.MESSAGE, message);
-                                map.put(IMarker.SEVERITY, new Integer(IMarker.SEVERITY_ERROR));
+                                map.put(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
                                 map.put(IMarker.CHAR_START, errorStart);
                                 map.put(IMarker.CHAR_END, errorEnd);
                                 map.put(IMarker.TRANSIENT, Boolean.valueOf(true));
-                                map.put(IMarker.PRIORITY, new Integer(IMarker.PRIORITY_HIGH));
+                                map.put(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
 
                                 MarkerUtilities.createMarker(original, map, type);
                             } catch (Exception e1) {

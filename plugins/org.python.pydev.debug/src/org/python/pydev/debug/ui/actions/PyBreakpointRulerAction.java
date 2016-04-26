@@ -132,8 +132,8 @@ public class PyBreakpointRulerAction extends AbstractBreakpointRulerAction {
             }
 
             map.put(IMarker.MESSAGE, PYDEV_BREAKPOINT);
-            map.put(IMarker.LINE_NUMBER, new Integer(lineNumber));
-            map.put(IBreakpoint.ENABLED, new Boolean(true));
+            map.put(IMarker.LINE_NUMBER, lineNumber);
+            map.put(IBreakpoint.ENABLED, true);
             map.put(IBreakpoint.ID, PyDebugModelPresentation.PY_DEBUG_MODEL_ID);
             map.put(PyBreakpoint.PY_BREAK_TYPE, type);
             if (externalFileEditorInput != null) {
