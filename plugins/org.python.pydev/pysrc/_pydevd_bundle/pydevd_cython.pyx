@@ -4,7 +4,7 @@
 # DO NOT edit manually!
 import sys
 import weakref
-from _pydev_imps import _pydev_thread
+from _pydev_imps._pydev_saved_modules import thread
 from _pydevd_bundle.pydevd_constants import STATE_RUN, PYTHON_SUSPEND, dict_iter_items
 from _pydevd_bundle.pydevd_frame import PyDBFrame
 
@@ -113,7 +113,7 @@ cdef class PyDBAdditionalThreadInfo:
 #         #Or if the user compiled threadframe (from http://www.majid.info/mylos/stories/2004/06/10/threadframe.html)
 # 
 #         #NOT RLock!! (could deadlock if it was)
-#         self.lock = _pydev_thread.allocate_lock()
+#         self.lock = thread.allocate_lock()
 #         self._acquire_lock = self.lock.acquire
 #         self._release_lock = self.lock.release
 # 
@@ -828,7 +828,7 @@ class PyDBFrame: # No longer cdef because object was dying when only a reference
 import traceback
 
 from _pydev_bundle.pydev_is_thread_alive import is_thread_alive
-from _pydev_imps import _pydev_threading as threading
+from _pydev_imps._pydev_saved_modules import threading
 from _pydevd_bundle.pydevd_constants import get_thread_id
 from _pydevd_bundle.pydevd_dont_trace_files import DONT_TRACE
 from _pydevd_bundle.pydevd_kill_all_pydevd_threads import kill_all_pydev_threads
