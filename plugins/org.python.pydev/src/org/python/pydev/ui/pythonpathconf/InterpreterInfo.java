@@ -952,6 +952,7 @@ public class InterpreterInfo implements IInterpreterInfo {
                 forcedLibs.add("math");
                 forcedLibs.add("mmap");
                 forcedLibs.add("msvcrt");
+                forcedLibs.add("multiprocessing");
                 forcedLibs.add("nt");
                 forcedLibs.add("operator");
                 forcedLibs.add("parser");

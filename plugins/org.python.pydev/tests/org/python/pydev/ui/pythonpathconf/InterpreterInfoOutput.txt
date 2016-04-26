@@ -66,6 +66,7 @@
 <forced_lib>math</forced_lib>
 <forced_lib>mmap</forced_lib>
 <forced_lib>msvcrt</forced_lib>
+<forced_lib>multiprocessing</forced_lib>
 <forced_lib>nt</forced_lib>
 <forced_lib>operator</forced_lib>
 <forced_lib>parser</forced_lib>
