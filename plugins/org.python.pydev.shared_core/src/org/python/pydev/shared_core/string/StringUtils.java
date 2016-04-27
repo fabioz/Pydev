@@ -12,8 +12,6 @@
 ******************************************************************************/
 package org.python.pydev.shared_core.string;
 
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.math.BigInteger;
@@ -1618,46 +1616,6 @@ public final class StringUtils {
                 return new String("Unable to decode bytearray from Python.");
             }
         }
-    }
-
-    /**
-     * Decodes some string that was encoded as base64
-     */
-    public static byte[] decodeBase64(String persisted) {
-        return Base64Coder.decode(persisted.toCharArray());
-    }
-
-    /**
-     * @param o the object we want as a string
-     * @return the string representing the object as base64
-     */
-    public static String getObjAsStr(Object o) {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try {
-            ObjectOutputStream stream = new ObjectOutputStream(out);
-            stream.writeObject(o);
-            stream.close();
-        } catch (Exception e) {
-            Log.log(e);
-            throw new RuntimeException(e);
-        }
-
-        return new String(encodeBase64(out));
-    }
-
-    /**
-     * @return the contents of the passed ByteArrayOutputStream as a byte[] encoded with base64.
-     */
-    public static char[] encodeBase64(ByteArrayOutputStream out) {
-        byte[] byteArray = out.toByteArray();
-        return encodeBase64(byteArray);
-    }
-
-    /**
-     * @return the contents of the passed byteArray[] as a byte[] encoded with base64.
-     */
-    public static char[] encodeBase64(byte[] byteArray) {
-        return Base64Coder.encode(byteArray);
     }
 
     public static boolean containsWhitespace(final String name) {
