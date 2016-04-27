@@ -24,7 +24,6 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
 import java.security.MessageDigest;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -1625,7 +1624,7 @@ public final class StringUtils {
      * Decodes some string that was encoded as base64
      */
     public static byte[] decodeBase64(String persisted) {
-        return Base64.getDecoder().decode(persisted);
+        return Base64Coder.decode(persisted.toCharArray());
     }
 
     /**
@@ -1658,7 +1657,7 @@ public final class StringUtils {
      * @return the contents of the passed byteArray[] as a byte[] encoded with base64.
      */
     public static char[] encodeBase64(byte[] byteArray) {
-        return Base64.getEncoder().encodeToString(byteArray).toCharArray();
+        return Base64Coder.encode(byteArray);
     }
 
     public static boolean containsWhitespace(final String name) {
