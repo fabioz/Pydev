@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +47,7 @@ public class ConfigureExceptionsFileUtils {
         IPath path = getFilePathFromMetadata(fileName);
         try {
             FileOutputStream fstream = new FileOutputStream(path.toFile(), isAppend);
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fstream, "utf-8");
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fstream, StandardCharsets.UTF_8);
             BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
             bufferedWriter.write(pyExceptionsStr);
             bufferedWriter.close();

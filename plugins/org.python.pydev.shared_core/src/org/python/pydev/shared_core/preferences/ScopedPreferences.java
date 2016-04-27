@@ -9,7 +9,7 @@ package org.python.pydev.shared_core.preferences;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.attribute.FileTime;
 import java.util.Collections;
@@ -277,7 +277,7 @@ public final class ScopedPreferences implements IScopedPreferences {
             yamlFile.create(new ByteArrayInputStream("".getBytes()), true, new NullProgressMonitor());
         }
         yamlFile.setCharset("UTF-8", new NullProgressMonitor());
-        yamlFile.setContents(new ByteArrayInputStream(dumpAsMap.getBytes(Charset.forName("UTF-8"))), true, true,
+        yamlFile.setContents(new ByteArrayInputStream(dumpAsMap.getBytes(StandardCharsets.UTF_8)), true, true,
                 new NullProgressMonitor());
     }
 

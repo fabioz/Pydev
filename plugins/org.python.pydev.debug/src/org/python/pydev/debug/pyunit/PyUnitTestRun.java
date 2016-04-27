@@ -7,6 +7,7 @@
 package org.python.pydev.debug.pyunit;
 
 import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -261,7 +262,7 @@ public class PyUnitTestRun {
             DOMSource source = new DOMSource(document);
             StreamResult outputTarget = new StreamResult(s);
             transformer.transform(source, outputTarget);
-            return new String(s.toByteArray(), "utf-8");
+            return new String(s.toByteArray(), StandardCharsets.UTF_8);
         } catch (Exception e) {
             Log.log(e);
         }
