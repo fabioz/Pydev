@@ -14,24 +14,20 @@ import org.python.pydev.shared_core.callbacks.ICallbackListener;
 
 /**
  * @author fabioz
- *
  */
 public class RestorePinHistoryAction extends Action implements ICallbackListener<PyUnitTestRun> {
 
     private WeakReference<PyUnitView> view;
-    private PinHistoryAction pinHistory;
     private PyUnitTestRun testRun;
 
     /**
      * @param pyUnitView
      */
-    public RestorePinHistoryAction(PyUnitView pyUnitView, PinHistoryAction pinHistory) {
+    public RestorePinHistoryAction(PyUnitView pyUnitView) {
         this.view = new WeakReference<PyUnitView>(pyUnitView);
-        this.pinHistory = pinHistory;
-        this.pinHistory.onRunSelected.registerListener(this);
-        this.setEnabled(false);
         this.setImageDescriptor(PydevDebugPlugin.getImageCache().getDescriptor("icons/refresh.png"));
-        setInitialTooltipText();
+        PyUnitViewTestsHolder.onPinSelected.registerListener(this);
+        this.call(PyUnitViewTestsHolder.getCurrentPinned());
     }
 
     private void setInitialTooltipText() {

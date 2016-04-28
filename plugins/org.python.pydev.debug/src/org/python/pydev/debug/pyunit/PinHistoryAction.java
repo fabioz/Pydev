@@ -10,7 +10,6 @@ import java.lang.ref.WeakReference;
 
 import org.eclipse.jface.action.Action;
 import org.python.pydev.debug.core.PydevDebugPlugin;
-import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 
 /**
  * @author fabioz
@@ -19,33 +18,17 @@ import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 public class PinHistoryAction extends Action {
 
     private WeakReference<PyUnitView> view;
-    private PyUnitTestRun currentTestRun;
-    private PyUnitTestRun lastPinned;
-    public final CallbackWithListeners<PyUnitTestRun> onRunSelected;
 
     /**
      * @param pyUnitView
      */
     public PinHistoryAction(PyUnitView pyUnitView) {
         this.view = new WeakReference<PyUnitView>(pyUnitView);
-        setInitialTooltipText();
-        this.setImageDescriptor(PydevDebugPlugin.getImageCache().getDescriptor("icons/pin.png"));
-        this.setChecked(false);
-        this.currentTestRun = null;
-        this.lastPinned = null;
-        this.onRunSelected = new CallbackWithListeners<PyUnitTestRun>();
+        updateState();
     }
 
     private void setInitialTooltipText() {
         this.setToolTipText("Click to mark the currently selected run as the base-run.");
-    }
-
-    public PyUnitTestRun getCurrentTestRun() {
-        return currentTestRun;
-    }
-
-    public PyUnitTestRun getLastPinned() {
-        return lastPinned;
     }
 
     /* (non-Javadoc)
@@ -53,7 +36,6 @@ public class PinHistoryAction extends Action {
      */
     @Override
     public void run() {
-        boolean worked = false;
         try {
             if (this.isChecked()) {
                 if (view == null) {
@@ -65,23 +47,26 @@ public class PinHistoryAction extends Action {
                 }
                 PyUnitTestRun currentTestRun = pyUnitView.getCurrentTestRun();
                 if (currentTestRun != null) {
-                    worked = true;
-                    onRunSelected.call(currentTestRun);
-                    this.currentTestRun = currentTestRun;
-                    this.lastPinned = currentTestRun;
-                    this.setImageDescriptor(PydevDebugPlugin.getImageCache().getDescriptor("icons/pin_arrow.png"));
-                    this.setToolTipText("Currently pin: " + currentTestRun.name + ". Click again to unpin.");
+                    PyUnitViewTestsHolder.setCurrentPinned(currentTestRun);
                 }
+            } else {
+                PyUnitViewTestsHolder.setCurrentPinned(null);
             }
-
         } finally {
-            if (!worked) {
-                this.setImageDescriptor(PydevDebugPlugin.getImageCache().getDescriptor("icons/pin.png"));
-                this.setInitialTooltipText();
-                this.setChecked(false);
-                currentTestRun = null;
-                onRunSelected.call(currentTestRun);
-            }
+            updateState();
+        }
+    }
+
+    private void updateState() {
+        PyUnitTestRun currentPinned = PyUnitViewTestsHolder.getCurrentPinned();
+        if (currentPinned == null) {
+            this.setImageDescriptor(PydevDebugPlugin.getImageCache().getDescriptor("icons/pin.png"));
+            this.setInitialTooltipText();
+            this.setChecked(false);
+        } else {
+            this.setImageDescriptor(PydevDebugPlugin.getImageCache().getDescriptor("icons/pin_arrow.png"));
+            this.setToolTipText("Currently pin: " + currentPinned.name + ". Click again to unpin.");
+            this.setChecked(true);
         }
     }
 

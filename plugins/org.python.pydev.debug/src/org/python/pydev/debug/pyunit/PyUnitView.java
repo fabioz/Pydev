@@ -410,7 +410,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
         toolBar.add(new Separator());
         toolBar.add(new HistoryAction(this));
         toolBar.add(fPinHistory);
-        toolBar.add(new RestorePinHistoryAction(this, fPinHistory));
+        toolBar.add(new RestorePinHistoryAction(this));
 
         addOrientationPreferences(menuManager);
     }
@@ -1015,10 +1015,6 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
         if (str.length() > 0) {
             new ClipboardHandler().putIntoClipboard(DND.CLIPBOARD, Display.getCurrent(), str);
         }
-    }
-
-    public PyUnitTestRun getLastPinned() {
-        return this.fPinHistory.getLastPinned();
     }
 
     public void restoreFromClipboard() {
