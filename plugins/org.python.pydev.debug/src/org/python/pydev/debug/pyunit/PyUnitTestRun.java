@@ -55,6 +55,11 @@ public class PyUnitTestRun {
     private int nextIndex = 0;
     private String totalTime; //null while not set.
 
+    /**
+     * Helper to know whether we've already saved this PyUnitTestRun to the disk to be restored later.
+     */
+    public Integer savedDiskIndex;
+
     public PyUnitTestRun(IPyUnitLaunch server) {
         synchronized (lock) {
             this.name = "Test Run: " + currentRun;

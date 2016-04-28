@@ -59,6 +59,7 @@ import org.eclipse.ui.console.IHyperlink;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.prefs.ColorManager;
+import org.python.pydev.debug.pyunit.PyUnitViewTestsHolder.DummyPyUnitServer;
 import org.python.pydev.debug.ui.ILinkContainer;
 import org.python.pydev.debug.ui.PythonConsoleLineTracker;
 import org.python.pydev.plugin.PydevPlugin;
@@ -147,10 +148,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
     public static final String PYUNIT_VIEW_BACKGROUND_RELAUNCH_SHOW_ONLY_ERRORS = "PYUNIT_VIEW_BACKGROUND_RELAUNCH_SHOW_ONLY_ERRORS";
     public static final boolean PYUNIT_VIEW_DEFAULT_BACKGROUND_RELAUNCH_SHOW_ONLY_ERRORS = false;
 
-    public static int MAX_RUNS_TO_KEEP = 20;
-
-    private static final Object lockServerListeners = new Object();
-    private static final List<PyUnitViewServerListener> serverListeners = new ArrayList<PyUnitViewServerListener>();
+    public static int MAX_RUNS_TO_KEEP = PyUnitViewTestsHolder.MAX_RUNS_TO_KEEP;
 
     private PyUnitTestRun currentRun;
     private final PythonConsoleLineTracker lineTracker = new PythonConsoleLineTracker();
@@ -491,7 +489,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
         //We create a listener before and later set the view so that we don't run into racing condition errors!
         final PyUnitViewServerListener serverListener = new PyUnitViewServerListener(pyUnitServer,
                 pyUnitServer.getPyUnitLaunch());
-        PyUnitView.addServerListener(serverListener);
+        PyUnitViewTestsHolder.addServerListener(serverListener);
 
         Runnable r = new Runnable() {
             @Override
@@ -520,13 +518,13 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
      * as it may be that a view was closed and then a new one created).
      */
     private void onTestRunAdded() {
-        synchronized (lockServerListeners) {
-            for (PyUnitViewServerListener listener : serverListeners) {
+        synchronized (PyUnitViewTestsHolder.lockServerListeners) {
+            for (PyUnitViewServerListener listener : PyUnitViewTestsHolder.serverListeners) {
                 listener.setView(this); //Set in all, as it may be that they have an already disposed view registered.
             }
-            if (serverListeners.size() > 0) {
+            if (PyUnitViewTestsHolder.serverListeners.size() > 0) {
                 //make the last one active.
-                this.setCurrentRun(serverListeners.get(serverListeners.size() - 1).getTestRun());
+                this.setCurrentRun(PyUnitViewTestsHolder.serverListeners.getLast().getTestRun());
             }
         }
     }
@@ -542,25 +540,16 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
     }
 
     /**
-     * Adds a server listener to the static list of available server listeners. This is needed so that we start
-     * to listen to it when the view is restored later on (if it's still not visible).
-     */
-    protected static void addServerListener(PyUnitViewServerListener serverListener) {
-        synchronized (lockServerListeners) {
-
-            if (serverListeners.size() + 1 > MAX_RUNS_TO_KEEP) {
-                serverListeners.remove(0);
-            }
-            serverListeners.add(serverListener);
-        }
-    }
-
-    /**
      * Notifies that the test run has finished.
      */
     /*default */void notifyFinished(PyUnitTestRun testRun) {
         if (this.disposed) {
             return;
+        }
+
+        // When a test finishes executing, save the configuration
+        if (testRun.savedDiskIndex == null) {
+            PyUnitViewTestsHolder.saveDiskIndexJob.schedule(20);
         }
 
         if (testRun != currentRun) {
@@ -952,9 +941,9 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
      * @return returns a copy with the test runs available.
      */
     public List<PyUnitTestRun> getAllTestRuns() {
-        synchronized (lockServerListeners) {
+        synchronized (PyUnitViewTestsHolder.lockServerListeners) {
             ArrayList<PyUnitTestRun> ret = new ArrayList<PyUnitTestRun>();
-            for (PyUnitViewServerListener listener : serverListeners) {
+            for (PyUnitViewServerListener listener : PyUnitViewTestsHolder.serverListeners) {
                 ret.add(listener.getTestRun());
             }
             return ret;
@@ -974,10 +963,11 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
      * Removes all the terminated test runs.
      */
     public void clearAllTerminated() {
-        synchronized (lockServerListeners) {
+        synchronized (PyUnitViewTestsHolder.lockServerListeners) {
             boolean removedCurrent = false;
 
-            for (Iterator<PyUnitViewServerListener> it = serverListeners.iterator(); it.hasNext();) {
+            for (Iterator<PyUnitViewServerListener> it = PyUnitViewTestsHolder.serverListeners.iterator(); it
+                    .hasNext();) {
                 PyUnitTestRun next = it.next().getTestRun();
                 if (next.getFinished()) {
                     if (next == this.currentRun) {
@@ -987,8 +977,8 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
                 }
             }
             if (removedCurrent) {
-                if (serverListeners.size() > 0) {
-                    this.setCurrentRun(serverListeners.get(0).getTestRun());
+                if (PyUnitViewTestsHolder.serverListeners.size() > 0) {
+                    this.setCurrentRun(PyUnitViewTestsHolder.serverListeners.getFirst().getTestRun());
                 } else {
                     this.setCurrentRun(null);
                 }
@@ -1031,25 +1021,6 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
         return this.fPinHistory.getLastPinned();
     }
 
-    private static class DummyPyUnitServer implements IPyUnitServer {
-
-        private IPyUnitLaunch launch;
-
-        public DummyPyUnitServer(IPyUnitLaunch launch) {
-            this.launch = launch;
-        }
-
-        @Override
-        public void registerOnNotifyTest(IPyUnitServerListener pyUnitViewServerListener) {
-
-        }
-
-        @Override
-        public IPyUnitLaunch getPyUnitLaunch() {
-            return this.launch;
-        }
-    };
-
     public void restoreFromClipboard() {
         try {
             String clipboardContents = ClipboardHandler.getClipboardContents();
@@ -1057,7 +1028,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
             DummyPyUnitServer pyUnitServer = new DummyPyUnitServer(testRunRestored.getPyUnitLaunch());
 
             final PyUnitViewServerListener serverListener = new PyUnitViewServerListener(pyUnitServer, testRunRestored);
-            PyUnitView.addServerListener(serverListener);
+            PyUnitViewTestsHolder.addServerListener(serverListener);
 
             this.setCurrentRun(testRunRestored);
         } catch (Exception e) {
@@ -1067,4 +1038,5 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
                     "Error restoring tests from clipboard", status);
         }
     }
+
 }
