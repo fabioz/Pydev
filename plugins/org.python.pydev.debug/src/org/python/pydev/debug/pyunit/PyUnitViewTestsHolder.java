@@ -263,9 +263,15 @@ public class PyUnitViewTestsHolder {
 
                 if (!foundCurr && currPin != null) {
                     lst.add(currPin);
+                    if (currPin.savedDiskIndex != null && currPin.savedDiskIndex >= i) {
+                        i = currPin.savedDiskIndex + 1;
+                    }
                 }
                 if (!foundLast && lastPin != null) {
                     lst.add(lastPin);
+                    if (lastPin.savedDiskIndex != null && lastPin.savedDiskIndex >= i) {
+                        i = lastPin.savedDiskIndex + 1;
+                    }
                 }
 
                 for (PyUnitTestRun testRun : lst) {
