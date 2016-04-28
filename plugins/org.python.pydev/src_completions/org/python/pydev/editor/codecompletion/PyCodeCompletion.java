@@ -297,7 +297,11 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                     for (String baseClass : insideParensBaseClasses.o1) {
                         ICompletionState state = new CompletionState(-1, -1, null, request.nature,
                                 baseClass);
-                        state.setActivationToken(request.activationToken.replace("super()", baseClass));
+                        String actTok = request.activationToken.replace("super()", baseClass);
+                        if (actTok.endsWith(".")) {
+                            actTok = actTok.substring(0, actTok.length() - 1);
+                        }
+                        state.setActivationToken(actTok);
                         state.setIsInCalltip(false);
 
                         IPythonNature pythonNature = request.nature;
@@ -429,7 +433,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
 
     private void fillTokensWithJediCompletions(CompletionRequest request, PySelection ps, IPythonNature nature,
             ICodeCompletionASTManager astManager, List<Object> tokensList) throws IOException, CoreException,
-                    MisconfigurationException, PythonNatureWithoutProjectException {
+            MisconfigurationException, PythonNatureWithoutProjectException {
 
         try {
             char c = ps.getCharBeforeCurrentOffset();
@@ -512,7 +516,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
      */
     private void doGlobalsCompletion(CompletionRequest request, ICodeCompletionASTManager astManager,
             List<Object> tokensList, ICompletionState state) throws CompletionRecursionException,
-                    MisconfigurationException {
+            MisconfigurationException {
         state.setActivationToken(request.activationToken);
         if (DebugSettings.DEBUG_CODE_COMPLETION) {
             Log.toLogFile(this, "astManager.getCompletionsForToken");
@@ -546,7 +550,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
      */
     private void doTokenCompletion(CompletionRequest request, ICodeCompletionASTManager astManager,
             List<Object> tokensList, String trimmed, ICompletionState state) throws CompletionRecursionException,
-                    MisconfigurationException, IOException, CoreException, PythonNatureWithoutProjectException {
+            MisconfigurationException, IOException, CoreException, PythonNatureWithoutProjectException {
         if (false) { //disabled for now.
             fillTokensWithJediCompletions(request, request.getPySelection(), request.nature, astManager, tokensList);
             return;
@@ -594,7 +598,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
      */
     private boolean doImportCompletion(CompletionRequest request, ICodeCompletionASTManager astManager,
             List<Object> tokensList, ImportInfo importsTipper) throws CompletionRecursionException,
-                    MisconfigurationException {
+            MisconfigurationException {
         boolean importsTip;
         //get the project and make the code completion!!
         //so, we want to do a code completion for imports...
