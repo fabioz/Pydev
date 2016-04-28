@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.Assert;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
@@ -48,6 +49,13 @@ public class PyUnitTestResult {
 
     public PyUnitTestResult(PyUnitTestRun testRun, String status, String location, String test, String capturedOutput,
             String errorContents, String time) {
+        Assert.isNotNull(capturedOutput);
+        Assert.isNotNull(errorContents);
+        Assert.isNotNull(time);
+        Assert.isNotNull(test);
+        Assert.isNotNull(location);
+        Assert.isNotNull(status);
+        Assert.isNotNull(testRun);
         //note that the parent has a strong reference to the children.
         this.testRun = new WeakReference<PyUnitTestRun>(testRun);
         this.status = status;

@@ -15,6 +15,8 @@ import org.eclipse.swt.widgets.Tree;
 import org.python.pydev.debug.pyunit.HistoryAction.HistoryMenuCreator;
 import org.python.pydev.debug.pyunit.HistoryAction.IActionsMenu;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -78,6 +80,10 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase {
                     public void relaunchTestResults(List<PyUnitTestResult> arrayList, String mode) {
                     }
 
+                    @Override
+                    public void fillXMLElement(Document document, Element launchElement) {
+                    }
+
                 };
             }
         };
@@ -109,6 +115,10 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase {
 
                     @Override
                     public void relaunchTestResults(List<PyUnitTestResult> arrayList, String mode) {
+                    }
+
+                    @Override
+                    public void fillXMLElement(Document document, Element launchElement) {
                     }
                 };
             }

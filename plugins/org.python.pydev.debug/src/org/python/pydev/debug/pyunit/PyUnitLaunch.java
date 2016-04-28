@@ -10,19 +10,23 @@ import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugException;
+import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.Launch;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
+import org.python.pydev.debug.model.PySourceLocator;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_ui.debug.RestartLaunchAction;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 public class PyUnitLaunch implements IPyUnitLaunch {
 
-    private ILaunchConfiguration configuration;
-    private ILaunch launch;
+    private final ILaunchConfiguration configuration;
+    private final ILaunch launch;
 
     public PyUnitLaunch(ILaunch launch, ILaunchConfiguration configuration) {
         this.launch = launch;
@@ -30,16 +34,59 @@ public class PyUnitLaunch implements IPyUnitLaunch {
     }
 
     @Override
-    public void stop() {
+    public void fillXMLElement(Document document, Element launchElement) {
         try {
-            this.launch.terminate(); //doing this should call dispose later on.
-        } catch (DebugException e) {
+            if (this.launch != null) {
+                launchElement.setAttribute("mode", this.launch.getLaunchMode());
+            }
+        } catch (Exception e) {
             Log.log(e);
+        }
+
+        try {
+            if (this.configuration != null) {
+                Element mementoXml = document.createElement("launch_memento");
+                launchElement.appendChild(mementoXml);
+                mementoXml.appendChild(document.createCDATASection(this.configuration.getMemento()));
+            }
+        } catch (CoreException e) {
+            Log.log(e);
+        }
+
+    }
+
+    public static IPyUnitLaunch fromIO(String mode, String memento) {
+        if (memento != null && mode != null) {
+            try {
+                ILaunchConfiguration launchConfiguration = DebugPlugin.getDefault().getLaunchManager()
+                        .getLaunchConfiguration(memento);
+                return new PyUnitLaunch(new Launch(launchConfiguration, mode, new PySourceLocator()),
+                        launchConfiguration);
+            } catch (Exception e) {
+                Log.log(e);
+            }
+        }
+        // Something went wrong or the info is not complete: create a launch that can't really be launched.
+        return new PyUnitLaunch(null, null);
+    }
+
+    @Override
+    public void stop() {
+        if (this.launch != null) {
+            try {
+                this.launch.terminate(); //doing this should call dispose later on.
+            } catch (DebugException e) {
+                Log.log(e);
+            }
         }
     }
 
     @Override
     public void relaunch() {
+        if (this.launch == null || this.configuration == null) {
+            Log.log("Unable to launch (launch configuration was not properly restored from IO or the related launch was already removed).");
+            return;
+        }
         RestartLaunchAction.relaunch(launch, configuration);
     }
 
@@ -50,6 +97,10 @@ public class PyUnitLaunch implements IPyUnitLaunch {
 
     @Override
     public void relaunchTestResults(List<PyUnitTestResult> runsToRelaunch, String mode) {
+        if (this.launch == null || this.configuration == null) {
+            Log.log("Unable to launch (launch configuration was not properly restored from IO or the related launch was already removed).");
+            return;
+        }
         FastStringBuffer buf = new FastStringBuffer(100 * runsToRelaunch.size());
         for (PyUnitTestResult pyUnitTestResult : runsToRelaunch) {
             buf.append(pyUnitTestResult.location).append("|").append(pyUnitTestResult.test).append('\n');

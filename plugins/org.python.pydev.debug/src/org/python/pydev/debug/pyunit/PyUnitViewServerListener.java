@@ -52,11 +52,15 @@ final class PyUnitViewServerListener implements IPyUnitServerListener {
 
     private final PyUnitTestRun testRun;
 
-    public PyUnitViewServerListener(IPyUnitServer pyUnitServer, IPyUnitLaunch pyUnitLaunch) {
-        this.testRun = new PyUnitTestRun(pyUnitLaunch);
+    public PyUnitViewServerListener(IPyUnitServer pyUnitServer, PyUnitTestRun testRun) {
+        this.testRun = testRun;
         pyUnitServer.registerOnNotifyTest(this);
         updateJob.setPriority(JOBS_PRIORITY);
         updateJob.setSystem(true);
+    }
+
+    public PyUnitViewServerListener(IPyUnitServer pyUnitServer, IPyUnitLaunch pyUnitLaunch) {
+        this(pyUnitServer, new PyUnitTestRun(pyUnitLaunch));
     }
 
     public static int TIMEOUT = 25;

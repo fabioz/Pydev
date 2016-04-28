@@ -207,68 +207,68 @@ public class PyUnitServer implements IPyUnitServer {
         });
         dispatch.put("notifyCommands", new Dispatch(1) { //the list of commands as a parameter
 
-                    @Override
-                    public void dispatch(IRequest request) {
-                        Object requestParam = request.getParameter(0);
-                        if (!(requestParam instanceof Object[])) {
-                            if (requestParam == null) {
-                                Log.log("Expected Object[]. Found: null");
-                            } else {
-                                Log.log("Expected Object[]. Found: " + requestParam.getClass());
-                            }
-                            return;
-                        }
-
-                        Object[] parameters = (Object[]) requestParam;
-
-                        for (int i = 0; i < parameters.length; i++) {
-                            Object param = parameters[i];
-                            if (!(param instanceof Object[])) {
-                                if (param == null) {
-                                    Log.log("Expected Object[]. Found: null");
-                                } else {
-                                    Log.log("Expected Object[]. Found: " + param.getClass());
-                                }
-                                return;
-                            }
-
-                            final Object[] methodAndParams = (Object[]) param;
-                            if (methodAndParams.length != 2) {
-                                Log.log("Expected Object[] of len == 2. Found len: " + methodAndParams.length);
-                                continue;
-                            }
-                            if (!(methodAndParams[1] instanceof Object[])) {
-                                Log.log("Expected methodAndParams[1] to be Object[]. Found: "
-                                        + methodAndParams[1].getClass());
-                                continue;
-                            }
-
-                            final String methodName = getAsStr(methodAndParams[0]);
-                            final Object[] params = (Object[]) methodAndParams[1];
-
-                            Dispatch d = dispatch.get(methodName);
-                            if (d != null) {
-                                d.handle(new IRequest() {
-
-                                    @Override
-                                    public int getParameterCount() {
-                                        return params.length;
-                                    }
-
-                                    @Override
-                                    public Object getParameter(int i) {
-                                        return params[i];
-                                    }
-
-                                    @Override
-                                    public String getMethodName() {
-                                        return methodName;
-                                    }
-                                });
-                            }
-                        }
+            @Override
+            public void dispatch(IRequest request) {
+                Object requestParam = request.getParameter(0);
+                if (!(requestParam instanceof Object[])) {
+                    if (requestParam == null) {
+                        Log.log("Expected Object[]. Found: null");
+                    } else {
+                        Log.log("Expected Object[]. Found: " + requestParam.getClass());
                     }
-                });
+                    return;
+                }
+
+                Object[] parameters = (Object[]) requestParam;
+
+                for (int i = 0; i < parameters.length; i++) {
+                    Object param = parameters[i];
+                    if (!(param instanceof Object[])) {
+                        if (param == null) {
+                            Log.log("Expected Object[]. Found: null");
+                        } else {
+                            Log.log("Expected Object[]. Found: " + param.getClass());
+                        }
+                        return;
+                    }
+
+                    final Object[] methodAndParams = (Object[]) param;
+                    if (methodAndParams.length != 2) {
+                        Log.log("Expected Object[] of len == 2. Found len: " + methodAndParams.length);
+                        continue;
+                    }
+                    if (!(methodAndParams[1] instanceof Object[])) {
+                        Log.log("Expected methodAndParams[1] to be Object[]. Found: "
+                                + methodAndParams[1].getClass());
+                        continue;
+                    }
+
+                    final String methodName = getAsStr(methodAndParams[0]);
+                    final Object[] params = (Object[]) methodAndParams[1];
+
+                    Dispatch d = dispatch.get(methodName);
+                    if (d != null) {
+                        d.handle(new IRequest() {
+
+                            @Override
+                            public int getParameterCount() {
+                                return params.length;
+                            }
+
+                            @Override
+                            public Object getParameter(int i) {
+                                return params[i];
+                            }
+
+                            @Override
+                            public String getMethodName() {
+                                return methodName;
+                            }
+                        });
+                    }
+                }
+            }
+        });
     }
 
     /**

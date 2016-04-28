@@ -6,6 +6,7 @@
  */
 package org.python.pydev.debug.pyunit;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.SAXParser;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -23,11 +25,15 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.python.pydev.core.log.Log;
+import org.python.pydev.debug.model.XMLUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.ProcessingInstruction;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 public class PyUnitTestRun {
 
@@ -178,6 +184,8 @@ public class PyUnitTestRun {
         IPyUnitLaunch s = this.pyUnitLaunch;
         if (s != null) {
             s.relaunchTestResults(resultsToRelaunch, mode);
+        } else {
+            Log.log("Unable to relaunch (the original launch is no longer available or it was not properly restored).");
         }
     }
 
@@ -210,11 +218,7 @@ public class PyUnitTestRun {
         return buf.toString();
     }
 
-    public String getExportToClipboard() {
-        ArrayList<PyUnitTestResult> lst;
-        synchronized (resultsLock) {
-            lst = new ArrayList<>(results);
-        }
+    public String toXML() {
         try {
             DocumentBuilderFactory icFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder icBuilder = icFactory.newDocumentBuilder();
@@ -222,19 +226,21 @@ public class PyUnitTestRun {
             ProcessingInstruction version = document.createProcessingInstruction("pydev-testrun", "version=\"1.0\""); //$NON-NLS-1$ //$NON-NLS-2$
             document.appendChild(version);
 
+            PyUnitTestRun pyUnitTestRun = this;
+
             Element root = document.createElement("pydev-testsuite");
             document.appendChild(root);
 
             Element summary = document.createElement("summary");
             summary.setAttribute("name", name);
-            summary.setAttribute("errors", String.valueOf(this.getNumberOfErrors()));
-            summary.setAttribute("failures", String.valueOf(this.getNumberOfFailures()));
-            summary.setAttribute("tests", String.valueOf(this.getTotalNumberOfRuns()));
-            summary.setAttribute("finished", String.valueOf(this.getFinished()));
-            summary.setAttribute("total_time", String.valueOf(this.getTotalTime()));
+            summary.setAttribute("errors", String.valueOf(pyUnitTestRun.getNumberOfErrors()));
+            summary.setAttribute("failures", String.valueOf(pyUnitTestRun.getNumberOfFailures()));
+            summary.setAttribute("tests", String.valueOf(pyUnitTestRun.getTotalNumberOfRuns()));
+            summary.setAttribute("finished", String.valueOf(pyUnitTestRun.getFinished()));
+            summary.setAttribute("total_time", String.valueOf(pyUnitTestRun.getTotalTime()));
             root.appendChild(summary);
 
-            for (PyUnitTestResult pyUnitTestResult : lst) {
+            for (PyUnitTestResult pyUnitTestResult : pyUnitTestRun.getResults()) {
                 Element test = document.createElement("test");
                 test.setAttribute("status", pyUnitTestResult.status);
                 test.setAttribute("location", pyUnitTestResult.location);
@@ -249,6 +255,12 @@ public class PyUnitTestRun {
                 test.appendChild(stderr);
                 stderr.appendChild(document.createCDATASection(pyUnitTestResult.errorContents));
                 root.appendChild(test);
+            }
+
+            Element launchElement = document.createElement("launch");
+            root.appendChild(launchElement);
+            if (pyUnitLaunch != null) {
+                pyUnitLaunch.fillXMLElement(document, launchElement);
             }
 
             ByteArrayOutputStream s = new ByteArrayOutputStream();
@@ -268,6 +280,138 @@ public class PyUnitTestRun {
         }
         return "";
 
+    }
+
+    private List<PyUnitTestResult> getResults() {
+        List<PyUnitTestResult> lst;
+        synchronized (resultsLock) {
+            lst = new ArrayList<>(results);
+        }
+        return lst;
+    }
+
+    public static class FillTestRunXmlHandler extends DefaultHandler {
+
+        private final PyUnitTestRun testRun;
+        private String fStatus;
+        private String fLocation;
+        private String fTest;
+        private String fTime;
+        private boolean fInStdout;
+        private boolean fInStderr;
+        private String fErrorContents;
+        private String fCapturedOutput;
+        private boolean fInLaunchMemento;
+        private String fLaunchMementoContents;
+        private String fLaunchMode;
+
+        public FillTestRunXmlHandler(PyUnitTestRun testRun) {
+            this.testRun = testRun;
+        }
+
+        @Override
+        public void characters(char[] ch, int start, int length) throws SAXException {
+            //System.out.println("chars: " + new String(ch, start, length));
+            if (fInStdout) {
+                fCapturedOutput = new String(ch, start, length);
+            } else if (fInStderr) {
+                fErrorContents = new String(ch, start, length);
+            } else if (fInLaunchMemento) {
+                fLaunchMementoContents = new String(ch, start, length);
+            }
+        }
+
+        @Override
+        public void startElement(String uri, String localName, String qName, Attributes attributes) {
+            //int len = attributes.getLength();
+            //System.out.println("start: " + localName + " - " + qName + " attrs:" + len);
+            //for (int i = 0; i < len; i++) {
+            //    System.out.println("attr: " + attributes.getQName(i) + " - " + attributes.getValue(i));
+            //}
+            if ("stdout".equals(qName)) {
+                this.fInStdout = true;
+            } else if ("stderr".equals(qName)) {
+                this.fInStderr = true;
+            } else if ("launch_memento".equals(qName)) {
+                this.fInLaunchMemento = true;
+            } else if ("launch".equals(qName)) {
+                this.fLaunchMode = attributes.getValue("mode");
+            } else if ("test".equals(qName)) {
+                fStatus = attributes.getValue("status");
+                fLocation = attributes.getValue("location");
+                fTest = attributes.getValue("test");
+                fTime = attributes.getValue("time");
+            } else if ("summary".equals(qName)) {
+                // name: auto
+                // errors: auto
+                // failures: auto
+                // tests: numberOfRuns
+                String totalNumberOfRuns = attributes.getValue("tests");
+                if (totalNumberOfRuns != null) {
+                    testRun.setTotalNumberOfRuns(totalNumberOfRuns);
+                }
+                // finished: If null not finished
+                testRun.setFinished("true".equals(attributes.getValue("finished")));
+                String totalTime = attributes.getValue("total_time");
+                if (totalTime != null) {
+                    testRun.setTotalTime(totalTime);
+                }
+            }
+        }
+
+        @Override
+        public void endElement(String uri, String localName, String qName) throws SAXException {
+            //System.out.println("end: " + localName + " - " + qName);
+            if ("stdout".equals(qName)) {
+                this.fInStdout = false;
+            } else if ("stderr".equals(qName)) {
+                this.fInStderr = false;
+            } else if ("launch_memento".equals(qName)) {
+                this.fInLaunchMemento = false;
+            } else if ("launch".equals(qName)) {
+                IPyUnitLaunch fromIO = PyUnitLaunch.fromIO(fLaunchMode, fLaunchMementoContents);
+                testRun.pyUnitLaunch = fromIO;
+            } else if ("test".equals(qName)) {
+                if (fStatus == null) {
+                    fStatus = "<no status>";
+                }
+                if (fLocation == null) {
+                    fLocation = "<no location>";
+                }
+                if (fTest == null) {
+                    fTest = "<no test>";
+                }
+                if (fTime == null) {
+                    fTime = "<no time>";
+                }
+                if (fCapturedOutput == null) {
+                    fCapturedOutput = "";
+                }
+                if (fErrorContents == null) {
+                    fErrorContents = "";
+                }
+                PyUnitTestResult result = new PyUnitTestResult(testRun, fStatus, fLocation, fTest, fCapturedOutput,
+                        fErrorContents, fTime);
+                testRun.addResult(result);
+                fCapturedOutput = null;
+                fErrorContents = null;
+            } else if ("summary".equals(qName)) {
+                // we only have attributes, so, it's filled at open.
+            }
+        }
+
+    }
+
+    public static PyUnitTestRun fromXML(String exportToClipboard) throws Exception {
+        PyUnitTestRun testRun = new PyUnitTestRun(null); // the actuall launch will be filled during the parsing.
+        SAXParser parser = XMLUtils.getSAXParser();
+        FillTestRunXmlHandler handler = new FillTestRunXmlHandler(testRun);
+        parser.parse(new ByteArrayInputStream(exportToClipboard.getBytes(StandardCharsets.UTF_8)), handler);
+        return testRun;
+    }
+
+    /*default*/ IPyUnitLaunch getPyUnitLaunch() {
+        return this.pyUnitLaunch;
     }
 
 }

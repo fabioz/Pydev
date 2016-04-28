@@ -8,6 +8,9 @@ package org.python.pydev.debug.pyunit;
 
 import java.util.List;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 public interface IPyUnitLaunch {
 
     void stop();
@@ -17,5 +20,7 @@ public interface IPyUnitLaunch {
     void relaunchTestResults(List<PyUnitTestResult> arrayList);
 
     void relaunchTestResults(List<PyUnitTestResult> arrayList, String mode);
+
+    void fillXMLElement(Document document, Element launchElement);
 
 }

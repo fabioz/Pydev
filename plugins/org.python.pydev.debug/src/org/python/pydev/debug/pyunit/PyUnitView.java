@@ -13,12 +13,15 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.JFaceColors;
 import org.eclipse.jface.resource.JFaceResources;
@@ -64,6 +67,7 @@ import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_interactive_console.console.ui.internal.ClipboardHandler;
+import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.tooltips.presenter.StyleRangeWithCustomData;
 import org.python.pydev.shared_ui.tooltips.presenter.ToolTipPresenterHandler;
 import org.python.pydev.shared_ui.utils.IViewWithControls;
@@ -1017,7 +1021,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
             return;
         }
 
-        String str = curr.getExportToClipboard();
+        String str = curr.toXML();
         if (str.length() > 0) {
             new ClipboardHandler().putIntoClipboard(DND.CLIPBOARD, Display.getCurrent(), str);
         }
@@ -1027,4 +1031,40 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
         return this.fPinHistory.getLastPinned();
     }
 
+    private static class DummyPyUnitServer implements IPyUnitServer {
+
+        private IPyUnitLaunch launch;
+
+        public DummyPyUnitServer(IPyUnitLaunch launch) {
+            this.launch = launch;
+        }
+
+        @Override
+        public void registerOnNotifyTest(IPyUnitServerListener pyUnitViewServerListener) {
+
+        }
+
+        @Override
+        public IPyUnitLaunch getPyUnitLaunch() {
+            return this.launch;
+        }
+    };
+
+    public void restoreFromClipboard() {
+        try {
+            String clipboardContents = ClipboardHandler.getClipboardContents();
+            PyUnitTestRun testRunRestored = PyUnitTestRun.fromXML(clipboardContents);
+            DummyPyUnitServer pyUnitServer = new DummyPyUnitServer(testRunRestored.getPyUnitLaunch());
+
+            final PyUnitViewServerListener serverListener = new PyUnitViewServerListener(pyUnitServer, testRunRestored);
+            PyUnitView.addServerListener(serverListener);
+
+            this.setCurrentRun(testRunRestored);
+        } catch (Exception e) {
+            Log.log(e);
+            Status status = PydevPlugin.makeStatus(IStatus.ERROR, e.getMessage(), e);
+            ErrorDialog.openError(EditorUtils.getShell(), "Error restoring tests from clipboard",
+                    "Error restoring tests from clipboard", status);
+        }
+    }
 }

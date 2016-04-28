@@ -119,4 +119,16 @@ public class ClipboardHandler {
         return plainText.toString();
     }
 
+    public static String getClipboardContents() {
+        Clipboard cb = null;
+        try {
+            cb = new Clipboard(Display.getDefault());
+            return cb.getContents(TextTransfer.getInstance()).toString();
+        } finally {
+            if (cb != null) {
+                cb.dispose();
+            }
+        }
+    }
+
 }

@@ -102,6 +102,7 @@ public class HistoryAction extends Action {
             }
             actionsMenu.add(new ClearTerminatedAction(view));
             actionsMenu.add(new ExportCurrentToClipboardAction(view));
+            actionsMenu.add(new RestoreFromClipboardAction(view));
         }
     }
 

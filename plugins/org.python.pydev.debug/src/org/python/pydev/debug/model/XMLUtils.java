@@ -45,9 +45,9 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class XMLUtils {
 
-    static SAXParserFactory parserFactory = SAXParserFactory.newInstance();
+    public static final SAXParserFactory parserFactory = SAXParserFactory.newInstance();
 
-    static SAXParser getSAXParser() throws CoreException {
+    public static SAXParser getSAXParser() throws CoreException {
         SAXParser parser = null;
         try {
             synchronized (parserFactory) {
@@ -86,7 +86,8 @@ public class XMLUtils {
         }
 
         @Override
-        public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+        public void startElement(String uri, String localName, String qName, Attributes attributes)
+                throws SAXException {
             if (qName.equals("thread")) {
                 String name = attributes.getValue("name");
                 String id = attributes.getValue("id");
@@ -208,16 +209,17 @@ public class XMLUtils {
          * Assign local variables to stack frame
          */
         @Override
-        public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+        public void startElement(String uri, String localName, String qName, Attributes attributes)
+                throws SAXException {
             /*
              <xml>
                <thread id="id"/>
                     <frame id="id" name="functionName " file="file" line="line">
-
+            
                         @deprecated: variables are no longer returned in this request (they are
                         gotten later in asynchronously to speed up the debugger).
                         <var scope="local" name="self" type="ObjectType" value="<DeepThread>"/>
-
+            
                     </frame>*
              */
             if (qName.equals("thread")) {
@@ -344,7 +346,8 @@ public class XMLUtils {
         }
 
         @Override
-        public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+        public void startElement(String uri, String localName, String qName, Attributes attributes)
+                throws SAXException {
             // <var name="self" type="ObjectType" value="<DeepThread>"/>
             // create a local variable, and add it to locals
             if (qName.equals("var")) {
@@ -395,7 +398,8 @@ public class XMLUtils {
         }
 
         @Override
-        public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+        public void startElement(String uri, String localName, String qName, Attributes attributes)
+                throws SAXException {
             // <var name="self" type="ObjectType" value="<DeepThread>"/>
             // create a local variable, and add it to locals
             if (qName.equals("for")) {
@@ -483,7 +487,8 @@ public class XMLUtils {
         }
 
         @Override
-        public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+        public void startElement(String uri, String localName, String qName, Attributes attributes)
+                throws SAXException {
             // <comp p0="%s" p1="%s" p2="%s" p3="%s"/>
             if (qName.equals("comp")) {
 
