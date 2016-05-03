@@ -1,6 +1,22 @@
 History For PyDev
 ~~~~~~~~~~~~~~~~~
 
+Release 4.6.0
+==========================
+
+* *Important* PyDev now requires Java 8.
+
+* PyUnit view now persists its state across restarts.
+
+* Fixed issue in super() code completion.
+
+* PyDev.Debugger updated to the latest version.
+
+* No longer showing un-needed shell on Linux on startup when showing donation dialog.
+
+* Fixed pyedit_wrap_expression to avoid halt of the IDE on Ctrl+1 -> Wrap expression.
+
+
 Release 4.5.5
 ==========================
 

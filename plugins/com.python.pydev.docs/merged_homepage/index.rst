@@ -150,6 +150,22 @@ Companies have the option of sponsoring PyDev through corporate sponsorship. See
 .. _`Getting started guide`: manual_101_root.html
 
 
+Release 4.6.0
+==========================
+
+* **Important** PyDev now requires Java 8.
+
+* PyUnit view now persists its state across restarts.
+
+* Fixed issue in super() code completion.
+
+* PyDev.Debugger updated to the latest version.
+
+* No longer showing un-needed shell on Linux on startup when showing donation dialog.
+
+* Fixed pyedit_wrap_expression to avoid halt of the IDE on Ctrl+1 -> Wrap expression.
+
+
 Release 4.5.5
 ==========================
 
