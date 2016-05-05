@@ -3,7 +3,11 @@ PyDev 5.0.0 Released
 Release Highlights:
 -------------------------------
 
-* Important: PyDev now requires **Java 8**.
+* **Important** PyDev now requires Java 8.
+
+	* PyDev 4.5.5 is the last release supporting Java 7.
+	* See: http://www.pydev.org/update_sites/index.html for the update site of older versions of PyDev.
+	* See: the **PyDev does not appear after install** section on http://www.pydev.org/download.html for help on using a Java 8 vm in Eclipse.
 
 * PyUnit view now persists its state across restarts.
 
