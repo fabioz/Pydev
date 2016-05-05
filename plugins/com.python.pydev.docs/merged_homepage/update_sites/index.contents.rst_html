@@ -1,0 +1,96 @@
+<doc>
+
+<contents_area>
+
+<!-- <right_area>
+
+</right_area>
+
+
+<image_area></image_area>
+
+
+<quote_area></quote_area> -->
+
+
+<style>
+div {
+  width: 200px;
+}
+
+
+
+ul {
+  list-style-type: none;
+  margin: 0px;
+  padding: 0px;
+}
+
+li {
+  font: 200 20px/1.5 Helvetica, Verdana, sans-serif;
+  padding: 5px;
+  margin: 0px;
+}
+
+
+li:nth-child(odd) {
+  background: #f6f6f6;
+}
+
+li a {
+  color: #000;
+  display: block;
+}
+
+li :hover {
+  background: #E0E0E0;
+}
+</style>
+
+
+<h3>Update sites for various PyDev versions:</h3>
+<h3>Latest version: <a href="http://pydev.org/updates">http://pydev.org/updates</a><br/></h3>
+<h3>Nightly build: <a href="http://pydev.org/nightly">http://pydev.org/nightly</a><br/></h3>
+
+View: <a href="download.html">Download Page</a> for instructions on using update site.
+
+<h3>Other versions:</h3>
+<ul>
+    <li><a href="http://pydev.org/update_sites/5.0.0">http://pydev.org/update_sites/5.0.0</a></li>
+    <li><a href="http://pydev.org/update_sites/4.5.5">http://pydev.org/update_sites/4.5.5</a></li>
+    <li><a href="http://pydev.org/update_sites/4.5.4">http://pydev.org/update_sites/4.5.4</a></li>
+    <li><a href="http://pydev.org/update_sites/4.5.3">http://pydev.org/update_sites/4.5.3</a></li>
+    <li><a href="http://pydev.org/update_sites/4.5.1">http://pydev.org/update_sites/4.5.1</a></li>
+    <li><a href="http://pydev.org/update_sites/4.5.0">http://pydev.org/update_sites/4.5.0</a></li>
+    <li><a href="http://pydev.org/update_sites/old">http://pydev.org/update_sites/old</a></li>
+</ul>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+
+
+</contents_area>
+
+
+</doc>

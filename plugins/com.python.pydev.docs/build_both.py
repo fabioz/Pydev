@@ -13,6 +13,15 @@ for arg in args:
 else:
     LAST_VERSION_TAG = '5.0.0'  # Not specified (let's leave one there)
 
+update_site_versions = [
+    '5.0.0',
+    '4.5.5',
+    '4.5.4',
+    '4.5.3',
+    '4.5.1',
+    '4.5.0',
+    'old',
+]
 
 import build_python_code_block
 
@@ -106,6 +115,16 @@ def BuildFromRst(source_filename, is_new_homepage=False):
     f.close()
 
 
+HTACCESS_CONTENTS = '''RewriteEngine On
+RewriteBase /
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ https://dl.bintray.com/fabioz/pydev/{version}/$1 [R]
+'''
+
+INDEX_CONTENTS = '''Nothing to see here (this is just a dummy link to be redirected to
+<a href="https://dl.bintray.com/fabioz/pydev/{version}">https://dl.bintray.com/fabioz/pydev/{version}</a>)'''
+
 #=======================================================================================================================
 # GenerateRstInDir
 #=======================================================================================================================
@@ -132,6 +151,16 @@ if __name__ == '__main__':
         with open(os.path.join('final', 'updates', filename), 'w') as stream:
             stream.write(contents.replace('{version}', LAST_VERSION_TAG))
 
+    for update_site_version in update_site_versions:
+        try:
+            os.mkdir(os.path.join('final', 'update_sites', update_site_version))
+        except:
+            pass
+        with open(os.path.join('final', 'update_sites', update_site_version, '.htaccess'), 'w') as stream:
+            stream.write(HTACCESS_CONTENTS.replace('{version}', update_site_version))
+        with open(os.path.join('final', 'update_sites', update_site_version, 'index.html'), 'w') as stream:
+            stream.write(INDEX_CONTENTS.replace('{version}', update_site_version))
+
     shutil.rmtree(os.path.join('final', 'nightly'), ignore_errors=True)
     shutil.copytree('nightly', os.path.join('final', 'nightly'))
 
@@ -152,7 +181,7 @@ if __name__ == '__main__':
     os.chdir(os.path.join(this_script_dir, 'merged_homepage', 'scripts'))
     import build_merged  # @UnresolvedImport
     os.chdir(os.path.join(this_script_dir, 'merged_homepage'))
-    
+
     import datetime
     build_merged.LAST_VERSION_TAG = LAST_VERSION_TAG
     build_merged.CURRENT_DATE = datetime.datetime(day=22, month=3, year=2016)

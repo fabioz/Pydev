@@ -148,12 +148,18 @@ Companies have the option of sponsoring PyDev through corporate sponsorship. See
 
 
 .. _`Getting started guide`: manual_101_root.html
+.. _`update sites page`: update_sites/index.html
+.. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
 Release 5.0.0
 ==========================
 
 * **Important** PyDev now requires Java 8.
+
+	* PyDev 4.5.5 is the last release supporting Java 7.
+	* See: `update sites page`_ for the update site of older versions of PyDev.
+	* See: the **PyDev does not appear after install** section on `the download page`_ for help on using a Java 8 vm in Eclipse.
 
 * PyUnit view now persists its state across restarts.
 
@@ -175,22 +181,22 @@ Release 4.5.5
 	* Code completion now available for super() (#PyDev-592).
 
 * PyTest integration
-	
+
 	* Files in tracebacks now clickable in latest pytest.
 	* Skips not marked as errors in the latest pytest.
-	
+
 * Parser:
- 
+
 	* async and await should also be valid as names in Python 3 grammar (#PyDev-593).
 	* Additional Unpacking Generalizations from PEP 448 recognized (#PyDev-667).
 	* Made clearer in the UI that Python 3 grammar should support Python 3.0 to Python 3.5.
-	
+
 * Debugger:
 
-	* tests package should no longer pollute name space (Removed tests directories from build: #PyDev-663). 
+	* tests package should no longer pollute name space (Removed tests directories from build: #PyDev-663).
 	* Multiprocessing working properly under debugger (Celery Cannot Run in Debug Mode: #PyDev-662).
-	
-* Others: 
+
+* Others:
 
 	* Introduce source features/plugins (patch by Andreas Pakulat).
 	* Default test runner now works with Django >= 1.8 (#PyDev 614, patch by Ville Skyttä).
@@ -204,55 +210,6 @@ Release 4.5.4
 	* Fixed critical issue, in which the main process was killed during the debugging when a subprocess exited when	"Attach to subprocess automatically while debugging" was enabled (#PyDev 656).
 
 	* Fixed issue which broke the action to get the referrers of some object in the debugger (right-click variable in debugger > get referrers).
-
-Release 4.5.3
-==========================
-
-* Debugger
-
-	* Fixed issue in set next statement (#PyDev 651).
-
-	* pydevd.settrace was stopping inside the debugger and not in user code (#PyDev 648).
-
-	* subprocess.Popen could crash when running non python executable (#PyDev 650).
-
-* PyUnit view
-
-	* The last pinned test suite appears as the first entry in the history.
-
-	* More information is shown on the test run history.
-
-	* A string representation of the test suite can be saved in the clipboard (last item in the test run history).
-
-* Indexing: fixed issue where the indexing and code-analysis could race with each other and one could become corrupt.
-
-
-Release 4.5.1
-==========================
-
-* Debugger
-
-	* Cython speedup modules are now available for the debugger (see performance improvements at: https://www.speedtin.com/reports/7_pydevd_cython).
-
-	* It is considerably faster even without the speedup modules (see performance improvements at: https://www.speedtin.com/reports/8_pydevd_pure_python).
-
-	* When debugging multiple processes the console wasn't being updated to the selected stack in the debug view.
-
-	* Many bug-fixes.
-
-* Improved the search to always play safe and update the index so that the matches are always consistent (#PyDev-634).
-
-* Fixed issue renaming top-level module on refactoring.
-
-* Refactoring has option to rename variable to a standard case style.
-
-* Improved the parser that extracted the outline for global tokens to deal with async and consider declarations inside ifs.
-
-* Code completion of properties with @property no longer shows arguments parenthesis (#PyDev-453).
-
-* Preventing a freeze if some code-analysis takes too much time (#PyDev-636).
-
-* Ctrl+1 can be used to wrap/unwrap the contents of brackets (patch by yohell).
 
 
 `View release notes for previous releases`_

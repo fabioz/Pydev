@@ -15,13 +15,18 @@
     <p> Go to the update manager (Help > Install New Software) and add:
         <br>
         <br>
-        <A href="http://pydev.org/updates">http://pydev.org/updates</A> &nbsp;&nbsp;&nbsp;or
+        <A href="http://pydev.org/updates">http://pydev.org/updates</A>&nbsp;&nbsp;&nbsp;(for latest version)&nbsp;&nbsp;&nbsp;or
         <br>
         <br>
-        <A href="http://pydev.org/nightly">http://pydev.org/nightly</A>
+        <A href="http://pydev.org/nightly">http://pydev.org/nightly</A>&nbsp;&nbsp;&nbsp;(for nightly build)&nbsp;&nbsp;&nbsp
         <br>
         <br>
-        and follow the Eclipse steps.</p>
+        and follow the Eclipse steps.<br/>
+        <br/>
+        <strong>Note: </strong>View <A href="http://pydev.org/update_sites">http://pydev.org/update_sites</A> to browse the update sites for other versions.
+        </p>
+
+
     <br/>
 
     <p><strong>Zip File</strong></p>
@@ -116,13 +121,17 @@ URLs for PyDev as Eclipse plugin
 
 Urls to use when updating with the Eclipse update manager:
 
-Main:
+Latest version:
 
 -  `http://pydev.org/updates <http://pydev.org/updates>`_
 
 Nightly builds:
 
 -  `http://pydev.org/nightly <http://pydev.org/nightly>`_
+
+Browse other versions (open in browser):
+
+-  `http://pydev.org/update_sites <http://pydev.org/update_sites>`_
 
 Get zip releases
 ================
