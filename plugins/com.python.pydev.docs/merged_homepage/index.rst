@@ -150,7 +150,7 @@ Companies have the option of sponsoring PyDev through corporate sponsorship. See
 .. _`Getting started guide`: manual_101_root.html
 
 
-Release 4.6.0
+Release 5.0.0
 ==========================
 
 * **Important** PyDev now requires Java 8.

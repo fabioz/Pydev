@@ -13,6 +13,7 @@ C:\bin\Python27\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pyde
 
 		Update homepage
 			- index.rst
+			- download.contents.rst
 			- history_pydev.rst (move contents from index.rst if needed)
 
 		Update the version of all plugins to the new version.

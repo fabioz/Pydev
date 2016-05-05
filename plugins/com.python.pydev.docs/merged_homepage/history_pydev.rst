@@ -1,10 +1,10 @@
 History For PyDev
 ~~~~~~~~~~~~~~~~~
 
-Release 4.6.0
+Release 5.0.0
 ==========================
 
-* *Important* PyDev now requires Java 8.
+* **Important** PyDev now requires Java 8.
 
 * PyUnit view now persists its state across restarts.
 

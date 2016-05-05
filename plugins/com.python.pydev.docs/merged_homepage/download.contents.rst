@@ -69,12 +69,12 @@ profile view inside PyDev (window > show view > other > PyDev > profile).
 Requirements
 ============
 
--  `Java <http://www.javasoft.com/>`_ 7: **Important**: If you don't have java 7, the update process may appear to succeed, but PyDev will simply not show in the target installation. See `PyDev does not appear after install!`_ below for details on how to fix that.
+-  `Java <http://www.javasoft.com/>`_ 8: **Important**: If you don't have java 8, the update process may appear to succeed, but PyDev will simply not show in the target installation. See `PyDev does not appear after install!`_ below for details on how to fix that.
 
 At least one of:
 
--  `Python <http://www.python.org/>`_ **(2.2 or newer)**
--  `Jython <http://www.jython.org/>`_ **(2.2 or newer)**
+-  `Python <http://www.python.org/>`_ **(2.5 or newer)**
+-  `Jython <http://www.jython.org/>`_ **(2.5 or newer)**
 -  `IronPython <http://www.codeplex.com/Wiki/View.aspx?ProjectName=IronPython>`_
    **(2.6 or newer)**
 
@@ -94,21 +94,21 @@ around 45-50 MB), and `Jython <http://www.jython.org/>`_ also requires
 PyDev does not appear after install!
 ======================================
 
-Well, the main issue at this time is that PyDev requires Java 7 in order to run. So, if you don't want to support PyDev by
+Well, the main issue at this time is that PyDev requires Java 8 in order to run. So, if you don't want to support PyDev by
 going the LiClipse route (which is mostly a PyDev standalone plus some goodies), you may have to go through some loops to
-make sure that you're actually using Java 7 to run Eclipse/PyDev (as explained below).
+make sure that you're actually using Java 8 to run Eclipse/PyDev (as explained below).
 
 All OSes
 ---------
-Make sure you download/install the latest Java 7 JRE or JDK, try restarting to see if it got it automatically.
+Make sure you download/install the latest Java 8 JRE or JDK, try restarting to see if it got it automatically.
 
-I.e.: in **help > about > installation details > configuration** check if it's actually using the java 7 version you pointed at.
+I.e.: in **help > about > installation details > configuration** check if it's actually using the java 8 version you pointed at.
 
 If it didn't get it automatically, follow the instructions from:
 
-http://wiki.eclipse.org/Eclipse.ini to add the -vm argument to eclipse.ini on "Specifying the JVM" to specify the java 7 vm.
+http://wiki.eclipse.org/Eclipse.ini to add the -vm argument to eclipse.ini on "Specifying the JVM" to specify the java 8 vm (this should also be used in case you just extracted java and didn't override the default system installation).
 
-**Note on Mac OS**: You can use the command "/usr/libexec/java_home -v 1.7" to get the base path for the JVM (though you also need to append "/bin/java" to the output of said command to the -vm arg in eclipse.ini).
+**Note on Mac OS**: You can use the command "/usr/libexec/java_home -v 1.8" to get the base path for the JVM (though you also need to append "/bin/java" to the output of said command to the -vm arg in eclipse.ini).
 
 
 URLs for PyDev as Eclipse plugin
