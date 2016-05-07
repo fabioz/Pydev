@@ -76,6 +76,9 @@ def main():
         if found_other_test_framework_param:
             sys.stderr.write('Warning: Could not import the test runner: %s. Running with the default pydev unittest runner instead.\n' % (
                 test_framework,))
+            if DEBUG:
+                import traceback
+                traceback.print_exception(sys.exc_info()[1])
 
         test_framework = None
 
