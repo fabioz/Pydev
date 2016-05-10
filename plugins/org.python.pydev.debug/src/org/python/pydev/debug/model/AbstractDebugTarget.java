@@ -655,10 +655,11 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
                     resumeReason = DebugEvent.UNSPECIFIED;
                 } else if (raw_reason == AbstractDebuggerCommand.CMD_SET_NEXT_STATEMENT) {
                     resumeReason = DebugEvent.UNSPECIFIED;
-                } else if (raw_reason == AbstractDebuggerCommand.CMD_THREAD_RUN) {
+                } else if (raw_reason == AbstractDebuggerCommand.CMD_THREAD_RUN || raw_reason == -1) {
                     resumeReason = DebugEvent.CLIENT_REQUEST;
                 } else {
-                    PydevDebugPlugin.log(IStatus.ERROR, "Unexpected resume reason code", null);
+                    PydevDebugPlugin.log(IStatus.ERROR,
+                            "Unexpected resume reason code: " + raw_reason + " payload: " + payload, null);
                     resumeReason = DebugEvent.UNSPECIFIED;
                 }
             } catch (NumberFormatException e) {
