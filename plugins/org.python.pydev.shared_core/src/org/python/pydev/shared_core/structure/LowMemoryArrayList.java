@@ -13,6 +13,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
+
 /**
  * An array list that has a null array backing it when created and cleared.
  *
@@ -322,4 +325,12 @@ public class LowMemoryArrayList<E> implements List<E> {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
+    public String toString() {
+        FastStringBuffer sb = new FastStringBuffer();
+        sb.append('[');
+        sb.append(StringUtils.join(", ", this));
+        sb.append(']');
+        return sb.toString();
+    }
 }
