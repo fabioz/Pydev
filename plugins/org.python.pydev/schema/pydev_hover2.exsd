@@ -2,9 +2,9 @@
 <!-- Schema file written by PDE -->
 <schema targetNamespace="org.python.pydev" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
-      <appinfo>
+      <appInfo>
          <meta.schema plugin="org.python.pydev" id="pydev_hover2" name="PyDev Text Hover2"/>
-      </appinfo>
+      </appInfo>
       <documentation>
          This extension point allows clients to provide hover capabilities to the editor.
 Clients must extend the class org.python.pydev.editor.hover.AbstractPyEditorTextHover
@@ -13,9 +13,9 @@ Clients must extend the class org.python.pydev.editor.hover.AbstractPyEditorText
 
    <element name="extension">
       <annotation>
-         <appinfo>
+         <appInfo>
             <meta.element />
-         </appinfo>
+         </appInfo>
       </annotation>
       <complexType>
          <sequence>
@@ -40,9 +40,9 @@ Clients must extend the class org.python.pydev.editor.hover.AbstractPyEditorText
                <documentation>
                   an optional name of the extension instance
                </documentation>
-               <appinfo>
+               <appInfo>
                   <meta.attribute translatable="true"/>
-               </appinfo>
+               </appInfo>
             </annotation>
          </attribute>
       </complexType>
@@ -62,19 +62,19 @@ Clients must extend the class org.python.pydev.editor.hover.AbstractPyEditorText
                <documentation>
                   the fully qualified class name implementing the interface &lt;code&gt;org.python.pydev.editor.hover.AbstractPyEditorTextHover&lt;/code&gt;
                </documentation>
-               <appinfo>
+               <appInfo>
                   <meta.attribute kind="java" basedOn="org.python.pydev.editor.hover.AbstractPyEditorTextHover:"/>
-               </appinfo>
+               </appInfo>
             </annotation>
          </attribute>
-         <attribute name="label" type="string">
+         <attribute name="label" type="string" use="required">
             <annotation>
                <documentation>
                   the translatable label for this hover
                </documentation>
-               <appinfo>
+               <appInfo>
                   <meta.attribute translatable="true"/>
-               </appinfo>
+               </appInfo>
             </annotation>
          </attribute>
          <attribute name="description" type="string">
@@ -82,9 +82,9 @@ Clients must extend the class org.python.pydev.editor.hover.AbstractPyEditorText
                <documentation>
                   the translatable description for this hover
                </documentation>
-               <appinfo>
+               <appInfo>
                   <meta.attribute translatable="true"/>
-               </appinfo>
+               </appInfo>
             </annotation>
          </attribute>
          <attribute name="priority" type="string" use="default" value="100">
@@ -94,17 +94,24 @@ Clients must extend the class org.python.pydev.editor.hover.AbstractPyEditorText
                </documentation>
             </annotation>
          </attribute>
-         <attribute name="preempt" type="boolean" use="default" value="false">
+         <attribute name="preempt" type="boolean" use="required">
             <annotation>
                <documentation>
                   used by the Best Match Hover to determine whether to preempt lower priority hovers from contributing to a hover pop-up after this hover contributes hover info.
                </documentation>
             </annotation>
          </attribute>
-         <attribute name="activate" type="boolean" use="default" value="false">
+         <attribute name="activate" type="boolean" use="default" value="true">
             <annotation>
                <documentation>
                   if the attribute is set to &quot;true&quot; it will force this plug-in to be loaded on hover activation
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="enable" type="boolean" use="required">
+            <annotation>
+               <documentation>
+                  whether the hover should be enabled by default before the user sets any of the hover preferences.
                </documentation>
             </annotation>
          </attribute>
@@ -112,36 +119,36 @@ Clients must extend the class org.python.pydev.editor.hover.AbstractPyEditorText
    </element>
 
    <annotation>
-      <appinfo>
+      <appInfo>
          <meta.section type="since"/>
-      </appinfo>
+      </appInfo>
       <documentation>
          [Enter the first release in which this extension point appears.]
       </documentation>
    </annotation>
 
    <annotation>
-      <appinfo>
+      <appInfo>
          <meta.section type="examples"/>
-      </appinfo>
+      </appInfo>
       <documentation>
          [Enter extension point usage example here.]
       </documentation>
    </annotation>
 
    <annotation>
-      <appinfo>
+      <appInfo>
          <meta.section type="apiInfo"/>
-      </appinfo>
+      </appInfo>
       <documentation>
          [Enter API information here.]
       </documentation>
    </annotation>
 
    <annotation>
-      <appinfo>
+      <appInfo>
          <meta.section type="implementation"/>
-      </appinfo>
+      </appInfo>
       <documentation>
          [Enter information about supplied implementation of this extension point.]
       </documentation>

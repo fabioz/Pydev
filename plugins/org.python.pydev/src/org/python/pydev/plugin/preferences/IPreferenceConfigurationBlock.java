@@ -56,4 +56,11 @@ public interface IPreferenceConfigurationBlock {
      * free any resources they are holding on to.
      */
     void dispose();
+
+    /**
+     * Called when the <code>Cancel</code> button is pressed on the preference
+     * page. Implementations should revert the preference page settings to the
+     * stored preference values.
+     */
+    void performCancel();
 }

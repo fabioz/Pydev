@@ -68,9 +68,11 @@ public abstract class AbstractPyEditorTextHover implements ITextHover, ITextHove
     /*
      * @see org.eclipse.jface.text.ITextHoverExtension#getHoverControlCreator()
      */
+    @Override
     public IInformationControlCreator getHoverControlCreator() {
         return new IInformationControlCreator() {
 
+            @Override
             public IInformationControl createInformationControl(Shell parent) {
                 String tooltipAffordanceString = null;
                 try {
@@ -88,6 +90,7 @@ public abstract class AbstractPyEditorTextHover implements ITextHover, ITextHove
     /*
      * @see org.eclipse.jface.text.ITextHover#getHoverRegion(org.eclipse.jface.text.ITextViewer, int)
      */
+    @Override
     public IRegion getHoverRegion(ITextViewer textViewer, int offset) {
         //we have to set it here (otherwise we don't have thread access to the UI)
         this.textSelection = (ITextSelection) textViewer.getSelectionProvider().getSelection();
@@ -131,6 +134,7 @@ public abstract class AbstractPyEditorTextHover implements ITextHover, ITextHove
      * @see org.eclipse.jface.text.ITextHoverExtension2#getHoverInfo2(org.eclipse.jface.text.ITextViewer, org.eclipse.jface.text.IRegion)
      * @since 3.4
      */
+    @Override
     @SuppressWarnings("deprecation")
     public Object getHoverInfo2(ITextViewer textViewer, IRegion hoverRegion) {
         return getHoverInfo(textViewer, hoverRegion);
