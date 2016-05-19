@@ -350,8 +350,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
             CheckDefaultPreferencesDialog.askAboutSettings();
 
-            //Ask for people to take a look in the crowdfunding for pydev:
-            //http://tiny.cc/pydev-2014
+            //Ask for people to consider funding PyDev.
             PydevShowBrowserMessage.show();
         } catch (Throwable e) {
             Log.log(e);

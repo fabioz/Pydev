@@ -217,7 +217,9 @@ final class DialogNotifier extends Dialog {
             public void widgetSelected(SelectionEvent e) {
                 doClose();
                 IPreferenceStore preferenceStore = PydevPrefs.getPreferenceStore();
-                preferenceStore.setValue(PydevShowBrowserMessage.PYDEV_FUNDING_SHOWN, true);
+                //Show it again only after a full year has elapsed.
+                preferenceStore.setValue(PydevShowBrowserMessage.PYDEV_FUNDING_SHOW_AT_TIME,
+                        System.currentTimeMillis() + (PydevShowBrowserMessage.ONE_DAY_IN_MILLIS * 365));
             }
 
             @Override
@@ -259,8 +261,9 @@ final class DialogNotifier extends Dialog {
 
 public class PydevShowBrowserMessage {
 
-    public static final String PYDEV_FUNDING_SHOWN = "PYDEV_FUNDING_SHOWN_2016";
+    public static final String PYDEV_FUNDING_SHOW_AT_TIME = "PYDEV_FUNDING_SHOW_AT_TIME";
     private static boolean shownInSession = false;
+    public static final long ONE_DAY_IN_MILLIS = 86400000;
 
     public static void show() {
         if (shownInSession) {
@@ -275,8 +278,21 @@ public class PydevShowBrowserMessage {
             return;
         }
         IPreferenceStore preferenceStore = PydevPrefs.getPreferenceStore();
-        boolean shownOnce = preferenceStore.getBoolean(PYDEV_FUNDING_SHOWN);
-        if (!shownOnce) {
+        long showAtTime = preferenceStore.getLong(PYDEV_FUNDING_SHOW_AT_TIME);
+        boolean show;
+        if (showAtTime == 0) {
+            // It was never shown, so, show it after 3 days from now (we don't want to show
+            // the dialog as the first thing after the user installed it).
+            preferenceStore.setValue(PYDEV_FUNDING_SHOW_AT_TIME,
+                    System.currentTimeMillis() + (ONE_DAY_IN_MILLIS * 3));
+            show = false;
+        } else if (System.currentTimeMillis() < showAtTime) {
+            // We still didn't reach the time for it to show.
+            show = false;
+        } else {
+            show = true;
+        }
+        if (show) {
             boolean runNowIfInUiThread = false;
             RunInUiThread.async(new Runnable() {
 
