@@ -12,7 +12,6 @@
 package org.python.pydev.editor.hover;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -46,37 +45,42 @@ public class PyEditorTextHoverDescriptor {
     public static final String ATT_PYDEV_HOVER_CLASS = "class";
     public static final String ATT_PYDEV_HOVER_ID = "id";
     public static final String ATT_PYDEV_HOVER_PREEMPT = "preempt";
+    public static final String ATT_PYDEV_HOVER_ENABLE = "enable";
     public static final int DEFAULT_HOVER_PRIORITY = 100;
 
     public static final String NO_MODIFIER = "0"; //$NON-NLS-1$
-    public static final String DISABLED_TAG = "!"; //$NON-NLS-1$
-    public static final String VALUE_SEPARATOR = ";"; //$NON-NLS-1$
-    private static final int HIGHEST_PRIORITY = 1;
-    private static final int COMBINING_HOVER_PRIORITY = 0;
+    public static final Integer DEFAULT_MODIFIER_MASK = 0;
+    public static final int HIGHEST_PRIORITY = 1;
+    private static final String COMBINING_HOVER_ID = "org.python.pydev.combininghover";
+    private static final String COMBINING_HOVER_LABEL = "PyDev Combining Hover";
+    private static final String COMBINING_HOVER_DESCR = "A Text Hover which combines hover info from contributed hovers";
 
-    private int fStateMask;
+    int fStateMask;
 
-    private String fModifierString;
+    String fModifierString;
 
     private boolean fIsEnabled;
 
     private IConfigurationElement fElement;
 
-    public Integer fPriority;
+    private Integer fPriority;
 
-    public Boolean fPreempt;
+    private Boolean fPreempt;
+
+    private AbstractPyEditorTextHover fHover;
 
     /**
      * Returns all PyDev editor text hovers contributed to the workbench.
      *
      * @return an array with the contributed text hovers
      */
-    public static PyEditorTextHoverDescriptor[] getContributedHovers(boolean useRegisteredExtensionPointValues) {
+    public static PyEditorTextHoverDescriptor[] getContributedHovers() {
         IExtensionRegistry registry = Platform.getExtensionRegistry();
         IConfigurationElement[] elements = registry
                 .getConfigurationElementsFor(ExtensionHelper.PYDEV_HOVER2);
         PyEditorTextHoverDescriptor[] hoverDescs = createDescriptors(elements);
-        initializeFromPreferences(hoverDescs, useRegisteredExtensionPointValues);
+        initializeDefaultHoverPreferences(elements);
+        initializeHoversFromPreferences(hoverDescs);
         return hoverDescs;
     }
 
@@ -108,6 +112,19 @@ public class PyEditorTextHoverDescriptor {
     }
 
     /**
+     * Creates a new PyDev Editor text hover descriptor from the given combining
+     * hover implementation.
+     *
+     * @param element the combining hover
+     */
+    public PyEditorTextHoverDescriptor(PydevCombiningHover hover) {
+        Assert.isNotNull(hover);
+        fHover = hover;
+        fPriority = HIGHEST_PRIORITY;
+        fIsEnabled = PyHoverPreferencesPage.getCombineHoverInfo();
+    }
+
+    /**
      * Creates a new PyDev Editor text hover descriptor from the given configuration element.
      *
      * @param element the configuration element
@@ -123,17 +140,21 @@ public class PyEditorTextHoverDescriptor {
      * @return the text hover
      */
     public AbstractPyEditorTextHover createTextHover() {
-        String pluginId = fElement.getContributor().getName();
-        boolean isHoversPlugInActivated = Platform.getBundle(pluginId).getState() == Bundle.ACTIVE;
-        if (isHoversPlugInActivated || canActivatePlugIn()) {
-            try {
-                return (AbstractPyEditorTextHover) fElement.createExecutableExtension(ATT_PYDEV_HOVER_CLASS);
-            } catch (CoreException x) {
-                Log.log(x);
+        if (fElement != null) {
+            String pluginId = fElement.getContributor().getName();
+            boolean isHoversPlugInActivated = Platform.getBundle(pluginId).getState() == Bundle.ACTIVE;
+            if (isHoversPlugInActivated || canActivatePlugIn()) {
+                try {
+                    return (AbstractPyEditorTextHover) fElement
+                            .createExecutableExtension(ATT_PYDEV_HOVER_CLASS);
+                } catch (CoreException x) {
+                    Log.log(x);
+                }
             }
+            return null;
+        } else {
+            return fHover;
         }
-
-        return null;
     }
 
     //---- XML Attribute accessors ---------------------------------------------
@@ -144,7 +165,10 @@ public class PyEditorTextHoverDescriptor {
      * @return the id
      */
     public String getId() {
-        return fElement.getAttribute(ATT_PYDEV_HOVER_ID);
+        if (fElement != null) {
+            return fElement.getAttribute(ATT_PYDEV_HOVER_ID);
+        }
+        return COMBINING_HOVER_ID;
     }
 
     /**
@@ -153,7 +177,10 @@ public class PyEditorTextHoverDescriptor {
      * @return the class name
      */
     public String getHoverClassName() {
-        return fElement.getAttribute(ATT_PYDEV_HOVER_CLASS);
+        if (fElement != null) {
+            return fElement.getAttribute(ATT_PYDEV_HOVER_CLASS);
+        }
+        return fHover.getClass().getName();
     }
 
     /**
@@ -162,19 +189,22 @@ public class PyEditorTextHoverDescriptor {
      * @return the label
      */
     public String getLabel() {
-        String label = fElement.getAttribute(LABEL_ATTRIBUTE);
-        if (label != null) {
-            return label;
-        }
+        if (fElement != null) {
+            String label = fElement.getAttribute(LABEL_ATTRIBUTE);
+            if (label != null) {
+                return label;
+            }
 
-        // Return simple class name
-        label = getHoverClassName();
-        int lastDot = label.lastIndexOf('.');
-        if (lastDot >= 0 && lastDot < label.length() - 1) {
-            return label.substring(lastDot + 1);
-        } else {
-            return label;
+            // Return simple class name
+            label = getHoverClassName();
+            int lastDot = label.lastIndexOf('.');
+            if (lastDot >= 0 && lastDot < label.length() - 1) {
+                return label.substring(lastDot + 1);
+            } else {
+                return label;
+            }
         }
+        return COMBINING_HOVER_LABEL;
     }
 
     /**
@@ -183,11 +213,15 @@ public class PyEditorTextHoverDescriptor {
      * @return the hover's description or <code>null</code> if not provided
      */
     public String getDescription() {
-        return fElement.getAttribute(DESCRIPTION_ATTRIBUTE);
+        if (fElement != null) {
+            return fElement.getAttribute(DESCRIPTION_ATTRIBUTE);
+        }
+        return COMBINING_HOVER_DESCR;
     }
 
     public boolean canActivatePlugIn() {
-        return Boolean.valueOf(fElement.getAttribute(ACTIVATE_PLUG_IN_ATTRIBUTE)).booleanValue();
+        return (fElement == null ? false
+                : Boolean.valueOf(fElement.getAttribute(ACTIVATE_PLUG_IN_ATTRIBUTE)).booleanValue());
     }
 
     @Override
@@ -209,119 +243,83 @@ public class PyEditorTextHoverDescriptor {
             IConfigurationElement element = elements[i];
             if (HOVER_TAG.equals(element.getName())) {
                 PyEditorTextHoverDescriptor desc = new PyEditorTextHoverDescriptor(element);
-                String sPriority = element.getAttribute(ATT_PYDEV_HOVER_PRIORITY);
-                try {
-                    int val = Integer.parseInt(sPriority);
-                    desc.fPriority = (val >= HIGHEST_PRIORITY ? val : HIGHEST_PRIORITY);
-                } catch (NumberFormatException e) {
-                    desc.fPriority = DEFAULT_HOVER_PRIORITY;
-                }
-                if (DefaultPydevCombiningHover.ID_DEFAULT_COMBINING_HOVER
-                        .equals(element.getAttribute(ATT_PYDEV_HOVER_ID))) {
-                    //combining hover hard-wired to highest priority, and enabled/disabled via UI
-                    desc.fPriority = COMBINING_HOVER_PRIORITY;
-                }
-                String sPreempt = element.getAttribute(ATT_PYDEV_HOVER_PREEMPT);
-                desc.fPreempt = Boolean.valueOf(sPreempt);
-                //Ensure that no other plug-in contributes a hover with the ID reserved for the default combining Hover
-                String declaringPlugin = element.getContributor().getName();
-                if (DefaultPydevCombiningHover.ID_DEFAULT_COMBINING_HOVER.equals(desc.getId()) &&
-                        !PydevPlugin.getDefault().getBundle().getSymbolicName()
-                                .equals(declaringPlugin)) {
-                    Log.log("Plugin " + declaringPlugin + " contributed a Text Hover with ID "
-                            + DefaultPydevCombiningHover.ID_DEFAULT_COMBINING_HOVER + ".\n" +
-                            "This ID is reserved by PyDev for the default Combining Hover. The contributed "
-                            + "Hover was ignored.");
-                } else {
-                    result.add(desc);
-                }
+                result.add(desc);
             }
         }
-
-        //ensure built-in PyDev Hovers are enabled the first time PyDev runs
-        checkHoverEnabled(PyDocstringTextHover.ID);
-        checkHoverEnabled(PyMarkerTextHover.ID);
 
         return result.toArray(new PyEditorTextHoverDescriptor[result.size()]);
     }
 
-    public static void initializeFromPreferences(PyEditorTextHoverDescriptor[] hovers,
-            boolean useRegisteredExtensionPointValues) {
-        String compiledTextHoverModifiers = PydevPlugin.getDefault().getPreferenceStore()
-                .getString(PyHoverPreferencesPage.EDITOR_TEXT_HOVER_MODIFIERS);
+    public static void initializeDefaultHoverPreferences(IConfigurationElement[] elements) {
+        for (IConfigurationElement element : elements) {
+            String id = element.getAttribute(PyEditorTextHoverDescriptor.ATT_PYDEV_HOVER_ID);
 
-        StringTokenizer tokenizer = new StringTokenizer(compiledTextHoverModifiers, VALUE_SEPARATOR);
-        HashMap<String, String> idToModifier = new HashMap<String, String>(tokenizer.countTokens() / 2);
+            //modifier
+            PydevPrefs.getPreferenceStore().setDefault(
+                    PyHoverPreferencesPage.KEY_TEXT_HOVER_MODIFIER + id, PyEditorTextHoverDescriptor.NO_MODIFIER);
+            //state mask
+            PydevPrefs.getPreferenceStore().setDefault(
+                    PyHoverPreferencesPage.KEY_TEXT_HOVER_MODIFIER_MASK + id,
+                    PyEditorTextHoverDescriptor.DEFAULT_MODIFIER_MASK);
 
-        while (tokenizer.hasMoreTokens()) {
-            String id = tokenizer.nextToken();
-            if (tokenizer.hasMoreTokens()) {
-                idToModifier.put(id, tokenizer.nextToken());
+            //preempt
+            String attVal = element.getAttribute(PyEditorTextHoverDescriptor.ATT_PYDEV_HOVER_PREEMPT);
+            PydevPlugin.getDefault().getPreferenceStore().setDefault(
+                    PyHoverPreferencesPage.KEY_TEXT_HOVER_PREEMPT + id, Boolean.parseBoolean(attVal));
+
+            //enable
+            attVal = element.getAttribute(PyEditorTextHoverDescriptor.ATT_PYDEV_HOVER_ENABLE);
+            PydevPlugin.getDefault().getPreferenceStore().setDefault(
+                    PyHoverPreferencesPage.KEY_TEXT_HOVER_ENABLE + id, Boolean.parseBoolean(attVal));
+
+            //priority
+            attVal = element.getAttribute(PyEditorTextHoverDescriptor.ATT_PYDEV_HOVER_PRIORITY);
+            int priority;
+            try {
+                priority = Integer.parseInt(attVal);
+                priority = (priority >= HIGHEST_PRIORITY ? priority : HIGHEST_PRIORITY);
+            } catch (NumberFormatException e) {
+                priority = DEFAULT_HOVER_PRIORITY;
             }
+            PydevPlugin.getDefault().getPreferenceStore().setDefault(
+                    PyHoverPreferencesPage.KEY_TEXT_HOVER_PRIORITY + id, priority);
         }
+    }
 
-        String compiledTextHoverModifierMasks = PydevPlugin.getDefault().getPreferenceStore()
-                .getString(PyHoverPreferencesPage.EDITOR_TEXT_HOVER_MODIFIER_MASKS);
-
-        tokenizer = new StringTokenizer(compiledTextHoverModifierMasks, VALUE_SEPARATOR);
-        HashMap<String, String> idToModifierMask = new HashMap<String, String>(tokenizer.countTokens() / 2);
-
-        while (tokenizer.hasMoreTokens()) {
-            String id = tokenizer.nextToken();
-            if (tokenizer.hasMoreTokens()) {
-                idToModifierMask.put(id, tokenizer.nextToken());
-            }
-        }
-
-        String compiledTextHoverPriorities = PydevPlugin.getDefault().getPreferenceStore()
-                .getString(PyHoverPreferencesPage.EDITOR_TEXT_HOVER_PRORITIES);
-
-        tokenizer = new StringTokenizer(compiledTextHoverPriorities, PyEditorTextHoverDescriptor.VALUE_SEPARATOR);
-        HashMap<String, String> idToPriority = new HashMap<String, String>(tokenizer.countTokens() / 2);
-
-        while (tokenizer.hasMoreTokens()) {
-            String id = tokenizer.nextToken();
-            if (tokenizer.hasMoreTokens()) {
-                idToPriority.put(id, tokenizer.nextToken());
-            }
-        }
-
-        String compiledTextHoverPreempts = PydevPlugin.getDefault().getPreferenceStore()
-                .getString(PyHoverPreferencesPage.EDITOR_TEXT_HOVER_PREEMPTS);
-
-        tokenizer = new StringTokenizer(compiledTextHoverPreempts, PyEditorTextHoverDescriptor.VALUE_SEPARATOR);
-        HashMap<String, String> idToPreempt = new HashMap<String, String>(tokenizer.countTokens() / 2);
-
-        while (tokenizer.hasMoreTokens()) {
-            String id = tokenizer.nextToken();
-            if (tokenizer.hasMoreTokens()) {
-                idToPreempt.put(id, tokenizer.nextToken());
-            }
-        }
-
+    public static void initializeHoversFromPreferences(PyEditorTextHoverDescriptor[] hovers) {
         for (int i = 0; i < hovers.length; i++) {
-            String modifierString = idToModifier.get(hovers[i].getId());
-            boolean enabled = true;
-            if (modifierString == null) {
-                modifierString = DISABLED_TAG;
+            //enable
+            hovers[i].fIsEnabled = PydevPlugin.getDefault().getPreferenceStore()
+                    .getBoolean(PyHoverPreferencesPage.KEY_TEXT_HOVER_ENABLE + hovers[i].getId());
+
+            //preempt
+            hovers[i].fPreempt = PydevPlugin.getDefault().getPreferenceStore()
+                    .getBoolean(PyHoverPreferencesPage.KEY_TEXT_HOVER_PREEMPT + hovers[i].getId());
+
+            //priority
+            String sPriority = PydevPlugin.getDefault().getPreferenceStore()
+                    .getString(PyHoverPreferencesPage.KEY_TEXT_HOVER_PRIORITY + hovers[i].getId());
+            try {
+                hovers[i].fPriority = Integer.parseInt(sPriority);
+            } catch (NumberFormatException e) {
+                hovers[i].fPriority = DEFAULT_HOVER_PRIORITY;
             }
 
-            if (modifierString.startsWith(DISABLED_TAG)) {
-                enabled = false;
-                modifierString = modifierString.substring(1);
-            }
-
-            if (modifierString.equals(NO_MODIFIER)) {
+            //modifier
+            String modifierString = PydevPrefs.getPreferenceStore()
+                    .getString(PyHoverPreferencesPage.KEY_TEXT_HOVER_MODIFIER + hovers[i].getId());
+            if (modifierString == null || modifierString.equals(PyEditorTextHoverDescriptor.NO_MODIFIER)) {
                 modifierString = ""; //$NON-NLS-1$
             }
-
             hovers[i].fModifierString = modifierString;
-            hovers[i].fIsEnabled = enabled;
-            hovers[i].fStateMask = computeStateMask(modifierString);
+
+            //state mask
+            hovers[i].fStateMask = PyEditorTextHoverDescriptor.computeStateMask(modifierString);
             if (hovers[i].fStateMask == -1) {
                 // Fallback: use stored modifier masks
                 try {
-                    hovers[i].fStateMask = Integer.parseInt(idToModifierMask.get(hovers[i].getId()));
+                    hovers[i].fStateMask = Integer.parseInt(PydevPrefs.getPreferenceStore().getString(
+                            PyHoverPreferencesPage.KEY_TEXT_HOVER_MODIFIER_MASK + hovers[i].getId()));
                 } catch (NumberFormatException ex) {
                     hovers[i].fStateMask = -1;
                 }
@@ -331,26 +329,6 @@ public class PyEditorTextHoverDescriptor {
                     hovers[i].fModifierString = ""; //$NON-NLS-1$
                 } else {
                     hovers[i].fModifierString = PyAction.getModifierString(stateMask);
-                }
-            }
-
-            /*
-             * For priority and preempt, use values registered with extension point if not
-             * overridden by preferences or if extension point registration value is requested
-             */
-            if (!useRegisteredExtensionPointValues) {
-                String sPriority = idToPriority.get(hovers[i].getId());
-                if (sPriority != null) {
-                    try {
-                        hovers[i].fPriority = Integer.parseInt(sPriority);
-                    } catch (NumberFormatException e) {
-                        //pass; createDescriptors() ensured some value was set
-                    }
-                }
-
-                String sPreempt = idToPreempt.get(hovers[i].getId());
-                if (sPreempt != null) {
-                    hovers[i].fPreempt = Boolean.valueOf(sPreempt);
                 }
             }
         }
@@ -384,12 +362,26 @@ public class PyEditorTextHoverDescriptor {
     }
 
     /**
+     * Sets the hover's enabled state
+     */
+    public void setIsEnabled(boolean enabled) {
+        fIsEnabled = enabled;
+    }
+
+    /**
      * Returns the hover's priority.
      *
      * @return the priority
      */
     public Integer getPriority() {
         return fPriority;
+    }
+
+    /**
+     * Sets the hover's priority
+     */
+    public void setPriority(int priority) {
+        fPriority = priority;
     }
 
     /**
@@ -402,6 +394,13 @@ public class PyEditorTextHoverDescriptor {
     }
 
     /**
+     * Sets the hover's preempt attribute
+     */
+    public void setIsPreempt(boolean preempt) {
+        fPreempt = preempt;
+    }
+
+    /**
      * Returns this hover descriptors configuration element.
      *
      * @return the configuration element
@@ -410,15 +409,4 @@ public class PyEditorTextHoverDescriptor {
         return fElement;
     }
 
-    /*
-     * Enable the specified Hover if preferences have not yet been set for it.
-     */
-    private static void checkHoverEnabled(String hoverId) {
-        String modifierSettings = PydevPrefs.getPreferences()
-                .getString(PyHoverPreferencesPage.EDITOR_TEXT_HOVER_MODIFIERS);
-        if (modifierSettings.indexOf(hoverId) < 0) {
-            PydevPrefs.getPreferences().setValue(PyHoverPreferencesPage.EDITOR_TEXT_HOVER_MODIFIERS,
-                    hoverId + VALUE_SEPARATOR + NO_MODIFIER + VALUE_SEPARATOR + modifierSettings);
-        }
-    }
 }

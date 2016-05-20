@@ -64,14 +64,15 @@ public abstract class ConfigurationElementAttributeSorter {
          * @see Comparator#compare(java.lang.Object, java.lang.Object)
          * @since 2.0
          */
+        @Override
         public int compare(O object0, O object1) {
 
             if (object0 instanceof PyEditorTextHoverDescriptor && object1 instanceof PyEditorTextHoverDescriptor) {
 
                 PyEditorTextHoverDescriptor descr0 = (PyEditorTextHoverDescriptor) object0;
                 PyEditorTextHoverDescriptor descr1 = (PyEditorTextHoverDescriptor) object1;
-                if (descr0.fPriority != null && descr1.fPriority != null) {
-                    return descr0.fPriority.compareTo(descr1.fPriority);
+                if (descr0.getPriority() != null && descr1.getPriority() != null) {
+                    return descr0.getPriority().compareTo(descr1.getPriority());
                 }
                 IConfigurationElement e0 = getConfigurationElement(object0);
                 IConfigurationElement e1 = getConfigurationElement(object1);

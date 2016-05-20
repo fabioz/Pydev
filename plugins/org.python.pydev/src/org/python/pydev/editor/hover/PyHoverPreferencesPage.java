@@ -16,7 +16,6 @@ import org.eclipse.ui.progress.UIJob;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.AbstractConfigurationBlockPreferencePage;
 import org.python.pydev.plugin.preferences.IPreferenceConfigurationBlock;
-import org.python.pydev.plugin.preferences.OverlayPreferenceStore;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 
 /**
@@ -39,9 +38,15 @@ public class PyHoverPreferencesPage extends AbstractConfigurationBlockPreference
 
     public static final String EDITOR_TEXT_HOVER_MODIFIER_MASKS = "EDITOR_TEXT_HOVER_MODIFIER_MASKS";
 
-    public static final String EDITOR_TEXT_HOVER_PRORITIES = "EDITOR_TEXT_HOVER_PRORITIES";
+    public static final String KEY_TEXT_HOVER_MODIFIER = "PYDEV_TEXT_HOVER_MODIFIER_";
 
-    public static final String EDITOR_TEXT_HOVER_PREEMPTS = "EDITOR_TEXT_HOVER_PREEMPTS";
+    public static final String KEY_TEXT_HOVER_MODIFIER_MASK = "PYDEV_TEXT_HOVER_MODIFIER_MASK_";
+
+    public static final String KEY_TEXT_HOVER_PRIORITY = "PYDEV_TEXT_HOVER_PRORITY_";
+
+    public static final String KEY_TEXT_HOVER_PREEMPT = "PYDEV_TEXT_HOVER_PREEMPT_";
+
+    public static final String KEY_TEXT_HOVER_ENABLE = "PYDEV_TEXT_HOVER_ENABLE_";
 
     public static final String EDITOR_ANNOTATION_ROLL_OVER = "EDITOR_ANNOTATION_ROLL_OVER"; //$NON-NLS-1$
 
@@ -109,9 +114,8 @@ public class PyHoverPreferencesPage extends AbstractConfigurationBlockPreference
     }
 
     @Override
-    protected IPreferenceConfigurationBlock createConfigurationBlock(OverlayPreferenceStore overlayPreferenceStore) {
-        config = new PyEditorHoverConfigurationBlock(this,
-                overlayPreferenceStore);
+    protected IPreferenceConfigurationBlock createConfigurationBlock() {
+        config = new PyEditorHoverConfigurationBlock(this);
         return config;
     }
 

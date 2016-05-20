@@ -52,6 +52,7 @@ public class PyEditorTextHoverProxy implements ITextHover, ITextHoverExtension {
     /*
      * @see ITextHover#getHoverInfo(ITextViewer, IRegion)
      */
+    @SuppressWarnings("deprecation")
     @Override
     public String getHoverInfo(ITextViewer textViewer, IRegion hoverRegion) {
         if (ensureHoverCreated() && fHover.isContentTypeSupported(this.contentType)) {
