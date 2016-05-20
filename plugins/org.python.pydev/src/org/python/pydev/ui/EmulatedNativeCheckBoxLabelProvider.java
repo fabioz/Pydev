@@ -103,6 +103,7 @@ public abstract class EmulatedNativeCheckBoxLabelProvider extends
      */
     private void workaround() {
         Shell shell = new Shell(Display.getDefault(), SWT.NONE);
+        shell.setSize(0, 0);
         shell.open();
         shell.close();
     }
