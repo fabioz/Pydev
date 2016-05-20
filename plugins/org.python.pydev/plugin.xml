@@ -2827,7 +2827,7 @@ if __name__ == "__main__":
             activate="false"
             class="org.python.pydev.editor.hover.PyDocstringTextHover"
             description="Provides hover text for Python docstrings"
-            enable="false"
+            enable="true"
             id="org.python.pydev.editor.hover.pyDocstringTextHover"
             label="PyDev Docstring Hover"
             preempt="false"
