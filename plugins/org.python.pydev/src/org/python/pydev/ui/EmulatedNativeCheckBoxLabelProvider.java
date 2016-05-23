@@ -15,8 +15,6 @@
  *******************************************************************************/
 package org.python.pydev.ui;
 
-import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ColumnViewer;
@@ -44,22 +42,24 @@ public abstract class EmulatedNativeCheckBoxLabelProvider extends
     private static final String CHECKED_KEY = "CHECKED";
     private static final String UNCHECK_KEY = "UNCHECKED";
 
+    private Shell shell = new Shell(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+            SWT.NO_TRIM | SWT.NO_BACKGROUND);
+
     public EmulatedNativeCheckBoxLabelProvider(ColumnViewer viewer) {
         if (JFaceResources.getImageRegistry().getDescriptor(CHECKED_KEY) == null) {
-            workaround();
+            workaround(viewer.getControl().getDisplay());
             JFaceResources.getImageRegistry().put(CHECKED_KEY, makeShot(viewer.getControl(), true));
             JFaceResources.getImageRegistry().put(UNCHECK_KEY, makeShot(viewer.getControl(), false));
         }
     }
 
     private Image makeShot(Control control, boolean type) {
-        // Hopefully no platform uses exactly this color because we'll make
-        // it transparent in the image.
+        /* Hopefully no platform uses exactly this color because we'll make
+           it transparent in the image.*/
         Color greenScreen = new Color(control.getDisplay(), 222, 223, 224);
 
-        Shell shell = new Shell(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+        shell = new Shell(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
                 SWT.NO_TRIM | SWT.NO_BACKGROUND);
-        shell.setLayout(GridLayoutFactory.fillDefaults().create());
 
         // otherwise we have a default gray color
         shell.setBackground(greenScreen);
@@ -67,19 +67,19 @@ public abstract class EmulatedNativeCheckBoxLabelProvider extends
         Button button = new Button(shell, SWT.CHECK | SWT.NO_BACKGROUND);
         button.setBackground(greenScreen);
         button.setSelection(type);
-        GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.CENTER).applyTo(button);
 
         // otherwise an image is located in a corner
-        //        button.setLocation(1, 1);
+        button.setLocation(1, 1);
         Point bsize = button.computeSize(SWT.DEFAULT, SWT.DEFAULT);
 
         // otherwise an image is stretched by width
-        bsize.x = Math.max(bsize.x, bsize.y);
-        bsize.y = Math.max(bsize.x, bsize.y);
+        bsize.x = Math.max(bsize.x - 1, bsize.y - 1);
+        bsize.y = Math.max(bsize.x - 1, bsize.y - 1);
         button.setSize(bsize);
 
         GC gc = new GC(shell);
-        shell.setSize(bsize);
+        Point shellSize = new Point(32, 32);
+        shell.setSize(shellSize);
         shell.open();
 
         Image image = new Image(control.getDisplay(), bsize.x, bsize.y);
@@ -101,8 +101,7 @@ public abstract class EmulatedNativeCheckBoxLabelProvider extends
      * an image with a default background and no button. It's a mystery
      * why this workaround helps.
      */
-    private void workaround() {
-        Shell shell = new Shell(Display.getDefault(), SWT.NONE);
+    private void workaround(Display display) {
         shell.setSize(0, 0);
         shell.open();
         shell.close();
