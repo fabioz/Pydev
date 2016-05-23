@@ -741,6 +741,7 @@ public class PyEditorHoverConfigurationBlock implements IPreferenceConfiguration
                 fUseHoverDivider.getSelection());
 
         PydevPlugin.getDefault().resetPyEditorTextHoverDescriptors();
+        PydevCombiningHover.installTextHovers();
     }
 
     /**

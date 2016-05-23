@@ -36,9 +36,9 @@ public class PydevCombiningHover extends AbstractPyEditorTextHover {
 
     public static final Object ID_DEFAULT_COMBINING_HOVER = "org.python.pydev.editor.hover.defaultCombiningHover";
 
-    private ArrayList<PyEditorTextHoverDescriptor> fTextHoverSpecifications;
+    private static ArrayList<PyEditorTextHoverDescriptor> fTextHoverSpecifications;
 
-    private ArrayList<AbstractPyEditorTextHover> fInstantiatedTextHovers;
+    private static ArrayList<AbstractPyEditorTextHover> fInstantiatedTextHovers;
 
     private Map<AbstractPyEditorTextHover, PyEditorTextHoverDescriptor> hoverMap = new HashMap<AbstractPyEditorTextHover, PyEditorTextHoverDescriptor>();
 
@@ -80,7 +80,7 @@ public class PydevCombiningHover extends AbstractPyEditorTextHover {
     /**
      * Installs all text hovers.
      */
-    private void installTextHovers() {
+    public static void installTextHovers() {
 
         // initialize lists - indicates that the initialization happened
         fTextHoverSpecifications = new ArrayList<PyEditorTextHoverDescriptor>(2);
