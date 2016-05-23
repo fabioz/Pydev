@@ -6,13 +6,8 @@
  */
 package org.python.pydev.editor.hover;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.eclipse.ui.progress.UIJob;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.AbstractConfigurationBlockPreferencePage;
 import org.python.pydev.plugin.preferences.IPreferenceConfigurationBlock;
@@ -68,21 +63,6 @@ public class PyHoverPreferencesPage extends AbstractConfigurationBlockPreference
     @Override
     public void init(IWorkbench workbench) {
         // pass
-    }
-
-    @Override
-    public void createControl(Composite parent) {
-        super.createControl(parent);
-        //need to delay somewhat or it won't have any effect
-        new UIJob("Show/Hide Preempt Column") {
-
-            @Override
-            public IStatus runInUIThread(IProgressMonitor monitor) {
-                config.showPreemptColumn(PyHoverPreferencesPage.getCombineHoverInfo());
-                return Status.OK_STATUS;
-            }
-
-        }.schedule(500);
     }
 
     /**@return whether the docstring should be shown when hovering.*/
