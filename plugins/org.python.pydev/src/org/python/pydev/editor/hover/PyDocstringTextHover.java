@@ -3,7 +3,7 @@
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
- * 
+ *
  * A re-factor of <code>PyTextHover</code> to use the extension point <code>org.python.pydev.pyTextHover</code>
  */
 package org.python.pydev.editor.hover;
@@ -55,9 +55,7 @@ public class PyDocstringTextHover extends AbstractPyEditorTextHover {
         if (textViewer instanceof PySourceViewer) {
             PySourceViewer s = (PySourceViewer) textViewer;
             PySelection ps = new PySelection(s.getDocument(), hoverRegion.getOffset() + hoverRegion.getLength());
-            if (PyHoverPreferencesPage.getShowDocstringOnHover()) {
-                getDocstringHover(hoverRegion, s, ps, buf);
-            }
+            getDocstringHover(hoverRegion, s, ps, buf);
         }
         return buf.toString();
     }
@@ -73,7 +71,7 @@ public class PyDocstringTextHover extends AbstractPyEditorTextHover {
         boolean pythonCommentOrMultiline = IPythonPartitions.NON_DEFAULT_TYPES_AS_SET.contains(contentType);
 
         if (!pythonCommentOrMultiline) {
-            return PyHoverPreferencesPage.getShowDocstringOnHover();
+            return true;
         }
 
         return false;

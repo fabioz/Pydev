@@ -3,10 +3,10 @@
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
- * 
+ *
  * Author: Mark Leone
  * Created: Feb 11, 2016
- * 
+ *
  * Loosely follows the JDT implementation of a best match hover. Code for obtaining
  * and configuring contributed Hovers was copied from <code>BestMatchHover</code>,
  * but this implementation combines Hover info in priority order, whereas the JDT
@@ -16,7 +16,7 @@ package org.python.pydev.editor.hover;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.Assert;
@@ -36,11 +36,12 @@ public class PydevCombiningHover extends AbstractPyEditorTextHover {
 
     public static final Object ID_DEFAULT_COMBINING_HOVER = "org.python.pydev.editor.hover.defaultCombiningHover";
 
-    private static ArrayList<PyEditorTextHoverDescriptor> fTextHoverSpecifications;
+    // Note that the specification is static and is redone when the preferences are changed.
+    private static List<PyEditorTextHoverDescriptor> fTextHoverSpecifications;
 
-    private static ArrayList<AbstractPyEditorTextHover> fInstantiatedTextHovers;
+    private static List<AbstractPyEditorTextHover> fInstantiatedTextHovers;
 
-    private Map<AbstractPyEditorTextHover, PyEditorTextHoverDescriptor> hoverMap = new HashMap<AbstractPyEditorTextHover, PyEditorTextHoverDescriptor>();
+    private Map<AbstractPyEditorTextHover, PyEditorTextHoverDescriptor> hoverMap = new HashMap<>();
 
     boolean preempt = false;
 
@@ -83,15 +84,15 @@ public class PydevCombiningHover extends AbstractPyEditorTextHover {
     public static void installTextHovers() {
 
         // initialize lists - indicates that the initialization happened
-        fTextHoverSpecifications = new ArrayList<PyEditorTextHoverDescriptor>(2);
-        fInstantiatedTextHovers = new ArrayList<AbstractPyEditorTextHover>(2);
+        fTextHoverSpecifications = new ArrayList<PyEditorTextHoverDescriptor>(5);
+        fInstantiatedTextHovers = new ArrayList<AbstractPyEditorTextHover>(5);
 
         // populate list
         PyEditorTextHoverDescriptor[] hoverDescs = PydevPlugin.getDefault().getPyEditorTextHoverDescriptors();
-        for (int i = 0; i < hoverDescs.length; i++) {
+        for (PyEditorTextHoverDescriptor desc : hoverDescs) {
             // ensure that we don't add ourselves to the list
-            if (!ID_DEFAULT_COMBINING_HOVER.equals(hoverDescs[i].getId())) {
-                fTextHoverSpecifications.add(hoverDescs[i]);
+            if (!ID_DEFAULT_COMBINING_HOVER.equals(desc.getId())) {
+                fTextHoverSpecifications.add(desc);
             }
         }
     }
@@ -100,33 +101,20 @@ public class PydevCombiningHover extends AbstractPyEditorTextHover {
         if (fTextHoverSpecifications == null) {
             return;
         }
+        hoverMap.clear();
 
-        boolean done = true;
-        int i = -1;
-        for (Iterator<PyEditorTextHoverDescriptor> iterator = fTextHoverSpecifications.iterator(); iterator
-                .hasNext();) {
-            i++;
-            PyEditorTextHoverDescriptor spec = iterator.next();
+        List<PyEditorTextHoverDescriptor> specifications = fTextHoverSpecifications;
+        fTextHoverSpecifications = null;
+        for (PyEditorTextHoverDescriptor spec : specifications) {
             if (spec == null) {
                 continue;
             }
 
-            done = false;
-
             AbstractPyEditorTextHover hover = spec.createTextHover();
             if (hover != null) {
-                fTextHoverSpecifications.set(i, null);
-                if (i == fInstantiatedTextHovers.size()) {
-                    fInstantiatedTextHovers.add(i, hover);
-                } else {
-                    fInstantiatedTextHovers.set(i, hover);
-                }
+                fInstantiatedTextHovers.add(hover);
                 hoverMap.put(hover, spec);
             }
-
-        }
-        if (done) {
-            fTextHoverSpecifications = null;
         }
     }
 
@@ -146,8 +134,7 @@ public class PydevCombiningHover extends AbstractPyEditorTextHover {
 
         boolean firstHoverInfo = true;
         //hovers are sorted by priority in descending order
-        for (Iterator<AbstractPyEditorTextHover> iterator = fInstantiatedTextHovers.iterator(); iterator.hasNext();) {
-            final AbstractPyEditorTextHover hover = iterator.next();
+        for (AbstractPyEditorTextHover hover : fInstantiatedTextHovers) {
             if (hover == null) {
                 continue;
             }
@@ -253,7 +240,7 @@ public class PydevCombiningHover extends AbstractPyEditorTextHover {
     /**
      * Creates divider text of a specified width
      * Must be called from the event dispatch thread
-     * 
+     *
      * @param width the desired width of the divider in pixels
      * @return the divider text
      */

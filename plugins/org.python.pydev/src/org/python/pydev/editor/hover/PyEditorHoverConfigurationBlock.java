@@ -14,7 +14,6 @@ package org.python.pydev.editor.hover;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -71,7 +70,7 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.progress.UIJob;
-import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.StatusInfo;
@@ -349,8 +348,6 @@ public class PyEditorHoverConfigurationBlock implements IPreferenceConfiguration
 
     private Text fCombiningHoverModifierEditor;
 
-    private Button fShowDocstrings;
-
     private Button fDebugShowVars;
 
     private Button fUseFirstHover;
@@ -358,8 +355,6 @@ public class PyEditorHoverConfigurationBlock implements IPreferenceConfiguration
     private Label fCombiningHoverLabel;
 
     private Button fUseHoverDivider;
-
-    private Label fDisabledLabel;
 
     private Composite fComp;
 
@@ -397,19 +392,6 @@ public class PyEditorHoverConfigurationBlock implements IPreferenceConfiguration
         fComp = new Composite(parent, SWT.NONE);
         GridDataFactory.fillDefaults().grab(true, false).applyTo(fComp);
         GridLayoutFactory.fillDefaults().numColumns(3).applyTo(fComp);
-
-        //disabled warning
-        fDisabledLabel = new Label(fComp, SWT.NONE);
-        fDisabledLabel.setText(
-                "The custom Hover controls on this page can only be used if " +
-                        "no contributions are made to the deprecated\n" +
-                        "extension point " + ExtensionHelper.PYDEV_HOVER
-                        + ". Contribute custom Hover behavior using extension point\n" +
-                        ExtensionHelper.PYDEV_HOVER2 + ".");
-        fDisabledLabelGridData = GridDataFactory.fillDefaults().span(3, 1).create();
-        fDisabledLabelGridData.exclude = true;
-        fDisabledLabel.setLayoutData(fDisabledLabelGridData);
-        fDisabledLabel.setVisible(false);
 
         fButtonComp = new Composite(fComp, SWT.BORDER);
         GridLayoutFactory.fillDefaults().numColumns(2).applyTo(fButtonComp);
@@ -589,9 +571,6 @@ public class PyEditorHoverConfigurationBlock implements IPreferenceConfiguration
         gd.horizontalSpan = 2;
         fDescription.setLayoutData(gd);
 
-        fShowDocstrings = new Button(parent, SWT.CHECK);
-        fShowDocstrings.setText("Show docstrings");
-        fShowDocstrings.setSelection(PyHoverPreferencesPage.getShowDocstringOnHover());
         fDebugShowVars = new Button(parent, SWT.CHECK);
         fDebugShowVars.setText("Show variables values while debugging");
         fDebugShowVars.setSelection(PyHoverPreferencesPage.getShowValuesWhileDebuggingOnHover());
@@ -607,28 +586,6 @@ public class PyEditorHoverConfigurationBlock implements IPreferenceConfiguration
 
         return fComp;
 
-    }
-
-    /*
-     * Disable controls for pydev_hover2 extension point if any contributions are
-     * made to the deprecated pydev_hover extension point.
-     */
-    private void checkEnabled() {
-        List<?> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_HOVER);
-        if (participants.size() != 0) {
-            fDisabledLabel.setVisible(true);
-            fDisabledLabelGridData.exclude = false;
-            fComp.layout();
-            fUseFirstHover.setEnabled(false);
-            fCombineHovers.setEnabled(false);
-            fCombiningHoverLabel.setEnabled(false);
-            fCombiningHoverModifierEditor.setEnabled(false);
-            fHoverTable.setEnabled(false);
-            fUseHoverDivider.setEnabled(false);
-        } else {
-            //only needed for old style hover
-            fShowDocstrings.setEnabled(false);
-        }
     }
 
     private void addColumnLayoutData(TableLayoutComposite layouter, int[] widths) {
@@ -667,7 +624,6 @@ public class PyEditorHoverConfigurationBlock implements IPreferenceConfiguration
         fHoverTableViewer.setInput(fHoverDescs);
         fHoverTableViewer.refresh();
         initializeFields();
-        checkEnabled();
     }
 
     void initializeFields() {
@@ -693,29 +649,32 @@ public class PyEditorHoverConfigurationBlock implements IPreferenceConfiguration
         PyEditorTextHoverDescriptor[] hoverDescripters = (PyEditorTextHoverDescriptor[]) fHoverTableViewer.getInput();
         sortHoverDescriptors();
 
+        if (hoverDescripters != fHoverDescs) {
+            Log.log("Expecting hoverDescripters to be == fHoverDescs");
+        }
         //save preferences for configured hovers
         for (int i = 0; i < hoverDescripters.length; i++) {
-            String modifier = fHoverDescs[i].fModifierString;
+            PyEditorTextHoverDescriptor hoverDesc = fHoverDescs[i];
+            String modifier = hoverDesc.fModifierString;
             if (modifier == null || modifier.length() == 0) {
                 modifier = PyEditorTextHoverDescriptor.NO_MODIFIER;
             }
-            modifierMask = fHoverDescs[i].fStateMask;
-            priority = fHoverDescs[i].getPriority();
-            preempt = fHoverDescs[i].isPreempt();
+            modifierMask = hoverDesc.fStateMask;
+            priority = hoverDesc.getPriority();
+            preempt = hoverDesc.isPreempt();
 
-            Boolean enable = fHoverDescs[i].isEnabled();
+            Boolean enable = hoverDesc.isEnabled();
+            String hoverDescId = hoverDesc.getId();
             PydevPrefs.getPreferenceStore().setValue(
-                    PyHoverPreferencesPage.KEY_TEXT_HOVER_MODIFIER + fHoverDescs[i].getId(),
-                    modifier);
+                    PyHoverPreferencesPage.KEY_TEXT_HOVER_MODIFIER + hoverDescId, modifier);
             PydevPrefs.getPreferenceStore().setValue(
-                    PyHoverPreferencesPage.KEY_TEXT_HOVER_MODIFIER_MASK + fHoverDescs[i].getId(),
-                    modifierMask);
+                    PyHoverPreferencesPage.KEY_TEXT_HOVER_MODIFIER_MASK + hoverDescId, modifierMask);
             PydevPrefs.getPreferenceStore().setValue(
-                    PyHoverPreferencesPage.KEY_TEXT_HOVER_PRIORITY + hoverDescripters[i].getId(), priority);
+                    PyHoverPreferencesPage.KEY_TEXT_HOVER_PRIORITY + hoverDescId, priority);
             PydevPrefs.getPreferenceStore().setValue(
-                    PyHoverPreferencesPage.KEY_TEXT_HOVER_PREEMPT + hoverDescripters[i].getId(), preempt);
+                    PyHoverPreferencesPage.KEY_TEXT_HOVER_PREEMPT + hoverDescId, preempt);
             PydevPrefs.getPreferenceStore().setValue(
-                    PyHoverPreferencesPage.KEY_TEXT_HOVER_ENABLE + hoverDescripters[i].getId(), enable);
+                    PyHoverPreferencesPage.KEY_TEXT_HOVER_ENABLE + hoverDescId, enable);
         }
 
         //save preferences for the combining hover
@@ -732,8 +691,6 @@ public class PyEditorHoverConfigurationBlock implements IPreferenceConfiguration
         //save general hover preferences
         PydevPlugin.getDefault().getPreferenceStore().setValue(PyHoverPreferencesPage.COMBINE_HOVER_INFO,
                 fCombineHovers.getSelection());
-        PydevPlugin.getDefault().getPreferenceStore().setValue(PyHoverPreferencesPage.SHOW_DOCSTRING_ON_HOVER,
-                fShowDocstrings.getSelection());
         PydevPlugin.getDefault().getPreferenceStore().setValue(
                 PyHoverPreferencesPage.SHOW_DEBUG_VARIABLES_VALUES_ON_HOVER,
                 fDebugShowVars.getSelection());
@@ -940,9 +897,6 @@ public class PyEditorHoverConfigurationBlock implements IPreferenceConfiguration
         PyEditorTextHoverDescriptor hover = fHoverDescs[i];
         boolean enabled = hover.isEnabled();
         fModifierEditor.setEnabled(enabled && !fCombineHovers.getSelection());
-        if (hover.getId().equals(PyDocstringTextHover.ID)) {
-            fShowDocstrings.setSelection(enabled);
-        }
         fModifierEditor.setText(hover.fModifierString);
         String description = fHoverDescs[i].getDescription();
         if (description == null) {
@@ -968,7 +922,7 @@ public class PyEditorHoverConfigurationBlock implements IPreferenceConfiguration
         }
 
         int i = 0;
-        HashMap<Integer, String> stateMasks = new HashMap<Integer, String>(fHoverDescs.length);
+        Map<Integer, String> stateMasks = new HashMap<Integer, String>(fHoverDescs.length);
         while (fStatus.isOK() && i < fHoverDescs.length) {
             if (fHoverDescs[i].isEnabled()) {
                 String label = fHoverDescs[i].getLabel();

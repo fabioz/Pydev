@@ -15,15 +15,11 @@ import org.python.pydev.plugin.preferences.PydevPrefs;
 
 /**
  * Preferences page for showing or not hovering info.
- * 
+ *
  * @author Fabio
  */
 public class PyHoverPreferencesPage extends AbstractConfigurationBlockPreferencePage
         implements IWorkbenchPreferencePage {
-
-    public static final String SHOW_DOCSTRING_ON_HOVER = "SHOW_DOCSTRING_ON_HOVER";
-
-    public static final boolean DEFAULT_SHOW_DOCSTRING_ON_HOVER = true;
 
     public static final String SHOW_DEBUG_VARIABLES_VALUES_ON_HOVER = "SHOW_DEBUG_VARIABLES_VALUES_ON_HOVER";
 
@@ -65,12 +61,6 @@ public class PyHoverPreferencesPage extends AbstractConfigurationBlockPreference
         // pass
     }
 
-    /**@return whether the docstring should be shown when hovering.*/
-
-    public static boolean getShowDocstringOnHover() {
-        return PydevPrefs.getPreferences().getBoolean(SHOW_DOCSTRING_ON_HOVER);
-    }
-
     /**
      * @return whether info from enabled Hovers should be combined.
      */
@@ -86,7 +76,7 @@ public class PyHoverPreferencesPage extends AbstractConfigurationBlockPreference
     }
 
     /**
-     * @return whether the value of include a divider between text contributions when 
+     * @return whether the value of include a divider between text contributions when
      * combining info from multiple Hovers.
      */
     public static boolean getUseHoverDelimiters() {
