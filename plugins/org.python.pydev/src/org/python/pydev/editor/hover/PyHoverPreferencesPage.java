@@ -76,7 +76,7 @@ public class PyHoverPreferencesPage extends AbstractConfigurationBlockPreference
     }
 
     /**
-     * @return whether the value of include a divider between text contributions when
+     * @return whether to include a divider between text contributions when
      * combining info from multiple Hovers.
      */
     public static boolean getUseHoverDelimiters() {

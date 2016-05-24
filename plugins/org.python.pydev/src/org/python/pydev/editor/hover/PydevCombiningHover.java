@@ -134,7 +134,7 @@ public class PydevCombiningHover extends AbstractPyEditorTextHover {
 
         boolean firstHoverInfo = true;
         //hovers are sorted by priority in descending order
-        for (AbstractPyEditorTextHover hover : fInstantiatedTextHovers) {
+        for (final AbstractPyEditorTextHover hover : fInstantiatedTextHovers) {
             if (hover == null) {
                 continue;
             }
@@ -182,7 +182,13 @@ public class PydevCombiningHover extends AbstractPyEditorTextHover {
                     }
                 }
                 currentPriority = descr.getPriority();
-                preempt = descr.isPreempt();
+
+                /* If preempt has already been set, don't unset it if a hover with the same priority
+                 * does not have preempt set
+                 */
+                if (!preempt) {
+                    preempt = descr.isPreempt();
+                }
             }
         }
         currentPriority = null;
