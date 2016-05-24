@@ -9,6 +9,7 @@ package org.python.pydev.editor;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Arrays;
 import java.util.Iterator;
 
 import org.eclipse.jface.resource.JFaceColors;
@@ -17,12 +18,15 @@ import org.eclipse.jface.text.TextPresentation;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Drawable;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.editor.actions.PyOpenAction;
@@ -54,6 +58,7 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
 
     private int fCounter;
     private boolean fEnforceUpperLineLimit;
+    private ControlListener resizeCallback;
 
     public PyInformationPresenter(boolean enforceUpperLineLimit) {
         super();
@@ -63,6 +68,24 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
     public PyInformationPresenter() {
         this(true);
     }
+
+    private ControlListener resizeListener = new ControlListener() {
+
+        @Override
+        public void controlMoved(ControlEvent e) {
+            if (resizeCallback != null) {
+                resizeCallback.controlMoved(e);
+            }
+        }
+
+        @Override
+        public void controlResized(ControlEvent e) {
+            if (resizeCallback != null) {
+                resizeCallback.controlResized(e);
+            }
+        }
+
+    };
 
     /**
      * Creates the reader and properly puts the presentation into place.
@@ -190,8 +213,8 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
                 range.length += insertLength;
             else
                 range.start += insertLength;
+            }
         }
-    }
 
     private void append(FastStringBuffer buffer, String string, TextPresentation presentation) {
 
@@ -250,6 +273,13 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
             });
         }
 
+        if (drawable instanceof Control) {
+            Control control = (Control) drawable;
+            if (!Arrays.asList(control.getListeners(SWT.Resize)).contains(resizeListener)) {
+                control.addControlListener(resizeListener);
+            }
+        }
+
         if (hoverInfo == null)
             return null;
 
@@ -281,8 +311,8 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
                         append(buffer, LINE_DELIM, presentation);
                         if (lastLineIndent != null)
                             append(buffer, lastLineIndent, presentation);
+                        }
                     }
-                }
 
                 append(buffer, line, null);
                 firstLineProcessed = true;
@@ -338,5 +368,13 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
         buffer.delete(0, start);
         presentation.setResultWindow(new Region(start, buffer.length()));
         return buffer.toString();
+    }
+
+    /**
+     * Add a listener to be notified when the hover control is resized.
+     * @param listener the callback listener
+     */
+    public void addResizeCallback(ControlListener listener) {
+        this.resizeCallback = listener;
     }
 }

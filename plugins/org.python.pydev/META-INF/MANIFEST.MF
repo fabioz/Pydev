@@ -41,7 +41,9 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev.shared_ui;bundle-version="[5.0.0,5.0.1)",
  org.python.pydev.shared_core;bundle-version="[5.0.0,5.0.1)",
  org.eclipse.e4.ui.css.swt.theme;resolution:=optional,
- org.eclipse.e4.ui.services;resolution:=optional
+ org.eclipse.e4.ui.services;resolution:=optional,
+ org.eclipse.ui.forms,
+ org.eclipse.swt
 Bundle-ActivationPolicy: lazy
 Export-Package: org.python.copiedfromeclipsesrc,org.python.pydev.build
  er,org.python.pydev.builder.pycremover,org.python.pydev.builder.pylin

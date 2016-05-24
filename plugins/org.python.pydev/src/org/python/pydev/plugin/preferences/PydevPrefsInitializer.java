@@ -288,10 +288,14 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.putBoolean(ImportsPreferencesPage.SORT_NAMES_GROUPED, ImportsPreferencesPage.DEFAULT_SORT_NAMES_GROUPED);
 
         //hover
+        node.putBoolean(PyHoverPreferencesPage.COMBINE_HOVER_INFO,
+                PyHoverPreferencesPage.DEFAULT_SHOW_DEBUG_VARIABLES_VALUES_ON_HOVER);
         node.putBoolean(PyHoverPreferencesPage.SHOW_DOCSTRING_ON_HOVER,
                 PyHoverPreferencesPage.DEFAULT_SHOW_DOCSTRING_ON_HOVER);
         node.putBoolean(PyHoverPreferencesPage.SHOW_DEBUG_VARIABLES_VALUES_ON_HOVER,
                 PyHoverPreferencesPage.DEFAULT_SHOW_DEBUG_VARIABLES_VALUES_ON_HOVER);
+        node.putBoolean(PyHoverPreferencesPage.USE_HOVER_DIVIDER,
+                PyHoverPreferencesPage.DEFAULT_USE_HOVER_DIVIDER);
 
         //source locator
         node.putInt(PySourceLocatorPrefs.ON_SOURCE_NOT_FOUND,
