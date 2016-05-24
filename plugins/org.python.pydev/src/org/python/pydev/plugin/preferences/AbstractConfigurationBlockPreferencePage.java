@@ -30,7 +30,6 @@ public abstract class AbstractConfigurationBlockPreferencePage extends Preferenc
         implements IWorkbenchPreferencePage {
 
     private IPreferenceConfigurationBlock fConfigurationBlock;
-    private OverlayPreferenceStore fOverlayStore;
 
     /**
      * Creates a new preference page.
@@ -38,12 +37,10 @@ public abstract class AbstractConfigurationBlockPreferencePage extends Preferenc
     public AbstractConfigurationBlockPreferencePage() {
         setDescription();
         setPreferenceStore();
-        fOverlayStore = new OverlayPreferenceStore(getPreferenceStore(), new OverlayPreferenceStore.OverlayKey[] {});
-        fConfigurationBlock = createConfigurationBlock(fOverlayStore);
+        fConfigurationBlock = createConfigurationBlock();
     }
 
-    protected abstract IPreferenceConfigurationBlock createConfigurationBlock(
-            OverlayPreferenceStore overlayPreferenceStore);
+    protected abstract IPreferenceConfigurationBlock createConfigurationBlock();
 
     protected abstract String getHelpId();
 
@@ -72,9 +69,6 @@ public abstract class AbstractConfigurationBlockPreferencePage extends Preferenc
     @Override
     protected Control createContents(Composite parent) {
 
-        fOverlayStore.load();
-        fOverlayStore.start();
-
         Control content = fConfigurationBlock.createControl(parent);
 
         initialize();
@@ -95,10 +89,14 @@ public abstract class AbstractConfigurationBlockPreferencePage extends Preferenc
 
         fConfigurationBlock.performOk();
 
-        fOverlayStore.propagate();
-
         PydevPlugin.flushInstanceScope();
 
+        return true;
+    }
+
+    @Override
+    public boolean performCancel() {
+        fConfigurationBlock.performCancel();
         return true;
     }
 
@@ -108,7 +106,6 @@ public abstract class AbstractConfigurationBlockPreferencePage extends Preferenc
     @Override
     public void performDefaults() {
 
-        fOverlayStore.loadDefaults();
         fConfigurationBlock.performDefaults();
 
         super.performDefaults();
@@ -121,11 +118,6 @@ public abstract class AbstractConfigurationBlockPreferencePage extends Preferenc
     public void dispose() {
 
         fConfigurationBlock.dispose();
-
-        if (fOverlayStore != null) {
-            fOverlayStore.stop();
-            fOverlayStore = null;
-        }
 
         super.dispose();
     }

@@ -1358,6 +1358,7 @@
             activate="false"
             class="org.python.pydev.debug.ui.hover.PyDebugHover"
             description="Provides Debug Hover Info"
+            enable="true"
             id="org.python.pydev.debug.ui.hover.PyDebugHover"
             label="PyDev Debug Hover"
             preempt="false"

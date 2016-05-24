@@ -6,17 +6,11 @@
  */
 package org.python.pydev.editor.hover;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.eclipse.ui.progress.UIJob;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.AbstractConfigurationBlockPreferencePage;
 import org.python.pydev.plugin.preferences.IPreferenceConfigurationBlock;
-import org.python.pydev.plugin.preferences.OverlayPreferenceStore;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 
 /**
@@ -39,9 +33,15 @@ public class PyHoverPreferencesPage extends AbstractConfigurationBlockPreference
 
     public static final String EDITOR_TEXT_HOVER_MODIFIER_MASKS = "EDITOR_TEXT_HOVER_MODIFIER_MASKS";
 
-    public static final String EDITOR_TEXT_HOVER_PRORITIES = "EDITOR_TEXT_HOVER_PRORITIES";
+    public static final String KEY_TEXT_HOVER_MODIFIER = "PYDEV_TEXT_HOVER_MODIFIER_";
 
-    public static final String EDITOR_TEXT_HOVER_PREEMPTS = "EDITOR_TEXT_HOVER_PREEMPTS";
+    public static final String KEY_TEXT_HOVER_MODIFIER_MASK = "PYDEV_TEXT_HOVER_MODIFIER_MASK_";
+
+    public static final String KEY_TEXT_HOVER_PRIORITY = "PYDEV_TEXT_HOVER_PRORITY_";
+
+    public static final String KEY_TEXT_HOVER_PREEMPT = "PYDEV_TEXT_HOVER_PREEMPT_";
+
+    public static final String KEY_TEXT_HOVER_ENABLE = "PYDEV_TEXT_HOVER_ENABLE_";
 
     public static final String EDITOR_ANNOTATION_ROLL_OVER = "EDITOR_ANNOTATION_ROLL_OVER"; //$NON-NLS-1$
 
@@ -63,21 +63,6 @@ public class PyHoverPreferencesPage extends AbstractConfigurationBlockPreference
     @Override
     public void init(IWorkbench workbench) {
         // pass
-    }
-
-    @Override
-    public void createControl(Composite parent) {
-        super.createControl(parent);
-        //need to delay somewhat or it won't have any effect
-        new UIJob("Show/Hide Preempt Column") {
-
-            @Override
-            public IStatus runInUIThread(IProgressMonitor monitor) {
-                config.showPreemptColumn(PyHoverPreferencesPage.getCombineHoverInfo());
-                return Status.OK_STATUS;
-            }
-
-        }.schedule(500);
     }
 
     /**@return whether the docstring should be shown when hovering.*/
@@ -109,9 +94,8 @@ public class PyHoverPreferencesPage extends AbstractConfigurationBlockPreference
     }
 
     @Override
-    protected IPreferenceConfigurationBlock createConfigurationBlock(OverlayPreferenceStore overlayPreferenceStore) {
-        config = new PyEditorHoverConfigurationBlock(this,
-                overlayPreferenceStore);
+    protected IPreferenceConfigurationBlock createConfigurationBlock() {
+        config = new PyEditorHoverConfigurationBlock(this);
         return config;
     }
 

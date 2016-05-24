@@ -20,8 +20,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IExecutableExtensionFactory;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.swt.custom.StyleRange;
@@ -32,16 +30,15 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.widgets.Display;
 import org.python.pydev.editor.PyInformationPresenter;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
-public class DefaultPydevCombiningHover extends AbstractPyEditorTextHover implements IExecutableExtensionFactory {
+public class PydevCombiningHover extends AbstractPyEditorTextHover {
 
     public static final Object ID_DEFAULT_COMBINING_HOVER = "org.python.pydev.editor.hover.defaultCombiningHover";
 
-    private ArrayList<PyEditorTextHoverDescriptor> fTextHoverSpecifications;
+    private static ArrayList<PyEditorTextHoverDescriptor> fTextHoverSpecifications;
 
-    private ArrayList<AbstractPyEditorTextHover> fInstantiatedTextHovers;
+    private static ArrayList<AbstractPyEditorTextHover> fInstantiatedTextHovers;
 
     private Map<AbstractPyEditorTextHover, PyEditorTextHoverDescriptor> hoverMap = new HashMap<AbstractPyEditorTextHover, PyEditorTextHoverDescriptor>();
 
@@ -57,7 +54,7 @@ public class DefaultPydevCombiningHover extends AbstractPyEditorTextHover implem
 
     private static final String DIVIDER_CHAR = Character.toString((char) 0xfeff2015);
 
-    public DefaultPydevCombiningHover() {
+    public PydevCombiningHover() {
         installTextHovers();
         this.addInformationPresenterControlListener(new ControlListener() {
 
@@ -83,14 +80,14 @@ public class DefaultPydevCombiningHover extends AbstractPyEditorTextHover implem
     /**
      * Installs all text hovers.
      */
-    private void installTextHovers() {
+    public static void installTextHovers() {
 
         // initialize lists - indicates that the initialization happened
         fTextHoverSpecifications = new ArrayList<PyEditorTextHoverDescriptor>(2);
         fInstantiatedTextHovers = new ArrayList<AbstractPyEditorTextHover>(2);
 
         // populate list
-        PyEditorTextHoverDescriptor[] hoverDescs = PydevPlugin.getDefault().getPyEditorTextHoverDescriptors(false);
+        PyEditorTextHoverDescriptor[] hoverDescs = PydevPlugin.getDefault().getPyEditorTextHoverDescriptors();
         for (int i = 0; i < hoverDescs.length; i++) {
             // ensure that we don't add ourselves to the list
             if (!ID_DEFAULT_COMBINING_HOVER.equals(hoverDescs[i].getId())) {
@@ -256,6 +253,7 @@ public class DefaultPydevCombiningHover extends AbstractPyEditorTextHover implem
     /**
      * Creates divider text of a specified width
      * Must be called from the event dispatch thread
+     * 
      * @param width the desired width of the divider in pixels
      * @return the divider text
      */
@@ -298,22 +296,6 @@ public class DefaultPydevCombiningHover extends AbstractPyEditorTextHover implem
     @Override
     public boolean isContentTypeSupported(String contentType) {
         return true;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.eclipse.core.runtime.IExecutableExtensionFactory#create()
-     */
-    @Override
-    public Object create() throws CoreException {
-        try {
-            PyEditorTextHoverDescriptor contributedHover = PydevPlugin.getDefault()
-                    .getPyEditorCombiningTextHoverDescriptor(true);
-            return contributedHover != null ? contributedHover.createTextHover() : new DefaultPydevCombiningHover();
-        } catch (CoreException e) {
-            Log.log(e.getMessage());
-            return new DefaultPydevCombiningHover();
-        }
     }
 
 }

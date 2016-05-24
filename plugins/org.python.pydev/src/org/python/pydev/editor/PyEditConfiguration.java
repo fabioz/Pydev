@@ -35,9 +35,11 @@ import org.python.pydev.editor.hover.IPyHoverParticipant;
 import org.python.pydev.editor.hover.PyAnnotationHover;
 import org.python.pydev.editor.hover.PyEditorTextHoverDescriptor;
 import org.python.pydev.editor.hover.PyEditorTextHoverProxy;
+import org.python.pydev.editor.hover.PyHoverPreferencesPage;
 import org.python.pydev.editor.hover.PyTextHover;
 import org.python.pydev.editor.simpleassist.SimpleAssistProcessor;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.utils.ArrayUtils;
 import org.python.pydev.ui.ColorAndStyleCache;
 
 /**
@@ -81,7 +83,7 @@ public class PyEditConfiguration extends PyEditConfigurationWithoutEditor {
     public ITextHover getTextHover(ISourceViewer sourceViewer, String contentType, int stateMask) {
         /**
          * If there are any contributions from the deprecated extension point org.python.pydev.pydev_hover, use
-         * the old style Pydev hover implementation, and ignore any contributions to org.python.pydev.pyTextHover.
+         * the old style Pydev hover implementation, and ignore any contributions to org.python.pydev.pydev_hover2.
          */
         @SuppressWarnings("unchecked")
         List<IPyHoverParticipant> participants = ExtensionHelper
@@ -91,12 +93,22 @@ public class PyEditConfiguration extends PyEditConfigurationWithoutEditor {
         }
 
         /**
-         * We return the highest priority registered hover. If two or more hovers have the highest
-         * priority, it is indeterminate which will be selected. The proper way to combine hover
-         * info is to set this behavior on the Hover preference page. This causes a combining
-         * Text Hover to be set as the highest priority Hover.
+         * Return the combining hover if the preferences are set accordingly and the state mask matches.
          */
-        PyEditorTextHoverDescriptor[] hoverDescs = PydevPlugin.getDefault().getPyEditorTextHoverDescriptors(false);
+        if (PyHoverPreferencesPage.getCombineHoverInfo()) {
+            PyEditorTextHoverDescriptor combiningHover = PydevPlugin.getCombiningHoverDescriptor();
+            if (combiningHover.getStateMask() == stateMask) {
+                return new PyEditorTextHoverProxy(combiningHover, contentType);
+            }
+        }
+
+        /**
+         * We return the highest priority registered hover whose state mask matches. If two or more hovers
+         * have the highest priority, it is indeterminate which will be selected. The proper way to combine
+         * hover info is to select that option on the PyDev->Editor->Hover preference page. This will cause
+         * the combining hover to be returned by the code above.
+         */
+        PyEditorTextHoverDescriptor[] hoverDescs = PydevPlugin.getDefault().getPyEditorTextHoverDescriptors();
         int i = 0;
         while (i < hoverDescs.length) {
             if (hoverDescs[i].isEnabled() && hoverDescs[i].getStateMask() == stateMask) {
@@ -124,8 +136,8 @@ public class PyEditConfiguration extends PyEditConfigurationWithoutEditor {
     @SuppressWarnings("unchecked")
     protected Map<String, IPySyntaxHighlightingAndCodeCompletionEditor> getHyperlinkDetectorTargets(
             ISourceViewer sourceViewer) {
-        Map<String, IPySyntaxHighlightingAndCodeCompletionEditor> targets = super
-        		.getHyperlinkDetectorTargets(sourceViewer);
+        Map<String, IPySyntaxHighlightingAndCodeCompletionEditor> targets = super.getHyperlinkDetectorTargets(
+                sourceViewer);
         targets.put("org.python.pydev.editor.PythonEditor", edit); //$NON-NLS-1$
         return targets;
     }
@@ -205,7 +217,9 @@ public class PyEditConfiguration extends PyEditConfigurationWithoutEditor {
      */
     @Override
     public int[] getConfiguredTextHoverStateMasks(ISourceViewer sourceViewer, String contentType) {
-        PyEditorTextHoverDescriptor[] hoverDescs = PydevPlugin.getDefault().getPyEditorTextHoverDescriptors(false);
+        PyEditorTextHoverDescriptor[] hoverDescs = PydevPlugin.getDefault().getPyEditorTextHoverDescriptors();
+        hoverDescs = ArrayUtils.concatArrays(hoverDescs,
+                new PyEditorTextHoverDescriptor[] { PydevPlugin.getCombiningHoverDescriptor() });
         int stateMasks[] = new int[hoverDescs.length];
         int stateMasksLength = 0;
         for (int i = 0; i < hoverDescs.length; i++) {
