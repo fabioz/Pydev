@@ -51,6 +51,10 @@ manualScreencasts = (
     ('templateManual.html', 'manual_screencasts_presentation1' , 'Screencast: Starring: Interactive Console'),
 )
 
+update_sites = (
+    ('template1.html', 'update_sites/index'               , ''),
+)
+
 homepageBase = (
     ('template1.html', 'index'                     , 'PyDev'),
     ('template1.html', 'download'                  , 'Download'),
@@ -97,6 +101,13 @@ def template(template, contents, title, **kwargs):
     contents = contents.replace('%(date)s', CURRENT_DATE.strftime('%d %B %Y'))
     contents = contents.replace('LAST_VERSION_TAG', LAST_VERSION_TAG) #@UndefinedVariable
 
+    if target_file.endswith('/update_sites/index.html'):
+        contents = contents.replace('href="http', 'href=TEMPORARY')
+        contents = contents.replace('href="', 'href="../')
+        contents = contents.replace('href=TEMPORARY', 'href="http')
+        contents = contents.replace('src="images', 'src="../images')
+        contents = contents.replace('<IMG src="../images/" border="0" alt=""/>', '')
+
     #If a page didn't specify the image properly, just remove the image declaration.
     contents = contents.replace('<p><IMG src="images/" border="0" alt=""/></p>', '')
 
@@ -133,6 +144,7 @@ def main():
     templateForAll(manual101, ('', 'manual', 'Root'), ('', 'manual_adv_features'   , 'Features'), if_not_specified_in_file=dict(root='manual_101_root'))
     templateForAll(manualAdv, ('', 'manual', 'Root'), ('', 'manual_adv_features', 'Features'), if_not_specified_in_file=dict(root='manual_adv_features'))
     templateForAll(manualScreencasts, ('', 'manual', 'Root'), ('', 'manual_screencasts', 'Screencasts'))
+    templateForAll(update_sites, ('', '', ''), ('', 'update_sites', 'Update Sites'))
 
 def getDict(**kwargs):
     return kwargs

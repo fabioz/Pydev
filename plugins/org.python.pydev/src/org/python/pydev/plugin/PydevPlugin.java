@@ -23,6 +23,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -30,14 +31,19 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.forms.FormColors;
+import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.prefs.BackingStoreException;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
@@ -45,6 +51,9 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.SyncSystemModulesManagerScheduler;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
+import org.python.pydev.editor.hover.PyEditorTextHoverDescriptor;
+import org.python.pydev.editor.hover.PyHoverPreferencesPage;
+import org.python.pydev.editor.hover.PydevCombiningHover;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
@@ -64,6 +73,8 @@ import org.python.pydev.ui.interpreters.PythonInterpreterManager;
  * The main plugin class - initialized on startup - has resource bundle for internationalization - has preferences
  */
 public class PydevPlugin extends AbstractUIPlugin {
+
+    private PyEditorTextHoverDescriptor[] fPyEditorTextHoverDescriptors;
 
     public static String getVersion() {
         try {
@@ -194,6 +205,8 @@ public class PydevPlugin extends AbstractUIPlugin {
 
     private boolean isAlive;
 
+    private static PyEditorTextHoverDescriptor combiningHoverDescriptor;
+
     /**
      * The constructor.
      */
@@ -265,6 +278,8 @@ public class PydevPlugin extends AbstractUIPlugin {
     }
 
     private Set<String> erasePrefixes = new HashSet<String>();
+
+    private FormToolkit fDialogsFormToolkit;
 
     public File getTempFile(String prefix) {
         erasePrefixes.add(prefix);
@@ -626,6 +641,88 @@ public class PydevPlugin extends AbstractUIPlugin {
             }
         }
         return managerToNameToInfo;
+    }
+
+    /**
+     * Returns all PyDev editor text hovers contributed to the workbench.
+     *
+     * @return an array of PyEditorTextHoverDescriptor
+     */
+    public synchronized PyEditorTextHoverDescriptor[] getPyEditorTextHoverDescriptors() {
+        if (fPyEditorTextHoverDescriptors == null) {
+            fPyEditorTextHoverDescriptors = PyEditorTextHoverDescriptor
+                    .getContributedHovers();
+            ConfigurationElementAttributeSorter sorter = new ConfigurationElementAttributeSorter() {
+                /*
+                 * @see org.eclipse.ui.texteditor.ConfigurationElementSorter#getConfigurationElement(java.lang.Object)
+                 */
+                @Override
+                public IConfigurationElement getConfigurationElement(Object object) {
+                    return ((PyEditorTextHoverDescriptor) object).getConfigurationElement();
+                }
+            };
+            sorter.sort(fPyEditorTextHoverDescriptors, PyEditorTextHoverDescriptor.ATT_PYDEV_HOVER_PRIORITY);
+        }
+
+        return fPyEditorTextHoverDescriptors;
+    }
+
+    /**
+     * Flushes the instance scope of this plug-in.
+     */
+    public static void flushInstanceScope() {
+        try {
+            InstanceScope.INSTANCE.getNode(PydevPlugin.getPluginID()).flush();
+        } catch (BackingStoreException e) {
+            Log.log(e);
+        }
+    }
+
+    public FormToolkit getDialogsFormToolkit() {
+        if (fDialogsFormToolkit == null) {
+            FormColors colors = new FormColors(Display.getCurrent());
+            colors.setBackground(null);
+            colors.setForeground(null);
+            fDialogsFormToolkit = new FormToolkit(colors);
+        }
+        return fDialogsFormToolkit;
+    }
+
+    /**
+     * Resets the PyDev editor text hovers contributed to the workbench.
+     * <p>
+     * This will force a rebuild of the descriptors the next time
+     * a client asks for them.
+     * </p>
+     */
+    public synchronized void resetPyEditorTextHoverDescriptors() {
+        fPyEditorTextHoverDescriptors = null;
+        combiningHoverDescriptor = null;
+    }
+
+    public static PyEditorTextHoverDescriptor getCombiningHoverDescriptor() {
+        if (combiningHoverDescriptor == null) {
+            combiningHoverDescriptor = new PyEditorTextHoverDescriptor(new PydevCombiningHover());
+            initializeDefaultCombiningHoverPreferences();
+            PyEditorTextHoverDescriptor.initializeHoversFromPreferences(
+                    new PyEditorTextHoverDescriptor[] { combiningHoverDescriptor });
+        }
+        return combiningHoverDescriptor;
+    }
+
+    private static void initializeDefaultCombiningHoverPreferences() {
+        PydevPrefs.getPreferenceStore().setDefault(
+                PyHoverPreferencesPage.KEY_TEXT_HOVER_MODIFIER + PydevPlugin.getCombiningHoverDescriptor().getId(),
+                PyEditorTextHoverDescriptor.NO_MODIFIER);
+        PydevPrefs.getPreferenceStore().setDefault(
+                PyHoverPreferencesPage.KEY_TEXT_HOVER_MODIFIER_MASK + PydevPlugin.getCombiningHoverDescriptor().getId(),
+                PyEditorTextHoverDescriptor.DEFAULT_MODIFIER_MASK);
+        PydevPrefs.getPreferenceStore().setDefault(
+                PyHoverPreferencesPage.KEY_TEXT_HOVER_PRIORITY + PydevPlugin.getCombiningHoverDescriptor().getId(),
+                PyEditorTextHoverDescriptor.HIGHEST_PRIORITY);
+        PydevPrefs.getPreferenceStore().setDefault(
+                PyHoverPreferencesPage.KEY_TEXT_HOVER_ENABLE + PydevPlugin.getCombiningHoverDescriptor().getId(),
+                true);
     }
 
 }

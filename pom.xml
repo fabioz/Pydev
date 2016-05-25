@@ -127,8 +127,8 @@
     <tycho-version>0.24.0</tycho-version>
     <tycho-extras-version>0.24.0</tycho-extras-version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <repository.id>eclipse-mars</repository.id>
-    <repository.url>http://download.eclipse.org/releases/mars/</repository.url>
+    <repository.id>eclipse-neon</repository.id>
+    <repository.url>http://download.eclipse.org/releases/neon/</repository.url>
   </properties>
   <prerequisites>
     <maven>3.0</maven>
@@ -136,7 +136,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.python.pydev</groupId>
   <artifactId>parent</artifactId>
-  <version>4.5.5-SNAPSHOT</version>
+  <version>5.0.0-SNAPSHOT</version>
   <name>Pydev Build Parent</name>
   <packaging>pom</packaging>
   <modules>

@@ -37,7 +37,7 @@ public class CustomRuleBasedPartitionScanner extends AbstractCustomBufferedRuleB
 
     /*
      * (non-Javadoc)
-     * @see com.brainwy.liclipse.editor.epl.rules.IDocumentScanner#getDocument()
+     * @see org.brainwy.liclipsetext.shared_core.partitioner.IDocumentScanner#getDocument()
      */
     @Override
     public IDocument getDocument() {

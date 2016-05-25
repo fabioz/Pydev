@@ -48,10 +48,13 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.ITextSelection;
+import org.eclipse.jface.text.ITextViewerExtension2;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.jface.text.source.LineNumberRulerColumn;
+import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.custom.VerifyKeyListener;
@@ -293,6 +296,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     protected void handlePreferenceStoreChanged(PropertyChangeEvent event) {
         super.handlePreferenceStoreChanged(event);
         this.onHandlePreferenceStoreChanged.call(event);
+        updateHoverBehavior();
     }
 
     @Override
@@ -350,8 +354,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
             CheckDefaultPreferencesDialog.askAboutSettings();
 
-            //Ask for people to take a look in the crowdfunding for pydev:
-            //http://tiny.cc/pydev-2014
+            //Ask for people to consider funding PyDev.
             PydevShowBrowserMessage.show();
         } catch (Throwable e) {
             Log.log(e);
@@ -652,6 +655,41 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         ArrayList<MarkerInfo> lst = new ArrayList<MarkerInfo>();
         lst.add(markerInfo);
         PyMarkerUtils.replaceMarkers(lst, fileAdapter, INVALID_MODULE_MARKER_TYPE, true, new NullProgressMonitor());
+    }
+
+    /*
+     * Update the hovering behavior depending on the preferences.
+     */
+    private void updateHoverBehavior() {
+        SourceViewerConfiguration configuration = getSourceViewerConfiguration();
+        String[] types = configuration.getConfiguredContentTypes(getSourceViewer());
+
+        for (int i = 0; i < types.length; i++) {
+
+            String t = types[i];
+
+            ISourceViewer sourceViewer = getSourceViewer();
+            if (sourceViewer instanceof ITextViewerExtension2) {
+                // Remove existing hovers
+                ((ITextViewerExtension2) sourceViewer).removeTextHovers(t);
+
+                int[] stateMasks = configuration.getConfiguredTextHoverStateMasks(getSourceViewer(), t);
+
+                if (stateMasks != null) {
+                    for (int j = 0; j < stateMasks.length; j++) {
+                        int stateMask = stateMasks[j];
+                        ITextHover textHover = configuration.getTextHover(sourceViewer, t, stateMask);
+                        ((ITextViewerExtension2) sourceViewer).setTextHover(textHover, t, stateMask);
+                    }
+                } else {
+                    ITextHover textHover = configuration.getTextHover(sourceViewer, t);
+                    ((ITextViewerExtension2) sourceViewer).setTextHover(textHover, t,
+                            ITextViewerExtension2.DEFAULT_HOVER_STATE_MASK);
+                }
+            } else {
+                sourceViewer.setTextHover(configuration.getTextHover(sourceViewer, t), t);
+            }
+        }
     }
 
     /**

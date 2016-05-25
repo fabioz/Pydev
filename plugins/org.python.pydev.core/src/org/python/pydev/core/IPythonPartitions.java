@@ -6,6 +6,10 @@
  */
 package org.python.pydev.core;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.jface.text.IDocument;
 
 public interface IPythonPartitions {
@@ -55,5 +59,6 @@ public interface IPythonPartitions {
             PY_BACKQUOTES
     };
     public static final String PYTHON_PARTITION_TYPE = "__PYTHON_PARTITION_TYPE";
+    public final static Set<String> NON_DEFAULT_TYPES_AS_SET = new HashSet<>(Arrays.asList(types));
 
 }

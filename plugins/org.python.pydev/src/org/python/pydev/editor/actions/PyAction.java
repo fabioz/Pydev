@@ -15,9 +15,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.jface.action.Action;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.swt.SWT;
 import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorReference;
@@ -30,6 +32,8 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.actions.BaseAction;
+import org.python.pydev.utils.Messages;
+import org.python.pydev.utils.PyEditorMessages;
 
 /**
  * @author Fabio Zadrozny
@@ -217,6 +221,79 @@ public abstract class PyAction extends BaseAction implements IEditorActionDelega
 
         return c != '\n' && c != '\r' && c != ' ' && c != '.' && c != '(' && c != ')' && c != ',' && c != ']'
                 && c != '[' && c != '#' && c != '\'' && c != '"';
+    }
+
+    /**
+     * Maps the localized modifier name to a code in the same
+     * manner as #findModifier.
+     *
+     * @param modifierName the modifier name
+     * @return the SWT modifier bit, or <code>0</code> if no match was found
+     */
+    public static int findLocalizedModifier(String modifierName) {
+        if (modifierName == null) {
+            return 0;
+        }
+
+        if (modifierName.equalsIgnoreCase(Action.findModifierString(SWT.CTRL))) {
+            return SWT.CTRL;
+        }
+        if (modifierName.equalsIgnoreCase(Action.findModifierString(SWT.SHIFT))) {
+            return SWT.SHIFT;
+        }
+        if (modifierName.equalsIgnoreCase(Action.findModifierString(SWT.ALT))) {
+            return SWT.ALT;
+        }
+        if (modifierName.equalsIgnoreCase(Action.findModifierString(SWT.COMMAND))) {
+            return SWT.COMMAND;
+        }
+
+        return 0;
+    }
+
+    /**
+     * Returns the modifier string for the given SWT modifier
+     * modifier bits.
+     *
+     * @param stateMask the SWT modifier bits
+     * @return the modifier string
+     */
+    public static String getModifierString(int stateMask) {
+        String modifierString = ""; //$NON-NLS-1$
+        if ((stateMask & SWT.CTRL) == SWT.CTRL) {
+            modifierString = appendModifierString(modifierString, SWT.CTRL);
+        }
+        if ((stateMask & SWT.ALT) == SWT.ALT) {
+            modifierString = appendModifierString(modifierString, SWT.ALT);
+        }
+        if ((stateMask & SWT.SHIFT) == SWT.SHIFT) {
+            modifierString = appendModifierString(modifierString, SWT.SHIFT);
+        }
+        if ((stateMask & SWT.COMMAND) == SWT.COMMAND) {
+            modifierString = appendModifierString(modifierString, SWT.COMMAND);
+        }
+
+        return modifierString;
+    }
+
+    /**
+     * Appends to modifier string of the given SWT modifier bit
+     * to the given modifierString.
+     *
+     * @param modifierString    the modifier string
+     * @param modifier          an int with SWT modifier bit
+     * @return the concatenated modifier string
+     */
+    private static String appendModifierString(String modifierString, int modifier) {
+        if (modifierString == null) {
+            modifierString = ""; //$NON-NLS-1$
+        }
+        String newModifierString = Action.findModifierString(modifier);
+        if (modifierString.length() == 0) {
+            return newModifierString;
+        }
+        return Messages.format(PyEditorMessages.EditorUtility_concatModifierStrings,
+                new String[] { modifierString, newModifierString });
     }
 
     /**

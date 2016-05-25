@@ -107,7 +107,7 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.put(PydevEditorPrefs.OPERATORS_COLOR, StringConverter.asString(PydevEditorPrefs.DEFAULT_OPERATORS_COLOR));
         node.put(PydevEditorPrefs.DOCSTRING_MARKUP_COLOR,
                 StringConverter.asString(PydevEditorPrefs.DEFAULT_DOCSTRING_MARKUP_COLOR));
-                //for selection colors see initializeDefaultColors()
+        //for selection colors see initializeDefaultColors()
 
         //font style
         node.putInt(PydevEditorPrefs.CODE_STYLE, PydevEditorPrefs.DEFAULT_CODE_STYLE);
@@ -165,7 +165,7 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         import folding_entries
         for s in folding_entries.FOLDING_ENTRIES:
             cog.outl(template % (s, s, s, s))
-            
+        
         ]]]*/
         node.putBoolean(PyDevCodeFoldingPrefPage.FOLD_IMPORTS,
                 PyDevCodeFoldingPrefPage.DEFAULT_FOLD_IMPORTS);
@@ -288,10 +288,12 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.putBoolean(ImportsPreferencesPage.SORT_NAMES_GROUPED, ImportsPreferencesPage.DEFAULT_SORT_NAMES_GROUPED);
 
         //hover
-        node.putBoolean(PyHoverPreferencesPage.SHOW_DOCSTRING_ON_HOVER,
-                PyHoverPreferencesPage.DEFAULT_SHOW_DOCSTRING_ON_HOVER);
+        node.putBoolean(PyHoverPreferencesPage.COMBINE_HOVER_INFO,
+                PyHoverPreferencesPage.DEFAULT_SHOW_DEBUG_VARIABLES_VALUES_ON_HOVER);
         node.putBoolean(PyHoverPreferencesPage.SHOW_DEBUG_VARIABLES_VALUES_ON_HOVER,
                 PyHoverPreferencesPage.DEFAULT_SHOW_DEBUG_VARIABLES_VALUES_ON_HOVER);
+        node.putBoolean(PyHoverPreferencesPage.USE_HOVER_DIVIDER,
+                PyHoverPreferencesPage.DEFAULT_USE_HOVER_DIVIDER);
 
         //source locator
         node.putInt(PySourceLocatorPrefs.ON_SOURCE_NOT_FOUND,

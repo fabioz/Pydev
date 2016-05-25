@@ -17,12 +17,12 @@ set DRIVE=x:
 set BASE_LOCAL_PYDEV_GIT=x:\pydev
 set BUILD_DIR=X:\pydev_build\build_dir
 set DEPLOY_DIR=X:\pydev_build\deploy_dir
-set JAVA_HOME=C:\bin\jdk1.7.0_55
-set MAVEN_BIN=C:\bin\maven-3.2.1\bin
+set JAVA_HOME=C:\bin\jdk1.8.0_77
+set MAVEN_BIN=C:\bin\apache-maven-3.3.9\bin
 set GIT_EXECUTABLE="p:\git\bin\git.exe"
-set ECLIPSE_CLEAN=C:\bin\eclipse45final
-set LAUNCHER_PLUGIN=org.eclipse.equinox.launcher_1.3.100.v20150511-1540.jar
-set BUILDER_PLUGIN=org.eclipse.pde.build_3.9.100.v20150521-1524
+set ECLIPSE_CLEAN=C:\bin\eclipse46m7
+set LAUNCHER_PLUGIN=org.eclipse.equinox.launcher_1.3.200.v20160318-1642.jar
+set BUILDER_PLUGIN=org.eclipse.pde.build_3.9.200.v20160204-0642
 set KEYSTORE=X:\release_tools\pydevkeystore
 set KEYSTORE_ALIAS=pydev
 set SIGN_KEYSTORE=X:\release_tools\pydevkeystore
@@ -41,7 +41,7 @@ set PATH=C:\Windows\system32;%PATH%
 set PATH=%MAVEN_BIN%;%PATH%
 set PATH=%JAVA_HOME%\bin;%PATH%
 set PATH=p:\git\bin;%PATH%
-set PATH=%ECLIPSE_CLEAN%\plugins\org.apache.ant_1.9.2.v201404171502\bin;%PATH%
+set PATH=%ECLIPSE_CLEAN%\plugins\org.apache.ant_1.9.6.v201510161327\bin;%PATH%
 
 
 @echo actual build command

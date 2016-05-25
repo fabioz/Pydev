@@ -1,0 +1,158 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="org.python.pydev" xmlns="http://www.w3.org/2001/XMLSchema">
+<annotation>
+      <appInfo>
+         <meta.schema plugin="org.python.pydev" id="pydev_hover2" name="PyDev Text Hover2"/>
+      </appInfo>
+      <documentation>
+         This extension point allows clients to provide hover capabilities to the editor.
+Clients must extend the class org.python.pydev.editor.hover.AbstractPyEditorTextHover
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <annotation>
+         <appInfo>
+            <meta.element />
+         </appInfo>
+      </annotation>
+      <complexType>
+         <sequence>
+            <element ref="pyTextHover" minOccurs="1" maxOccurs="unbounded"/>
+         </sequence>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  a fully qualified identifier of the target extension point
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  an optional identifier of the extension instance
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  an optional name of the extension instance
+               </documentation>
+               <appInfo>
+                  <meta.attribute translatable="true"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="pyTextHover">
+      <complexType>
+         <attribute name="id" type="string" use="required">
+            <annotation>
+               <documentation>
+                  the id, typically the same as the fully qualified class name
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="class" type="string" use="required">
+            <annotation>
+               <documentation>
+                  the fully qualified class name implementing the interface &lt;code&gt;org.python.pydev.editor.hover.AbstractPyEditorTextHover&lt;/code&gt;
+               </documentation>
+               <appInfo>
+                  <meta.attribute kind="java" basedOn="org.python.pydev.editor.hover.AbstractPyEditorTextHover:"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+         <attribute name="label" type="string" use="required">
+            <annotation>
+               <documentation>
+                  the translatable label for this hover
+               </documentation>
+               <appInfo>
+                  <meta.attribute translatable="true"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+         <attribute name="description" type="string">
+            <annotation>
+               <documentation>
+                  the translatable description for this hover
+               </documentation>
+               <appInfo>
+                  <meta.attribute translatable="true"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+         <attribute name="priority" type="string" use="default" value="100">
+            <annotation>
+               <documentation>
+                  the priority of the hover vis a vis other hovers, an integer between 1 (highest priority) and the maximum Java int value (lowest priority).
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="preempt" type="boolean" use="required">
+            <annotation>
+               <documentation>
+                  used by the Best Match Hover to determine whether to preempt lower priority hovers from contributing to a hover pop-up after this hover contributes hover info.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="activate" type="boolean" use="default" value="true">
+            <annotation>
+               <documentation>
+                  if the attribute is set to &quot;true&quot; it will force this plug-in to be loaded on hover activation
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="enable" type="boolean" use="required">
+            <annotation>
+               <documentation>
+                  whether the hover should be enabled by default before the user sets any of the hover preferences.
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="since"/>
+      </appInfo>
+      <documentation>
+         [Enter the first release in which this extension point appears.]
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="examples"/>
+      </appInfo>
+      <documentation>
+         [Enter extension point usage example here.]
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="apiInfo"/>
+      </appInfo>
+      <documentation>
+         [Enter API information here.]
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="implementation"/>
+      </appInfo>
+      <documentation>
+         [Enter information about supplied implementation of this extension point.]
+      </documentation>
+   </annotation>
+
+
+</schema>

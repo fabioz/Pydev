@@ -1,33 +1,23 @@
-PyDev 4.5.5 Released
+PyDev 5.0.0 Released
 
 Release Highlights:
 -------------------------------
 
-* Code Completion
+* **Important** PyDev now requires Java 8.
 
-	* namedtuple now recognized in code-completion.
-	* Code completion now available for super() (#PyDev-592).
+	* PyDev 4.5.5 is the last release supporting Java 7.
+	* See: http://www.pydev.org/update_sites/index.html for the update site of older versions of PyDev.
+	* See: the **PyDev does not appear after install** section on http://www.pydev.org/download.html for help on using a Java 8 vm in Eclipse.
 
-* PyTest integration
-	
-	* Files in tracebacks now clickable in latest pytest.
-	* Skips not marked as errors in the latest pytest.
-	
-* Parser:
- 
-	* async and await should also be valid as names in Python 3 grammar (#PyDev-593).
-	* Additional Unpacking Generalizations from PEP 448 recognized (#PyDev-667).
-	* Made clearer in the UI that Python 3 grammar should support Python 3.0 to Python 3.5.
-	
-* Debugger:
+* PyUnit view now persists its state across restarts.
 
-	* tests package should no longer pollute name space (Removed tests directories from build: #PyDev-663). 
-	* Multiprocessing working properly under debugger (Celery Cannot Run in Debug Mode: #PyDev-662).
-	
-* Others: 
+* Fixed issue in super() code completion.
 
-	* Introduce source features/plugins (patch by Andreas Pakulat).
-	* Default test runner now works with Django >= 1.8 (#PyDev 614, patch by Ville Skyttä).
+* PyDev.Debugger updated to the latest version.
+
+* No longer showing un-needed shell on Linux on startup when showing donation dialog.
+
+* Fixed pyedit_wrap_expression to avoid halt of the IDE on Ctrl+1 -> Wrap expression.
 
 What is PyDev?
 ---------------------------

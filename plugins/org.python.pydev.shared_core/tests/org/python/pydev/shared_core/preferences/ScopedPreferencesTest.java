@@ -75,8 +75,22 @@ public class ScopedPreferencesTest extends TestCase {
         iScopedPreferences.saveToUserSettings(saveData);
         assertEquals("bar: 2\nfoo: 1\n", FileUtils.getFileContents(userSettingsYamlFile));
         assertEquals(2, iScopedPreferences.getInt(pluginPreferenceStore, "bar", adaptable));
+        waitABit();
         FileUtils.writeStrToFile("bar: 1\nfoo: 1\n", userSettingsYamlFile);
+        waitABit();
         assertEquals(1, iScopedPreferences.getInt(pluginPreferenceStore, "bar", adaptable));
+    }
+
+    private void waitABit() {
+        synchronized (this) {
+            try {
+                this.wait(20);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+
     }
 
     public void testProjectSettingsScopedPreferences() throws Exception {
@@ -113,12 +127,16 @@ public class ScopedPreferencesTest extends TestCase {
         assertEquals(1, iScopedPreferences.getInt(pluginPreferenceStore, "foo", adaptable));
         saveData = new HashMap<String, Object>();
         saveData.put("bar", 2);
+        waitABit();
         iScopedPreferences.saveToProjectSettings(saveData, project);
+        waitABit();
         assertEquals("bar: 2\nfoo: 1\n", FileUtils.getFileContents(projectDirYAMLFile));
         assertEquals(2, iScopedPreferences.getInt(pluginPreferenceStore, "bar", adaptable));
         FileUtils.writeStrToFile("bar: 1\nfoo: 1\n", projectDirYAMLFile);
         assertEquals(1, iScopedPreferences.getInt(pluginPreferenceStore, "bar", adaptable));
+        waitABit();
         FileUtils.writeStrToFile("foo: 1\n", projectDirYAMLFile);
+        waitABit();
         assertEquals(0, iScopedPreferences.getInt(pluginPreferenceStore, "bar", adaptable)); // default in NullPrefsStore
         pluginPreferenceStore.setValue("bar", 2);
         assertEquals(2, iScopedPreferences.getInt(pluginPreferenceStore, "bar", adaptable)); // default in NullPrefsStore
