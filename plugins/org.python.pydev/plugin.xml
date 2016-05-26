@@ -992,25 +992,25 @@
       </key>
       -->
       <key
-            sequence="M1+-"
+            sequence="M1+Numpad_Subtract"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.navigation.pyCollapse"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
-            sequence="M1+="
+            sequence="M1+Numpad_Add"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.navigation.pyUnCollapse"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
-            sequence="M1+9"
+            sequence="M1+Numpad_Divide"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.navigation.pyCollapseAll"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
-            sequence="M1+0"
+            sequence="M1+Numpad_Multiply"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.navigation.pyUnCollapseAll"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
