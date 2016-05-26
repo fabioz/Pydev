@@ -37,7 +37,7 @@ public class PythonHyperlink implements IHyperlink {
 
     @Override
     public String getHyperlinkText() {
-        return null;
+        return "Go To Definition";
     }
 
     @Override
