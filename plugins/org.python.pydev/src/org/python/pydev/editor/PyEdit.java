@@ -661,6 +661,10 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      * Update the hovering behavior depending on the preferences.
      */
     private void updateHoverBehavior() {
+        ISourceViewer sourceViewer = getSourceViewer();
+        if (sourceViewer == null) {
+            return;
+        }
         SourceViewerConfiguration configuration = getSourceViewerConfiguration();
         String[] types = configuration.getConfiguredContentTypes(getSourceViewer());
 
@@ -668,10 +672,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
             String t = types[i];
 
-            ISourceViewer sourceViewer = getSourceViewer();
-            if (sourceViewer == null) {
-                return;
-            }
             if (sourceViewer instanceof ITextViewerExtension2) {
                 // Remove existing hovers
                 ((ITextViewerExtension2) sourceViewer).removeTextHovers(t);
