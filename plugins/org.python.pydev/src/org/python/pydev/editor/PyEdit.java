@@ -669,6 +669,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             String t = types[i];
 
             ISourceViewer sourceViewer = getSourceViewer();
+            if (sourceViewer == null) {
+                return;
+            }
             if (sourceViewer instanceof ITextViewerExtension2) {
                 // Remove existing hovers
                 ((ITextViewerExtension2) sourceViewer).removeTextHovers(t);
