@@ -139,128 +139,195 @@ def report_test(cond, filename, test, captured_output, error_contents, delta):
     pydev_runfiles_xml_rpc.notifyTest(cond, captured_output, error_contents, filename, test, time_str)
 
 
-def pytest_runtest_makereport(item, call):
-    report_when = call.when
-    report_duration = call.stop-call.start
-    excinfo = call.excinfo
+try:
+    from py.io import TerminalWriter
 
-    # This will work if pytest is not capturing it, if it is, nothing will come from here...
-    captured_output, error_contents = get_curr_output()
-    for when_section, type_section, value in item._report_sections:
-        if value:
-            if type_section == 'stderr':
-                error_contents += value
-            else:
-                captured_output += value
-
-    if not call.excinfo:
-        evalxfail = getattr(item, '_evalxfail', None)
-        if evalxfail and report_when == 'call' and (not hasattr(evalxfail, 'expr') or evalxfail.expr):
-            # I.e.: a method marked with xfail passed... let the user know.
-            report_outcome = "failed"
-            report_longrepr = "XFAIL: Unexpected pass"
-
+    def pytest_runtest_logreport(report):
+        report_duration = report.duration
+        report_when = report.when
+        report_outcome = report.outcome
+        
+        if report_outcome == 'skipped': #I.e.: don't event report skips...
+            return
+        
+        if hasattr(report, 'wasxfail'):
+            report_outcome = 'passed'
+ 
+        status = 'ok'
+         
+        if report_outcome == 'passed':
+            #passed or skipped: no need to report if in setup or teardown (only on the actual test if it passed).
+            if report_when in ('setup', 'teardown'):
+                return
         else:
-            report_outcome = "passed"
-            report_longrepr = None
-    else:
+     
+            #It has only passed, skipped and failed (no error), so, let's consider error if not on call.
+            if report_when == 'setup':
+                if status == 'ok':
+                    status = 'error'
+     
+            elif report_when == 'teardown':
+                if status == 'ok':
+                    status = 'error'
+     
+            else:
+                #any error in the call (not in setup or teardown) is considered a regular failure.
+                status = 'fail'
+             
+        # This will work if pytest is not capturing it, if it is, nothing will come from here...
+        captured_output, error_contents = get_curr_output()
+        for type_section, value in report.sections:
+            if value:
+                if type_section == 'stderr':
+                    error_contents += value
+                else:
+                    captured_output += value
+     
+        filename = report.fspath_strpath
+        test = report.location[2]
+     
+        tw = TerminalWriter(stringio=True)
+        tw.hasmarkup = False
+        report.toterminal(tw)
+        error_contents += tw.stringio.getvalue()
+             
+        report_test(status, filename, test, captured_output, error_contents, report_duration)
+    
+        
+    @pytest.hookimpl(hookwrapper=True)
+    def pytest_runtest_makereport(item, call):
+        outcome = yield
+        rep = outcome.get_result()
+        rep.fspath_strpath = item.fspath.strpath
+        
+except ImportError:
+    # Older versions of pytest!
+    # Older versions of pytest!
+    # Older versions of pytest!
+    # Older versions of pytest!
+    def pytest_runtest_makereport(item, call):
+        report_when = call.when
+        report_duration = call.stop-call.start
         excinfo = call.excinfo
-
-        handled = False
-
-        if not (call.excinfo and
-            call.excinfo.errisinstance(pytest.xfail.Exception)):
+    
+        # This will work if pytest is not capturing it, if it is, nothing will come from here...
+        captured_output, error_contents = get_curr_output()
+        for when_section, type_section, value in item._report_sections:
+            if value:
+                if type_section == 'stderr':
+                    error_contents += value
+                else:
+                    captured_output += value
+    
+        if not call.excinfo:
             evalxfail = getattr(item, '_evalxfail', None)
-            # Something which had an xfail failed: this is expected.
-            if evalxfail and (not hasattr(evalxfail, 'expr') or evalxfail.expr):
+            if evalxfail and report_when == 'call' and (not hasattr(evalxfail, 'expr') or evalxfail.expr):
+                # I.e.: a method marked with xfail passed... let the user know.
+                report_outcome = "failed"
+                report_longrepr = "XFAIL: Unexpected pass"
+    
+            else:
                 report_outcome = "passed"
                 report_longrepr = None
-                handled = True
-
-        if handled:
-            pass
-
-        if excinfo.errisinstance(pytest.xfail.Exception):
-            # Case where an explicit xfail is raised (i.e.: pytest.xfail("reason") is called
-            # programatically).
-            report_outcome = "passed"
-            report_longrepr = None
-
-        elif excinfo.errisinstance(py.test.skip.Exception):  # @UndefinedVariable
-            report_outcome = "skipped"
-            r = excinfo._getreprcrash()
-            report_longrepr = None #(str(r.path), r.lineno, r.message)
-
-        elif not isinstance(excinfo, py.code.ExceptionInfo):  # @UndefinedVariable
-            report_outcome = "failed"
-            report_longrepr = excinfo
-
         else:
-            report_outcome = "failed"
-            if call.when == "call":
-                report_longrepr = item.repr_failure(excinfo)
-
-            else: # exception in setup or teardown
-                report_longrepr = item._repr_failure_py(excinfo, style=item.config.option.tbstyle)
-
-    filename = item.fspath.strpath
-    test = item.location[2]
-
-    status = 'ok'
-
-    if report_outcome in ('passed', 'skipped'):
-        #passed or skipped: no need to report if in setup or teardown (only on the actual test if it passed).
-        if report_when in ('setup', 'teardown'):
-            return
-
-    else:
-        #It has only passed, skipped and failed (no error), so, let's consider error if not on call.
-        if report_when == 'setup':
-            if status == 'ok':
-                status = 'error'
-
-        elif report_when == 'teardown':
-            if status == 'ok':
-                status = 'error'
-
+            excinfo = call.excinfo
+    
+            handled = False
+    
+            if not (call.excinfo and
+                call.excinfo.errisinstance(pytest.xfail.Exception)):
+                evalxfail = getattr(item, '_evalxfail', None)
+                # Something which had an xfail failed: this is expected.
+                if evalxfail and (not hasattr(evalxfail, 'expr') or evalxfail.expr):
+                    report_outcome = "passed"
+                    report_longrepr = None
+                    handled = True
+    
+            if handled:
+                pass
+    
+            if excinfo.errisinstance(pytest.xfail.Exception):
+                # Case where an explicit xfail is raised (i.e.: pytest.xfail("reason") is called
+                # programatically).
+                report_outcome = "passed"
+                report_longrepr = None
+    
+            elif excinfo.errisinstance(py.test.skip.Exception):  # @UndefinedVariable
+                report_outcome = "skipped"
+                r = excinfo._getreprcrash()
+                report_longrepr = None #(str(r.path), r.lineno, r.message)
+    
+            elif not isinstance(excinfo, py.code.ExceptionInfo):  # @UndefinedVariable
+                report_outcome = "failed"
+                report_longrepr = excinfo
+    
+            else:
+                report_outcome = "failed"
+                if call.when == "call":
+                    report_longrepr = item.repr_failure(excinfo)
+    
+                else: # exception in setup or teardown
+                    report_longrepr = item._repr_failure_py(excinfo, style=item.config.option.tbstyle)
+    
+        filename = item.fspath.strpath
+        test = item.location[2]
+    
+        status = 'ok'
+    
+        if report_outcome in ('passed', 'skipped'):
+            #passed or skipped: no need to report if in setup or teardown (only on the actual test if it passed).
+            if report_when in ('setup', 'teardown'):
+                return
+    
         else:
-            #any error in the call (not in setup or teardown) is considered a regular failure.
-            status = 'fail'
-
-
-    if call.excinfo:
-        rep = report_longrepr
-        done = False
-        if hasattr(rep, 'reprcrash'):
-            done = True
-            reprcrash = rep.reprcrash
-            error_contents += str(reprcrash)
-            error_contents += '\n'
-
-
-        if hasattr(rep, 'reprtraceback'):
-            done = True
-            error_contents += str(rep.reprtraceback)
-
-        if hasattr(rep, 'sections'):
-            done = True
-            for name, content, sep in rep.sections:
-                error_contents += sep * 40
-                error_contents += name
-                error_contents += sep * 40
+            #It has only passed, skipped and failed (no error), so, let's consider error if not on call.
+            if report_when == 'setup':
+                if status == 'ok':
+                    status = 'error'
+    
+            elif report_when == 'teardown':
+                if status == 'ok':
+                    status = 'error'
+    
+            else:
+                #any error in the call (not in setup or teardown) is considered a regular failure.
+                status = 'fail'
+    
+    
+        if call.excinfo:
+            rep = report_longrepr
+            done = False
+            if hasattr(rep, 'reprcrash'):
+                done = True
+                reprcrash = rep.reprcrash
+                error_contents += str(reprcrash)
                 error_contents += '\n'
-                error_contents += content
-                error_contents += '\n'
+    
+    
+            if hasattr(rep, 'reprtraceback'):
+                done = True
+                error_contents += str(rep.reprtraceback)
+    
+            if hasattr(rep, 'sections'):
+                done = True
+                for name, content, sep in rep.sections:
+                    error_contents += sep * 40
+                    error_contents += name
+                    error_contents += sep * 40
+                    error_contents += '\n'
+                    error_contents += content
+                    error_contents += '\n'
+    
+            if not done:
+                # New pytest broke API.
+                error_contents += str(rep)
+        else:
+            if report_longrepr:
+                error_contents += str(report_longrepr)
+    
+        if status != 'skip': #I.e.: don't event report skips...
+            report_test(status, filename, test, captured_output, error_contents, report_duration)
 
-        if not done:
-            # New pytest broke API.
-            error_contents += str(rep)
-    else:
-        if report_longrepr:
-            error_contents += str(report_longrepr)
-
-    if status != 'skip': #I.e.: don't event report skips...
-        report_test(status, filename, test, captured_output, error_contents, report_duration)
 
 def _notify_start_test(item):
     filename = item.fspath.strpath
@@ -317,5 +384,4 @@ def pytest_runtest_setup(item, notify_start=True):  # @DuplicatedSignature
 
     # If we had a match it'd have returned already.
     pytest.skip() # Skip the test
-
 
