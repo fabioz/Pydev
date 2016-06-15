@@ -143,6 +143,10 @@ try:
     from py.io import TerminalWriter
 
     def pytest_runtest_logreport(report):
+        if hasattr(report, 'node'):
+            # When running with xdist, we don't want the report to be called from the node, only
+            # from the main process.
+            return
         report_duration = report.duration
         report_when = report.when
         report_outcome = report.outcome
@@ -175,7 +179,7 @@ try:
                 status = 'fail'
              
         # This will work if pytest is not capturing it, if it is, nothing will come from here...
-        captured_output, error_contents = get_curr_output()
+        captured_output, error_contents = report.pydev_captured_output, report.pydev_error_contents
         for type_section, value in report.sections:
             if value:
                 if type_section == 'stderr':
@@ -183,7 +187,7 @@ try:
                 else:
                     captured_output += value
      
-        filename = report.fspath_strpath
+        filename = report.pydev_fspath_strpath
         test = report.location[2]
      
         tw = TerminalWriter(stringio=True)
@@ -198,7 +202,8 @@ try:
     def pytest_runtest_makereport(item, call):
         outcome = yield
         rep = outcome.get_result()
-        rep.fspath_strpath = item.fspath.strpath
+        rep.pydev_fspath_strpath = item.fspath.strpath
+        rep.pydev_captured_output, rep.pydev_error_contents = get_curr_output()
         
 except ImportError:
     # Older versions of pytest!
