@@ -90,7 +90,7 @@ p:\FileZilla\filezilla.exe sftp://fabioz,pydev@frs.sourceforge.net/home/project-
 
 
 		** Tag repository:
-		  git tag pydev_5_1_0 -a -m "PyDev 5.1.1"
+		  git tag pydev_5_1_1 -a -m "PyDev 5.1.1"
 		  git push --tags
 
 
