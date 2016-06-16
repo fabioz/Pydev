@@ -12,6 +12,7 @@ import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.console.IConsolePageParticipant;
 import org.eclipse.ui.part.IPageBookViewPage;
+import org.python.pydev.shared_core.log.Log;
 
 /**
  * Reference: ProcessConsolePageParticipant
@@ -25,33 +26,37 @@ public class ConsoleRestartLaunchPageParticipant implements IConsolePageParticip
 
     @Override
     public void init(IPageBookViewPage page, IConsole console) {
-        if (!(console instanceof ProcessConsole)) {
-            return;
+        try {
+            if (!(console instanceof ProcessConsole)) {
+                return;
+            }
+            ProcessConsole processConsole = (ProcessConsole) console;
+            IProcess process = processConsole.getProcess();
+            if (process == null) {
+                return;
+            }
+            String attribute = process.getAttribute(RelaunchConstants.PYDEV_ADD_RELAUNCH_IPROCESS_ATTR);
+            if (!RelaunchConstants.PYDEV_ADD_RELAUNCH_IPROCESS_ATTR_TRUE.equals(attribute)) {
+                //Only provide relaunch if specified
+                return;
+            }
+            this.fConsole = processConsole;
+            DebugPlugin.getDefault().addDebugEventListener(this);
+
+            IActionBars bars = page.getSite().getActionBars();
+
+            IToolBarManager toolbarManager = bars.getToolBarManager();
+
+            restartLaunchAction = new RestartLaunchAction(page, processConsole);
+            terminateAllLaunchesAction = new TerminateAllLaunchesAction();
+
+            toolbarManager.appendToGroup(IConsoleConstants.LAUNCH_GROUP, restartLaunchAction);
+            toolbarManager.appendToGroup(IConsoleConstants.LAUNCH_GROUP, terminateAllLaunchesAction);
+
+            bars.updateActionBars();
+        } catch (Exception e) {
+            Log.log(e);
         }
-        ProcessConsole processConsole = (ProcessConsole) console;
-        IProcess process = processConsole.getProcess();
-        if (process == null) {
-            return;
-        }
-        String attribute = process.getAttribute(RelaunchConstants.PYDEV_ADD_RELAUNCH_IPROCESS_ATTR);
-        if (!RelaunchConstants.PYDEV_ADD_RELAUNCH_IPROCESS_ATTR_TRUE.equals(attribute)) {
-            //Only provide relaunch if specified
-            return;
-        }
-        this.fConsole = processConsole;
-        DebugPlugin.getDefault().addDebugEventListener(this);
-
-        IActionBars bars = page.getSite().getActionBars();
-
-        IToolBarManager toolbarManager = bars.getToolBarManager();
-
-        restartLaunchAction = new RestartLaunchAction(page, processConsole);
-        terminateAllLaunchesAction = new TerminateAllLaunchesAction();
-
-        toolbarManager.appendToGroup(IConsoleConstants.LAUNCH_GROUP, restartLaunchAction);
-        toolbarManager.appendToGroup(IConsoleConstants.LAUNCH_GROUP, terminateAllLaunchesAction);
-
-        bars.updateActionBars();
 
     }
 
