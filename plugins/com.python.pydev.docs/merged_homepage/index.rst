@@ -153,7 +153,7 @@ Companies have the option of sponsoring PyDev through corporate sponsorship. See
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
-Release 5.1.0
+Release 5.1.1
 ==========================
 
 * **Important** PyDev now requires Java 8.

@@ -5,7 +5,7 @@ History For PyDev
 .. _`update sites page`: update_sites/index.html
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
-Release 5.1.0
+Release 5.1.1
 ==========================
 
 * **Important** PyDev now requires Java 8.
