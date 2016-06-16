@@ -11,10 +11,10 @@ for arg in args:
         version = arg[len('--version='):]
         LAST_VERSION_TAG = version
 else:
-    LAST_VERSION_TAG = '5.1.0'  # Not specified (let's leave one there)
+    LAST_VERSION_TAG = '5.1.1'  # Not specified (let's leave one there)
 
 update_site_versions = [
-    '5.1.0',
+    '5.1.1',
     '5.0.0',
     '4.5.5',
     '4.5.4',
