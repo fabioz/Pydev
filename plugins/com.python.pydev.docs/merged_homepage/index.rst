@@ -116,11 +116,16 @@ Gold Sponsors
 
    <!--Added 2014-07-16-->
    <a href="http://www.liclipse.com/" border=0><img class="sponsors" src="images/sponsors/liclipse.png" alt="LiClipse" title="http://www.liclipse.com/" /></a>
+   <!--Added 2016-04-05-->
    <a href="http://www.tracetronic.com" border=0><img class="sponsors" src="images/sponsors/tracetronic.png" alt="Tracetronic" title="http://www.tracetronic.com/" /></a>
+   <!--Added 2014-07-16-->
    <a href="http://www.kichwacoders.com/" border=0><img class="sponsors" src="images/sponsors/kichwacoders.png" alt="Kichwacoders" title="http://www.kichwacoders.com/" /></a>
    <br/>
+   <!--Added 2014-07-16-->
    <a href="http://www.dawnsci.org/" border=0><img class="sponsors" src="images/sponsors/dawnsci.png" alt="Dawn science" title="http://www.dawnsci.org/" /></a>
+   <!--Added 2014-07-16-->
    <a href="http://www.pyvmmonitor.com/" border=0><img class="sponsors" src="images/sponsors/pyvmmonitor.png" alt="PyVmMonitor" title="http://www.pyvmmonitor.com/" /></a>
+   <!--Added 2016-04-04-->
    <a href="http://www.squishlist.com/" border=0><img class="sponsors" src="images/sponsors/squishlist.png" alt="Squishlist" title="http://www.squishlist.com/" /></a>
 
 Silver Sponsors
@@ -130,10 +135,6 @@ Silver Sponsors
 
    <!--Added 2016-04-02-->
    <a href="http://www.chameleonjohn.com" border=0><img class="sponsors" src="images/sponsors/logo_chameleon_john.png" alt="ChameleonJohn Coupons" title="http://www.chameleonjohn.com" /></a>
-   <!--Added 2014-09-02-->
-   <a href="http://www.orsoft.net" border=0><img class="sponsors" src="images/sponsors/logo_orsoft.png" alt="ORSOFT GmbH" title="http://www.orsoft.net" /></a>
-   <!--Added 2014-07-16-->
-   <a href="http://vegardit.com" border=0><img class="sponsors" src="images/sponsors/vegardit.png" alt="Vegard IT" title="http://vegardit.com" /></a>
 
 Supporting PyDev
 =================
@@ -151,6 +152,29 @@ Companies have the option of sponsoring PyDev through corporate sponsorship. See
 .. _`update sites page`: update_sites/index.html
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
+
+Release 5.1.0
+==========================
+
+* **Important** PyDev now requires Java 8.
+
+	* PyDev 4.5.5 is the last release supporting Java 7.
+	* See: `update sites page`_ for the update site of older versions of PyDev.
+	* See: the **PyDev does not appear after install** section on `the download page`_ for help on using a Java 8 vm in Eclipse.
+
+* The pytest integration was redone and should now work properly with the latest pytest.
+	
+	* Properly showing output of tests in PyUnit view.
+	* Improved dealing with items filtered through Ctrl+F9.
+	* Better support for xdist (no longer reporting that the session finished when only a slave finished).
+	* Reporting skipped items as "skip" and not "ok".
+	* Properly showing running tests on PyUnit view.
+
+* Not using tokenize.open() in Python 3.2 for the execfile custom implementation.
+
+* Expand and collapse keybindings changed to use the Numpad entries (so that they don't override the add/subtract used for zooming). #PyDev 695.
+
+* The hover in PyDev has an implementation which is now more flexible and easier to extend in plugins (patch by Mark A. Leone).
 
 Release 5.0.0
 ==========================
