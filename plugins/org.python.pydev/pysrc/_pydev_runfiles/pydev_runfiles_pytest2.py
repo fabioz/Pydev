@@ -243,14 +243,15 @@ def pytest_runtest_logreport(report):
     if report_outcome != 'skipped':
         # On skipped, we'll have a traceback for the skip, which is not what we
         # want.
-        tw = TerminalWriter(stringio=True)
-        tw.hasmarkup = False
-        report.toterminal(tw)
-        exc = tw.stringio.getvalue()
-        if exc.strip():
-            if error_contents:
-                error_contents += '----------------------------- Exceptions -----------------------------\n'
-            error_contents += exc
+        if report.longrepr is not None:
+            tw = TerminalWriter(stringio=True)
+            tw.hasmarkup = False
+            report.toterminal(tw)
+            exc = tw.stringio.getvalue()
+            if exc.strip():
+                if error_contents:
+                    error_contents += '----------------------------- Exceptions -----------------------------\n'
+                error_contents += exc
 
     report_test(status, filename, test, captured_output, error_contents, report_duration)
 
