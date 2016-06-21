@@ -192,6 +192,23 @@ def pytest_collection_modifyitems(session, config, items):
 
 from py.io import TerminalWriter
 
+def _get_error_contents_from_report(report):
+    if report.longrepr is not None:
+        tw = TerminalWriter(stringio=True)
+        tw.hasmarkup = False
+        report.toterminal(tw)
+        exc = tw.stringio.getvalue()
+        s = exc.strip()
+        if s:
+            return s
+        
+    return ''
+
+def pytest_collectreport(report):
+    error_contents = _get_error_contents_from_report(report)
+    if error_contents:
+        report_test('fail', '<collect errors>', '<collect errors>', '', error_contents, 0.0)
+
 
 def pytest_runtest_logreport(report):
     if is_in_xdist_node():
@@ -244,15 +261,11 @@ def pytest_runtest_logreport(report):
     if report_outcome != 'skipped':
         # On skipped, we'll have a traceback for the skip, which is not what we
         # want.
-        if report.longrepr is not None:
-            tw = TerminalWriter(stringio=True)
-            tw.hasmarkup = False
-            report.toterminal(tw)
-            exc = tw.stringio.getvalue()
-            if exc.strip():
-                if error_contents:
-                    error_contents += '----------------------------- Exceptions -----------------------------\n'
-                error_contents += exc
+        exc = _get_error_contents_from_report(report)
+        if exc:
+            if error_contents:
+                error_contents += '----------------------------- Exceptions -----------------------------\n'
+            error_contents += exc
 
     report_test(status, filename, test, captured_output, error_contents, report_duration)
 
