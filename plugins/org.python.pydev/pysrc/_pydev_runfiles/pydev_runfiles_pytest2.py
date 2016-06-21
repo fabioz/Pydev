@@ -148,6 +148,7 @@ def pytest_collection_modifyitems(session, config, items):
 
     _load_filters()
     if not py_test_accept_filter:
+        pydev_runfiles_xml_rpc.notifyTestsCollected(len(items))
         return  # Keep on going (nothing to filter)
 
     new_items = []
