@@ -44,9 +44,9 @@ copy X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\rep
 
 x:\
 cd X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable
-"C:\Program Files\7-Zip\7z" a -tzip -r "PyDev 5.1.1.zip" features plugins
+"C:\Program Files\7-Zip\7z" a -tzip -r "PyDev 5.1.2.zip" features plugins
 cd X:\pydev_build\build_dir\pydev
-git archive -o "X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\PyDev 5.1.1-sources.zip" origin/master
+git archive -o "X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\PyDev 5.1.2-sources.zip" origin/master
 
         ** Submit feature and sources .zip in folder X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable to:
 
@@ -54,10 +54,8 @@ p:\FileZilla\filezilla.exe sftp://fabioz,pydev@frs.sourceforge.net/home/pfs/proj
 
 Note: check pageant if it does not connect.
 
--- stopped here
-
 Check if the main download button points to the proper place (not to the sources) --
-https://sourceforge.net/projects/pydev/files/pydev/PyDev 5.1.1/ -- choose file > file info > set default.
+https://sourceforge.net/projects/pydev/files/pydev/PyDev 5.1.2/ -- choose file > file info > set default.
 
 
 		** Add contents to the update site
@@ -65,32 +63,32 @@ https://sourceforge.net/projects/pydev/files/pydev/PyDev 5.1.1/ -- choose file >
 
 cdd X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\
 
-mkdir org.python.pydev.p2-repo-5.1.1-SNAPSHOT
+mkdir org.python.pydev.p2-repo-5.1.2-SNAPSHOT
 
-cd org.python.pydev.p2-repo-5.1.1-SNAPSHOT
+cd org.python.pydev.p2-repo-5.1.2-SNAPSHOT
 
-"C:\Program Files\7-Zip\7z" x ..\org.python.pydev.p2-repo-5.1.1-SNAPSHOT.zip
+"C:\Program Files\7-Zip\7z" x ..\org.python.pydev.p2-repo-5.1.2-SNAPSHOT.zip
 
-c:\bin\Python27\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-5.1.1-SNAPSHOT -d https://api.bintray.com/content/fabioz/pydev/nightly/
+c:\bin\Python27\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-5.1.2-SNAPSHOT -d https://api.bintray.com/content/fabioz/pydev/nightly/
 Note: if unable to send: remove at https://bintray.com/fabioz/pydev/pydev/nightly/edit add back at https://bintray.com/fabioz/pydev/pydev/new/version
 
 
-Create "5.1.1" version in "https://bintray.com/fabioz/pydev/pydev/new/version"
-Add "5.1.1" in X:\release_tools\pydev_uploader_bintray.py
-c:\bin\Python27\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-5.1.1-SNAPSHOT -d https://api.bintray.com/content/fabioz/pydev/5.1.1/
+Create "5.1.2" version in "https://bintray.com/fabioz/pydev/pydev/new/version"
+Add "5.1.2" in X:\release_tools\pydev_uploader_bintray.py
+c:\bin\Python27\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-5.1.2-SNAPSHOT -d https://api.bintray.com/content/fabioz/pydev/5.1.2/
 
 		** Update homepage:
 
 robocopy X:\pydev\plugins\com.python.pydev.docs\merged_homepage\final X:\openshift\pydev.page2\ /xd .git /xd .openshift  /s
 cd /D X:\openshift\pydev.page2\
 mu st
-mu acp "Updated to 5.1.1"
+mu acp "Updated to 5.1.2"
 
 p:\FileZilla\filezilla.exe sftp://fabioz,pydev@frs.sourceforge.net/home/project-web/pydev/htdocs --local="x:\pydev\plugins\com.python.pydev.docs\merged_homepage\final"
 
 
 		** Tag repository:
-		  git tag pydev_5_1_1 -a -m "PyDev 5.1.1"
+		  git tag pydev_5_1_1 -a -m "PyDev 5.1.2"
 		  git push --tags
 
 
@@ -109,4 +107,4 @@ p:\FileZilla\filezilla.exe sftp://fabioz,pydev@frs.sourceforge.net/home/project-
         ** Update the versions:
 			x:
 			cd x:\pydev
-			python update_version.py 5.1.1
+			python update_version.py 5.1.2
