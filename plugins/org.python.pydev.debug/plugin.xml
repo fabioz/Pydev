@@ -1362,7 +1362,7 @@
             id="org.python.pydev.debug.ui.hover.PyDebugHover"
             label="PyDev Debug Hover"
             preempt="false"
-            priority="100">
+            priority="50">
       </pyTextHover>
    </extension>
 
