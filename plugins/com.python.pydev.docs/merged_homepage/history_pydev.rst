@@ -5,12 +5,12 @@ History For PyDev
 .. _`update sites page`: update_sites/index.html
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
-Release 5.1.1
+Release 5.1.2
 ==========================
 
-* **Important** PyDev now requires Java 8.
+* **Important** PyDev now requires Java 8 and Eclipse 4.5.x.
 
-	* PyDev 4.5.5 is the last release supporting Java 7.
+	* PyDev 4.5.5 is the last release supporting Java 7 and Eclipse 3.8.
 	* See: `update sites page`_ for the update site of older versions of PyDev.
 	* See: the **PyDev does not appear after install** section on `the download page`_ for help on using a Java 8 vm in Eclipse.
 
@@ -32,7 +32,11 @@ Release 5.1.1
 Release 5.0.0
 ==========================
 
-* **Important** PyDev now requires Java 8.
+* **Important** PyDev now requires Java 8 and Eclipse 4.5.x.
+
+	* PyDev 4.5.5 is the last release supporting Java 7 and Eclipse 3.8.
+	* See: `update sites page`_ for the update site of older versions of PyDev.
+	* See: the **PyDev does not appear after install** section on `the download page`_ for help on using a Java 8 vm in Eclipse.
 
 * PyUnit view now persists its state across restarts.
 

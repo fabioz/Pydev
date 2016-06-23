@@ -85,7 +85,7 @@ At least one of:
 
 and
 
--  `Eclipse (3.8/4.3 onwards) <http://www.eclipse.org/>`_
+-  `Eclipse (4.5 onwards) <http://www.eclipse.org/>`_
 
 **Note** if using Eclipse standalone: `Python <http://www.python.org/>`_
 and
@@ -102,6 +102,8 @@ PyDev does not appear after install!
 Well, the main issue at this time is that PyDev requires Java 8 in order to run. So, if you don't want to support PyDev by
 going the LiClipse route (which is mostly a PyDev standalone plus some goodies), you may have to go through some loops to
 make sure that you're actually using Java 8 to run Eclipse/PyDev (as explained below).
+
+Also, keep in mind that PyDev 5.x requires Eclipse 4.5 onwards (for Eclipse 3.8 use PyDev 4.x).
 
 All OSes
 ---------
