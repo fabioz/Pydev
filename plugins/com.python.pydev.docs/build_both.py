@@ -1,6 +1,7 @@
 import os
 import sys
 import shutil
+import datetime
 
 args = sys.argv[1:]
 this_script_path = sys.argv[0]
@@ -12,6 +13,8 @@ for arg in args:
         LAST_VERSION_TAG = version
 else:
     LAST_VERSION_TAG = '5.1.2'  # Not specified (let's leave one there)
+    
+CURRENT_DATE = datetime.datetime.now()
 
 update_site_versions = [
     '5.1.2',
@@ -184,9 +187,8 @@ if __name__ == '__main__':
     import build_merged  # @UnresolvedImport
     os.chdir(os.path.join(this_script_dir, 'merged_homepage'))
 
-    import datetime
     build_merged.LAST_VERSION_TAG = LAST_VERSION_TAG
-    build_merged.CURRENT_DATE = datetime.datetime(day=22, month=3, year=2016)
+    build_merged.CURRENT_DATE = CURRENT_DATE
     build_merged.DoIt()
 
     sys.stdout.write('Finished\n')

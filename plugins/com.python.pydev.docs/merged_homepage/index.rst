@@ -136,6 +136,9 @@ Silver Sponsors
    <!--Added 2016-04-02-->
    <a href="http://www.chameleonjohn.com" border=0><img class="sponsors" src="images/sponsors/logo_chameleon_john.png" alt="ChameleonJohn Coupons" title="http://www.chameleonjohn.com" /></a>
 
+   <!--Added 2016-07-13-->
+   <a href="http://www.o365cloudexperts.com/" border=0><img class="sponsors" src="images/sponsors/cloudexperts.jpg" alt="Apps4Rent" title="http://www.o365cloudexperts.com/" /></a>
+
 Supporting PyDev
 =================
 
