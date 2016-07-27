@@ -533,7 +533,11 @@ public class PydevPlugin extends AbstractUIPlugin {
     public static String getIResourceOSString(IResource f) {
         URI locationURI = f.getLocationURI();
         if (locationURI != null) {
-            return FileUtils.getFileAbsolutePath(new File(locationURI));
+            try{
+                //RTC source control not return a valid uri
+                return FileUtils.getFileAbsolutePath(new File(locationURI));
+            }catch (IllegalArgumentException e) {
+            }
         }
 
         IPath rawLocation = f.getRawLocation();
