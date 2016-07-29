@@ -71,6 +71,7 @@
 <forced_lib>operator</forced_lib>
 <forced_lib>parser</forced_lib>
 <forced_lib>signal</forced_lib>
+<forced_lib>ssl</forced_lib>
 <forced_lib>strop</forced_lib>
 <forced_lib>sys</forced_lib>
 <forced_lib>thread</forced_lib>
