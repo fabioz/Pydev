@@ -2400,6 +2400,138 @@ public class PyAutoIndentStrategyTest extends TestCase {
         assertEquals(expected, docCmd.text);
     }
 
+    public void testIndentParensPep8_1() throws Exception {
+        // New indent mode:
+        // pep8 indents aligned with the opening parens (if not directly after the opening parens) 
+        // or with an additional level for vertical alignment of multiple vars after the parens.
+        TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
+        prefs.indentToParAsPep8 = true;
+        strategy.setIndentPrefs(prefs);
+        String doc = "" +
+                "def testIt(" + // indent 1 because of the def and an additional one for the parens.
+                "";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n        ";
+        assertEquals(expected, docCmd.text);
+    }
+
+    public void testIndentParensPep8_2() throws Exception {
+        // New indent mode:
+        // pep8 indents aligned with the opening parens (if not directly after the opening parens) 
+        // or with an additional level for vertical alignment of multiple vars after the parens.
+        TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
+        prefs.indentToParAsPep8 = true;
+        strategy.setIndentPrefs(prefs);
+        String doc = "" +
+                "def testIt(aa, bb," + // indent 1 because of the def and an additional one for the parens.
+                "";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n           ";
+        assertEquals(expected, docCmd.text);
+    }
+
+    public void testIndentParensPep8_3() throws Exception {
+        // New indent mode:
+        // pep8 indents aligned with the opening parens (if not directly after the opening parens) 
+        // or with an additional level for vertical alignment of multiple vars after the parens.
+        TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
+        prefs.indentToParAsPep8 = true;
+        strategy.setIndentPrefs(prefs);
+        String doc = "" +
+                "myverybigvar = (" + // indent 1 because of the def and an additional one for the parens.
+                "";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n    ";
+        assertEquals(expected, docCmd.text);
+    }
+
+    public void testIndentParensPep8_4() throws Exception {
+        // New indent mode:
+        // pep8 indents aligned with the opening parens (if not directly after the opening parens) 
+        // or with an additional level for vertical alignment of multiple vars after the parens.
+        TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
+        prefs.indentToParAsPep8 = true;
+        strategy.setIndentPrefs(prefs);
+        String doc = "" +
+                "myverybigvar = (aaa," + // indent 1 because of the def and an additional one for the parens.
+                "";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n                ";
+        assertEquals(expected, docCmd.text);
+    }
+
+    public void testIndentParensPep8_1_tabs() throws Exception {
+        // New indent mode:
+        // pep8 indents aligned with the opening parens (if not directly after the opening parens) 
+        // or with an additional level for vertical alignment of multiple vars after the parens.
+        TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
+        prefs.indentToParAsPep8 = true;
+        prefs.setForceTabs(true);
+        strategy.setIndentPrefs(prefs);
+        String doc = "" +
+                "def testIt(" + // indent 1 because of the def and an additional one for the parens.
+                "";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n\t\t";
+        assertEquals(expected, docCmd.text);
+    }
+
+    public void testIndentParensPep8_2_tabs() throws Exception {
+        // New indent mode:
+        // pep8 indents aligned with the opening parens (if not directly after the opening parens) 
+        // or with an additional level for vertical alignment of multiple vars after the parens.
+        TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
+        prefs.indentToParAsPep8 = true;
+        prefs.setForceTabs(true);
+        strategy.setIndentPrefs(prefs);
+        String doc = "" +
+                "def testItrararara(aa, bb," + // indent 1 because of the def and an additional one for the parens.
+                "";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n\t\t\t\t";
+        assertEquals(expected, docCmd.text);
+    }
+
+    public void testIndentParensPep8_3_tabs() throws Exception {
+        // New indent mode:
+        // pep8 indents aligned with the opening parens (if not directly after the opening parens) 
+        // or with an additional level for vertical alignment of multiple vars after the parens.
+        TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
+        prefs.indentToParAsPep8 = true;
+        prefs.setForceTabs(true);
+        strategy.setIndentPrefs(prefs);
+        String doc = "" +
+                "myverybigvar = (" + // indent 1 because of the def and an additional one for the parens.
+                "";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n\t";
+        assertEquals(expected, docCmd.text);
+    }
+
+    public void testIndentParensPep8_4_tabs() throws Exception {
+        // New indent mode:
+        // pep8 indents aligned with the opening parens (if not directly after the opening parens) 
+        // or with an additional level for vertical alignment of multiple vars after the parens.
+        TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
+        prefs.indentToParAsPep8 = true;
+        prefs.setForceTabs(true);
+        strategy.setIndentPrefs(prefs);
+        String doc = "" +
+                "myverybigvar = (aaa," + // indent 1 because of the def and an additional one for the parens.
+                "";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n\t\t\t";
+        assertEquals(expected, docCmd.text);
+    }
+
     public void testDedentElse() {
         strategy.setIndentPrefs(new TestIndentPrefs(true, 4, true));
         String strDoc = "" +

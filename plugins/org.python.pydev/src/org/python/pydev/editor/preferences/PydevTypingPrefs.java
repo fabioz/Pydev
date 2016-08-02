@@ -14,7 +14,6 @@ import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
@@ -53,6 +52,9 @@ public class PydevTypingPrefs extends ScopedFieldEditorPreferencePage implements
 
     public static final String SMART_INDENT_PAR = "SMART_INDENT_PAR";
     public static final boolean DEFAULT_SMART_INDENT_PAR = true;
+
+    public static final String INDENT_AFTER_PAR_AS_PEP8 = "INDENT_AFTER_PAR_AS_PEP8";
+    public static final boolean DEFAULT_INDENT_AFTER_PAR_AS_PEP8 = true;
 
     public static final String SMART_LINE_MOVE = "SMART_LINE_MOVE";
     //Disabled by default (doesn't seem as useful as I though because Python does not have the end
@@ -114,21 +116,69 @@ public class PydevTypingPrefs extends ScopedFieldEditorPreferencePage implements
                         + "Specifically, whenever you hit a brace such as '(', '{', or '[', its related peer will be inserted "
                         + "and your cursor will be placed between the two braces.");
 
+        //smart indent?
+        final BooleanFieldEditorCustom useSmartIndent = addBooleanField(p, SMART_INDENT_PAR, "Use smart-indent?", "");
+
+        //pep-8 indent?
+        final BooleanFieldEditorCustom usePep8Indent = addBooleanField(p, INDENT_AFTER_PAR_AS_PEP8,
+                "    After '(' indent as pep-8.\n", "");
+
+        final LabelFieldEditor labelPep8_1 = new LabelFieldEditor("__UNUSED__00",
+                "            I.e.: add indentation plus additional level right after", p);
+        addField(labelPep8_1);
+        final LabelFieldEditor labelPep8_2 = new LabelFieldEditor("__UNUSED__01", "", p);
+        addField(labelPep8_2); // fill second column
+        final LabelFieldEditor labelPep8_3 = new LabelFieldEditor("__UNUSED__02",
+                "            parenthesis or indent to parenthesis after another token.", p);
+        addField(labelPep8_3);
+
         // indent
         final BooleanFieldEditorCustom autoIndentToParLevel = addBooleanField(p, AUTO_INDENT_TO_PAR_LEVEL,
-                "After '(' indent to its level (indents by tabs if unchecked)", "");
+                "    After '(' indent to its level (indents by tabs if unchecked)", "");
 
-        final IntegerFieldEditor intField = new IntegerFieldEditor(AUTO_INDENT_AFTER_PAR_WIDTH,
-                "    Number of indentation levels to add:", p, 1);
-        addField(intField);
-        final Button checkBox = autoIndentToParLevel.getCheckBox(p);
-        checkBox.addSelectionListener(new SelectionAdapter() {
+        final IntegerFieldEditor indentationLevelsToAddField = new IntegerFieldEditor(AUTO_INDENT_AFTER_PAR_WIDTH,
+                "        Number of indentation levels to add:", p, 1);
+        addField(indentationLevelsToAddField);
+        final Runnable fixEnablement = new Runnable() {
+
+            @Override
+            public void run() {
+                boolean useSmartIndentBool = useSmartIndent.getBooleanValue();
+                boolean usePep8IndentBool = usePep8Indent.getBooleanValue();
+                boolean useAutoIndentToParLevelBool = autoIndentToParLevel.getBooleanValue();
+
+                fixParensIndentEnablement(p, usePep8Indent, autoIndentToParLevel, indentationLevelsToAddField,
+                        labelPep8_1, labelPep8_2, labelPep8_3,
+                        useSmartIndentBool, usePep8IndentBool, useAutoIndentToParLevelBool);
+            }
+        };
+
+        autoIndentToParLevel.getCheckBox(p).addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                intField.setEnabled(!autoIndentToParLevel.getBooleanValue(), p);
+                fixEnablement.run();
             }
         });
-        intField.setEnabled(!getPreferenceStore().getBoolean(AUTO_INDENT_TO_PAR_LEVEL), p);
+
+        usePep8Indent.getCheckBox(p).addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                fixEnablement.run();
+            }
+        });
+
+        useSmartIndent.getCheckBox(p).addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                fixEnablement.run();
+            }
+        });
+
+        fixParensIndentEnablement(p, usePep8Indent, autoIndentToParLevel, indentationLevelsToAddField, labelPep8_1,
+                labelPep8_2, labelPep8_3,
+                getPreferenceStore().getBoolean(SMART_INDENT_PAR),
+                getPreferenceStore().getBoolean(INDENT_AFTER_PAR_AS_PEP8),
+                getPreferenceStore().getBoolean(AUTO_INDENT_TO_PAR_LEVEL));
 
         //auto dedent 'else:'
         addBooleanField(p, AUTO_DEDENT_ELSE, "Automatic dedent of 'else:' and 'elif:'", "");
@@ -143,9 +193,6 @@ public class PydevTypingPrefs extends ScopedFieldEditorPreferencePage implements
                         + "def function(self):\n\n"
                         + "...with your cursor before the end parenthesis (after the 'f' in \"self\"), typing a ')' will "
                         + "simply move the cursor to the position after the ')' without inserting a new one.");
-
-        //smart indent
-        addBooleanField(p, SMART_INDENT_PAR, "Use smart-indent?", "");
 
         //auto colon
         addBooleanField(
@@ -192,5 +239,34 @@ public class PydevTypingPrefs extends ScopedFieldEditorPreferencePage implements
     @Override
     public void init(IWorkbench workbench) {
 
+    }
+
+    private void fixParensIndentEnablement(final Composite p, final BooleanFieldEditorCustom usePep8Indent,
+            final BooleanFieldEditorCustom autoIndentToParLevel, final IntegerFieldEditor indentationLevelsToAddField,
+            LabelFieldEditor labelPep8_1, LabelFieldEditor labelPep8_2, LabelFieldEditor labelPep8_3,
+            boolean useSmartIndentBool, boolean usePep8IndentBool, boolean useAutoIndentToParLevelBool) {
+        if (!useSmartIndentBool) {
+            // Disable all
+            usePep8Indent.setEnabled(false, p);
+            labelPep8_1.setEnabled(false, p);
+            labelPep8_2.setEnabled(false, p);
+            labelPep8_3.setEnabled(false, p);
+            autoIndentToParLevel.setEnabled(false, p);
+            indentationLevelsToAddField.setEnabled(false, p);
+        } else {
+            usePep8Indent.setEnabled(true, p);
+            labelPep8_1.setEnabled(true, p);
+            labelPep8_2.setEnabled(true, p);
+            labelPep8_3.setEnabled(true, p);
+            // Smart indent enabled, let's see if pep-8 is enabled
+            if (usePep8IndentBool) {
+                autoIndentToParLevel.setEnabled(false, p);
+                indentationLevelsToAddField.setEnabled(false, p);
+
+            } else {
+                autoIndentToParLevel.setEnabled(true, p);
+                indentationLevelsToAddField.setEnabled(!useAutoIndentToParLevelBool, p);
+            }
+        }
     }
 }

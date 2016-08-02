@@ -1214,7 +1214,7 @@ public final class PySelection extends TextSelectionUtils {
      * @return whether the current selection is on the ClassName or Function name context
      * (just after the 'class' or 'def' tokens)
      */
-    public int isInDeclarationLine() {
+    public int isRightAfterDeclarationInLine() {
         try {
             String contents = getLineContentsToCursor();
             StringTokenizer strTok = new StringTokenizer(contents);

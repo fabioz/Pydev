@@ -183,6 +183,11 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
     }
 
     @Override
+    public boolean getIndentToParAsPep8() {
+        return getBoolFromPreferences(PydevTypingPrefs.INDENT_AFTER_PAR_AS_PEP8);
+    }
+
+    @Override
     public boolean getAutoAddSelf() {
         return getBoolFromPreferences(PydevTypingPrefs.AUTO_ADD_SELF);
     }

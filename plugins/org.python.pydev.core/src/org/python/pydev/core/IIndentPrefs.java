@@ -79,11 +79,6 @@ public interface IIndentPrefs {
     public boolean getAutoWriteImport();
 
     /**
-     * Get whether we should smart-indent after a '('
-     */
-    public boolean getSmartIndentPar();
-
-    /**
      * Get whether we should add 'self' automatically when declaring method
      */
     public boolean getAutoAddSelf();
@@ -94,9 +89,21 @@ public interface IIndentPrefs {
     public boolean getAutoDedentElse();
 
     /**
+     * Get whether we should smart-indent after a '('
+     */
+    public boolean getSmartIndentPar();
+
+    /**
      * @return whether we should indent to a parenthesis level on auto-indent or only add 1 tab to the indent).
      */
     public boolean getIndentToParLevel();
+
+    /**
+     * @return pep-8 like smart indent:
+     * 
+     * after a '(', indent an additional level and after a name (after a '('), indent to the parens level.
+     */
+    public boolean getIndentToParAsPep8();
 
     /**
      * @return indentation width after parenthesis if not indenting to a parenthesis (in number of tabs).

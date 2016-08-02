@@ -111,7 +111,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
         //- class definitions - after 'class' and before '('
         //- method definitions - after 'def' and before '('
         PySelection ps = request.getPySelection();
-        int lineCtx = ps.isInDeclarationLine();
+        int lineCtx = ps.isRightAfterDeclarationInLine();
         if (lineCtx != PySelection.DECLARATION_NONE) {
             if (lineCtx == PySelection.DECLARATION_METHOD) {
                 createOverrideCodeCompletions(request, ret, ps);

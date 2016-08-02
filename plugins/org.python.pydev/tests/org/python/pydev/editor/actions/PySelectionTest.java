@@ -641,12 +641,12 @@ public class PySelectionTest extends TestCase {
 
     public void testIsInDecl() throws Exception {
         assertEquals(PySelection.DECLARATION_CLASS,
-                new PySelection(new Document("class A(foo):\r\n    pass"), 7).isInDeclarationLine());
-        assertEquals(0, new PySelection(new Document("class A(foo):\r\n    pass"), 9).isInDeclarationLine());
+                new PySelection(new Document("class A(foo):\r\n    pass"), 7).isRightAfterDeclarationInLine());
+        assertEquals(0, new PySelection(new Document("class A(foo):\r\n    pass"), 9).isRightAfterDeclarationInLine());
 
         assertEquals(PySelection.DECLARATION_METHOD,
-                new PySelection(new Document("def A(foo):\r\n    pass"), 5).isInDeclarationLine());
-        assertEquals(0, new PySelection(new Document("def A(foo):\r\n    pass"), 6).isInDeclarationLine());
+                new PySelection(new Document("def A(foo):\r\n    pass"), 5).isRightAfterDeclarationInLine());
+        assertEquals(0, new PySelection(new Document("def A(foo):\r\n    pass"), 6).isRightAfterDeclarationInLine());
     }
 
     public static void checkStrEquals(String string, String string2) {

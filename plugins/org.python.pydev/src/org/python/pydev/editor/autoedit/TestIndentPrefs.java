@@ -22,8 +22,19 @@ public class TestIndentPrefs extends AbstractIndentPrefs {
     public boolean smartIndentAfterPar = true;
     public boolean autoAddSelf = true;
     public boolean autoElse;
+
+    // This is the new mode implementing as pep8:
+    // Indenting right after a parens adds an additional level
+    // Indenting after a variable (after a parens) indents to the parenthesis level
+    // It should be made the default after it's properly tested.
+    public boolean indentToParAsPep8 = false;
+
+    // Old default always indents to the parenthesis level (and if
+    // False always added a fixed amount of parenthesis as specified 
+    // by indentAfterParWidth)
     public boolean indentToParLevel = true;
     public int indentAfterParWidth = 1;
+
     public boolean autoAddLiterals = true;
     public boolean autoLink = true;
     public boolean tabStopInComment = false;
@@ -136,4 +147,8 @@ public class TestIndentPrefs extends AbstractIndentPrefs {
         //ignore it
     }
 
+    @Override
+    public boolean getIndentToParAsPep8() {
+        return indentToParAsPep8;
+    }
 }

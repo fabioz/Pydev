@@ -1167,13 +1167,44 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
         //an 'auto-indent', but keep the current indentation level
         boolean openingPeerIsInCurrentLine = PySelection.isInside(offset, lineInformationOfOffset);
 
+        boolean indentToParAsPep8 = prefs.getIndentToParAsPep8();
+        boolean indentToParLevel = prefs.getIndentToParLevel();
+        int indentAfterParWidth = prefs.getIndentAfterParWidth();
+
+        final PySelection ps = new PySelection(document, offset);
+        final String lineContentsToCursor = ps.getLineContentsToCursor();
+        if (indentToParAsPep8) {
+            String trimmed = lineContentsToCursor.trim();
+            if (trimmed.endsWith("(")) {
+                indentToParLevel = false;
+                // If we're in a class or def line, add an additional indentation level.
+                if (PySelection.matchesFunctionLine(trimmed) || PySelection.matchesClassLine(trimmed)) {
+                    if (prefs.getUseSpaces(true)) {
+                        indentAfterParWidth = 2;
+
+                    } else {
+                        // We'll end up removing one tab afterwards
+                        indentAfterParWidth = 3;
+                    }
+                } else {
+                    if (prefs.getUseSpaces(true)) {
+                        indentAfterParWidth = 1;
+
+                    } else {
+                        // We'll end up removing one tab afterwards
+                        indentAfterParWidth = 2;
+                    }
+                }
+            } else {
+                indentToParLevel = true;
+            }
+        }
+
         int len = -1;
         String contents = "";
-        if (prefs.getIndentToParLevel()) {
+        if (indentToParLevel) {
             //now, a catch, if we didn't change the indent level, we've to indent in the same level
             //as the previous line, as this means that the user 'customized' the indent level at this place.
-            PySelection ps = new PySelection(document, offset);
-            String lineContentsToCursor = ps.getLineContentsToCursor();
             if (!openingPeerIsInCurrentLine && !PyStringUtils.hasUnbalancedClosingPeers(lineContentsToCursor)) {
                 try {
                     char openingChar = document.getChar(openingPeerOffset);
@@ -1222,7 +1253,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
             StringBuffer sb = new StringBuffer();
 
             //Create the string for the indent level we want.
-            for (int i = 0; i < prefs.getIndentAfterParWidth(); i++) {
+            for (int i = 0; i < indentAfterParWidth; i++) {
                 sb.append(indent);
             }
             contents += sb.substring(0, sb.length() - 1); //we have to make it -1 (that's what the smartindent expects)
