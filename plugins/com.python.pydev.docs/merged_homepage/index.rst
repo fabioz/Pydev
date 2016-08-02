@@ -139,6 +139,9 @@ Silver Sponsors
    <!--Added 2016-07-13-->
    <a href="http://www.o365cloudexperts.com/" border=0><img class="sponsors" src="images/sponsors/cloudexperts.jpg" alt="Apps4Rent" title="http://www.o365cloudexperts.com/" /></a>
 
+   <!--Added 2016-08-02-->
+   <a href="http://www.dealslands.co.uk" border=0><img class="sponsors" src="images/sponsors/dealslandsco uk.png" alt="Dealslands.co.uk" title="http://www.dealslands.co.uk" /></a>
+
 Supporting PyDev
 =================
 

@@ -35,6 +35,8 @@ and/or IronPython** installed in your machine, as well as **Eclipse**.
 
 -  Auto-refresh
 
+`Navigating your code with PyDev <manual_101_navigate_code.html>`_
+
 `Tips for programming with PyDev <manual_101_tips.html>`_
 
 **Further info on:**

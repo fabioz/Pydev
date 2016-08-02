@@ -40,8 +40,9 @@ manual101 = (
     ('templateManual.html', 'manual_101_project_conf'   , 'Project Creation'),
     ('templateManual.html', 'manual_101_project_conf2'  , 'Project Configuration'),
     ('templateManual.html', 'manual_101_first_module'   , 'Module Creation'),
-    ('templateManual.html', 'manual_101_run'            , 'Running a program'),
+    ('templateManual.html', 'manual_101_run'            , 'Running a Program'),
     ('templateManual.html', 'manual_101_eclipse'        , 'Configuring Eclipse'),
+    ('templateManual.html', 'manual_101_navigate_code'  , 'Navigating your code'),
     ('templateManual.html', 'manual_101_tips'           , 'Useful tips'),
 
 )

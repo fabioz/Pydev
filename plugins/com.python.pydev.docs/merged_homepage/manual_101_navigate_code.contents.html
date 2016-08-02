@@ -1,0 +1,168 @@
+<doc>
+    <contents_area>
+        One of the main advantages of using an IDE is being able to navigate through your code in 
+        a really fast way, so, let's see how to find what you want when coding in PyDev...<br>
+        <br>
+        <h3>
+            1. Open file in your workspace
+        </h3>
+        <div>
+            <br>
+        </div>
+        The simplest way is searching for any resource for any project you have available (this is actually provided by Eclipse itself). So, if you know the file name (or at least part of it), use <b>Ctrl+Shift+R</b> and filter using the Open Resource dialog:<br>
+        <br>
+        <div class="separator" style="clear: both; text-align: center;">
+            <a href="http://1.bp.blogspot.com/-fnEx6DmlmNY/VPpGvzMMtBI/AAAAAAAABO4/4elBgeRGEUo/s1600/0_find_resource.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" src="https://1.bp.blogspot.com/-fnEx6DmlmNY/VPpGvzMMtBI/AAAAAAAABO4/4elBgeRGEUo/s1600/0_find_resource.png"></a>
+        </div>
+        <br>
+        <h3>
+            2. Go To Python Token (package, module, class, method or attribute in project or interpreter)
+        </h3>
+        <div>
+            <br>
+        </div>
+        Another way of getting to what you want is using the PyDev Globals Browser (using <b>Ctrl+Shift+T</b>).<br>
+        <br>
+        This is actually what I use most as a single place can be used to filter for package names, classes, methods and attributes inside your own projects or any other package in Python itself. Also, it allows for advanced filtering, so, you can search for tokens only inside a package (i.e.: dj.tz filters for any 'tz' token inside django in the example below).<br>
+        <br>
+        <div class="separator" style="clear: both; text-align: center;">
+            <a href="http://3.bp.blogspot.com/-cYKbesKQIH8/VPpGwcisKEI/AAAAAAAABPA/0cYAWd_MxeA/s1600/1_globals.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" src="https://3.bp.blogspot.com/-cYKbesKQIH8/VPpGwcisKEI/AAAAAAAABPA/0cYAWd_MxeA/s1600/1_globals.png"></a>
+        </div>
+        <br>
+        <h3>
+            3. Quick Outline (current editor)
+        </h3>
+        <div>
+            <br>
+        </div>
+        <b>Ctrl+O</b> will show a Quick Outline which shows the structure of your current file. Pressing <b>Ctrl+O</b> one more time in this dialog will also show the structure of superclasses in the hierarchy (you can see that in the example below __setitem__ appears twice, once for the method in this class and another one for the superclass).<br>
+        <br>
+        <div class="separator" style="clear: both; text-align: center;">
+            <a href="http://4.bp.blogspot.com/-fVGn6cqt_ec/VPpGwijyxBI/AAAAAAAABPI/2MHgqaI5B-U/s1600/3_quick.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" src="https://4.bp.blogspot.com/-fVGn6cqt_ec/VPpGwijyxBI/AAAAAAAABPI/2MHgqaI5B-U/s1600/3_quick.png"></a>
+        </div>
+        <br>
+        <h3>
+            4. Selection History
+        </h3>
+        <div>
+            <br>
+        </div>
+        Go back and forward in your selection: <b>Alt+Left</b> goes to the place you were before and <b>Alt+Right</b> to the place you just went from... this allows you to easily go navigate through your recent places.<br>
+        <br>
+        <div class="separator" style="clear: both; text-align: center;">
+            <a href="http://1.bp.blogspot.com/-IYsmIHo8LF8/VPpGwTvKMGI/AAAAAAAABPE/TSpLpeZpvm8/s1600/4_history.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" src="https://1.bp.blogspot.com/-IYsmIHo8LF8/VPpGwTvKMGI/AAAAAAAABPE/TSpLpeZpvm8/s1600/4_history.png"></a>
+        </div>
+        <br>
+        <h3>
+            5. Open files
+        </h3>
+        <br>
+        To filter through the open files you can use <b>Ctrl+E</b>: a dropdown will appear and from there you can filter through its name and you can close existing editors using <b>Del</b> from that dropdown too.<br>
+        <br>
+        <div class="separator" style="clear: both; text-align: center;">
+            <a href="http://1.bp.blogspot.com/-NJ7yJObHV9g/VPpGwybvA8I/AAAAAAAABPo/Mc5HMeMf790/s1600/5_current.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" src="https://1.bp.blogspot.com/-NJ7yJObHV9g/VPpGwybvA8I/AAAAAAAABPo/Mc5HMeMf790/s1600/5_current.png"></a>
+        </div>
+        <br>
+        <h3>
+            6. Go to previous next token (class or method)
+        </h3>
+        <br>
+        <b>Ctrl+Shift+Up</b>&nbsp;and&nbsp;<b>Ctrl+Shift+Down</b> allows you to quickly navigate from your current position to the previous or next method (selecting the full method/class name).<br>
+        <br>
+        <div class="separator" style="clear: both; text-align: center;">
+            <a href="http://1.bp.blogspot.com/-OM_9ogrhHKg/VPpGw_KxM4I/AAAAAAAABPQ/fwseYD1XPqc/s1600/6_prev_next.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" src="https://1.bp.blogspot.com/-OM_9ogrhHKg/VPpGw_KxM4I/AAAAAAAABPQ/fwseYD1XPqc/s1600/6_prev_next.png"></a>
+        </div>
+        <br>
+        <h3>
+            7. Navigate through occurrences and errors in the file
+        </h3>
+        <br>
+        <b>Ctrl+.</b> (i.e.: Ctrl + Dot) allows navigating through occurrences and errors found in the file, so, in the case below we'll navigate through the occurrences of 'func'.<br>
+        
+        <br>
+        Note: An alternative way of doing the same thing is using <b>Ctrl+2, R</b> (which can be used to do a rename of the tokens) and cycle using Tab.
+        <br>
+        <br>
+        <div class="separator" style="clear: both; text-align: center;">
+            <a href="http://2.bp.blogspot.com/-EC0iAIArDtU/VPpGxG7I-aI/AAAAAAAABPk/bQNl76izAek/s1600/7_occurrences.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" src="https://2.bp.blogspot.com/-EC0iAIArDtU/VPpGxG7I-aI/AAAAAAAABPk/bQNl76izAek/s1600/7_occurrences.png"></a>
+        </div>
+        <br>
+        <br>
+        <h3>
+            8. Go to some view/menu/action/preference
+        </h3>
+        <div>
+            <br>
+        </div>
+        This is an Eclipse standard mechanism: using <b>Ctrl+3</b> allows you to navigate to any part of the IDE.<br>
+        <br>
+        <div class="separator" style="clear: both; text-align: center;">
+            <a href="http://2.bp.blogspot.com/-aIB3SjXRczE/VPpGxVB4eUI/AAAAAAAABPc/x1IJATwitcs/s1600/8_place.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" src="https://2.bp.blogspot.com/-aIB3SjXRczE/VPpGxVB4eUI/AAAAAAAABPc/x1IJATwitcs/s1600/8_place.png"></a>
+        </div>
+        <br>
+        <h3>
+            9. References
+        </h3>
+        <br>
+        <b>Ctrl+Shift+G</b> will make a search showing all the references to the token under the cursor (and the search view where results are shown can be navigated with <b>Ctrl+Dot</b>).<br>
+        <br>
+        <div class="separator" style="clear: both; text-align: center;">
+            <a href="http://1.bp.blogspot.com/-uToGhDXDDl0/VPpGx8ezYSI/AAAAAAAABPw/ujCn_FweqZY/s1600/9_references.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" src="https://1.bp.blogspot.com/-uToGhDXDDl0/VPpGx8ezYSI/AAAAAAAABPw/ujCn_FweqZY/s1600/9_references.png"></a>
+        </div>
+        <br>
+        <h3>
+            10. Go to definition
+        </h3>
+        <br>
+        Just press <b>F3 </b>or <b>Ctrl+Click</b> some available token and go directly to the selected place.<br>
+        <br>
+        <h3>
+            11. Hierarchy View
+        </h3>
+        <div>
+            <br>
+        </div>
+        Using <b>F4 </b>shows a hierarchy view where you can see the structure of your classes.<br>
+        <br>
+        <div class="separator" style="clear: both; text-align: center;">
+            <a href="http://3.bp.blogspot.com/-A66x6GQcUsU/VPpGv5wSNYI/AAAAAAAABO0/Ezmd-DQPxho/s1600/11_hierarchy.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" src="https://3.bp.blogspot.com/-A66x6GQcUsU/VPpGv5wSNYI/AAAAAAAABO0/Ezmd-DQPxho/s1600/11_hierarchy.png"></a>
+        </div>
+        <br>
+        <h3>
+            12. Show In
+        </h3>
+        <br>
+        <b>Alt+Shift+W</b> allows you to see the current file in a given place (such as the PyDev Package Explorer or the System Explorer from your OS) or your current class/method in the Outline View.<br>
+        <br>
+        <div class="separator" style="clear: both; text-align: center;">
+            <a href="http://4.bp.blogspot.com/-s8TodPasRBI/VPpGvkV17VI/AAAAAAAABOw/IUzvPjWkjBo/s1600/12_show_in.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" src="https://4.bp.blogspot.com/-s8TodPasRBI/VPpGvkV17VI/AAAAAAAABOw/IUzvPjWkjBo/s1600/12_show_in.png"></a>
+        </div>
+        <br>
+        <h3>
+            Others
+        </h3>
+        <div>
+            <br>
+        </div>
+        The ones below are available in standard Eclipse and you should also definitely know about it :)<br>
+        <br>
+        <b>Ctrl+L</b> allows you to navigate to a given line in your current editor.<br>
+        <b>Ctrl+Q </b>goes to the place where the last edition was made.<br>
+        <b>Ctrl+F6</b> navigates through the opened editors. In LiClipse <b>Ctrl+Tab</b> is also bound to it by default-- and I suggest you also add this binding if you aren't using LiClipse :)<br>
+        <b>Ctrl+F7 </b>navigates through opened views (i.e.: Package Explorer, Outline, etc.)<br>
+        <b>Ctrl+F8 </b>navigates through opened perspectives (i.e.: PyDev perspective, Debug perspective, etc).<br>
+        <b>Ctrl+F10</b> opens the menu for the current view (so you can select filters in the Package Explorer, etc.)<br>
+        <b>F12&nbsp;</b>focuses the editor (so, you can go from any view to the editor)<br>
+        <b>Ctrl+H</b> Opens the search dialog so you can do text searches<br>
+        <b>Ctrl+Shift+L</b> twice goes to the keybindings preferences<br>
+        <div>
+            <br>
+        </div>
+        Now you can enjoy going really fast to any place you wish inside PyDev!<br>
+        <br>
+        <br>
+    </contents_area>
+    <right_area></right_area>
+    <image_area>manual.png</image_area>
+    <quote_area></quote_area>
+</doc>
