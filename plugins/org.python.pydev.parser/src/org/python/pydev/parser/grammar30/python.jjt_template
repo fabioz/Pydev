@@ -29,6 +29,11 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements IGra
 
     private boolean insideAsync;
 
+    @Override
+    public boolean getInsideAsync() {
+        return insideAsync;
+    }
+
 $COMMOM_METHODS
 
     private void handleFutureImports(String importName){

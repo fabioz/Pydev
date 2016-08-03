@@ -122,7 +122,7 @@ public class ClassDefAdapterFromTokens implements IClassDefAdapter {
                     //                System.out.println(tok.getRepresentation()+tok.getArgs());
                     FunctionDef functionDef = new FunctionDef(
                             new NameTok(tok.getRepresentation(), NameTok.FunctionName), functionArguments, null, null,
-                            null);
+                            null, false);
                     cache.add(new FunctionDefAdapter(this.getModule(), null, functionDef, adapterPrefs));
                 }
             }

@@ -37,7 +37,8 @@ public class PyAstFactory {
     }
 
     public FunctionDef createFunctionDef(String name) {
-        FunctionDef functionDef = new FunctionDef(new NameTok(name, NameTok.FunctionName), null, null, null, null);
+        FunctionDef functionDef = new FunctionDef(new NameTok(name, NameTok.FunctionName), null, null, null, null,
+                false);
         return functionDef;
     }
 
@@ -49,7 +50,8 @@ public class PyAstFactory {
         exprType starargs = null;
         exprType kwargs = null;
 
-        ClassDef def = new ClassDef(new NameTok(name, NameTok.ClassName), bases, body, decs, keywords, starargs, kwargs);
+        ClassDef def = new ClassDef(new NameTok(name, NameTok.ClassName), bases, body, decs, keywords, starargs,
+                kwargs);
         return def;
 
     }
@@ -73,7 +75,7 @@ public class PyAstFactory {
         argumentsType args = createArguments(true, "value");
         stmtType[] body = createSetterBody(attributeName);
 
-        return new FunctionDef(functionName, args, body, null, null);
+        return new FunctionDef(functionName, args, body, null, null, false);
     }
 
     public argumentsType createArguments(boolean addSelf, String... simpleParams) {

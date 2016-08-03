@@ -30,65 +30,50 @@ public final class For extends stmtType {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
         For other = (For) obj;
-        if (target == null) {
-            if (other.target != null)
-                return false;
-        } else if (!target.equals(other.target))
-            return false;
-        if (iter == null) {
-            if (other.iter != null)
-                return false;
-        } else if (!iter.equals(other.iter))
-            return false;
-        if (!Arrays.equals(body, other.body))
-            return false;
-        if (orelse == null) {
-            if (other.orelse != null)
-                return false;
-        } else if (!orelse.equals(other.orelse))
-            return false;
+        if (target == null) { if (other.target != null) return false;}
+        else if (!target.equals(other.target)) return false;
+        if (iter == null) { if (other.iter != null) return false;}
+        else if (!iter.equals(other.iter)) return false;
+        if (!Arrays.equals(body, other.body)) return false;
+        if (orelse == null) { if (other.orelse != null) return false;}
+        else if (!orelse.equals(other.orelse)) return false;
         return true;
     }
-
     @Override
     public For createCopy() {
         return createCopy(true);
     }
-
     @Override
     public For createCopy(boolean copyComments) {
         stmtType[] new0;
-        if (this.body != null) {
-            new0 = new stmtType[this.body.length];
-            for (int i = 0; i < this.body.length; i++) {
-                new0[i] = (stmtType) (this.body[i] != null ? this.body[i].createCopy(copyComments) : null);
-            }
-        } else {
+        if(this.body != null){
+        new0 = new stmtType[this.body.length];
+        for(int i=0;i<this.body.length;i++){
+            new0[i] = (stmtType) (this.body[i] != null? this.body[i].createCopy(copyComments):null);
+        }
+        }else{
             new0 = this.body;
         }
-        For temp = new For(target != null ? (exprType) target.createCopy(copyComments) : null,
-                iter != null ? (exprType) iter.createCopy(copyComments) : null, new0,
-                orelse != null ? (suiteType) orelse.createCopy(copyComments) : null);
+        For temp = new For(target!=null?(exprType)target.createCopy(copyComments):null,
+        iter!=null?(exprType)iter.createCopy(copyComments):null, new0,
+        orelse!=null?(suiteType)orelse.createCopy(copyComments):null);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if (this.specialsBefore != null && copyComments) {
-            for (Object o : this.specialsBefore) {
-                if (o instanceof commentType) {
+        if(this.specialsBefore != null && copyComments){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
                     commentType commentType = (commentType) o;
                     temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if (this.specialsAfter != null && copyComments) {
-            for (Object o : this.specialsAfter) {
-                if (o instanceof commentType) {
+        if(this.specialsAfter != null && copyComments){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
                     commentType commentType = (commentType) o;
                     temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }

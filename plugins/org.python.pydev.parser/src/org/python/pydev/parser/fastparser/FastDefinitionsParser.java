@@ -529,7 +529,7 @@ public final class FastDefinitionsParser {
      */
     private void startMethod(String name, int startMethodRow, int startMethodCol) {
         NameTok nameTok = new NameTok(name, NameTok.ClassName);
-        FunctionDef functionDef = new FunctionDef(nameTok, null, null, null, null);
+        FunctionDef functionDef = new FunctionDef(nameTok, null, null, null, null, false);
         functionDef.beginLine = startMethodRow;
         functionDef.beginColumn = startMethodCol;
 

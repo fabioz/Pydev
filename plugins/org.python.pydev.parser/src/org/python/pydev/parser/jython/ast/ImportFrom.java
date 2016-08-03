@@ -27,56 +27,47 @@ public final class ImportFrom extends stmtType {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
         ImportFrom other = (ImportFrom) obj;
-        if (module == null) {
-            if (other.module != null)
-                return false;
-        } else if (!module.equals(other.module))
-            return false;
-        if (!Arrays.equals(names, other.names))
-            return false;
-        if (this.level != other.level)
-            return false;
+        if (module == null) { if (other.module != null) return false;}
+        else if (!module.equals(other.module)) return false;
+        if (!Arrays.equals(names, other.names)) return false;
+        if(this.level != other.level) return false;
         return true;
     }
-
     @Override
     public ImportFrom createCopy() {
         return createCopy(true);
     }
-
     @Override
     public ImportFrom createCopy(boolean copyComments) {
         aliasType[] new0;
-        if (this.names != null) {
-            new0 = new aliasType[this.names.length];
-            for (int i = 0; i < this.names.length; i++) {
-                new0[i] = (aliasType) (this.names[i] != null ? this.names[i].createCopy(copyComments) : null);
-            }
-        } else {
+        if(this.names != null){
+        new0 = new aliasType[this.names.length];
+        for(int i=0;i<this.names.length;i++){
+            new0[i] = (aliasType) (this.names[i] != null?
+            this.names[i].createCopy(copyComments):null);
+        }
+        }else{
             new0 = this.names;
         }
-        ImportFrom temp = new ImportFrom(module != null ? (NameTokType) module.createCopy(copyComments) : null, new0,
-                level);
+        ImportFrom temp = new
+        ImportFrom(module!=null?(NameTokType)module.createCopy(copyComments):null, new0, level);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if (this.specialsBefore != null && copyComments) {
-            for (Object o : this.specialsBefore) {
-                if (o instanceof commentType) {
+        if(this.specialsBefore != null && copyComments){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
                     commentType commentType = (commentType) o;
                     temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if (this.specialsAfter != null && copyComments) {
-            for (Object o : this.specialsAfter) {
-                if (o instanceof commentType) {
+        if(this.specialsAfter != null && copyComments){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
                     commentType commentType = (commentType) o;
                     temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }

@@ -186,7 +186,7 @@ public final class TreeBuilder26 extends AbstractTreeBuilder implements ITreeBui
                 argumentsType arguments = makeArguments(stack.nodeArity() - 1);
                 NameTok nameTok = makeName(NameTok.FunctionName);
                 //decorator is always null at this point... it's decorated later on
-                FunctionDef funcDef = new FunctionDef(nameTok, arguments, body, null, null);
+                FunctionDef funcDef = new FunctionDef(nameTok, arguments, body, null, null, false);
                 addSpecialsAndClearOriginal(suite, funcDef);
                 setParentForFuncOrClass(body, funcDef);
                 return funcDef;
@@ -533,13 +533,13 @@ public final class TreeBuilder26 extends AbstractTreeBuilder implements ITreeBui
         for (int i = l - 1; i >= 0; i--) {
             SimpleNode popped = stack.popNode();
             try {
-                list.add((DefaultArg) popped);
+                list.add(popped);
             } catch (ClassCastException e) {
                 throw new ParseException("Internal error (ClassCastException):" + e.getMessage() + "\n" + popped,
                         popped);
             }
         }
         Collections.reverse(list);//we get them in reverse order in the stack
-        return makeArguments((DefaultArg[]) list.toArray(new DefaultArg[0]), stararg, kwarg);
+        return makeArguments(list.toArray(new DefaultArg[0]), stararg, kwarg);
     }
 }

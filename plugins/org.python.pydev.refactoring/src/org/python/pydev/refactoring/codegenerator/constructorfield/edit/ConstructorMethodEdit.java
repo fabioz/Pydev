@@ -129,7 +129,7 @@ public class ConstructorMethodEdit extends AbstractInsertEdit {
 
         //create function def
         return new FunctionDef(new NameTok(NodeHelper.KEYWORD_INIT, NameTok.FunctionName), args,
-                body.toArray(new stmtType[0]), null, null);
+                body.toArray(new stmtType[0]), null, null, false);
     }
 
     private Expr extractConstructorInit(IClassDefAdapter base) {

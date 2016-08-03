@@ -164,7 +164,8 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
                 argumentsType arguments = makeArguments(arity - 1);
                 NameTok nameTok = makeName(NameTok.FunctionName);
                 //decorator is always null at this point... it's decorated later on
-                FunctionDef funcDef = new FunctionDef(nameTok, arguments, body, null, actualReturnAnnotation);
+                FunctionDef funcDef = new FunctionDef(nameTok, arguments, body, null, actualReturnAnnotation,
+                        this.stack.getGrammar().getInsideAsync());
                 addSpecialsAndClearOriginal(suite, funcDef);
                 setParentForFuncOrClass(body, funcDef);
                 return funcDef;

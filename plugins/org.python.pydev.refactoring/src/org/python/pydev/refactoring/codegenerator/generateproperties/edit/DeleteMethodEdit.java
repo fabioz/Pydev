@@ -67,7 +67,7 @@ public class DeleteMethodEdit extends AbstractInsertEdit {
         argumentsType args = createArguments();
         stmtType[] body = createBody();
 
-        return new FunctionDef(functionName, args, body, null, null);
+        return new FunctionDef(functionName, args, body, null, null, false);
     }
 
     private argumentsType createArguments() {

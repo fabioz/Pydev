@@ -87,4 +87,8 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
      */
     public static final int STRATEGY_BEFORE_NEXT = 1;
 
+    public boolean getInsideAsync() {
+        return false;
+    }
+
 }

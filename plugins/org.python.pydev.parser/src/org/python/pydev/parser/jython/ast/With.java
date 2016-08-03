@@ -24,54 +24,45 @@ public final class With extends stmtType {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
         With other = (With) obj;
-        if (!Arrays.equals(with_item, other.with_item))
-            return false;
-        if (body == null) {
-            if (other.body != null)
-                return false;
-        } else if (!body.equals(other.body))
-            return false;
+        if (!Arrays.equals(with_item, other.with_item)) return false;
+        if (body == null) { if (other.body != null) return false;}
+        else if (!body.equals(other.body)) return false;
         return true;
     }
-
     @Override
     public With createCopy() {
         return createCopy(true);
     }
-
     @Override
     public With createCopy(boolean copyComments) {
         WithItemType[] new0;
-        if (this.with_item != null) {
-            new0 = new WithItemType[this.with_item.length];
-            for (int i = 0; i < this.with_item.length; i++) {
-                new0[i] = (WithItemType) (this.with_item[i] != null ? this.with_item[i].createCopy(copyComments)
-                        : null);
-            }
-        } else {
+        if(this.with_item != null){
+        new0 = new WithItemType[this.with_item.length];
+        for(int i=0;i<this.with_item.length;i++){
+            new0[i] = (WithItemType) (this.with_item[i] != null?
+            this.with_item[i].createCopy(copyComments):null);
+        }
+        }else{
             new0 = this.with_item;
         }
-        With temp = new With(new0, body != null ? (suiteType) body.createCopy(copyComments) : null);
+        With temp = new With(new0, body!=null?(suiteType)body.createCopy(copyComments):null);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if (this.specialsBefore != null && copyComments) {
-            for (Object o : this.specialsBefore) {
-                if (o instanceof commentType) {
+        if(this.specialsBefore != null && copyComments){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
                     commentType commentType = (commentType) o;
                     temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if (this.specialsAfter != null && copyComments) {
-            for (Object o : this.specialsAfter) {
-                if (o instanceof commentType) {
+        if(this.specialsAfter != null && copyComments){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
                     commentType commentType = (commentType) o;
                     temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }

@@ -27,54 +27,40 @@ public final class Exec extends stmtType {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
         Exec other = (Exec) obj;
-        if (body == null) {
-            if (other.body != null)
-                return false;
-        } else if (!body.equals(other.body))
-            return false;
-        if (globals == null) {
-            if (other.globals != null)
-                return false;
-        } else if (!globals.equals(other.globals))
-            return false;
-        if (locals == null) {
-            if (other.locals != null)
-                return false;
-        } else if (!locals.equals(other.locals))
-            return false;
+        if (body == null) { if (other.body != null) return false;}
+        else if (!body.equals(other.body)) return false;
+        if (globals == null) { if (other.globals != null) return false;}
+        else if (!globals.equals(other.globals)) return false;
+        if (locals == null) { if (other.locals != null) return false;}
+        else if (!locals.equals(other.locals)) return false;
         return true;
     }
-
     @Override
     public Exec createCopy() {
         return createCopy(true);
     }
-
     @Override
     public Exec createCopy(boolean copyComments) {
-        Exec temp = new Exec(body != null ? (exprType) body.createCopy(copyComments) : null,
-                globals != null ? (exprType) globals.createCopy(copyComments) : null,
-                locals != null ? (exprType) locals.createCopy(copyComments) : null);
+        Exec temp = new Exec(body!=null?(exprType)body.createCopy(copyComments):null,
+        globals!=null?(exprType)globals.createCopy(copyComments):null,
+        locals!=null?(exprType)locals.createCopy(copyComments):null);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if (this.specialsBefore != null && copyComments) {
-            for (Object o : this.specialsBefore) {
-                if (o instanceof commentType) {
+        if(this.specialsBefore != null && copyComments){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
                     commentType commentType = (commentType) o;
                     temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if (this.specialsAfter != null && copyComments) {
-            for (Object o : this.specialsAfter) {
-                if (o instanceof commentType) {
+        if(this.specialsAfter != null && copyComments){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
                     commentType commentType = (commentType) o;
                     temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }

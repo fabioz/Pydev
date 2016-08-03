@@ -593,7 +593,7 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase {
     public void testAsync() throws Exception {
         String s = ""
                 + "async def m1():\n"
-                + "    pass";
+                + "    pass\n";
         checkPrettyPrintEqual(s, s, s, s);
     }
 
@@ -601,21 +601,21 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase {
         String s = ""
                 + "@param\n"
                 + "async def m1():\n"
-                + "    pass";
+                + "    pass\n";
         checkPrettyPrintEqual(s, s, s, s);
     }
 
     public void testAsync2() throws Exception {
         String s = ""
                 + "async with a:\n"
-                + "    pass";
+                + "    pass\n";
         checkPrettyPrintEqual(s, s, s, s);
     }
 
     public void testAsync3() throws Exception {
         String s = ""
                 + "async with a:\n"
-                + "    pass";
+                + "    pass\n";
         checkPrettyPrintEqual(s, s, s, s);
     }
 
@@ -635,14 +635,14 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase {
 
     public void testDotOperator() throws Exception {
         String s = ""
-                + "a = a @ a"
+                + "a = a @ a\n"
                 + "";
         checkPrettyPrintEqual(s, s, s, s);
     }
 
     public void testDotOperator2() throws Exception {
         String s = ""
-                + "a @= a"
+                + "a @= a\n"
                 + "";
         checkPrettyPrintEqual(s, s, s, s);
     }

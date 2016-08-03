@@ -1090,6 +1090,9 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
             }
         }
         beforeNode(node);
+        if (node.async) {
+            doc.add(node.name.beginLine, node.beginColumn, "async ", node);
+        }
         doc.add(node.name.beginLine, node.beginColumn, "def", node);
         node.name.accept(this);
 

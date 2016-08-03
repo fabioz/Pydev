@@ -8,7 +8,7 @@ public final class Suite extends suiteType {
 
     public Suite(stmtType[] body) {
         this.body = body;
-        if (body != null && body.length > 0) {
+        if(body != null && body.length > 0){
             beginColumn = body[0].beginColumn;
             beginLine = body[0].beginLine;
         }
@@ -24,48 +24,42 @@ public final class Suite extends suiteType {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
         Suite other = (Suite) obj;
-        if (!Arrays.equals(body, other.body))
-            return false;
+        if (!Arrays.equals(body, other.body)) return false;
         return true;
     }
-
     @Override
     public Suite createCopy() {
         return createCopy(true);
     }
-
     @Override
     public Suite createCopy(boolean copyComments) {
         stmtType[] new0;
-        if (this.body != null) {
-            new0 = new stmtType[this.body.length];
-            for (int i = 0; i < this.body.length; i++) {
-                new0[i] = (stmtType) (this.body[i] != null ? this.body[i].createCopy(copyComments) : null);
-            }
-        } else {
+        if(this.body != null){
+        new0 = new stmtType[this.body.length];
+        for(int i=0;i<this.body.length;i++){
+            new0[i] = (stmtType) (this.body[i] != null? this.body[i].createCopy(copyComments):null);
+        }
+        }else{
             new0 = this.body;
         }
         Suite temp = new Suite(new0);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if (this.specialsBefore != null && copyComments) {
-            for (Object o : this.specialsBefore) {
-                if (o instanceof commentType) {
+        if(this.specialsBefore != null && copyComments){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
                     commentType commentType = (commentType) o;
                     temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if (this.specialsAfter != null && copyComments) {
-            for (Object o : this.specialsAfter) {
-                if (o instanceof commentType) {
+        if(this.specialsAfter != null && copyComments){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
                     commentType commentType = (commentType) o;
                     temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }

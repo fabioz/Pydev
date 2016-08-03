@@ -58,10 +58,10 @@ public class PrettyPrinterPrefsV2 implements IPrettyPrinterPrefs {
     public final String[] unaryopOperatorMapping = new String[] { "<undef>", "~", "not", "+", "-", };
 
     public final String[] operatorMapping = new String[] { "<undef>", "+", "-", "*", "/", "%", "**", "<<", ">>", "|",
-            "^", "&", "//", };
+            "^", "&", "//", "@" };
 
     public final String[] augOperatorMapping = new String[] { "<undef>", "+=", "-=", "*=", "/=", "%=", "**=", "<<=",
-            ">>=", "|=", "^=", "&=", "//=", };
+            ">>=", "|=", "^=", "&=", "//=", "@=" };
 
     public static final String[] cmpop = new String[] { "<undef>", "==", "!=", "<", "<=", ">", ">=", "is", "is not",
             "in", "not in", };

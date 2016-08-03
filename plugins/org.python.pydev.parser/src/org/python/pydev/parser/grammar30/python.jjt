@@ -56,6 +56,11 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements IGra
 
     private boolean insideAsync;
 
+    @Override
+    public boolean getInsideAsync() {
+        return insideAsync;
+    }
+
 
 
     private final FastStringBuffer dottedNameStringBuffer = new FastStringBuffer();
@@ -1475,7 +1480,6 @@ void ExtraKeywordValueList(): {}
 // aliases: Keyword = '=' test
 // note how it duplicates the test() for the comp_for or '=' test:
 // for us this is a problem, so, we create a construct such as:
-// we also change the order as '=' is faster to match than comp_for
 //
 // argument: ( (test ('=' test) | [comp_for])
 //             '**' test |

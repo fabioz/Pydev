@@ -429,7 +429,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
     }
 
     private FunctionDef createFuncDef(String metName) {
-        return new FunctionDef(new NameTok(metName, NameTok.FunctionName), null, null, null, null);
+        return new FunctionDef(new NameTok(metName, NameTok.FunctionName), null, null, null, null, false);
     }
 
 }

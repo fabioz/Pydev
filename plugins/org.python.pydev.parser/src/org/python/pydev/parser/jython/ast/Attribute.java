@@ -27,50 +27,38 @@ public final class Attribute extends exprType implements expr_contextType {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
         Attribute other = (Attribute) obj;
-        if (value == null) {
-            if (other.value != null)
-                return false;
-        } else if (!value.equals(other.value))
-            return false;
-        if (attr == null) {
-            if (other.attr != null)
-                return false;
-        } else if (!attr.equals(other.attr))
-            return false;
-        if (this.ctx != other.ctx)
-            return false;
+        if (value == null) { if (other.value != null) return false;}
+        else if (!value.equals(other.value)) return false;
+        if (attr == null) { if (other.attr != null) return false;}
+        else if (!attr.equals(other.attr)) return false;
+        if(this.ctx != other.ctx) return false;
         return true;
     }
-
     @Override
     public Attribute createCopy() {
         return createCopy(true);
     }
-
     @Override
     public Attribute createCopy(boolean copyComments) {
-        Attribute temp = new Attribute(value != null ? (exprType) value.createCopy(copyComments) : null,
-                attr != null ? (NameTokType) attr.createCopy(copyComments) : null, ctx);
+        Attribute temp = new Attribute(value!=null?(exprType)value.createCopy(copyComments):null,
+        attr!=null?(NameTokType)attr.createCopy(copyComments):null, ctx);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if (this.specialsBefore != null && copyComments) {
-            for (Object o : this.specialsBefore) {
-                if (o instanceof commentType) {
+        if(this.specialsBefore != null && copyComments){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
                     commentType commentType = (commentType) o;
                     temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if (this.specialsAfter != null && copyComments) {
-            for (Object o : this.specialsAfter) {
-                if (o instanceof commentType) {
+        if(this.specialsAfter != null && copyComments){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
                     commentType commentType = (commentType) o;
                     temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }

@@ -25,7 +25,7 @@ module Python
 	--with item because the With() construct may have multiple items in the same construct in python 3.1
 	WithItem = WithItem(expr context_expr, expr? optional_vars)
 	
-	stmt = FunctionDef(NameTok name, arguments args, stmt* body, decorators* decs, expr? returns)
+	stmt = FunctionDef(NameTok name, arguments args, stmt* body, decorators* decs, expr? returns, bool? async)
 	      | ClassDef(NameTok name, expr* bases, stmt* body, decorators* decs, keyword* keywords, expr? starargs, expr? kwargs)
 	      | Return(expr? value) 
 

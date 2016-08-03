@@ -11,7 +11,8 @@ public final class Call extends exprType {
     public exprType starargs;
     public exprType kwargs;
 
-    public Call(exprType func, exprType[] args, keywordType[] keywords, exprType starargs, exprType kwargs) {
+    public Call(exprType func, exprType[] args, keywordType[] keywords, exprType starargs, exprType
+    kwargs) {
         this.func = func;
         this.args = args;
         this.keywords = keywords;
@@ -33,76 +34,61 @@ public final class Call extends exprType {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
         Call other = (Call) obj;
-        if (func == null) {
-            if (other.func != null)
-                return false;
-        } else if (!func.equals(other.func))
-            return false;
-        if (!Arrays.equals(args, other.args))
-            return false;
-        if (!Arrays.equals(keywords, other.keywords))
-            return false;
-        if (starargs == null) {
-            if (other.starargs != null)
-                return false;
-        } else if (!starargs.equals(other.starargs))
-            return false;
-        if (kwargs == null) {
-            if (other.kwargs != null)
-                return false;
-        } else if (!kwargs.equals(other.kwargs))
-            return false;
+        if (func == null) { if (other.func != null) return false;}
+        else if (!func.equals(other.func)) return false;
+        if (!Arrays.equals(args, other.args)) return false;
+        if (!Arrays.equals(keywords, other.keywords)) return false;
+        if (starargs == null) { if (other.starargs != null) return false;}
+        else if (!starargs.equals(other.starargs)) return false;
+        if (kwargs == null) { if (other.kwargs != null) return false;}
+        else if (!kwargs.equals(other.kwargs)) return false;
         return true;
     }
-
     @Override
     public Call createCopy() {
         return createCopy(true);
     }
-
     @Override
     public Call createCopy(boolean copyComments) {
         exprType[] new0;
-        if (this.args != null) {
-            new0 = new exprType[this.args.length];
-            for (int i = 0; i < this.args.length; i++) {
-                new0[i] = (exprType) (this.args[i] != null ? this.args[i].createCopy(copyComments) : null);
-            }
-        } else {
+        if(this.args != null){
+        new0 = new exprType[this.args.length];
+        for(int i=0;i<this.args.length;i++){
+            new0[i] = (exprType) (this.args[i] != null? this.args[i].createCopy(copyComments):null);
+        }
+        }else{
             new0 = this.args;
         }
         keywordType[] new1;
-        if (this.keywords != null) {
-            new1 = new keywordType[this.keywords.length];
-            for (int i = 0; i < this.keywords.length; i++) {
-                new1[i] = (keywordType) (this.keywords[i] != null ? this.keywords[i].createCopy(copyComments) : null);
-            }
-        } else {
+        if(this.keywords != null){
+        new1 = new keywordType[this.keywords.length];
+        for(int i=0;i<this.keywords.length;i++){
+            new1[i] = (keywordType) (this.keywords[i] != null?
+            this.keywords[i].createCopy(copyComments):null);
+        }
+        }else{
             new1 = this.keywords;
         }
-        Call temp = new Call(func != null ? (exprType) func.createCopy(copyComments) : null, new0, new1,
-                starargs != null ? (exprType) starargs.createCopy(copyComments) : null,
-                kwargs != null ? (exprType) kwargs.createCopy(copyComments) : null);
+        Call temp = new Call(func!=null?(exprType)func.createCopy(copyComments):null, new0, new1,
+        starargs!=null?(exprType)starargs.createCopy(copyComments):null,
+        kwargs!=null?(exprType)kwargs.createCopy(copyComments):null);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if (this.specialsBefore != null && copyComments) {
-            for (Object o : this.specialsBefore) {
-                if (o instanceof commentType) {
+        if(this.specialsBefore != null && copyComments){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
                     commentType commentType = (commentType) o;
                     temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if (this.specialsAfter != null && copyComments) {
-            for (Object o : this.specialsAfter) {
-                if (o instanceof commentType) {
+        if(this.specialsAfter != null && copyComments){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
                     commentType commentType = (commentType) o;
                     temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }
