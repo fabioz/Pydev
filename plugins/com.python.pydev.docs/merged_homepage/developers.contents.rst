@@ -10,13 +10,14 @@ Getting the code
 The first thing you probably want to do in order to code in PyDev is
 **getting its code**.
 
-**Pre-requisites:** Eclipse SDK 4.4.0, Git and Java 7.0 (note that other
-versions of those should work too but details may differ a bit)
+**Pre-requisites:** Eclipse SDK 4.6.0 (Neon), Git and Java 8.0 (note that other
+versions of those may work too but details may differ a bit and there may be 
+compilation errors that need to be manually fixed).
 
 Before getting the code, there's an important step you need to make:
-Change your java 'compiler compliance-level' to 7.0. To do this, go to
-**window > preferences > Java > compiler** and change that setting from
-**1.4 to 1.7**.
+Change your java 'compiler compliance-level' to 8.0. To do this, go to
+**window > preferences > Java > compiler** and change that setting
+**to 1.8**.
 
 Repository
 ----------
@@ -89,7 +90,7 @@ creating a grammar that can parse it while providing a Python like AST.
 See: `PyDev Grammar <developers_grammar.html>`_ for instructions on
 that.
 
-And that's it. If you have further doubts about how to code in PyDev,
+And that's it. If you have further questions about how to code in PyDev,
 direct your questions to the `pydev-code
 list <http://lists.sourceforge.net/lists/listinfo/pydev-code>`_ at
 sourceforge.
