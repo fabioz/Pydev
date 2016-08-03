@@ -9,12 +9,14 @@ public final class For extends stmtType {
     public exprType iter;
     public stmtType[] body;
     public suiteType orelse;
+    public boolean async;
 
-    public For(exprType target, exprType iter, stmtType[] body, suiteType orelse) {
+    public For(exprType target, exprType iter, stmtType[] body, suiteType orelse, boolean async) {
         this.target = target;
         this.iter = iter;
         this.body = body;
         this.orelse = orelse;
+        this.async = async;
     }
 
     @Override
@@ -25,6 +27,7 @@ public final class For extends stmtType {
         result = prime * result + ((iter == null) ? 0 : iter.hashCode());
         result = prime * result + Arrays.hashCode(body);
         result = prime * result + ((orelse == null) ? 0 : orelse.hashCode());
+        result = prime * result + (async ? 17 : 137);
         return result;
     }
 
@@ -41,6 +44,7 @@ public final class For extends stmtType {
         if (!Arrays.equals(body, other.body)) return false;
         if (orelse == null) { if (other.orelse != null) return false;}
         else if (!orelse.equals(other.orelse)) return false;
+        if(this.async != other.async) return false;
         return true;
     }
     @Override
@@ -60,7 +64,7 @@ public final class For extends stmtType {
         }
         For temp = new For(target!=null?(exprType)target.createCopy(copyComments):null,
         iter!=null?(exprType)iter.createCopy(copyComments):null, new0,
-        orelse!=null?(suiteType)orelse.createCopy(copyComments):null);
+        orelse!=null?(suiteType)orelse.createCopy(copyComments):null, async);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
         if(this.specialsBefore != null && copyComments){
@@ -96,6 +100,9 @@ public final class For extends stmtType {
         sb.append(", ");
         sb.append("orelse=");
         sb.append(dumpThis(this.orelse));
+        sb.append(", ");
+        sb.append("async=");
+        sb.append(dumpThis(this.async));
         sb.append("]");
         return sb.toString();
     }

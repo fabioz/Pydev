@@ -622,7 +622,14 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase {
     public void testAwait() throws Exception {
         String s = ""
                 + "async with a:\n"
-                + "    b = await foo()";
+                + "    b = await foo()\n";
+        checkPrettyPrintEqual(s, s, s, s);
+    }
+
+    public void testAsyncFor() throws Exception {
+        String s = ""
+                + "async for a in [1,2]:\n"
+                + "    pass\n";
         checkPrettyPrintEqual(s, s, s, s);
     }
 

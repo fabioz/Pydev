@@ -334,7 +334,7 @@ public final class TreeBuilder25 extends AbstractTreeBuilder implements ITreeBui
                 suiteType s = new Suite(suite.body);
                 addSpecialsAndClearOriginal(suite, s);
 
-                return new With(new WithItem[] { new WithItem(expr, asOrExpr) }, s);
+                return new With(new WithItem[] { new WithItem(expr, asOrExpr) }, s, false);
             case JJTWITH_VAR:
                 expr = (exprType) stack.popNode(); //expr
                 if (expr != null) {

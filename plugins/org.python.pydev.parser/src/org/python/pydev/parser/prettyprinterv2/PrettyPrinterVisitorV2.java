@@ -460,6 +460,9 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     public Object visitWith(With node) throws Exception {
         startStatementPart();
         beforeNode(node);
+        if (node.async) {
+            doc.addRequire("async ", node);
+        }
         doc.addRequire("with", node);
         if (node.with_item != null) {
             for (int i = 0; i < node.with_item.length; i++) {
@@ -507,6 +510,9 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
 
         //a
         startStatementPart();
+        if (node.async) {
+            doc.addRequire("async ", node);
+        }
         doc.addRequire("for ", node); //Make the require with the final version of the "for " string.
         beforeNode(node);
 

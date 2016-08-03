@@ -37,10 +37,10 @@ module Python
  	      | Print(expr? dest, expr* values, bool nl)
 
 	      -- use 'orelse' because else is a keyword in target languages
-	      | For(expr target, expr iter, stmt* body, suite orelse)
+	      | For(expr target, expr iter, stmt* body, suite orelse, bool? async)
 	      | While(expr test, stmt* body, suite orelse)
 	      | If(expr test, stmt* body, suite orelse)
-	      | With(WithItem* with_item, suite body)
+	      | With(WithItem* with_item, suite body, bool? async)
 	      
 	      -- 'type' is a bad name
 	      | Raise(expr? type, expr? inst, expr? tback, expr? cause)

@@ -143,7 +143,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
                 break;
 
             case JJTFOR_STMT:
-                ret = new For(null, null, null, null);
+                ret = new For(null, null, null, null, stack.getGrammar().getInsideAsync());
                 break;
 
             case JJTEXEC_STMT:
@@ -825,7 +825,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
         suiteType s = new Suite(suite.body);
         addSpecialsAndClearOriginal(suite, s);
 
-        return new With(items, s);
+        return new With(items, s, stack.getGrammar().getInsideAsync());
     }
 
 }

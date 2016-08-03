@@ -7,10 +7,12 @@ import java.util.Arrays;
 public final class With extends stmtType {
     public WithItemType[] with_item;
     public suiteType body;
+    public boolean async;
 
-    public With(WithItemType[] with_item, suiteType body) {
+    public With(WithItemType[] with_item, suiteType body, boolean async) {
         this.with_item = with_item;
         this.body = body;
+        this.async = async;
     }
 
     @Override
@@ -19,6 +21,7 @@ public final class With extends stmtType {
         int result = 1;
         result = prime * result + Arrays.hashCode(with_item);
         result = prime * result + ((body == null) ? 0 : body.hashCode());
+        result = prime * result + (async ? 17 : 137);
         return result;
     }
 
@@ -31,6 +34,7 @@ public final class With extends stmtType {
         if (!Arrays.equals(with_item, other.with_item)) return false;
         if (body == null) { if (other.body != null) return false;}
         else if (!body.equals(other.body)) return false;
+        if(this.async != other.async) return false;
         return true;
     }
     @Override
@@ -49,7 +53,7 @@ public final class With extends stmtType {
         }else{
             new0 = this.with_item;
         }
-        With temp = new With(new0, body!=null?(suiteType)body.createCopy(copyComments):null);
+        With temp = new With(new0, body!=null?(suiteType)body.createCopy(copyComments):null, async);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
         if(this.specialsBefore != null && copyComments){
@@ -79,6 +83,9 @@ public final class With extends stmtType {
         sb.append(", ");
         sb.append("body=");
         sb.append(dumpThis(this.body));
+        sb.append(", ");
+        sb.append("async=");
+        sb.append(dumpThis(this.async));
         sb.append("]");
         return sb.toString();
     }
