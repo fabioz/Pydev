@@ -328,7 +328,7 @@ public class PyParser30Test extends PyParserTestBase {
         SimpleNode ast = parseLegalDocStr(s);
         Module m = (Module) ast;
         Assign a0 = (Assign) m.body[0];
-        assertTrue(a0.value instanceof Set);
+        assertTrue("Expected Set. Found: " + a0.toString(), a0.value instanceof Set);
         assertEquals("Assign[targets=[Name[id=namespace, ctx=Store, reserved=false]], value="
                 +
                 "Set[elts=[Num[n=1, type=Int, num=1], Num[n=2, type=Int, num=2], "
@@ -819,6 +819,30 @@ public class PyParser30Test extends PyParserTestBase {
                 + "def test():\n" +
                 "    return (1, *{x:x for x in (1,2)})\n"
                 + "";
+        parseLegalDocStrWithoutTree(s);
+        parseLegalDocStr(s);
+    }
+
+    public void testUnpacking7() throws Exception {
+        String s = ""
+                + "print(*[1], *[2], 3, *[4, 5])"
+                + "";
+        parseLegalDocStrWithoutTree(s);
+        parseLegalDocStr(s);
+    }
+
+    public void testUnpacking8() throws Exception {
+        String s = "" +
+                "{*range(4), 4, *(5, 6, 7)}\n" +
+                "";
+        parseLegalDocStrWithoutTree(s);
+        parseLegalDocStr(s);
+    }
+
+    public void testUnpacking9() throws Exception {
+        String s = "" +
+                "{'x': 1, **{'y': 2}}\n" +
+                "";
         parseLegalDocStrWithoutTree(s);
         parseLegalDocStr(s);
     }

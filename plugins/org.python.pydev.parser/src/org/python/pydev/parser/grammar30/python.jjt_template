@@ -27,7 +27,7 @@ $IMPORTS
 public final class PythonGrammar30 extends AbstractPythonGrammar implements IGrammar
 {
 
-	private boolean insideAsync;
+    private boolean insideAsync;
 
 $COMMOM_METHODS
 
@@ -464,28 +464,77 @@ void parameters() #void:  {}
   $RPAREN
 }
 
-// typedargslist: (tfpdef ['=' test] (',' tfpdef ['=' test])* [','
-//        ['*' [tfpdef] (',' tfpdef ['=' test])* [',' '**' tfpdef] | '**' tfpdef]]
-//      |  '*' [tfpdef] (',' tfpdef ['=' test])* [',' '**' tfpdef] | '**' tfpdef)
-
+// typedargslist: 
+// (
+//     tfpdef ['=' test] 
+//     (
+//         ',' tfpdef ['=' test]
+//     )* 
+//     [
+//         ',' [
+//             '*' [tfpdef] (',' tfpdef ['=' test])* [',' '**' tfpdef] 
+//             | 
+//             '**' tfpdef
+//             ]
+//     ]
+//     |  '*' [tfpdef] (',' tfpdef ['=' test])* [',' '**' tfpdef] | '**' tfpdef
+// )
+//
+// aliases: 
+//  - defaultarg2 is tfpdef ['=' test]
+//  - ExtraArgList2 is '*' [tfpdef]
+//  - ExtraKeywordList2 is '**' tfpdef
+//
+// vesion replacing with our aliases
+// (
+//     defaultarg2
+//     (
+//         ',' defaultarg2
+//     )* 
+//     [
+//         ',' [
+//             ExtraArgList2 (',' defaultarg2)* [',' ExtraKeywordList2] 
+//             | 
+//             ExtraKeywordList2
+//             ]
+//     ]
+//     |  
+//     ExtraArgList2 (',' defaultarg2)* [',' ExtraKeywordList2] | ExtraKeywordList2
+// )
 void typedargslist() #void: {}
 {
-// Doing the exact same does not yield good results for javacc, so, we have to work with an alternative specification
-// (that does the same thing)... yay, Python 3.5 updated their construct to the same I had to use for Python 3 from the beggining ;)
-       ((defaultarg2() (LOOKAHEAD(2)$COMMA defaultarg2())*) [LOOKAHEAD(2)$COMMA ((ExtraArgList2() (LOOKAHEAD(2)$COMMA onlykeywordarg2())* [$COMMA ExtraKeywordList2()]) | (ExtraKeywordList2()) )]) [$COMMA]
-    |  (ExtraArgList2() (LOOKAHEAD(2)$COMMA onlykeywordarg2())* [LOOKAHEAD(2)$COMMA ExtraKeywordList2()]) [$COMMA]
-    |   ExtraKeywordList2() [$COMMA]
+    (
+        (
+            defaultarg2() 
+            (LOOKAHEAD(2)
+                $COMMA defaultarg2()
+            )*
+        ) 
+        [LOOKAHEAD(2)
+            $COMMA 
+            [
+            ExtraArgList2() (LOOKAHEAD(2)$COMMA onlykeywordarg2())* [$COMMA ExtraKeywordList2()]
+            | 
+            ExtraKeywordList2()
+            ] 
+        ]
+    )
+    | 
+    (
+        (ExtraArgList2() (LOOKAHEAD(2)$COMMA onlykeywordarg2())* [LOOKAHEAD(2)$COMMA ExtraKeywordList2()]) | ExtraKeywordList2()
+    ) 
 }
 
-// ['*' [tfpdef]
+// '*' [tfpdef]
 void ExtraArgList2(): {}
 {
-	<MULTIPLY> {grammarActions.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} [tfpdef()]
+    <MULTIPLY> {grammarActions.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} [tfpdef()]
 }
 
+// '**' tfpdef
 void ExtraKeywordList2(): {}
 {
-	<POWER> {grammarActions.addSpecialToken("**", STRATEGY_BEFORE_NEXT);} tfpdef()
+    <POWER> {grammarActions.addSpecialToken("**", STRATEGY_BEFORE_NEXT);} tfpdef()
 }
 
 // tfpdef ['=' test]
@@ -493,6 +542,7 @@ void defaultarg2(): {}
 { tfpdef() [temporaryToken=<EQUAL> {this.addSpecialToArgDef(temporaryToken);}  test()] }
 
 
+// same as defaultarg2 but in a different construct
 void onlykeywordarg2(): {}
 { tfpdef() [temporaryToken=<EQUAL> {this.addSpecialToArgDef(temporaryToken);}  test()] }
 
@@ -500,18 +550,33 @@ void onlykeywordarg2(): {}
 //tfpdef: NAME [':' test]
 void tfpdef(): {}
 {
-	Name() [LOOKAHEAD(2)<COLON> {grammarActions.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} test()]
+    Name() [LOOKAHEAD(2)<COLON> {grammarActions.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} test()]
 }
 
 
-//varargslist: ((vfpdef ['=' test] ',')*
-//              ('*' [vfpdef] (',' vfpdef ['=' test])*  [',' '**' vfpdef] | '**' vfpdef)
-//              | vfpdef ['=' test] (',' vfpdef ['=' test])* [','])
+// varargslist: 
+// (
+//     vfpdef ['=' test] (',' vfpdef ['=' test])* [
+//         ',' ['*' [vfpdef] (',' vfpdef ['=' test])* [',' '**' vfpdef] | '**' vfpdef]
+//     ]
+//     |  '*' [vfpdef] (',' vfpdef ['=' test])* [',' '**' vfpdef] | '**' vfpdef
+// )
 void varargslist() #void: {}
 {
-       ((defaultarg() (LOOKAHEAD(2)$COMMA defaultarg())*) [LOOKAHEAD(2)$COMMA ((ExtraArgList() (LOOKAHEAD(2)$COMMA onlykeywordarg())* [$COMMA ExtraKeywordList()]) | (ExtraKeywordList()) )]) [$COMMA]
-    |  (ExtraArgList() (LOOKAHEAD(2)$COMMA onlykeywordarg())* [LOOKAHEAD(2)$COMMA ExtraKeywordList()]) [$COMMA]
-    |   ExtraKeywordList() [$COMMA]
+    (
+        (defaultarg() (LOOKAHEAD(2)$COMMA defaultarg())*) 
+        [LOOKAHEAD(2)$COMMA 
+            (
+                (ExtraArgList() (LOOKAHEAD(2)$COMMA onlykeywordarg())* [$COMMA ExtraKeywordList()]) 
+                | 
+                (ExtraKeywordList()) 
+            )
+        ]
+    ) [$COMMA]
+    |  
+    (ExtraArgList() (LOOKAHEAD(2)$COMMA onlykeywordarg())* [LOOKAHEAD(2)$COMMA ExtraKeywordList()]) [$COMMA]
+    |   
+    ExtraKeywordList() [$COMMA]
 }
 
 void ExtraArgList(): {}
@@ -538,14 +603,14 @@ void fplist() #tuple: {}
 //stmt: simple_stmt | compound_stmt
 void stmt() #void: {}
 {
-		// Note: this is different from the Python AST because simple_stmt() can actually become Name() which can consume the <async> keyword...
-		// So, the async_stmt() was moved from the compound_stmt to the stmt() level to be processed first (as we have to find
-		// an async def/async with/ async for, while Name() would match the <async> in a single step).
-		LOOKAHEAD(2)
-		
-		async_stmt()
-	|
-		non_async_stmt()
+        // Note: this is different from the Python AST because simple_stmt() can actually become Name() which can consume the <async> keyword...
+        // So, the async_stmt() was moved from the compound_stmt to the stmt() level to be processed first (as we have to find
+        // an async def/async with/ async for, while Name() would match the <async> in a single step).
+        LOOKAHEAD(2)
+        
+        async_stmt()
+    |
+        non_async_stmt()
 }
 
 
@@ -558,7 +623,7 @@ void non_async_stmt() #void: {}
         }catch(ParseException e){
             handleErrorInCompountStmt(e);
         }
-	
+    
 }
 
 $SIMPLE_STMT
@@ -740,12 +805,12 @@ void compound_stmt() #void : {}
 //async_stmt: ASYNC (funcdef | with_stmt | for_stmt)
 void async_stmt() #void :{}
 {
-		{insideAsync = true;}
-		try{
-			<ASYNC> (funcdef() | with_stmt() | for_stmt())
-		}finally{
-			insideAsync = false;
-		}
+        {insideAsync = true;}
+        try{
+            <ASYNC> (funcdef() | with_stmt() | for_stmt())
+        }finally{
+            insideAsync = false;
+        }
 }
 
 $IF
@@ -890,12 +955,12 @@ void arith_expr() #void : {}
 void term() #void : {}
 {
     factor()  (
-		    <MULTIPLY> factor() #mul_2op(2) // *
-		|   <AT> factor() #dot_2op(2) //@
-		|   <DIVIDE> factor() #div_2op(2) // /
-		|   <MODULO> factor() #mod_2op(2) // %
-		|   <FLOORDIVIDE> factor() #floordiv_2op(2) // //
-	)*
+            <MULTIPLY> factor() #mul_2op(2) // *
+        |   <AT> factor() #dot_2op(2) //@
+        |   <DIVIDE> factor() #div_2op(2) // /
+        |   <MODULO> factor() #mod_2op(2) // %
+        |   <FLOORDIVIDE> factor() #floordiv_2op(2) // //
+    )*
 }
 
 //factor: ('+'|'-'|'~') factor | power
@@ -914,18 +979,18 @@ void power() #void: {}
 //atom_expr: [AWAIT] atom trailer*
 void atom_expr() #void: {}
 { 
-	{
-		if(insideAsync){
-			// The await statement is only valid inside an async block!
-			consume_await();
-		}
-	}
-	 atom() (trailer())*
+    {
+        if(insideAsync){
+            // The await statement is only valid inside an async block!
+            consume_await();
+        }
+    }
+     atom() (trailer())*
 }
 
 void consume_await() #void: {}
 {
-	[<AWAIT>]
+    [<AWAIT>]
 }
 
 //trailer: '(' [arglist] ')' | '[' subscriptlist ']' | '.' NAME
@@ -1036,8 +1101,62 @@ void testlist_star_expr() #void: {}
 void star_expr(): {}
 {<MULTIPLY> {grammarActions.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} expr()}
 
+// dictorsetmaker: 
+// (
+//     (
+//         (test ':' test | '**' expr)
+//         (comp_for | (',' (test ':' test | '**' expr))* [','])
+//     ) 
+// |
+//     (
+//         (test | star_expr)
+//         (comp_for | (',' (test | star_expr))* [','])
+//     ) 
+// )
+void dictorsetmaker() #void: {}
+{
+    // Note: we actually expand so that we have a match with test() and expand the set and dict variants for
+    // the first form so that there's only one single token at the beginning to match (test, '*' or '**').
+    (
+        test()
+        (
+            (
+                $COLON
+                try{
+                    test()
+                }catch(ParseException e){
+                    handleNoValInDict(e);
+                }
+                (
+                    comp_for()
+                    |
+                    (LOOKAHEAD(2) $COMMA ( (test()$COLON test())| (<POWER> expr())  ) )*[$COMMA]
+                )
+            )
+            |
+            (
+              (LOOKAHEAD(2) comp_for() | (LOOKAHEAD(2)$COMMA (test() | star_expr()))* #set) [$COMMA]
+            )
+        )
+    )
+    |
+    <POWER> expr()
+    (
+        //Note: repeat the final construct for the dict
+        comp_for()
+        |
+        (LOOKAHEAD(2) $COMMA ( (test()$COLON test())| (<POWER> expr())  ) )*[$COMMA]
+    )
+    |
+    star_expr() 
+    (
+        //Note: repeat the final construct for the set
+        (LOOKAHEAD(2) comp_for() | (LOOKAHEAD(2)$COMMA (test() | star_expr()))* #set) [$COMMA]
+    )
 
-$DICTORSETMAKER
+}
+
+
 
 
 // testlist_comp: (test|star_expr) ( comp_for | (',' (test|star_expr))* [','] )
@@ -1067,12 +1186,12 @@ void decorated():{}
 //async_funcdef: ASYNC funcdef
 void async_funcdef() #void : {}
 {
-	{insideAsync = true;}
-	try{
-	    <ASYNC> funcdef()
-	}finally{
-		insideAsync=false;
-	}
+    {insideAsync = true;}
+    try{
+        <ASYNC> funcdef()
+    }finally{
+        insideAsync=false;
+    }
 }
 
 //classdef: 'class' NAME ['(' [arglist] ')'] ':' suite
@@ -1082,15 +1201,10 @@ void classdef(): {Token spStr;Token spStr2;}
         suite()
 }
 
-//arglist: (argument ',')* (argument [',']
-//                         |'*' test (',' argument)* [',' '**' test]
-//                         |'**' test)
+// arglist: argument (',' argument)*  [',']
 void arglist() #void: {}
 {
-       ((argument() (LOOKAHEAD(2)$COMMA argument())*) [LOOKAHEAD(2)$COMMA ((ExtraArgValueList() (LOOKAHEAD(2)$COMMA argument())* [$COMMA ExtraKeywordValueList()]) | (ExtraKeywordValueList()) )]) [$COMMA]
-    |  (ExtraArgValueList() (LOOKAHEAD(2)$COMMA argument())* [LOOKAHEAD(2)$COMMA ExtraKeywordValueList()]) [$COMMA]
-    |   ExtraKeywordValueList() [$COMMA]
-
+    (argument() (LOOKAHEAD(2)$COMMA argument())*) [$COMMA]
 }
 
 
@@ -1101,15 +1215,34 @@ void ExtraKeywordValueList(): {}
 { {grammarActions.addSpecialToken(grammarActions.createSpecialStr("**", false));} <POWER> test() }
 
 
-//argument: test [comp_for] | test '=' test  # Really [keyword '='] test
+// argument: ( test [comp_for] |
+//             test '=' test |
+//             '**' test |
+//             '*' test )
+//
+// aliases: Keyword = '=' test
+// note how it duplicates the test() for the comp_for or '=' test:
+// for us this is a problem, so, we create a construct such as:
+//
+// argument: ( (test ('=' test) | [comp_for])
+//             '**' test |
+//             '*' test )
 void argument(): {}
 {
-	   test() (LOOKAHEAD(2)  (Keyword()) |  [comp_for()])
+    (LOOKAHEAD(2)
+        (
+            test() (LOOKAHEAD(2)  (Keyword()) |  [comp_for()])
+        )
+        |
+        ExtraKeywordValueList()
+        |
+        ExtraArgValueList()
+    )
 }
 
 void Keyword() : {}
 {
-	$EQUAL test()
+    $EQUAL test()
 }
 
 void Number() #Num :
@@ -1155,11 +1288,11 @@ Token Name() #Name:
 {
     try{
         (
-        	t = <NAME> 
+            t = <NAME> 
          | 
-        	t = <ASYNC> 
+            t = <ASYNC> 
          | 
-        	t = <AWAIT>
+            t = <AWAIT>
         )
     }catch(ParseException e){
         t = handleErrorInName(e);
