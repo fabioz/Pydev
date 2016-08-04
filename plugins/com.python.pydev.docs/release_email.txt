@@ -1,23 +1,26 @@
-PyDev 5.0.0 Released
+PyDev 5.1.2 Released
 
 Release Highlights:
 -------------------------------
 
-* **Important** PyDev now requires Java 8.
+* **Important** PyDev now requires Java 8 and Eclipse 4.5 onwards.
 
-	* PyDev 4.5.5 is the last release supporting Java 7.
+	* PyDev 4.5.5 is the last release supporting Java 7 and Eclipse 3.8.
 	* See: http://www.pydev.org/update_sites/index.html for the update site of older versions of PyDev.
 	* See: the **PyDev does not appear after install** section on http://www.pydev.org/download.html for help on using a Java 8 vm in Eclipse.
 
-* PyUnit view now persists its state across restarts.
+* The pytest integration was redone and should now work properly with the latest pytest.
 
-* Fixed issue in super() code completion.
+* Properly showing output of tests in PyUnit view.
+	* Improved dealing with items filtered through Ctrl+F9.
+	* Better support for xdist (no longer reporting that the session finished when only a slave finished).
+	* Reporting skipped items as "skip" and not "ok".
+	* Properly showing running tests on PyUnit view.
+	* Not using tokenize.open() in Python 3.2 for the execfile custom implementation.
 
-* PyDev.Debugger updated to the latest version.
+* Expand and collapse keybindings changed to use the Numpad entries (so that they don't override the add/subtract used for zooming). #PyDev 695.
 
-* No longer showing un-needed shell on Linux on startup when showing donation dialog.
-
-* Fixed pyedit_wrap_expression to avoid halt of the IDE on Ctrl+1 -> Wrap expression.
+* The hover in PyDev has an implementation which is now more flexible and easier to extend in plugins (patch by Mark A. Leone).
 
 What is PyDev?
 ---------------------------
