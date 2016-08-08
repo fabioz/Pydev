@@ -1175,7 +1175,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
         final String lineContentsToCursor = ps.getLineContentsToCursor();
         if (indentToParAsPep8) {
             String trimmed = lineContentsToCursor.trim();
-            if (trimmed.endsWith("(")) {
+            if (trimmed.endsWith("(") || trimmed.endsWith("[") || trimmed.endsWith("{")) {
                 indentToParLevel = false;
                 // If we're in a class or def line, add an additional indentation level.
                 if (PySelection.matchesFunctionLine(trimmed) || PySelection.matchesClassLine(trimmed)) {
