@@ -160,12 +160,34 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
         return thread;
     }
 
-    public void setVariables(IVariable[] locals) {
-        this.variables = locals;
+    public void setVariables(IVariable[] newVars) {
+        IVariable[] oldVars = this.variables;
+        if (newVars == oldVars) {
+            return;
+        }
+        this.variables = newVars;
+
+        if (oldVars != null) {
+            this.target.getModificationChecker().verifyVariablesModified(newVars, oldVars);
+
+        } else {
+            this.target.getModificationChecker().verifyModified(this, newVars);
+        }
+
+        if (!gettingInitialVariables) {
+            AbstractDebugTarget target = getTarget();
+            if (target != null) {
+                target.fireEvent(new DebugEvent(this, DebugEvent.CHANGE, DebugEvent.CONTENT));
+            }
+        }
     }
 
-    private final static IVariable[] EMPTY_VARIABLES = new IVariable[0];
     private final static Object lock = new Object();
+    private volatile boolean gettingInitialVariables = false;
+
+    public IVariable[] getInternalVariables() {
+        return this.variables;
+    }
 
     /**
      * This interface changed in 3.2... we returned an empty collection before, and used the
@@ -177,39 +199,25 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
      */
     @Override
     public IVariable[] getVariables() throws DebugException {
+        // System.out.println("get variables: " + super.toString() + " initial: " + this.variables);
         if (onAskGetNewVars) {
             synchronized (lock) {
                 //double check idiom for accessing onAskGetNewVars.
                 if (onAskGetNewVars) {
-                    IVariable[] oldVars = this.variables;
-                    if (oldVars == null) {
-                        //Temporary in case some other thread asks for it while we're still calculating.
-                        this.variables = EMPTY_VARIABLES;
+                    gettingInitialVariables = true;
+                    try {
+                        DeferredWorkbenchAdapter adapter = new DeferredWorkbenchAdapter(this);
+                        IVariable[] vars = (IVariable[]) adapter.getChildren(this);
+
+                        setVariables(vars);
+                        // Important: only set to false after variables have been set.
+                        onAskGetNewVars = false;
+                    } finally {
+                        gettingInitialVariables = false;
                     }
-                    onAskGetNewVars = false;
-
-                    DeferredWorkbenchAdapter adapter = new DeferredWorkbenchAdapter(this);
-                    IVariable[] vars = (IVariable[]) adapter.getChildren(this);
-
-                    if (oldVars != null) {
-                        this.target.getModificationChecker().verifyVariablesModified(vars, oldVars);
-
-                    } else {
-                        this.target.getModificationChecker().verifyModified(this, vars);
-                    }
-
-                    this.variables = vars;
                 }
-
             }
         }
-        return this.variables;
-    }
-
-    /**
-     * @return the internal variables array directly (may be null).
-     */
-    public IVariable[] getInternalVariables() {
         return this.variables;
     }
 

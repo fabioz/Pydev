@@ -10,11 +10,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.debug.ui.DeferredDebugElementWorkbenchAdapter;
 import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
 import org.eclipse.ui.progress.IElementCollector;
-import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.model.remote.GetVariableCommand;
 import org.python.pydev.debug.model.remote.ICommandResponseListener;
-
+import org.python.pydev.shared_core.log.Log;
 
 public class DeferredWorkbenchAdapter extends DeferredDebugElementWorkbenchAdapter implements
         IDeferredWorkbenchAdapter, ICommandResponseListener {
@@ -107,7 +106,7 @@ public class DeferredWorkbenchAdapter extends DeferredDebugElementWorkbenchAdapt
             // of visibility.
             // I try to minimize the occurrence here, by giving pydevd time to complete the
             // task before we are forced to do asynchronous notification.
-            int i = 500; //up to 5 seconds
+            int i = 150; //up to 1.5 seconds
             while (--i > 0 && commandVariables == null) {
                 if (this.monitor != null && this.monitor.isCanceled() == true) {
                     //canceled request... let's return
@@ -144,6 +143,7 @@ public class DeferredWorkbenchAdapter extends DeferredDebugElementWorkbenchAdapt
             temp1[0] = new PyVariableCollection(target, "Globals", "frame.f_globals", "Global variables",
                     f.getGlobalLocator());
             commandVariables = temp1;
+            f.setVariables(commandVariables);
 
         } else {
             throw new RuntimeException("Unknown parent:" + parent.getClass());
