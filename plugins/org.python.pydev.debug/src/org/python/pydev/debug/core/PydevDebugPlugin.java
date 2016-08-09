@@ -75,6 +75,9 @@ public class PydevDebugPlugin extends AbstractUIPlugin {
     }
 
     public static ImageCache getImageCache() {
+        if (plugin == null) {
+            return null;
+        }
         return plugin.imageCache;
     }
 

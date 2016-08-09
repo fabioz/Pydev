@@ -19,6 +19,7 @@ import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assert;
 import org.python.pydev.parser.jython.ast.Assign;
+import org.python.pydev.parser.jython.ast.Await;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Ellipsis;
@@ -67,6 +68,7 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
         Suite suite;
 
         int l;
+        exprType awaitExpr;
         switch (n.getId()) {
             case JJTEXPR_STMT:
                 value = (exprType) stack.popNode();
@@ -511,6 +513,10 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
 
             case JJTIMPORTFROM:
                 return makeImportFrom25Onwards(arity);
+
+            case JJTAWAIT_ATOM_EXPR:
+                awaitExpr = (exprType) stack.popNode();
+                return new Await(awaitExpr);
 
             default:
                 Log.log(("Error at TreeBuilder: default not treated:" + n.getId()));

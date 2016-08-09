@@ -17,6 +17,7 @@ import org.python.pydev.parser.jython.ast.Assert;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.AugAssign;
+import org.python.pydev.parser.jython.ast.Await;
 import org.python.pydev.parser.jython.ast.BinOp;
 import org.python.pydev.parser.jython.ast.BoolOp;
 import org.python.pydev.parser.jython.ast.Break;
@@ -755,6 +756,16 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         if (node.yield_from) {
             doc.addRequire("from", node);
         }
+        node.traverse(this);
+
+        afterNode(node);
+        return null;
+    }
+
+    @Override
+    public Object visitAwait(Await node) throws Exception {
+        beforeNode(node);
+        doc.addRequire("await", node);
         node.traverse(this);
 
         afterNode(node);

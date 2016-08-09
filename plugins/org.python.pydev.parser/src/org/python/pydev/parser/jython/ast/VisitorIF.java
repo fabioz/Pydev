@@ -45,6 +45,7 @@ public interface VisitorIF {
     public Object visitDictComp(DictComp node) throws Exception;
     public Object visitGeneratorExp(GeneratorExp node) throws Exception;
     public Object visitYield(Yield node) throws Exception;
+    public Object visitAwait(Await node) throws Exception;
     public Object visitCompare(Compare node) throws Exception;
     public Object visitCall(Call node) throws Exception;
     public Object visitRepr(Repr node) throws Exception;

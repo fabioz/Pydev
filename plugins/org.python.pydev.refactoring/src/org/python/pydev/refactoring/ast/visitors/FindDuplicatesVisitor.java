@@ -20,6 +20,7 @@ import org.python.pydev.parser.jython.ast.Assert;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.AugAssign;
+import org.python.pydev.parser.jython.ast.Await;
 import org.python.pydev.parser.jython.ast.BinOp;
 import org.python.pydev.parser.jython.ast.BoolOp;
 import org.python.pydev.parser.jython.ast.Break;
@@ -577,6 +578,15 @@ public class FindDuplicatesVisitor implements VisitorIF {
 
     @Override
     public Object visitYield(Yield node) throws Exception {
+        boolean ret = unhandled_node(node);
+        if (ret) {
+            traverse(node);
+        }
+        return null;
+    }
+
+    @Override
+    public Object visitAwait(Await node) throws Exception {
         boolean ret = unhandled_node(node);
         if (ret) {
             traverse(node);

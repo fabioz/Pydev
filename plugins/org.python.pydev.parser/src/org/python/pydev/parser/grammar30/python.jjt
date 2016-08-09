@@ -50,6 +50,7 @@ import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.modType;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
+import org.python.pydev.parser.jython.ast.Await;
 
 public final class PythonGrammar30 extends AbstractPythonGrammar implements IGrammar
 {
@@ -1224,17 +1225,24 @@ void power() #void: {}
 void atom_expr() #void: {}
 { 
     {
-        if(insideAsync){
+        // getToken(1) just peeks the next token without consuming it.
+        Token t = getToken(1);
+        if(insideAsync && t != null && t.kind == AWAIT){
             // The await statement is only valid inside an async block!
-            consume_await();
+            await_atom_expr();
+            return;
         }
     }
-     atom() (trailer())*
+    atom() (trailer())*
 }
 
-void consume_await() #void: {}
+void await_atom_expr(): {Token spStr;}
 {
-    [<AWAIT>]
+    spStr=<AWAIT> atom() (trailer())*
+    
+    {
+        this.grammarActions.addToPeek(spStr, false, Await.class);
+    }
 }
 
 //trailer: '(' [arglist] ')' | '[' subscriptlist ']' | '.' NAME

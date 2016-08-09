@@ -16,6 +16,7 @@ import org.python.pydev.parser.jython.ast.Assert;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.AugAssign;
+import org.python.pydev.parser.jython.ast.Await;
 import org.python.pydev.parser.jython.ast.BinOp;
 import org.python.pydev.parser.jython.ast.BoolOp;
 import org.python.pydev.parser.jython.ast.Break;
@@ -585,6 +586,16 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
 
     @Override
     public Object visitYield(Yield node) throws Exception {
+
+        fixNode(node);
+        node.traverse(this);
+        fixAfterNode(node);
+
+        return null;
+    }
+
+    @Override
+    public Object visitAwait(Await node) throws Exception {
 
         fixNode(node);
         node.traverse(this);

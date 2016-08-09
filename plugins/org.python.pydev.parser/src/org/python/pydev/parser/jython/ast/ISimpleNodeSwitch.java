@@ -45,6 +45,7 @@ public interface ISimpleNodeSwitch {
     public void visit(DictComp node);
     public void visit(GeneratorExp node);
     public void visit(Yield node);
+    public void visit(Await node);
     public void visit(Compare node);
     public void visit(Call node);
     public void visit(Repr node);

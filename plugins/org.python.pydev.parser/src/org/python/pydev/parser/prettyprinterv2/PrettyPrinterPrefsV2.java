@@ -39,6 +39,7 @@ public class PrettyPrinterPrefsV2 implements IPrettyPrinterPrefs {
         this.tokReplacement.put("in", " in ");
         this.tokReplacement.put("as", " as ");
         this.tokReplacement.put("yield", "yield ");
+        this.tokReplacement.put("await", "await ");
         this.tokReplacement.put("from", "from ");
         this.tokReplacement.put("del", "del ");
         this.tokReplacement.put("assert", "assert ");
