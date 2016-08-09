@@ -106,19 +106,9 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
      */
     protected ILaunch launch;
 
-    /**
-     * Class used to check for modifications in the values already found.
-     */
-    private ValueModificationChecker modificationChecker;
-
     private PyRunToLineTarget runToLineTarget;
 
     public AbstractDebugTarget() {
-        modificationChecker = new ValueModificationChecker();
-    }
-
-    public ValueModificationChecker getModificationChecker() {
-        return modificationChecker;
     }
 
     @Override
@@ -610,8 +600,6 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
             }
         }
         if (t != null) {
-            modificationChecker.onlyLeaveThreads(this.threads);
-
             IStackFrame stackFrame[] = threadNstack.stack;
             t.setSuspended(true, stackFrame);
             fireEvent(new DebugEvent(t, DebugEvent.SUSPEND, reason));
@@ -935,7 +923,6 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
     @Override
     public void disconnect() throws DebugException {
         this.terminate();
-        modificationChecker = null;
     }
 
     @Override

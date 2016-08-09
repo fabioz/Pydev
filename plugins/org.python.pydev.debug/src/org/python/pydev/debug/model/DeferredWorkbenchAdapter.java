@@ -7,96 +7,35 @@
 package org.python.pydev.debug.model;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.debug.ui.DeferredDebugElementWorkbenchAdapter;
-import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
-import org.eclipse.ui.progress.IElementCollector;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.model.remote.GetVariableCommand;
 import org.python.pydev.debug.model.remote.ICommandResponseListener;
 import org.python.pydev.shared_core.log.Log;
 
-public class DeferredWorkbenchAdapter extends DeferredDebugElementWorkbenchAdapter implements
-        IDeferredWorkbenchAdapter, ICommandResponseListener {
+public class DeferredWorkbenchAdapter implements ICommandResponseListener {
 
     private volatile PyVariable[] commandVariables;
     private AbstractDebugTarget target;
     private IVariableLocator locator;
-    private final Object parent;
+    private final ContainerOfVariables parent;
     private IProgressMonitor monitor;
+    private boolean addGlobalsVariable;
 
-    public DeferredWorkbenchAdapter(Object parent) {
+    public DeferredWorkbenchAdapter(ContainerOfVariables parent, boolean addGlobalsVariable) {
         this.parent = parent;
+        this.addGlobalsVariable = addGlobalsVariable;
+        this.target = this.parent.getTarget();
+        this.locator = this.parent.getLocator();
     }
 
-    @Override
-    public boolean isContainer() {
-        if (parent instanceof PyVariableCollection) {
-            return true;
-        } else if (parent instanceof PyStackFrame) {
-            return true;
-        }
-        return false;
-    }
-
-    /* (non-Javadoc)
-     * @see org.eclipse.ui.progress.IDeferredWorkbenchAdapter#fetchDeferredChildren(java.lang.Object, org.eclipse.ui.progress.IElementCollector, org.eclipse.core.runtime.IProgressMonitor)
-     */
-    @Override
-    public void fetchDeferredChildren(Object object, IElementCollector collector, IProgressMonitor monitor) {
-        this.monitor = monitor;
-        if (monitor.isCanceled()) {
-            return;
-        }
-        Object[] children = getChildren(object);
-        if (monitor.isCanceled()) {
-            return;
-        }
-        if (children != null && children.length > 0) {
-            collector.add(children, monitor);
-        }
-        collector.done();
-    }
-
-    @Override
-    public Object[] getChildren(Object o) {
-        if (parent != o) {
-            throw new RuntimeException("This is valid only for a single getChildren!");
-        }
-
-        if (o instanceof PyVariableCollection) {
-            PyVariableCollection variableCollection = (PyVariableCollection) o;
-
-            target = variableCollection.getTarget();
-            if (target != null) {
-                locator = variableCollection;
-
-                GetVariableCommand variableCommand = variableCollection.getVariableCommand(target);
-                variableCommand.setCompletionListener(this);
-                target.postCommand(variableCommand);
-                return waitForCommand();
-            }
+    public Object[] getChildren() {
+        if (this.target == null) {
             return new Object[0];
-
-        } else if (o instanceof PyStackFrame) {
-            PyStackFrame f = (PyStackFrame) o;
-
-            target = f.getTarget();
-            if (target != null) {
-                locator = f;
-
-                GetVariableCommand variableCommand = f.getFrameCommand(target);
-                variableCommand.setCompletionListener(this);
-                target.postCommand(variableCommand);
-                return waitForCommand();
-            }
-            return new Object[0];
-
-        } else if (o instanceof PyVariable) {
-            return new Object[0];
-
-        } else {
-            throw new RuntimeException("Unexpected class: " + o.getClass());
         }
+        GetVariableCommand variableCommand = this.parent.getVariableCommand(target);
+        variableCommand.setCompletionListener(this);
+        target.postCommand(variableCommand);
+        return waitForCommand();
     }
 
     private PyVariable[] waitForCommand() {
@@ -125,28 +64,16 @@ public class DeferredWorkbenchAdapter extends DeferredDebugElementWorkbenchAdapt
     }
 
     @Override
-    public Object getParent(Object o) {
-        //do we really need that?
-        return parent;
-    }
-
-    @Override
     public void commandComplete(AbstractDebuggerCommand cmd) {
         PyVariable[] temp = PyVariableCollection.getCommandVariables(cmd, target, locator);
-        if (parent instanceof PyVariableCollection) {
-            commandVariables = temp;
 
-        } else if (parent instanceof PyStackFrame) {
-            PyStackFrame f = (PyStackFrame) parent;
+        if (addGlobalsVariable) {
             PyVariable[] temp1 = new PyVariable[temp.length + 1];
             System.arraycopy(temp, 0, temp1, 1, temp.length);
             temp1[0] = new PyVariableCollection(target, "Globals", "frame.f_globals", "Global variables",
-                    f.getGlobalLocator());
+                    this.parent.getGlobalLocator());
             commandVariables = temp1;
-            f.setVariables(commandVariables);
-
-        } else {
-            throw new RuntimeException("Unknown parent:" + parent.getClass());
+            parent.setVariables(commandVariables);
         }
     }
 
