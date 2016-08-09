@@ -228,4 +228,8 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
         return new ChangeVariableCommand(dbg, getPyDBLocation(), expression);
     }
 
+    public void forceGetNewVariables() {
+        //no-op for variable (only really available for PyVariableCollection).
+    }
+
 }

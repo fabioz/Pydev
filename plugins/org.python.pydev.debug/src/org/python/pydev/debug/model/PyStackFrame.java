@@ -46,7 +46,7 @@ public class PyStackFrame extends PlatformObject
     private String id;
     private IPath path;
     private int line;
-    private final ContainerOfVariables variableContainer = new ContainerOfVariables(this);
+    private final ContainerOfVariables variableContainer = new ContainerOfVariables(this, true);
     private IVariableLocator localsLocator;
     private IVariableLocator globalsLocator;
     private IVariableLocator frameLocator;
@@ -162,7 +162,7 @@ public class PyStackFrame extends PlatformObject
 
     @Override
     public IVariable[] getVariables() throws DebugException {
-        return variableContainer.getVariables(true);
+        return variableContainer.getVariables();
     }
 
     public void forceGetNewVariables() {
