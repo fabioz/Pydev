@@ -154,7 +154,7 @@ public class AssignAnalysis {
         ArrayList<IToken> ret = new ArrayList<IToken>();
         FunctionDef functionDef = (FunctionDef) definition.ast;
 
-        String type = NodeUtils.getReturnTypeFromDocstring(functionDef);
+        String type = NodeUtils.getReturnTypeFromFuncDefAST(functionDef);
         if (type != null) {
             ICompletionState copy = state.getCopy();
             copy.setActivationToken(type);
@@ -232,7 +232,7 @@ public class AssignAnalysis {
     private List<IToken> getNonFunctionDefCompletionsFromAssign(ICodeCompletionASTManager manager,
             ICompletionState state,
             SourceModule sourceModule, Definition definition, AssignDefinition assignDefinition)
-                    throws CompletionRecursionException {
+            throws CompletionRecursionException {
         IModule module;
         ArrayList<IToken> ret = new ArrayList<IToken>();
         if (definition.ast instanceof ClassDef) {
@@ -415,7 +415,7 @@ public class AssignAnalysis {
      */
     public IToken[] searchInLocalTokens(ICodeCompletionASTManager manager, ICompletionState state,
             boolean lookForAssign, int line, int col, IModule module, ILocalScope scope, String activationToken)
-                    throws CompletionRecursionException {
+            throws CompletionRecursionException {
         //it may be declared as a global with a class defined in the local scope
         IToken[] allLocalTokens = scope.getAllLocalTokens();
         for (IToken token : allLocalTokens) {

@@ -1408,6 +1408,14 @@ public class NodeUtils {
         return nodeOffsetBegin;
     }
 
+    public static String getTypeForParameterFromAST(String actTok, SimpleNode node) {
+        String typeForParameter = NodeUtils.getTypeForParameterFromStaticTyping(actTok, node);
+        if (typeForParameter != null) {
+            return typeForParameter;
+        }
+        return NodeUtils.getTypeForParameterFromDocstring(actTok, node);
+    }
+
     /**
      * Deal with PEP 484 (Type Hints)
      */
@@ -1527,6 +1535,25 @@ public class NodeUtils {
             }
         }
         return trimmed;
+    }
+
+    public static String getReturnTypeFromFuncDefAST(SimpleNode node) {
+        String returnTypeFromStaticTyping = getReturnTypeFromStaticTyping(node);
+        if (returnTypeFromStaticTyping != null) {
+            return returnTypeFromStaticTyping;
+        }
+        return getReturnTypeFromDocstring(node);
+    }
+
+    public static String getReturnTypeFromStaticTyping(SimpleNode node) {
+        if (node instanceof FunctionDef) {
+            FunctionDef functionDef = (FunctionDef) node;
+            exprType returns = functionDef.returns;
+            if (returns != null) {
+                return NodeUtils.getFullRepresentationString(returns);
+            }
+        }
+        return null;
     }
 
     public static String getReturnTypeFromDocstring(SimpleNode node) {

@@ -820,7 +820,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     @Override
     public IToken[] getCompletionsFromTokenInLocalScope(IModule module, ICompletionState state,
             boolean searchSameLevelMods, boolean lookForArgumentCompletion, ILocalScope localScope)
-                    throws CompletionRecursionException {
+            throws CompletionRecursionException {
         IToken[] tokens;
         //now, if we have to look for arguments and search things in the local scope, let's also
         //check for assert (isinstance...) in this scope with the given variable.
@@ -862,7 +862,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     @SuppressWarnings("unchecked")
     public IToken[] getCompletionsFromTypeRepresentation(ICompletionState state, List<String> lookForClass,
             IModule currentModule)
-                    throws CompletionRecursionException {
+            throws CompletionRecursionException {
         state.checkMaxTimeForCompletion();
 
         //First check in the current module...
@@ -898,7 +898,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
     private IToken[] getCompletionsUnpackingForLoop(IModule module, ICompletionState state, ILocalScope localScope,
             For for1)
-                    throws CompletionRecursionException {
+            throws CompletionRecursionException {
         state.checkMaxTimeForCompletion();
         if (for1.target instanceof org.python.pydev.parser.jython.ast.Tuple
                 || for1.target instanceof org.python.pydev.parser.jython.ast.List) {
@@ -985,7 +985,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
     private IToken[] getDictCompletionOnForLoop(IModule module, ICompletionState state, For for1,
             ILocalScope localScope, UnpackInfo unpackPos)
-                    throws CompletionRecursionException {
+            throws CompletionRecursionException {
         state.checkMaxTimeForCompletion();
 
         exprType func = null;
@@ -1105,7 +1105,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     @Override
     public IToken[] getCompletionsUnpackingObject(IModule module, ICompletionState state, ILocalScope scope,
             UnpackInfo unpackPos)
-                    throws CompletionRecursionException {
+            throws CompletionRecursionException {
         ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
         state.pushGetCompletionsUnpackingObject();
         try {
@@ -1227,7 +1227,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
     private IToken[] getCompletionsUnpackingAST(SimpleNode ast, final IModule module, ICompletionState state,
             UnpackInfo unpackPos)
-                    throws CompletionRecursionException {
+            throws CompletionRecursionException {
 
         if (ast instanceof FunctionDef) {
             IToken[] tokens = getCompletionsUnpackingDocstring(module, state, unpackPos,
@@ -1371,7 +1371,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
         SimpleNode ast = token.getAst();
         if (ast instanceof FunctionDef) {
-            String type = NodeUtils.getReturnTypeFromDocstring(ast);
+            String type = NodeUtils.getReturnTypeFromFuncDefAST(ast);
             if (type != null) {
                 ICompletionState copyWithActTok = state.getCopyWithActTok(type);
                 copyWithActTok.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
@@ -1487,7 +1487,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     @Override
     public void getCompletionsForClassInLocalScope(IModule module, ICompletionState state, boolean searchSameLevelMods,
             boolean lookForArgumentCompletion, List<String> lookForClass, HashSet<IToken> hashSet)
-                    throws CompletionRecursionException {
+            throws CompletionRecursionException {
         IToken[] tokens;
         //if found here, it's an instanced variable (force it and restore if we didn't find it here...)
         ICompletionState stateCopy = state.getCopy();
@@ -1951,7 +1951,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
      */
     public Tuple<IModule, String> findOnImportedMods(IToken importedModule, String tok, ICompletionState state,
             String activationToken, String currentModuleName, IModule current) throws CompletionRecursionException,
-                    MisconfigurationException {
+            MisconfigurationException {
 
         Tuple<IModule, String> modTok = null;
         IModule mod = null;

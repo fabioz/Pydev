@@ -126,4 +126,17 @@ public class PythonCompletionWithBuiltinsPython3Test extends CodeCompletionTests
         requestCompl(s, s.length(), -1, new String[] { "items()" });
     }
 
+    public void testCodeCompletionPep484Return() throws Exception {
+        String s;
+        s = ""
+                + "def call() -> str:\n"
+                + "    pass\n"
+                + "\n"
+                + "def seek():\n"
+                + "    a = call()\n"
+                + "    a.t"
+                + "";
+        requestCompl(s, s.length(), -1, new String[] { "title()", "translate(table)" });
+    }
+
 }

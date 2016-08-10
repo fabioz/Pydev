@@ -429,14 +429,8 @@ public class LocalScope implements ILocalScope {
 
         //ok, that's the scope we have to analyze
 
-        String typeForParameter = NodeUtils.getTypeForParameterFromStaticTyping(actTok, element);
-        if (typeForParameter == null) {
-            //Search for docstrings.
-            typeForParameter = NodeUtils.getTypeForParameterFromDocstring(actTok, element);
-            if (typeForParameter != null) {
-                ret.add(typeForParameter);
-            }
-        } else {
+        String typeForParameter = NodeUtils.getTypeForParameterFromAST(actTok, element);
+        if (typeForParameter != null) {
             ret.add(typeForParameter);
         }
 
