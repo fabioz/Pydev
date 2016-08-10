@@ -42,6 +42,7 @@ public class PyUnitTestResult {
     private WeakReference<PyUnitTestRun> testRun;
 
     public final String STATUS_OK = "ok";
+    public final String STATUS_OK_SKIPPED = "ok (skipped)";
     public final String STATUS_SKIP = "skip";
     public final String STATUS_FAIL = "fail";
     public final String STATUS_ERROR = "error";
@@ -76,7 +77,7 @@ public class PyUnitTestResult {
     }
 
     public boolean isSkip() {
-        return STATUS_SKIP.equals(this.status);
+        return STATUS_SKIP.equals(this.status) || STATUS_OK_SKIPPED.equals(this.status);
     }
 
     /**
@@ -113,7 +114,7 @@ public class PyUnitTestResult {
     public static ItemPointer getItemPointer(File file, String fileContents, String testPath) {
         SimpleNode testNode = null;
         if (fileContents != null) {
-            SimpleNode node = FastDefinitionsParser.parse(fileContents, "");
+            SimpleNode node = FastDefinitionsParser.parse(fileContents, "", file);
             if (testPath != null && testPath.length() > 0) {
                 testNode = NodeUtils.getNodeFromPath(node, testPath);
             }

@@ -111,8 +111,9 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor {
                     }
                     IFile f = (IFile) resource;
                     String file = f.getRawLocation().toOSString();
-                    return new SourceModule(moduleName, new File(file), FastDefinitionsParser.parse(doc.get(),
-                            moduleName), null);
+                    File f2 = new File(file);
+                    return new SourceModule(moduleName, f2, FastDefinitionsParser.parse(doc.get(),
+                            moduleName, f2), null);
 
                 } else {
                     throw new RuntimeException("Unexpected parameter: " + arg);

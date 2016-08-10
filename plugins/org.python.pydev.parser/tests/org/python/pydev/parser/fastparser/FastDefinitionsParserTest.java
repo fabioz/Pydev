@@ -903,7 +903,7 @@ public class FastDefinitionsParserTest extends TestCase {
                         "    class Zoo(object):\n" +
                         "        class PPP(self):pass\n" +
 
-        "class Bar2(object):\n" +
+                        "class Bar2(object):\n" +
                         "    class Zoo2(object):\n" +
                         "        class PPP2(self):pass\n");
         assertEquals(2, m.body.length);
@@ -931,7 +931,7 @@ public class FastDefinitionsParserTest extends TestCase {
                         "    class Zoo(object):\n" +
                         "        pass\n" +
 
-        "class Bar2(object):\n" +
+                        "class Bar2(object):\n" +
                         "    class Zoo2(object):\n" +
                         "        pass\n");
         assertEquals(2, m.body.length);
@@ -1520,6 +1520,68 @@ public class FastDefinitionsParserTest extends TestCase {
         FunctionDef d = (FunctionDef) m.body[0];
         assertEquals("method", NodeUtils.getRepresentationString(d.name));
         assertNull(d.body);
+    }
+
+    public void testAssign2() {
+        Module m = (Module) FastDefinitionsParser.parse(""
+                + "\ndef test_simple(): \n" +
+                "    cell = \"foo\"\n" +
+                "\n" +
+                "def test_function():\n" +
+                "    cell = \"foo(a=5, b='10')\"\n" +
+                "    expected = 'foo'\n" +
+                "\n" +
+                "def test_multiline():\n" +
+                "    cell = '\\n'.join([\n" +
+                "        'a = 5',\n" +
+                "        'b = hello(\"string\", there)'\n" +
+                "    ])\n" +
+                "");
+        assertEquals(3, m.body.length);
+        assertEquals("test_simple", NodeUtils.getRepresentationString(((FunctionDef) m.body[0]).name));
+        assertEquals("test_function", NodeUtils.getRepresentationString(((FunctionDef) m.body[1]).name));
+        assertEquals("test_multiline", NodeUtils.getRepresentationString(((FunctionDef) m.body[2]).name));
+    }
+
+    public void testAssign3() {
+        Module m = (Module) FastDefinitionsParser.parse(""
+                + "\ndef test_simple() : cell = \"foo\"\n" +
+                "\n" +
+                "def test_function():\n" +
+                "    cell = \"foo(a=5, b='10')\"\n" +
+                "    expected = 'foo'\n" +
+                "\n" +
+                "def test_multiline():\n" +
+                "    cell = '\\n'.join([\n" +
+                "        'a = 5',\n" +
+                "        'b = hello(\"string\", there)'\n" +
+                "    ])\n" +
+                "");
+        assertEquals(3, m.body.length);
+        assertEquals("test_simple", NodeUtils.getRepresentationString(((FunctionDef) m.body[0]).name));
+        assertEquals("test_function", NodeUtils.getRepresentationString(((FunctionDef) m.body[1]).name));
+        assertEquals("test_multiline", NodeUtils.getRepresentationString(((FunctionDef) m.body[2]).name));
+    }
+
+    public void testAssign4() {
+        Module m = (Module) FastDefinitionsParser.parse(""
+                + "\ndef test_simple() -> call('something') :\r\n"
+                + "    cell = \"foo\"\n" +
+                "\n" +
+                "def test_function():\n" +
+                "    cell = \"foo(a=5, b='10')\"\n" +
+                "    expected = 'foo'\n" +
+                "\n" +
+                "def test_multiline():\n" +
+                "    cell = '\\n'.join([\n" +
+                "        'a = 5',\n" +
+                "        'b = hello(\"string\", there)'\n" +
+                "    ])\n" +
+                "");
+        assertEquals(3, m.body.length);
+        assertEquals("test_simple", NodeUtils.getRepresentationString(((FunctionDef) m.body[0]).name));
+        assertEquals("test_function", NodeUtils.getRepresentationString(((FunctionDef) m.body[1]).name));
+        assertEquals("test_multiline", NodeUtils.getRepresentationString(((FunctionDef) m.body[2]).name));
     }
 
 }

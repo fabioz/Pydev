@@ -6,6 +6,7 @@
  */
 package org.python.pydev.parser.fastparser;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -114,6 +115,11 @@ public final class FastDefinitionsParser {
     final private char[] cs;
 
     /**
+     * May be null (just used for reporting errors).
+     */
+    final private File file;
+
+    /**
      * The length of the buffer we're iterating.
      */
     final private int length;
@@ -163,8 +169,8 @@ public final class FastDefinitionsParser {
      */
     private final static boolean DEBUG = false;
 
-    private FastDefinitionsParser(char[] cs, String moduleName) {
-        this(cs, cs.length, moduleName);
+    private FastDefinitionsParser(char[] cs, String moduleName, File f) {
+        this(cs, cs.length, moduleName, f);
     }
 
     /**
@@ -173,10 +179,11 @@ public final class FastDefinitionsParser {
      * @param cs array of chars that should be considered.
      * @param len the number of chars to be used (usually cs.length).
      */
-    private FastDefinitionsParser(char[] cs, int len, String moduleName) {
+    private FastDefinitionsParser(char[] cs, int len, String moduleName, File f) {
         this.cs = cs;
         this.length = len;
         this.moduleName = moduleName;
+        this.file = f;
     }
 
     /**
@@ -439,6 +446,7 @@ public final class FastDefinitionsParser {
                         if (c == ':') {
                             tempIndex++;
 
+                            tempIndex = skipWhitespaces(tempIndex);
                             if (tempIndex < length) {
                                 c = cs[tempIndex];
                                 if (c != '\r' && c != '\n') {
@@ -580,7 +588,7 @@ public final class FastDefinitionsParser {
                     parentNode.body.add(currNode.node);
                 } else {
                     String msg = "Did not expect to find item below node: " + parentNode.node + " (module: "
-                            + this.moduleName
+                            + this.moduleName + " file: " + this.file + " row: " + row
                             + ").";
                     if (throwErrorOnWarnings) {
                         throw new RuntimeException(msg);
@@ -657,8 +665,8 @@ public final class FastDefinitionsParser {
      * @param s the string to be parsed
      * @return a Module node with the structure found
      */
-    public static SimpleNode parse(String s, String moduleName) {
-        return parse(s.toCharArray(), moduleName);
+    public static SimpleNode parse(String s, String moduleName, File f) {
+        return parse(s.toCharArray(), moduleName, f);
     }
 
     /**
@@ -666,19 +674,20 @@ public final class FastDefinitionsParser {
      * @param cs the char array to be parsed
      * @return a Module node with the structure found
      */
-    public static SimpleNode parse(char[] cs, String moduleName) {
-        return parse(cs, moduleName, cs.length);
+    public static SimpleNode parse(char[] cs, String moduleName, File f) {
+        return parse(cs, moduleName, cs.length, f);
     }
 
-    public static SimpleNode parse(char[] cs, String moduleName, int len) {
-        FastDefinitionsParser parser = new FastDefinitionsParser(cs, len, moduleName);
+    public static SimpleNode parse(char[] cs, String moduleName, int len, File f) {
+        FastDefinitionsParser parser = new FastDefinitionsParser(cs, len, moduleName, f);
         try {
             parser.extractBody();
         } catch (SyntaxErrorException e) {
             throw new RuntimeException(e);
         } catch (StackOverflowError e) {
             RuntimeException runtimeException = new RuntimeException(e);
-            Log.log("Error parsing: " + moduleName + "\nContents:\n" + new String(cs, 0, len > 1000 ? 1000 : len),
+            Log.log("Error parsing: " + moduleName + " - " + f + "\nContents:\n"
+                    + new String(cs, 0, len > 1000 ? 1000 : len),
                     runtimeException); //report at most 1000 chars...
             throw runtimeException;
         }
@@ -694,7 +703,7 @@ public final class FastDefinitionsParser {
     }
 
     public static SimpleNode parse(String s) {
-        return parse(s.toCharArray(), null);
+        return parse(s.toCharArray(), null, null);
     }
 
 }
