@@ -1099,7 +1099,9 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                         IDefinition[] definitions = module.findDefinition(state.getCopyWithActTok(finalRep), -1, -1,
                                 nature);
                         if (definitions.length > 0) {
-                            return (Definition) definitions[0];
+                            Definition definition = (Definition) definitions[0];
+                            definition.setGeneratorType(token.getGeneratorType());
+                            return definition;
                         }
                     } catch (Exception e) {
                         throw new RuntimeException(e);

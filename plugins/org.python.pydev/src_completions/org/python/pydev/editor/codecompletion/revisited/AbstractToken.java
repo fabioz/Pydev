@@ -14,6 +14,7 @@ package org.python.pydev.editor.codecompletion.revisited;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.ITypeInfo;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -35,12 +36,24 @@ public abstract class AbstractToken implements IToken {
     protected String parentPackage;
     public int type;
     private boolean originalHasRep;
+    private ITypeInfo generatorType;
 
     public AbstractToken(String rep, String doc, String args, String parentPackage, int type, String originalRep,
             boolean originalHasRep) {
         this(rep, doc, args, parentPackage, type);
         this.originalRep = originalRep;
         this.originalHasRep = originalHasRep;
+    }
+
+    @Override
+    public void setGeneratorType(ITypeInfo type) {
+        this.generatorType = type;
+
+    }
+
+    @Override
+    public ITypeInfo getGeneratorType() {
+        return this.generatorType;
     }
 
     public AbstractToken(String rep, String doc, String args, String parentPackage, int type) {

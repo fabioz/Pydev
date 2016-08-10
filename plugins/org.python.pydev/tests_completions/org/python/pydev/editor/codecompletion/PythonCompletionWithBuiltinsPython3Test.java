@@ -126,6 +126,55 @@ public class PythonCompletionWithBuiltinsPython3Test extends CodeCompletionTests
         requestCompl(s, s.length(), -1, new String[] { "items()" });
     }
 
+    public void testCodeCompletionPep484DictUnpack() throws Exception {
+        String s;
+        s = ""
+                + "from typing import Dict\n"
+                + "def seek(s:Dict[str, int]):\n"
+                + "    for a, b in s.items():\n"
+                + "        a.t"
+                + "";
+        requestCompl(s, s.length(), -1, new String[] { "title()", "translate(table)" });
+    }
+
+    public void testCodeCompletionPep484DictUnpack2() throws Exception {
+        String s;
+        s = ""
+                + "from typing import Dict\n"
+                + "def seek(s:Dict[int, str]):\n"
+                + "    for a, b in s.items():\n"
+                + "        b.t"
+                + "";
+        requestCompl(s, s.length(), -1, new String[] { "title()", "translate(table)" });
+    }
+
+    public void testCodeCompletionPep484ListUnpack() throws Exception {
+        String s;
+        s = ""
+                + "from typing import List\n"
+                + "def seek(s:List[str]):\n"
+                + "    for a in s:\n"
+                + "        a."
+                + "";
+        requestCompl(s, s.length(), -1, new String[] { "title()", "translate(table)" });
+    }
+
+    public void testCodeCompletionPep484DictUnpack3() throws Exception {
+        String s;
+        s = ""
+                + "from typing import Dict\n"
+                + "\n"
+                + "def call() -> Dict[int, str]:\n"
+                + "    pass\n"
+                + "\n"
+                + "def seek():\n"
+                + "    x = call()\n"
+                + "    for a, b in x.items():\n"
+                + "        b.t"
+                + "";
+        requestCompl(s, s.length(), -1, new String[] { "title()", "translate(table)" });
+    }
+
     public void testCodeCompletionPep484Return() throws Exception {
         String s;
         s = ""

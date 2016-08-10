@@ -1410,7 +1410,7 @@ public class NodeUtils {
     }
 
     public static TypeInfo getTypeForParameterFromAST(String actTok, SimpleNode node) {
-        String typeForParameter = NodeUtils.getTypeForParameterFromStaticTyping(actTok, node);
+        exprType typeForParameter = NodeUtils.getTypeForParameterFromStaticTyping(actTok, node);
         if (typeForParameter != null) {
             return new TypeInfo(typeForParameter);
         }
@@ -1424,7 +1424,7 @@ public class NodeUtils {
     /**
      * Deal with PEP 484 (Type Hints)
      */
-    public static String getTypeForParameterFromStaticTyping(String actTok, SimpleNode node) {
+    public static exprType getTypeForParameterFromStaticTyping(String actTok, SimpleNode node) {
         if (node instanceof FunctionDef) {
             FunctionDef functionDef = (FunctionDef) node;
             argumentsType args = functionDef.args;
@@ -1447,8 +1447,7 @@ public class NodeUtils {
                         if (annotation.length > i) {
                             exprType exprType = annotation[i];
                             if (exprType != null) {
-                                String s = NodeUtils.getFullRepresentationString(exprType);
-                                return s;
+                                return exprType;
                             }
                         }
                     }
@@ -1543,9 +1542,9 @@ public class NodeUtils {
     }
 
     public static ITypeInfo getReturnTypeFromFuncDefAST(SimpleNode node) {
-        String returnTypeFromStaticTyping = getReturnTypeFromStaticTyping(node);
+        ITypeInfo returnTypeFromStaticTyping = getReturnTypeFromStaticTyping(node);
         if (returnTypeFromStaticTyping != null) {
-            return new TypeInfo(returnTypeFromStaticTyping);
+            return returnTypeFromStaticTyping;
         }
         String returnTypeFromDocstring = getReturnTypeFromDocstring(node);
         if (returnTypeFromDocstring != null) {
@@ -1554,12 +1553,12 @@ public class NodeUtils {
         return null;
     }
 
-    public static String getReturnTypeFromStaticTyping(SimpleNode node) {
+    public static TypeInfo getReturnTypeFromStaticTyping(SimpleNode node) {
         if (node instanceof FunctionDef) {
             FunctionDef functionDef = (FunctionDef) node;
             exprType returns = functionDef.returns;
             if (returns != null) {
-                return NodeUtils.getFullRepresentationString(returns);
+                return new TypeInfo(returns);
             }
         }
         return null;

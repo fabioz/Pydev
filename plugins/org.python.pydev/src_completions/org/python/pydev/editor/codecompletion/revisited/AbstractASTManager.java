@@ -1122,6 +1122,14 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                         }
                     }
 
+                    ITypeInfo generatorType = definition.getGeneratorType();
+                    if (generatorType != null) {
+                        IToken[] tokens = getCompletionsUnpackingType(module, state, unpackPos, generatorType);
+                        if (tokens != null && tokens.length > 0) {
+                            return tokens;
+                        }
+                    }
+
                     // If it still hasn't returned, try to get it from the docstring
                     String docstring = definition.getDocstring(this.getNature(), state);
                     if (docstring != null && !docstring.isEmpty()) {
@@ -1339,8 +1347,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     }
 
     private IToken[] getCompletionsUnpackingDocstring(final IModule module, ICompletionState state,
-            UnpackInfo unpackPos,
-            String docstring) throws CompletionRecursionException {
+            UnpackInfo unpackPos, String docstring) throws CompletionRecursionException {
         if (docstring != null) {
             String type = NodeUtils.getReturnTypeFromDocstring(docstring);
             if (type != null) {
@@ -1354,6 +1361,21 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                         return completionsForModule;
                     }
                 }
+            }
+        }
+        return null;
+    }
+
+    private IToken[] getCompletionsUnpackingType(final IModule module, ICompletionState state,
+            UnpackInfo unpackPos, ITypeInfo type) throws CompletionRecursionException {
+        ITypeInfo unpackedTypeFromDocstring = type.getUnpacked(unpackPos);
+        if (unpackedTypeFromDocstring != null) {
+            ICompletionState copyWithActTok = state.getCopyWithActTok(unpackedTypeFromDocstring.getActTok());
+            copyWithActTok.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
+            IToken[] completionsForModule = getCompletionsForModule(module,
+                    copyWithActTok);
+            if (completionsForModule.length > 0) {
+                return completionsForModule;
             }
         }
         return null;

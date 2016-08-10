@@ -169,6 +169,12 @@ public class AssignAnalysis {
             state.checkDefinitionMemory(module, definition);
             IToken[] tks = manager.getCompletionsForModule(module, copy);
             if (tks.length > 0) {
+                // TODO: This is not ideal... ideally, we'd return this info along instead of setting
+                // it in the token, but this may be hard as we have to touch LOTS of places for
+                // this information to get to the needed place.
+                for (int i = 0; i < tks.length; i++) {
+                    tks[i].setGeneratorType(type);
+                }
                 ret.addAll(Arrays.asList(tks));
                 return ret; //Ok, resolved rtype!
             } else {
