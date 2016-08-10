@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IGrammarVersionProvider;
+import org.python.pydev.core.ITypeInfo;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.UnpackInfo;
 import org.python.pydev.core.docutils.ParsingUtils;
@@ -1408,12 +1409,16 @@ public class NodeUtils {
         return nodeOffsetBegin;
     }
 
-    public static String getTypeForParameterFromAST(String actTok, SimpleNode node) {
+    public static TypeInfo getTypeForParameterFromAST(String actTok, SimpleNode node) {
         String typeForParameter = NodeUtils.getTypeForParameterFromStaticTyping(actTok, node);
         if (typeForParameter != null) {
-            return typeForParameter;
+            return new TypeInfo(typeForParameter);
         }
-        return NodeUtils.getTypeForParameterFromDocstring(actTok, node);
+        String typeForParameterFromDocstring = NodeUtils.getTypeForParameterFromDocstring(actTok, node);
+        if (typeForParameterFromDocstring != null) {
+            return new TypeInfo(typeForParameterFromDocstring);
+        }
+        return null;
     }
 
     /**
@@ -1537,12 +1542,16 @@ public class NodeUtils {
         return trimmed;
     }
 
-    public static String getReturnTypeFromFuncDefAST(SimpleNode node) {
+    public static ITypeInfo getReturnTypeFromFuncDefAST(SimpleNode node) {
         String returnTypeFromStaticTyping = getReturnTypeFromStaticTyping(node);
         if (returnTypeFromStaticTyping != null) {
-            return returnTypeFromStaticTyping;
+            return new TypeInfo(returnTypeFromStaticTyping);
         }
-        return getReturnTypeFromDocstring(node);
+        String returnTypeFromDocstring = getReturnTypeFromDocstring(node);
+        if (returnTypeFromDocstring != null) {
+            return new TypeInfo(returnTypeFromDocstring);
+        }
+        return null;
     }
 
     public static String getReturnTypeFromStaticTyping(SimpleNode node) {
@@ -1695,6 +1704,10 @@ public class NodeUtils {
             return substring.substring(lastStart, substring.length()).trim();
         }
         return substring;
+    }
+
+    public static String getPackedTypeFromDocstring(ITypeInfo docstring) {
+        return getPackedTypeFromDocstring(docstring.getActTok());
     }
 
     public static String getPackedTypeFromDocstring(String docstring) {

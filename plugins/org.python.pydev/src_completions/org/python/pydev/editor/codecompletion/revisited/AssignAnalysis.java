@@ -21,6 +21,7 @@ import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.ITypeInfo;
 import org.python.pydev.core.UnpackInfo;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
@@ -44,6 +45,7 @@ import org.python.pydev.parser.jython.ast.UnaryOp;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.parser.visitors.TypeInfo;
 import org.python.pydev.parser.visitors.scope.ReturnVisitor;
 import org.python.pydev.shared_core.string.StringUtils;
 
@@ -146,7 +148,6 @@ public class AssignAnalysis {
         } finally {
             state.popAssign();
         }
-
     }
 
     private List<IToken> addFunctionDefCompletionsFromReturn(ICodeCompletionASTManager manager, ICompletionState state,
@@ -154,10 +155,10 @@ public class AssignAnalysis {
         ArrayList<IToken> ret = new ArrayList<IToken>();
         FunctionDef functionDef = (FunctionDef) definition.ast;
 
-        String type = NodeUtils.getReturnTypeFromFuncDefAST(functionDef);
+        ITypeInfo type = NodeUtils.getReturnTypeFromFuncDefAST(functionDef);
         if (type != null) {
             ICompletionState copy = state.getCopy();
-            copy.setActivationToken(type);
+            copy.setActivationToken(type.getActTok());
             stmtType[] body = functionDef.body;
             if (body.length > 0) {
                 copy.setLine(body[0].beginLine - 1);
@@ -304,8 +305,8 @@ public class AssignAnalysis {
                         String rep = NodeUtils.getFullRepresentationString(call.args[parameterIndex - 1]);
 
                         HashSet<IToken> hashSet = new HashSet<IToken>();
-                        List<String> lookForClass = new ArrayList<String>();
-                        lookForClass.add(rep);
+                        List<ITypeInfo> lookForClass = new ArrayList<>();
+                        lookForClass.add(new TypeInfo(rep));
 
                         manager.getCompletionsForClassInLocalScope(sourceModule, state, true, false, lookForClass,
                                 hashSet);

@@ -33,6 +33,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.ITypeInfo;
 import org.python.pydev.core.UnpackInfo;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
@@ -163,8 +164,8 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
 
     @Override
     public void getCompletionsForClassInLocalScope(IModule module, ICompletionState state, boolean searchSameLevelMods,
-            boolean lookForArgumentCompletion, List<String> lookForClass, HashSet<IToken> hashSet)
-                    throws CompletionRecursionException {
+            boolean lookForArgumentCompletion, List<ITypeInfo> lookForClass, HashSet<IToken> hashSet)
+            throws CompletionRecursionException {
         throw new RuntimeException("Not implemented");
     }
 
@@ -218,7 +219,7 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
     @Override
     public IToken[] getCompletionsFromTokenInLocalScope(IModule module, ICompletionState state,
             boolean searchSameLevelMods, boolean lookForArgumentCompletion, ILocalScope localScope)
-                    throws CompletionRecursionException {
+            throws CompletionRecursionException {
         throw new RuntimeException("Not implemented");
     }
 

@@ -32,6 +32,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISourceModule;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.ITypeInfo;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.log.Log;
@@ -805,7 +806,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                     //Well, it seems it's a parameter, so, let's check if we can get the parameter definition to then resolve
                     //the token.
                     ILocalScope scope = scopeVisitor.scope;
-                    List<String> possibleClassesForActivationToken = scope
+                    List<ITypeInfo> possibleClassesForActivationToken = scope
                             .getPossibleClassesForActivationToken(tokenRep);
 
                     //Above we have: actTok.startsWith(tokenRep + ".")
@@ -814,7 +815,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                     String remainder = actTok.substring(tokenRepLen + 1);
 
                     if (possibleClassesForActivationToken.size() > 0) {
-                        for (String possibleClass : possibleClassesForActivationToken) {
+                        for (ITypeInfo possibleClass : possibleClassesForActivationToken) {
                             AbstractASTManager astManager = (AbstractASTManager) nature.getAstManager();
                             if (astManager != null) {
                                 IToken[] completionsFromTypeRepresentation = astManager

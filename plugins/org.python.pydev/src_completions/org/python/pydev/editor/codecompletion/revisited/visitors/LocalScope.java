@@ -23,6 +23,7 @@ import java.util.Set;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.ITypeInfo;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -40,6 +41,7 @@ import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.parser.visitors.TypeInfo;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 import org.python.pydev.shared_core.model.ISimpleNode;
@@ -418,8 +420,8 @@ public class LocalScope implements ILocalScope {
      * @see {@link ILocalScope#getPossibleClassesForActivationToken(String)}
      */
     @Override
-    public List<String> getPossibleClassesForActivationToken(String actTok) {
-        ArrayList<String> ret = new ArrayList<String>();
+    public List<ITypeInfo> getPossibleClassesForActivationToken(String actTok) {
+        List<ITypeInfo> ret = new ArrayList<>();
 
         Iterator<SimpleNode> it = this.scope.topDownIterator();
         if (!it.hasNext()) {
@@ -429,7 +431,7 @@ public class LocalScope implements ILocalScope {
 
         //ok, that's the scope we have to analyze
 
-        String typeForParameter = NodeUtils.getTypeForParameterFromAST(actTok, element);
+        ITypeInfo typeForParameter = NodeUtils.getTypeForParameterFromAST(actTok, element);
         if (typeForParameter != null) {
             ret.add(typeForParameter);
         }
@@ -502,7 +504,7 @@ public class LocalScope implements ILocalScope {
                                 }
                             } else {
                                 //zope case Interface.implementedBy(obj) -> Interface added
-                                ret.add(FullRepIterable.getWithoutLastPart(rep));
+                                ret.add(new TypeInfo(FullRepIterable.getWithoutLastPart(rep)));
                             }
                         }
                     }
@@ -527,12 +529,12 @@ public class LocalScope implements ILocalScope {
                         if (trim.startsWith(":")) {
                             String type = NodeUtils.getTypeForParameterFromDocstring(actTok, trim.substring(1));
                             if (type != null) {
-                                ret.add(type);
+                                ret.add(new TypeInfo(type));
                             }
                         } else if (trim.startsWith("@")) {
                             String type = NodeUtils.getTypeForParameterFromDocstring(actTok, trim);
                             if (type != null) {
-                                ret.add(type);
+                                ret.add(new TypeInfo(type));
                             }
                         }
                         //                        }
@@ -549,12 +551,12 @@ public class LocalScope implements ILocalScope {
                         if (trim.startsWith(":")) {
                             String type = NodeUtils.getTypeForParameterFromDocstring(actTok, trim.substring(1));
                             if (type != null) {
-                                ret.add(type);
+                                ret.add(new TypeInfo(type));
                             }
                         } else if (trim.startsWith("@")) {
                             String type = NodeUtils.getTypeForParameterFromDocstring(actTok, trim);
                             if (type != null) {
-                                ret.add(type);
+                                ret.add(new TypeInfo(type));
                             }
                         }
                     }
@@ -569,11 +571,11 @@ public class LocalScope implements ILocalScope {
      * @param ret the list where the representation should be added
      * @param expr the Name or Attribute that determines the class that should be added
      */
-    private void addRepresentationIfPossible(ArrayList<String> ret, exprType expr) {
+    private void addRepresentationIfPossible(List<ITypeInfo> ret, exprType expr) {
         if (expr instanceof Name || expr instanceof Attribute) {
             String string = NodeUtils.getFullRepresentationString(expr);
             if (string != null) {
-                ret.add(string);
+                ret.add(new TypeInfo(string));
             }
         }
     }
