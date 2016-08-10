@@ -26,7 +26,7 @@ public class ContainerOfVariables {
         this.variablesLoader = new VariablesLoader(this, addGlobalsVarible);
     }
 
-    /* default */ IVariable[] setVariables(IVariable[] newVars) {
+    /* default */ PyVariable[] setVariables(PyVariable[] newVars) {
         IVariable[] oldVars = this.variables;
         if (newVars == oldVars) {
             return newVars;
@@ -54,7 +54,7 @@ public class ContainerOfVariables {
                 if (onAskGetNewVars) {
                     gettingInitialVariables = true;
                     try {
-                        IVariable[] vars = variablesLoader.fetchVariables();
+                        PyVariable[] vars = variablesLoader.fetchVariables();
 
                         setVariables(vars);
                         // Important: only set to false after variables have been set.

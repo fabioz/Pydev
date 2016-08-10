@@ -12,7 +12,6 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.debug.core.DebugException;
-import org.eclipse.debug.core.model.IVariable;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.model.remote.GetVariableCommand;
 import org.python.pydev.debug.model.remote.ICommandResponseListener;
@@ -20,8 +19,8 @@ import org.python.pydev.shared_core.log.Log;
 
 public class VariablesLoader implements ICommandResponseListener {
 
-    private volatile IVariable[] currentVariables;
-    private volatile IVariable[] oldVariables;
+    private volatile PyVariable[] currentVariables;
+    private volatile PyVariable[] oldVariables;
     private final ContainerOfVariables parent;
     private IProgressMonitor monitor;
     private boolean addGlobalsVariable;
@@ -39,12 +38,12 @@ public class VariablesLoader implements ICommandResponseListener {
         return this.parent.getLocator();
     }
 
-    public IVariable[] fetchVariables() {
+    public PyVariable[] fetchVariables() {
         oldVariables = currentVariables;
         currentVariables = null;
         AbstractDebugTarget target = this.getTarget();
         if (target == null) {
-            return new IVariable[0];
+            return new PyVariable[0];
         }
         GetVariableCommand variableCommand = this.parent.getVariableCommand(target);
         variableCommand.setCompletionListener(this);
@@ -52,7 +51,7 @@ public class VariablesLoader implements ICommandResponseListener {
         return waitForCommand();
     }
 
-    private IVariable[] waitForCommand() {
+    private PyVariable[] waitForCommand() {
         try {
             // VariablesView does not deal well with children changing asynchronously.
             // it causes unneeded scrolling, because view preserves selection instead
@@ -84,7 +83,7 @@ public class VariablesLoader implements ICommandResponseListener {
         if (target == null || locator == null) {
             return;
         }
-        IVariable[] temp = PyVariableCollection.getCommandVariables(cmd, target, locator);
+        PyVariable[] temp = PyVariableCollection.getCommandVariables(cmd, target, locator);
 
         if (addGlobalsVariable) {
             PyVariable[] temp1 = new PyVariable[temp.length + 1];
@@ -94,63 +93,62 @@ public class VariablesLoader implements ICommandResponseListener {
             temp = temp1;
         }
 
-        IVariable[] newVars = this.verifyVariablesModified(temp, oldVariables);
+        PyVariable[] newVars = this.verifyVariablesModified(temp, oldVariables);
 
         currentVariables = parent.setVariables(newVars);
     }
 
     /**
-     * compares stack frames to check for modified variables (and mark them as modified in the new stack)
+     * Compares stack frames to check for modified variables (and mark them as modified in the new stack).
+     * Tries to reuse variables from the old list so that the tree state is kept on the variables view.
      * 
-     * @param newFrame the new frame
-     * @param oldFrame the old frame
-     * @return 
+     * @returns the list to be used for the frame (which uses old variables when possible if they're compatible,
+     * even updating them in-place as needed).
      */
-    private IVariable[] verifyVariablesModified(IVariable[] newFrameVariables, IVariable[] oldVariables) {
+    private PyVariable[] verifyVariablesModified(PyVariable[] newFrameVariables, PyVariable[] oldVariables) {
         if (oldVariables == null || newFrameVariables == oldVariables) {
             return newFrameVariables; //All variables are new, so, no point in notifying it.
         }
-        ArrayList<IVariable> newVarsList = new ArrayList<>(newFrameVariables.length);
+        ArrayList<PyVariable> newVarsList = new ArrayList<>(newFrameVariables.length);
 
         PyVariable newVariable = null;
 
         try {
-            Map<String, IVariable> map = new HashMap<String, IVariable>();
-            for (IVariable var : oldVariables) {
-                map.put(var.getName(), var);
+            Map<String, PyVariable> map = new HashMap<String, PyVariable>();
+            for (PyVariable var : oldVariables) {
+                map.put(var.getPyDBLocation(), var);
             }
-            Map<String, IVariable> variablesAsMap = map;
+            Map<String, PyVariable> variablesAsMap = map;
 
             //we have to check for each new variable
             for (int i = 0; i < newFrameVariables.length; i++) {
-                newVariable = (PyVariable) newFrameVariables[i];
+                newVariable = newFrameVariables[i];
 
-                PyVariable oldVariable = (PyVariable) variablesAsMap.get(newVariable.getName());
+                PyVariable oldVariable = variablesAsMap.get(newVariable.getPyDBLocation());
 
                 if (oldVariable != null) {
                     boolean equals;
                     if (newVariable.getClass() != oldVariable.getClass()) {
-                        equals = false;
+                        // Changed from collection to simple var (or vice-versa).
+                        // If it's a new variable, we don't need to force it to get new variables
+                        // (this will happen naturally when requested).
+                        newVariable.setModified(true);
+                        newVarsList.add(newVariable);
                     } else {
-                        // Same class
-                        equals = newVariable.getValueString().equals(oldVariable.getValueString());
-                    }
-
-                    //if it is not equal, it was modified
-                    newVariable.setModified(!equals);
-
-                    if (equals) {
-                        //at this point, force the variable collection to get its own new contents
-                        //if it already existed as those may be old.
+                        // Same class: always use old variable (and set the value string accordingly)
+                        String newValueString = newVariable.getValueString();
+                        equals = newValueString.equals(oldVariable.getValueString());
+                        if (!equals) {
+                            oldVariable.copyValueString(newVariable);
+                        }
+                        // If it is not equal, it was modified.
+                        oldVariable.setModified(!equals);
+                        // Always force an existing variable collection to get new variables.
                         oldVariable.forceGetNewVariables();
                         newVarsList.add(oldVariable);
-                    } else {
-                        //if it's a new variable, we don't need to force it to get new variables
-                        //(this will happen naturally when requested).
-                        newVarsList.add(newVariable);
                     }
 
-                } else { //it didn't exist before...
+                } else { // It didn't exist before...
                     newVariable.setModified(true);
                     newVarsList.add(newVariable);
                 }
@@ -159,6 +157,6 @@ public class VariablesLoader implements ICommandResponseListener {
         } catch (DebugException e) {
             Log.log(e);
         }
-        return newVarsList.toArray(new IVariable[0]);
+        return newVarsList.toArray(new PyVariable[0]);
     }
 }

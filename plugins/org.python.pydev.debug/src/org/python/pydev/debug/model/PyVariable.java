@@ -105,6 +105,11 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
         return value;
     }
 
+    public void copyValueString(PyVariable newVariable) {
+        this.type = newVariable.type;
+        this.value = newVariable.value;
+    }
+
     @Override
     public String getName() throws DebugException {
         return name;
