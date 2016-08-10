@@ -21,6 +21,7 @@ import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.ITypeInfo;
 import org.python.pydev.core.UnpackInfo;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
@@ -44,6 +45,7 @@ import org.python.pydev.parser.jython.ast.UnaryOp;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.parser.visitors.TypeInfo;
 import org.python.pydev.parser.visitors.scope.ReturnVisitor;
 import org.python.pydev.shared_core.string.StringUtils;
 
@@ -146,7 +148,6 @@ public class AssignAnalysis {
         } finally {
             state.popAssign();
         }
-
     }
 
     private List<IToken> addFunctionDefCompletionsFromReturn(ICodeCompletionASTManager manager, ICompletionState state,
@@ -154,10 +155,10 @@ public class AssignAnalysis {
         ArrayList<IToken> ret = new ArrayList<IToken>();
         FunctionDef functionDef = (FunctionDef) definition.ast;
 
-        String type = NodeUtils.getReturnTypeFromDocstring(functionDef);
+        ITypeInfo type = NodeUtils.getReturnTypeFromFuncDefAST(functionDef);
         if (type != null) {
             ICompletionState copy = state.getCopy();
-            copy.setActivationToken(type);
+            copy.setActivationToken(type.getActTok());
             stmtType[] body = functionDef.body;
             if (body.length > 0) {
                 copy.setLine(body[0].beginLine - 1);
@@ -168,6 +169,12 @@ public class AssignAnalysis {
             state.checkDefinitionMemory(module, definition);
             IToken[] tks = manager.getCompletionsForModule(module, copy);
             if (tks.length > 0) {
+                // TODO: This is not ideal... ideally, we'd return this info along instead of setting
+                // it in the token, but this may be hard as we have to touch LOTS of places for
+                // this information to get to the needed place.
+                for (int i = 0; i < tks.length; i++) {
+                    tks[i].setGeneratorType(type);
+                }
                 ret.addAll(Arrays.asList(tks));
                 return ret; //Ok, resolved rtype!
             } else {
@@ -232,7 +239,7 @@ public class AssignAnalysis {
     private List<IToken> getNonFunctionDefCompletionsFromAssign(ICodeCompletionASTManager manager,
             ICompletionState state,
             SourceModule sourceModule, Definition definition, AssignDefinition assignDefinition)
-                    throws CompletionRecursionException {
+            throws CompletionRecursionException {
         IModule module;
         ArrayList<IToken> ret = new ArrayList<IToken>();
         if (definition.ast instanceof ClassDef) {
@@ -304,8 +311,8 @@ public class AssignAnalysis {
                         String rep = NodeUtils.getFullRepresentationString(call.args[parameterIndex - 1]);
 
                         HashSet<IToken> hashSet = new HashSet<IToken>();
-                        List<String> lookForClass = new ArrayList<String>();
-                        lookForClass.add(rep);
+                        List<ITypeInfo> lookForClass = new ArrayList<>();
+                        lookForClass.add(new TypeInfo(rep));
 
                         manager.getCompletionsForClassInLocalScope(sourceModule, state, true, false, lookForClass,
                                 hashSet);
@@ -415,7 +422,7 @@ public class AssignAnalysis {
      */
     public IToken[] searchInLocalTokens(ICodeCompletionASTManager manager, ICompletionState state,
             boolean lookForAssign, int line, int col, IModule module, ILocalScope scope, String activationToken)
-                    throws CompletionRecursionException {
+            throws CompletionRecursionException {
         //it may be declared as a global with a class defined in the local scope
         IToken[] allLocalTokens = scope.getAllLocalTokens();
         for (IToken token : allLocalTokens) {

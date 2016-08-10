@@ -197,4 +197,8 @@ public interface IToken extends Serializable, Comparable {
      * @return the image that should be used in the code-completion for this token.
      */
     public Image getImage();
+
+    public void setGeneratorType(ITypeInfo type);
+
+    public ITypeInfo getGeneratorType();
 }

@@ -207,7 +207,7 @@ public interface ICodeCompletionASTManager {
      */
     public abstract IToken[] getCompletionsForModule(IModule module, ICompletionState state,
             boolean searchSameLevelMods)
-                    throws CompletionRecursionException;
+            throws CompletionRecursionException;
 
     public abstract IToken[] getCompletionsForModule(IModule module, ICompletionState state,
             boolean searchSameLevelMods, boolean lookForArgumentCompletion) throws CompletionRecursionException;
@@ -264,8 +264,8 @@ public interface ICodeCompletionASTManager {
      * @throws CompletionRecursionException
      */
     public void getCompletionsForClassInLocalScope(IModule module, ICompletionState state, boolean searchSameLevelMods,
-            boolean lookForArgumentCompletion, List<String> lookForClass, HashSet<IToken> hashSet)
-                    throws CompletionRecursionException;
+            boolean lookForArgumentCompletion, List<ITypeInfo> lookForClass, HashSet<IToken> hashSet)
+            throws CompletionRecursionException;
 
     /**
      * Get the actual token representing the tokName in the passed module
@@ -328,6 +328,6 @@ public interface ICodeCompletionASTManager {
 
     public IToken[] getCompletionsFromTokenInLocalScope(IModule module, ICompletionState state,
             boolean searchSameLevelMods, boolean lookForArgumentCompletion, ILocalScope localScope)
-                    throws CompletionRecursionException;
+            throws CompletionRecursionException;
 
 }

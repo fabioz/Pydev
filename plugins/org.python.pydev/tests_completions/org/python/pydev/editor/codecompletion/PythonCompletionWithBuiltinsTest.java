@@ -114,7 +114,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
                 + TestDependent.PYTHON_OPENGL_PACKAGES +
                 "|" + TestDependent.PYTHON_DJANGO_PACKAGES
 
-        , false);
+                , false);
 
         codeCompletion = new PyCodeCompletion();
 
@@ -186,7 +186,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
         //look...
         s = "" +
 
-        "class bla(object):pass\n" +
+                "class bla(object):pass\n" +
                 "\n" +
                 "def newFunc(): \n"
                 +

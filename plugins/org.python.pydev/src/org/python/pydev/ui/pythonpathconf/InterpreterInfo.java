@@ -876,6 +876,8 @@ public class InterpreterInfo implements IInterpreterInfo {
         if (this.version.startsWith("2") || this.version.startsWith("1")) {
             //don't add it for 3.0 onwards.
             forcedLibs.add("__builtin__"); //jython bug: __builtin__ is not added
+        } else {
+            forcedLibs.add("builtins"); //just make sure it's always there!
         }
         forcedLibs.add("sys"); //jython bug: sys is not added
         forcedLibs.add("email"); //email has some lazy imports that pydev cannot handle through the source

@@ -13,10 +13,10 @@ package org.python.pydev.editor.codecompletion.revisited.visitors;
 import java.util.List;
 
 import org.python.pydev.core.ILocalScope;
+import org.python.pydev.core.ITypeInfo;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.PyParserTestBase;
 import org.python.pydev.parser.jython.SimpleNode;
-
 
 public class FindScopeVisitorTest extends PyParserTestBase {
 
@@ -83,9 +83,9 @@ public class FindScopeVisitorTest extends PyParserTestBase {
                 "    ";
 
         ILocalScope localScope = findLocalScope(s, 2, 1);
-        List<String> found = localScope.getPossibleClassesForActivationToken("a");
+        List<ITypeInfo> found = localScope.getPossibleClassesForActivationToken("a");
         assertEquals(1, found.size());
-        assertEquals("str", found.get(0));
+        assertEquals("str", found.get(0).getActTok());
     }
 
     public void testFindAssertInLocalScope2() throws Exception {
@@ -94,9 +94,9 @@ public class FindScopeVisitorTest extends PyParserTestBase {
                 "    ";
 
         ILocalScope localScope = findLocalScope(s, 2, 1);
-        List<String> found = localScope.getPossibleClassesForActivationToken("a");
+        List<ITypeInfo> found = localScope.getPossibleClassesForActivationToken("a");
         assertEquals(2, found.size());
-        assertEquals("list", found.get(0));
-        assertEquals("tuple", found.get(1));
+        assertEquals("list", found.get(0).getActTok());
+        assertEquals("tuple", found.get(1).getActTok());
     }
 }

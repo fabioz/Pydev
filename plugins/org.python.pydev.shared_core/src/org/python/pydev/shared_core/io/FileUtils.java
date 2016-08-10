@@ -724,6 +724,9 @@ public class FileUtils {
                         if ("uft-8".equals(ret) && fileLocation.endsWith("bad_coding.py")) {
                             return null; //this is an expected error in the python library.
                         }
+                        if ("string-escape".equals(ret) && fileLocation.endsWith("bad_coding3.py")) {
+                            return null; //this is an expected error in the python library.
+                        }
                     }
                     String msg = "The encoding found: >>" + ret + "<< on " + fileLocation + " is not a valid encoding.";
                     Log.log(IStatus.ERROR, msg, new UnsupportedEncodingException(msg));
