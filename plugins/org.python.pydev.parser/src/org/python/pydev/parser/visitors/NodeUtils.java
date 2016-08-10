@@ -57,6 +57,7 @@ import org.python.pydev.parser.jython.ast.VisitorBase;
 import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.With;
 import org.python.pydev.parser.jython.ast.aliasType;
+import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.parser.jython.ast.comprehensionType;
 import org.python.pydev.parser.jython.ast.excepthandlerType;
@@ -1407,6 +1408,43 @@ public class NodeUtils {
         return nodeOffsetBegin;
     }
 
+    /**
+     * Deal with PEP 484 (Type Hints)
+     */
+    public static String getTypeForParameterFromStaticTyping(String actTok, SimpleNode node) {
+        if (node instanceof FunctionDef) {
+            FunctionDef functionDef = (FunctionDef) node;
+            argumentsType args = functionDef.args;
+            if (args == null) {
+                return null;
+            }
+            exprType[] annotation = args.annotation;
+            if (annotation == null) {
+                return null;
+            }
+            exprType[] args2 = args.args;
+            if (args2 == null) {
+                return null;
+            }
+            for (int i = 0; i < args2.length; i++) {
+                exprType argI = args2[i];
+                if (argI != null) {
+                    String rep = NodeUtils.getRepresentationString(argI);
+                    if (actTok.equals(rep)) {
+                        if (annotation.length > i) {
+                            exprType exprType = annotation[i];
+                            if (exprType != null) {
+                                String s = NodeUtils.getFullRepresentationString(exprType);
+                                return s;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     public static String getTypeForParameterFromDocstring(String actTok, SimpleNode node) {
         String nodeDocString = NodeUtils.getNodeDocString(node);
         if (nodeDocString != null) {
@@ -1582,7 +1620,7 @@ public class NodeUtils {
 
     private static String getValueForContainer(String substring, int currentPos, int unpackTuple,
             int foundFirstSeparator)
-                    throws SyntaxErrorException {
+            throws SyntaxErrorException {
         if (unpackTuple == -1) {
             return substring;
         }

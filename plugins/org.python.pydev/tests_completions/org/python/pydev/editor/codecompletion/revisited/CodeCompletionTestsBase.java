@@ -17,8 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -46,6 +44,8 @@ import org.python.pydev.ui.BundleInfoStub;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.python.pydev.utils.PrintProgressMonitor;
+
+import junit.framework.TestCase;
 
 /**
  * @author Fabio Zadrozny
@@ -327,6 +327,10 @@ public class CodeCompletionTestsBase extends TestCase {
         return new NullProgressMonitor();
     }
 
+    protected boolean isPython3Test() {
+        return false;
+    }
+
     /**
      * Sets the interpreter manager we should use
      * @param path 
@@ -335,9 +339,15 @@ public class CodeCompletionTestsBase extends TestCase {
         PythonInterpreterManager interpreterManager = new PythonInterpreterManager(this.getPreferences());
 
         InterpreterInfo info;
-        info = (InterpreterInfo) interpreterManager.createInterpreterInfo(TestDependent.PYTHON_EXE,
-                new NullProgressMonitor(), false);
-        TestDependent.PYTHON_EXE = info.executableOrJar;
+        if (isPython3Test()) {
+            info = (InterpreterInfo) interpreterManager.createInterpreterInfo(TestDependent.PYTHON_30_EXE,
+                    new NullProgressMonitor(), false);
+            TestDependent.PYTHON_30_EXE = info.executableOrJar;
+        } else {
+            info = (InterpreterInfo) interpreterManager.createInterpreterInfo(TestDependent.PYTHON_EXE,
+                    new NullProgressMonitor(), false);
+            TestDependent.PYTHON_EXE = info.executableOrJar;
+        }
         if (path != null) {
             info = new InterpreterInfo(info.getVersion(), info.executableOrJar,
                     PythonPathHelper.parsePythonPathFromStr(path, new ArrayList<String>()));

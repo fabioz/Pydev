@@ -48,8 +48,9 @@ public class TestDependent {
     public static String PYTHON_MX_PACKAGES = null;
     public static String PYTHON_PIL_PACKAGES = null;
 
-    //python 3.0
+    //python 3.x
     public static String PYTHON_30_LIB = null;
+    public static String PYTHON_30_EXE = null;
 
     // the following are all derived from TEST_PYDEV_BASE_LOC if unset
     public static String TEST_PYSRC_LOC = null;
