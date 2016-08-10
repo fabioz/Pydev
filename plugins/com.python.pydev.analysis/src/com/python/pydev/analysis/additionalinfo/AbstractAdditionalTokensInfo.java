@@ -311,7 +311,7 @@ public abstract class AbstractAdditionalTokensInfo {
             throw new RuntimeException("Don't know how to handle: " + doc + " -- " + doc.getClass());
         }
 
-        SimpleNode node = FastDefinitionsParser.parse(charArray, key.file.getName(), len);
+        SimpleNode node = FastDefinitionsParser.parse(charArray, key.file.getName(), len, key.file);
         if (node == null) {
             return null;
         }

@@ -11,10 +11,10 @@ package org.python.pydev.core.docutils;
 
 import java.util.Iterator;
 
-import junit.framework.TestCase;
-
 import org.eclipse.jface.text.Document;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+
+import junit.framework.TestCase;
 
 public class ParsingUtilsTest extends TestCase {
 
@@ -186,6 +186,16 @@ public class ParsingUtilsTest extends TestCase {
         assertEquals(39, parsing.getFullFlattenedLine(25, buf.clear()));
         assertEquals("call", buf.toString());
         assertEquals(')', str.charAt(39));
+    }
+
+    public void testGetFlattenedLineWindowsStyle() throws Exception {
+        String str = "" +
+                "start =\\\r\n" +
+                "10 \n";
+        ParsingUtils parsing = ParsingUtils.create(str);
+        FastStringBuffer buf = new FastStringBuffer();
+        assertEquals(12, parsing.getFullFlattenedLine(0, buf.clear()));
+
     }
 
     public void testGetFlattenedLine2() throws Exception {

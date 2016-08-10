@@ -579,8 +579,15 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
                     i--;
                     break;
                 }
+                // ignoreNextNewLine == true
+                if (i < len && c == '\r') {
+                    //deal with \r\n if found...
+                    if (charAt(i) == '\n') {
+                        i++;
+                    }
+                }
 
-            } else if (c == '\\' || c == '\\') {
+            } else if (c == '\\') {
                 ignoreNextNewLine = true;
                 continue;
 
@@ -592,7 +599,7 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
 
             ignoreNextNewLine = false;
         }
-        i--; //we have to do that because we passed 1 char in the beggining of the while.
+        i--; //we have to do that because we passed 1 char in the beginning of the while.
         return i;
     }
 
@@ -1063,8 +1070,7 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
         ;
     }
 
-    public static boolean isCommentContentType(String contentType)
-    {
+    public static boolean isCommentContentType(String contentType) {
         return IPythonPartitions.PY_COMMENT.equals(contentType);
     }
 
