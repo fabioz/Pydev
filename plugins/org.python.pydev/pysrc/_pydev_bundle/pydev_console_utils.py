@@ -153,7 +153,11 @@ class BaseInterpreterInterface:
         if hasattr(self.interpreter, 'is_complete'):
             return not self.interpreter.is_complete(source)
         try:
-            code = self.interpreter.compile(source, '<input>', 'exec')
+            if IS_JYTHON:
+                symbol = 'single' # Jython does not support 'exec'
+            else:
+                symbol = 'exec'
+            code = self.interpreter.compile(source, '<input>', symbol)
         except (OverflowError, SyntaxError, ValueError):
             # Case 1
             return False
