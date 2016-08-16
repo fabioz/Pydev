@@ -1584,4 +1584,22 @@ public class FastDefinitionsParserTest extends TestCase {
         assertEquals("test_multiline", NodeUtils.getRepresentationString(((FunctionDef) m.body[2]).name));
     }
 
+    /**
+     * A tab must be counted as 8 spaces!
+     */
+    public void testMixSpacesAndTabs() {
+        Module m = (Module) FastDefinitionsParser.parse("" +
+                "def method():\n" +
+                "\n" +
+                "\tfor remainder in match_1.remainders:\n" +
+                "\t    a_2 = remainder.a\n" +
+                "            c_2 = remainder.c\n" +
+                "            match = a\n" +
+                "            if not match.isError():\n" +
+                "                return Match()\n" +
+                "        return Error(\"\")");
+        assertEquals(1, m.body.length);
+        assertEquals("method", NodeUtils.getRepresentationString(((FunctionDef) m.body[0]).name));
+    }
+
 }

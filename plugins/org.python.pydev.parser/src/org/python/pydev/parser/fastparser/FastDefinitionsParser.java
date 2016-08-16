@@ -63,16 +63,14 @@ public final class FastDefinitionsParser {
         public final stmtType node;
         public final List<SimpleNode> body = new LowMemoryArrayList<>();
 
-        public NodeEntry(Assign assign) {
-            this.node = assign;
-        }
+        public final int logicalColumn;
 
-        public NodeEntry(ClassDef classDef) {
-            this.node = classDef;
-        }
-
-        public NodeEntry(FunctionDef functionDef) {
-            this.node = functionDef;
+        /**
+         * leadingTabs: how many cols in node.beginColumn were found as tabs.
+         */
+        public NodeEntry(stmtType stmt, int leadingTabs) {
+            this.node = stmt;
+            this.logicalColumn = (stmt.beginColumn - leadingTabs) + (leadingTabs * 8);
         }
 
         /**
@@ -133,6 +131,11 @@ public final class FastDefinitionsParser {
      * The current column
      */
     private int col;
+
+    /**
+     * How many leading tabs we've found.
+     */
+    private int leadingTabsInLine;
 
     /**
      * The current row
@@ -325,7 +328,7 @@ public final class FastDefinitionsParser {
                                 Assign assign = new Assign(targets.toArray(new exprType[targets.size()]), null);
                                 assign.beginColumn = this.firstCharCol;
                                 assign.beginLine = this.row;
-                                stack.push(new NodeEntry(assign));
+                                stack.push(new NodeEntry(assign, leadingTabsInLine));
                             }
                         }
                     }
@@ -369,6 +372,7 @@ public final class FastDefinitionsParser {
         }
 
         col = 1;
+        leadingTabsInLine = 0;
         row++;
         if (DEBUG) {
             System.out.println("Handling new line:" + row);
@@ -380,11 +384,14 @@ public final class FastDefinitionsParser {
         while (currIndex < length - 1 && Character.isWhitespace(c) && c != '\r' && c != '\n') {
             currIndex++;
             col++;
+            if (c == '\t') {
+                leadingTabsInLine++;
+            }
             c = cs[currIndex];
         }
 
         if (!Character.isWhitespace(c) && c != '#') {
-            endScopesInStack(col);
+            endScopesInStack((col - leadingTabsInLine) + (leadingTabsInLine * 8));
         }
 
         int funcDefIndex = -1;
@@ -396,7 +403,7 @@ public final class FastDefinitionsParser {
             if (this.length <= currIndex) {
                 return;
             }
-            startClass(getNextIdentifier(c), row, startClassCol);
+            startClass(getNextIdentifier(c), row, startClassCol, leadingTabsInLine);
 
         } else if ((c == 'd' && (funcDefIndex = matchFunction()) != -1) ||
                 (c == 'a' && (funcDefIndex = matchAsyncFunction()) != -1)) {
@@ -410,7 +417,7 @@ public final class FastDefinitionsParser {
             if (this.length <= currIndex) {
                 return;
             }
-            startMethod(getNextIdentifier(c), row, startMethodCol);
+            startMethod(getNextIdentifier(c), row, startMethodCol, leadingTabsInLine);
         }
         firstCharCol = col;
         if (currIndex < length) {
@@ -535,13 +542,13 @@ public final class FastDefinitionsParser {
      * @param startMethodRow the row where the scope should start
      * @param startMethodCol the column where the scope should start
      */
-    private void startMethod(String name, int startMethodRow, int startMethodCol) {
+    private void startMethod(String name, int startMethodRow, int startMethodCol, int leadingTabs) {
         NameTok nameTok = new NameTok(name, NameTok.ClassName);
         FunctionDef functionDef = new FunctionDef(nameTok, null, null, null, null, false);
         functionDef.beginLine = startMethodRow;
         functionDef.beginColumn = startMethodCol;
 
-        stack.push(new NodeEntry(functionDef));
+        stack.push(new NodeEntry(functionDef, leadingTabs));
     }
 
     /**
@@ -549,20 +556,20 @@ public final class FastDefinitionsParser {
      * @param startClassRow the row where the scope should start
      * @param startClassCol the column where the scope should start
      */
-    private void startClass(String name, int startClassRow, int startClassCol) {
+    private void startClass(String name, int startClassRow, int startClassCol, int leadingTabs) {
         NameTok nameTok = new NameTok(name, NameTok.ClassName);
         ClassDef classDef = new ClassDef(nameTok, null, null, null, null, null, null);
 
         classDef.beginLine = startClassRow;
         classDef.beginColumn = startClassCol;
 
-        stack.push(new NodeEntry(classDef));
+        stack.push(new NodeEntry(classDef, leadingTabs));
     }
 
-    private void endScopesInStack(int currCol) {
+    private void endScopesInStack(int currLogicalCol) {
         while (stack.size() > 0) {
             NodeEntry peek = stack.peek();
-            if (peek.node.beginColumn < currCol) {
+            if (peek.logicalColumn < currLogicalCol) {
                 break;
             }
             NodeEntry currNode = stack.pop();
