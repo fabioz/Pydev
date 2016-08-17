@@ -162,11 +162,17 @@ Companies have the option of sponsoring PyDev through corporate sponsorship. See
 Release 5.2.0
 ==========================
 
-* Inital support for code-completion using PEP 484 static type declarations.
+* **Important** PyDev now requires Java 8 and Eclipse 4.5 onwards.
+
+    * PyDev 4.5.5 is the last release supporting Java 7 and Eclipse 3.8.
+    * See: `update sites page`_ for the update site of older versions of PyDev.
+    * See: the **PyDev does not appear after install** section on `the download page`_ for help on using a Java 8 vm in Eclipse.
+
+* Inital support for code-completion using **PEP 484 static type declarations**.
 
 * **Debugger**
 
-    * Fixed racing condition where the values could show or not in the debugger (which made an additional select of the stack required in order to show the variables (#PyDev-672).
+    * Fixed racing condition where the variables view would not be properly shown in the debugger -- which made an additional select of the stack required in order to show the variables (#PyDev-672).
     * Reusing the existing stack from the thread in the debugger (so that the expanded state of the variables is properly kept on step over).
     * Fixed issue changing attribute of local variable in the variables view (#PyDev.Debugger-56).
     * Fixed issue on attach to process: it required the pydevd_tracing to be at the top-level and it was moved to _pydevd_bundle (restored it to be a public API).
@@ -189,7 +195,7 @@ Release 5.2.0
 * **Others**    
 
     * The (fast) parser which detects the outline of a Python module now handles mixed indentation (and additional fixes which could result in log entries such as "Did not expect to find item below node: Assign...").
-    * Supporting unpacking generalizations (PEP 448) for Python 3.5 (#PyDev-701).
+    * Support for unpacking generalizations (PEP 448) which could still result in a syntax error for the Python 3 grammar (#PyDev-701).
     * Fixed error in code analysis when the code is connected to an RTC source control (#PyDev-184, patch by Wesley Barroso Lopes)
 
 Release 5.1.2
@@ -233,46 +239,6 @@ Release 5.0.0
 * No longer showing un-needed shell on Linux on startup when showing donation dialog.
 
 * Fixed pyedit_wrap_expression to avoid halt of the IDE on Ctrl+1 -> Wrap expression.
-
-
-Release 4.5.5
-==========================
-
-* Code Completion
-
-	* namedtuple now recognized in code-completion.
-	* Code completion now available for super() (#PyDev-592).
-
-* PyTest integration
-
-	* Files in tracebacks now clickable in latest pytest.
-	* Skips not marked as errors in the latest pytest.
-
-* Parser:
-
-	* async and await should also be valid as names in Python 3 grammar (#PyDev-593).
-	* Additional Unpacking Generalizations from PEP 448 recognized (#PyDev-667).
-	* Made clearer in the UI that Python 3 grammar should support Python 3.0 to Python 3.5.
-
-* Debugger:
-
-	* tests package should no longer pollute name space (Removed tests directories from build: #PyDev-663).
-	* Multiprocessing working properly under debugger (Celery Cannot Run in Debug Mode: #PyDev-662).
-
-* Others:
-
-	* Introduce source features/plugins (patch by Andreas Pakulat).
-	* Default test runner now works with Django >= 1.8 (#PyDev 614, patch by Ville Skyttä).
-
-
-Release 4.5.4
-==========================
-
-* Debugger
-
-	* Fixed critical issue, in which the main process was killed during the debugging when a subprocess exited when	"Attach to subprocess automatically while debugging" was enabled (#PyDev 656).
-
-	* Fixed issue which broke the action to get the referrers of some object in the debugger (right-click variable in debugger > get referrers).
 
 
 `View release notes for previous releases`_
