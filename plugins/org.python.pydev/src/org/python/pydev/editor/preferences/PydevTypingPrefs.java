@@ -121,7 +121,7 @@ public class PydevTypingPrefs extends ScopedFieldEditorPreferencePage implements
 
         //pep-8 indent?
         final BooleanFieldEditorCustom usePep8Indent = addBooleanField(p, INDENT_AFTER_PAR_AS_PEP8,
-                "    After '(' indent as pep-8.\n", "");
+                "    After {, [, ( indent as pep-8.\n", "");
 
         final LabelFieldEditor labelPep8_1 = new LabelFieldEditor("__UNUSED__00",
                 "            I.e.: add indentation plus additional level right after", p);
@@ -129,12 +129,12 @@ public class PydevTypingPrefs extends ScopedFieldEditorPreferencePage implements
         final LabelFieldEditor labelPep8_2 = new LabelFieldEditor("__UNUSED__01", "", p);
         addField(labelPep8_2); // fill second column
         final LabelFieldEditor labelPep8_3 = new LabelFieldEditor("__UNUSED__02",
-                "            parenthesis or indent to parenthesis after another token.", p);
+                "            braces or indent to braces after another token.", p);
         addField(labelPep8_3);
 
         // indent
         final BooleanFieldEditorCustom autoIndentToParLevel = addBooleanField(p, AUTO_INDENT_TO_PAR_LEVEL,
-                "    After '(' indent to its level (indents by tabs if unchecked)", "");
+                "    After {, [, ( indent to its level (indents by tabs if unchecked)", "");
 
         final IntegerFieldEditor indentationLevelsToAddField = new IntegerFieldEditor(AUTO_INDENT_AFTER_PAR_WIDTH,
                 "        Number of indentation levels to add:", p, 1);
