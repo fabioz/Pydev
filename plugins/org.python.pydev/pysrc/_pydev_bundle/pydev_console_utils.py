@@ -345,8 +345,10 @@ class BaseInterpreterInterface:
 
     def execMultipleLines(self, lines):
         if IS_JYTHON:
+            more = False
             for line in lines.split('\n'):
-                self.do_exec_code(line, True)
+                more = self.do_exec_code(line, True)
+            return more
         else:
             return self.do_exec_code(lines, False)
 
