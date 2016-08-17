@@ -153,10 +153,15 @@ class BaseInterpreterInterface:
         if hasattr(self.interpreter, 'is_complete'):
             return not self.interpreter.is_complete(source)
         try:
-            if IS_JYTHON:
-                symbol = 'single' # Jython does not support 'exec'
-            else:
-                symbol = 'exec'
+            # At this point, it should always be single.
+            # If we don't do this, things as:
+            #
+            #     for i in range(10): print(i) 
+            #
+            # (in a single line) don't work.
+            # Note that it won't give an error and code will be None (so, it'll
+            # use execMultipleLines in the next call in this case).
+            symbol = 'single' 
             code = self.interpreter.compile(source, '<input>', symbol)
         except (OverflowError, SyntaxError, ValueError):
             # Case 1
