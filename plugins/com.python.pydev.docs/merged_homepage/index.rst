@@ -134,13 +134,17 @@ Silver Sponsors
 .. raw:: html
 
    <!--Added 2016-04-02-->
-   <a href="http://www.chameleonjohn.com" border=0><img class="sponsors" src="images/sponsors/logo_chameleon_john.png" alt="ChameleonJohn Coupons" title="http://www.chameleonjohn.com" /></a>
+   <a href="http://www.chameleonjohn.com" border=0><img class="sponsors" src="images/sponsors/logo_chameleon_john_150_60.png" alt="ChameleonJohn Coupons" title="http://www.chameleonjohn.com" /></a>
 
    <!--Added 2016-07-13-->
-   <a href="http://www.o365cloudexperts.com/" border=0><img class="sponsors" src="images/sponsors/cloudexperts.jpg" alt="Apps4Rent" title="http://www.o365cloudexperts.com/" /></a>
+   <a href="http://www.o365cloudexperts.com/" border=0><img class="sponsors" src="images/sponsors/cloudexperts_150_60.png" alt="Apps4Rent" title="http://www.o365cloudexperts.com/" /></a>
 
    <!--Added 2016-08-02-->
-   <a href="http://www.dealslands.co.uk" border=0><img class="sponsors" src="images/sponsors/dealslandsco uk.png" alt="Dealslands.co.uk" title="http://www.dealslands.co.uk" /></a>
+   <a href="http://www.dealslands.co.uk" border=0><img class="sponsors" src="images/sponsors/dealslandsco_uk_150_60.png" alt="Dealslands.co.uk" title="http://www.dealslands.co.uk" /></a>
+   <br/>
+
+   <!--Added 2016-09-09-->
+   <a href="http://www.binaryoptionrobotinfo.com/brokers/" border=0><img class="sponsors" src="images/sponsors/binary_option_robot_info_150_60.png" alt="Binary Option Robot Info" title="http://www.binaryoptionrobotinfo.com/brokers/" /></a>
 
 Supporting PyDev
 =================
