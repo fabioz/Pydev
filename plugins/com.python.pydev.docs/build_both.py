@@ -150,6 +150,9 @@ if __name__ == '__main__':
     # Copy the update site redirections
     shutil.rmtree(os.path.join('final', 'updates'), ignore_errors=True)
     shutil.copytree('updates', os.path.join('final', 'updates'))
+    
+    shutil.rmtree(os.path.join('final', 'supporters'), ignore_errors=True)
+    shutil.copytree('supporters', os.path.join('final', 'supporters'))
 
     for filename in ('.htaccess', 'index.html'):
         with open(os.path.join('final', 'updates', filename), 'r') as stream:
