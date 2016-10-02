@@ -10,8 +10,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IIndentPrefs;
@@ -53,6 +53,12 @@ public class PrettyPrinterV2 {
                 @Override
                 public int getGrammarVersion() throws MisconfigurationException {
                     return IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;
+                }
+
+                @Override
+                public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions()
+                        throws MisconfigurationException {
+                    return null;
                 }
             };
         }
@@ -333,7 +339,7 @@ public class PrettyPrinterV2 {
             return indent;
         }
 
-        ILinePart2 iLinePart2 = (ILinePart2) linePart;
+        ILinePart2 iLinePart2 = linePart;
         commentType commentType = (commentType) linePart.getToken();
         int col = commentType.beginColumn;
         if (col == 1) { //yes, our indexing starts at 1.

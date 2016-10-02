@@ -117,6 +117,12 @@ public class NodeUtils {
                         public int getGrammarVersion() throws MisconfigurationException {
                             return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0;
                         }
+
+                        @Override
+                        public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions()
+                                throws MisconfigurationException {
+                            return null;
+                        }
                     }, functionDef.args);
                     if (printed != null) {
                         if (!printed.startsWith("(") || !printed.endsWith(")")) {

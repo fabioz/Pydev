@@ -103,7 +103,7 @@ public class CodeFoldingSetterTest extends TestCase {
             "    else:\n" + //77                                       
             "        print 'nothing'\n" + //78                                                     
             "        print 'other'" //79                   
-            ;
+    ;
 
     public static void main(String[] args) {
         try {
@@ -365,7 +365,7 @@ public class CodeFoldingSetterTest extends TestCase {
     }
 
     private List<FoldingEntry> getMarks(Document doc, int grammarVersion) {
-        ParseOutput r = PyParser.reparseDocument(new PyParser.ParserInfo(doc, grammarVersion));
+        ParseOutput r = PyParser.reparseDocument(new PyParser.ParserInfo(doc, grammarVersion, null));
         List<FoldingEntry> marks = CodeFoldingSetter.getMarks(doc, (SimpleNode) r.ast, true);
         if (DEBUG) {
             for (FoldingEntry entry : marks) {

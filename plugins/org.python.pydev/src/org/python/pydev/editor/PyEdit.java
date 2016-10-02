@@ -1505,6 +1505,15 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     }
 
     @Override
+    public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException {
+        IPythonNature pythonNature = getPythonNature();
+        if (pythonNature != null) {
+            return pythonNature.getAdditionalGrammarVersions();
+        }
+        return null;
+    }
+
+    @Override
     public IGrammarVersionProvider getGrammarVersionProvider() {
         return new IGrammarVersionProvider() {
 
@@ -1512,6 +1521,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             public int getGrammarVersion() throws MisconfigurationException {
                 //Always calculate at the present time based on the editor configuration.
                 return PyEdit.this.getGrammarVersion();
+            }
+
+            @Override
+            public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException {
+                return PyEdit.this.getAdditionalGrammarVersions();
             }
         };
     }

@@ -8,8 +8,6 @@ package org.python.pydev.parser.fastparser;
 
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.MisconfigurationException;
@@ -21,6 +19,8 @@ import org.python.pydev.parser.prettyprinter.AbstractPrettyPrinterTestBase;
 import org.python.pydev.parser.prettyprinterv2.IPrettyPrinterPrefs;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
 import org.python.pydev.parser.visitors.NodeUtils;
+
+import junit.framework.TestCase;
 
 /**
  * Note: tests don't have the correct syntax on purpose!
@@ -204,8 +204,7 @@ public class FastParserTest extends TestCase {
                 + "    cdef int b\n"
                 + "    b = 6\n"
                 + "    return a\n"
-                + "\n"
-                );
+                + "\n");
         List<stmtType> stmts = FastParser.parseCython(doc);
         assertEquals(2, stmts.size());
         assertEquals("a", NodeUtils.getRepresentationString(stmts.get(0)));
@@ -236,8 +235,7 @@ public class FastParserTest extends TestCase {
                 + "    def d():\n"
                 + "    def e():\n"
                 + "        cdef int b\n"
-                + "\n"
-                );
+                + "\n");
         List<stmtType> stmts = FastParser.parseCython(doc);
 
         String s = printAst(stmts);
@@ -257,6 +255,11 @@ public class FastParserTest extends TestCase {
             @Override
             public int getGrammarVersion() throws MisconfigurationException {
                 return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
+            }
+
+            @Override
+            public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException {
+                return null;
             }
         };
         IPrettyPrinterPrefs prefs = new PrettyPrinterPrefsV2("\n", "    ", versionProvider);
@@ -323,7 +326,8 @@ public class FastParserTest extends TestCase {
         checkNode(classBeginLine, classBeginCol, nameBeginLine, nameBeginCol, node);
     }
 
-    private void checkNode(int classBeginLine, int classBeginCol, int nameBeginLine, int nameBeginCol, SimpleNode node) {
+    private void checkNode(int classBeginLine, int classBeginCol, int nameBeginLine, int nameBeginCol,
+            SimpleNode node) {
         assertEquals(classBeginLine, node.beginLine);
         assertEquals(classBeginCol, node.beginColumn);
 

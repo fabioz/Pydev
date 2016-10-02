@@ -12,6 +12,9 @@
 package org.python.pydev.ui;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -20,7 +23,9 @@ import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.PreferenceDialog;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
@@ -35,14 +40,20 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.dialogs.PropertyPage;
+import org.python.pydev.core.IGrammarVersionProvider;
+import org.python.pydev.core.IGrammarVersionProvider.AdditionalGrammarVersionsToCheck;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.utils.ArrayUtils;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
+import org.python.pydev.ui.dialogs.SelectNDialog;
 import org.python.pydev.ui.pythonpathconf.AutoConfigMaker;
 import org.python.pydev.ui.pythonpathconf.IInterpreterProviderFactory.InterpreterType;
 import org.python.pydev.ui.pythonpathconf.InterpreterConfigHelpers;
@@ -52,6 +63,10 @@ import org.python.pydev.utils.ICallback;
  * @author Fabio Zadrozny
  */
 public class PyProjectPythonDetails extends PropertyPage {
+
+    private static final String ADDITIONAL_SYNTAX_PREFIX = "Additional syntax validation: ";
+    private static final String ADDITIONAL_SYNTAX_NO_SELECTED = ADDITIONAL_SYNTAX_PREFIX
+            + "<no additional grammars selected>.";
 
     /**
      * This class provides a way to show to the user the options available to configure a project with the
@@ -69,6 +84,7 @@ public class PyProjectPythonDetails extends PropertyPage {
         private SelectionListener selectionListener;
         private ICallback onSelectionChanged;
         private Label interpreterLabel;
+        private Label labelAdditionalGrammarsSelected;
 
         public ProjectInterpreterAndGrammarConfig() {
             //Don't want to display "config interpreter" dialog when this dialog does that already.
@@ -284,6 +300,45 @@ public class PyProjectPythonDetails extends PropertyPage {
                 }
             });
 
+            //Additional grammar validations
+            Composite composite = new Composite(topComp, SWT.NONE);
+            composite.setLayout(new GridLayout(2, false));
+
+            labelAdditionalGrammarsSelected = new Label(composite, SWT.NONE);
+
+            labelAdditionalGrammarsSelected.setText(ADDITIONAL_SYNTAX_NO_SELECTED);
+
+            gd = new GridData(GridData.FILL_HORIZONTAL);
+            labelAdditionalGrammarsSelected.setLayoutData(gd);
+
+            Button button = new Button(composite, SWT.PUSH);
+            button.setText("...");
+            gd = new GridData();
+            button.setLayoutData(gd);
+            button.addSelectionListener(new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    List<String> grammarversionsrep = new ArrayList<>(IGrammarVersionProvider.grammarVersionsRep);
+                    final String NO_VALIDATION = "No additional syntax validation";
+                    grammarversionsrep.add(NO_VALIDATION);
+                    String[] selected = SelectNDialog.selectMulti(grammarversionsrep,
+                            new LabelProvider(),
+                            "Select additional grammars for syntax validation");
+                    if (ArrayUtils.contains(selected, NO_VALIDATION)) {
+                        selected = null;
+                    }
+                    if (selected == null || selected.length == 0) {
+                        labelAdditionalGrammarsSelected.setText(ADDITIONAL_SYNTAX_NO_SELECTED);
+                    } else {
+                        labelAdditionalGrammarsSelected
+                                .setText(ADDITIONAL_SYNTAX_PREFIX + StringUtils.join(", ", selected));
+                    }
+                }
+            });
+
+            gd = new GridData(GridData.FILL_HORIZONTAL);
+            composite.setLayoutData(gd);
+
             return topComp;
         }
 
@@ -334,6 +389,14 @@ public class PyProjectPythonDetails extends PropertyPage {
             comboGrammarVersion.setText(numberToUi(IPythonNature.Versions.LAST_VERSION_NUMBER));
             //Just to update things
             this.selectionListener.widgetSelected(null);
+        }
+
+        public String getAdditionalGrammarValidation() {
+            String text = labelAdditionalGrammarsSelected.getText();
+            if (text.equals(ADDITIONAL_SYNTAX_NO_SELECTED)) {
+                return null;
+            }
+            return text.substring(ADDITIONAL_SYNTAX_PREFIX.length());
         }
 
     }
@@ -415,6 +478,33 @@ public class PyProjectPythonDetails extends PropertyPage {
                 projectConfig.interpretersChoice.setText(configuredInterpreter);
             }
 
+            AdditionalGrammarVersionsToCheck additionalGrammarVersions = null;
+            try {
+                additionalGrammarVersions = pythonNature.getAdditionalGrammarVersions();
+            } catch (MisconfigurationException e) {
+
+            }
+            FastStringBuffer buf = new FastStringBuffer();
+            if (additionalGrammarVersions != null) {
+                Set<Integer> grammarVersions = additionalGrammarVersions.getGrammarVersions();
+                if (grammarVersions != null) {
+                    for (Integer grammarV : new TreeSet<Integer>(grammarVersions)) {
+                        String rep = IGrammarVersionProvider.grammarVersionToRep.get(grammarV);
+                        if (rep != null) {
+                            if (buf.length() > 0) {
+                                buf.append(", ");
+                            }
+                            buf.append(rep);
+                        }
+                    }
+                }
+            }
+            if (buf.length() == 0) {
+                projectConfig.labelAdditionalGrammarsSelected.setText(ADDITIONAL_SYNTAX_NO_SELECTED);
+            } else {
+                projectConfig.labelAdditionalGrammarsSelected.setText(ADDITIONAL_SYNTAX_PREFIX + buf.toString());
+            }
+
         } catch (CoreException e) {
             Log.log(e);
         }
@@ -449,6 +539,7 @@ public class PyProjectPythonDetails extends PropertyPage {
                     return false;
                 }
                 pythonNature.setVersion(projectConfig.getSelectedPythonOrJythonAndGrammarVersion(), projectInterpreter);
+                pythonNature.setAdditionalGrammarValidation(projectConfig.getAdditionalGrammarValidation());
             } catch (CoreException e) {
                 Log.log(e);
             }

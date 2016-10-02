@@ -281,6 +281,16 @@ public class PyMergeViewer extends TextMergeViewer {
             }
 
             @Override
+            public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException {
+                IPythonNature pythonNature = this.getPythonNature();
+                if (pythonNature == null) {
+                    Log.logInfo("Expected to get the PythonNature at this point...");
+                    return null;
+                }
+                return pythonNature.getAdditionalGrammarVersions();
+            }
+
+            @Override
             public Object getAdapter(Class adapter) {
                 if (adapter == IResource.class) {
                     return PyMergeViewer.this.getResource(PyMergeViewer.this.getInput());
@@ -299,11 +309,13 @@ public class PyMergeViewer extends TextMergeViewer {
                 }
                 return null;
             }
+
         };
 
         final PyEditConfiguration sourceViewerConfiguration = new PyEditConfiguration(c, editor, chainedPrefStore);
         sourceViewerConfiguration.getPyAutoIndentStrategy(editor); // Force its initialization
-        sourceViewerConfigurationObj[0] = new WeakReference<PyEditConfigurationWithoutEditor>(sourceViewerConfiguration);
+        sourceViewerConfigurationObj[0] = new WeakReference<PyEditConfigurationWithoutEditor>(
+                sourceViewerConfiguration);
         sourceViewer.configure(sourceViewerConfiguration);
 
         IPropertyChangeListener prefChangeListener = PyEdit.createPrefChangeListener(editor);

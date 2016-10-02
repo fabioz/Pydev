@@ -123,6 +123,12 @@ public final class VisitorFactory {
                     public int getGrammarVersion() throws MisconfigurationException {
                         return IPythonNature.GRAMMAR_PYTHON_VERSION_CYTHON;
                     }
+
+                    @Override
+                    public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions()
+                            throws MisconfigurationException {
+                        return null;
+                    }
                 };
             }
             if (pythonModuleManager != null) {
@@ -156,8 +162,7 @@ public final class VisitorFactory {
 
     public static Module getRootNode(IDocument doc, IGrammarVersionProvider versionProvider) throws ParseException,
             MisconfigurationException {
-        ParseOutput objects = PyParser.reparseDocument(new PyParser.ParserInfo(doc, versionProvider
-                .getGrammarVersion()));
+        ParseOutput objects = PyParser.reparseDocument(new PyParser.ParserInfo(doc, versionProvider));
         Throwable exception = objects.error;
 
         if (exception != null) {
