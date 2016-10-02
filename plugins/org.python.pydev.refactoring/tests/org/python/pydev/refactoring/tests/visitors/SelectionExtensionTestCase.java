@@ -59,6 +59,12 @@ public class SelectionExtensionTestCase extends AbstractIOTestCase {
                         public int getGrammarVersion() throws MisconfigurationException {
                             return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
                         }
+
+                        @Override
+                        public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions()
+                                throws MisconfigurationException {
+                            return null;
+                        }
                     });
             buffer.append(source); // normalized source
         } catch (Throwable e) {
@@ -85,6 +91,11 @@ public class SelectionExtensionTestCase extends AbstractIOTestCase {
             @Override
             public int getGrammarVersion() throws MisconfigurationException {
                 return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
+            }
+
+            @Override
+            public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException {
+                return null;
             }
         });
 

@@ -1094,6 +1094,11 @@ public class StringSubstitutionTest extends TestCase {
             public long getMtime() {
                 throw new RuntimeException("Not implemented");
             }
+
+            @Override
+            public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException {
+                throw new RuntimeException("Not implemented");
+            }
         });
         return s;
     }

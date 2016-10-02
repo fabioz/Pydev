@@ -67,6 +67,12 @@ public class MockupConstructorFieldRequestProcessor implements IRequestProcessor
                     public int getGrammarVersion() throws MisconfigurationException {
                         return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
                     }
+
+                    @Override
+                    public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions()
+                            throws MisconfigurationException {
+                        return null;
+                    }
                 }));
 
         List<ConstructorFieldRequest> requests = new ArrayList<ConstructorFieldRequest>();

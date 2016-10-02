@@ -47,6 +47,7 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
@@ -64,6 +65,7 @@ import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.navigator.elements.ProjectConfigError;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.interpreters.IInterpreterObserver;
@@ -265,6 +267,20 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             pythonProjectInterpreter = new QualifiedName(PydevPlugin.getPluginID(), "PYTHON_PROJECT_INTERPRETER");
         }
         return pythonProjectInterpreter;
+    }
+
+    /**
+     * constant that stores the additional syntax validations we should do
+     */
+    private static QualifiedName pythonAdditionalGrammarValidation = null;
+
+    static QualifiedName getPythonAdditionalGrammarValidationQualifiedName() {
+        if (pythonAdditionalGrammarValidation == null) {
+            //we need to do this because the plugin ID may not be known on 'static' time
+            pythonAdditionalGrammarValidation = new QualifiedName(PydevPlugin.getPluginID(),
+                    "PYTHON_ADDITIONAL_GRAMMAR_VALIDATION");
+        }
+        return pythonAdditionalGrammarValidation;
     }
 
     @Override
@@ -807,6 +823,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * This is so that we don't have a runtime penalty for it.
      */
     private String versionPropertyCache = null;
+    private AdditionalGrammarVersionsToCheck additionalGrammarValidationCache = null;
     private String interpreterPropertyCache = null;
 
     /**
@@ -905,6 +922,63 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             if (notify) {
                 PythonNatureListenersManager.notifyPythonPathRebuilt(project, this);
             }
+        }
+    }
+
+    private Tuple<String, AdditionalGrammarVersionsToCheck> validateAdditionalGrammars(
+            String additionalGrammarValidation) {
+        AdditionalGrammarVersionsToCheck additionalValidations = new AdditionalGrammarVersionsToCheck();
+        if (additionalGrammarValidation != null) {
+            FastStringBuffer buf = new FastStringBuffer(additionalGrammarValidation.length());
+            for (String version : StringUtils.split(additionalGrammarValidation, ',')) {
+                version = version.trim();
+                if (!IGrammarVersionProvider.grammarRepToVersion.containsKey(version)) {
+                    Log.log("Grammar version not handled: " + version + " project: " + this.project);
+                    continue;
+                }
+                if (buf.length() > 0) {
+                    buf.append(", ");
+                }
+                additionalValidations.add(IGrammarVersionProvider.grammarRepToVersion.get(version));
+                buf.append(version);
+            }
+
+            additionalGrammarValidation = buf.toString();
+            if (additionalGrammarValidation.length() == 0) {
+                additionalGrammarValidation = null;
+            }
+        }
+        return new Tuple<String, AdditionalGrammarVersionsToCheck>(additionalGrammarValidation, additionalValidations);
+    }
+
+    public void setAdditionalGrammarValidation(String additionalGrammarValidation) throws CoreException {
+        Tuple<String, AdditionalGrammarVersionsToCheck> tup = validateAdditionalGrammars(additionalGrammarValidation);
+        additionalGrammarValidation = tup.o1;
+        this.additionalGrammarValidationCache = tup.o2;
+        IPythonNatureStore store = getStore();
+        QualifiedName additionalGrammarValidationQualifiedName = getPythonAdditionalGrammarValidationQualifiedName();
+        String current = store.getPropertyFromXml(additionalGrammarValidationQualifiedName);
+        if (current != additionalGrammarValidation) {
+            if (current == null || !current.equals(additionalGrammarValidation)) {
+                store.setPropertyToXml(additionalGrammarValidationQualifiedName, additionalGrammarValidation, true);
+            }
+        }
+    }
+
+    @Override
+    public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException {
+        if (project != null) {
+            if (additionalGrammarValidationCache == null) {
+                String storeVersion = getStore()
+                        .getPropertyFromXml(getPythonAdditionalGrammarValidationQualifiedName());
+                Tuple<String, AdditionalGrammarVersionsToCheck> validateAdditionalGrammars = validateAdditionalGrammars(
+                        storeVersion);
+                additionalGrammarValidationCache = validateAdditionalGrammars.o2;
+            }
+            return additionalGrammarValidationCache;
+        } else {
+            Log.log("Trying to get additional grammar version without project set. Returning default.");
+            return new AdditionalGrammarVersionsToCheck();
         }
     }
 
@@ -1355,4 +1429,5 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         }
         return null;
     }
+
 }

@@ -9,8 +9,6 @@ package org.python.pydev.parser;
 import java.io.File;
 import java.util.Iterator;
 
-import junit.framework.TestCase;
-
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IGrammarVersionProvider;
@@ -26,6 +24,8 @@ import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
 import org.python.pydev.shared_core.structure.Tuple;
 
+import junit.framework.TestCase;
+
 public class PyParserTestBase extends TestCase {
     protected static PyParser parser;
     private static int defaultVersion;
@@ -34,6 +34,11 @@ public class PyParserTestBase extends TestCase {
         @Override
         public int getGrammarVersion() {
             return defaultVersion;
+        }
+
+        @Override
+        public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException {
+            return null;
         }
     };
 
@@ -97,7 +102,7 @@ public class PyParserTestBase extends TestCase {
     protected Throwable parseILegalDoc(IDocument doc, boolean generateTree) {
         ParseOutput objects;
         try {
-            objects = PyParser.reparseDocument(new ParserInfo(doc, parser.getGrammarVersion(), generateTree));
+            objects = PyParser.reparseDocument(new ParserInfo(doc, parser.getGrammarVersion(), generateTree, null));
         } catch (MisconfigurationException e) {
             throw new RuntimeException(e);
         }
@@ -157,7 +162,7 @@ public class PyParserTestBase extends TestCase {
     protected static SimpleNode parseLegalDoc(IDocument doc, Object[] additionalErrInfo, int grammarVersion,
             boolean generateTree) {
         ParseOutput objects = PyParser.reparseDocument(new ParserInfo(doc, grammarVersion,
-                generateTree));
+                generateTree, null));
 
         Object err = objects.error;
         if (err != null) {

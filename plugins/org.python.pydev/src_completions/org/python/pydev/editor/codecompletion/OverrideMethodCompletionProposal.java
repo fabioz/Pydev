@@ -98,6 +98,12 @@ public class OverrideMethodCompletionProposal extends AbstractPyCompletionPropos
                 public int getGrammarVersion() throws MisconfigurationException {
                     return IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;
                 }
+
+                @Override
+                public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions()
+                        throws MisconfigurationException {
+                    return null;
+                }
             };
         }
         String delimiter = PySelection.getDelimiter(document);

@@ -98,6 +98,11 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
             public int getGrammarVersion() throws MisconfigurationException {
                 return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
             }
+
+            @Override
+            public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException {
+                return null;
+            }
         };
         Module node = (Module) parseLegalDocStr(s);
         FunctionDef funcDef = (FunctionDef) node.body[0];
@@ -116,6 +121,11 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
             @Override
             public int getGrammarVersion() throws MisconfigurationException {
                 return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0;
+            }
+
+            @Override
+            public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException {
+                return null;
             }
         };
         setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
@@ -136,6 +146,11 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
             @Override
             public int getGrammarVersion() throws MisconfigurationException {
                 return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0;
+            }
+
+            @Override
+            public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException {
+                return null;
             }
         };
         setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
@@ -3159,7 +3174,8 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
 
         Module node = (Module) parseLegalDocStr(s);
         FunctionDef funcDef = (FunctionDef) node.body[0];
-        assertEquals("a, b, c=10, d=20, *args, **kwargs", PrettyPrinterV2.printArguments(versionProvider, funcDef.args));
+        assertEquals("a, b, c=10, d=20, *args, **kwargs",
+                PrettyPrinterV2.printArguments(versionProvider, funcDef.args));
 
     }
 

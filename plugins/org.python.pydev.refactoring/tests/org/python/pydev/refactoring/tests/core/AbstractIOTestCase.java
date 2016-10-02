@@ -24,8 +24,6 @@ package org.python.pydev.refactoring.tests.core;
 
 import java.util.ArrayList;
 
-import junit.framework.TestCase;
-
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IModulesManager;
@@ -38,6 +36,8 @@ import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
+
+import junit.framework.TestCase;
 
 public abstract class AbstractIOTestCase extends TestCase implements IInputOutputTestCase {
     private String generated;
@@ -76,6 +76,11 @@ public abstract class AbstractIOTestCase extends TestCase implements IInputOutpu
                     return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0;
                 }
                 return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
+            }
+
+            @Override
+            public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException {
+                return null;
             }
         };
         return versionProvider;

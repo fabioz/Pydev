@@ -259,6 +259,12 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
                         public int getGrammarVersion() throws MisconfigurationException {
                             return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0; // Always Python 3.0 here
                         }
+
+                        @Override
+                        public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions()
+                                throws MisconfigurationException {
+                            return null;
+                        }
                     };
                     ParseOutput obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, provider,
                             name, predefinedModule));

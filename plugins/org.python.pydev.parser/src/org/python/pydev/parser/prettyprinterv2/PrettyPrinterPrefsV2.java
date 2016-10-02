@@ -54,6 +54,11 @@ public class PrettyPrinterPrefsV2 implements IPrettyPrinterPrefs {
         return versionProvider.getGrammarVersion();
     }
 
+    @Override
+    public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException {
+        return versionProvider.getAdditionalGrammarVersions();
+    }
+
     public final String[] boolOperatorMapping = new String[] { "<undef>", "and", "or", };
 
     public final String[] unaryopOperatorMapping = new String[] { "<undef>", "~", "not", "+", "-", };

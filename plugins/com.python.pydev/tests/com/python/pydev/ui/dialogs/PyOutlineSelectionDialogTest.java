@@ -71,11 +71,17 @@ public class PyOutlineSelectionDialogTest extends SWTTest {
                 public int getGrammarVersion() throws MisconfigurationException {
                     return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
                 }
+
+                @Override
+                public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions()
+                        throws MisconfigurationException {
+                    return null;
+                }
             };
 
-            SourceModule moduleTest = (SourceModule) AbstractModule.createModuleFromDoc("test", null, new Document(
+            SourceModule moduleTest = AbstractModule.createModuleFromDoc("test", null, new Document(
                     testDoc), grammarVersionProvider, true);
-            SourceModule moduleBar = (SourceModule) AbstractModule.createModuleFromDoc("bar", null,
+            SourceModule moduleBar = AbstractModule.createModuleFromDoc("bar", null,
                     new Document(barDoc), grammarVersionProvider, true);
 
             Module astTest = (Module) moduleTest.getAst();
@@ -86,7 +92,7 @@ public class PyOutlineSelectionDialogTest extends SWTTest {
             testModel.parents.add(barModel);
 
             HashMap<SimpleNode, HierarchyNodeModel> nodeToModel = new HashMap<SimpleNode, HierarchyNodeModel>();
-            nodeToModel.put((ClassDef) astTest.body[2], testModel);
+            nodeToModel.put(astTest.body[2], testModel);
 
             PyOutlineSelectionDialog dialog = new PyOutlineSelectionDialog(new Shell(display), astTest, nodeToModel);
 

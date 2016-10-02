@@ -32,19 +32,26 @@ public class PyCreateClassTest extends TestCaseUtils {
         }
     }
 
+    private static final IGrammarVersionProvider PY_27_ONLY_GRAMMAR_VERSION_PROVIDER = new IGrammarVersionProvider() {
+
+        @Override
+        public int getGrammarVersion() throws MisconfigurationException {
+            return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
+        }
+
+        @Override
+        public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException {
+            return null;
+        }
+    };
+
     public void testPyCreateClassInSameModule() throws Exception {
         PyCreateClass pyCreateClass = new PyCreateClass();
 
         String source = "MyClass()";
         IDocument document = new Document(source);
         ITextSelection selection = new TextSelection(document, 0, 0);
-        RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
-
-            @Override
-            public int getGrammarVersion() throws MisconfigurationException {
-                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
-            }
-        });
+        RefactoringInfo info = new RefactoringInfo(document, selection, PY_27_ONLY_GRAMMAR_VERSION_PROVIDER);
 
         pyCreateClass.execute(info, PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT);
 
@@ -72,13 +79,7 @@ public class PyCreateClassTest extends TestCaseUtils {
                 "MyClass()\n";
         IDocument document = new Document(source);
         ITextSelection selection = new TextSelection(document, document.getLength() - 5, 0);
-        RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
-
-            @Override
-            public int getGrammarVersion() throws MisconfigurationException {
-                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
-            }
-        });
+        RefactoringInfo info = new RefactoringInfo(document, selection, PY_27_ONLY_GRAMMAR_VERSION_PROVIDER);
 
         pyCreateClass.execute(info, PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT);
 
@@ -115,13 +116,7 @@ public class PyCreateClassTest extends TestCaseUtils {
                 "MyClass()";
         IDocument document = new Document(source);
         ITextSelection selection = new TextSelection(document, document.getLength() - 5, 0);
-        RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
-
-            @Override
-            public int getGrammarVersion() throws MisconfigurationException {
-                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
-            }
-        });
+        RefactoringInfo info = new RefactoringInfo(document, selection, PY_27_ONLY_GRAMMAR_VERSION_PROVIDER);
 
         pyCreateClass.execute(info, PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT);
 
@@ -157,13 +152,7 @@ public class PyCreateClassTest extends TestCaseUtils {
                 "    MyClass()";
         IDocument document = new Document(source);
         ITextSelection selection = new TextSelection(document, document.getLength() - 5, 0);
-        RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
-
-            @Override
-            public int getGrammarVersion() throws MisconfigurationException {
-                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
-            }
-        });
+        RefactoringInfo info = new RefactoringInfo(document, selection, PY_27_ONLY_GRAMMAR_VERSION_PROVIDER);
 
         pyCreateClass.execute(info, PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT);
 
@@ -191,13 +180,7 @@ public class PyCreateClassTest extends TestCaseUtils {
         String source = "MyClass(aa, bb, 10)";
         IDocument document = new Document(source);
         ITextSelection selection = new TextSelection(document, 0, 0);
-        RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
-
-            @Override
-            public int getGrammarVersion() throws MisconfigurationException {
-                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
-            }
-        });
+        RefactoringInfo info = new RefactoringInfo(document, selection, PY_27_ONLY_GRAMMAR_VERSION_PROVIDER);
 
         pyCreateClass.execute(info, PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT);
 
@@ -220,13 +203,7 @@ public class PyCreateClassTest extends TestCaseUtils {
         String source = "MyClass(aa, bb, MyFoo())";
         IDocument document = new Document(source);
         ITextSelection selection = new TextSelection(document, 0, 0);
-        RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
-
-            @Override
-            public int getGrammarVersion() throws MisconfigurationException {
-                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
-            }
-        });
+        RefactoringInfo info = new RefactoringInfo(document, selection, PY_27_ONLY_GRAMMAR_VERSION_PROVIDER);
 
         pyCreateClass.execute(info, PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT);
 
@@ -255,13 +232,7 @@ public class PyCreateClassTest extends TestCaseUtils {
                 "        MyClass()\n";
         IDocument document = new Document(source);
         ITextSelection selection = new TextSelection(document, source.length() - 4, 0);
-        RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
-
-            @Override
-            public int getGrammarVersion() throws MisconfigurationException {
-                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
-            }
-        });
+        RefactoringInfo info = new RefactoringInfo(document, selection, PY_27_ONLY_GRAMMAR_VERSION_PROVIDER);
 
         pyCreateClass.execute(info, PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT);
 
@@ -293,13 +264,7 @@ public class PyCreateClassTest extends TestCaseUtils {
                 "        MyClass()\n";
         IDocument document = new Document(source);
         ITextSelection selection = new TextSelection(document, source.length() - 4, 0);
-        RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
-
-            @Override
-            public int getGrammarVersion() throws MisconfigurationException {
-                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
-            }
-        });
+        RefactoringInfo info = new RefactoringInfo(document, selection, PY_27_ONLY_GRAMMAR_VERSION_PROVIDER);
 
         pyCreateClass.execute(info, PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT);
 
@@ -336,13 +301,7 @@ public class PyCreateClassTest extends TestCaseUtils {
                 "        MyClass()\n";
         IDocument document = new Document(source);
         ITextSelection selection = new TextSelection(document, source.length() - 4, 0);
-        RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
-
-            @Override
-            public int getGrammarVersion() throws MisconfigurationException {
-                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
-            }
-        });
+        RefactoringInfo info = new RefactoringInfo(document, selection, PY_27_ONLY_GRAMMAR_VERSION_PROVIDER);
 
         pyCreateClass.execute(info, PyCreateClass.LOCATION_STRATEGY_END);
 
@@ -371,13 +330,7 @@ public class PyCreateClassTest extends TestCaseUtils {
         String source = "";
         IDocument document = new Document(source);
         ITextSelection selection = new TextSelection(document, 0, 0);
-        RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
-
-            @Override
-            public int getGrammarVersion() throws MisconfigurationException {
-                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
-            }
-        });
+        RefactoringInfo info = new RefactoringInfo(document, selection, PY_27_ONLY_GRAMMAR_VERSION_PROVIDER);
         pyCreateClass.createProposal(info, "Foo", PyCreateClass.LOCATION_STRATEGY_END, new ArrayList<String>()).apply(
                 document);
 

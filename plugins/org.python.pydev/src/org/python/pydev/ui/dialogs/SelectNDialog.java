@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
@@ -23,9 +24,14 @@ import org.eclipse.ui.dialogs.CheckedTreeSelectionDialog;
 import org.python.pydev.shared_core.structure.TreeNode;
 import org.python.pydev.shared_core.structure.TreeNodeContentProvider;
 import org.python.pydev.shared_ui.EditorUtils;
+import org.python.pydev.shared_ui.dialogs.SelectElementDialog;
 
 @SuppressWarnings("rawtypes")
 public class SelectNDialog {
+
+    public static String[] selectMulti(List<String> items, LabelProvider labelProvider, String message) {
+        return SelectElementDialog.selectMulti(items, labelProvider, message);
+    }
 
     /**
      * @param labelProvider: usually a TreeNodeLabelProvider

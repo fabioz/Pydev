@@ -14,8 +14,6 @@ package org.python.pydev.editor.codecompletion.revisited;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import junit.framework.TestCase;
-
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
@@ -24,6 +22,8 @@ import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
+
+import junit.framework.TestCase;
 
 /**
  * @author Fabio Zadrozny
@@ -48,7 +48,7 @@ public class ModuleTest extends TestCase {
 
     public void testMod1() {
         ParseOutput obj = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(getDoc1()),
-                IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
+                IPythonNature.GRAMMAR_PYTHON_VERSION_2_4, null));
         SimpleNode n = (SimpleNode) obj.ast;
         IModule module = AbstractModule.createModule(n);
 
@@ -75,7 +75,7 @@ public class ModuleTest extends TestCase {
                 "other = method\n" +
                 "";
         ParseOutput obj = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(doc),
-                IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
+                IPythonNature.GRAMMAR_PYTHON_VERSION_2_4, null));
         SimpleNode n = (SimpleNode) obj.ast;
         IModule module = AbstractModule.createModule(n);
 
@@ -99,7 +99,7 @@ public class ModuleTest extends TestCase {
                 "other = another = method\n" +
                 "";
         ParseOutput obj = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(doc),
-                IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
+                IPythonNature.GRAMMAR_PYTHON_VERSION_2_4, null));
         SimpleNode n = (SimpleNode) obj.ast;
         IModule module = AbstractModule.createModule(n);
 

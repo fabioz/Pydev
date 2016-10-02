@@ -210,6 +210,11 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
     }
 
     @Override
+    public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException {
+        return null;
+    }
+
+    @Override
     public String getDefaultVersion() {
         try {
             return getVersion();

@@ -32,19 +32,26 @@ public class PyCreateMethodTest extends TestCaseUtils {
         }
     }
 
+    private static final IGrammarVersionProvider PY_27_ONLY_GRAMMAR_VERSION_PROVIDER = new IGrammarVersionProvider() {
+
+        @Override
+        public int getGrammarVersion() throws MisconfigurationException {
+            return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
+        }
+
+        @Override
+        public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException {
+            return null;
+        }
+    };
+
     public void testPyCreateMethodGlobal() {
         PyCreateMethodOrField pyCreateMethod = new PyCreateMethodOrField();
 
         String source = "MyMethod()";
         IDocument document = new Document(source);
         ITextSelection selection = new TextSelection(document, 0, 0);
-        RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
-
-            @Override
-            public int getGrammarVersion() throws MisconfigurationException {
-                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
-            }
-        });
+        RefactoringInfo info = new RefactoringInfo(document, selection, PY_27_ONLY_GRAMMAR_VERSION_PROVIDER);
 
         pyCreateMethod.execute(info, AbstractPyCreateAction.LOCATION_STRATEGY_BEFORE_CURRENT);
 
@@ -64,13 +71,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
         String source = "MyMethod(a, b())";
         IDocument document = new Document(source);
         ITextSelection selection = new TextSelection(document, 0, 0);
-        RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
-
-            @Override
-            public int getGrammarVersion() throws MisconfigurationException {
-                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
-            }
-        });
+        RefactoringInfo info = new RefactoringInfo(document, selection, PY_27_ONLY_GRAMMAR_VERSION_PROVIDER);
 
         pyCreateMethod.execute(info, AbstractPyCreateAction.LOCATION_STRATEGY_BEFORE_CURRENT);
 
@@ -90,13 +91,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
         String source = "a = MyMethod()";
         IDocument document = new Document(source);
         ITextSelection selection = new TextSelection(document, 5, 0);
-        RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
-
-            @Override
-            public int getGrammarVersion() throws MisconfigurationException {
-                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
-            }
-        });
+        RefactoringInfo info = new RefactoringInfo(document, selection, PY_27_ONLY_GRAMMAR_VERSION_PROVIDER);
 
         pyCreateMethod.execute(info, AbstractPyCreateAction.LOCATION_STRATEGY_END);
 
@@ -117,13 +112,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
         String source = "";
         IDocument document = new Document(source);
         ITextSelection selection = new TextSelection(document, 5, 0);
-        RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
-
-            @Override
-            public int getGrammarVersion() throws MisconfigurationException {
-                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
-            }
-        });
+        RefactoringInfo info = new RefactoringInfo(document, selection, PY_27_ONLY_GRAMMAR_VERSION_PROVIDER);
 
         pyCreateMethod.execute(info, "MyMethod", new ArrayList<String>(), AbstractPyCreateAction.LOCATION_STRATEGY_END);
 
@@ -156,13 +145,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
                 "A.MyMethod(a, b())";
         IDocument document = new Document(source);
         ITextSelection selection = new TextSelection(document, document.getLength() - "hod(a, b())".length(), 0);
-        RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
-
-            @Override
-            public int getGrammarVersion() throws MisconfigurationException {
-                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
-            }
-        });
+        RefactoringInfo info = new RefactoringInfo(document, selection, PY_27_ONLY_GRAMMAR_VERSION_PROVIDER);
 
         pyCreateMethod.setCreateInClass("A");
         pyCreateMethod.setCreateAs(PyCreateMethodOrField.CLASSMETHOD);
@@ -196,13 +179,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
                 "        self.m2()";
         IDocument document = new Document(source);
         ITextSelection selection = new TextSelection(document, document.getLength() - "2()".length(), 0);
-        RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
-
-            @Override
-            public int getGrammarVersion() throws MisconfigurationException {
-                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
-            }
-        });
+        RefactoringInfo info = new RefactoringInfo(document, selection, PY_27_ONLY_GRAMMAR_VERSION_PROVIDER);
 
         pyCreateMethod.setCreateInClass("A");
         pyCreateMethod.setCreateAs(PyCreateMethodOrField.BOUND_METHOD);
@@ -237,13 +214,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
                 "        self.m2()";
         IDocument document = new Document(source);
         ITextSelection selection = new TextSelection(document, document.getLength() - "2()".length(), 0);
-        RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
-
-            @Override
-            public int getGrammarVersion() throws MisconfigurationException {
-                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
-            }
-        });
+        RefactoringInfo info = new RefactoringInfo(document, selection, PY_27_ONLY_GRAMMAR_VERSION_PROVIDER);
 
         pyCreateMethod.setCreateInClass("A");
         pyCreateMethod.setCreateAs(PyCreateMethodOrField.BOUND_METHOD);
@@ -277,13 +248,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
                 "\t\tself.m2()";
         IDocument document = new Document(source);
         ITextSelection selection = new TextSelection(document, document.getLength() - "2()".length(), 0);
-        RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
-
-            @Override
-            public int getGrammarVersion() throws MisconfigurationException {
-                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
-            }
-        });
+        RefactoringInfo info = new RefactoringInfo(document, selection, PY_27_ONLY_GRAMMAR_VERSION_PROVIDER);
 
         pyCreateMethod.setCreateInClass("A");
         pyCreateMethod.setCreateAs(PyCreateMethodOrField.BOUND_METHOD);
