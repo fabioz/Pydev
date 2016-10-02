@@ -539,6 +539,7 @@ public class PyParser extends BaseParser implements IPyParser {
             //If empty, don't bother to parse!
             return new ParseOutput(new Module(new stmtType[0]), null, modifiedTime);
         }
+        Set<Integer> parsedVersions = new HashSet<>();
         char[] charArray;
         try {
             charArray = createCharArrayToParse(startDoc);
@@ -552,6 +553,7 @@ public class PyParser extends BaseParser implements IPyParser {
         Tuple<ISimpleNode, Throwable> returnVar = new Tuple<ISimpleNode, Throwable>(null, null);
         IGrammar grammar = null;
         try {
+            parsedVersions.add(info.grammarVersion);
             grammar = createGrammar(info.generateTree, info.grammarVersion, charArray);
             SimpleNode newRoot;
             try {
@@ -578,6 +580,10 @@ public class PyParser extends BaseParser implements IPyParser {
                 AdditionalGrammarVersionsToCheck additionalGrammarVersionsToCheck = info.additionalGrammarVersionsToCheck;
                 if (additionalGrammarVersionsToCheck != null) {
                     for (int grammarVersion : additionalGrammarVersionsToCheck.getGrammarVersions()) {
+                        if (parsedVersions.contains(grammarVersion)) {
+                            continue;
+                        }
+                        parsedVersions.add(grammarVersion);
                         grammar = createGrammar(false, grammarVersion, charArray);
                         try {
                             grammar.file_input();

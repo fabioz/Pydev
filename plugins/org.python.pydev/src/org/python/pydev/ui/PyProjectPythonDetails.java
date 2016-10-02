@@ -12,6 +12,9 @@
 package org.python.pydev.ui;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -38,13 +41,17 @@ import org.eclipse.swt.widgets.Link;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.dialogs.PropertyPage;
 import org.python.pydev.core.IGrammarVersionProvider;
+import org.python.pydev.core.IGrammarVersionProvider.AdditionalGrammarVersionsToCheck;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.utils.ArrayUtils;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.dialogs.SelectNDialog;
 import org.python.pydev.ui.pythonpathconf.AutoConfigMaker;
@@ -299,9 +306,6 @@ public class PyProjectPythonDetails extends PropertyPage {
 
             labelAdditionalGrammarsSelected = new Label(composite, SWT.NONE);
 
-            //TODO: Set initial value
-            //TODO: Set initial value
-            //TODO: Set initial value
             labelAdditionalGrammarsSelected.setText(ADDITIONAL_SYNTAX_NO_SELECTED);
 
             gd = new GridData(GridData.FILL_HORIZONTAL);
@@ -314,9 +318,15 @@ public class PyProjectPythonDetails extends PropertyPage {
             button.addSelectionListener(new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent e) {
-                    String[] selected = SelectNDialog.selectMulti(IGrammarVersionProvider.grammarVersionsRep,
+                    List<String> grammarversionsrep = new ArrayList<>(IGrammarVersionProvider.grammarVersionsRep);
+                    final String NO_VALIDATION = "No additional syntax validation";
+                    grammarversionsrep.add(NO_VALIDATION);
+                    String[] selected = SelectNDialog.selectMulti(grammarversionsrep,
                             new LabelProvider(),
                             "Select additional grammars for syntax validation");
+                    if (ArrayUtils.contains(selected, NO_VALIDATION)) {
+                        selected = null;
+                    }
                     if (selected == null || selected.length == 0) {
                         labelAdditionalGrammarsSelected.setText(ADDITIONAL_SYNTAX_NO_SELECTED);
                     } else {
@@ -466,6 +476,33 @@ public class PyProjectPythonDetails extends PropertyPage {
             String configuredInterpreter = pythonNature.getProjectInterpreterName();
             if (configuredInterpreter != null) {
                 projectConfig.interpretersChoice.setText(configuredInterpreter);
+            }
+
+            AdditionalGrammarVersionsToCheck additionalGrammarVersions = null;
+            try {
+                additionalGrammarVersions = pythonNature.getAdditionalGrammarVersions();
+            } catch (MisconfigurationException e) {
+
+            }
+            FastStringBuffer buf = new FastStringBuffer();
+            if (additionalGrammarVersions != null) {
+                Set<Integer> grammarVersions = additionalGrammarVersions.getGrammarVersions();
+                if (grammarVersions != null) {
+                    for (Integer grammarV : new TreeSet<Integer>(grammarVersions)) {
+                        String rep = IGrammarVersionProvider.grammarVersionToRep.get(grammarV);
+                        if (rep != null) {
+                            if (buf.length() > 0) {
+                                buf.append(", ");
+                            }
+                            buf.append(rep);
+                        }
+                    }
+                }
+            }
+            if (buf.length() == 0) {
+                projectConfig.labelAdditionalGrammarsSelected.setText(ADDITIONAL_SYNTAX_NO_SELECTED);
+            } else {
+                projectConfig.labelAdditionalGrammarsSelected.setText(ADDITIONAL_SYNTAX_PREFIX + buf.toString());
             }
 
         } catch (CoreException e) {

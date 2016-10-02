@@ -11,6 +11,7 @@
 package org.python.pydev.core;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -88,7 +89,7 @@ class GrammarsIterator {
         grammarVersions.add(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6);
         grammarVersions.add(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7);
         grammarVersions.add(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
-        return grammarVersions;
+        return Collections.unmodifiableList(grammarVersions);
     }
 
     public static List<String> createStr() {
@@ -98,7 +99,7 @@ class GrammarsIterator {
         grammarVersions.add("2.6");
         grammarVersions.add("2.7");
         grammarVersions.add("3.0");
-        return grammarVersions;
+        return Collections.unmodifiableList(grammarVersions);
     }
 
     public static Map<Integer, String> createDict() {
@@ -108,7 +109,7 @@ class GrammarsIterator {
         ret.put(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6, "2.6");
         ret.put(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7, "2.7");
         ret.put(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0, "3.0");
-        return ret;
+        return Collections.unmodifiableMap(ret);
     }
 
     public static Map<String, Integer> createStrToInt() {
@@ -118,6 +119,6 @@ class GrammarsIterator {
         ret.put("2.6", IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6);
         ret.put("2.7", IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7);
         ret.put("3.0", IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
-        return ret;
+        return Collections.unmodifiableMap(ret);
     }
 }

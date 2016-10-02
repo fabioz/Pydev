@@ -7,6 +7,7 @@
 package org.python.pydev.shared_core.utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
@@ -75,5 +76,12 @@ public class ArrayUtils {
             }
         }
         return -1;
+    }
+
+    public static boolean contains(Object[] array, Object o) {
+        if (array == null) {
+            return false;
+        }
+        return Arrays.asList(array).contains(o);
     }
 }
