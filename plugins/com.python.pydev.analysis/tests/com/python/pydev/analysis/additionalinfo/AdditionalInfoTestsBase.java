@@ -69,7 +69,7 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
         state.setTokenImportedModules(imports);
         List<Object> props = new ArrayList<Object>(participant.getGlobalCompletions(request, state));
         ICompletionProposal[] codeCompletionProposals = PyCodeCompletionUtils.onlyValidSorted(props, request.qualifier,
-                request.isInCalltip, useSubstringMatchInCodeCompletion);
+                request.isInCalltip, useSubstringMatchInCodeCompletion, null);
 
         for (int i = 0; i < retCompl.length; i++) {
             assertContains(retCompl[i], codeCompletionProposals);
@@ -125,7 +125,7 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
         }
         additionalInfo.addAstInfo(ast, new ModulesKey(modName, f), false);
         ModulesManager modulesManager = (ModulesManager) natureToAdd.getAstManager().getModulesManager();
-        SourceModule mod = (SourceModule) AbstractModule.createModule(ast, f, modName);
+        SourceModule mod = (SourceModule) AbstractModule.createModule(ast, f, modName, natureToAdd);
         modulesManager.doAddSingleModule(new ModulesKey(modName, f), mod);
     }
 

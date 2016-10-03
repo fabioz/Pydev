@@ -52,5 +52,4 @@ public interface IPyCodeCompletion {
      */
     public abstract ImportInfo getImportsTipperStr(CompletionRequest request);
 
-    ProposalsComparator PROPOSAL_COMPARATOR = new ProposalsComparator();
 }

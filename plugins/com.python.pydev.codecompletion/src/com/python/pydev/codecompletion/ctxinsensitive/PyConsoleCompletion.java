@@ -44,7 +44,7 @@ public class PyConsoleCompletion extends CtxInsensitiveImportComplProposal {
             String additionalProposalInfo, int priority, String realImportRep, IScriptConsoleViewer viewer) {
 
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
-                contextInformation, additionalProposalInfo, priority, realImportRep);
+                contextInformation, additionalProposalInfo, priority, realImportRep, null);
         commandLineOffset = viewer.getCommandLineOffset();
     }
 

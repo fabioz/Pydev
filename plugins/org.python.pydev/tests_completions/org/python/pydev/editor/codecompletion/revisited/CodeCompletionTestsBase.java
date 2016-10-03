@@ -536,7 +536,7 @@ public class CodeCompletionTestsBase extends TestCase {
 
         List<Object> props = codeCompletion.getCodeCompletionProposals(null, request);
         ICompletionProposal[] codeCompletionProposals = PyCodeCompletionUtils.onlyValidSorted(props, request.qualifier,
-                request.isInCalltip, request.useSubstringMatchInCodeCompletion);
+                request.isInCalltip, request.useSubstringMatchInCodeCompletion, null);
 
         for (int i = 0; i < retCompl.length; i++) {
             assertContains(retCompl[i], codeCompletionProposals);

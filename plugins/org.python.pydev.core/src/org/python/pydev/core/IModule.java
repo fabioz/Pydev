@@ -155,4 +155,6 @@ public interface IModule {
      * @return if this module has a from __future__ import absolute_import token declared.
      */
     public abstract boolean hasFutureImportAbsoluteImportDeclared();
+
+    public IPythonNature getNature();
 }

@@ -91,7 +91,7 @@ public final class NoSelfChecker {
         for (Map.Entry<String, Tuple<Expected, FunctionDef>> entry : noDefinedItems.entrySet()) {
             Expected expected = entry.getValue().o1;
             if (!expected.expected.equals(expected.received)) {
-                SourceToken token = AbstractVisitor.makeToken(entry.getValue().o2, moduleName);
+                SourceToken token = AbstractVisitor.makeToken(entry.getValue().o2, moduleName, null);
                 messagesManager.addMessage(IAnalysisPreferences.TYPE_NO_SELF, token,
                         new Object[] { token, entry.getValue().o1.expected });
             }

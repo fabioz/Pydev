@@ -15,8 +15,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.IModulesManager;
+import org.python.pydev.editor.codecompletion.ProposalsComparator.CompareContext;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
 public class PyCodeCompletionUtils {
@@ -29,7 +31,7 @@ public class PyCodeCompletionUtils {
      * @return the completions to show to the user
      */
     public static ICompletionProposal[] onlyValidSorted(List pythonAndTemplateProposals, String qualifier,
-            boolean onlyForCalltips, boolean useSubstringMatchInCodeCompletion) {
+            boolean onlyForCalltips, boolean useSubstringMatchInCodeCompletion, IProject project) {
         //FOURTH: Now, we have all the proposals, only thing is deciding which ones are valid (depending on
         //qualifier) and sorting them correctly.
         final Map<String, List<ICompletionProposal>> returnProposals = new HashMap<String, List<ICompletionProposal>>();
@@ -110,7 +112,7 @@ public class PyCodeCompletionUtils {
         }
         ICompletionProposal[] proposals = tproposals.toArray(new ICompletionProposal[returnProposals.size()]);
 
-        Arrays.sort(proposals, IPyCodeCompletion.PROPOSAL_COMPARATOR);
+        Arrays.sort(proposals, new ProposalsComparator(qualifier, new CompareContext(project)));
         return proposals;
     }
 

@@ -12,6 +12,7 @@ package com.python.pydev.analysis.visitors;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -36,6 +37,7 @@ public final class DuplicationChecker {
     private final FastStack<Map<String, String>> stack = new FastStack<Map<String, String>>(10);
     private final Scope scope;
     private final MessagesManager messagesManager;
+    private final IPythonNature nature;
 
     /**
      * constructor
@@ -45,6 +47,7 @@ public final class DuplicationChecker {
         startScope("", null);
         this.scope = visitor.scope;
         this.messagesManager = visitor.messagesManager;
+        this.nature = visitor.nature;
     }
 
     /**
@@ -86,7 +89,7 @@ public final class DuplicationChecker {
                         }
 
                     }
-                    SourceToken token = AbstractVisitor.makeToken(node, "");
+                    SourceToken token = AbstractVisitor.makeToken(node, "", nature);
                     messagesManager.addMessage(IAnalysisPreferences.TYPE_DUPLICATED_SIGNATURE, token, name);
                 }
             }

@@ -15,7 +15,9 @@ import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.TextPresentation;
 import org.eclipse.jface.text.contentassist.ContentAssistEvent;
@@ -28,11 +30,13 @@ import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.IPySyntaxHighlightingAndCodeCompletionEditor;
 import org.python.pydev.editor.codecompletion.CompletionError;
-import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
+import org.python.pydev.editor.codecompletion.ProposalsComparator;
+import org.python.pydev.editor.codecompletion.ProposalsComparator.CompareContext;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.editor.codecompletion.PythonCompletionProcessor;
@@ -144,8 +148,10 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
      */
     private String lastError = null;
 
+    private KeepProposalsComparatorSynched keepSynched;
+
     @SuppressWarnings("unchecked")
-    public SimpleAssistProcessor(IPySyntaxHighlightingAndCodeCompletionEditor edit,
+    public SimpleAssistProcessor(final IPySyntaxHighlightingAndCodeCompletionEditor edit,
             PythonCompletionProcessor defaultPythonProcessor, final PyContentAssistant assistant) {
         this.edit = edit;
         this.defaultPythonProcessor = defaultPythonProcessor;
@@ -157,10 +163,16 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
         assistant.addCompletionListener(new ICompletionListener() {
             @Override
             public void assistSessionEnded(ContentAssistEvent event) {
+                if (keepSynched != null) {
+                    System.out.println("assistSessionEnded");
+                    keepSynched.dispose();
+                    keepSynched = null;
+                }
             }
 
             @Override
             public void assistSessionStarted(ContentAssistEvent event) {
+                System.out.println("assistSessionStarted");
                 startCycle();
                 lastCompletionAutoActivated = assistant.getLastCompletionAutoActivated();
                 if (!lastCompletionAutoActivated) {
@@ -177,6 +189,47 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
 
     }
 
+    private static class KeepProposalsComparatorSynched implements IDocumentListener {
+
+        private IDocument doc;
+        private ITextViewer viewer;
+        private ProposalsComparator sorter;
+
+        public KeepProposalsComparatorSynched(ITextViewer viewer, IDocument doc, int offset,
+                ProposalsComparator sorter) {
+            doc.addDocumentListener(this);
+            this.doc = doc;
+            this.viewer = viewer;
+            this.sorter = sorter;
+        }
+
+        public void dispose() {
+            if (this.doc != null) {
+                this.doc.removeDocumentListener(this);
+                this.doc = null;
+                this.viewer = null;
+                this.sorter = null;
+            }
+        }
+
+        @Override
+        public void documentChanged(DocumentEvent event) {
+            System.out.println("Document changed");
+
+            String[] strs = PySelection.getActivationTokenAndQual(doc, this.viewer.getSelectedRange().x, false);
+
+            String qualifier = strs[1];
+            this.sorter.setQualifier(qualifier);
+
+        }
+
+        @Override
+        public void documentAboutToBeChanged(DocumentEvent event) {
+
+        }
+
+    }
+
     /**
      * Computes the proposals (may forward for simple or 'complete' proposals)
      *  
@@ -185,16 +238,23 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
     @Override
     public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int offset) {
         try {
+            IDocument doc = viewer.getDocument();
+            String[] strs = PySelection.getActivationTokenAndQual(doc, offset, false);
+
+            String activationToken = strs[0];
+            String qualifier = strs[1];
+            IPythonNature pythonNature = edit.getPythonNature();
+            ProposalsComparator sorter = new ProposalsComparator(qualifier, new CompareContext(pythonNature));
+
+            this.keepSynched = new KeepProposalsComparatorSynched(viewer, doc, offset, sorter);
+
             if (showDefault()) {
-                return defaultPythonProcessor.computeCompletionProposals(viewer, offset);
+                this.assistant.setSorter(sorter);
+                ICompletionProposal[] ret = defaultPythonProcessor.computeCompletionProposals(viewer, offset);
+                return ret;
 
             } else {
                 updateStatus();
-                IDocument doc = viewer.getDocument();
-                String[] strs = PySelection.getActivationTokenAndQual(doc, offset, false);
-
-                String activationToken = strs[0];
-                String qualifier = strs[1];
 
                 PySelection ps = edit.createPySelection();
                 if (ps == null) {
@@ -203,7 +263,8 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
                 List<ICompletionProposal> results = new ArrayList<ICompletionProposal>();
 
                 for (ISimpleAssistParticipant participant : participants) {
-                    results.addAll(participant.computeCompletionProposals(activationToken, qualifier, ps, edit, offset));
+                    results.addAll(
+                            participant.computeCompletionProposals(activationToken, qualifier, ps, edit, offset));
                 }
 
                 //don't matter the result... next time we won't ask for simple stuff
@@ -215,7 +276,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
                     }
                     return new ICompletionProposal[0];
                 } else {
-                    Collections.sort(results, IPyCodeCompletion.PROPOSAL_COMPARATOR);
+                    Collections.sort(results, sorter);
                     return results.toArray(new ICompletionProposal[0]);
                 }
             }

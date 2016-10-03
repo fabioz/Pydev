@@ -22,10 +22,12 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
@@ -47,6 +49,7 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithB
     private final File persistingFolder;
 
     private final File persistingLocation;
+    private IPythonNature nature;
 
     public IInterpreterManager getManager() {
         return manager;
@@ -59,6 +62,11 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithB
     @Override
     protected String getUIRepresentation() {
         return manager != null ? manager.getManagerRelatedName() : "Unknown manager";
+    }
+
+    @Override
+    protected IPythonNature getNature() {
+        return nature;
     }
 
     /**
@@ -93,6 +101,12 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithB
         super(false); //don't call init just right now...
         this.manager = manager;
         this.additionalInfoInterpreter = interpreter;
+
+        try {
+            nature = manager != null ? new SystemPythonNature(manager) : null;
+        } catch (MisconfigurationException e) {
+            Log.log(e);
+        }
 
         File base;
         try {

@@ -32,6 +32,7 @@ import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant2;
+import org.python.pydev.editor.codecompletion.ProposalsComparator.CompareContext;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils;
@@ -194,65 +195,71 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
 
             String lowerQual = request.qualifier.toLowerCase();
             final boolean useSubstringMatchInCodeCompletion = request.useSubstringMatchInCodeCompletion;
-            final Set<String> allModuleNames = PyCodeCompletionUtils.getModulesNamesToFilterOn(
-                    useSubstringMatchInCodeCompletion, projectModulesManager, request.qualifier);
-            final IFilter nameFilter = PyCodeCompletionUtils.getNameFilter(useSubstringMatchInCodeCompletion,
-                    request.qualifier);
+            IModulesManager[] managersInvolved = projectModulesManager.getManagersInvolved(true);
+            for (int i = 0; i < managersInvolved.length; i++) {
+                IModulesManager currentManager = managersInvolved[i];
+                final Set<String> allModuleNames = PyCodeCompletionUtils.getModulesNamesToFilterOn(
+                        useSubstringMatchInCodeCompletion, currentManager, request.qualifier);
+                final IFilter nameFilter = PyCodeCompletionUtils.getNameFilter(useSubstringMatchInCodeCompletion,
+                        request.qualifier);
 
-            FastStringBuffer realImportRep = new FastStringBuffer();
-            FastStringBuffer displayString = new FastStringBuffer();
-            HashSet<String> importedNames = getImportedNames(state);
+                FastStringBuffer realImportRep = new FastStringBuffer();
+                FastStringBuffer displayString = new FastStringBuffer();
+                HashSet<String> importedNames = getImportedNames(state);
 
-            for (String name : allModuleNames) {
-                if (name.equals(initialModule)) {
-                    continue;
-                }
-
-                FullRepIterable iterable = new FullRepIterable(name);
-                for (String string : iterable) {
-                    //clear the buffer...
-                    realImportRep.clear();
-
-                    String[] strings = FullRepIterable.headAndTail(string);
-                    String importRep = strings[1];
-                    if (!nameFilter.acceptName(importRep) || importedNames.contains(importRep)) {
+                for (String name : allModuleNames) {
+                    if (name.equals(initialModule)) {
                         continue;
                     }
 
-                    displayString.clear();
-                    displayString.append(importRep);
+                    FullRepIterable iterable = new FullRepIterable(name);
+                    for (String string : iterable) {
+                        //clear the buffer...
+                        realImportRep.clear();
 
-                    String packageName = strings[0];
-                    if (packageName.length() > 0) {
-                        if (addAutoImport) {
-                            realImportRep.append("from ");
-                            realImportRep.append(packageName);
-                            realImportRep.append(" ");
+                        String[] strings = FullRepIterable.headAndTail(string);
+                        String importRep = strings[1];
+                        if (!nameFilter.acceptName(importRep) || importedNames.contains(importRep)) {
+                            continue;
                         }
-                        displayString.append(" - ");
-                        displayString.append(packageName);
+
+                        displayString.clear();
+                        displayString.append(importRep);
+
+                        String packageName = strings[0];
+                        if (packageName.length() > 0) {
+                            if (addAutoImport) {
+                                realImportRep.append("from ");
+                                realImportRep.append(packageName);
+                                realImportRep.append(" ");
+                            }
+                            displayString.append(" - ");
+                            displayString.append(packageName);
+                        }
+
+                        if (addAutoImport) {
+                            realImportRep.append("import ");
+                            realImportRep.append(strings[1]);
+                        }
+
+                        String displayAsStr = displayString.toString();
+                        CtxInsensitiveImportComplProposal proposal = new CtxInsensitiveImportComplProposal(
+                                importRep,
+                                request.documentOffset - request.qlen,
+                                request.qlen,
+                                realImportRep.length(),
+                                img,
+                                displayAsStr,
+                                (IContextInformation) null,
+                                "",
+                                displayAsStr.toLowerCase().equals(lowerQual)
+                                        ? IPyCompletionProposal.PRIORITY_PACKAGES_EXACT
+                                        : IPyCompletionProposal.PRIORITY_PACKAGES,
+                                realImportRep.toString(),
+                                new CompareContext(currentManager.getNature()));
+
+                        list.add(proposal);
                     }
-
-                    if (addAutoImport) {
-                        realImportRep.append("import ");
-                        realImportRep.append(strings[1]);
-                    }
-
-                    String displayAsStr = displayString.toString();
-                    CtxInsensitiveImportComplProposal proposal = new CtxInsensitiveImportComplProposal(
-                            importRep,
-                            request.documentOffset - request.qlen,
-                            request.qlen,
-                            realImportRep.length(),
-                            img,
-                            displayAsStr,
-                            (IContextInformation) null,
-                            "",
-                            displayAsStr.toLowerCase().equals(lowerQual) ? IPyCompletionProposal.PRIORITY_PACKAGES_EXACT
-                                    : IPyCompletionProposal.PRIORITY_PACKAGES,
-                            realImportRep.toString());
-
-                    list.add(proposal);
                 }
             }
         }

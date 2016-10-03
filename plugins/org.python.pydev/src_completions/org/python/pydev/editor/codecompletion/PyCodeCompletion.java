@@ -503,7 +503,8 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                             }
                             String kwParam = nextToken + "=";
                             SimpleNode node = new NameTok(kwParam, NameTok.KwArg);
-                            SourceToken sourceToken = new SourceToken(node, kwParam, "", "", "", IToken.TYPE_LOCAL);
+                            SourceToken sourceToken = new SourceToken(node, kwParam, "", "", "", IToken.TYPE_LOCAL,
+                                    definition.module != null ? definition.module.getNature() : null);
                             sourceToken.setDocStr(fullArgs);
                             alreadyChecked.put(kwParam, sourceToken);
                         }
@@ -662,7 +663,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             s = sourceModule.getAst();
         }
         if (s != null) {
-            FindScopeVisitor visitor = new FindScopeVisitor(state.getLine(), 0);
+            FindScopeVisitor visitor = new FindScopeVisitor(state.getLine(), 0, state.getNature());
             try {
                 s.accept(visitor);
                 if (checkIfInCorrectScope) {

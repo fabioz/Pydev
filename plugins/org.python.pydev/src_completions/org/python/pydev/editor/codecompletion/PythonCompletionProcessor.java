@@ -186,7 +186,7 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
 
                 //to show the valid ones, we'll get the qualifier from the initial request
                 proposals = PyCodeCompletionUtils.onlyValidSorted(pythonAndTemplateProposals, request.qualifier,
-                        request.isInCalltip, request.useSubstringMatchInCodeCompletion);
+                        request.isInCalltip, request.useSubstringMatchInCodeCompletion, nature.getProject());
             } finally {
                 nature.endRequests();
             }

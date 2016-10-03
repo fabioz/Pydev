@@ -46,7 +46,7 @@ public class OverrideMethodCompletionProposal extends AbstractPyCompletionPropos
 
     public OverrideMethodCompletionProposal(int replacementOffset, int replacementLength, int cursorPosition,
             Image image, FunctionDef functionDef, String parentClassName, String currentClassName) {
-        super("", replacementOffset, replacementLength, cursorPosition, IPyCompletionProposal.PRIORITY_CREATE);
+        super("", replacementOffset, replacementLength, cursorPosition, IPyCompletionProposal.PRIORITY_CREATE, null);
         this.fImage = image;
         this.functionDef = functionDef;
         this.fDisplayString = ((NameTok) functionDef.name).id + " (Override method in " + parentClassName + ")";

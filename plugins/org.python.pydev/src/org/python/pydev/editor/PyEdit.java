@@ -1330,7 +1330,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                                 synchronized (lockHandle) {
                                     releaseCurrentHandle();
                                     int modHandle = modulesManager.pushTemporaryModule(moduleName, new SourceModule(
-                                            moduleName, editorFile, ast, null));
+                                            moduleName, editorFile, ast, null, pythonNature));
 
                                     this.handle = new Tuple3<Integer, IModulesManager, String>(modHandle,
                                             modulesManager, moduleName);

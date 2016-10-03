@@ -185,7 +185,8 @@ public abstract class AbstractModule implements IModule {
         Map<String, IToken> cachedTokens = (Map<String, IToken>) completionCache.getObj(key);
 
         if (cachedTokens == null) {
-            cachedTokens = internalGenerateCachedTokens(nature, completionCache, generateTokensFor, searchSameLevelMods);
+            cachedTokens = internalGenerateCachedTokens(nature, completionCache, generateTokensFor,
+                    searchSameLevelMods);
             completionCache.add(key, cachedTokens);
         }
         return cachedTokens;
@@ -286,7 +287,7 @@ public abstract class AbstractModule implements IModule {
                 return createModuleFromDoc(name, f, FileUtilsFileBuffer.getDocFromFile(f), nature, checkForPath);
 
             } else { //this should be a compiled extension... we have to get completions from the python shell.
-                return new CompiledModule(name, nature.getAstManager().getModulesManager());
+                return new CompiledModule(name, nature.getAstManager().getModulesManager(), nature);
             }
         }
 
@@ -294,23 +295,28 @@ public abstract class AbstractModule implements IModule {
         return null;
     }
 
+    public static SourceModule createModuleFromDoc(String name, File f, IDocument doc, IPythonNature nature,
+            boolean checkForPath) throws MisconfigurationException {
+        return createModuleFromDoc(name, f, doc, nature, checkForPath, nature);
+    }
+
     /** 
      * This function creates the module given that you have a document (that will be parsed)
      * @throws MisconfigurationException 
      */
-    public static SourceModule createModuleFromDoc(String name, File f, IDocument doc, IGrammarVersionProvider nature,
-            boolean checkForPath) throws MisconfigurationException {
+    public static SourceModule createModuleFromDoc(String name, File f, IDocument doc, IPythonNature nature,
+            boolean checkForPath, IGrammarVersionProvider grammarVersionProvider) throws MisconfigurationException {
         //for doc, we are only interested in python files.
 
         if (f != null) {
             if (!checkForPath || PythonPathHelper.isValidSourceFile(f.getName())) {
-                ParseOutput obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, nature, name,
+                ParseOutput obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, grammarVersionProvider, name,
                         f));
-                return new SourceModule(name, f, (SimpleNode) obj.ast, obj.error);
+                return new SourceModule(name, f, (SimpleNode) obj.ast, obj.error, nature);
             }
         } else {
-            ParseOutput obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, nature, name, f));
-            return new SourceModule(name, f, (SimpleNode) obj.ast, obj.error);
+            ParseOutput obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, grammarVersionProvider, name, f));
+            return new SourceModule(name, f, (SimpleNode) obj.ast, obj.error, nature);
         }
         return null;
     }
@@ -338,8 +344,8 @@ public abstract class AbstractModule implements IModule {
      * @param n the ast root
      * @return the module
      */
-    public static IModule createModule(SimpleNode n) {
-        return new SourceModule(null, null, n, null);
+    public static IModule createModule(SimpleNode n, IPythonNature nature) {
+        return new SourceModule(null, null, n, null, nature);
     }
 
     /**
@@ -351,8 +357,8 @@ public abstract class AbstractModule implements IModule {
      * 
      * @return the module
      */
-    public static IModule createModule(SimpleNode n, File file, String moduleName) {
-        return new SourceModule(moduleName, file, n, null);
+    public static IModule createModule(SimpleNode n, File file, String moduleName, IPythonNature nature) {
+        return new SourceModule(moduleName, file, n, null, nature);
     }
 
     /**

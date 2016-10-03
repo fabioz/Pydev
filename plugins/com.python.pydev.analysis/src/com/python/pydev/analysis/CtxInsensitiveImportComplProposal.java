@@ -82,10 +82,10 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
 
     public CtxInsensitiveImportComplProposal(String replacementString, int replacementOffset, int replacementLength,
             int cursorPosition, Image image, String displayString, IContextInformation contextInformation,
-            String additionalProposalInfo, int priority, String realImportRep) {
+            String additionalProposalInfo, int priority, String realImportRep, ICompareContext compareContext) {
 
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
-                contextInformation, additionalProposalInfo, priority, ON_APPLY_DEFAULT, "");
+                contextInformation, additionalProposalInfo, priority, ON_APPLY_DEFAULT, "", compareContext);
         this.realImportRep = realImportRep;
     }
 
@@ -200,7 +200,8 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
                                             importHandleInfo.getFromImportStr())) {
                                         List<String> commentsForImports = importHandleInfo.getCommentsForImports();
                                         if (commentsForImports.size() > 0
-                                                && commentsForImports.get(commentsForImports.size() - 1).length() == 0) {
+                                                && commentsForImports.get(commentsForImports.size() - 1)
+                                                        .length() == 0) {
                                             groupInto = importHandleInfo;
                                             break;
                                         }

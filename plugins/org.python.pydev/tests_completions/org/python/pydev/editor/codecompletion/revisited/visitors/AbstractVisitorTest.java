@@ -51,7 +51,8 @@ public class AbstractVisitorTest extends TestCase {
         Iterator<ASTEntry> iterator = createModuleAndGetImports("import os.path", Import.class);
 
         SimpleNode simpleNode = iterator.next().node;
-        List<IToken> toks = AbstractVisitor.makeImportToken(simpleNode, new ArrayList<IToken>(), MODULE_NAME, true);
+        List<IToken> toks = AbstractVisitor.makeImportToken(simpleNode, new ArrayList<IToken>(), MODULE_NAME, true,
+                null);
         assertEquals(2, toks.size());
 
         SourceToken token = (SourceToken) toks.get(0);
@@ -65,7 +66,8 @@ public class AbstractVisitorTest extends TestCase {
         Iterator<ASTEntry> iterator = createModuleAndGetImports("from os import path, notDefined", ImportFrom.class);
 
         SimpleNode simpleNode = iterator.next().node;
-        List<IToken> toks = AbstractVisitor.makeImportToken(simpleNode, new ArrayList<IToken>(), MODULE_NAME, true);
+        List<IToken> toks = AbstractVisitor.makeImportToken(simpleNode, new ArrayList<IToken>(), MODULE_NAME, true,
+                null);
         assertEquals(2, toks.size());
 
         SourceToken token = (SourceToken) toks.get(0);
@@ -80,7 +82,8 @@ public class AbstractVisitorTest extends TestCase {
                 ImportFrom.class);
 
         SimpleNode simpleNode = iterator.next().node;
-        List<IToken> toks = AbstractVisitor.makeImportToken(simpleNode, new ArrayList<IToken>(), MODULE_NAME, true);
+        List<IToken> toks = AbstractVisitor.makeImportToken(simpleNode, new ArrayList<IToken>(), MODULE_NAME, true,
+                null);
         assertEquals(2, toks.size());
 
         SourceToken token = (SourceToken) toks.get(0);
@@ -94,7 +97,8 @@ public class AbstractVisitorTest extends TestCase {
         Iterator<ASTEntry> iterator = createModuleAndGetImports("from os.path import *", ImportFrom.class);
 
         SimpleNode simpleNode = iterator.next().node;
-        List<IToken> toks = AbstractVisitor.makeImportToken(simpleNode, new ArrayList<IToken>(), MODULE_NAME, true);
+        List<IToken> toks = AbstractVisitor.makeImportToken(simpleNode, new ArrayList<IToken>(), MODULE_NAME, true,
+                null);
         assertEquals(1, toks.size());
 
         SourceToken token = (SourceToken) toks.get(0);
@@ -106,14 +110,15 @@ public class AbstractVisitorTest extends TestCase {
         MODULE_NAME = "some.dotted.name";
         SimpleNode simpleNode = iterator.next().node;
         List<IToken> toks = AbstractVisitor.makeImportToken(simpleNode, new ArrayList<IToken>(), "some.dotted.name",
-                true);
+                true, null);
         assertEquals(1, toks.size());
 
         SourceToken token = (SourceToken) toks.get(0);
         checkIt(simpleNode, token, "os.path", "some.dotted.os.path", "os.path");
     }
 
-    private void checkIt(SimpleNode simpleNode, SourceToken token, String rep, String relativeImport, String originalRep) {
+    private void checkIt(SimpleNode simpleNode, SourceToken token, String rep, String relativeImport,
+            String originalRep) {
         assertEquals(rep, token.getRepresentation());
         assertSame(simpleNode, token.getAst());
         assertEquals(relativeImport, token.getAsRelativeImport(MODULE_NAME));
@@ -122,7 +127,7 @@ public class AbstractVisitorTest extends TestCase {
 
     private Iterator<ASTEntry> createModuleAndGetImports(String strDoc, Class classToGet) throws Exception {
         Document document = new Document(strDoc);
-        SourceModule module = (SourceModule) AbstractModule.createModuleFromDoc(MODULE_NAME, null, document,
+        SourceModule module = AbstractModule.createModuleFromDoc(MODULE_NAME, null, document,
                 CodeCompletionTestsBase.createStaticNature(), true);
 
         EasyASTIteratorVisitor visitor = new EasyASTIteratorVisitor();

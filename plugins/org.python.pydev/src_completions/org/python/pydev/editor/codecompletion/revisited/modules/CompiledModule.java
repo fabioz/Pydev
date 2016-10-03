@@ -126,6 +126,8 @@ public class CompiledModule extends AbstractModule {
 
     private final boolean isPythonBuiltin;
 
+    private IPythonNature nature;
+
     @Override
     public File getFile() {
         return file;
@@ -136,13 +138,19 @@ public class CompiledModule extends AbstractModule {
         return false;
     }
 
+    @Override
+    public IPythonNature getNature() {
+        return nature;
+    }
+
     /**
      * 
      * @param module - module from where to get completions.
      */
     @SuppressWarnings("unchecked")
-    public CompiledModule(String name, IModulesManager manager) {
+    public CompiledModule(String name, IModulesManager manager, IPythonNature nature) {
         super(name);
+        this.nature = nature;
 
         isPythonBuiltin = ("__builtin__".equals(name) || "builtins".equals(name));
 
@@ -286,7 +294,8 @@ public class CompiledModule extends AbstractModule {
      * Gets cached information for the given name. Could be a dotted or non-dotted name.
      */
     private static Tuple<File, IToken[]> getCached(String name, IModulesManager manager) {
-        File f = getCacheFile(name, manager.getSystemModulesManager());
+        ISystemModulesManager systemModulesManager = manager.getSystemModulesManager();
+        File f = getCacheFile(name, systemModulesManager);
 
         if (f != null && f.exists()) {
             try {
@@ -302,13 +311,14 @@ public class CompiledModule extends AbstractModule {
                             int size = stream.readInt();
 
                             toks = new IToken[size];
+                            IPythonNature nature = systemModulesManager.getNature();
                             for (int i = 0; i < size; i++) {
                                 //Note intern (we probably have many empty strings -- or the same for parentPackage)
                                 String rep = ObjectsInternPool.internLocal(map, (String) stream.readObject());
                                 int type = stream.readInt();
                                 String args = ObjectsInternPool.internLocal(map, (String) stream.readObject());
                                 String parentPackage = ObjectsInternPool.internLocal(map, (String) stream.readObject());
-                                toks[i] = new CompiledToken(rep, "", args, parentPackage, type);
+                                toks[i] = new CompiledToken(rep, "", args, parentPackage, type, nature);
                             }
                             for (int i = 0; i < size; i++) {
                                 toks[i].setDocStr(ObjectsInternPool.internLocal(map, (String) stream.readObject()));
@@ -338,7 +348,7 @@ public class CompiledModule extends AbstractModule {
             String[] element = iter.next();
             if (element.length >= 4) {//it might be a server error
                 IToken t = new CompiledToken(element[0], element[1], element[2], act,
-                        Integer.parseInt(element[3]));
+                        Integer.parseInt(element[3]), nature);
                 lst.add(t);
             }
         }
@@ -402,9 +412,9 @@ public class CompiledModule extends AbstractModule {
 
                 IToken t;
                 if (element.length > 0) {
-                    t = new CompiledToken(o1, o2, o3, name, Integer.parseInt(element[3]));
+                    t = new CompiledToken(o1, o2, o3, name, Integer.parseInt(element[3]), nature);
                 } else {
-                    t = new CompiledToken(o1, o2, o3, name, IToken.TYPE_BUILTIN);
+                    t = new CompiledToken(o1, o2, o3, name, IToken.TYPE_BUILTIN, nature);
                 }
 
                 array.add(t);
@@ -423,10 +433,10 @@ public class CompiledModule extends AbstractModule {
         //as we will use it for code completion on sources that map to modules, the __file__ should also
         //be added...
         if (array.size() > 0 && (name.equals("__builtin__") || name.equals("builtins"))) {
-            array.add(new CompiledToken("__file__", "", "", name, IToken.TYPE_BUILTIN));
-            array.add(new CompiledToken("__name__", "", "", name, IToken.TYPE_BUILTIN));
-            array.add(new CompiledToken("__builtins__", "", "", name, IToken.TYPE_BUILTIN));
-            array.add(new CompiledToken("__dict__", "", "", name, IToken.TYPE_BUILTIN));
+            array.add(new CompiledToken("__file__", "", "", name, IToken.TYPE_BUILTIN, nature));
+            array.add(new CompiledToken("__name__", "", "", name, IToken.TYPE_BUILTIN, nature));
+            array.add(new CompiledToken("__builtins__", "", "", name, IToken.TYPE_BUILTIN, nature));
+            array.add(new CompiledToken("__dict__", "", "", name, IToken.TYPE_BUILTIN, nature));
         }
 
         return new Tuple<File, IToken[]>(file, array.toArray(new IToken[array.size()]));

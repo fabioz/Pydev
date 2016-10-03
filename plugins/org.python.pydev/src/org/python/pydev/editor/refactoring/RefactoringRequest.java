@@ -128,7 +128,8 @@ public class RefactoringRequest extends DecoratableObject {
      * Assigns parameters to attributes (tries to resolve the module name and create a SystemPythonNature if the
      * nature is not specified)
      */
-    public RefactoringRequest(File file, PySelection ps, IProgressMonitor monitor, IPythonNature nature, PyEdit pyEdit) {
+    public RefactoringRequest(File file, PySelection ps, IProgressMonitor monitor, IPythonNature nature,
+            PyEdit pyEdit) {
         this.file = file;
         this.ps = ps;
         this.pushMonitor(monitor);
@@ -235,7 +236,7 @@ public class RefactoringRequest extends DecoratableObject {
                     if (astModificationTimeStamp != -1
                             && astModificationTimeStamp == (((IDocumentExtension4) doc).getModificationStamp())) {
                         //Matched time stamp -- so, we can use the ast without fear of being unsynched.
-                        module = AbstractModule.createModule(ast, file, resolveModule());
+                        module = AbstractModule.createModule(ast, file, resolveModule(), nature);
                     } else {
                         //Did not match time stamp!! We'll reparse the document later on to get a synched version.
                     }

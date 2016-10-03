@@ -9,6 +9,8 @@
  */
 package com.python.pydev.analysis.additionalinfo;
 
+import org.python.pydev.core.IPythonNature;
+
 public interface IInfo extends Comparable<IInfo> {
 
     /**
@@ -66,4 +68,6 @@ public interface IInfo extends Comparable<IInfo> {
      * @return the type of the information we are holding (given constants)
      */
     int getType();
+
+    IPythonNature getNature();
 }

@@ -279,7 +279,7 @@ public class AssignAnalysis {
                                 for (exprType exprType : elts) {
                                     if (exprType instanceof Str) {
                                         ret.add(new SourceToken(exprType, ((Str) exprType).s, "",
-                                                "", sourceModule.getName()));
+                                                "", sourceModule.getName(), sourceModule.getNature()));
                                     }
                                 }
                                 return ret;
@@ -295,7 +295,7 @@ public class AssignAnalysis {
                                                 List<String> split = StringUtils.split(str.s, " ");
                                                 for (String string : split) {
                                                     ret.add(new SourceToken(str, string, "",
-                                                            "", sourceModule.getName()));
+                                                            "", sourceModule.getName(), sourceModule.getNature()));
                                                 }
                                                 return ret;
                                             }

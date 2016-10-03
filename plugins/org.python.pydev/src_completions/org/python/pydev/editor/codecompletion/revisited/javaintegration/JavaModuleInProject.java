@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.ui.text.java.CompletionProposalCollector;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -39,6 +40,11 @@ public class JavaModuleInProject extends AbstractJavaClassModule {
     private IJavaProject javaProject;
 
     private int moduleType = UNKNOWN;
+
+    @Override
+    public IPythonNature getNature() {
+        return null;
+    }
 
     /**
      * @param name that's the name of the module for jython

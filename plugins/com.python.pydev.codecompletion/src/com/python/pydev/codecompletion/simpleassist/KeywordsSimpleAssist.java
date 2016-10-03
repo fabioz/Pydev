@@ -145,7 +145,8 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant, ISimpleAs
      * @see ISimpleAssistParticipant2
      */
     @Override
-    public Collection<ICompletionProposal> computeConsoleProposals(String activationToken, String qualifier, int offset) {
+    public Collection<ICompletionProposal> computeConsoleProposals(String activationToken, String qualifier,
+            int offset) {
         return innerComputeProposals(activationToken, qualifier, offset, true, false);
     }
 
@@ -176,7 +177,7 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant, ISimpleAs
                     if (buildForConsole) {
                         //In the console, only show the simple completions without any special treatment
                         results.add(new PyCompletionProposal(keyw, offset - qlen, qlen, keyw.length(),
-                                PyCompletionProposal.PRIORITY_DEFAULT));
+                                PyCompletionProposal.PRIORITY_DEFAULT, null));
 
                     } else {
                         //in the editor, we'll create a special proposal with more features
@@ -186,7 +187,7 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant, ISimpleAs
                             }
                         }
                         results.add(new SimpleAssistProposal(keyw, offset - qlen, qlen, keyw.length(),
-                                PyCompletionProposal.PRIORITY_DEFAULT));
+                                PyCompletionProposal.PRIORITY_DEFAULT, null));
                     }
                 }
             }

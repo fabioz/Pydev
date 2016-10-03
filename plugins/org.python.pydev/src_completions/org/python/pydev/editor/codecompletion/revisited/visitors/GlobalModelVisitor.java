@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -48,8 +49,9 @@ public final class GlobalModelVisitor extends AbstractVisitor {
     private Assign __all__Assign;
     private exprType[] __all__AssignTargets;
 
-    public GlobalModelVisitor(int visitWhat, String moduleName, boolean onlyAllowTokensIn__all__) {
-        this(visitWhat, moduleName, onlyAllowTokensIn__all__, false);
+    public GlobalModelVisitor(int visitWhat, String moduleName, boolean onlyAllowTokensIn__all__,
+            IPythonNature nature) {
+        this(visitWhat, moduleName, onlyAllowTokensIn__all__, false, nature);
     }
 
     /**
@@ -57,18 +59,23 @@ public final class GlobalModelVisitor extends AbstractVisitor {
      * @param global_tokens2
      */
     public GlobalModelVisitor(int visitWhat, String moduleName, boolean onlyAllowTokensIn__all__,
-            boolean lookingInLocalContext) {
+            boolean lookingInLocalContext, IPythonNature nature) {
+        super(nature);
         this.visitWhat = visitWhat;
         this.moduleName = moduleName;
         this.onlyAllowTokensIn__all__ = onlyAllowTokensIn__all__;
-        this.tokens.add(new SourceToken(new Name("__dict__", Name.Load, false), "__dict__", "", "", moduleName));
+        this.tokens
+                .add(new SourceToken(new Name("__dict__", Name.Load, false), "__dict__", "", "", moduleName, nature));
         if (moduleName != null && moduleName.endsWith("__init__")) {
-            this.tokens.add(new SourceToken(new Name("__path__", Name.Load, false), "__path__", "", "", moduleName));
+            this.tokens.add(
+                    new SourceToken(new Name("__path__", Name.Load, false), "__path__", "", "", moduleName, nature));
         }
         if (!lookingInLocalContext && ((this.visitWhat & GLOBAL_TOKENS) != 0)) {
             //__file__ is always available for any module
-            this.tokens.add(new SourceToken(new Name("__file__", Name.Load, false), "__file__", "", "", moduleName));
-            this.tokens.add(new SourceToken(new Name("__name__", Name.Load, false), "__name__", "", "", moduleName));
+            this.tokens.add(
+                    new SourceToken(new Name("__file__", Name.Load, false), "__file__", "", "", moduleName, nature));
+            this.tokens.add(
+                    new SourceToken(new Name("__name__", Name.Load, false), "__name__", "", "", moduleName, nature));
         }
     }
 
@@ -180,11 +187,11 @@ public final class GlobalModelVisitor extends AbstractVisitor {
     @Override
     public Object visitImportFrom(ImportFrom node) throws Exception {
         if ((this.visitWhat & WILD_MODULES) != 0) {
-            makeWildImportToken(node, this.tokens, moduleName);
+            makeWildImportToken(node, this.tokens, moduleName, nature);
         }
 
         if ((this.visitWhat & ALIAS_MODULES) != 0) {
-            makeImportToken(node, this.tokens, moduleName, true);
+            makeImportToken(node, this.tokens, moduleName, true, nature);
         }
         return null;
     }
@@ -196,7 +203,7 @@ public final class GlobalModelVisitor extends AbstractVisitor {
     @Override
     public Object visitImport(Import node) throws Exception {
         if ((this.visitWhat & ALIAS_MODULES) != 0) {
-            makeImportToken(node, this.tokens, moduleName, true);
+            makeImportToken(node, this.tokens, moduleName, true, nature);
         }
         return null;
     }
@@ -207,7 +214,7 @@ public final class GlobalModelVisitor extends AbstractVisitor {
     @Override
     public Object visitStr(Str node) throws Exception {
         if ((this.visitWhat & MODULE_DOCSTRING) != 0) {
-            this.tokens.add(new SourceToken(node, node.s, "", "", moduleName));
+            this.tokens.add(new SourceToken(node, node.s, "", "", moduleName, nature));
         }
         return null;
     }

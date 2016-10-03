@@ -31,6 +31,7 @@ import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant2;
+import org.python.pydev.editor.codecompletion.ProposalsComparator.CompareContext;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils.IFilter;
@@ -247,7 +248,8 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
                         (IContextInformation) null, "",
                         displayAsStr.equals(qual) ? IPyCompletionProposal.PRIORITY_GLOBALS_EXACT
                                 : IPyCompletionProposal.PRIORITY_GLOBALS,
-                        realImportRep.toString());
+                        realImportRep.toString(),
+                        new CompareContext(info.getNature()));
 
                 completions.add(proposal);
             }
@@ -302,7 +304,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
                 for (IInfo info : tokensStartingWith) {
                     if (nameFilter.acceptName(info.getName())) {
                         ret.add(new SourceToken(null, info.getName(), null, null, info.getDeclaringModuleName(),
-                                info.getType()));
+                                info.getType(), info.getNature()));
                     }
                 }
             } else {
@@ -315,7 +317,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
                 }
                 for (IInfo info : tokensStartingWith) {
                     ret.add(new SourceToken(null, info.getName(), null, null, info.getDeclaringModuleName(),
-                            info.getType()));
+                            info.getType(), info.getNature()));
                 }
             }
 

@@ -11,6 +11,8 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
+import org.python.pydev.core.IPythonNature;
+
 /**
  * A concrete token is created for representing modules.
  * 
@@ -28,9 +30,10 @@ public final class ConcreteToken extends AbstractToken {
      * @param doc the document that contains the token
      * @param parentPackage the parent package for the token (in this case, the module itself)
      * @param type the type for this token
+     * @param iPythonNature 
      */
-    public ConcreteToken(String rep, String doc, String args, String parentPackage, int type) {
-        super(rep, doc, args, parentPackage, type);
+    public ConcreteToken(String rep, String doc, String args, String parentPackage, int type, IPythonNature nature) {
+        super(rep, doc, args, parentPackage, type, nature);
     }
 
 }

@@ -279,7 +279,7 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
     @Override
     public boolean isInDirectGlobalTokens(String tok, ICompletionCache completionCache) {
         if (this.tokens != null) {
-            return binaryHasObject(this.tokens, new CompiledToken(tok, "", "", "", 0));
+            return binaryHasObject(this.tokens, new CompiledToken(tok, "", "", "", 0, null));
         }
         return false;
     }
@@ -312,8 +312,7 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
                 low = mid + 1;
             } else if (cmp > 0) {
                 high = mid - 1;
-            }
-            else {
+            } else {
                 return true; // key found
             }
         }

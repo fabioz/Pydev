@@ -26,7 +26,7 @@ public class IgnoreCompletionProposal extends PyCompletionProposal {
             int cursorPosition, Image image, String displayString, IContextInformation contextInformation,
             String additionalProposalInfo, int priority, PyEdit edit) {
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
-                contextInformation, additionalProposalInfo, priority);
+                contextInformation, additionalProposalInfo, priority, null);
         this.edit = edit;
     }
 

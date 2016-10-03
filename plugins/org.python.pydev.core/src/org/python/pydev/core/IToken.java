@@ -201,4 +201,6 @@ public interface IToken extends Serializable, Comparable {
     public void setGeneratorType(ITypeInfo type);
 
     public ITypeInfo getGeneratorType();
+
+    IPythonNature getNature();
 }

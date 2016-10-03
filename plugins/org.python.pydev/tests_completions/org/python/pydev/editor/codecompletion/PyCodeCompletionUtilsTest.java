@@ -24,7 +24,7 @@ public class PyCodeCompletionUtilsTest extends TestCase {
         boolean onlyForCalltips = false;
 
         ICompletionProposal[] proposals = PyCodeCompletionUtils.onlyValidSorted(props, qualifier, onlyForCalltips,
-                false);
+                false, null);
         compare(new String[] { "foo1", "foo1(a, b)" }, proposals);
     }
 
@@ -39,7 +39,7 @@ public class PyCodeCompletionUtilsTest extends TestCase {
         boolean onlyForCalltips = false;
 
         ICompletionProposal[] proposals = PyCodeCompletionUtils.onlyValidSorted(props, qualifier, onlyForCalltips,
-                false);
+                false, null);
         compare(new String[] { "_foo1(a, b)", "__foo1()", "__foo1 - __something__", "__foo1__", "__foo1__()", },
                 proposals);
     }
@@ -52,7 +52,7 @@ public class PyCodeCompletionUtilsTest extends TestCase {
         boolean onlyForCalltips = false;
 
         ICompletionProposal[] proposals = PyCodeCompletionUtils.onlyValidSorted(props, qualifier, onlyForCalltips,
-                false);
+                false, null);
         compare(new String[] { "system", "SystemError", }, proposals);
     }
 

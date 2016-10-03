@@ -503,7 +503,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
     public void testFindDefinition() throws Exception {
         isInTestFindDefinition = true;
         try {
-            CompiledModule mod = new CompiledModule("os", nature.getAstManager().getModulesManager());
+            CompiledModule mod = new CompiledModule("os", nature.getAstManager().getModulesManager(), nature);
             Definition[] findDefinition = mod.findDefinition(
                     CompletionStateFactory.getEmptyCompletionState("walk", nature, new CompletionCache()), -1, -1,
                     nature);

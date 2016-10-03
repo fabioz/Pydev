@@ -36,10 +36,10 @@ public class AssistAssignCompletionProposal extends PyCompletionProposal {
 
     public AssistAssignCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
             int cursorPosition, Image image, String displayString, IContextInformation contextInformation,
-            String additionalProposalInfo, int priority, ISourceViewer sourceViewer) {
+            String additionalProposalInfo, int priority, ISourceViewer sourceViewer, ICompareContext compareContext) {
 
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
-                contextInformation, additionalProposalInfo, priority);
+                contextInformation, additionalProposalInfo, priority, compareContext);
         this.sourceViewer = sourceViewer;
 
     }

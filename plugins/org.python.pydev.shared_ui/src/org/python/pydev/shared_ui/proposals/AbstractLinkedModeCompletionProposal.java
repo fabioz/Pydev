@@ -62,9 +62,10 @@ public abstract class AbstractLinkedModeCompletionProposal extends AbstractCompl
     */
     public AbstractLinkedModeCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
             int cursorPosition, Image image, String displayString, IContextInformation contextInformation,
-            String additionalProposalInfo, int priority, int onApplyAction, String args) {
+            String additionalProposalInfo, int priority, int onApplyAction, String args,
+            ICompareContext compareContext) {
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
-                contextInformation, additionalProposalInfo, priority, onApplyAction, args);
+                contextInformation, additionalProposalInfo, priority, onApplyAction, args, compareContext);
     }
 
     /**
@@ -72,9 +73,10 @@ public abstract class AbstractLinkedModeCompletionProposal extends AbstractCompl
     */
     public AbstractLinkedModeCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
             int cursorPosition, Image image, String displayString, IContextInformation contextInformation,
-            String additionalProposalInfo, int priority, int onApplyAction, String args, boolean goToLinkedMode) {
+            String additionalProposalInfo, int priority, int onApplyAction, String args, boolean goToLinkedMode,
+            ICompareContext compareContext) {
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
-                contextInformation, additionalProposalInfo, priority, onApplyAction, args);
+                contextInformation, additionalProposalInfo, priority, onApplyAction, args, compareContext);
         this.goToLinkedMode = goToLinkedMode;
     }
 

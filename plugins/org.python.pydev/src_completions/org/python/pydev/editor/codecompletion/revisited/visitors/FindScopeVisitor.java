@@ -12,6 +12,7 @@
 package org.python.pydev.editor.codecompletion.revisited.visitors;
 
 import org.python.pydev.core.ILocalScope;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -34,7 +35,7 @@ public class FindScopeVisitor extends AbstractVisitor {
     /**
      * This is the scope.
      */
-    public ILocalScope scope = new LocalScope(new FastStack<SimpleNode>(20));
+    public ILocalScope scope;
 
     /**
      * Variable to mark if we found scope.
@@ -54,8 +55,9 @@ public class FindScopeVisitor extends AbstractVisitor {
     /**
      * Only for subclasses
      */
-    protected FindScopeVisitor() {
-
+    protected FindScopeVisitor(IPythonNature nature) {
+        super(nature);
+        scope = new LocalScope(nature, new FastStack<SimpleNode>(20));
     }
 
     /**
@@ -64,7 +66,8 @@ public class FindScopeVisitor extends AbstractVisitor {
      * @param line in ast coords (starts at 1)
      * @param col in ast coords (starts at 1)
      */
-    public FindScopeVisitor(int line, int col) {
+    public FindScopeVisitor(int line, int col, IPythonNature nature) {
+        this(nature);
         this.line = line;
         this.col = col;
     }
@@ -80,7 +83,7 @@ public class FindScopeVisitor extends AbstractVisitor {
                 //scope is locked at this time.
                 found = true;
                 int original = scope.getIfMainLine();
-                scope = new LocalScope(this.stackScope.createCopy());
+                scope = new LocalScope(nature, this.stackScope.createCopy());
                 scope.setIfMainLine(original);
                 scope.setFoundAtASTNode(node);
             }

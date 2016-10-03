@@ -57,6 +57,7 @@ public class HeuristicFindAttrs extends AbstractVisitor {
      */
     public HeuristicFindAttrs(int where, int how, String methodCall, String moduleName, ICompletionState state,
             Map<String, SourceToken> repToTokenWithArgs) {
+        super(state.getNature());
         this.where = where;
         this.how = how;
         this.methodCall = methodCall;

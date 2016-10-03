@@ -35,8 +35,8 @@ import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.model.PyDebugTarget;
 import org.python.pydev.debug.model.PyStackFrame;
-import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant2;
+import org.python.pydev.editor.codecompletion.ProposalsComparator;
 import org.python.pydev.editor.codecompletion.PyLinkedModeCompletionProposal;
 import org.python.pydev.editor.codecompletion.templates.PyTemplateCompletionProcessor;
 import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant2;
@@ -168,7 +168,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
                 if (representation.startsWith(tokenAndQual.qualifier)) {
                     ret.add(new PyLinkedModeCompletionProposal(representation, replacementOffset, qlen, representation
                             .length(), t, null, null, IPyCompletionProposal.PRIORITY_DEFAULT,
-                            PyCompletionProposal.ON_APPLY_DEFAULT, ""));
+                            PyCompletionProposal.ON_APPLY_DEFAULT, "", null));
                 }
             }
             return ret.toArray(new ICompletionProposal[ret.size()]);
@@ -197,6 +197,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
             }
         }
 
+        ProposalsComparator proposalsComparator = new ProposalsComparator(tokenAndQual.qualifier, null);
         ArrayList<ICompletionProposal> results2 = new ArrayList<ICompletionProposal>();
 
         if (!showOnlyTemplates) {
@@ -219,7 +220,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
             pyTemplateCompletionProcessor.addTemplateProposals(viewer, offset, results2);
         }
 
-        Collections.sort(results2, IPyCodeCompletion.PROPOSAL_COMPARATOR);
+        Collections.sort(results2, proposalsComparator);
 
         ArrayList<ICompletionProposal> results3 = new ArrayList<ICompletionProposal>();
         if (!showOnlyTemplates) {
@@ -232,7 +233,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
                             offset));
                 }
             }
-            Collections.sort(results3, IPyCodeCompletion.PROPOSAL_COMPARATOR);
+            Collections.sort(results3, proposalsComparator);
         }
         results.addAll(results2);
         results.addAll(results3);

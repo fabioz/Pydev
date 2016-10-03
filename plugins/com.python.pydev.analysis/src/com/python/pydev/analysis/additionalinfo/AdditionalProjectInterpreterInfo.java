@@ -58,6 +58,8 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
 
     private final File persistingLocation;
 
+    private PythonNature nature;
+
     /**
      * holds nature info (project name points to info)
      */
@@ -67,6 +69,11 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
 
     public IProject getProject() {
         return project;
+    }
+
+    @Override
+    protected IPythonNature getNature() {
+        return nature;
     }
 
     /**
@@ -86,6 +93,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
         super(false);
         Assert.isNotNull(project);
         this.project = project;
+        this.nature = PythonNature.getPythonNature(project);
 
         File f;
         try {
@@ -144,13 +152,13 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
 
     public static List<Tuple<AbstractAdditionalTokensInfo, IPythonNature>> getAdditionalInfoAndNature(
             IPythonNature nature, boolean addSystemInfo, boolean addReferencingProjects)
-                    throws MisconfigurationException {
+            throws MisconfigurationException {
         return getAdditionalInfoAndNature(nature, addSystemInfo, addReferencingProjects, true);
     }
 
     public static List<Tuple<AbstractAdditionalTokensInfo, IPythonNature>> getAdditionalInfoAndNature(
             IPythonNature nature, boolean addSystemInfo, boolean addReferencingProjects, boolean addReferencedProjects)
-                    throws MisconfigurationException {
+            throws MisconfigurationException {
 
         List<Tuple<AbstractAdditionalTokensInfo, IPythonNature>> ret = new ArrayList<Tuple<AbstractAdditionalTokensInfo, IPythonNature>>();
 

@@ -67,7 +67,7 @@ public class JavaElementToken extends CompiledToken {
     protected JavaElementToken(String rep, String doc, String args, String parentPackage, int type,
             IJavaElement javaElement, int completionProposalKind, int completionProposalFlags,
             int completionProposalAdditionalFlags, char[] completionPropsoalSignature) {
-        super(rep, doc, args, parentPackage, type);
+        super(rep, doc, args, parentPackage, type, null);
         this.javaElement = javaElement;
         this.completionProposalKind = completionProposalKind;
         this.completionProposalFlags = completionProposalFlags;
@@ -77,7 +77,7 @@ public class JavaElementToken extends CompiledToken {
 
     public JavaElementToken(String rep, String doc, String args, String parentPackage, int type,
             IJavaElement javaElement, CompletionProposal completionProposal) {
-        super(rep, doc, args, parentPackage, type);
+        super(rep, doc, args, parentPackage, type, null);
         this.javaElement = javaElement;
         this.completionProposalKind = completionProposal.getKind();
         this.completionProposalFlags = completionProposal.getFlags();
@@ -89,7 +89,7 @@ public class JavaElementToken extends CompiledToken {
 
     public JavaElementToken(String rep, String doc, String args, String parentPackage, int type,
             IJavaElement javaElement, Image image) {
-        super(rep, doc, args, parentPackage, type);
+        super(rep, doc, args, parentPackage, type, null);
         this.javaElement = javaElement;
         this.image = image;
     }
