@@ -33,6 +33,9 @@ import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant2;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils.IFilter;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
@@ -107,7 +110,11 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
         }
 
         String lowerQual = qual.toLowerCase();
-        Set<String> allModuleNames = modulesManager.getAllModuleNames(false, lowerQual);
+        final boolean useSubstringMatchInCodeCompletion = PyCodeCompletionPreferencesPage
+                .getUseSubstringMatchInCodeCompletion();
+        Set<String> allModuleNames = PyCodeCompletionUtils.getModulesNamesToFilterOn(useSubstringMatchInCodeCompletion,
+                modulesManager, qual);
+        IFilter nameFilter = PyCodeCompletionUtils.getNameFilter(useSubstringMatchInCodeCompletion, qual);
 
         FastStringBuffer realImportRep = new FastStringBuffer();
         FastStringBuffer displayString = new FastStringBuffer();
@@ -122,8 +129,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
 
                 String[] strings = FullRepIterable.headAndTail(string);
                 String importRep = strings[1];
-                String lowerImportRep = importRep.toLowerCase();
-                if (!lowerImportRep.startsWith(lowerQual)) {
+                if (!nameFilter.acceptName(importRep)) {
                     continue;
                 }
 
@@ -156,7 +162,8 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
                 PyConsoleCompletion proposal = new PyConsoleCompletion(importRep, requestOffset - qlen, qlen,
                         realImportRep.length(), img, found, (IContextInformation) null, "",
                         displayAsStr.toLowerCase().equals(lowerQual) ? IPyCompletionProposal.PRIORITY_PACKAGES_EXACT
-                                : IPyCompletionProposal.PRIORITY_PACKAGES, displayAsStr, viewer);
+                                : IPyCompletionProposal.PRIORITY_PACKAGES,
+                        displayAsStr, viewer);
 
                 completions.add(proposal);
             }
@@ -186,7 +193,11 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
             IModulesManager projectModulesManager = astManager.getModulesManager();
 
             String lowerQual = request.qualifier.toLowerCase();
-            Set<String> allModuleNames = projectModulesManager.getAllModuleNames(true, lowerQual);
+            final boolean useSubstringMatchInCodeCompletion = request.useSubstringMatchInCodeCompletion;
+            final Set<String> allModuleNames = PyCodeCompletionUtils.getModulesNamesToFilterOn(
+                    useSubstringMatchInCodeCompletion, projectModulesManager, request.qualifier);
+            final IFilter nameFilter = PyCodeCompletionUtils.getNameFilter(useSubstringMatchInCodeCompletion,
+                    request.qualifier);
 
             FastStringBuffer realImportRep = new FastStringBuffer();
             FastStringBuffer displayString = new FastStringBuffer();
@@ -204,8 +215,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
 
                     String[] strings = FullRepIterable.headAndTail(string);
                     String importRep = strings[1];
-                    String lowerImportRep = importRep.toLowerCase();
-                    if (!lowerImportRep.startsWith(lowerQual) || importedNames.contains(importRep)) {
+                    if (!nameFilter.acceptName(importRep) || importedNames.contains(importRep)) {
                         continue;
                     }
 
@@ -239,7 +249,8 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
                             (IContextInformation) null,
                             "",
                             displayAsStr.toLowerCase().equals(lowerQual) ? IPyCompletionProposal.PRIORITY_PACKAGES_EXACT
-                                    : IPyCompletionProposal.PRIORITY_PACKAGES, realImportRep.toString());
+                                    : IPyCompletionProposal.PRIORITY_PACKAGES,
+                            realImportRep.toString());
 
                     list.add(proposal);
                 }

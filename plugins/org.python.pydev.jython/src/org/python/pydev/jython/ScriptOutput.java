@@ -10,9 +10,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 
-import org.eclipse.core.runtime.Preferences;
-import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
-import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.python.pydev.jython.ui.JyScriptingPreferencesPage;
 import org.python.pydev.shared_core.callbacks.ICallback0;
@@ -49,13 +48,13 @@ public class ScriptOutput extends OutputStream {
      */
     public ScriptOutput(ICallback0<IOConsoleOutputStream> outputStream) {
         this(outputStream, JyScriptingPreferencesPage.getShowScriptingOutput());
-        IPropertyChangeListener listener = new Preferences.IPropertyChangeListener() {
+        IPropertyChangeListener listener = new IPropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent event) {
                 writeToConsole = JyScriptingPreferencesPage.getShowScriptingOutput();
             }
         };
-        JythonPlugin.getDefault().getPluginPreferences().addPropertyChangeListener(listener);
+        JythonPlugin.getDefault().getPreferenceStore().addPropertyChangeListener(listener);
     }
 
     /**

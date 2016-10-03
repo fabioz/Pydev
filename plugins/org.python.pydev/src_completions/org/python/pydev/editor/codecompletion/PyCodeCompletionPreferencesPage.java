@@ -11,14 +11,15 @@
  */
 package org.python.pydev.editor.codecompletion;
 
-import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.string.WrapAndCaseUtils;
@@ -69,6 +70,9 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
 
     public static final String USE_CODE_COMPLETION_ON_DEBUG_CONSOLES = "USE_CODE_COMPLETION_ON_DEBUG_CONSOLES";
     public static final boolean DEFAULT_USE_CODE_COMPLETION_ON_DEBUG_CONSOLES = true;
+
+    public static final String MATCH_BY_SUBSTRING_IN_CODE_COMPLETION = "MATCH_BY_SUBSTRING_IN_CODE_COMPLETION";
+    public static final boolean DEFAULT_MATCH_BY_SUBSTRING_IN_CODE_COMPLETION = false;
 
     /**
      */
@@ -121,6 +125,9 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
         addField(new BooleanFieldEditor(AUTOCOMPLETE_ON_ALL_ASCII_CHARS,
                 "Request completion on all letter chars and '_'?", p));
 
+        addField(new BooleanFieldEditor(MATCH_BY_SUBSTRING_IN_CODE_COMPLETION,
+                "Match substrings on code completion?", p));
+
         addField(new BooleanFieldEditor(APPLY_COMPLETION_ON_DOT, "Apply completion on '.'?", p));
 
         addField(new BooleanFieldEditor(APPLY_COMPLETION_ON_LPAREN, "Apply completion on '('?", p));
@@ -146,7 +153,8 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
 
         addField(new LabelFieldEditor("LABEL_FIELD_EDITOR_NEW_LINE_ALWAYS_THERE_2",
                 "Note 3: Ctrl + ENTER can be used as a way to apply the completion\n"
-                        + "erasing the next chars from the current token.", p));
+                        + "erasing the next chars from the current token.",
+                p));
 
         addField(new LabelFieldEditor("LABEL_FIELD_EDITOR_NEW_LINE_ALWAYS_THERE_2a", "", p));
         addField(new LabelFieldEditor("LABEL_FIELD_EDITOR_NEW_LINE_ALWAYS_THERE_2b", "", p));
@@ -176,7 +184,7 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
             return 20;
         }
 
-        Preferences preferences = getPreferences();
+        IPreferenceStore preferences = getPreferences();
         int ret = preferences.getInt(PyCodeCompletionPreferencesPage.ATTEMPTS_CODECOMPLETION);
         if (ret < 2) {
             ret = 2; // at least 2 attempts!
@@ -236,15 +244,18 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
         return getPreferences().getBoolean(PyCodeCompletionPreferencesPage.APPLY_COMPLETION_ON_RPAREN);
     }
 
-    private static Preferences getPreferences() {
+    public static boolean getUseSubstringMatchInCodeCompletion() {
+        return getPreferences().getBoolean(PyCodeCompletionPreferencesPage.MATCH_BY_SUBSTRING_IN_CODE_COMPLETION);
+    }
+
+    private static IPreferenceStore getPreferences() {
         if (SharedCorePlugin.inTestMode()) {
             //always create a new one for tests.
             return getPreferencesForTests.call(null);
         }
-        PydevPlugin plugin = PydevPlugin.getDefault();
-        return plugin.getPluginPreferences();
+        return PydevPrefs.getPreferenceStore();
     }
 
-    public static ICallback<Preferences, Object> getPreferencesForTests;
+    public static ICallback<IPreferenceStore, Object> getPreferencesForTests;
 
 }

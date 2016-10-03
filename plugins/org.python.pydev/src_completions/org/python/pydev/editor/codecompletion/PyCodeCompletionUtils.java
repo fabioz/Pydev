@@ -13,8 +13,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.core.IModulesManager;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
 public class PyCodeCompletionUtils {
@@ -27,13 +29,13 @@ public class PyCodeCompletionUtils {
      * @return the completions to show to the user
      */
     public static ICompletionProposal[] onlyValidSorted(List pythonAndTemplateProposals, String qualifier,
-            boolean onlyForCalltips) {
+            boolean onlyForCalltips, boolean useSubstringMatchInCodeCompletion) {
         //FOURTH: Now, we have all the proposals, only thing is deciding which ones are valid (depending on
         //qualifier) and sorting them correctly.
         final Map<String, List<ICompletionProposal>> returnProposals = new HashMap<String, List<ICompletionProposal>>();
-        final String lowerCaseQualifier = qualifier.toLowerCase();
 
         int len = pythonAndTemplateProposals.size();
+        IFilter nameFilter = getNameFilter(useSubstringMatchInCodeCompletion, qualifier);
         for (int i = 0; i < len; i++) {
             Object o = pythonAndTemplateProposals.get(i);
             if (o instanceof ICompletionProposal) {
@@ -57,7 +59,7 @@ public class PyCodeCompletionUtils {
                             addProposal(returnProposals, proposal, displayString);
                         }
                     }
-                } else if (displayString.toLowerCase().startsWith(lowerCaseQualifier)) {
+                } else if (nameFilter.acceptName(displayString)) {
                     List<ICompletionProposal> existing = returnProposals.get(displayString);
                     if (existing != null) {
                         //a proposal with the same string is already there...
@@ -120,6 +122,54 @@ public class PyCodeCompletionUtils {
             returnProposals.put(displayString, lst);
         }
         lst.add(proposal);
+    }
+
+    public static Set<String> getModulesNamesToFilterOn(boolean useSubstringMatchInCodeCompletion,
+            IModulesManager modulesManager, String qual) {
+        if (useSubstringMatchInCodeCompletion) {
+            return modulesManager.getAllModuleNames(false, "");
+
+        } else {
+            return modulesManager.getAllModuleNames(false, qual.toLowerCase());
+        }
+    }
+
+    public static interface IFilter {
+
+        boolean acceptName(String name);
+
+    }
+
+    public static IFilter getNameFilter(boolean useSubstringMatchInCodeCompletion, String qual) {
+        final String lowerQual = qual.toLowerCase();
+        if (useSubstringMatchInCodeCompletion) {
+            return new IFilter() {
+
+                @Override
+                public boolean acceptName(String name) {
+                    return name.toLowerCase().contains(lowerQual);
+                }
+            };
+
+        } else {
+            return new IFilter() {
+
+                @Override
+                public boolean acceptName(String name) {
+                    return name.toLowerCase().startsWith(lowerQual);
+                }
+            };
+        }
+    }
+
+    // API optimized for a single match (to avoid creating temporary objects) -- prefer getNameFilter() for multiple matches on the same qualifier.
+    public static boolean acceptName(boolean useSubstringMatchInCodeCompletion, String displayString,
+            String qualifier) {
+        if (useSubstringMatchInCodeCompletion) {
+            return displayString.toLowerCase().contains(qualifier.toLowerCase());
+        } else {
+            return displayString.toLowerCase().startsWith(qualifier.toLowerCase());
+        }
     }
 
 }

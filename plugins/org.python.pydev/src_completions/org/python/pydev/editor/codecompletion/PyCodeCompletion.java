@@ -45,6 +45,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils.IFilter;
 import org.python.pydev.editor.codecompletion.revisited.AbstractASTManager;
 import org.python.pydev.editor.codecompletion.revisited.AssignAnalysis;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
@@ -170,22 +171,25 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                 handleKeywordParam(request, line, alreadyChecked);
             }
 
-            String lowerCaseQual = request.qualifier.toLowerCase();
-            if (lowerCaseQual.length() >= PyCodeCompletionPreferencesPage.getArgumentsDeepAnalysisNChars()) {
+            if (request.qualifier.length() >= PyCodeCompletionPreferencesPage.getArgumentsDeepAnalysisNChars()) {
                 //this can take some time on the analysis, so, let's let the user choose on how many chars does he
                 //want to do the analysis...
                 state.pushFindResolveImportMemoryCtx();
                 try {
+                    //Note: switch to a linked list where removal is fast as we'll remove all the ITokens (but will keep ICompletionProposals).
                     if (tokensList.size() > 10000) {
                         Log.logWarn(StringUtils.format(
                                 "Warning: computed %s completions (trimming to 10000).\nRequest: %s",
                                 tokensList.size(), request));
-                        //With too many items it's possible that we have too many removals,
-                        //so, switch to a linked list (where removal is fast).
                         tokensList = new LinkedListWarningOnSlowOperations(tokensList.subList(0, 10000));
+                    } else {
+                        tokensList = new LinkedListWarningOnSlowOperations(tokensList);
                     }
+                    IFilter nameFilter = PyCodeCompletionUtils.getNameFilter(request.useSubstringMatchInCodeCompletion,
+                            request.qualifier);
                     int i = 0;
-                    for (Iterator<Object> it = tokensList.listIterator(); it.hasNext();) {
+                    // Note: later on we'll clear the tokensList and re-add the tokens on alreadyChecked.
+                    for (Iterator<Object> it = tokensList.iterator(); it.hasNext();) {
                         i++;
                         if (i > 10000) {
                             break;
@@ -206,8 +210,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                                     continue; // we already have a version with args... just keep going
                                 }
                             }
-
-                            if (!strRep.toLowerCase().startsWith(lowerCaseQual)) {
+                            if (!nameFilter.acceptName(strRep)) {
                                 //just re-add it if we're going to actually use it (depending on the qualifier)
                                 continue;
                             }

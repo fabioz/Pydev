@@ -43,20 +43,15 @@ public abstract class AbstractPyCompletionProposalExtension2 extends AbstractCom
     public boolean validate(IDocument document, int offset, DocumentEvent event) {
         String[] strs = PySelection.getActivationTokenAndQual(document, offset, false);
         //System.out.println("validating:"+strs[0]+" - "+strs[1]);
-        String qualifier = strs[1].toLowerCase();
+        String qualifier = strs[1];
         //when we end with a '.', we should start a new completion (and not stay in the old one).
         if (strs[1].length() == 0 && (strs[0].length() == 0 || strs[0].endsWith("."))) {
             //System.out.println(false);
             return false;
         }
-        String displayString = getDisplayString().toLowerCase();
-        if (displayString.startsWith(qualifier)) {
-            //System.out.println(true);
-            return true;
-        }
-
-        //System.out.println(false);
-        return false;
+        final boolean useSubstringMatchInCodeCompletion = PyCodeCompletionPreferencesPage
+                .getUseSubstringMatchInCodeCompletion();
+        return PyCodeCompletionUtils.acceptName(useSubstringMatchInCodeCompletion, getDisplayString(), qualifier);
     }
 
     //-------------------- ICompletionProposalExtension

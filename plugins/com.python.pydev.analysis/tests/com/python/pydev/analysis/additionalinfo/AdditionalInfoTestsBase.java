@@ -61,13 +61,15 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
         }
 
         IDocument doc = new Document(strDoc);
-        CompletionRequest request = new CompletionRequest(file, nature, doc, documentOffset, codeCompletion);
+        boolean useSubstringMatchInCodeCompletion = false;
+        CompletionRequest request = new CompletionRequest(file, nature, doc, documentOffset, codeCompletion,
+                useSubstringMatchInCodeCompletion);
 
         ICompletionState state = CompletionStateFactory.getEmptyCompletionState(nature, new CompletionCache());
         state.setTokenImportedModules(imports);
         List<Object> props = new ArrayList<Object>(participant.getGlobalCompletions(request, state));
         ICompletionProposal[] codeCompletionProposals = PyCodeCompletionUtils.onlyValidSorted(props, request.qualifier,
-                request.isInCalltip);
+                request.isInCalltip, useSubstringMatchInCodeCompletion);
 
         for (int i = 0; i < retCompl.length; i++) {
             assertContains(retCompl[i], codeCompletionProposals);

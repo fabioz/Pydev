@@ -153,7 +153,7 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
             }
             try {
                 CompletionRequest request = new CompletionRequest(edit.getEditorFile(), nature, doc, documentOffset,
-                        codeCompletion);
+                        codeCompletion, PyCodeCompletionPreferencesPage.getUseSubstringMatchInCodeCompletion());
 
                 //SECOND: getting code completions and deciding if templates should be shown too.
                 //Get code completion proposals
@@ -186,7 +186,7 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
 
                 //to show the valid ones, we'll get the qualifier from the initial request
                 proposals = PyCodeCompletionUtils.onlyValidSorted(pythonAndTemplateProposals, request.qualifier,
-                        request.isInCalltip);
+                        request.isInCalltip, request.useSubstringMatchInCodeCompletion);
             } finally {
                 nature.endRequests();
             }

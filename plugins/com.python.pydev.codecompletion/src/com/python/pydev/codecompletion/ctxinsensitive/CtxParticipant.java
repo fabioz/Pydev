@@ -31,6 +31,9 @@ import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant2;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils.IFilter;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -72,24 +75,26 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
                 && naturesUsed != null && naturesUsed.size() > 0) { //at least n characters required...
             boolean addAutoImport = AutoImportsPreferencesPage.doAutoImport();
             int qlen = qual.length();
-            String lowerQual = qual.toLowerCase();
+            boolean useSubstringMatchInCodeCompletion = PyCodeCompletionPreferencesPage
+                    .getUseSubstringMatchInCodeCompletion();
+            IFilter nameFilter = PyCodeCompletionUtils.getNameFilter(useSubstringMatchInCodeCompletion, qual);
 
             for (IPythonNature nature : naturesUsed) {
                 fillNatureCompletionsForConsole(viewer, requestOffset, completions, qual, addAutoImport, qlen,
-                        lowerQual, nature, false);
+                        nameFilter, nature, false, useSubstringMatchInCodeCompletion);
             }
 
             //and at last, get from the system
-            fillNatureCompletionsForConsole(viewer, requestOffset, completions, qual, addAutoImport, qlen, lowerQual,
-                    naturesUsed.get(0), true);
+            fillNatureCompletionsForConsole(viewer, requestOffset, completions, qual, addAutoImport, qlen, nameFilter,
+                    naturesUsed.get(0), true, useSubstringMatchInCodeCompletion);
         }
         return completions;
 
     }
 
     private void fillNatureCompletionsForConsole(IScriptConsoleViewer viewer, int requestOffset,
-            List<ICompletionProposal> completions, String qual, boolean addAutoImport, int qlen, String lowerQual,
-            IPythonNature nature, boolean getSystem) {
+            List<ICompletionProposal> completions, String qual, boolean addAutoImport, int qlen, IFilter nameFilter,
+            IPythonNature nature, boolean getSystem, boolean useSubstringMatchInCodeCompletion) {
         AbstractAdditionalTokensInfo additionalInfoForProject;
 
         if (getSystem) {
@@ -109,8 +114,15 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
             }
         }
 
-        Collection<IInfo> tokensStartingWith = additionalInfoForProject.getTokensStartingWith(qual,
-                AbstractAdditionalTokensInfo.TOP_LEVEL);
+        Collection<IInfo> tokensStartingWith;
+        if (useSubstringMatchInCodeCompletion) {
+            tokensStartingWith = additionalInfoForProject.getTokensStartingWith("",
+                    AbstractAdditionalTokensInfo.TOP_LEVEL);
+
+        } else {
+            tokensStartingWith = additionalInfoForProject.getTokensStartingWith(qual,
+                    AbstractAdditionalTokensInfo.TOP_LEVEL);
+        }
 
         FastStringBuffer realImportRep = new FastStringBuffer();
         FastStringBuffer displayString = new FastStringBuffer();
@@ -126,8 +138,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
             }
 
             String rep = info.getName();
-            String lowerRep = rep.toLowerCase();
-            if (!lowerRep.startsWith(lowerQual)) {
+            if (!nameFilter.acceptName(rep)) {
                 continue;
             }
 
@@ -152,8 +163,9 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
             PyConsoleCompletion proposal = new PyConsoleCompletion(rep, requestOffset - qlen, qlen,
                     realImportRep.length(), AnalysisPlugin.getImageForAutoImportTypeInfo(info),
                     displayAsStr, (IContextInformation) null, "",
-                    displayAsStr.equals(lowerQual) ? IPyCompletionProposal.PRIORITY_GLOBALS_EXACT
-                            : IPyCompletionProposal.PRIORITY_GLOBALS, realImportRep.toString(), viewer);
+                    displayAsStr.equals(qual) ? IPyCompletionProposal.PRIORITY_GLOBALS_EXACT
+                            : IPyCompletionProposal.PRIORITY_GLOBALS,
+                    realImportRep.toString(), viewer);
 
             completions.add(proposal);
         }
@@ -173,12 +185,18 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
 
         String qual = request.qualifier;
         if (qual.length() >= CodeCompletionPreferencesPage.getCharsForContextInsensitiveGlobalTokensCompletion()) { //at least n characters required...
-            String lowerQual = qual.toLowerCase();
 
+            IFilter nameFilter = PyCodeCompletionUtils.getNameFilter(request.useSubstringMatchInCodeCompletion, qual);
             String initialModule = request.resolveModule();
 
-            List<IInfo> tokensStartingWith = AdditionalProjectInterpreterInfo.getTokensStartingWith(qual,
-                    request.nature, AbstractAdditionalTokensInfo.TOP_LEVEL);
+            List<IInfo> tokensStartingWith;
+            if (request.useSubstringMatchInCodeCompletion) {
+                tokensStartingWith = AdditionalProjectInterpreterInfo.getTokensStartingWith("",
+                        request.nature, AbstractAdditionalTokensInfo.TOP_LEVEL);
+            } else {
+                tokensStartingWith = AdditionalProjectInterpreterInfo.getTokensStartingWith(qual,
+                        request.nature, AbstractAdditionalTokensInfo.TOP_LEVEL);
+            }
 
             FastStringBuffer realImportRep = new FastStringBuffer();
             FastStringBuffer displayString = new FastStringBuffer();
@@ -201,8 +219,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
                 }
 
                 String rep = info.getName();
-                String lowerRep = rep.toLowerCase();
-                if (!lowerRep.startsWith(lowerQual) || importedNames.contains(rep)) {
+                if (!nameFilter.acceptName(rep) || importedNames.contains(rep)) {
                     continue;
                 }
 
@@ -228,8 +245,9 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
                         request.documentOffset - request.qlen, request.qlen, realImportRep.length(),
                         AnalysisPlugin.getImageForAutoImportTypeInfo(info), displayAsStr,
                         (IContextInformation) null, "",
-                        displayAsStr.equals(lowerQual) ? IPyCompletionProposal.PRIORITY_GLOBALS_EXACT
-                                : IPyCompletionProposal.PRIORITY_GLOBALS, realImportRep.toString());
+                        displayAsStr.equals(qual) ? IPyCompletionProposal.PRIORITY_GLOBALS_EXACT
+                                : IPyCompletionProposal.PRIORITY_GLOBALS,
+                        realImportRep.toString());
 
                 completions.add(proposal);
             }
@@ -269,16 +287,36 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
         String qual = state.getQualifier();
         if (qual.length() >= CodeCompletionPreferencesPage.getCharsForContextInsensitiveGlobalTokensCompletion()) { //at least n characters
 
+            boolean useSubstringMatchInCodeCompletion = PyCodeCompletionPreferencesPage
+                    .getUseSubstringMatchInCodeCompletion();
             List<IInfo> tokensStartingWith;
-            try {
-                tokensStartingWith = AdditionalProjectInterpreterInfo.getTokensStartingWith(qual, state.getNature(),
-                        AbstractAdditionalTokensInfo.INNER);
-            } catch (MisconfigurationException e) {
-                Log.log(e);
-                return ret;
-            }
-            for (IInfo info : tokensStartingWith) {
-                ret.add(new SourceToken(null, info.getName(), null, null, info.getDeclaringModuleName(), info.getType()));
+            if (useSubstringMatchInCodeCompletion) {
+                IFilter nameFilter = PyCodeCompletionUtils.getNameFilter(useSubstringMatchInCodeCompletion, qual);
+                try {
+                    tokensStartingWith = AdditionalProjectInterpreterInfo.getTokensStartingWith("", state.getNature(),
+                            AbstractAdditionalTokensInfo.INNER);
+                } catch (MisconfigurationException e) {
+                    Log.log(e);
+                    return ret;
+                }
+                for (IInfo info : tokensStartingWith) {
+                    if (nameFilter.acceptName(info.getName())) {
+                        ret.add(new SourceToken(null, info.getName(), null, null, info.getDeclaringModuleName(),
+                                info.getType()));
+                    }
+                }
+            } else {
+                try {
+                    tokensStartingWith = AdditionalProjectInterpreterInfo.getTokensStartingWith(qual, state.getNature(),
+                            AbstractAdditionalTokensInfo.INNER);
+                } catch (MisconfigurationException e) {
+                    Log.log(e);
+                    return ret;
+                }
+                for (IInfo info : tokensStartingWith) {
+                    ret.add(new SourceToken(null, info.getName(), null, null, info.getDeclaringModuleName(),
+                            info.getType()));
+                }
             }
 
         }

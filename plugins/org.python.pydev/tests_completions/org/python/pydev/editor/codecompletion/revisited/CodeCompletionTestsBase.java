@@ -532,11 +532,11 @@ public class CodeCompletionTestsBase extends TestCase {
         }
 
         IDocument doc = new Document(strDoc);
-        CompletionRequest request = new CompletionRequest(file, nature, doc, documentOffset, codeCompletion);
+        CompletionRequest request = new CompletionRequest(file, nature, doc, documentOffset, codeCompletion, false);
 
         List<Object> props = codeCompletion.getCodeCompletionProposals(null, request);
         ICompletionProposal[] codeCompletionProposals = PyCodeCompletionUtils.onlyValidSorted(props, request.qualifier,
-                request.isInCalltip);
+                request.isInCalltip, request.useSubstringMatchInCodeCompletion);
 
         for (int i = 0; i < retCompl.length; i++) {
             assertContains(retCompl[i], codeCompletionProposals);

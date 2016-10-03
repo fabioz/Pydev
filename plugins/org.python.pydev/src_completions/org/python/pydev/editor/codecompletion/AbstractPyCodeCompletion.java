@@ -160,7 +160,6 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
                 //no need to convert
                 convertedProposals.add((ICompletionProposal) obj);
             }
-
         }
     }
 

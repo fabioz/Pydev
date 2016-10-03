@@ -8,7 +8,6 @@ package org.python.pydev.debug.ui;
 
 import java.util.List;
 
-import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
@@ -107,12 +106,6 @@ public class SourceLocatorPrefsPage extends FieldEditorPreferencePage implements
                 layoutData.heightHint = 300;
             }
         });
-    }
-
-    /**
-     * Sets default preference values
-     */
-    protected void initializeDefaultPreferences(Preferences prefs) {
     }
 
 }
