@@ -12,13 +12,17 @@ package org.python.pydev.editor.codecompletion;
 
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.contentassist.BoldStylerProvider;
+import org.eclipse.jface.text.contentassist.ICompletionProposalExtension7;
 import org.eclipse.jface.text.contentassist.IContextInformation;
+import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.proposals.AbstractCompletionProposalExtension;
 
-public abstract class AbstractPyCompletionProposalExtension2 extends AbstractCompletionProposalExtension {
+public abstract class AbstractPyCompletionProposalExtension2 extends AbstractCompletionProposalExtension
+        implements ICompletionProposalExtension7 {
 
     public AbstractPyCompletionProposalExtension2(String replacementString, int replacementOffset,
             int replacementLength, int cursorPosition, int priority, ICompareContext compareContext) {
@@ -40,15 +44,45 @@ public abstract class AbstractPyCompletionProposalExtension2 extends AbstractCom
     }
 
     @Override
+    public StyledString getStyledDisplayString(IDocument document, int offset, BoldStylerProvider boldStylerProvider) {
+        //Extension enabled with enableColoredLabels(true); on PyContentAssistant.
+        String[] strs = PySelection.getActivationTokenAndQual(document, offset, false);
+        if (strs[1].length() == 0 && (strs[0].length() == 0 || strs[0].endsWith("."))) {
+            StyledString styledString = new StyledString(getDisplayString());
+            return styledString;
+        }
+        String qualifier = strs[1];
+
+        final boolean useSubstringMatchInCodeCompletion = PyCodeCompletionPreferencesPage
+                .getUseSubstringMatchInCodeCompletion();
+        String displayString = getDisplayString();
+        StyledString styledString = new StyledString();
+        if (useSubstringMatchInCodeCompletion) {
+            int i = displayString.toLowerCase().indexOf(qualifier.toLowerCase());
+            if (i < 0) {
+                styledString.append(displayString);
+            } else {
+                styledString.append(displayString.substring(0, i));
+                styledString.append(displayString.substring(i, i + qualifier.length()),
+                        boldStylerProvider.getBoldStyler());
+                styledString.append(displayString.substring(i + qualifier.length(), displayString.length()));
+            }
+        } else {
+            styledString.append(displayString);
+        }
+        return styledString;
+    }
+
+    @Override
     public boolean validate(IDocument document, int offset, DocumentEvent event) {
         String[] strs = PySelection.getActivationTokenAndQual(document, offset, false);
         //System.out.println("validating:"+strs[0]+" - "+strs[1]);
-        String qualifier = strs[1];
         //when we end with a '.', we should start a new completion (and not stay in the old one).
         if (strs[1].length() == 0 && (strs[0].length() == 0 || strs[0].endsWith("."))) {
             //System.out.println(false);
             return false;
         }
+        String qualifier = strs[1];
         final boolean useSubstringMatchInCodeCompletion = PyCodeCompletionPreferencesPage
                 .getUseSubstringMatchInCodeCompletion();
         String displayString = getDisplayString();

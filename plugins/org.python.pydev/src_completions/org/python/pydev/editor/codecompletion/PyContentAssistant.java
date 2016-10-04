@@ -25,6 +25,11 @@ import org.python.pydev.shared_ui.content_assist.DefaultContentAssist;
  */
 public class PyContentAssistant extends DefaultContentAssist {
 
+    public PyContentAssistant() {
+        super();
+        enableColoredLabels(true);
+    }
+
     /**
      * Shows the completions available and sets the lastAutoActivated flag
      * and updates the lastActivationCount.
