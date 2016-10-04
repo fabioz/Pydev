@@ -77,4 +77,9 @@ public class CompletionError implements ICompletionProposal, IPyCompletionPropos
         return message;
     }
 
+    @Override
+    public ICompareContext getCompareContext() {
+        return null;
+    }
+
 }

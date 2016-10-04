@@ -107,7 +107,7 @@ public class AssistDocString implements IAssistProps {
             image = imageCache.get(UIConstants.ASSIST_DOCSTRING);
         }
         l.add(new PyCompletionProposal(comp, offsetPosToAdd, 0, newOffset, image, "Make docstring", null, null,
-                IPyCompletionProposal.PRIORITY_DEFAULT) {
+                IPyCompletionProposal.PRIORITY_DEFAULT, null) {
             @Override
             public void apply(IDocument document) {
                 //remove the next line if it is a pass...

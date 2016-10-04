@@ -22,6 +22,7 @@ import java.util.Set;
 
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ILocalScope;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.ITypeInfo;
 import org.python.pydev.core.log.Log;
@@ -61,6 +62,8 @@ public class LocalScope implements ILocalScope {
 
     public SimpleNode foundAtASTNode;
 
+    private final IPythonNature nature;
+
     @Override
     public void setFoundAtASTNode(ISimpleNode node) {
         this.foundAtASTNode = (SimpleNode) node;
@@ -75,11 +78,12 @@ public class LocalScope implements ILocalScope {
      * Used to create without an initial scope. It may be changed later by using the getScopeStack() and
      * adding tokens.
      */
-    public LocalScope() {
-
+    public LocalScope(IPythonNature nature) {
+        this.nature = nature;
     }
 
-    public LocalScope(FastStack<SimpleNode> scope) {
+    public LocalScope(IPythonNature nature, FastStack<SimpleNode> scope) {
+        this.nature = nature;
         this.scope.addAll(scope);
     }
 
@@ -189,21 +193,21 @@ public class LocalScope implements ILocalScope {
 
                 for (int i = 0; i < args.args.length; i++) {
                     String s = NodeUtils.getRepresentationString(args.args[i]);
-                    comps.add(new SourceToken(args.args[i], s, "", "", "", IToken.TYPE_PARAM));
+                    comps.add(new SourceToken(args.args[i], s, "", "", "", IToken.TYPE_PARAM, nature));
                 }
                 if (args.vararg != null) {
                     String s = NodeUtils.getRepresentationString(args.vararg);
-                    comps.add(new SourceToken(args.vararg, s, "", "", "", IToken.TYPE_PARAM));
+                    comps.add(new SourceToken(args.vararg, s, "", "", "", IToken.TYPE_PARAM, nature));
                 }
 
                 if (args.kwarg != null) {
                     String s = NodeUtils.getRepresentationString(args.kwarg);
-                    comps.add(new SourceToken(args.kwarg, s, "", "", "", IToken.TYPE_PARAM));
+                    comps.add(new SourceToken(args.kwarg, s, "", "", "", IToken.TYPE_PARAM, nature));
                 }
                 if (args.kwonlyargs != null) {
                     for (int i = 0; i < args.kwonlyargs.length; i++) {
                         String s = NodeUtils.getRepresentationString(args.kwonlyargs[i]);
-                        comps.add(new SourceToken(args.kwonlyargs[i], s, "", "", "", IToken.TYPE_PARAM));
+                        comps.add(new SourceToken(args.kwonlyargs[i], s, "", "", "", IToken.TYPE_PARAM, nature));
                     }
                 }
 
@@ -222,7 +226,7 @@ public class LocalScope implements ILocalScope {
                 try {
                     for (int i = 0; i < body.length; i++) {
                         GlobalModelVisitor visitor = new GlobalModelVisitor(GlobalModelVisitor.GLOBAL_TOKENS, "",
-                                false, true);
+                                false, true, this.nature);
                         stmtType stmt = body[i];
                         if (stmt == null) {
                             continue;
@@ -296,7 +300,7 @@ public class LocalScope implements ILocalScope {
                     rep = rep.substring(dottedActTok.length());
                     if (NodeUtils.isValidNameRepresentation(rep)) { //that'd be something that can happen when trying to recreate the parsing
                         comps.add(new SourceToken(entry.node, FullRepIterable.getFirstPart(rep), "", "", "",
-                                IToken.TYPE_OBJECT_FOUND_INTERFACE));
+                                IToken.TYPE_OBJECT_FOUND_INTERFACE, this.nature));
                     }
                 }
             } else if (entry.node instanceof Call) {
@@ -311,7 +315,7 @@ public class LocalScope implements ILocalScope {
                             String attrName = str.s;
                             if (NodeUtils.isValidNameRepresentation(attrName)) {
                                 comps.add(new SourceToken(node, attrName, "", "", "",
-                                        IToken.TYPE_OBJECT_FOUND_INTERFACE));
+                                        IToken.TYPE_OBJECT_FOUND_INTERFACE, this.nature));
                             }
                         }
                     }
@@ -337,7 +341,7 @@ public class LocalScope implements ILocalScope {
                     stmtType stmt = f.body[i];
                     if (stmt != null) {
                         importedModules.addAll(GlobalModelVisitor.getTokens(stmt, GlobalModelVisitor.ALIAS_MODULES,
-                                moduleName, null, false));
+                                moduleName, null, false, this.nature));
                     }
                 }
             }
@@ -578,6 +582,10 @@ public class LocalScope implements ILocalScope {
                 ret.add(new TypeInfo(string));
             }
         }
+    }
+
+    public IPythonNature getPythonNature() {
+        return this.nature;
     }
 
 }

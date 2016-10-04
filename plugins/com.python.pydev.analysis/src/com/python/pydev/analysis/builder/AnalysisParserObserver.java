@@ -103,7 +103,7 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver3
         }
 
         if (fileAdapter == null) {
-            fileAdapter = (IFile) info.file.getAdapter(IFile.class);
+            fileAdapter = info.file.getAdapter(IFile.class);
             if (fileAdapter == null) {
                 return;
             }
@@ -161,7 +161,7 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver3
             }
 
             String file = fileAdapter.getRawLocation().toOSString();
-            module = AbstractModule.createModule(root, new File(file), moduleName);
+            module = AbstractModule.createModule(root, new File(file), moduleName, nature);
 
         } catch (Exception e) {
             Log.log(e); //Not much we can do about it.

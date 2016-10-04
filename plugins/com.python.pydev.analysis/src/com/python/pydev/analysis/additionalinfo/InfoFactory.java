@@ -94,45 +94,50 @@ public class InfoFactory {
             if (path != null && path.length() > 0) {
                 infoPath = path;
             }
-            AbstractInfo info;
-            if (type == IInfo.ATTRIBUTE_WITH_IMPORT_TYPE) {
-                info = new AttrInfo(infoName, infoModule, infoPath);
-
-            } else if (type == IInfo.CLASS_WITH_IMPORT_TYPE) {
-                info = new ClassInfo(infoName, infoModule, infoPath);
-
-            } else if (type == IInfo.METHOD_WITH_IMPORT_TYPE) {
-                info = new FuncInfo(infoName, infoModule, infoPath);
-
-            } else if (type == IInfo.NAME_WITH_IMPORT_TYPE) {
-                info = new NameInfo(infoName, infoModule, infoPath);
-
-            } else if (type == IInfo.MOD_IMPORT_TYPE) {
-                info = new ModInfo(infoModule);
-
-            } else {
-                throw new AssertionError("Cannot restore type: " + type);
-            }
 
             String projectName = null;
             if (keys.contains(TAG_PROJECT_NAME)) {
                 projectName = memento.getString(TAG_PROJECT_NAME);
             }
 
-            IInterpreterManager manager = null;
+            IPythonNature nature = null;
             if (projectName != null) {
                 IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
                 if (project != null) {
-                    IPythonNature nature = PythonNature.getPythonNature(project);
-                    if (nature != null) {
-                        AbstractAdditionalDependencyInfo additionalInfo;
-                        try {
-                            additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
-                        } catch (Exception e) {
-                            return null; //don't even report the error (this could happen if a saved option doesn't exist anymore)
-                        }
-                        return new AdditionalInfoAndIInfo(additionalInfo, info);
+                    nature = PythonNature.getPythonNature(project);
+                }
+            }
+
+            AbstractInfo info;
+            if (type == IInfo.ATTRIBUTE_WITH_IMPORT_TYPE) {
+                info = new AttrInfo(infoName, infoModule, infoPath, nature);
+
+            } else if (type == IInfo.CLASS_WITH_IMPORT_TYPE) {
+                info = new ClassInfo(infoName, infoModule, infoPath, nature);
+
+            } else if (type == IInfo.METHOD_WITH_IMPORT_TYPE) {
+                info = new FuncInfo(infoName, infoModule, infoPath, nature);
+
+            } else if (type == IInfo.NAME_WITH_IMPORT_TYPE) {
+                info = new NameInfo(infoName, infoModule, infoPath, nature);
+
+            } else if (type == IInfo.MOD_IMPORT_TYPE) {
+                info = new ModInfo(infoModule, nature);
+
+            } else {
+                throw new AssertionError("Cannot restore type: " + type);
+            }
+
+            IInterpreterManager manager = null;
+            if (projectName != null) {
+                if (nature != null) {
+                    AbstractAdditionalDependencyInfo additionalInfo;
+                    try {
+                        additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
+                    } catch (Exception e) {
+                        return null; //don't even report the error (this could happen if a saved option doesn't exist anymore)
                     }
+                    return new AdditionalInfoAndIInfo(additionalInfo, info);
                 }
 
             } else if (keys.contains(TAG_MANAGER_INTERPRETER_TYPE) && keys.contains(TAG_MANAGER_INTERPRETER)) {

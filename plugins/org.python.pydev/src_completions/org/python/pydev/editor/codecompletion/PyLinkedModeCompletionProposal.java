@@ -71,10 +71,10 @@ public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionPr
      */
     public PyLinkedModeCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
             int cursorPosition, IToken element, String displayString, IContextInformation contextInformation,
-            int priority, int onApplyAction, String args) {
+            int priority, int onApplyAction, String args, ICompareContext compareContext) {
 
         super(replacementString, replacementOffset, replacementLength, cursorPosition, null, displayString,
-                contextInformation, "", priority, onApplyAction, args);
+                contextInformation, "", priority, onApplyAction, args, compareContext);
 
         this.element = element;
     }
@@ -91,9 +91,10 @@ public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionPr
      */
     public PyLinkedModeCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
             int cursorPosition, Image image, String displayString, IContextInformation contextInformation,
-            String additionalProposalInfo, int priority, int onApplyAction, String args) {
+            String additionalProposalInfo, int priority, int onApplyAction, String args,
+            ICompareContext compareContext) {
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
-                contextInformation, additionalProposalInfo, priority, onApplyAction, args);
+                contextInformation, additionalProposalInfo, priority, onApplyAction, args, compareContext);
     }
 
     /**
@@ -101,9 +102,10 @@ public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionPr
      */
     public PyLinkedModeCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
             int cursorPosition, Image image, String displayString, IContextInformation contextInformation,
-            String additionalProposalInfo, int priority, int onApplyAction, String args, boolean goToLinkedMode) {
+            String additionalProposalInfo, int priority, int onApplyAction, String args, boolean goToLinkedMode,
+            ICompareContext compareContext) {
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
-                contextInformation, additionalProposalInfo, priority, onApplyAction, args);
+                contextInformation, additionalProposalInfo, priority, onApplyAction, args, compareContext);
         this.goToLinkedMode = goToLinkedMode;
     }
 

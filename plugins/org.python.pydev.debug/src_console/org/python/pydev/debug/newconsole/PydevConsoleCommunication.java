@@ -149,7 +149,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
      */
     public PydevConsoleCommunication(int port, final Process process, int clientPort, String[] commandArray,
             String[] envp, String encoding)
-                    throws Exception {
+            throws Exception {
         this.commandArray = commandArray;
         this.envp = envp;
 
@@ -643,7 +643,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                     PyLinkedModeCompletionProposal completion = new PyLinkedModeCompletionProposal(nameAndArgs,
                             replacementOffset, length, cursorPos,
                             PyCodeCompletionImages.getImageForType(type), nameAndArgs, pyContextInformation, docStr,
-                            priority, PyCompletionProposal.ON_APPLY_DEFAULT, args, false);
+                            priority, PyCompletionProposal.ON_APPLY_DEFAULT, args, false, null);
                     if (filter == null || filter.acceptCompletion(type, completion)) {
                         ret.add(completion);
                     }

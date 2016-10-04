@@ -90,7 +90,8 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
         super(nature, moduleName, current, document, monitor);
         this.messagesManager = new MessagesManager(prefs, moduleName, document);
 
-        this.analyzeArgumentsMismatch = prefs.getSeverityForType(IAnalysisPreferences.TYPE_ARGUMENTS_MISATCH) > IMarker.SEVERITY_INFO; //Don't even run checks if we don't raise at least a warning.
+        this.analyzeArgumentsMismatch = prefs
+                .getSeverityForType(IAnalysisPreferences.TYPE_ARGUMENTS_MISATCH) > IMarker.SEVERITY_INFO; //Don't even run checks if we don't raise at least a warning.
         if (this.analyzeArgumentsMismatch) {
             this.argumentsChecker = new ArgumentsChecker(this);
         } else {
@@ -108,7 +109,7 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
     public Object visitCompare(Compare node) throws Exception {
         Object ret = super.visitCompare(node);
         if (isInTestScope == 0) {
-            SourceToken token = AbstractVisitor.makeToken(node, moduleName);
+            SourceToken token = AbstractVisitor.makeToken(node, moduleName, this.nature);
             messagesManager.addMessage(IAnalysisPreferences.TYPE_NO_EFFECT_STMT, token);
         }
         return ret;
@@ -124,8 +125,9 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
 
         if (node.body != null) {
             for (int i = 0; i < node.body.length; i++) {
-                if (node.body[i] != null)
+                if (node.body[i] != null) {
                     node.body[i].accept(this);
+                }
             }
         }
         if (node.orelse != null) {
@@ -151,12 +153,14 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
 
         if (node.body != null) {
             for (int i = 0; i < node.body.length; i++) {
-                if (node.body[i] != null)
+                if (node.body[i] != null) {
                     node.body[i].accept(this);
+                }
             }
         }
-        if (node.orelse != null)
+        if (node.orelse != null) {
             node.orelse.accept(this);
+        }
     }
 
     @Override
@@ -531,7 +535,8 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
                         Definition d = (Definition) iDefinition;
                         if (d.ast instanceof FunctionDef || d.ast instanceof ClassDef) {
                             SourceToken tok = AbstractVisitor.makeToken(d.ast, token.getRepresentation(),
-                                    d.module != null ? d.module.getName() : "");
+                                    d.module != null ? d.module.getName() : "",
+                                    d.module != null ? d.module.getNature() : null);
                             tok.setDefinition(d);
                             onPushToRecordedFounds(tok);
                             reportFound = false;
@@ -555,7 +560,7 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
                 SourceToken sourceToken = (SourceToken) tokenInNamesToIgnore;
                 //Make a new token because we want the ast to be the FunctionDef or ClassDef, not the name which is the reference.
                 onPushToRecordedFounds(AbstractVisitor.makeToken(sourceToken.getAst(), token.getRepresentation(),
-                        sourceToken.getParentPackage()));
+                        sourceToken.getParentPackage(), nature));
             }
         }
     }

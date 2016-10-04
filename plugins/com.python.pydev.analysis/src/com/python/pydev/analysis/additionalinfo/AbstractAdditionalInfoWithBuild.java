@@ -122,12 +122,11 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
                     File file = new File(tup.substring(i + 1, j));
 
                     return new Tuple<ModulesKey, List<IInfo>>(new ModulesKey(modName, file),
-                            InfoStrFactory.strToInfo(tup
-                                    .substring(j + 1)));
+                            InfoStrFactory.strToInfo(tup.substring(j + 1), getNature()));
                 }
                 if (arg.startsWith("LST")) {
                     //Backward compatibility
-                    return InfoStrFactory.strToInfo(arg.substring(3));
+                    return InfoStrFactory.strToInfo(arg.substring(3), getNature());
                 }
 
                 throw new AssertionError("Expecting string starting with STR or LST");

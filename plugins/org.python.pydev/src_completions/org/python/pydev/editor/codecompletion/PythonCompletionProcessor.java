@@ -43,7 +43,7 @@ import org.python.pydev.ui.interpreters.ChooseInterpreterManager;
 /**
  * @author Dmoore
  * @author Fabio Zadrozny
- * 
+ *
  * This class is responsible for code completion / template completion.
  */
 public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCycling {
@@ -118,7 +118,7 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
 
     /**
      * This is the interface implemented to get the completions.
-     * 
+     *
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#computeCompletionProposals(org.eclipse.jface.text.ITextViewer, int)
      */
     @Override
@@ -153,7 +153,7 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
             }
             try {
                 CompletionRequest request = new CompletionRequest(edit.getEditorFile(), nature, doc, documentOffset,
-                        codeCompletion);
+                        codeCompletion, PyCodeCompletionPreferencesPage.getUseSubstringMatchInCodeCompletion());
 
                 //SECOND: getting code completions and deciding if templates should be shown too.
                 //Get code completion proposals
@@ -185,8 +185,10 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
                 }
 
                 //to show the valid ones, we'll get the qualifier from the initial request
-                proposals = PyCodeCompletionUtils.onlyValidSorted(pythonAndTemplateProposals, request.qualifier,
-                        request.isInCalltip);
+                proposals = PyCodeCompletionUtils.onlyValid(pythonAndTemplateProposals, request.qualifier,
+                        request.isInCalltip, request.useSubstringMatchInCodeCompletion, nature.getProject());
+
+                // Note: sorting happens later on.
             } finally {
                 nature.endRequests();
             }
@@ -206,13 +208,13 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
     /**
      * Returns the python proposals as a list.
      * First parameter of tuple is a list and second is a Boolean object indicating whether the templates
-     * should be also shown or not. 
-     * @param viewer 
+     * should be also shown or not.
+     * @param viewer
      * @throws CoreException
      * @throws BadLocationException
-     * @throws MisconfigurationException 
-     * @throws IOException 
-     * @throws PythonNatureWithoutProjectException 
+     * @throws MisconfigurationException
+     * @throws IOException
+     * @throws PythonNatureWithoutProjectException
      */
     private List getPythonProposals(ITextViewer viewer, int documentOffset, IDocument doc, CompletionRequest request)
             throws CoreException, BadLocationException, IOException, MisconfigurationException,
@@ -240,7 +242,7 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
     }
 
     /**
-     * Ok, if we have 
+     * Ok, if we have
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#computeContextInformation(org.eclipse.jface.text.ITextViewer, int)
      */
     @Override
@@ -309,7 +311,7 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
     }
 
     /**
-     * 
+     *
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getContextInformationAutoActivationCharacters()
      */
     @Override
@@ -319,7 +321,7 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
 
     /**
      * If completion fails for some reason, we could give it here...
-     * 
+     *
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getErrorMessage()
      */
     @Override
@@ -330,7 +332,7 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
     }
 
     /**
-     * 
+     *
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getContextInformationValidator()
      */
     @Override

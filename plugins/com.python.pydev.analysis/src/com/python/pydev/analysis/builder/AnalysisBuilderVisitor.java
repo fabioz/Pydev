@@ -113,7 +113,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor {
                     String file = f.getRawLocation().toOSString();
                     File f2 = new File(file);
                     return new SourceModule(moduleName, f2, FastDefinitionsParser.parse(doc.get(),
-                            moduleName, f2), null);
+                            moduleName, f2), null, nature);
 
                 } else {
                     throw new RuntimeException("Unexpected parameter: " + arg);

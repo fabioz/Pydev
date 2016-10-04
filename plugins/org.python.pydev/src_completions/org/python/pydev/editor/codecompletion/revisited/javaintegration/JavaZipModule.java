@@ -22,6 +22,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.ui.text.java.CompletionProposalCollector;
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModuleForZip;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -44,6 +45,13 @@ public class JavaZipModule extends AbstractJavaClassModule {
      * If true, this represents a .class file in a zip, otherwise, it's a module representation.
      */
     private boolean isFileInZip;
+
+    private final IPythonNature nature;
+
+    @Override
+    public IPythonNature getNature() {
+        return nature;
+    }
 
     @Override
     public File getFile() {
@@ -81,11 +89,13 @@ public class JavaZipModule extends AbstractJavaClassModule {
 
     /**
      * Creates a java class module from a .class in a jar.
+     * @param nature 
      */
-    public JavaZipModule(EmptyModuleForZip emptyModuleForZip) {
+    public JavaZipModule(EmptyModuleForZip emptyModuleForZip, IPythonNature nature) {
         super(emptyModuleForZip.getName());
         this.file = emptyModuleForZip.f;
         this.isFileInZip = emptyModuleForZip.isFile;
+        this.nature = nature;
 
         if (DEBUG_JARS) {
             System.out.println("Created JavaZipClassModule: " + name);

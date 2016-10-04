@@ -76,7 +76,7 @@ public class PyCodeCompletion2Test extends CodeCompletionTestsBase {
         ICompletionState state = new CompletionState(ps.getStartLineIndex(), ps.getAbsoluteCursorOffset()
                 - ps.getStartLine().getOffset(), null, nature, "");
         CompletionRequest request = new CompletionRequest(null, nature, ps.getDoc(), "self.m1",
-                ps.getAbsoluteCursorOffset(), 0, new PyCodeCompletion(), "");
+                ps.getAbsoluteCursorOffset(), 0, new PyCodeCompletion(), "", false);
         List<IToken> selfCompletions = new ArrayList<IToken>();
         PyCodeCompletion.getSelfOrClsCompletions(request, selfCompletions, state, false, false, "self.m1");
         assertEquals(1, selfCompletions.size());

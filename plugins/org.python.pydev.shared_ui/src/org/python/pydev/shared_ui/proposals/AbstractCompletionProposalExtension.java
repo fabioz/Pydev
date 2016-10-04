@@ -36,17 +36,18 @@ public abstract class AbstractCompletionProposalExtension extends PyCompletionPr
     public boolean fLastIsPar;
 
     public AbstractCompletionProposalExtension(String replacementString, int replacementOffset,
-            int replacementLength, int cursorPosition, int priority) {
-        super(replacementString, replacementOffset, replacementLength, cursorPosition, null, null, null, null, priority);
+            int replacementLength, int cursorPosition, int priority, ICompareContext compareContext) {
+        super(replacementString, replacementOffset, replacementLength, cursorPosition, null, null, null, null, priority,
+                compareContext);
     }
 
     public AbstractCompletionProposalExtension(String replacementString, int replacementOffset,
             int replacementLength, int cursorPosition, Image image, String displayString,
             IContextInformation contextInformation, String additionalProposalInfo, int priority, int onApplyAction,
-            String args) {
+            String args, ICompareContext compareContext) {
 
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
-                contextInformation, additionalProposalInfo, priority, onApplyAction, args);
+                contextInformation, additionalProposalInfo, priority, onApplyAction, args, compareContext);
     }
 
     /**

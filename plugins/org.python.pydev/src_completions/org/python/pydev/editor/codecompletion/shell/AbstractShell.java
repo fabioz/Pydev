@@ -819,7 +819,7 @@ public abstract class AbstractShell {
         ArrayList<CompiledToken> lst = new ArrayList<>(theCompletions.o2.size());
         for (String[] s : theCompletions.o2) {
             //new CompiledToken(rep, doc, args, parentPackage, type);
-            lst.add(new CompiledToken(s[0], s[1], "", "", Integer.parseInt(s[3])));
+            lst.add(new CompiledToken(s[0], s[1], "", "", Integer.parseInt(s[3]), null));
         }
         return lst;
     }

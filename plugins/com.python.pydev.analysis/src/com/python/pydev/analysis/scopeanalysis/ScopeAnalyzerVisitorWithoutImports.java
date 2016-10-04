@@ -356,7 +356,7 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
 
         List<ASTEntry> entryOccurrences = getEntryOccurrences();
         for (ASTEntry entry : entryOccurrences) {
-            ret.add(AbstractVisitor.makeToken(entry.node, moduleName));
+            ret.add(AbstractVisitor.makeToken(entry.node, moduleName, nature));
         }
         return ret;
     }

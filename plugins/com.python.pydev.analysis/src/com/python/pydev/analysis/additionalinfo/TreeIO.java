@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.SortedMap;
 
 import org.python.pydev.core.FastBufferedReader;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ObjectsInternPool;
 import org.python.pydev.core.ObjectsInternPool.ObjectsPoolMap;
 import org.python.pydev.core.log.Log;
@@ -139,7 +140,8 @@ public class TreeIO {
     }
 
     public static PyPublicTreeMap<String, Set<IInfo>> loadTreeFrom(final FastBufferedReader reader,
-            final Map<Integer, String> dictionary, FastStringBuffer buf, ObjectsPoolMap objectsPoolMap)
+            final Map<Integer, String> dictionary, FastStringBuffer buf, ObjectsPoolMap objectsPoolMap,
+            IPythonNature nature)
             throws IOException {
         PyPublicTreeMap<String, Set<IInfo>> tree = new PyPublicTreeMap<String, Set<IInfo>>();
         final int size = StringUtils.parsePositiveInt(reader.readLine());
@@ -220,19 +222,19 @@ public class TreeIO {
                             }
                             switch (type) {
                                 case IInfo.CLASS_WITH_IMPORT_TYPE:
-                                    set.add(new ClassInfo(infoName, moduleDeclared, path, false));
+                                    set.add(new ClassInfo(infoName, moduleDeclared, path, false, nature));
                                     break;
                                 case IInfo.METHOD_WITH_IMPORT_TYPE:
-                                    set.add(new FuncInfo(infoName, moduleDeclared, path, false));
+                                    set.add(new FuncInfo(infoName, moduleDeclared, path, false, nature));
                                     break;
                                 case IInfo.ATTRIBUTE_WITH_IMPORT_TYPE:
-                                    set.add(new AttrInfo(infoName, moduleDeclared, path, false));
+                                    set.add(new AttrInfo(infoName, moduleDeclared, path, false, nature));
                                     break;
                                 case IInfo.NAME_WITH_IMPORT_TYPE:
-                                    set.add(new NameInfo(infoName, moduleDeclared, path, false));
+                                    set.add(new NameInfo(infoName, moduleDeclared, path, false, nature));
                                     break;
                                 case IInfo.MOD_IMPORT_TYPE:
-                                    set.add(new ModInfo(infoName, false));
+                                    set.add(new ModInfo(infoName, false, nature));
                                     break;
                                 default:
                                     Log.log("Unexpected type: " + type);

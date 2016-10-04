@@ -7,6 +7,7 @@
 package org.python.pydev.editor.codecompletion.revisited.javaintegration;
 
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModuleForZip;
@@ -20,10 +21,10 @@ import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModuleForZi
  */
 public class JythonModulesManagerUtils {
 
-    public static AbstractModule createModuleFromJar(EmptyModuleForZip emptyModuleForZip)
+    public static AbstractModule createModuleFromJar(EmptyModuleForZip emptyModuleForZip, IPythonNature nature)
             throws JDTNotAvailableException {
         try {
-            return new JavaZipModule(emptyModuleForZip);
+            return new JavaZipModule(emptyModuleForZip, nature);
         } catch (Throwable e) {
             Log.log("Unable to create java module for (note: JDT is required for Jython development): "
                     + emptyModuleForZip);

@@ -126,7 +126,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
      */
     public final ICompletionCache completionCache;
 
-    private final LocalScope currentLocalScope = new LocalScope();
+    private final LocalScope currentLocalScope;
 
     private final Set<String> builtinTokens = new HashSet<String>();
 
@@ -135,6 +135,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
         this.monitor = monitor;
         this.current = current;
         this.nature = nature;
+        currentLocalScope = new LocalScope(nature);
         this.moduleName = moduleName;
         this.document = document;
         this.scope = new Scope(this, nature, moduleName);
@@ -153,7 +154,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
         if (moduleName != null && moduleName.endsWith("__init__")) {
             //__path__ should be added to modules that have __init__
             builtinCompletions.add(new SourceToken(new Name("__path__", Name.Load, false), "__path__", "", "",
-                    moduleName));
+                    moduleName, nature));
         }
 
         for (IToken t : builtinCompletions) {
@@ -263,11 +264,12 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
                 }
             }
         }
-        
+
         if (node.keywords != null) {
             for (int i = 0; i < node.keywords.length; i++) {
-                if (node.keywords[i] != null)
+                if (node.keywords[i] != null) {
                     node.keywords[i].accept(visitor);
+                }
             }
         }
 
@@ -284,7 +286,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
      * used so that the token is added to the names to ignore...
      */
     protected void addToNamesToIgnore(SimpleNode node, boolean finishClassScope, boolean checkBuiltins) {
-        SourceToken token = AbstractVisitor.makeToken(node, "");
+        SourceToken token = AbstractVisitor.makeToken(node, "", nature);
 
         if (checkBuiltins) {
             if (checkCurrentScopeForAssignmentsToBuiltins()) {
@@ -516,7 +518,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
         unhandled_node(nameTok);
         if (nameTok.ctx == NameTok.VarArg || nameTok.ctx == NameTok.KwArg) {
 
-            SourceToken token = AbstractVisitor.makeToken(nameTok, moduleName);
+            SourceToken token = AbstractVisitor.makeToken(nameTok, moduleName, nature);
             scope.addToken(token, token, (nameTok).id);
             if (checkCurrentScopeForAssignmentsToBuiltins()) {
                 if (builtinTokens.contains(token.getRepresentation())) {
@@ -543,7 +545,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
     @Override
     public Object visitImport(Import node) throws Exception {
         unhandled_node(node);
-        List<IToken> list = AbstractVisitor.makeImportToken(node, null, moduleName, true);
+        List<IToken> list = AbstractVisitor.makeImportToken(node, null, moduleName, true, nature);
 
         if (checkCurrentScopeForAssignmentsToBuiltins()) {
             for (IToken token : list) {
@@ -567,7 +569,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
         try {
 
             if (AbstractVisitor.isWildImport(node)) {
-                IToken wildImport = AbstractVisitor.makeWildImportToken(node, null, moduleName);
+                IToken wildImport = AbstractVisitor.makeWildImportToken(node, null, moduleName, nature);
 
                 ICompletionState state = CompletionStateFactory.getEmptyCompletionState(nature, this.completionCache);
                 state.setBuiltinsGotten(true); //we don't want any builtins
@@ -577,7 +579,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
                     scope.addImportTokens(completionsForWildImport, wildImport, this.completionCache);
                 }
             } else {
-                List<IToken> list = AbstractVisitor.makeImportToken(node, null, moduleName, true);
+                List<IToken> list = AbstractVisitor.makeImportToken(node, null, moduleName, true, nature);
                 scope.addImportTokens(list, null, this.completionCache);
             }
 
@@ -596,7 +598,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
     public Object visitName(Name node) throws Exception {
         unhandled_node(node);
         //when visiting the global namespace, we don't go into any inner scope.
-        SourceToken token = AbstractVisitor.makeToken(node, moduleName);
+        SourceToken token = AbstractVisitor.makeToken(node, moduleName, nature);
         boolean found = true;
         //on aug assign, it has to enter both, the load and the read (but first the load, because it can be undefined)
         if (node.ctx == Name.Load || node.ctx == Name.Del || node.ctx == Name.AugStore) {
@@ -632,7 +634,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
      * @param rep the representation we're looking for
      * @return whether the representation is in the names to ignore
      */
-    protected org.python.pydev.shared_core.structure.Tuple<IToken, Found> findInNamesToIgnore(String rep, IToken token) {
+    protected org.python.pydev.shared_core.structure.Tuple<IToken, Found> findInNamesToIgnore(String rep,
+            IToken token) {
         org.python.pydev.shared_core.structure.Tuple<IToken, Found> found = scope.findInNamesToIgnore(rep);
         return found;
     }
@@ -645,7 +648,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
             nameAst.beginLine = name.beginLine;
             nameAst.beginColumn = name.beginColumn;
 
-            SourceToken token = AbstractVisitor.makeToken(nameAst, moduleName);
+            SourceToken token = AbstractVisitor.makeToken(nameAst, moduleName, nature);
             scope.addTokenToGlobalScope(token);
             addToNamesToIgnore(nameAst, false, true); // it is global, so, ignore it...
         }
@@ -663,7 +666,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
      */
     @Override
     public Object visitAttribute(Attribute node) throws Exception {
-        SourceToken token = AbstractVisitor.makeFullNameToken(node, moduleName);
+        SourceToken token = AbstractVisitor.makeFullNameToken(node, moduleName, nature);
         unhandled_node(node);
 
         visitingAttributeStackI += 1;
@@ -1349,10 +1352,10 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
                 Attribute a = (Attribute) ast;
 
                 if (((NameTok) a.attr).id.equals(searchFor)) {
-                    return new SourceToken(a.attr, searchFor, "", "", token.getParentPackage());
+                    return new SourceToken(a.attr, searchFor, "", "", token.getParentPackage(), nature);
 
                 } else if (a.value.toString().equals(searchFor)) {
-                    return new SourceToken(a.value, searchFor, "", "", token.getParentPackage());
+                    return new SourceToken(a.value, searchFor, "", "", token.getParentPackage(), nature);
                 }
                 ast = a.value;
             }

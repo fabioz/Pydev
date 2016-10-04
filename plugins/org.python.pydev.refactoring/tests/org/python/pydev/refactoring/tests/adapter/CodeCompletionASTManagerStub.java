@@ -83,8 +83,8 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
     @Override
     public IToken[] getCompletionsForModule(IModule module, ICompletionState state)
             throws CompletionRecursionException {
-        return new IToken[] { new SourceToken(new Name("True", Name.Store, true), "True", "", "", "__builtin__"),
-                new SourceToken(new Name("False", Name.Store, true), "False", "", "", "__builtin__"), };
+        return new IToken[] { new SourceToken(new Name("True", Name.Store, true), "True", "", "", "__builtin__", null),
+                new SourceToken(new Name("False", Name.Store, true), "False", "", "", "__builtin__", null), };
     }
 
     @Override

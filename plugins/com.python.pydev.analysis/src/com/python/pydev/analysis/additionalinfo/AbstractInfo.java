@@ -11,6 +11,7 @@ package com.python.pydev.analysis.additionalinfo;
 
 import java.io.Serializable;
 
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ObjectsInternPool;
 
 public abstract class AbstractInfo implements IInfo, Serializable {
@@ -34,21 +35,31 @@ public abstract class AbstractInfo implements IInfo, Serializable {
      */
     public final String moduleDeclared;
 
-    public AbstractInfo(String name, String moduleDeclared, String path) {
+    public final IPythonNature nature;
+
+    public AbstractInfo(String name, String moduleDeclared, String path, IPythonNature nature) {
         synchronized (ObjectsInternPool.lock) {
             this.name = ObjectsInternPool.internUnsynched(name);
             this.moduleDeclared = ObjectsInternPool.internUnsynched(moduleDeclared);
             this.path = ObjectsInternPool.internUnsynched(path);
         }
+        this.nature = nature;
     }
 
     /**
      * Same as the other constructor but does not intern anything.
      */
-    public AbstractInfo(String name, String moduleDeclared, String path, boolean doNotInternOnThisContstruct) {
+    public AbstractInfo(String name, String moduleDeclared, String path, boolean doNotInternOnThisContstruct,
+            IPythonNature nature) {
         this.name = name;
         this.moduleDeclared = moduleDeclared;
         this.path = path;
+        this.nature = nature;
+    }
+
+    @Override
+    public IPythonNature getNature() {
+        return nature;
     }
 
     @Override

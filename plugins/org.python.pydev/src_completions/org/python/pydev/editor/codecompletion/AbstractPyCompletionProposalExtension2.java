@@ -21,17 +21,17 @@ import org.python.pydev.shared_ui.proposals.AbstractCompletionProposalExtension;
 public abstract class AbstractPyCompletionProposalExtension2 extends AbstractCompletionProposalExtension {
 
     public AbstractPyCompletionProposalExtension2(String replacementString, int replacementOffset,
-            int replacementLength, int cursorPosition, int priority) {
-        super(replacementString, replacementOffset, replacementLength, cursorPosition, priority);
+            int replacementLength, int cursorPosition, int priority, ICompareContext compareContext) {
+        super(replacementString, replacementOffset, replacementLength, cursorPosition, priority, compareContext);
     }
 
     public AbstractPyCompletionProposalExtension2(String replacementString, int replacementOffset,
             int replacementLength, int cursorPosition, Image image, String displayString,
             IContextInformation contextInformation, String additionalProposalInfo, int priority, int onApplyAction,
-            String args) {
+            String args, ICompareContext compareContext) {
 
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
-                contextInformation, additionalProposalInfo, priority, onApplyAction, args);
+                contextInformation, additionalProposalInfo, priority, onApplyAction, args, compareContext);
     }
 
     @Override
@@ -43,20 +43,17 @@ public abstract class AbstractPyCompletionProposalExtension2 extends AbstractCom
     public boolean validate(IDocument document, int offset, DocumentEvent event) {
         String[] strs = PySelection.getActivationTokenAndQual(document, offset, false);
         //System.out.println("validating:"+strs[0]+" - "+strs[1]);
-        String qualifier = strs[1].toLowerCase();
+        String qualifier = strs[1];
         //when we end with a '.', we should start a new completion (and not stay in the old one).
         if (strs[1].length() == 0 && (strs[0].length() == 0 || strs[0].endsWith("."))) {
             //System.out.println(false);
             return false;
         }
-        String displayString = getDisplayString().toLowerCase();
-        if (displayString.startsWith(qualifier)) {
-            //System.out.println(true);
-            return true;
-        }
-
-        //System.out.println(false);
-        return false;
+        final boolean useSubstringMatchInCodeCompletion = PyCodeCompletionPreferencesPage
+                .getUseSubstringMatchInCodeCompletion();
+        String displayString = getDisplayString();
+        boolean ret = PyCodeCompletionUtils.acceptName(useSubstringMatchInCodeCompletion, displayString, qualifier);
+        return ret;
     }
 
     //-------------------- ICompletionProposalExtension
@@ -66,10 +63,10 @@ public abstract class AbstractPyCompletionProposalExtension2 extends AbstractCom
 
     /**
      * We want to apply it on \n or on '.'
-     * 
+     *
      * When . is entered, the user will finish (and apply) the current completion
      * and request a new one with '.'
-     * 
+     *
      * If not added, it won't request the new one (and will just stop the current)
      */
     @Override

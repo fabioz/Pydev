@@ -93,7 +93,8 @@ public class CompletionParticipantBuiltinsTest extends AdditionalInfoTestsBase {
             return;
         }
         if (TestDependent.PYTHON_WXPYTHON_PACKAGES != null) {
-            CompiledModule module = new CompiledModule("wx", this.getManager().getModulesManager());
+            CompiledModule module = new CompiledModule("wx", this.getManager().getModulesManager(),
+                    this.getManager().getNature());
 
             participant = new CtxParticipant();
             ICompletionProposal[] proposals = requestCompl("Frame", -1, -1, new String[] {});

@@ -213,7 +213,7 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
                                         request.qlen, str.length(), PyCodeCompletionImages
                                                 .getImageForType(IToken.TYPE_PARAM),
                                         null, null, "", 0,
-                                        PyCompletionProposal.ON_APPLY_DEFAULT, ""));
+                                        PyCompletionProposal.ON_APPLY_DEFAULT, "", null));
                             }
                         }
                         return;

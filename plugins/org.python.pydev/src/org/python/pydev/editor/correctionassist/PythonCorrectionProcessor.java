@@ -36,7 +36,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.IPySyntaxHighlightingAndCodeCompletionEditor;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
-import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
+import org.python.pydev.editor.codecompletion.ProposalsComparator;
 import org.python.pydev.editor.correctionassist.docstrings.AssistDocString;
 import org.python.pydev.editor.correctionassist.heuristics.AssistAssign;
 import org.python.pydev.editor.correctionassist.heuristics.AssistImport;
@@ -196,7 +196,7 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
             }
         }
 
-        Collections.sort(results, IPyCodeCompletion.PROPOSAL_COMPARATOR);
+        Collections.sort(results, new ProposalsComparator("", null));
 
         try {
             //handling spelling... (we only want to show spelling fixes if a spell problem annotation is found at the current location).

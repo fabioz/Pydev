@@ -141,11 +141,11 @@ public class AssistAssign implements IAssistProps {
         }
         l.add(new AssistAssignCompletionProposal(loc + " = ", firstCharAbsolutePosition, 0, 0, getImage(imageCache,
                 UIConstants.ASSIST_ASSIGN_TO_LOCAL), "Assign to local (" + loc + ")", null, null,
-                IPyCompletionProposal.PRIORITY_DEFAULT, sourceViewer));
+                IPyCompletionProposal.PRIORITY_DEFAULT, sourceViewer, null));
 
         l.add(new AssistAssignCompletionProposal("self." + callName + " = ", firstCharAbsolutePosition, 0, 5, getImage(
                 imageCache, UIConstants.ASSIST_ASSIGN_TO_CLASS), "Assign to field (self." + callName + ")", null, null,
-                IPyCompletionProposal.PRIORITY_DEFAULT, sourceViewer));
+                IPyCompletionProposal.PRIORITY_DEFAULT, sourceViewer, null));
         return l;
     }
 

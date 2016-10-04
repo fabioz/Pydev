@@ -16,9 +16,11 @@ import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.docutils.ImportsSelection;
+import org.python.pydev.editor.codecompletion.ProposalsComparator.CompareContext;
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
+import org.python.pydev.shared_ui.proposals.IPyCompletionProposal.ICompareContext;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
 public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
@@ -129,9 +131,10 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
 
                 String replacementString = name + makeArgsForDocumentReplacement(args, result, temp);
                 String displayString = name + args;
+                ICompareContext compareContext = new CompareContext(element);
                 PyCompletionProposal proposal = new PyLinkedModeCompletionProposal(replacementString,
                         replacementOffset, request.qlen, l, element, displayString, pyContextInformation, priority,
-                        onApplyAction, args);
+                        onApplyAction, args, compareContext);
 
                 convertedProposals.add(proposal);
 
@@ -152,7 +155,7 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
 
                 PyCompletionProposal proposal = new PyCompletionProposal(name, request.documentOffset - request.qlen,
                         request.qlen, name.length(), PyCodeCompletionImages.getImageForType(type), null, null, docStr,
-                        priority);
+                        priority, null);
 
                 convertedProposals.add(proposal);
 
@@ -160,7 +163,6 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
                 //no need to convert
                 convertedProposals.add((ICompletionProposal) obj);
             }
-
         }
     }
 

@@ -353,7 +353,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                     //                            }
                     //                        }
                     //this is the completion
-                    temp.put(strToAdd, new ConcreteToken(strToAdd, "", "", moduleToGetTokensFrom, type));
+                    temp.put(strToAdd, new ConcreteToken(strToAdd, "", "", moduleToGetTokensFrom, type,
+                            modulesManager.getNature()));
                 }
             }
             //            }
@@ -433,7 +434,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             ParseOutput obj = PyParser
                     .reparseDocument(new PyParser.ParserInfo(doc, state.getNature()));
             SimpleNode n = (SimpleNode) obj.ast;
-            IModule module = AbstractModule.createModule(n);
+            IModule module = AbstractModule.createModule(n, state.getNature());
 
             completionsForModule = getCompletionsForModule(module, state, true, true);
 
@@ -447,7 +448,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                     message = "Null error message";
                 }
             }
-            completionsForModule = new IToken[] { new ConcreteToken(message, message, "", "", IToken.TYPE_UNKNOWN) };
+            completionsForModule = new IToken[] {
+                    new ConcreteToken(message, message, "", "", IToken.TYPE_UNKNOWN, null) };
         }
 
         return completionsForModule;
@@ -1957,7 +1959,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         Import impTok = new Import(new aliasType[] { new aliasType(name, null) });
 
         List<IToken> tokens = new ArrayList<IToken>();
-        List<IToken> imp = AbstractVisitor.makeImportToken(impTok, tokens, currentModule, true);
+        List<IToken> imp = AbstractVisitor.makeImportToken(impTok, tokens, currentModule, true,
+                current != null ? current.getNature() : state.getNature());
         IToken importedModule = imp.get(imp.size() - 1); //get the last one (it's the one with the 'longest' representation).
         return this.findOnImportedMods(importedModule, "", state, "", currentModule, current);
     }

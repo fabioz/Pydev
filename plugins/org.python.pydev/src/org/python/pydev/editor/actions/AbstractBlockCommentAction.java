@@ -6,12 +6,10 @@
  */
 package org.python.pydev.editor.actions;
 
-import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -74,7 +72,8 @@ public abstract class AbstractBlockCommentAction extends PyAction {
         } else {
             IPreferenceStore chainedPrefStore = PydevPrefs.getChainedPrefStore();
             cols = chainedPrefStore.getInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLUMN);
-            Preferences prefs = PydevPlugin.getDefault().getPluginPreferences();
+
+            IPreferenceStore prefs = PydevPrefs.getPreferenceStore();
             c = prefs.getString(getPreferencesNameForChar()).charAt(0);
         }
         return new Tuple<Integer, Character>(cols, c);

@@ -76,7 +76,7 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
     @Override
     public void addProps(MarkerAnnotationAndPosition markerAnnotation, IAnalysisPreferences analysisPreferences,
             String line, PySelection ps, int offset, IPythonNature nature, PyEdit edit, List<ICompletionProposal> props)
-                    throws BadLocationException, CoreException {
+            throws BadLocationException, CoreException {
         if (nature == null) {
             return;
         }
@@ -191,7 +191,7 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
                                                 currentModule,
                                                 state,
                                                 new SourceModule(currentModule, edit.getEditorFile(), edit.getAST(),
-                                                        null));
+                                                        null, nature));
                                     } catch (Exception e) {
                                         Log.log(e);
                                     }

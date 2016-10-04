@@ -32,10 +32,15 @@ import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant2;
+import org.python.pydev.editor.codecompletion.ProposalsComparator.CompareContext;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils.IFilter;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
+import org.python.pydev.shared_ui.proposals.IPyCompletionProposal.ICompareContext;
 
 import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
 import com.python.pydev.analysis.ui.AutoImportsPreferencesPage;
@@ -53,11 +58,11 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
 
     @Override
     public Collection<ICompletionProposal> computeConsoleCompletions(ActivationTokenAndQual tokenAndQual,
-            List<IPythonNature> naturesUsed, IScriptConsoleViewer viewer, int requestOffset) {
+            Set<IPythonNature> naturesUsed, IScriptConsoleViewer viewer, int requestOffset) {
         ArrayList<ICompletionProposal> completions = new ArrayList<ICompletionProposal>();
 
         if (tokenAndQual.activationToken != null && tokenAndQual.activationToken.length() > 0) {
-            //we only want 
+            //we only want
             return completions;
         }
 
@@ -69,17 +74,15 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
             boolean addAutoImport = AutoImportsPreferencesPage.doAutoImport();
 
             for (IPythonNature nature : naturesUsed) {
-                fillCompletions(requestOffset, completions, qual, nature, qlen, addAutoImport, viewer, false);
+                fillCompletions(requestOffset, completions, qual, nature, qlen, addAutoImport, viewer);
             }
-
-            fillCompletions(requestOffset, completions, qual, naturesUsed.get(0), qlen, addAutoImport, viewer, true);
 
         }
         return completions;
     }
 
     private void fillCompletions(int requestOffset, ArrayList<ICompletionProposal> completions, String qual,
-            IPythonNature nature, int qlen, boolean addAutoImport, IScriptConsoleViewer viewer, boolean getSystem) {
+            IPythonNature nature, int qlen, boolean addAutoImport, IScriptConsoleViewer viewer) {
 
         ICodeCompletionASTManager astManager = nature.getAstManager();
         if (astManager == null) {
@@ -93,13 +96,6 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
             if (modulesManager == null) {
                 nature.getProjectInterpreter(); //Just getting it here is likely to raise an error if it's not well configured.
             }
-
-            if (getSystem) {
-                modulesManager = modulesManager.getSystemModulesManager();
-                if (modulesManager == null) {
-                    nature.getProjectInterpreter(); //Just getting it here is likely to raise an error if it's not well configured.
-                }
-            }
         } catch (PythonNatureWithoutProjectException e) {
             throw new RuntimeException(e);
         } catch (MisconfigurationException e) {
@@ -107,12 +103,17 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
         }
 
         String lowerQual = qual.toLowerCase();
-        Set<String> allModuleNames = modulesManager.getAllModuleNames(false, lowerQual);
+        final boolean useSubstringMatchInCodeCompletion = PyCodeCompletionPreferencesPage
+                .getUseSubstringMatchInCodeCompletion();
+        Set<String> allModuleNames = PyCodeCompletionUtils.getModulesNamesToFilterOn(useSubstringMatchInCodeCompletion,
+                modulesManager, qual);
+        IFilter nameFilter = PyCodeCompletionUtils.getNameFilter(useSubstringMatchInCodeCompletion, qual);
 
         FastStringBuffer realImportRep = new FastStringBuffer();
         FastStringBuffer displayString = new FastStringBuffer();
         HashSet<String> alreadyFound = new HashSet<String>();
 
+        ICompareContext compareContext = new CompareContext(nature);
         for (String name : allModuleNames) {
 
             FullRepIterable iterable = new FullRepIterable(name);
@@ -122,8 +123,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
 
                 String[] strings = FullRepIterable.headAndTail(string);
                 String importRep = strings[1];
-                String lowerImportRep = importRep.toLowerCase();
-                if (!lowerImportRep.startsWith(lowerQual)) {
+                if (!nameFilter.acceptName(importRep)) {
                     continue;
                 }
 
@@ -156,7 +156,8 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
                 PyConsoleCompletion proposal = new PyConsoleCompletion(importRep, requestOffset - qlen, qlen,
                         realImportRep.length(), img, found, (IContextInformation) null, "",
                         displayAsStr.toLowerCase().equals(lowerQual) ? IPyCompletionProposal.PRIORITY_PACKAGES_EXACT
-                                : IPyCompletionProposal.PRIORITY_PACKAGES, displayAsStr, viewer);
+                                : IPyCompletionProposal.PRIORITY_PACKAGES,
+                        displayAsStr, viewer, compareContext);
 
                 completions.add(proposal);
             }
@@ -186,62 +187,72 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
             IModulesManager projectModulesManager = astManager.getModulesManager();
 
             String lowerQual = request.qualifier.toLowerCase();
-            Set<String> allModuleNames = projectModulesManager.getAllModuleNames(true, lowerQual);
+            final boolean useSubstringMatchInCodeCompletion = request.useSubstringMatchInCodeCompletion;
+            IModulesManager[] managersInvolved = projectModulesManager.getManagersInvolved(true);
+            for (int i = 0; i < managersInvolved.length; i++) {
+                IModulesManager currentManager = managersInvolved[i];
+                final Set<String> allModuleNames = PyCodeCompletionUtils.getModulesNamesToFilterOn(
+                        useSubstringMatchInCodeCompletion, currentManager, request.qualifier);
+                final IFilter nameFilter = PyCodeCompletionUtils.getNameFilter(useSubstringMatchInCodeCompletion,
+                        request.qualifier);
 
-            FastStringBuffer realImportRep = new FastStringBuffer();
-            FastStringBuffer displayString = new FastStringBuffer();
-            HashSet<String> importedNames = getImportedNames(state);
+                FastStringBuffer realImportRep = new FastStringBuffer();
+                FastStringBuffer displayString = new FastStringBuffer();
+                HashSet<String> importedNames = getImportedNames(state);
 
-            for (String name : allModuleNames) {
-                if (name.equals(initialModule)) {
-                    continue;
-                }
-
-                FullRepIterable iterable = new FullRepIterable(name);
-                for (String string : iterable) {
-                    //clear the buffer...
-                    realImportRep.clear();
-
-                    String[] strings = FullRepIterable.headAndTail(string);
-                    String importRep = strings[1];
-                    String lowerImportRep = importRep.toLowerCase();
-                    if (!lowerImportRep.startsWith(lowerQual) || importedNames.contains(importRep)) {
+                for (String name : allModuleNames) {
+                    if (name.equals(initialModule)) {
                         continue;
                     }
 
-                    displayString.clear();
-                    displayString.append(importRep);
+                    FullRepIterable iterable = new FullRepIterable(name);
+                    for (String string : iterable) {
+                        //clear the buffer...
+                        realImportRep.clear();
 
-                    String packageName = strings[0];
-                    if (packageName.length() > 0) {
-                        if (addAutoImport) {
-                            realImportRep.append("from ");
-                            realImportRep.append(packageName);
-                            realImportRep.append(" ");
+                        String[] strings = FullRepIterable.headAndTail(string);
+                        String importRep = strings[1];
+                        if (!nameFilter.acceptName(importRep) || importedNames.contains(importRep)) {
+                            continue;
                         }
-                        displayString.append(" - ");
-                        displayString.append(packageName);
+
+                        displayString.clear();
+                        displayString.append(importRep);
+
+                        String packageName = strings[0];
+                        if (packageName.length() > 0) {
+                            if (addAutoImport) {
+                                realImportRep.append("from ");
+                                realImportRep.append(packageName);
+                                realImportRep.append(" ");
+                            }
+                            displayString.append(" - ");
+                            displayString.append(packageName);
+                        }
+
+                        if (addAutoImport) {
+                            realImportRep.append("import ");
+                            realImportRep.append(strings[1]);
+                        }
+
+                        String displayAsStr = displayString.toString();
+                        CtxInsensitiveImportComplProposal proposal = new CtxInsensitiveImportComplProposal(
+                                importRep,
+                                request.documentOffset - request.qlen,
+                                request.qlen,
+                                realImportRep.length(),
+                                img,
+                                displayAsStr,
+                                (IContextInformation) null,
+                                "",
+                                displayAsStr.toLowerCase().equals(lowerQual)
+                                        ? IPyCompletionProposal.PRIORITY_PACKAGES_EXACT
+                                        : IPyCompletionProposal.PRIORITY_PACKAGES,
+                                realImportRep.toString(),
+                                new CompareContext(currentManager.getNature()));
+
+                        list.add(proposal);
                     }
-
-                    if (addAutoImport) {
-                        realImportRep.append("import ");
-                        realImportRep.append(strings[1]);
-                    }
-
-                    String displayAsStr = displayString.toString();
-                    CtxInsensitiveImportComplProposal proposal = new CtxInsensitiveImportComplProposal(
-                            importRep,
-                            request.documentOffset - request.qlen,
-                            request.qlen,
-                            realImportRep.length(),
-                            img,
-                            displayAsStr,
-                            (IContextInformation) null,
-                            "",
-                            displayAsStr.toLowerCase().equals(lowerQual) ? IPyCompletionProposal.PRIORITY_PACKAGES_EXACT
-                                    : IPyCompletionProposal.PRIORITY_PACKAGES, realImportRep.toString());
-
-                    list.add(proposal);
                 }
             }
         }

@@ -49,6 +49,7 @@ public class InnerModelVisitor extends AbstractVisitor {
     }
 
     public InnerModelVisitor(String moduleName, ICompletionState state) {
+        super(state.getNature());
         this.moduleName = moduleName;
         attrsHeuristics.add(new HeuristicFindAttrs(HeuristicFindAttrs.WHITIN_METHOD_CALL,
                 HeuristicFindAttrs.IN_KEYWORDS, "properties.create", moduleName, state, this.repToTokenWithArgs));
@@ -108,7 +109,7 @@ public class InnerModelVisitor extends AbstractVisitor {
 
             //iterate heuristics to find attributes
             for (Iterator<HeuristicFindAttrs> iter = attrsHeuristics.iterator(); iter.hasNext();) {
-                HeuristicFindAttrs element = (HeuristicFindAttrs) iter.next();
+                HeuristicFindAttrs element = iter.next();
                 element.visitFunctionDef(node);
                 addElementTokens(element);
             }
@@ -126,7 +127,7 @@ public class InnerModelVisitor extends AbstractVisitor {
 
             //iterate heuristics to find attributes
             for (Iterator<HeuristicFindAttrs> iter = attrsHeuristics.iterator(); iter.hasNext();) {
-                HeuristicFindAttrs element = (HeuristicFindAttrs) iter.next();
+                HeuristicFindAttrs element = iter.next();
                 element.visitAssign(node);
                 addElementTokens(element);
             }
@@ -143,7 +144,7 @@ public class InnerModelVisitor extends AbstractVisitor {
 
             //iterate heuristics to find attributes
             for (Iterator<HeuristicFindAttrs> iter = attrsHeuristics.iterator(); iter.hasNext();) {
-                HeuristicFindAttrs element = (HeuristicFindAttrs) iter.next();
+                HeuristicFindAttrs element = iter.next();
                 element.visitCall(node);
                 addElementTokens(element);
             }

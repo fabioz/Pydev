@@ -13,6 +13,7 @@ package org.python.pydev.editor.codecompletion.revisited;
 
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.ITypeInfo;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
@@ -37,10 +38,11 @@ public abstract class AbstractToken implements IToken {
     public int type;
     private boolean originalHasRep;
     private ITypeInfo generatorType;
+    public final IPythonNature nature;
 
     public AbstractToken(String rep, String doc, String args, String parentPackage, int type, String originalRep,
-            boolean originalHasRep) {
-        this(rep, doc, args, parentPackage, type);
+            boolean originalHasRep, IPythonNature nature) {
+        this(rep, doc, args, parentPackage, type, nature);
         this.originalRep = originalRep;
         this.originalHasRep = originalHasRep;
     }
@@ -56,7 +58,12 @@ public abstract class AbstractToken implements IToken {
         return this.generatorType;
     }
 
-    public AbstractToken(String rep, String doc, String args, String parentPackage, int type) {
+    @Override
+    public IPythonNature getNature() {
+        return this.nature;
+    }
+
+    public AbstractToken(String rep, String doc, String args, String parentPackage, int type, IPythonNature nature) {
         if (rep != null) {
             this.rep = rep;
         } else {
@@ -84,6 +91,7 @@ public abstract class AbstractToken implements IToken {
         }
 
         this.type = type;
+        this.nature = nature;
     }
 
     /**

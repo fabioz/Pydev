@@ -26,7 +26,7 @@ import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
 public class PyConsoleCompletion extends CtxInsensitiveImportComplProposal {
 
     /**
-     * 
+     *
      * Offset containing the start of the editable line in the document
      */
     private int commandLineOffset;
@@ -41,10 +41,11 @@ public class PyConsoleCompletion extends CtxInsensitiveImportComplProposal {
 
     public PyConsoleCompletion(String replacementString, int replacementOffset, int replacementLength,
             int cursorPosition, Image image, String displayString, IContextInformation contextInformation,
-            String additionalProposalInfo, int priority, String realImportRep, IScriptConsoleViewer viewer) {
+            String additionalProposalInfo, int priority, String realImportRep, IScriptConsoleViewer viewer,
+            ICompareContext compareContext) {
 
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
-                contextInformation, additionalProposalInfo, priority, realImportRep);
+                contextInformation, additionalProposalInfo, priority, realImportRep, compareContext);
         commandLineOffset = viewer.getCommandLineOffset();
     }
 

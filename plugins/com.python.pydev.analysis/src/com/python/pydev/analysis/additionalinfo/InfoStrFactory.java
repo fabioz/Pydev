@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ObjectsInternPool;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -91,7 +92,7 @@ public class InfoStrFactory {
      * 
      * where number 0 is always null and the others are the numbers mapped as needed.
      */
-    public static List<IInfo> strToInfo(String s) {
+    public static List<IInfo> strToInfo(String s, IPythonNature nature) {
         if (!s.startsWith("INFOS:")) {
             return null;
         }
@@ -132,22 +133,22 @@ public class InfoStrFactory {
             switch (type) {
                 case AbstractInfo.NAME_WITH_IMPORT_TYPE:
                     //no intern construct (already interned when creating the map)
-                    ret.add(new NameInfo(map.get(name), map.get(declaringModuleName), map.get(path), true));
+                    ret.add(new NameInfo(map.get(name), map.get(declaringModuleName), map.get(path), true, nature));
                     break;
 
                 case AbstractInfo.ATTRIBUTE_WITH_IMPORT_TYPE:
                     //no intern construct (already interned when creating the map)
-                    ret.add(new AttrInfo(map.get(name), map.get(declaringModuleName), map.get(path), true));
+                    ret.add(new AttrInfo(map.get(name), map.get(declaringModuleName), map.get(path), true, nature));
                     break;
 
                 case AbstractInfo.METHOD_WITH_IMPORT_TYPE:
                     //no intern construct (already interned when creating the map)
-                    ret.add(new FuncInfo(map.get(name), map.get(declaringModuleName), map.get(path), true));
+                    ret.add(new FuncInfo(map.get(name), map.get(declaringModuleName), map.get(path), true, nature));
                     break;
 
                 case AbstractInfo.CLASS_WITH_IMPORT_TYPE:
                     //no intern construct (already interned when creating the map)
-                    ret.add(new ClassInfo(map.get(name), map.get(declaringModuleName), map.get(path), true));
+                    ret.add(new ClassInfo(map.get(name), map.get(declaringModuleName), map.get(path), true, nature));
                     break;
 
             }

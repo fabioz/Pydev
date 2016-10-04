@@ -902,7 +902,7 @@ public abstract class ModulesManager implements IModulesManager {
                             if (emptyModuleForZip.pathInZip.endsWith(".class") || !emptyModuleForZip.isFile) {
                                 //handle java class... (if it's a class or a folder in a jar)
                                 try {
-                                    n = JythonModulesManagerUtils.createModuleFromJar(emptyModuleForZip);
+                                    n = JythonModulesManagerUtils.createModuleFromJar(emptyModuleForZip, nature);
                                     n = decorateModule(n, nature);
                                 } catch (Throwable e1) {
                                     Log.log("Unable to create module from jar (note: JDT is required for Jython development): "
@@ -913,7 +913,7 @@ public abstract class ModulesManager implements IModulesManager {
 
                             } else if (FileTypesPreferencesPage.isValidDll(emptyModuleForZip.pathInZip)) {
                                 //.pyd
-                                n = new CompiledModule(name, this);
+                                n = new CompiledModule(name, this, nature);
                                 n = decorateModule(n, nature);
 
                             } else if (PythonPathHelper.isValidSourceFile(emptyModuleForZip.pathInZip)) {
@@ -959,7 +959,7 @@ public abstract class ModulesManager implements IModulesManager {
                 n = checkOverride(name, nature, n);
                 if (n instanceof EmptyModule) {
                     if (acceptCompiledModule) {
-                        n = new CompiledModule(name, this);
+                        n = new CompiledModule(name, this, nature);
                         n = decorateModule(n, nature);
                     } else {
                         return null;
@@ -982,7 +982,7 @@ public abstract class ModulesManager implements IModulesManager {
             //now, here's a catch... it may be a bootstrap module...
             if (sourceModule.isBootstrapModule()) {
                 //if it's a bootstrap module, we must replace it for the related compiled module.
-                n = new CompiledModule(name, this);
+                n = new CompiledModule(name, this, nature);
                 n = decorateModule(n, nature);
             }
         }

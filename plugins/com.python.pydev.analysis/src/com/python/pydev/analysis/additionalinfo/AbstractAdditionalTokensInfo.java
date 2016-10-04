@@ -31,6 +31,7 @@ import java.util.SortedMap;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
@@ -253,7 +254,7 @@ public abstract class AbstractAdditionalTokensInfo {
                     rep = parts.get(1);
                     //no intern construct (locked in the loop that calls this method)
                     AttrInfo info = new AttrInfo(ObjectsInternPool.internUnsynched(rep), moduleName,
-                            ObjectsInternPool.internUnsynched(path), false);
+                            ObjectsInternPool.internUnsynched(path), false, getNature());
                     add(info, doOn);
                     return info;
                 }
@@ -262,12 +263,14 @@ public abstract class AbstractAdditionalTokensInfo {
             //no intern construct (locked in the loop that calls this method)
             AttrInfo info = new AttrInfo(ObjectsInternPool.internUnsynched(FullRepIterable.getFirstPart(rep)),
                     moduleName,
-                    ObjectsInternPool.internUnsynched(path), false);
+                    ObjectsInternPool.internUnsynched(path), false, getNature());
             add(info, doOn);
             return info;
         }
         return null;
     }
+
+    protected abstract IPythonNature getNature();
 
     public List<IInfo> addAstInfo(ModulesKey key, boolean generateDelta) throws Exception {
         boolean isZipModule = key instanceof ModulesKeyForZip;
@@ -354,7 +357,7 @@ public abstract class AbstractAdditionalTokensInfo {
                                     ClassInfo info = new ClassInfo(
                                             ObjectsInternPool
                                                     .internUnsynched(((NameTok) ((ClassDef) entry.node).name).id),
-                                            key.name, null, false);
+                                            key.name, null, false, getNature());
                                     add(info, TOP_LEVEL);
                                     infoCreated = info;
 
@@ -363,7 +366,7 @@ public abstract class AbstractAdditionalTokensInfo {
                                     FuncInfo info2 = new FuncInfo(
                                             ObjectsInternPool
                                                     .internUnsynched(((NameTok) ((FunctionDef) entry.node).name).id),
-                                            key.name, null, false);
+                                            key.name, null, false, getNature());
                                     add(info2, TOP_LEVEL);
                                     infoCreated = info2;
 
@@ -387,7 +390,8 @@ public abstract class AbstractAdditionalTokensInfo {
                                                     ObjectsInternPool
                                                             .internUnsynched(
                                                                     ((NameTok) ((ClassDef) entry.node).name).id),
-                                                    key.name, ObjectsInternPool.internUnsynched(pathToRoot.o1), false);
+                                                    key.name, ObjectsInternPool.internUnsynched(pathToRoot.o1), false,
+                                                    getNature());
                                             add(info, INNER);
                                             infoCreated = info;
 
@@ -397,7 +401,8 @@ public abstract class AbstractAdditionalTokensInfo {
                                                     ObjectsInternPool
                                                             .internUnsynched(
                                                                     ((NameTok) ((FunctionDef) entry.node).name).id),
-                                                    key.name, ObjectsInternPool.internUnsynched(pathToRoot.o1), false);
+                                                    key.name, ObjectsInternPool.internUnsynched(pathToRoot.o1), false,
+                                                    getNature());
                                             add(info2, INNER);
                                             infoCreated = info2;
 

@@ -42,6 +42,11 @@ public class EmptyModule extends AbstractModule {
     }
 
     @Override
+    public IPythonNature getNature() {
+        return null;
+    }
+
+    @Override
     public boolean hasFutureImportAbsoluteImportDeclared() {
         throw new RuntimeException("Not intended to be called");
     }

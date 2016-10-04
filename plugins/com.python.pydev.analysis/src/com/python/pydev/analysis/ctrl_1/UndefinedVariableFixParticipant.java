@@ -29,6 +29,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.codecompletion.ProposalsComparator.CompareContext;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.plugin.PydevPlugin;
@@ -37,6 +38,7 @@ import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
+import org.python.pydev.shared_ui.proposals.IPyCompletionProposal.ICompareContext;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
@@ -133,7 +135,8 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
                         String realImportRep = buffer.append("import ").append(mod).toString();
                         buffer.clear();
                         String displayString = buffer.append("Import ").append(mod).toString();
-                        addProp(props, realImportRep, displayString, packageImage, offset, mods);
+                        addProp(props, realImportRep, displayString, packageImage, offset, mods,
+                                new CompareContext(nature));
                     }
                 }
 
@@ -149,14 +152,16 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
                         buffer.clear();
                         String displayString = buffer.append("Import ").append(importRep).append(" (")
                                 .append(packageName).append(")").toString();
-                        addProp(props, realImportRep, displayString, packageImage, offset, mods);
+                        addProp(props, realImportRep, displayString, packageImage, offset, mods,
+                                new CompareContext(nature));
 
                     } else {
                         buffer.clear();
                         String realImportRep = buffer.append("import ").append(strings[1]).toString();
                         buffer.clear();
                         String displayString = buffer.append("Import ").append(importRep).toString();
-                        addProp(props, realImportRep, displayString, packageImage, offset, mods);
+                        addProp(props, realImportRep, displayString, packageImage, offset, mods,
+                                new CompareContext(nature));
                     }
                 }
             }
@@ -194,13 +199,13 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
                         .append(")").toString();
 
                 addProp(props, importDeclaration, displayImport, AnalysisPlugin.getImageForAutoImportTypeInfo(found),
-                        offset, mods);
+                        offset, mods, new CompareContext(nature));
             }
         }
     }
 
     private void addProp(List<ICompletionProposal> props, String importDeclaration, String displayImport,
-            Image importImage, int offset, Set<Tuple<String, String>> mods) {
+            Image importImage, int offset, Set<Tuple<String, String>> mods, ICompareContext compareContext) {
         Tuple<String, String> tuple = new Tuple<String, String>(importDeclaration, displayImport);
         if (mods.contains(tuple)) {
             return;
@@ -210,7 +215,7 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
 
         String tooltip = importDeclaration + "\n\nNote: Hold Ctrl on apply to do local import.";
         props.add(new CtxInsensitiveImportComplProposal("", offset, 0, 0, importImage, displayImport, null, tooltip,
-                IPyCompletionProposal.PRIORITY_LOCALS, importDeclaration) {
+                IPyCompletionProposal.PRIORITY_LOCALS, importDeclaration, compareContext) {
 
             @Override
             public void selected(ITextViewer viewer, boolean smartToggle) {

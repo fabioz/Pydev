@@ -93,7 +93,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                     throws CompletionRecursionException {
                 ArrayList<IToken> ret = new ArrayList<>();
                 if (state.getActivationToken().endsWith("Thread")) {
-                    ret.add(new CompiledToken("run()", "", "", "", 1));
+                    ret.add(new CompiledToken("run()", "", "", "", 1, null));
                 }
                 return ret;
             }
@@ -143,7 +143,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         public Collection<IToken> getCompletionsForTokenWithUndefinedType(ICompletionState state,
                 ILocalScope localScope, Collection<IToken> interfaceForLocal) {
             ArrayList<IToken> ret = new ArrayList<IToken>();
-            ret.add(new SourceToken(null, "bar", null, null, null, IToken.TYPE_ATTR));
+            ret.add(new SourceToken(null, "bar", null, null, null, IToken.TYPE_ATTR, null));
             return ret;
         }
 

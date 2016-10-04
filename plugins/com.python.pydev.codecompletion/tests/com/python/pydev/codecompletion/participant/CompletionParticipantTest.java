@@ -14,7 +14,8 @@ package com.python.pydev.codecompletion.participant;
 import java.io.File;
 import java.util.ArrayList;
 
-import org.eclipse.core.runtime.Preferences;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.IToken;
@@ -72,8 +73,7 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
 
         //check simple
         ICompletionProposal[] proposals = requestCompl(
-                "unittest", -1, -1, new String[] { "unittest", "unittest - testlib" }
-                ); //the unittest module and testlib.unittest
+                "unittest", -1, -1, new String[] { "unittest", "unittest - testlib" }); //the unittest module and testlib.unittest
 
         Document document = new Document("unittest");
         ICompletionProposal p0 = null;
@@ -103,11 +103,11 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
         PySelectionTest.checkStrEquals("from testlib import unittest\r\nunittest", document.get());
 
         document = new Document("unittest");
-        final Preferences prefs = new Preferences();
-        PyCodeCompletionPreferencesPage.getPreferencesForTests = new ICallback<Preferences, Object>() {
+        final IPreferenceStore prefs = new PreferenceStore();
+        PyCodeCompletionPreferencesPage.getPreferencesForTests = new ICallback<IPreferenceStore, Object>() {
 
             @Override
-            public Preferences call(Object arg) {
+            public IPreferenceStore call(Object arg) {
                 return prefs;
             }
         };
@@ -143,7 +143,7 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
         Import importTok = new Import(new aliasType[] { new aliasType(new NameTok("unittest", NameTok.ImportModule),
                 null) });
         this.imports = new ArrayList<IToken>();
-        this.imports.add(new SourceToken(importTok, "unittest", "", "", ""));
+        this.imports.add(new SourceToken(importTok, "unittest", "", "", "", null));
 
         requestCompl("import unittest\nunittest", new String[] {}); //none because the import for unittest is already there
         requestCompl("import unittest\nunittes", new String[] {}); //the local import for unittest (won't actually show anything because we're only exercising the participant test) 

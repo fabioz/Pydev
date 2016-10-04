@@ -10,6 +10,7 @@ import org.eclipse.jface.text.contentassist.ICompletionProposalExtension2;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.codecompletion.ProposalsComparator;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
@@ -43,19 +44,21 @@ public abstract class AbstractTddRefactorCompletion extends PyCompletionProposal
             IContextInformation contextInformation, String additionalProposalInfo, int priority, int onApplyAction,
             String args) {
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
-                contextInformation, additionalProposalInfo, priority);
+                contextInformation, additionalProposalInfo, priority, new ProposalsComparator.CompareContext(edit));
         this.edit = edit;
     }
 
     protected void forceReparseInBaseEditorAnd(PyEdit... others) {
         if (edit != null) {
             PyParser parser = edit.getParser();
-            parser.forceReparse(new Tuple<String, Boolean>(AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE, true));
+            parser.forceReparse(
+                    new Tuple<String, Boolean>(AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE, true));
         }
 
         for (PyEdit e : others) {
             PyParser parser = e.getParser();
-            parser.forceReparse(new Tuple<String, Boolean>(AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE, true));
+            parser.forceReparse(
+                    new Tuple<String, Boolean>(AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE, true));
         }
     }
 

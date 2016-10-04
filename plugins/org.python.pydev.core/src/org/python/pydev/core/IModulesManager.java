@@ -198,4 +198,6 @@ public interface IModulesManager {
      */
     public abstract Tuple<List<ModulesKey>, List<ModulesKey>> diffModules(
             AbstractMap<ModulesKey, ModulesKey> keysFound);
+
+    public IModulesManager[] getManagersInvolved(boolean checkSystemManager);
 }

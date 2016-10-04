@@ -79,6 +79,11 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
         this.javaProject = javaProject;
     }
 
+    @Override
+    public IModulesManager[] getManagersInvolved(boolean checkSystemManager) {
+        return new IModulesManager[] { this };
+    }
+
     /**
      * @return a map with the modules keys for all the available modules that start with the passed token.
      */

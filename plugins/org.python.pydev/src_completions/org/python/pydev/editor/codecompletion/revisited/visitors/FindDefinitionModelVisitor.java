@@ -21,6 +21,7 @@ import java.util.Stack;
 
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
@@ -105,7 +106,8 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
      * @param line: starts at 1
      * @param col: starts at 1
      */
-    public FindDefinitionModelVisitor(String token, int line, int col, IModule module) {
+    public FindDefinitionModelVisitor(String token, int line, int col, IModule module, IPythonNature nature) {
+        super(nature);
         this.tokenToFind = token;
         this.module = new WeakReference<IModule>(module);
         this.line = line;
@@ -224,7 +226,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
                 && col <= name.beginColumn + rep.length()) {
             foundAsDefinition = true;
             // if it is found as a definition it is an 'exact' match, so, erase all the others.
-            ILocalScope scope = new LocalScope(this.defsStack);
+            ILocalScope scope = new LocalScope(this.nature, this.defsStack);
             for (Iterator<Definition> it = definitions.iterator(); it.hasNext();) {
                 Definition d = it.next();
                 if (!d.scope.equals(scope)) {
@@ -254,7 +256,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
                 if (PySelection.isInside(col, node.beginColumn, rep.length())) {
                     foundAsDefinition = true;
                     // if it is found as a definition it is an 'exact' match, so, erase all the others.
-                    ILocalScope scope = new LocalScope(this.defsStack);
+                    ILocalScope scope = new LocalScope(nature, this.defsStack);
                     for (Iterator<Definition> it = definitions.iterator(); it.hasNext();) {
                         Definition d = it.next();
                         if (!d.scope.equals(scope)) {
@@ -288,7 +290,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
                                 + rep.length()))) {
             foundAsDefinition = true;
             // if it is found as a definition it is an 'exact' match, so, erase all the others.
-            ILocalScope scope = new LocalScope(this.defsStack);
+            ILocalScope scope = new LocalScope(nature, this.defsStack);
             for (Iterator<Definition> it = definitions.iterator(); it.hasNext();) {
                 Definition d = it.next();
                 if (!d.scope.equals(scope)) {
@@ -324,7 +326,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
     }
 
     public Object visitAssign(Assign node, int unpackPos) throws Exception {
-        ILocalScope scope = new LocalScope(this.defsStack);
+        ILocalScope scope = new LocalScope(nature, this.defsStack);
         scope.setFoundAtASTNode(node);
         if (foundAsDefinition && !scope.equals(definitionFound.scope)) { //if it is found as a definition it is an 'exact' match, so, we do not keep checking it
             return null;
@@ -389,7 +391,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
         exprType elt = node.elt;
         elt = fixMissingAttribute(elt);
         if (this.line == elt.beginLine) {
-            ILocalScope scope = new LocalScope(this.defsStack);
+            ILocalScope scope = new LocalScope(nature, this.defsStack);
             scope.setFoundAtASTNode(node);
             if (foundAsDefinition && !scope.equals(definitionFound.scope)) { //if it is found as a definition it is an 'exact' match, so, we do not keep checking it
                 return super.visitListComp(node);

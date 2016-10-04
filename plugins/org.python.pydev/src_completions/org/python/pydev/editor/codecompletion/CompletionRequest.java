@@ -35,7 +35,8 @@ public final class CompletionRequest implements ICompletionRequest {
      * for some reason
      */
     public CompletionRequest(File editorFile, IPythonNature nature, IDocument doc, String activationToken,
-            int documentOffset, int qlen, IPyCodeCompletion codeCompletion, String qualifier) {
+            int documentOffset, int qlen, IPyCodeCompletion codeCompletion, String qualifier,
+            boolean useSubstringMatchInCodeCompletion) {
 
         this.editorFile = editorFile;
         this.nature = nature;
@@ -52,6 +53,7 @@ public final class CompletionRequest implements ICompletionRequest {
         this.calltipOffset = 0;
         this.alreadyHasParams = false;
         this.offsetForKeywordParam = 0;
+        this.useSubstringMatchInCodeCompletion = useSubstringMatchInCodeCompletion;
     }
 
     /**
@@ -65,7 +67,7 @@ public final class CompletionRequest implements ICompletionRequest {
      * @param codeCompletion
      */
     public CompletionRequest(File editorFile, IPythonNature nature, IDocument doc, int documentOffset,
-            IPyCodeCompletion codeCompletion) {
+            IPyCodeCompletion codeCompletion, boolean useSubstringMatchInCodeCompletion) {
         //we need those set before requesting a py selection
         this.doc = doc;
         this.documentOffset = documentOffset;
@@ -87,11 +89,12 @@ public final class CompletionRequest implements ICompletionRequest {
         this.codeCompletion = codeCompletion;
 
         this.fullQualifier = getPySelection().getActivationTokenAndQual(true)[1];
+        this.useSubstringMatchInCodeCompletion = useSubstringMatchInCodeCompletion;
     }
 
     public CompletionRequest createCopyForKeywordParamRequest() {
         CompletionRequest request = new CompletionRequest(editorFile, nature, doc, this.offsetForKeywordParam,
-                codeCompletion);
+                codeCompletion, this.useSubstringMatchInCodeCompletion);
         request.isInMethodKeywordParam = false; //Just making sure it will not be another request for keyword params
         return request;
     }
@@ -232,6 +235,8 @@ public final class CompletionRequest implements ICompletionRequest {
      * Cache for the source module created.
      */
     private IModule module;
+
+    public final boolean useSubstringMatchInCodeCompletion;
 
     /**
      * @return the module name where the completion request took place (may be null if there is no editor file associated)

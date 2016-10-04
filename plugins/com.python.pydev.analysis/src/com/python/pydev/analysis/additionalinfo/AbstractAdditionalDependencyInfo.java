@@ -28,6 +28,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.core.FastBufferedReader;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
@@ -406,7 +407,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
             }
             if (file.exists() && file.isFile()) {
                 try {
-                    return loadContentsFromFile(file) != null;
+                    return loadContentsFromFile(file, getNature()) != null;
                 } catch (Throwable e) {
                     errorFound = new RuntimeException("Unable to read: " + file, e);
                 }
@@ -427,7 +428,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
         return false;
     }
 
-    private Object loadContentsFromFile(File file)
+    private Object loadContentsFromFile(File file, IPythonNature nature)
             throws FileNotFoundException, IOException, MisconfigurationException {
         FileInputStream fileInputStream = new FileInputStream(file);
         try {
@@ -456,11 +457,11 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
 
                                     if (line.startsWith("-- START TREE 1")) {
                                         superTupWithResults.o1 = TreeIO.loadTreeFrom(bufferedReader, dictionary,
-                                                tempBuf.clear(), objectsPoolMap);
+                                                tempBuf.clear(), objectsPoolMap, nature);
 
                                     } else if (line.startsWith("-- START TREE 2")) {
                                         superTupWithResults.o2 = TreeIO.loadTreeFrom(bufferedReader, dictionary,
-                                                tempBuf.clear(), objectsPoolMap);
+                                                tempBuf.clear(), objectsPoolMap, nature);
 
                                     } else if (line.startsWith("-- START DICTIONARY")) {
                                         dictionary = TreeIO.loadDictFrom(bufferedReader, tempBuf.clear(),

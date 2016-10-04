@@ -40,6 +40,13 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
     /** The priority for showing the proposal */
     protected int priority;
 
+    protected ICompareContext fCompareContext;
+
+    @Override
+    public ICompareContext getCompareContext() {
+        return fCompareContext;
+    }
+
     /**
      * Defines a 'regular' apply, in which we add the completion as usual
      */
@@ -71,15 +78,16 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
      * @param cursorPosition the position of the cursor following the insert relative to replacementOffset
      */
     public PyCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
-            int cursorPosition, int priority) {
-        this(replacementString, replacementOffset, replacementLength, cursorPosition, null, null, null, null, priority);
+            int cursorPosition, int priority, ICompareContext compareContext) {
+        this(replacementString, replacementOffset, replacementLength, cursorPosition, null, null, null, null, priority,
+                compareContext);
     }
 
     public PyCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
             int cursorPosition, Image image, String displayString, IContextInformation contextInformation,
-            String additionalProposalInfo, int priority) {
+            String additionalProposalInfo, int priority, ICompareContext compareContext) {
         this(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
-                contextInformation, additionalProposalInfo, priority, ON_APPLY_DEFAULT, "");
+                contextInformation, additionalProposalInfo, priority, ON_APPLY_DEFAULT, "", compareContext);
     }
 
     /**
@@ -97,7 +105,8 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
      */
     public PyCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
             int cursorPosition, Image image, String displayString, IContextInformation contextInformation,
-            String additionalProposalInfo, int priority, int onApplyAction, String args) {
+            String additionalProposalInfo, int priority, int onApplyAction, String args,
+            ICompareContext compareContext) {
         Assert.isNotNull(replacementString);
         Assert.isTrue(replacementOffset >= 0);
         Assert.isTrue(replacementLength >= 0);
@@ -117,6 +126,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
         this.priority = priority;
         this.onApplyAction = onApplyAction;
         this.fArgs = args;
+        this.fCompareContext = compareContext;
     }
 
     /*

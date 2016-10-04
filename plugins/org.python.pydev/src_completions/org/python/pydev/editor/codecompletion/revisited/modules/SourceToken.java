@@ -11,6 +11,7 @@
  */
 package org.python.pydev.editor.codecompletion.revisited.modules;
 
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
@@ -46,16 +47,18 @@ public class SourceToken extends AbstractToken {
     /**
      * @param node
      */
-    public SourceToken(SimpleNode node, String rep, String args, String doc, String parentPackage) {
-        super(rep, doc, args, parentPackage, getType(node));
+    public SourceToken(SimpleNode node, String rep, String args, String doc, String parentPackage,
+            IPythonNature nature) {
+        super(rep, doc, args, parentPackage, getType(node), nature);
         this.ast = node;
     }
 
     /**
      * @param node
      */
-    public SourceToken(SimpleNode node, String rep, String args, String doc, String parentPackage, int type) {
-        super(rep, doc, args, parentPackage, type);
+    public SourceToken(SimpleNode node, String rep, String args, String doc, String parentPackage, int type,
+            IPythonNature nature) {
+        super(rep, doc, args, parentPackage, type, nature);
         this.ast = node;
     }
 
@@ -63,8 +66,8 @@ public class SourceToken extends AbstractToken {
      * @param node
      */
     public SourceToken(SimpleNode node, String rep, String doc, String args, String parentPackage, String originalRep,
-            boolean originalHasRep) {
-        super(rep, doc, args, parentPackage, getType(node), originalRep, originalHasRep);
+            boolean originalHasRep, IPythonNature nature) {
+        super(rep, doc, args, parentPackage, getType(node), originalRep, originalHasRep, nature);
         this.ast = node;
     }
 
@@ -176,17 +179,21 @@ public class SourceToken extends AbstractToken {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof SourceToken))
+        if (!(obj instanceof SourceToken)) {
             return false;
+        }
 
         SourceToken s = (SourceToken) obj;
 
-        if (!s.getRepresentation().equals(getRepresentation()))
+        if (!s.getRepresentation().equals(getRepresentation())) {
             return false;
-        if (s.getLineDefinition() != getLineDefinition())
+        }
+        if (s.getLineDefinition() != getLineDefinition()) {
             return false;
-        if (s.getColDefinition() != getColDefinition())
+        }
+        if (s.getColDefinition() != getColDefinition()) {
             return false;
+        }
 
         return true;
     }

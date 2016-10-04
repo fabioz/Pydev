@@ -17,6 +17,7 @@ import java.util.List;
 
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -56,68 +57,76 @@ public abstract class AbstractVisitor extends VisitorBase {
      */
     protected String moduleName;
 
+    protected final IPythonNature nature;
+
+    public AbstractVisitor(IPythonNature nature) {
+        this.nature = nature;
+    }
+
     /**
      * Adds a token with a docstring.
-     * 
+     *
      * @param node
      */
     protected SourceToken addToken(SimpleNode node) {
         //add the token
-        SourceToken t = makeToken(node, moduleName);
+        SourceToken t = makeToken(node, moduleName, nature);
         this.tokens.add(t);
         return t;
     }
 
-    public static SourceToken makeToken(SimpleNode node, String moduleName) {
+    public static SourceToken makeToken(SimpleNode node, String moduleName, IPythonNature nature) {
         return new SourceToken(node, NodeUtils.getRepresentationString(node), NodeUtils.getNodeArgs(node),
-                NodeUtils.getNodeDocString(node), moduleName);
+                NodeUtils.getNodeDocString(node), moduleName, nature);
     }
 
-    public static SourceToken makeToken(SimpleNode node, String rep, String moduleName) {
-        return new SourceToken(node, rep, NodeUtils.getNodeArgs(node), NodeUtils.getNodeDocString(node), moduleName);
+    public static SourceToken makeToken(SimpleNode node, String rep, String moduleName, IPythonNature nature) {
+        return new SourceToken(node, rep, NodeUtils.getNodeArgs(node), NodeUtils.getNodeDocString(node), moduleName,
+                nature);
     }
 
     /**
      * same as make token, but returns the full representation for a token, instead of just a 'partial' name
      */
-    public static SourceToken makeFullNameToken(SimpleNode node, String moduleName) {
+    public static SourceToken makeFullNameToken(SimpleNode node, String moduleName, IPythonNature nature) {
         return new SourceToken(node, NodeUtils.getFullRepresentationString(node), NodeUtils.getNodeArgs(node),
-                NodeUtils.getNodeDocString(node), moduleName);
+                NodeUtils.getNodeDocString(node), moduleName, nature);
     }
 
     /**
      * This function creates source tokens from a wild import node.
-     * 
+     *
      * @param node the import node
      * @param tokens OUT used to add the source token
      * @param moduleName the module name
-     * 
+     *
      * @return the tokens list passed in or the created one if it was null
      */
-    public static IToken makeWildImportToken(ImportFrom node, List<IToken> tokens, String moduleName) {
+    public static IToken makeWildImportToken(ImportFrom node, List<IToken> tokens, String moduleName,
+            IPythonNature nature) {
         if (tokens == null) {
             tokens = new ArrayList<IToken>();
         }
         SourceToken sourceToken = null;
         if (isWildImport(node)) {
-            sourceToken = new SourceToken(node, ((NameTok) node.module).id, "", "", moduleName);
+            sourceToken = new SourceToken(node, ((NameTok) node.module).id, "", "", moduleName, nature);
             tokens.add(sourceToken);
         }
         return sourceToken;
     }
 
     public static List<IToken> makeImportToken(SimpleNode node, List<IToken> tokens, String moduleName,
-            boolean allowForMultiple) {
+            boolean allowForMultiple, IPythonNature nature) {
         if (node instanceof Import) {
-            return makeImportToken((Import) node, tokens, moduleName, allowForMultiple);
+            return makeImportToken((Import) node, tokens, moduleName, allowForMultiple, nature);
         }
         if (node instanceof ImportFrom) {
             ImportFrom i = (ImportFrom) node;
             if (isWildImport(i)) {
-                makeWildImportToken(i, tokens, moduleName);
+                makeWildImportToken(i, tokens, moduleName, nature);
                 return tokens;
             }
-            return makeImportToken((ImportFrom) node, tokens, moduleName, allowForMultiple);
+            return makeImportToken((ImportFrom) node, tokens, moduleName, allowForMultiple, nature);
         }
 
         throw new RuntimeException("Unable to create token for the passed import (" + node + ")");
@@ -125,44 +134,44 @@ public abstract class AbstractVisitor extends VisitorBase {
 
     /**
      * This function creates source tokens from an import node.
-     * 
+     *
      * @param node the import node
      * @param moduleName the module name where this token was found
      * @param tokens OUT used to add the source tokens (may create many from a single import)
      * @param allowForMultiple is used to indicate if an import in the format import os.path should generate one token for os
      * and another for os.path or just one for both with os.path
-     * 
+     *
      * @return the tokens list passed in or the created one if it was null
      */
     public static List<IToken> makeImportToken(Import node, List<IToken> tokens, String moduleName,
-            boolean allowForMultiple) {
+            boolean allowForMultiple, IPythonNature nature) {
         aliasType[] names = node.names;
-        return makeImportToken(node, tokens, names, moduleName, "");
+        return makeImportToken(node, tokens, names, moduleName, "", nature);
     }
 
     /**
      * The same as above but with ImportFrom
      */
     public static List<IToken> makeImportToken(ImportFrom node, List<IToken> tokens, String moduleName,
-            boolean allowForMultiple) {
+            boolean allowForMultiple, IPythonNature nature) {
         aliasType[] names = node.names;
         String importName = ((NameTok) node.module).id;
 
-        return makeImportToken(node, tokens, names, moduleName, importName);
+        return makeImportToken(node, tokens, names, moduleName, importName, nature);
     }
 
     /**
      * This class is the same as a regular source token, just used to know that this
      * is a token that was created to identify a part of an import declaration.
-     * 
+     *
      * E.g.:
-     * 
+     *
      * import os.path
-     * 
+     *
      * Will create an 'os' part -- which is leaked to the namespace (but we must
      * identify that because we don't want to report import redefinitions nor unused
      * variables for those).
-     * 
+     *
      * See: https://sourceforge.net/tracker/index.php?func=detail&aid=2879058&group_id=85796&atid=577329
      * and  https://sourceforge.net/tracker/index.php?func=detail&aid=2008026&group_id=85796&atid=577329
      */
@@ -171,8 +180,8 @@ public abstract class AbstractVisitor extends VisitorBase {
         private static final long serialVersionUID = 1L;
 
         public ImportPartSourceToken(SimpleNode node, String rep, String doc, String args, String parentPackage,
-                String originalRep, boolean originalHasRep) {
-            super(node, rep, doc, args, parentPackage, originalRep, originalHasRep);
+                String originalRep, boolean originalHasRep, IPythonNature nature) {
+            super(node, rep, doc, args, parentPackage, originalRep, originalHasRep, nature);
         }
     }
 
@@ -180,7 +189,7 @@ public abstract class AbstractVisitor extends VisitorBase {
      * The same as above
      */
     private static List<IToken> makeImportToken(SimpleNode node, List<IToken> tokens, aliasType[] names, String module,
-            String initialImportName) {
+            String initialImportName, IPythonNature nature) {
         if (tokens == null) {
             tokens = new ArrayList<IToken>();
         }
@@ -207,16 +216,16 @@ public abstract class AbstractVisitor extends VisitorBase {
                     SourceToken sourceToken;
                     if (it.hasNext()) {
                         sourceToken = new ImportPartSourceToken(node, rep, "", "", module, initialImportName + rep,
-                                true);
+                                true, nature);
 
                     } else {
-                        sourceToken = new SourceToken(node, rep, "", "", module, initialImportName + rep, true);
+                        sourceToken = new SourceToken(node, rep, "", "", module, initialImportName + rep, true, nature);
                     }
                     tokens.add(sourceToken);
                 }
             } else {
                 SourceToken sourceToken = new SourceToken(node, name, "", "", module, initialImportName + original,
-                        false);
+                        false, nature);
                 tokens.add(sourceToken);
             }
 
@@ -253,10 +262,10 @@ public abstract class AbstractVisitor extends VisitorBase {
 
     /**
      * This method transverses the ast and returns a list of found tokens.
-     * 
+     *
      * @param ast
      * @param which
-     * @param state 
+     * @param state
      * @param name
      * @param onlyAllowTokensIn__all__: only used when checking global tokens: if true, if a token named __all__ is available,
      * only the classes that have strings that match in __all__ are available.
@@ -264,12 +273,12 @@ public abstract class AbstractVisitor extends VisitorBase {
      * @throws Exception
      */
     public static List<IToken> getTokens(SimpleNode ast, int which, String moduleName, ICompletionState state,
-            boolean onlyAllowTokensIn__all__) {
+            boolean onlyAllowTokensIn__all__, IPythonNature nature) {
         AbstractVisitor modelVisitor;
         if (which == INNER_DEFS) {
             modelVisitor = new InnerModelVisitor(moduleName, state);
         } else {
-            modelVisitor = new GlobalModelVisitor(which, moduleName, onlyAllowTokensIn__all__);
+            modelVisitor = new GlobalModelVisitor(which, moduleName, onlyAllowTokensIn__all__, nature);
         }
 
         if (ast != null) {
@@ -289,11 +298,12 @@ public abstract class AbstractVisitor extends VisitorBase {
      * This method traverses the ast and returns a model visitor that has the list of found tokens (and other related info, such as __all__, etc.)
      */
     public static GlobalModelVisitor getGlobalModuleVisitorWithTokens(SimpleNode ast, int which, String moduleName,
-            ICompletionState state, boolean onlyAllowTokensIn__all__) {
+            ICompletionState state, boolean onlyAllowTokensIn__all__, IPythonNature nature) {
         if (which == INNER_DEFS) {
             throw new RuntimeException("Only globals for getting the GlobalModelVisitor");
         }
-        GlobalModelVisitor modelVisitor = new GlobalModelVisitor(which, moduleName, onlyAllowTokensIn__all__);
+        GlobalModelVisitor modelVisitor = new GlobalModelVisitor(which, moduleName, onlyAllowTokensIn__all__,
+                nature);
 
         if (ast != null) {
             try {

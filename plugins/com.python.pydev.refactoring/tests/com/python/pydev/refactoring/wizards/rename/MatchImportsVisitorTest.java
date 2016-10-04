@@ -1,7 +1,5 @@
 package com.python.pydev.refactoring.wizards.rename;
 
-import junit.framework.TestCase;
-
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
@@ -10,6 +8,8 @@ import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.PythonNatureStub;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
+
+import junit.framework.TestCase;
 
 public class MatchImportsVisitorTest extends TestCase {
 
@@ -26,7 +26,7 @@ public class MatchImportsVisitorTest extends TestCase {
                 + "");
         IPythonNature nature = new PythonNatureStub();
         ParseOutput obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, nature));
-        SourceModule module = (SourceModule) AbstractModule.createModule((SimpleNode) obj.ast, null, "z");
+        SourceModule module = (SourceModule) AbstractModule.createModule((SimpleNode) obj.ast, null, "z", null);
 
         MatchImportsVisitor visitor = new MatchImportsVisitor(nature, "a.b.c", module, null);
         module.getAst().accept(visitor);
@@ -43,7 +43,7 @@ public class MatchImportsVisitorTest extends TestCase {
                 + "");
         IPythonNature nature = new PythonNatureStub();
         ParseOutput obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, nature));
-        SourceModule module = (SourceModule) AbstractModule.createModule((SimpleNode) obj.ast, null, "z");
+        SourceModule module = (SourceModule) AbstractModule.createModule((SimpleNode) obj.ast, null, "z", null);
 
         MatchImportsVisitor visitor = new MatchImportsVisitor(nature, "a.b.c", module, null);
         module.getAst().accept(visitor);
@@ -67,7 +67,7 @@ public class MatchImportsVisitorTest extends TestCase {
             }
         };
         ParseOutput obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, nature));
-        SourceModule module = (SourceModule) AbstractModule.createModule((SimpleNode) obj.ast, null, "a.g");
+        SourceModule module = (SourceModule) AbstractModule.createModule((SimpleNode) obj.ast, null, "a.g", null);
 
         MatchImportsVisitor visitor = new MatchImportsVisitor(nature, "a.b.c", module, null);
         module.getAst().accept(visitor);

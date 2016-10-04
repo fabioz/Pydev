@@ -12,9 +12,9 @@ import java.util.List;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.ITextViewer;
+import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
-import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 
 public interface IPyCodeCompletion {
 
@@ -51,10 +51,5 @@ public interface IPyCodeCompletion {
      *         string with current module (e.g. foo.bar.
      */
     public abstract ImportInfo getImportsTipperStr(CompletionRequest request);
-
-    /**
-     * Compares proposals so that we can order them.
-     */
-    public static final ProposalsComparator PROPOSAL_COMPARATOR = new ProposalsComparator();
 
 }

@@ -100,8 +100,9 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
         setSelectionHistory(new InfoSelectionHistory());
 
         setTitle("PyDev: Globals Browser");
-        setMessage("Matching: ? = any char    * = any str    CamelCase (TC=TestCase)    Space in the end = exact match.\n"
-                + "Dotted names may be used to filter with package (e.g.: django.utils.In or just dj.ut.in)");
+        setMessage(
+                "Matching: ? = any char    * = any str    CamelCase (TC=TestCase)    Space in the end = exact match.\n"
+                        + "Dotted names may be used to filter with package (e.g.: django.utils.In or just dj.ut.in)");
 
         NameIInfoLabelProvider resourceItemLabelProvider = new NameIInfoStyledLabelProvider(true);
 
@@ -429,7 +430,8 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
                             .getAllDirectModulesStartingWith("");
                     Collection<ModulesKey> values = allDirectModulesStartingWith.values();
                     for (ModulesKey modulesKey : values) {
-                        contentProvider.add(new AdditionalInfoAndIInfo(additionalInfo, new ModInfo(modulesKey.name)),
+                        contentProvider.add(new AdditionalInfoAndIInfo(additionalInfo,
+                                new ModInfo(modulesKey.name, modulesManager.getNature())),
                                 itemsFilter);
                     }
                 }

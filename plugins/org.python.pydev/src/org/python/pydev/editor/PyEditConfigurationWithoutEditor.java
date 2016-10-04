@@ -276,7 +276,7 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
                 ICodeScannerKeywords codeScannerKeywords = null;
                 if (sourceViewer instanceof IAdaptable) {
                     IAdaptable iAdaptable = (IAdaptable) sourceViewer;
-                    codeScannerKeywords = (ICodeScannerKeywords) iAdaptable.getAdapter(ICodeScannerKeywords.class);
+                    codeScannerKeywords = iAdaptable.getAdapter(ICodeScannerKeywords.class);
                     codeScanner = new PyCodeScanner(colorCache, codeScannerKeywords);
                 } else {
                     codeScanner = new PyCodeScanner(colorCache);

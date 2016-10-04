@@ -18,42 +18,45 @@ public class GlobalsTwoPanelElementSelector2Test extends TestCase {
         SearchPattern patternMatcher = new SearchPattern();
         patternMatcher.setPattern("aa");
 
-        assertTrue(MatchHelper.matchItem(patternMatcher, new ClassInfo("aa", null, null)));
+        assertTrue(MatchHelper.matchItem(patternMatcher, new ClassInfo("aa", null, null, null)));
 
-        assertTrue(MatchHelper.matchItem(patternMatcher, new ClassInfo("aaa", null, null)));
+        assertTrue(MatchHelper.matchItem(patternMatcher, new ClassInfo("aaa", null, null, null)));
 
-        assertFalse(MatchHelper.matchItem(patternMatcher, new ClassInfo("baaa", null, null)));
+        assertFalse(MatchHelper.matchItem(patternMatcher, new ClassInfo("baaa", null, null, null)));
 
-        assertTrue(MatchHelper.matchItem(patternMatcher, new ClassInfo("aaa", "coi.foo", null)));
+        assertTrue(MatchHelper.matchItem(patternMatcher, new ClassInfo("aaa", "coi.foo", null, null)));
 
         patternMatcher.setPattern("xx.aa");
-        assertFalse(MatchHelper.matchItem(patternMatcher, new ClassInfo("aaa", "invalid.foo", null)));
+        assertFalse(MatchHelper.matchItem(patternMatcher, new ClassInfo("aaa", "invalid.foo", null, null)));
 
-        assertTrue(MatchHelper.matchItem(patternMatcher, new ClassInfo("aaa", "xx.foo", null)));
+        assertTrue(MatchHelper.matchItem(patternMatcher, new ClassInfo("aaa", "xx.foo", null, null)));
 
         patternMatcher.setPattern("xx.foo.aa");
-        assertTrue(MatchHelper.matchItem(patternMatcher, new ClassInfo("aaa", "xx.foo.bar", null)));
+        assertTrue(MatchHelper.matchItem(patternMatcher, new ClassInfo("aaa", "xx.foo.bar", null, null)));
 
         patternMatcher.setPattern("xx.foo.bar.aa");
-        assertTrue(MatchHelper.matchItem(patternMatcher, new ClassInfo("aaa", "xx.foo.bar", null)));
+        assertTrue(MatchHelper.matchItem(patternMatcher, new ClassInfo("aaa", "xx.foo.bar", null, null)));
 
         patternMatcher.setPattern("xx.foo.bar.aa.aa");
-        assertFalse(MatchHelper.matchItem(patternMatcher, new ClassInfo("aaa", "xx.foo.bar", null)));
+        assertFalse(MatchHelper.matchItem(patternMatcher, new ClassInfo("aaa", "xx.foo.bar", null, null)));
 
         patternMatcher.setPattern("xx.foo.ba.aa");
-        assertTrue(MatchHelper.matchItem(patternMatcher, new ClassInfo("aaa", "xx.foo.bar", null)));
+        assertTrue(MatchHelper.matchItem(patternMatcher, new ClassInfo("aaa", "xx.foo.bar", null, null)));
 
         patternMatcher.setPattern("xx.fo*o.ba.aa");
-        assertTrue(MatchHelper.matchItem(patternMatcher, new ClassInfo("aaa", "xx.foo.bar", null)));
+        assertTrue(MatchHelper.matchItem(patternMatcher, new ClassInfo("aaa", "xx.foo.bar", null, null)));
 
         patternMatcher.setPattern("coi*.intersection");
-        assertTrue(MatchHelper.matchItem(patternMatcher, new ClassInfo("Intersection", "coilib50.basic.native", null)));
+        assertTrue(MatchHelper.matchItem(patternMatcher,
+                new ClassInfo("Intersection", "coilib50.basic.native", null, null)));
 
         patternMatcher.setPattern("coilib50.intersection");
-        assertTrue(MatchHelper.matchItem(patternMatcher, new ClassInfo("Intersection", "coilib50.basic.native", null)));
+        assertTrue(MatchHelper.matchItem(patternMatcher,
+                new ClassInfo("Intersection", "coilib50.basic.native", null, null)));
 
         patternMatcher.setPattern("coilib50.");
-        assertTrue(MatchHelper.matchItem(patternMatcher, new ClassInfo("Intersection", "coilib50.basic.native", null)));
+        assertTrue(MatchHelper.matchItem(patternMatcher,
+                new ClassInfo("Intersection", "coilib50.basic.native", null, null)));
     }
 
     public void testPatternSubAndEquals() throws Exception {

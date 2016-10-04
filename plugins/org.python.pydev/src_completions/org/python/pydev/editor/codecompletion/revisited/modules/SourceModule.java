@@ -175,6 +175,13 @@ public class SourceModule extends AbstractModule implements ISourceModule {
 
     private Boolean hasFutureImportAbsoluteImportDeclared = null;
 
+    private final IPythonNature nature;
+
+    @Override
+    public IPythonNature getNature() {
+        return nature;
+    }
+
     @Override
     public boolean hasFutureImportAbsoluteImportDeclared() {
         if (hasFutureImportAbsoluteImportDeclared == null) {
@@ -292,7 +299,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
 
             //we request all and put it into the cache (partitioned), because that's faster than making multiple runs through it
             GlobalModelVisitor globalModelVisitor = GlobalModelVisitor.getGlobalModuleVisitorWithTokens(ast, all, name,
-                    state, false);
+                    state, false, nature);
 
             this.globalModelVisitorCache = globalModelVisitor;
 
@@ -383,7 +390,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * @param f
      * @param n
      */
-    public SourceModule(String name, File f, SimpleNode n, Throwable parseError) {
+    public SourceModule(String name, File f, SimpleNode n, Throwable parseError, IPythonNature nature) {
         super(name);
         this.ast = n;
         this.file = f;
@@ -391,6 +398,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         if (f != null) {
             this.lastModified = FileUtils.lastModified(f);
         }
+        this.nature = nature;
     }
 
     /**
@@ -459,7 +467,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                     ClassDef classDef = (ClassDef) d.scope.getClassDef();
                                     if (classDef != null) {
                                         FindDefinitionModelVisitor visitor = new FindDefinitionModelVisitor(
-                                                actToks.get(actToksLen - 1), d.line, d.col, d.module);
+                                                actToks.get(actToksLen - 1), d.line, d.col, d.module,
+                                                initialState.getNature());
                                         try {
                                             classDef.accept(visitor);
                                         } catch (StopVisitingException e) {
@@ -560,7 +569,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      */
     public List<IToken> getClassToks(ICompletionState initialState, ICodeCompletionASTManager manager, SimpleNode ast) {
         List<IToken> modToks = GlobalModelVisitor.getTokens(ast, GlobalModelVisitor.INNER_DEFS, name, initialState,
-                false);//name = moduleName
+                false, this.nature);//name = moduleName
 
         try {
             //COMPLETION: get the completions for the whole hierarchy if this is a class!!
@@ -625,7 +634,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         Tuple<Integer, Integer> key = new Tuple<Integer, Integer>(line, col);
         FindScopeVisitor scopeVisitor = this.scopeVisitorCache.getObj(key);
         if (scopeVisitor == null) {
-            scopeVisitor = new FindScopeVisitor(line, col);
+            scopeVisitor = new FindScopeVisitor(line, col, nature);
             if (ast != null) {
                 ast.accept(scopeVisitor);
             }
@@ -635,13 +644,15 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     }
 
     /**
+     * @param nature
      * @return a find definition scope visitor that has already found some definition
      */
-    private FindDefinitionModelVisitor getFindDefinitionsScopeVisitor(String rep, int line, int col) throws Exception {
+    private FindDefinitionModelVisitor getFindDefinitionsScopeVisitor(String rep, int line, int col,
+            IPythonNature nature) throws Exception {
         Tuple3<String, Integer, Integer> key = new Tuple3<String, Integer, Integer>(rep, line, col);
         FindDefinitionModelVisitor visitor = this.findDefinitionVisitorCache.getObj(key);
         if (visitor == null) {
-            visitor = new FindDefinitionModelVisitor(rep, line, col, this);
+            visitor = new FindDefinitionModelVisitor(rep, line, col, this, nature);
             if (ast != null) {
                 try {
                     ast.accept(visitor);
@@ -703,7 +714,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         FindScopeVisitor scopeVisitor = getScopeVisitor(line, col);
 
         //this visitor checks for assigns for the token
-        FindDefinitionModelVisitor visitor = getFindDefinitionsScopeVisitor(actTok, line, col);
+        FindDefinitionModelVisitor visitor = getFindDefinitionsScopeVisitor(actTok, line, col, nature);
 
         List<Definition> defs = visitor.definitions;
         int size = defs.size();
@@ -901,7 +912,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                     stack.push(((SourceModule) module).getAst());
                                 }
                                 stack.push(classDef);
-                                ILocalScope scope = new LocalScope(stack);
+                                ILocalScope scope = new LocalScope(astManager.getNature(), stack);
                                 return new Definition[] { new Definition(def.o1, def.o2, token.getRepresentation(),
                                         ast2,
                                         scope, module) };
@@ -1056,7 +1067,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                         return new Definition(def.o1, def.o2, rep, a, scopeVisitor.scope, module);
                     } else {
                         //line, col
-                        return new Definition(def.o1, def.o2, rep, a, new LocalScope(new FastStack<SimpleNode>(5)),
+                        return new Definition(def.o1, def.o2, rep, a,
+                                new LocalScope(nature, new FastStack<SimpleNode>(5)),
                                 module);
                     }
                 } else if (token instanceof ConcreteToken) {

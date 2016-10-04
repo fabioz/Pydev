@@ -73,8 +73,8 @@ public class CodeCompletionTestsBase extends TestCase {
     public static PythonNature nature;
 
     /**
-     * Nature for the second project. 
-     * 
+     * Nature for the second project.
+     *
      * This nature has the other nature as a dependency.
      */
     public static PythonNature nature2;
@@ -87,7 +87,7 @@ public class CodeCompletionTestsBase extends TestCase {
     public static Map<String, Class<?>> restoredClass = new HashMap<String, Class<?>>();
 
     /**
-     * Serves the same purpose that the restoredClass serves, but for the system 
+     * Serves the same purpose that the restoredClass serves, but for the system
      * python nature.
      */
     public static Class<?> restoredSystem;
@@ -155,7 +155,7 @@ public class CodeCompletionTestsBase extends TestCase {
 
     /**
      * A method that creates the default nature
-     * 
+     *
      * @param force whether the creation of the new nature should be forced
      * @param path the pythonpath for the new nature
      * @param name the name for the project
@@ -175,8 +175,8 @@ public class CodeCompletionTestsBase extends TestCase {
 
     /**
      * A method that creates a project that references the project from the 'default' nature
-     * (and adds itself as a reference in the other project). 
-     * 
+     * (and adds itself as a reference in the other project).
+     *
      * @param force whether the creation of the new nature should be forced
      * @param path the pythonpath for the new nature
      * @param name the name for the project
@@ -203,7 +203,7 @@ public class CodeCompletionTestsBase extends TestCase {
 
     /**
      * Checks if we have to create a new nature for the given name
-     * 
+     *
      * @param name the name of the project to be checked for the creation of the nature
      * @param force whether the creation of the new nature should be forced
      * @return the PythonNature created (if needed) or null if the creation was not needed
@@ -333,7 +333,7 @@ public class CodeCompletionTestsBase extends TestCase {
 
     /**
      * Sets the interpreter manager we should use
-     * @param path 
+     * @param path
      */
     protected void setInterpreterManager(String path) {
         PythonInterpreterManager interpreterManager = new PythonInterpreterManager(this.getPreferences());
@@ -384,7 +384,7 @@ public class CodeCompletionTestsBase extends TestCase {
 
     /**
      * @see #restorePythonPath(boolean)
-     * 
+     *
      * same as the restorePythonPath function but also includes the site packages in the distribution
      */
     public void restorePythonPath(String path, boolean force) {
@@ -408,7 +408,7 @@ public class CodeCompletionTestsBase extends TestCase {
 
     /**
      * @see #restorePythonPath(boolean)
-     * 
+     *
      * same as the restorePythonPath function but also includes the site packages in the distribution
      */
     public void restorePythonPathWithSitePackages(boolean force) {
@@ -420,7 +420,7 @@ public class CodeCompletionTestsBase extends TestCase {
 
     /**
      * restores the pythonpath with the source library (system manager) and the source location for the tests (project manager)
-     * 
+     *
      * @param force whether this should be forced, even if it was previously created for this class
      */
     public void restorePythonPath(boolean force) {
@@ -512,18 +512,18 @@ public class CodeCompletionTestsBase extends TestCase {
 
     /**
      * make a request for a code completion
-     * 
+     *
      * @param the file where we are doing the completion
      * @param strDoc the document requesting the code completion
      * @param documentOffset the offset of the document (if -1, the doc length is used)
      * @param returned the number of completions expected (if -1 not tested)
-     * @param retCompl a string array specifying the expected completions that should be contained (may only be a 
+     * @param retCompl a string array specifying the expected completions that should be contained (may only be a
      * subset of all completions.
-     * @return 
-     * 
+     * @return
+     *
      * @throws CoreException
      * @throws BadLocationException
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     public ICompletionProposal[] requestCompl(File file, String strDoc, int documentOffset, int returned,
             String[] retCompl, PythonNature nature) throws Exception, MisconfigurationException {
@@ -532,11 +532,12 @@ public class CodeCompletionTestsBase extends TestCase {
         }
 
         IDocument doc = new Document(strDoc);
-        CompletionRequest request = new CompletionRequest(file, nature, doc, documentOffset, codeCompletion);
+        CompletionRequest request = new CompletionRequest(file, nature, doc, documentOffset, codeCompletion, false);
 
         List<Object> props = codeCompletion.getCodeCompletionProposals(null, request);
-        ICompletionProposal[] codeCompletionProposals = PyCodeCompletionUtils.onlyValidSorted(props, request.qualifier,
-                request.isInCalltip);
+        ICompletionProposal[] codeCompletionProposals = PyCodeCompletionUtils.onlyValid(props, request.qualifier,
+                request.isInCalltip, request.useSubstringMatchInCodeCompletion, null);
+        PyCodeCompletionUtils.sort(codeCompletionProposals, request.qualifier, null);
 
         for (int i = 0; i < retCompl.length; i++) {
             assertContains(retCompl[i], codeCompletionProposals);
@@ -553,8 +554,8 @@ public class CodeCompletionTestsBase extends TestCase {
     /**
      * If this method does not find the completion we're looking for, it throws
      * a failure exception.
-     * 
-     * @param string the string we're looking for 
+     *
+     * @param string the string we're looking for
      * @param codeCompletionProposals the proposals found
      */
     public static ICompletionProposal assertContains(String string, ICompletionProposal[] codeCompletionProposals) {
@@ -573,8 +574,8 @@ public class CodeCompletionTestsBase extends TestCase {
     /**
      * If this method does not find the completion we're looking for, it throws
      * a failure exception.
-     * 
-     * @param string the string we're looking for 
+     *
+     * @param string the string we're looking for
      * @param codeCompletionProposals the proposals found
      */
     protected void assertNotContains(String string, ICompletionProposal[] codeCompletionProposals) {
@@ -589,7 +590,7 @@ public class CodeCompletionTestsBase extends TestCase {
 
     /**
      * Checks if the completion we're looking for is the same completion we're analyzing.
-     * 
+     *
      * @param lookingFor this is the completion we are looking for
      * @param completionProposal this is the completion proposal
      * @return if the completion we're looking for is the same completion we're checking
