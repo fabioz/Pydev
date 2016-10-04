@@ -90,6 +90,35 @@ public final class ProposalsComparator implements Comparator<ICompletionProposal
             ICompareContext ctx2) {
         final String o1StrOriginal = o1Str;
         final String o2StrOriginal = o2Str;
+        int o1Len = o1Str.length();
+        int o2Len = o2Str.length();
+
+        //START: Get the contents only to the first parens or space for the comparisons.
+        {
+            int iSplit1 = o1Str.indexOf('(', 0);
+            int iSplit2 = o2Str.indexOf('(', 0);
+
+            int iSpace1 = o1Str.indexOf(' ', 0);
+            int iSpace2 = o2Str.indexOf(' ', 0);
+
+            if (iSplit1 == -1 || (iSpace1 >= 0 && iSpace1 < iSplit1)) {
+                iSplit1 = iSpace1;
+            }
+
+            if (iSplit2 == -1 || (iSpace2 >= 0 && iSpace2 < iSplit2)) {
+                iSplit2 = iSpace2;
+            }
+
+            if (iSplit1 >= 0) {
+                o1Str = o1Str.substring(0, iSplit1);
+                o1Len = o1Str.length();
+            }
+            if (iSplit2 >= 0) {
+                o2Str = o2Str.substring(0, iSplit2);
+                o2Len = o2Str.length();
+            }
+        }
+        //END: Get the contents only to the first parens or space for the comparisons.
 
         int v = onlyStringCompare(o1Str, o2Str);
         if (v != 0) {
@@ -135,8 +164,6 @@ public final class ProposalsComparator implements Comparator<ICompletionProposal
             return -1;
 
         } else if (o1StartsWithUnder) {//both start with '_' at this point, let's check for '__'
-            int o1Len = o1Str.length();
-            int o2Len = o2Str.length();
 
             if (o1Len > 1) {
                 o1StartsWithUnder = o1Str.charAt(1) == '_';
@@ -157,34 +184,6 @@ public final class ProposalsComparator implements Comparator<ICompletionProposal
             }
 
             //Ok, at this point, both start with '__', so, the final thing is checking for '__' in the end.
-
-            //START: Get the contents only to the first parens or space for the comparisons.
-            {
-                int iSplit1 = o1Str.indexOf('(', 0);
-                int iSplit2 = o2Str.indexOf('(', 0);
-
-                int iSpace1 = o1Str.indexOf(' ', 0);
-                int iSpace2 = o2Str.indexOf(' ', 0);
-
-                if (iSplit1 == -1 || (iSpace1 >= 0 && iSpace1 < iSplit1)) {
-                    iSplit1 = iSpace1;
-                }
-
-                if (iSplit2 == -1 || (iSpace2 >= 0 && iSpace2 < iSplit2)) {
-                    iSplit2 = iSpace2;
-                }
-
-                if (iSplit1 >= 0) {
-                    o1Str = o1Str.substring(0, iSplit1);
-                    o1Len = o1Str.length();
-                }
-                if (iSplit2 >= 0) {
-                    o2Str = o2Str.substring(0, iSplit2);
-                    o2Len = o2Str.length();
-                }
-            }
-            //END: Get the contents only to the first parens or space for the comparisons.
-
             boolean o1EndsWithUnder = false;
             boolean o2EndsWithUnder = false;
 

@@ -55,20 +55,28 @@ public abstract class AbstractPyCompletionProposalExtension2 extends AbstractCom
 
         final boolean useSubstringMatchInCodeCompletion = PyCodeCompletionPreferencesPage
                 .getUseSubstringMatchInCodeCompletion();
-        String displayString = getDisplayString();
+        String original = getDisplayString();
+        String strBeforeSpaces = StringUtils.splitOnFirst(original, ' ').o1;
+
+        //END: Get the contents only to the first space for the comparisons.
+
         StyledString styledString = new StyledString();
         if (useSubstringMatchInCodeCompletion) {
-            int i = displayString.toLowerCase().indexOf(qualifier.toLowerCase());
+            int i = strBeforeSpaces.toLowerCase().indexOf(qualifier.toLowerCase());
             if (i < 0) {
-                styledString.append(displayString);
+                styledString.append(strBeforeSpaces);
             } else {
-                styledString.append(displayString.substring(0, i));
-                styledString.append(displayString.substring(i, i + qualifier.length()),
+                styledString.append(strBeforeSpaces.substring(0, i));
+                styledString.append(strBeforeSpaces.substring(i, i + qualifier.length()),
                         boldStylerProvider.getBoldStyler());
-                styledString.append(displayString.substring(i + qualifier.length(), displayString.length()));
+                styledString.append(
+                        strBeforeSpaces.substring(i + qualifier.length(), strBeforeSpaces.length()));
             }
         } else {
-            styledString.append(displayString);
+            styledString.append(strBeforeSpaces);
+        }
+        if (styledString.length() < original.length()) {
+            styledString.append(original.substring(styledString.length()), StyledString.QUALIFIER_STYLER);
         }
         return styledString;
     }
