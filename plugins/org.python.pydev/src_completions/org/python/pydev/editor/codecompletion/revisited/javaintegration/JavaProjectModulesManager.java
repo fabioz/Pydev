@@ -80,7 +80,7 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
     }
 
     @Override
-    public IModulesManager[] getManagersInvolved(boolean b) {
+    public IModulesManager[] getManagersInvolved(boolean checkSystemManager) {
         return new IModulesManager[] { this };
     }
 

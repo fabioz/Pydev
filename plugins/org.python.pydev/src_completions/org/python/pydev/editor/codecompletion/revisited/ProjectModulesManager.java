@@ -469,6 +469,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
     /**
      * @return Returns the managers that this project references, including itself.
      */
+    @Override
     public IModulesManager[] getManagersInvolved(boolean checkSystemManager) {
         return getManagers(checkSystemManager, true);
     }

@@ -40,6 +40,7 @@ import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils.IFilter;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
+import org.python.pydev.shared_ui.proposals.IPyCompletionProposal.ICompareContext;
 
 import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
 import com.python.pydev.analysis.ui.AutoImportsPreferencesPage;
@@ -57,11 +58,11 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
 
     @Override
     public Collection<ICompletionProposal> computeConsoleCompletions(ActivationTokenAndQual tokenAndQual,
-            List<IPythonNature> naturesUsed, IScriptConsoleViewer viewer, int requestOffset) {
+            Set<IPythonNature> naturesUsed, IScriptConsoleViewer viewer, int requestOffset) {
         ArrayList<ICompletionProposal> completions = new ArrayList<ICompletionProposal>();
 
         if (tokenAndQual.activationToken != null && tokenAndQual.activationToken.length() > 0) {
-            //we only want 
+            //we only want
             return completions;
         }
 
@@ -73,17 +74,15 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
             boolean addAutoImport = AutoImportsPreferencesPage.doAutoImport();
 
             for (IPythonNature nature : naturesUsed) {
-                fillCompletions(requestOffset, completions, qual, nature, qlen, addAutoImport, viewer, false);
+                fillCompletions(requestOffset, completions, qual, nature, qlen, addAutoImport, viewer);
             }
-
-            fillCompletions(requestOffset, completions, qual, naturesUsed.get(0), qlen, addAutoImport, viewer, true);
 
         }
         return completions;
     }
 
     private void fillCompletions(int requestOffset, ArrayList<ICompletionProposal> completions, String qual,
-            IPythonNature nature, int qlen, boolean addAutoImport, IScriptConsoleViewer viewer, boolean getSystem) {
+            IPythonNature nature, int qlen, boolean addAutoImport, IScriptConsoleViewer viewer) {
 
         ICodeCompletionASTManager astManager = nature.getAstManager();
         if (astManager == null) {
@@ -96,13 +95,6 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
         try {
             if (modulesManager == null) {
                 nature.getProjectInterpreter(); //Just getting it here is likely to raise an error if it's not well configured.
-            }
-
-            if (getSystem) {
-                modulesManager = modulesManager.getSystemModulesManager();
-                if (modulesManager == null) {
-                    nature.getProjectInterpreter(); //Just getting it here is likely to raise an error if it's not well configured.
-                }
             }
         } catch (PythonNatureWithoutProjectException e) {
             throw new RuntimeException(e);
@@ -121,6 +113,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
         FastStringBuffer displayString = new FastStringBuffer();
         HashSet<String> alreadyFound = new HashSet<String>();
 
+        ICompareContext compareContext = new CompareContext(nature);
         for (String name : allModuleNames) {
 
             FullRepIterable iterable = new FullRepIterable(name);
@@ -164,7 +157,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
                         realImportRep.length(), img, found, (IContextInformation) null, "",
                         displayAsStr.toLowerCase().equals(lowerQual) ? IPyCompletionProposal.PRIORITY_PACKAGES_EXACT
                                 : IPyCompletionProposal.PRIORITY_PACKAGES,
-                        displayAsStr, viewer);
+                        displayAsStr, viewer, compareContext);
 
                 completions.add(proposal);
             }

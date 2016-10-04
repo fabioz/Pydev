@@ -6,7 +6,7 @@
  */
 /*
  * Created on Sep 12, 2005
- * 
+ *
  * @author Fabio Zadrozny
  */
 package com.python.pydev.analysis.additionalinfo;
@@ -68,8 +68,9 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
         ICompletionState state = CompletionStateFactory.getEmptyCompletionState(nature, new CompletionCache());
         state.setTokenImportedModules(imports);
         List<Object> props = new ArrayList<Object>(participant.getGlobalCompletions(request, state));
-        ICompletionProposal[] codeCompletionProposals = PyCodeCompletionUtils.onlyValidSorted(props, request.qualifier,
+        ICompletionProposal[] codeCompletionProposals = PyCodeCompletionUtils.onlyValid(props, request.qualifier,
                 request.isInCalltip, useSubstringMatchInCodeCompletion, null);
+        PyCodeCompletionUtils.sort(codeCompletionProposals, request.qualifier, null);
 
         for (int i = 0; i < retCompl.length; i++) {
             assertContains(retCompl[i], codeCompletionProposals);
@@ -85,7 +86,7 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
 
     /**
      * This method creates a marker stub
-     * 
+     *
      * @param start start char
      * @param end end char
      * @param type the marker type

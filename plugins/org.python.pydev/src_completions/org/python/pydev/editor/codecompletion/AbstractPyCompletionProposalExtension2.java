@@ -51,7 +51,9 @@ public abstract class AbstractPyCompletionProposalExtension2 extends AbstractCom
         }
         final boolean useSubstringMatchInCodeCompletion = PyCodeCompletionPreferencesPage
                 .getUseSubstringMatchInCodeCompletion();
-        return PyCodeCompletionUtils.acceptName(useSubstringMatchInCodeCompletion, getDisplayString(), qualifier);
+        String displayString = getDisplayString();
+        boolean ret = PyCodeCompletionUtils.acceptName(useSubstringMatchInCodeCompletion, displayString, qualifier);
+        return ret;
     }
 
     //-------------------- ICompletionProposalExtension
@@ -61,10 +63,10 @@ public abstract class AbstractPyCompletionProposalExtension2 extends AbstractCom
 
     /**
      * We want to apply it on \n or on '.'
-     * 
+     *
      * When . is entered, the user will finish (and apply) the current completion
      * and request a new one with '.'
-     * 
+     *
      * If not added, it won't request the new one (and will just stop the current)
      */
     @Override

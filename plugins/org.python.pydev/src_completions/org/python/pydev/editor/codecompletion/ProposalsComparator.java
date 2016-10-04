@@ -19,7 +19,6 @@ import org.eclipse.jface.text.contentassist.ICompletionProposalSorter;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal.ICompareContext;
 
@@ -56,10 +55,9 @@ public final class ProposalsComparator implements Comparator<ICompletionProposal
                         return ICompareContext.SAME_PROJECT_PRIORITY;
                     }
                 }
-
-                if (this.project != null) {
-                    return ICompareContext.ANY_PROJECT_PRIORITY;
-                }
+            }
+            if (this.project != null) {
+                return ICompareContext.ANY_PROJECT_PRIORITY;
             }
             return ICompareContext.DEFAULT_PRIORITY;
         }
@@ -80,9 +78,12 @@ public final class ProposalsComparator implements Comparator<ICompletionProposal
     }
 
     public void setQualifier(String qualifier) {
-        System.out.println("Set Qualifier: " + qualifier + " hashCode:" + this.hashCode());
         this.qualifier = qualifier;
         this.qualifierLower = qualifier.toLowerCase();
+    }
+
+    public void setCompareContext(CompareContext compareContext) {
+        this.compareContext = compareContext;
     }
 
     public int compare(String o1Str, String o2Str, int priority1, int priority2, ICompareContext ctx1,
@@ -95,17 +96,15 @@ public final class ProposalsComparator implements Comparator<ICompletionProposal
             return v;
         }
 
-        if (compareContext != null) {
-            int ctx1Priority = ctx1 != null ? ctx1.getPriorityRelatedTo(compareContext)
-                    : ICompareContext.DEFAULT_PRIORITY;
-            int ctx2Priority = ctx2 != null ? ctx2.getPriorityRelatedTo(compareContext)
-                    : ICompareContext.DEFAULT_PRIORITY;
-            if (ctx1Priority != ctx2Priority) {
-                if (ctx1Priority < ctx2Priority) {
-                    return -1;
-                }
-                return 1;
+        int ctx1Priority = ctx1 != null ? ctx1.getPriorityRelatedTo(compareContext)
+                : ICompareContext.DEFAULT_PRIORITY;
+        int ctx2Priority = ctx2 != null ? ctx2.getPriorityRelatedTo(compareContext)
+                : ICompareContext.DEFAULT_PRIORITY;
+        if (ctx1Priority != ctx2Priority) {
+            if (ctx1Priority < ctx2Priority) {
+                return -1;
             }
+            return 1;
         }
 
         if (priority1 < priority2) {
@@ -167,11 +166,11 @@ public final class ProposalsComparator implements Comparator<ICompletionProposal
                 int iSpace1 = o1Str.indexOf(' ', 0);
                 int iSpace2 = o2Str.indexOf(' ', 0);
 
-                if (iSpace1 >= 0 && iSpace1 < iSplit1) {
+                if (iSplit1 == -1 || (iSpace1 >= 0 && iSpace1 < iSplit1)) {
                     iSplit1 = iSpace1;
                 }
 
-                if (iSpace2 >= 0 && iSpace2 < iSplit2) {
+                if (iSplit2 == -1 || (iSpace2 >= 0 && iSpace2 < iSplit2)) {
                     iSplit2 = iSpace2;
                 }
 
@@ -278,11 +277,11 @@ public final class ProposalsComparator implements Comparator<ICompletionProposal
                 p2,
                 ctx1,
                 ctx2);
-        System.out.println(
-                StringUtils.format("Compare (%s - %s): qual: %s %s and %s p1: %s p2: %s ctx1: %s ctx2: %s", ret,
-                        this.hashCode(), qualifier,
-                        o1Str, o2Str, p1,
-                        p2, ctx1, ctx2));
+        // System.out.println(
+        //         StringUtils.format("Compare (%s - %s): qual: %s %s and %s p1: %s p2: %s ctx1: %s ctx2: %s", ret,
+        //                 this.hashCode(), qualifier,
+        //                 o1Str, o2Str, p1,
+        //                 p2, ctx1, ctx2));
         return ret;
 
     }

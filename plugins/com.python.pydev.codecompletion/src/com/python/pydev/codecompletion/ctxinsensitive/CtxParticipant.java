@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContextInformation;
@@ -36,7 +37,7 @@ import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils.IFilter;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
@@ -64,10 +65,10 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
      */
     @Override
     public Collection<ICompletionProposal> computeConsoleCompletions(ActivationTokenAndQual tokenAndQual,
-            List<IPythonNature> naturesUsed, IScriptConsoleViewer viewer, int requestOffset) {
+            Set<IPythonNature> naturesUsed, IScriptConsoleViewer viewer, int requestOffset) {
         List<ICompletionProposal> completions = new ArrayList<ICompletionProposal>();
         if (tokenAndQual.activationToken != null && tokenAndQual.activationToken.length() > 0) {
-            //we only want 
+            //we only want
             return completions;
         }
 
@@ -81,13 +82,27 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
             IFilter nameFilter = PyCodeCompletionUtils.getNameFilter(useSubstringMatchInCodeCompletion, qual);
 
             for (IPythonNature nature : naturesUsed) {
-                fillNatureCompletionsForConsole(viewer, requestOffset, completions, qual, addAutoImport, qlen,
-                        nameFilter, nature, false, useSubstringMatchInCodeCompletion);
+                AbstractAdditionalTokensInfo additionalInfo;
+                try {
+                    if (nature instanceof SystemPythonNature) {
+                        SystemPythonNature systemPythonNature = (SystemPythonNature) nature;
+                        additionalInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
+                                systemPythonNature.getRelatedInterpreterManager(),
+                                systemPythonNature.getProjectInterpreter().getExecutableOrJar());
+
+                        fillNatureCompletionsForConsole(viewer, requestOffset, completions, qual, addAutoImport, qlen,
+                                nameFilter, nature, additionalInfo, useSubstringMatchInCodeCompletion);
+
+                    } else {
+                        additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
+                        fillNatureCompletionsForConsole(viewer, requestOffset, completions, qual, addAutoImport, qlen,
+                                nameFilter, nature, additionalInfo, useSubstringMatchInCodeCompletion);
+                    }
+                } catch (MisconfigurationException e) {
+                    Log.log(e);
+                }
             }
 
-            //and at last, get from the system
-            fillNatureCompletionsForConsole(viewer, requestOffset, completions, qual, addAutoImport, qlen, nameFilter,
-                    naturesUsed.get(0), true, useSubstringMatchInCodeCompletion);
         }
         return completions;
 
@@ -95,33 +110,15 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
 
     private void fillNatureCompletionsForConsole(IScriptConsoleViewer viewer, int requestOffset,
             List<ICompletionProposal> completions, String qual, boolean addAutoImport, int qlen, IFilter nameFilter,
-            IPythonNature nature, boolean getSystem, boolean useSubstringMatchInCodeCompletion) {
-        AbstractAdditionalTokensInfo additionalInfoForProject;
-
-        if (getSystem) {
-            try {
-                additionalInfoForProject = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
-                        PydevPlugin.getInterpreterManager(nature), nature.getProjectInterpreter().getExecutableOrJar());
-            } catch (Exception e) {
-                Log.log(e);
-                return;
-            }
-        } else {
-            try {
-                additionalInfoForProject = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
-            } catch (Exception e) {
-                Log.log(e);
-                return;
-            }
-        }
-
+            IPythonNature nature, AbstractAdditionalTokensInfo additionalInfo,
+            boolean useSubstringMatchInCodeCompletion) {
         Collection<IInfo> tokensStartingWith;
         if (useSubstringMatchInCodeCompletion) {
-            tokensStartingWith = additionalInfoForProject.getTokensStartingWith("",
+            tokensStartingWith = additionalInfo.getTokensStartingWith("",
                     AbstractAdditionalTokensInfo.TOP_LEVEL);
 
         } else {
-            tokensStartingWith = additionalInfoForProject.getTokensStartingWith(qual,
+            tokensStartingWith = additionalInfo.getTokensStartingWith(qual,
                     AbstractAdditionalTokensInfo.TOP_LEVEL);
         }
 
@@ -129,6 +126,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
         FastStringBuffer displayString = new FastStringBuffer();
         FastStringBuffer tempBuf = new FastStringBuffer();
         boolean doIgnoreImportsStartingWithUnder = AutoImportsPreferencesPage.doIgnoreImportsStartingWithUnder();
+        CompareContext compareContext = new CompareContext(nature);
         for (IInfo info : tokensStartingWith) {
             //there always must be a declaringModuleName
             String declaringModuleName = info.getDeclaringModuleName();
@@ -166,7 +164,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
                     displayAsStr, (IContextInformation) null, "",
                     displayAsStr.equals(qual) ? IPyCompletionProposal.PRIORITY_GLOBALS_EXACT
                             : IPyCompletionProposal.PRIORITY_GLOBALS,
-                    realImportRep.toString(), viewer);
+                    realImportRep.toString(), viewer, compareContext);
 
             completions.add(proposal);
         }
@@ -327,7 +325,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
 
     /**
      * IPyDevCompletionParticipant
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })

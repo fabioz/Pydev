@@ -65,7 +65,7 @@ public abstract class AbstractVisitor extends VisitorBase {
 
     /**
      * Adds a token with a docstring.
-     * 
+     *
      * @param node
      */
     protected SourceToken addToken(SimpleNode node) {
@@ -95,11 +95,11 @@ public abstract class AbstractVisitor extends VisitorBase {
 
     /**
      * This function creates source tokens from a wild import node.
-     * 
+     *
      * @param node the import node
      * @param tokens OUT used to add the source token
      * @param moduleName the module name
-     * 
+     *
      * @return the tokens list passed in or the created one if it was null
      */
     public static IToken makeWildImportToken(ImportFrom node, List<IToken> tokens, String moduleName,
@@ -134,13 +134,13 @@ public abstract class AbstractVisitor extends VisitorBase {
 
     /**
      * This function creates source tokens from an import node.
-     * 
+     *
      * @param node the import node
      * @param moduleName the module name where this token was found
      * @param tokens OUT used to add the source tokens (may create many from a single import)
      * @param allowForMultiple is used to indicate if an import in the format import os.path should generate one token for os
      * and another for os.path or just one for both with os.path
-     * 
+     *
      * @return the tokens list passed in or the created one if it was null
      */
     public static List<IToken> makeImportToken(Import node, List<IToken> tokens, String moduleName,
@@ -163,15 +163,15 @@ public abstract class AbstractVisitor extends VisitorBase {
     /**
      * This class is the same as a regular source token, just used to know that this
      * is a token that was created to identify a part of an import declaration.
-     * 
+     *
      * E.g.:
-     * 
+     *
      * import os.path
-     * 
+     *
      * Will create an 'os' part -- which is leaked to the namespace (but we must
      * identify that because we don't want to report import redefinitions nor unused
      * variables for those).
-     * 
+     *
      * See: https://sourceforge.net/tracker/index.php?func=detail&aid=2879058&group_id=85796&atid=577329
      * and  https://sourceforge.net/tracker/index.php?func=detail&aid=2008026&group_id=85796&atid=577329
      */
@@ -262,10 +262,10 @@ public abstract class AbstractVisitor extends VisitorBase {
 
     /**
      * This method transverses the ast and returns a list of found tokens.
-     * 
+     *
      * @param ast
      * @param which
-     * @param state 
+     * @param state
      * @param name
      * @param onlyAllowTokensIn__all__: only used when checking global tokens: if true, if a token named __all__ is available,
      * only the classes that have strings that match in __all__ are available.
@@ -273,12 +273,12 @@ public abstract class AbstractVisitor extends VisitorBase {
      * @throws Exception
      */
     public static List<IToken> getTokens(SimpleNode ast, int which, String moduleName, ICompletionState state,
-            boolean onlyAllowTokensIn__all__) {
+            boolean onlyAllowTokensIn__all__, IPythonNature nature) {
         AbstractVisitor modelVisitor;
         if (which == INNER_DEFS) {
             modelVisitor = new InnerModelVisitor(moduleName, state);
         } else {
-            modelVisitor = new GlobalModelVisitor(which, moduleName, onlyAllowTokensIn__all__, state.getNature());
+            modelVisitor = new GlobalModelVisitor(which, moduleName, onlyAllowTokensIn__all__, nature);
         }
 
         if (ast != null) {

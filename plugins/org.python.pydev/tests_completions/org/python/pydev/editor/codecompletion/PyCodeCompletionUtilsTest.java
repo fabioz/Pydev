@@ -23,8 +23,9 @@ public class PyCodeCompletionUtilsTest extends TestCase {
         String qualifier = "foo";
         boolean onlyForCalltips = false;
 
-        ICompletionProposal[] proposals = PyCodeCompletionUtils.onlyValidSorted(props, qualifier, onlyForCalltips,
+        ICompletionProposal[] proposals = PyCodeCompletionUtils.onlyValid(props, qualifier, onlyForCalltips,
                 false, null);
+        PyCodeCompletionUtils.sort(proposals, qualifier, null);
         compare(new String[] { "foo1", "foo1(a, b)" }, proposals);
     }
 
@@ -38,8 +39,9 @@ public class PyCodeCompletionUtilsTest extends TestCase {
         String qualifier = "_";
         boolean onlyForCalltips = false;
 
-        ICompletionProposal[] proposals = PyCodeCompletionUtils.onlyValidSorted(props, qualifier, onlyForCalltips,
+        ICompletionProposal[] proposals = PyCodeCompletionUtils.onlyValid(props, qualifier, onlyForCalltips,
                 false, null);
+        PyCodeCompletionUtils.sort(proposals, qualifier, null);
         compare(new String[] { "_foo1(a, b)", "__foo1()", "__foo1 - __something__", "__foo1__", "__foo1__()", },
                 proposals);
     }
@@ -51,8 +53,9 @@ public class PyCodeCompletionUtilsTest extends TestCase {
         String qualifier = "sys";
         boolean onlyForCalltips = false;
 
-        ICompletionProposal[] proposals = PyCodeCompletionUtils.onlyValidSorted(props, qualifier, onlyForCalltips,
+        ICompletionProposal[] proposals = PyCodeCompletionUtils.onlyValid(props, qualifier, onlyForCalltips,
                 false, null);
+        PyCodeCompletionUtils.sort(proposals, qualifier, null);
         compare(new String[] { "system", "SystemError", }, proposals);
     }
 

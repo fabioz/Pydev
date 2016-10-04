@@ -341,7 +341,7 @@ public class LocalScope implements ILocalScope {
                     stmtType stmt = f.body[i];
                     if (stmt != null) {
                         importedModules.addAll(GlobalModelVisitor.getTokens(stmt, GlobalModelVisitor.ALIAS_MODULES,
-                                moduleName, null, false));
+                                moduleName, null, false, this.nature));
                     }
                 }
             }

@@ -44,6 +44,10 @@ public interface IPyCompletionProposal {
         int ANY_PROJECT_PRIORITY = 2;
         int DEFAULT_PRIORITY = 3;
 
+        /**
+         * @param compareContext may be null
+         * @return
+         */
         public int getPriorityRelatedTo(ICompareContext compareContext);
     }
 

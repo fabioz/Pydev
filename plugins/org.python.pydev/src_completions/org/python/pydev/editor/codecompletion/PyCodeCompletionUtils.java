@@ -24,13 +24,13 @@ import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 public class PyCodeCompletionUtils {
 
     /**
-     * Filters the python completions so that only the completions we care about are shown (given the qualifier) 
+     * Filters the python completions so that only the completions we care about are shown (given the qualifier)
      * @param pythonAndTemplateProposals the completions to sort / filter
      * @param qualifier the qualifier we care about
      * @param onlyForCalltips if we should filter having in mind that we're going to show it for a calltip
      * @return the completions to show to the user
      */
-    public static ICompletionProposal[] onlyValidSorted(List pythonAndTemplateProposals, String qualifier,
+    public static ICompletionProposal[] onlyValid(List pythonAndTemplateProposals, String qualifier,
             boolean onlyForCalltips, boolean useSubstringMatchInCodeCompletion, IProject project) {
         //FOURTH: Now, we have all the proposals, only thing is deciding which ones are valid (depending on
         //qualifier) and sorting them correctly.
@@ -112,8 +112,11 @@ public class PyCodeCompletionUtils {
         }
         ICompletionProposal[] proposals = tproposals.toArray(new ICompletionProposal[returnProposals.size()]);
 
-        Arrays.sort(proposals, new ProposalsComparator(qualifier, new CompareContext(project)));
         return proposals;
+    }
+
+    public static void sort(ICompletionProposal[] proposals, String qualifier, IProject project) {
+        Arrays.sort(proposals, new ProposalsComparator(qualifier, new CompareContext(project)));
     }
 
     private static void addProposal(Map<String, List<ICompletionProposal>> returnProposals,
@@ -149,6 +152,21 @@ public class PyCodeCompletionUtils {
 
                 @Override
                 public boolean acceptName(String name) {
+
+                    //START: Get the contents only to the first parens or space for the comparisons.
+                    {
+                        int iSplit1 = name.indexOf('(', 0);
+                        int iSpace1 = name.indexOf(' ', 0);
+
+                        if (iSpace1 >= 0 && iSpace1 < iSplit1) {
+                            iSplit1 = iSpace1;
+                        }
+                        if (iSplit1 >= 0) {
+                            name = name.substring(0, iSplit1);
+                        }
+                    }
+                    //END: Get the contents only to the first parens or space for the comparisons.
+
                     return name.toLowerCase().contains(lowerQual);
                 }
             };
@@ -165,12 +183,26 @@ public class PyCodeCompletionUtils {
     }
 
     // API optimized for a single match (to avoid creating temporary objects) -- prefer getNameFilter() for multiple matches on the same qualifier.
-    public static boolean acceptName(boolean useSubstringMatchInCodeCompletion, String displayString,
+    public static boolean acceptName(boolean useSubstringMatchInCodeCompletion, String name,
             String qualifier) {
         if (useSubstringMatchInCodeCompletion) {
-            return displayString.toLowerCase().contains(qualifier.toLowerCase());
+            //START: Get the contents only to the first parens or space for the comparisons.
+            {
+                int iSplit1 = name.indexOf('(', 0);
+                int iSpace1 = name.indexOf(' ', 0);
+
+                if (iSplit1 == -1 || (iSpace1 >= 0 && iSpace1 < iSplit1)) {
+                    iSplit1 = iSpace1;
+                }
+                if (iSplit1 >= 0) {
+                    name = name.substring(0, iSplit1);
+                }
+            }
+            //END: Get the contents only to the first parens or space for the comparisons.
+
+            return name.toLowerCase().contains(qualifier.toLowerCase());
         } else {
-            return displayString.toLowerCase().startsWith(qualifier.toLowerCase());
+            return name.toLowerCase().startsWith(qualifier.toLowerCase());
         }
     }
 

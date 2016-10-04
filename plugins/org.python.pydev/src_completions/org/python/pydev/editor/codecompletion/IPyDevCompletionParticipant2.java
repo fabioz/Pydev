@@ -7,7 +7,7 @@
 package org.python.pydev.editor.codecompletion;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.IPythonNature;
@@ -25,14 +25,14 @@ public interface IPyDevCompletionParticipant2 {
     /**
      * Used for getting the completions to be applied when a completion
      * is requested in the console.
-     * 
+     *
      * @param tokenAndQual the activation token and the qualifier used
-     * @param naturesUsed the natures that the console is using
+     * @param naturesUsed the natures that the console is using (i.e.: main nature, related natures and system nature).
      * @param viewer the viewer for the console
      * @param requestOffset the offset where the request for completions was issued
      * @return a list of completion proposals to be applied in the console
      */
     Collection<ICompletionProposal> computeConsoleCompletions(ActivationTokenAndQual tokenAndQual,
-            List<IPythonNature> naturesUsed, IScriptConsoleViewer viewer, int requestOffset);
+            Set<IPythonNature> naturesUsed, IScriptConsoleViewer viewer, int requestOffset);
 
 }

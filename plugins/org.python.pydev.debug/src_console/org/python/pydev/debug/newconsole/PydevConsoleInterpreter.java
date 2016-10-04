@@ -10,6 +10,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -26,6 +27,7 @@ import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.ICompletionRequest;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
@@ -64,7 +66,10 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
 
     private List<ISimpleAssistParticipant2> simpleParticipants;
 
-    private List<IPythonNature> naturesUsed = new ArrayList<IPythonNature>();
+    /**
+     * Note: contains all the natures (if it was a single one selected, it's expanded to the nature + references + system nature).
+     */
+    private Set<IPythonNature> initialNatures = new HashSet<IPythonNature>();
 
     private IInterpreterInfo interpreterInfo;
 
@@ -127,13 +132,14 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
 
         //Code-completion for imports
         ImportInfo importsTipper = ImportsSelection.getImportsTipperStr(text, false);
+        Set<IPythonNature> natureAndRelatedNatures = getNatureAndRelatedNatures();
         if (importsTipper.importsTipperStr.length() != 0) {
             importsTipper.importsTipperStr = importsTipper.importsTipperStr.trim();
             Set<IToken> tokens = new TreeSet<IToken>();
-            boolean onlyGetDirectModules = false;
+            final boolean onlyGetDirectModules = true;
 
             //Check all the natures.
-            for (final IPythonNature nature : naturesUsed) {
+            for (final IPythonNature nature : natureAndRelatedNatures) {
                 ICodeCompletionASTManager astManager = nature.getAstManager();
                 IToken[] importTokens = astManager.getCompletionsForImport(importsTipper, new ICompletionRequest() {
 
@@ -154,7 +160,6 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
                 }, onlyGetDirectModules);
 
                 //only get all modules for the 1st one we analyze (no need to get on the others)
-                onlyGetDirectModules = true;
                 tokens.addAll(Arrays.asList(importTokens));
             }
 
@@ -229,8 +234,9 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
             for (Object participant : participants) {
                 if (participant instanceof IPyDevCompletionParticipant2) {
                     IPyDevCompletionParticipant2 participant2 = (IPyDevCompletionParticipant2) participant;
-                    results3.addAll(participant2.computeConsoleCompletions(tokenAndQual, this.naturesUsed, viewer,
-                            offset));
+                    results3.addAll(
+                            participant2.computeConsoleCompletions(tokenAndQual, natureAndRelatedNatures, viewer,
+                                    offset));
                 }
             }
             Collections.sort(results3, proposalsComparator);
@@ -292,11 +298,35 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
         this.closeRunnables.add(runnable);
     }
 
-    public void setNaturesUsed(List<IPythonNature> naturesUsed) {
-        if (naturesUsed == null) {
-            naturesUsed = new ArrayList<IPythonNature>();
+    public void setNaturesUsed(List<IPythonNature> localNaturesUsed) {
+        if (localNaturesUsed == null) {
+            localNaturesUsed = new ArrayList<IPythonNature>();
         }
-        this.naturesUsed = naturesUsed;
+        this.initialNatures = new HashSet<>(localNaturesUsed);
+    }
+
+    private Set<IPythonNature> getNatureAndRelatedNatures() {
+        Set<IPythonNature> ret = new HashSet<IPythonNature>();
+        for (IPythonNature iPythonNature : this.initialNatures) {
+            try {
+                ICodeCompletionASTManager astManager = iPythonNature.getAstManager();
+                if (astManager == null) {
+                    continue;
+                }
+                IModulesManager modulesManager = astManager.getModulesManager();
+                if (modulesManager == null) {
+                    continue;
+                }
+                IModulesManager[] managersInvolved = modulesManager
+                        .getManagersInvolved(true);
+                for (IModulesManager iModulesManager : managersInvolved) {
+                    ret.add(iModulesManager.getNature());
+                }
+            } catch (Exception e) {
+                Log.log(e);
+            }
+        }
+        return ret;
     }
 
     public void setInterpreterInfo(IInterpreterInfo interpreterInfo) {
@@ -346,6 +376,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
                 PythonNature nature = PythonNature.getPythonNature(pyDebugTarget.project);
                 if (nature != null) {
                     ArrayList<IPythonNature> natures = new ArrayList<>(1);
+                    natures.add(nature);
                     this.setNaturesUsed(natures);
                     try {
                         projectInterpreter = nature.getProjectInterpreter();

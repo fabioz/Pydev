@@ -15,9 +15,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.TextPresentation;
 import org.eclipse.jface.text.contentassist.ContentAssistEvent;
@@ -29,6 +27,9 @@ import org.eclipse.jface.text.contentassist.IContextInformationPresenter;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
@@ -45,7 +46,7 @@ import org.python.pydev.plugin.PydevPlugin;
 /**
  * This processor controls the completion cycle (and also works as a 'delegator' to the processor that deals
  * with actual python completions -- which may be a bit slower that simple completions).
- * 
+ *
  * @author Fabio
  */
 public class SimpleAssistProcessor implements IContentAssistProcessor {
@@ -164,7 +165,6 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
             @Override
             public void assistSessionEnded(ContentAssistEvent event) {
                 if (keepSynched != null) {
-                    System.out.println("assistSessionEnded");
                     keepSynched.dispose();
                     keepSynched = null;
                 }
@@ -172,7 +172,6 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
 
             @Override
             public void assistSessionStarted(ContentAssistEvent event) {
-                System.out.println("assistSessionStarted");
                 startCycle();
                 lastCompletionAutoActivated = assistant.getLastCompletionAutoActivated();
                 if (!lastCompletionAutoActivated) {
@@ -189,50 +188,43 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
 
     }
 
-    private static class KeepProposalsComparatorSynched implements IDocumentListener {
+    private static class KeepProposalsComparatorSynched implements Listener {
 
-        private IDocument doc;
         private ITextViewer viewer;
         private ProposalsComparator sorter;
 
         public KeepProposalsComparatorSynched(ITextViewer viewer, IDocument doc, int offset,
                 ProposalsComparator sorter) {
-            doc.addDocumentListener(this);
-            this.doc = doc;
             this.viewer = viewer;
             this.sorter = sorter;
+            viewer.getTextWidget().addListener(SWT.Modify, this);
         }
 
         public void dispose() {
-            if (this.doc != null) {
-                this.doc.removeDocumentListener(this);
-                this.doc = null;
+            if (this.viewer != null) {
+                viewer.getTextWidget().removeListener(SWT.Modify, this);
                 this.viewer = null;
                 this.sorter = null;
             }
         }
 
         @Override
-        public void documentChanged(DocumentEvent event) {
-            System.out.println("Document changed");
+        public void handleEvent(Event event) {
+            IDocument doc = this.viewer.getDocument();
 
             String[] strs = PySelection.getActivationTokenAndQual(doc, this.viewer.getSelectedRange().x, false);
 
             String qualifier = strs[1];
             this.sorter.setQualifier(qualifier);
-
-        }
-
-        @Override
-        public void documentAboutToBeChanged(DocumentEvent event) {
-
         }
 
     }
 
+    private final ProposalsComparator sorter = new ProposalsComparator("", null);
+
     /**
      * Computes the proposals (may forward for simple or 'complete' proposals)
-     *  
+     *
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#computeCompletionProposals(org.eclipse.jface.text.ITextViewer, int)
      */
     @Override
@@ -244,8 +236,13 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
             String activationToken = strs[0];
             String qualifier = strs[1];
             IPythonNature pythonNature = edit.getPythonNature();
-            ProposalsComparator sorter = new ProposalsComparator(qualifier, new CompareContext(pythonNature));
+            sorter.setQualifier(qualifier);
+            sorter.setCompareContext(new CompareContext(pythonNature));
 
+            if (this.keepSynched != null) {
+                this.keepSynched.dispose();
+                this.keepSynched = null;
+            }
             this.keepSynched = new KeepProposalsComparatorSynched(viewer, doc, offset, sorter);
 
             if (showDefault()) {
@@ -329,7 +326,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
 
     /**
      * only very simple proposals should be here, as it is auto-activated for any character
-     *  
+     *
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getCompletionProposalAutoActivationCharacters()
      */
     @Override
@@ -344,7 +341,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
 
     /**
      * @return the auto-activation chars that should be used: always all chars ascii chars + default options.
-     * 
+     *
      * The logic is that the first is always for the 'simple' keywords (i.e.: print, self, etc.)
      */
     public synchronized static char[] getStaticAutoActivationCharacters() {

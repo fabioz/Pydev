@@ -569,7 +569,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      */
     public List<IToken> getClassToks(ICompletionState initialState, ICodeCompletionASTManager manager, SimpleNode ast) {
         List<IToken> modToks = GlobalModelVisitor.getTokens(ast, GlobalModelVisitor.INNER_DEFS, name, initialState,
-                false);//name = moduleName
+                false, this.nature);//name = moduleName
 
         try {
             //COMPLETION: get the completions for the whole hierarchy if this is a class!!
@@ -644,7 +644,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     }
 
     /**
-     * @param nature 
+     * @param nature
      * @return a find definition scope visitor that has already found some definition
      */
     private FindDefinitionModelVisitor getFindDefinitionsScopeVisitor(String rep, int line, int col,
