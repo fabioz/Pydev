@@ -213,8 +213,8 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
 
         mods.add(tuple);
 
-        String tooltip = importDeclaration + "\n\nNote: Hold Ctrl on apply to do local import.";
-        props.add(new CtxInsensitiveImportComplProposal("", offset, 0, 0, importImage, displayImport, null, tooltip,
+        props.add(new CtxInsensitiveImportComplProposal("", offset, 0, 0, importImage, displayImport, null,
+                importDeclaration,
                 IPyCompletionProposal.PRIORITY_LOCALS, importDeclaration, compareContext) {
 
             @Override
@@ -224,7 +224,7 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
 
             @Override
             public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
-                if ((stateMask & SWT.CTRL) != 0) {
+                if ((stateMask & SWT.SHIFT) != 0) {
                     this.setAddLocalImport(true);
                 }
                 super.apply(viewer, trigger, stateMask, offset);

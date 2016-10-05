@@ -83,11 +83,36 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
                 compareContext);
     }
 
+    // Backward-compatibility for jython scripts without compareContext.
+    public PyCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
+            int cursorPosition, int priority) {
+        this(replacementString, replacementOffset, replacementLength, cursorPosition, null, null, null, null, priority,
+                null);
+    }
+
     public PyCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
             int cursorPosition, Image image, String displayString, IContextInformation contextInformation,
             String additionalProposalInfo, int priority, ICompareContext compareContext) {
         this(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
                 contextInformation, additionalProposalInfo, priority, ON_APPLY_DEFAULT, "", compareContext);
+    }
+
+    // Backward-compatibility for jython scripts without compareContext.
+    public PyCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
+            int cursorPosition, Image image, String displayString, IContextInformation contextInformation,
+            String additionalProposalInfo, int priority) {
+        this(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
+                contextInformation, additionalProposalInfo, priority, ON_APPLY_DEFAULT, "", null);
+    }
+
+    // Backward-compatibility for jython scripts without compareContext.
+    public PyCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
+            int cursorPosition, Image image, String displayString, IContextInformation contextInformation,
+            String additionalProposalInfo, int priority, int onApplyAction, String args) {
+        this(replacementString, replacementOffset, replacementLength,
+                cursorPosition, image, displayString, contextInformation,
+                additionalProposalInfo, priority, onApplyAction, args,
+                null);
     }
 
     /**

@@ -88,7 +88,7 @@ public abstract class AbstractCompletionProposalExtension extends PyCompletionPr
                 }
 
                 this.fLen = finalOffset - widgetCaret;
-                this.getPresentationUpdater().updateStyle(viewer, widgetCaret, this.fLen);
+                this.getPresentationUpdater().selected(viewer, widgetCaret, this.fLen);
             } catch (BadLocationException e) {
                 Log.log(e);
             }
@@ -108,7 +108,7 @@ public abstract class AbstractCompletionProposalExtension extends PyCompletionPr
 
     @Override
     public void unselected(ITextViewer viewer) {
-        this.getPresentationUpdater().repairPresentation(viewer);
+        this.getPresentationUpdater().unselected(viewer);
     }
 
     @Override

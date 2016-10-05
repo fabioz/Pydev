@@ -93,6 +93,23 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
         this.addLocalImport = b;
     }
 
+    public boolean getMakeLocalWhenShiftApplied() {
+        return true;
+    }
+
+    @Override
+    public String getAdditionalProposalInfo() {
+        String original = super.getAdditionalProposalInfo();
+        if (getMakeLocalWhenShiftApplied()) {
+            if (original == null) {
+                return "Note: Focus Pop-up (Tab key) and press Shift on apply to do local import.";
+            } else {
+                return original + "\n\nNote: Focus Pop-up (Tab key) and press Shift on apply to do local import.";
+            }
+        }
+        return original;
+    }
+
     /**
      * This is the apply that should actually be called!
      */

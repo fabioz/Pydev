@@ -38,9 +38,8 @@ import org.python.pydev.editor.actions.PyShiftLeft;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.shared_ui.editor.BaseSourceViewer;
 import org.python.pydev.shared_ui.editor.ITextViewerExtensionAutoEditions;
-import org.python.pydev.shared_ui.proposals.ICompletionStyleToggleEnabler;
 
-public class PySourceViewer extends BaseSourceViewer implements IAdaptable, ICompletionStyleToggleEnabler,
+public class PySourceViewer extends BaseSourceViewer implements IAdaptable,
         ITextViewerExtensionAutoEditions {
 
     private WeakReference<PyEdit> projection;
@@ -59,16 +58,6 @@ public class PySourceViewer extends BaseSourceViewer implements IAdaptable, ICom
     }
 
     private boolean isInToggleCompletionStyle;
-
-    @Override
-    public void setInToggleCompletionStyle(boolean b) {
-        this.isInToggleCompletionStyle = b;
-    }
-
-    @Override
-    public boolean getIsInToggleCompletionStyle() {
-        return this.isInToggleCompletionStyle;
-    }
 
     public PyEdit getEdit() {
         return projection.get();

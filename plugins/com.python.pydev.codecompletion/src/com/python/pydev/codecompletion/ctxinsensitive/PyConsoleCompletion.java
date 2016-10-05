@@ -49,6 +49,11 @@ public class PyConsoleCompletion extends CtxInsensitiveImportComplProposal {
         commandLineOffset = viewer.getCommandLineOffset();
     }
 
+    @Override
+    public boolean getMakeLocalWhenShiftApplied() {
+        return false;
+    }
+
     /**
      * Applies the completion to the document and also updates the caret offset.
      */

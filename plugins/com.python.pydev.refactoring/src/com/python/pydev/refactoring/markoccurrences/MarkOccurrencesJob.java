@@ -116,7 +116,7 @@ public class MarkOccurrencesJob extends BaseMarkOccurrencesJob {
     @Override
     protected MarkOccurrencesRequest createRequest(BaseEditor baseEditor,
             IDocumentProvider documentProvider, IProgressMonitor monitor) throws BadLocationException,
-                    OperationCanceledException, CoreException, MisconfigurationException {
+            OperationCanceledException, CoreException, MisconfigurationException {
         if (!MarkOccurrencesPreferencesPage.useMarkOccurrences()) {
             return new PyMarkOccurrencesRequest(false, null, null);
         }
@@ -170,13 +170,13 @@ public class MarkOccurrencesJob extends BaseMarkOccurrencesJob {
     @Override
     protected synchronized Map<Annotation, Position> getAnnotationsToAddAsMap(final BaseEditor baseEditor,
             IAnnotationModel annotationModel, MarkOccurrencesRequest markOccurrencesRequest, IProgressMonitor monitor)
-                    throws BadLocationException {
+            throws BadLocationException {
         PyEdit pyEdit = (PyEdit) baseEditor;
         PySourceViewer viewer = pyEdit.getPySourceViewer();
         if (viewer == null || monitor.isCanceled()) {
             return null;
         }
-        if (viewer.getIsInToggleCompletionStyle() || monitor.isCanceled()) {
+        if (monitor.isCanceled()) {
             return null;
         }
 
