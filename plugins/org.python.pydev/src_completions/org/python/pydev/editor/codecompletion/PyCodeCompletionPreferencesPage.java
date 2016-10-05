@@ -72,7 +72,7 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
     public static final boolean DEFAULT_USE_CODE_COMPLETION_ON_DEBUG_CONSOLES = true;
 
     public static final String MATCH_BY_SUBSTRING_IN_CODE_COMPLETION = "MATCH_BY_SUBSTRING_IN_CODE_COMPLETION";
-    public static final boolean DEFAULT_MATCH_BY_SUBSTRING_IN_CODE_COMPLETION = false;
+    public static final boolean DEFAULT_MATCH_BY_SUBSTRING_IN_CODE_COMPLETION = true;
 
     /**
      */
