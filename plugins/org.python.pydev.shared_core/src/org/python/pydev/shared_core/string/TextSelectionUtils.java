@@ -163,7 +163,7 @@ public class TextSelectionUtils {
         try {
             return getDoc().getLineInformation(getStartLineIndex());
         } catch (BadLocationException e) {
-            Log.log(e);
+            //Log.log(e);
         }
         return null;
     }

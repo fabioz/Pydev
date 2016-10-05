@@ -76,7 +76,8 @@ public final class PydevConsoleConstants {
     public static final String[][] ENTRIES_VALUES_INTERACTIVE_CONSOLE_ENABLE_GUI_ON_STARTUP = new String[][] {
             { "No GUI Enabled On Statup (none)", "none" },
             { "wxPython (wx)", "wx" },
-            { "PyQt (qt/qt4)", "qt4" },
+            { "PyQt (pyside/qt4)", "qt4" },
+            { "PyQt5 (qt5)", "qt5" },
             { "PyGTK (gtk)", "gtk" },
             { "PyGI (gtk3)", "gtk3" },
             { "Tkinter (tk)", "tk" },
