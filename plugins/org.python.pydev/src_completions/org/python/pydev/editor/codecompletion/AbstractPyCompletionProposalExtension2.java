@@ -56,24 +56,29 @@ public abstract class AbstractPyCompletionProposalExtension2 extends AbstractCom
         final boolean useSubstringMatchInCodeCompletion = PyCodeCompletionPreferencesPage
                 .getUseSubstringMatchInCodeCompletion();
         String original = getDisplayString();
-        String strBeforeSpaces = StringUtils.splitOnFirst(original, ' ').o1;
-
-        //END: Get the contents only to the first space for the comparisons.
+        // Qualifier is everything after " - ".
+        int index = original.indexOf(" - ");
+        String strBeforeQualifier;
+        if (index != -1) {
+            strBeforeQualifier = original.substring(0, index);
+        } else {
+            strBeforeQualifier = original;
+        }
 
         StyledString styledString = new StyledString();
         if (useSubstringMatchInCodeCompletion) {
-            int i = strBeforeSpaces.toLowerCase().indexOf(qualifier.toLowerCase());
+            int i = strBeforeQualifier.toLowerCase().indexOf(qualifier.toLowerCase());
             if (i < 0) {
-                styledString.append(strBeforeSpaces);
+                styledString.append(strBeforeQualifier);
             } else {
-                styledString.append(strBeforeSpaces.substring(0, i));
-                styledString.append(strBeforeSpaces.substring(i, i + qualifier.length()),
+                styledString.append(strBeforeQualifier.substring(0, i));
+                styledString.append(strBeforeQualifier.substring(i, i + qualifier.length()),
                         boldStylerProvider.getBoldStyler());
                 styledString.append(
-                        strBeforeSpaces.substring(i + qualifier.length(), strBeforeSpaces.length()));
+                        strBeforeQualifier.substring(i + qualifier.length(), strBeforeQualifier.length()));
             }
         } else {
-            styledString.append(strBeforeSpaces);
+            styledString.append(strBeforeQualifier);
         }
         if (styledString.length() < original.length()) {
             styledString.append(original.substring(styledString.length()), StyledString.QUALIFIER_STYLER);
