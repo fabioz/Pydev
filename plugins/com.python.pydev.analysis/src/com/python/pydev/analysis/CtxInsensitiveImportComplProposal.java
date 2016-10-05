@@ -97,14 +97,19 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
         return true;
     }
 
+    private static final String MSG = ""
+            + "Enter: apply completion.\n"
+            + "  + Ctrl: replace current word (no Pop-up focus).\n"
+            + "  + Shift: do local import (requires Pop-up focus).\n";
+
     @Override
     public String getAdditionalProposalInfo() {
         String original = super.getAdditionalProposalInfo();
         if (getMakeLocalWhenShiftApplied()) {
-            if (original == null) {
-                return "Note: Focus Pop-up (Tab key) and press Shift on apply to do local import.";
+            if (original == null || original.length() == 0) {
+                return MSG;
             } else {
-                return original + "\n\nNote: Focus Pop-up (Tab key) and press Shift on apply to do local import.";
+                return original + "\n\n" + MSG;
             }
         }
         return original;
