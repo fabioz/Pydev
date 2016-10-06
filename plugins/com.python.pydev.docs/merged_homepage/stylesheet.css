@@ -62,7 +62,7 @@ img.link {
 	font: 11px/1.5em Verdana;
 	color: #303030;
 	font-style: italic;
-	
+
 }
 
 .bold {
@@ -195,7 +195,7 @@ a:active {
 	border-left-width: 1px;
 	border-left-style: dotted;
 	border-left-color: #000000;
-	
+
 }
 
 .td_right1 {
@@ -209,7 +209,7 @@ a:active {
 }
 .td_right3 {
 	border-collapse=collapse;
-	
+
 	border-left-width: 1px;
 	border-left-style: dotted;
 	border-left-color: #000000;
@@ -230,7 +230,7 @@ a:active {
     position: absolute;
 }
 .tooltip:hover span {
-    border-radius: 5px 5px; -moz-border-radius: 5px; -webkit-border-radius: 5px; 
+    border-radius: 5px 5px; -moz-border-radius: 5px; -webkit-border-radius: 5px;
     box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1); -webkit-box-shadow: 5px 5px rgba(0, 0, 0, 0.1); -moz-box-shadow: 5px 5px rgba(0, 0, 0, 0.1);
     font-family: Calibri, Tahoma, Geneva, sans-serif;
     position: absolute; left: 1em; top: 2em; z-index: 99;
@@ -298,7 +298,11 @@ min-width: .6em;
 
 
 
-
+@media screen and (max-width: 1280px) {
+    .hideWhenScreenSmall {
+        display: none !important;
+    }
+}
 
 
 

@@ -17,6 +17,30 @@
 		</div>
 
 
+
+
+		<div class="section" id="silver-sponsors">
+		<h1>Silver Sponsors</h1>
+        <!--Added 2016-04-02-->
+        <a href="http://www.chameleonjohn.com" border=0><img class="sponsors" src="images/sponsors/logo_chameleon_john_150_60.png" style="width:150px;height:60px;" alt="ChameleonJohn Coupons" title="http://www.chameleonjohn.com" /></a>
+
+        <!--Added 2016-07-13-->
+        <a href="http://www.o365cloudexperts.com/" border=0><img class="sponsors" src="images/sponsors/cloudexperts_150_60.png" style="width:150px;height:60px;" alt="Apps4Rent" title="http://www.o365cloudexperts.com/" /></a>
+
+        <!--Added 2016-08-02-->
+        <a href="http://www.dealslands.co.uk" border=0><img class="sponsors" src="images/sponsors/dealslandsco_uk_150_60.png" style="width:150px;height:60px;" alt="Dealslands.co.uk" title="http://www.dealslands.co.uk" /></a>
+
+        <!--Added 2016-09-09-->
+        <a href="http://www.binaryoptionrobotinfo.com/brokers/" border=0><img class="sponsors" src="images/sponsors/binary_option_robot_info_150_60.png" style="width:150px;height:60px;" alt="Binary Option Robot Info" title="http://www.binaryoptionrobotinfo.com/brokers/" /></a>
+		</div>
+
+
+		<div class="section" id="bronze-sponsors">
+		<h1>Bronze Sponsors</h1>
+        <!--Added 2016-10-06-->
+		<a href="https://acemypaper.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/ace_my_paper_50_50.png" alt="Ace My Paper" title="https://acemypaper.com/" /></a>
+		</div>
+
     <br/>
     <strong>Acknowledgements</strong>
     <br/>
@@ -30,6 +54,7 @@
     <a href="http://www.yourkit.com/java/profiler/index.jsp"><img src="images/yk.png" width="12" height="12" border="0"  /> YourKit Java Profiler</a> and
     <a href="http://www.yourkit.com/.net/profiler/index.jsp"><img src="images/yk.png" width="12" height="12" border="0" /> YourKit .NET Profiler</a>."
     </p>
+
     </right_area>
 
 
@@ -120,7 +145,7 @@ Gold Sponsors
    <a href="http://www.tracetronic.com" border=0><img class="sponsors" src="images/sponsors/tracetronic.png" alt="Tracetronic" title="http://www.tracetronic.com/" /></a>
    <!--Added 2014-07-16-->
    <a href="http://www.kichwacoders.com/" border=0><img class="sponsors" src="images/sponsors/kichwacoders.png" alt="Kichwacoders" title="http://www.kichwacoders.com/" /></a>
-   <br/>
+   <br class="hideWhenScreenSmall"/>
    <!--Added 2014-07-16-->
    <a href="http://www.dawnsci.org/" border=0><img class="sponsors" src="images/sponsors/dawnsci.png" alt="Dawn science" title="http://www.dawnsci.org/" /></a>
    <!--Added 2014-07-16-->
@@ -128,31 +153,13 @@ Gold Sponsors
    <!--Added 2016-04-04-->
    <a href="http://www.squishlist.com/" border=0><img class="sponsors" src="images/sponsors/squishlist.png" alt="Squishlist" title="http://www.squishlist.com/" /></a>
 
-Silver Sponsors
-----------------
-
-.. raw:: html
-
-   <!--Added 2016-04-02-->
-   <a href="http://www.chameleonjohn.com" border=0><img class="sponsors" src="images/sponsors/logo_chameleon_john_150_60.png" alt="ChameleonJohn Coupons" title="http://www.chameleonjohn.com" /></a>
-
-   <!--Added 2016-07-13-->
-   <a href="http://www.o365cloudexperts.com/" border=0><img class="sponsors" src="images/sponsors/cloudexperts_150_60.png" alt="Apps4Rent" title="http://www.o365cloudexperts.com/" /></a>
-
-   <!--Added 2016-08-02-->
-   <a href="http://www.dealslands.co.uk" border=0><img class="sponsors" src="images/sponsors/dealslandsco_uk_150_60.png" alt="Dealslands.co.uk" title="http://www.dealslands.co.uk" /></a>
-   <br/>
-
-   <!--Added 2016-09-09-->
-   <a href="http://www.binaryoptionrobotinfo.com/brokers/" border=0><img class="sponsors" src="images/sponsors/binary_option_robot_info_150_60.png" alt="Binary Option Robot Info" title="http://www.binaryoptionrobotinfo.com/brokers/" /></a>
-
 Supporting PyDev
 =================
 
-Thank you to all PyDev supporters: https://sw-brainwy.rhcloud.com/supporters/PyDev.
+Thank you to all PyDev supporters: https://www.brainwy.com/supporters/PyDev.
 
 
-To show your appreciation for PyDev and to help to keep it going too, support it at https://sw-brainwy.rhcloud.com/. Supporter benefits
+To show your appreciation for PyDev and to help to keep it going too, support it at https://www.brainwy.com. Supporter benefits
 include having votes to decide the next tackled tickets and space in the homepage.
 
 Companies have the option of sponsoring PyDev through corporate sponsorship. See `About/Sponsorship <about.html>`_ for details.
@@ -184,10 +191,10 @@ Release 5.2.0
 * **Indentation**
 
     * The default indent mode now changed to better follow PEP 8 guidelines:
-    
+
         * Indenting directly after {, [, ( will add one indent level.
         * Indenting after another token in a line with a {, [, ( will indent to the {, [, ( level.
-        
+
     * It's possible to restore previous indent modes (which either always indented to the parenthesis level or always indented a single level) in the preferences > PyDev > Editor > Typing.
 
 * **Interactive console**
@@ -196,7 +203,7 @@ Release 5.2.0
     * Fixed issue executing single line with multiple statements in console.
     * Fixed issue executing a multiple line statement in Jython.
 
-* **Others**    
+* **Others**
 
     * The (fast) parser which detects the outline of a Python module now handles mixed indentation (and additional fixes which could result in log entries such as "Did not expect to find item below node: Assign...").
     * Support for unpacking generalizations (PEP 448) which could still result in a syntax error for the Python 3 grammar (#PyDev-701).
@@ -212,7 +219,7 @@ Release 5.1.2
 	* See: the **PyDev does not appear after install** section on `the download page`_ for help on using a Java 8 vm in Eclipse.
 
 * The pytest integration was redone and should now work properly with the latest pytest.
-	
+
 	* Properly showing output of tests in PyUnit view.
 	* Improved dealing with items filtered through Ctrl+F9.
 	* Better support for xdist (no longer reporting that the session finished when only a slave finished).
@@ -224,26 +231,6 @@ Release 5.1.2
 * Expand and collapse keybindings changed to use the Numpad entries (so that they don't override the add/subtract used for zooming). #PyDev 695.
 
 * The hover in PyDev has an implementation which is now more flexible and easier to extend in plugins (patch by Mark A. Leone).
-
-Release 5.0.0
-==========================
-
-* **Important** PyDev now requires Java 8 and Eclipse 4.5 onwards.
-
-	* PyDev 4.5.5 is the last release supporting Java 7 and Eclipse 3.8.
-	* See: `update sites page`_ for the update site of older versions of PyDev.
-	* See: the **PyDev does not appear after install** section on `the download page`_ for help on using a Java 8 vm in Eclipse.
-
-* PyUnit view now persists its state across restarts.
-
-* Fixed issue in super() code completion.
-
-* PyDev.Debugger updated to the latest version.
-
-* No longer showing un-needed shell on Linux on startup when showing donation dialog.
-
-* Fixed pyedit_wrap_expression to avoid halt of the IDE on Ctrl+1 -> Wrap expression.
-
 
 `View release notes for previous releases`_
 

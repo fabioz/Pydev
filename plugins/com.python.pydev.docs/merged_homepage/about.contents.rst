@@ -4,7 +4,7 @@
     &nbsp;&nbsp;&nbsp;&nbsp;<a href="http://stackoverflow.com/questions/tagged/pydev">StackOverflow (with the PyDev tag)</a>.</p><br/>
 
     <p><strong>Report issues/features: </strong><br/>
-    &nbsp;&nbsp;&nbsp;&nbsp;<a href="https://sw-brainwy.rhcloud.com">Brainwy Tracker</a><br/><br/>
+    &nbsp;&nbsp;&nbsp;&nbsp;<a href="https://www.brainwy.com">Brainwy Tracker</a><br/><br/>
     </p>
 
 
