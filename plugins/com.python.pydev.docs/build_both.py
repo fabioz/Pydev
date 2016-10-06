@@ -1,7 +1,10 @@
-import os
-import sys
-import shutil
 import datetime
+import os
+import shutil
+import sys
+
+import build_python_code_block
+
 
 args = sys.argv[1:]
 this_script_path = sys.argv[0]
@@ -15,6 +18,7 @@ else:
     LAST_VERSION_TAG = '5.2.0'  # Not specified (let's leave one there)
     
 CURRENT_DATE = datetime.datetime.now()
+CURRENT_DATE = datetime.datetime(2016, 8, 17)
 
 update_site_versions = [
     '5.2.0',
@@ -29,7 +33,6 @@ update_site_versions = [
     'old',
 ]
 
-import build_python_code_block
 
 
 DEFAULT_CONTENTS_TEMPLATE = '''<doc>

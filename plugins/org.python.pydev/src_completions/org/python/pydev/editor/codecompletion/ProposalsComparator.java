@@ -125,6 +125,13 @@ public final class ProposalsComparator implements Comparator<ICompletionProposal
             return v;
         }
 
+        if (priority1 < priority2) {
+            return -1;
+        }
+        if (priority1 > priority2) {
+            return 1;
+        }
+
         int ctx1Priority = ctx1 != null ? ctx1.getPriorityRelatedTo(compareContext)
                 : ICompareContext.DEFAULT_PRIORITY;
         int ctx2Priority = ctx2 != null ? ctx2.getPriorityRelatedTo(compareContext)
@@ -133,13 +140,6 @@ public final class ProposalsComparator implements Comparator<ICompletionProposal
             if (ctx1Priority < ctx2Priority) {
                 return -1;
             }
-            return 1;
-        }
-
-        if (priority1 < priority2) {
-            return -1;
-        }
-        if (priority1 > priority2) {
             return 1;
         }
 

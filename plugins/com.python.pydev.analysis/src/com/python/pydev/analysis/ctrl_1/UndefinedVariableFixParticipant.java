@@ -71,23 +71,24 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
     }
 
     /**
-     * @see IAnalysisMarkersParticipant#addProps(MarkerAnnotation, IAnalysisPreferences, String, PySelection, int, IPythonNature, 
+     * @see IAnalysisMarkersParticipant#addProps(MarkerAnnotation, IAnalysisPreferences, String, PySelection, int, IPythonNature,
      * PyEdit, List)
-     * 
+     *
      */
     @Override
     public void addProps(MarkerAnnotationAndPosition markerAnnotation, IAnalysisPreferences analysisPreferences,
-            String line, PySelection ps, int offset, IPythonNature nature, PyEdit edit, List<ICompletionProposal> props)
+            String line, PySelection ps, int offset, IPythonNature initialNature, PyEdit edit,
+            List<ICompletionProposal> props)
             throws BadLocationException, CoreException {
         IMarker marker = markerAnnotation.markerAnnotation.getMarker();
         Integer id = (Integer) marker.getAttribute(AnalysisRunner.PYDEV_ANALYSIS_TYPE);
         if (id != IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE) {
             return;
         }
-        if (nature == null) {
+        if (initialNature == null) {
             return;
         }
-        ICodeCompletionASTManager astManager = nature.getAstManager();
+        ICodeCompletionASTManager astManager = initialNature.getAstManager();
         if (astManager == null) {
             return;
         }
@@ -107,70 +108,78 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
             packageImage = imageCache.get(UIConstants.COMPLETION_PACKAGE_ICON);
         }
         IModulesManager projectModulesManager = astManager.getModulesManager();
-        Set<String> allModules = projectModulesManager.getAllModuleNames(true, markerContents.toLowerCase());
-
-        //when an undefined variable is found, we can:
-        // - add an auto import (if it is a class or a method or some global attribute)
-        // - declare it as a local or global variable
-        // - change its name to some other global or local (mistyped)
-        // - create a method or class for it (if it is a call)
-
-        Set<Tuple<String, String>> mods = new HashSet<Tuple<String, String>>();
-        //1. check if it is some module
-
-        //use a single buffer to create all the strings
-        FastStringBuffer buffer = new FastStringBuffer();
+        IModulesManager[] managersInvolved = projectModulesManager.getManagersInvolved(true);
         boolean doIgnoreImportsStartingWithUnder = AutoImportsPreferencesPage.doIgnoreImportsStartingWithUnder();
 
-        for (String completeName : allModules) {
-            FullRepIterable iterable = new FullRepIterable(completeName);
+        // Use a single buffer to create all the strings
+        FastStringBuffer buffer = new FastStringBuffer();
 
-            for (String mod : iterable) {
+        // Helper so that we don't add the same module multiple times.
+        Set<Tuple<String, String>> mods = new HashSet<Tuple<String, String>>();
 
-                if (fullRep.startsWith(mod)) {
+        for (IModulesManager iModulesManager : managersInvolved) {
+            Set<String> allModules = projectModulesManager.getAllModuleNames(false, markerContents.toLowerCase());
 
-                    if (fullRep.length() == mod.length() //it does not only start with, but it is equal to it.
-                            || (fullRep.length() > mod.length() && fullRep.charAt(mod.length()) == '.')) {
-                        buffer.clear();
-                        String realImportRep = buffer.append("import ").append(mod).toString();
-                        buffer.clear();
-                        String displayString = buffer.append("Import ").append(mod).toString();
-                        addProp(props, realImportRep, displayString, packageImage, offset, mods,
-                                new CompareContext(nature));
+            //when an undefined variable is found, we can:
+            // - add an auto import (if it is a class or a method or some global attribute)
+            // - declare it as a local or global variable
+            // - change its name to some other global or local (mistyped)
+            // - create a method or class for it (if it is a call)
+
+            //1. check if it is some module
+
+            CompareContext compareContext = new CompareContext(iModulesManager.getNature());
+            for (String completeName : allModules) {
+                FullRepIterable iterable = new FullRepIterable(completeName);
+
+                for (String mod : iterable) {
+
+                    if (fullRep.startsWith(mod)) {
+
+                        if (fullRep.length() == mod.length() //it does not only start with, but it is equal to it.
+                                || (fullRep.length() > mod.length() && fullRep.charAt(mod.length()) == '.')) {
+                            buffer.clear();
+                            String realImportRep = buffer.append("import ").append(mod).toString();
+                            buffer.clear();
+                            String displayString = buffer.append("Import ").append(mod).toString();
+                            addProp(props, realImportRep, displayString, packageImage, offset, mods,
+                                    compareContext);
+                        }
                     }
-                }
 
-                String[] strings = FullRepIterable.headAndTail(mod);
-                String packageName = strings[0];
-                String importRep = strings[1];
+                    String[] strings = FullRepIterable.headAndTail(mod);
+                    String packageName = strings[0];
+                    String importRep = strings[1];
 
-                if (importRep.equals(markerContents)) {
-                    if (packageName.length() > 0) {
-                        buffer.clear();
-                        String realImportRep = buffer.append("from ").append(packageName).append(" ").append("import ")
-                                .append(strings[1]).toString();
-                        buffer.clear();
-                        String displayString = buffer.append("Import ").append(importRep).append(" (")
-                                .append(packageName).append(")").toString();
-                        addProp(props, realImportRep, displayString, packageImage, offset, mods,
-                                new CompareContext(nature));
+                    if (importRep.equals(markerContents)) {
+                        if (packageName.length() > 0) {
+                            buffer.clear();
+                            String realImportRep = buffer.append("from ").append(packageName).append(" ")
+                                    .append("import ")
+                                    .append(strings[1]).toString();
+                            buffer.clear();
+                            String displayString = buffer.append("Import ").append(importRep).append(" (")
+                                    .append(packageName).append(")").toString();
+                            addProp(props, realImportRep, displayString, packageImage, offset, mods,
+                                    compareContext);
 
-                    } else {
-                        buffer.clear();
-                        String realImportRep = buffer.append("import ").append(strings[1]).toString();
-                        buffer.clear();
-                        String displayString = buffer.append("Import ").append(importRep).toString();
-                        addProp(props, realImportRep, displayString, packageImage, offset, mods,
-                                new CompareContext(nature));
+                        } else {
+                            buffer.clear();
+                            String realImportRep = buffer.append("import ").append(strings[1]).toString();
+                            buffer.clear();
+                            String displayString = buffer.append("Import ").append(importRep).toString();
+                            addProp(props, realImportRep, displayString, packageImage, offset, mods,
+                                    compareContext);
+                        }
                     }
                 }
             }
-        }
 
+        }
         //2. check if it is some global class or method
         List<AbstractAdditionalTokensInfo> additionalInfo;
         try {
-            additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfo(nature);
+            additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfo(initialNature);
         } catch (MisconfigurationException e) {
             return;
         }
@@ -184,7 +193,8 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
                 String declPackage = found.getDeclaringModuleName();
                 String declPackageWithoutInit = declPackage;
                 if (declPackageWithoutInit.endsWith(".__init__")) {
-                    declPackageWithoutInit = declPackageWithoutInit.substring(0, declPackageWithoutInit.length() - 9);
+                    declPackageWithoutInit = declPackageWithoutInit.substring(0,
+                            declPackageWithoutInit.length() - 9);
                 }
 
                 declPackageWithoutInit = AutoImportsPreferencesPage.removeImportsStartingWithUnderIfNeeded(
@@ -198,8 +208,9 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
                 String displayImport = buffer.append("Import ").append(name).append(" (").append(declPackage)
                         .append(")").toString();
 
-                addProp(props, importDeclaration, displayImport, AnalysisPlugin.getImageForAutoImportTypeInfo(found),
-                        offset, mods, new CompareContext(nature));
+                addProp(props, importDeclaration, displayImport,
+                        AnalysisPlugin.getImageForAutoImportTypeInfo(found),
+                        offset, mods, new CompareContext(found.getNature()));
             }
         }
     }
