@@ -15,10 +15,9 @@ for arg in args:
         version = arg[len('--version='):]
         LAST_VERSION_TAG = version
 else:
-    LAST_VERSION_TAG = '5.2.0'  # Not specified (let's leave one there)
+    LAST_VERSION_TAG = '5.3.0'  # Not specified (let's leave one there)
     
 CURRENT_DATE = datetime.datetime.now()
-CURRENT_DATE = datetime.datetime(2016, 8, 17)
 
 update_site_versions = [
     '5.2.0',

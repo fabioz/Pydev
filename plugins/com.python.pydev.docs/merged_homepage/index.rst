@@ -35,12 +35,14 @@
 		</div>
 
 
-		<div class="section" id="bronze-sponsors">
-		<h1>Bronze Sponsors</h1>
-        <!--Added 2016-10-06-->
-		<a href="https://acemypaper.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/ace_my_paper_50_50.png" alt="Ace My Paper" title="https://acemypaper.com/" /></a>
-		</div>
-
+        <div class="section" id="bronze-sponsors">
+        <h1>Bronze Sponsors</h1>
+        <!- -Added 2016-10-06- ->
+        <a href="https://acemypaper.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/ace_my_paper_50_50.png" alt="Ace My Paper" title="https://acemypaper.com/" /></a>
+        <!- -Added 2016-10-07- ->
+        <a href="http://www.promovouchers.co.uk" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/promovouchers_uk_50_50.png" alt="Promo Vouchers" title="http://www.promovouchers.co.uk" /></a>
+        </div>
+        
     <br/>
     <strong>Acknowledgements</strong>
     <br/>
@@ -170,6 +172,47 @@ Companies have the option of sponsoring PyDev through corporate sponsorship. See
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
+Release 5.3.0
+==========================
+
+* **Important** PyDev now requires Java 8 and Eclipse 4.5 onwards.
+
+    * PyDev 4.5.5 is the last release supporting Java 7 and Eclipse 3.8.
+    * See: `update sites page`_ for the update site of older versions of PyDev.
+    * See: the **PyDev does not appear after install** section on `the download page`_ for help on using a Java 8 vm in Eclipse.
+    
+* **Syntax validation for multiple grammars**
+
+    * Helps to make code which is **Python 2 and 3 compatible**.
+    * To customize, go to `Project Properties > PyDev - Interpreter/Grammar, and select`  **grammars for "additional syntax validation"**.
+    
+* **Code completion**
+
+    * The code-completion can now do substring based matches (i.e.: the proposals will be shown if any part of the completion matches the requested name).
+    * It's now the default (to revert to the mode which matches based on "startsWith", change the setting **"Preferences > PyDev > Editor > Code Completion > Match substrings on code completion?"** to false).
+    * Completion proposals have the part of the completion used to do the match in bold.
+    * Qualifiers of the completion (i.e.: package name) are styled differently (color may be customized in **General > Appearance > Colors and Fonts > Basic Qualifier Information Color**).
+    * Completions are re-sorted when the name used to request a code completion changes.
+    * **Sorting** is based on:
+    
+        * The current name typed (so that matches that are exact or start with the requested token appear first).
+        * The type of the completion (parameter, local, context insensitive with auto-import, etc). 
+        * Where the completion was found (so, matches from the same project go first, referenced projects second and standard library last).
+        
+    * **Ctrl and Shift Behavior when applying code-completion proposal**
+    
+        * Ctrl is always **"replace the current name with the completion"** for all completions.
+        * Pressing Ctrl to override the next name in code completion no longer looses the highlight in the editor.
+        * On code completion with auto-import, for doing local imports, the pop-up must be focused and Shift must be kept pressed while the completion is applied. 
+        
+* **PyQt5 support in Interactive Console**
+
+    * PyQt5 may now be used as a backend in the interactive console so that widgets/plots can be inspected interactively while using the console.
+    * May be activated with **%matplotlib qt5** (when using IPython) or in **"Preferences > PyDev > Interactive Console > Enable GUI event loop integration > PyQt5"**.
+    
+    
+    
+    
 Release 5.2.0
 ==========================
 
@@ -208,29 +251,6 @@ Release 5.2.0
     * The (fast) parser which detects the outline of a Python module now handles mixed indentation (and additional fixes which could result in log entries such as "Did not expect to find item below node: Assign...").
     * Support for unpacking generalizations (PEP 448) which could still result in a syntax error for the Python 3 grammar (#PyDev-701).
     * Fixed error in code analysis when the code is connected to an RTC source control (#PyDev-184, patch by Wesley Barroso Lopes)
-
-Release 5.1.2
-==========================
-
-* **Important** PyDev now requires Java 8 and Eclipse 4.5 onwards.
-
-	* PyDev 4.5.5 is the last release supporting Java 7 and Eclipse 3.8.
-	* See: `update sites page`_ for the update site of older versions of PyDev.
-	* See: the **PyDev does not appear after install** section on `the download page`_ for help on using a Java 8 vm in Eclipse.
-
-* The pytest integration was redone and should now work properly with the latest pytest.
-
-	* Properly showing output of tests in PyUnit view.
-	* Improved dealing with items filtered through Ctrl+F9.
-	* Better support for xdist (no longer reporting that the session finished when only a slave finished).
-	* Reporting skipped items as "skip" and not "ok".
-	* Properly showing running tests on PyUnit view.
-
-* Not using tokenize.open() in Python 3.2 for the execfile custom implementation.
-
-* Expand and collapse keybindings changed to use the Numpad entries (so that they don't override the add/subtract used for zooming). #PyDev 695.
-
-* The hover in PyDev has an implementation which is now more flexible and easier to extend in plugins (patch by Mark A. Leone).
 
 `View release notes for previous releases`_
 

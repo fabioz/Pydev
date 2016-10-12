@@ -97,9 +97,17 @@ def template(template, contents, title, **kwargs):
         else:
             c = kwargs[r]
         contents = contents.replace('%(' + r + ')s', c)
+        
+    from datetime import datetime as dt
+    
+    def suffix(d):
+        return 'th' if 11<=d<=13 else {1:'st',2:'nd',3:'rd'}.get(d%10, 'th')
+    
+    def custom_strftime(format, t):
+        return t.strftime(format).replace('{S}', str(t.day) + suffix(t.day))
 
     contents = contents.replace('%(title)s', title)
-    contents = contents.replace('%(date)s', CURRENT_DATE.strftime('%d %B %Y'))
+    contents = contents.replace('%(date)s', custom_strftime('%B {S}, %Y', CURRENT_DATE))
     contents = contents.replace('LAST_VERSION_TAG', LAST_VERSION_TAG) #@UndefinedVariable
 
     if target_file.endswith('/update_sites/index.html'):
