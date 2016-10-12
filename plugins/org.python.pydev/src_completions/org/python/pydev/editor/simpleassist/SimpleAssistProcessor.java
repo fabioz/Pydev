@@ -157,6 +157,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
         this.edit = edit;
         this.defaultPythonProcessor = defaultPythonProcessor;
         this.assistant = assistant;
+        this.assistant.setSorter(this.sorter);
 
         //Note: in practice, we'll always have at least one participart (for the keywords)
         this.participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_SIMPLE_ASSIST);
@@ -188,7 +189,8 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
 
     }
 
-    private static class KeepProposalsComparatorSynched implements Listener {
+    private static class KeepProposalsComparatorSynched
+            implements Listener {
 
         private ITextViewer viewer;
         private ProposalsComparator sorter;
@@ -198,11 +200,13 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
             this.viewer = viewer;
             this.sorter = sorter;
             viewer.getTextWidget().addListener(SWT.Modify, this);
+            viewer.getTextWidget().addListener(SWT.KeyUp, this);
         }
 
         public void dispose() {
             if (this.viewer != null) {
                 viewer.getTextWidget().removeListener(SWT.Modify, this);
+                viewer.getTextWidget().removeListener(SWT.KeyUp, this);
                 this.viewer = null;
                 this.sorter = null;
             }
@@ -210,6 +214,10 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
 
         @Override
         public void handleEvent(Event event) {
+            updateQualifier();
+        }
+
+        private void updateQualifier() {
             IDocument doc = this.viewer.getDocument();
 
             String[] strs = PySelection.getActivationTokenAndQual(doc, this.viewer.getSelectedRange().x, false);
@@ -236,17 +244,16 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
             String activationToken = strs[0];
             String qualifier = strs[1];
             IPythonNature pythonNature = edit.getPythonNature();
-            sorter.setQualifier(qualifier);
-            sorter.setCompareContext(new CompareContext(pythonNature));
+            this.sorter.setQualifier(qualifier);
+            this.sorter.setCompareContext(new CompareContext(pythonNature));
 
             if (this.keepSynched != null) {
                 this.keepSynched.dispose();
                 this.keepSynched = null;
             }
-            this.keepSynched = new KeepProposalsComparatorSynched(viewer, doc, offset, sorter);
+            this.keepSynched = new KeepProposalsComparatorSynched(viewer, doc, offset, this.sorter);
 
             if (showDefault()) {
-                this.assistant.setSorter(sorter);
                 ICompletionProposal[] ret = defaultPythonProcessor.computeCompletionProposals(viewer, offset);
                 return ret;
 
@@ -273,7 +280,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
                     }
                     return new ICompletionProposal[0];
                 } else {
-                    Collections.sort(results, sorter);
+                    Collections.sort(results, this.sorter);
                     return results.toArray(new ICompletionProposal[0]);
                 }
             }
