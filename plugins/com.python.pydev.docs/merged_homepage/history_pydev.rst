@@ -6,6 +6,46 @@ History For PyDev
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
+Release 5.3.0
+==========================
+
+* **Important** PyDev now requires Java 8 and Eclipse 4.5 onwards.
+
+    * PyDev 4.5.5 is the last release supporting Java 7 and Eclipse 3.8.
+    * See: `update sites page`_ for the update site of older versions of PyDev.
+    * See: the **PyDev does not appear after install** section on `the download page`_ for help on using a Java 8 vm in Eclipse.
+    
+* **Syntax validation for multiple grammars**
+
+    * Helps to make code which is **Python 2 and 3 compatible**.
+    * To customize, go to `Project Properties > PyDev - Interpreter/Grammar, and select`  **grammars for "additional syntax validation"**.
+    
+* **Code completion**
+
+    * The code-completion can now do substring based matches (i.e.: the proposals will be shown if any part of the completion matches the requested name).
+    * It's now the default (to revert to the mode which matches based on "startsWith", change the setting **"Preferences > PyDev > Editor > Code Completion > Match substrings on code completion?"** to false).
+    * Completion proposals have the part of the completion used to do the match in bold.
+    * Qualifiers of the completion (i.e.: package name) are styled differently (color may be customized in **General > Appearance > Colors and Fonts > Basic Qualifier Information Color**).
+    * Completions are re-sorted when the name used to request a code completion changes.
+    * **Sorting** is based on:
+    
+        * The current name typed (so that matches that are exact or start with the requested token appear first).
+        * The type of the completion (parameter, local, context insensitive with auto-import, etc). 
+        * Where the completion was found (so, matches from the same project go first, referenced projects second and standard library last).
+        
+    * **Ctrl and Shift Behavior when applying code-completion proposal**
+    
+        * Ctrl is always **"replace the current name with the completion"** for all completions.
+        * Pressing Ctrl to override the next name in code completion no longer looses the highlight in the editor.
+        * On code completion with auto-import, for doing local imports, the pop-up must be focused and Shift must be kept pressed while the completion is applied. 
+        
+* **PyQt5 support in Interactive Console**
+
+    * PyQt5 may now be used as a backend in the interactive console so that widgets/plots can be inspected interactively while using the console.
+    * May be activated with **%matplotlib qt5** (when using IPython) or in **"Preferences > PyDev > Interactive Console > Enable GUI event loop integration > PyQt5"**.
+    
+
+
 Release 5.2.0
 ==========================
 
