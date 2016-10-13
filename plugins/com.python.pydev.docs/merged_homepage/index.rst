@@ -189,7 +189,7 @@ Release 5.3.0
 * **Code completion**
 
     * The code-completion can now do substring based matches (i.e.: the proposals will be shown if any part of the completion matches the requested name).
-    * It's now the default (to revert to the mode which matches based on "startsWith", change the setting **"Preferences > PyDev > Editor > Code Completion > Match substrings on code completion?"** to false).
+    * It's **still** not the default (to activate it, change the setting **"Preferences > PyDev > Editor > Code Completion > Match substrings on code completion?"** to true).
     * Completion proposals have the part of the completion used to do the match in bold.
     * Qualifiers of the completion (i.e.: package name) are styled differently (color may be customized in **General > Appearance > Colors and Fonts > Basic Qualifier Information Color**).
     * Completions are re-sorted when the name used to request a code completion changes.
