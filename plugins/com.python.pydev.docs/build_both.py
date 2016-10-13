@@ -10,16 +10,11 @@ args = sys.argv[1:]
 this_script_path = sys.argv[0]
 this_script_dir = os.path.split(this_script_path)[0]
 
-for arg in args:
-    if arg.startswith('--version='):
-        version = arg[len('--version='):]
-        LAST_VERSION_TAG = version
-else:
-    LAST_VERSION_TAG = '5.3.0'  # Not specified (let's leave one there)
     
 CURRENT_DATE = datetime.datetime.now()
 
 update_site_versions = [
+    '5.3.0',
     '5.2.0',
     '5.1.2',
     '5.1.1',
@@ -32,6 +27,7 @@ update_site_versions = [
     'old',
 ]
 
+LAST_VERSION_TAG = update_site_versions[0]
 
 
 DEFAULT_CONTENTS_TEMPLATE = '''<doc>

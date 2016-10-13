@@ -79,8 +79,11 @@ c:\bin\Python27\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pyde
 
 		** Update homepage:
 
-robocopy X:\workspace_liclipse\Pydev\plugins\com.python.pydev.docs\merged_homepage\final X:\workspace_liclipse\pydev_homepage\ /xd .git /xd .openshift  /s
-cd /D X:\workspace_liclipse\pydev_homepage\
+        robocopy X:\workspace_liclipse\Pydev\plugins\com.python.pydev.docs\merged_homepage\final X:\workspace_liclipse\pydev_homepage\ /xd .git /xd .openshift  /s
+        cd /D X:\workspace_liclipse\pydev_homepage\
+        
+robocopy X:\pydev\plugins\com.python.pydev.docs\merged_homepage\final X:\openshift\pydev.page2\ /xd .git /xd .openshift  /s
+cd /D X:\openshift\pydev.page2\
 mu st
 mu acp "Updated to 5.3.0"
 
