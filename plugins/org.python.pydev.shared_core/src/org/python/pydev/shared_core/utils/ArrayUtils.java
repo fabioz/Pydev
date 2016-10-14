@@ -49,17 +49,6 @@ public class ArrayUtils {
         return mergedArray;
     }
 
-    public static void reverse(Object[] array) {
-        Object temp;
-        int size = array.length;
-
-        for (int i = 0; i < size / 2; i++) {
-            temp = array[i];
-            array[i] = array[size - i - 1];
-            array[size - 1 - i] = temp;
-        }
-    }
-
     public static <T> T[] remove(T[] original, int element, Class componentType) {
         final T[] n = (T[]) java.lang.reflect.Array.newInstance(componentType,
                 original.length - 1);
