@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -390,11 +391,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
                     //this means that more than 1 module is specified, so, in order to get it,
                     //we have to go and see if all the folders to that module have __init__.py in it...
                     if (modulesParts.length > 1 && isFile) {
-                        String[] t = new String[modulesParts.length - 1];
-
-                        for (int i = 0; i < modulesParts.length - 1; i++) {
-                            t[i] = modulesParts[i];
-                        }
+                        String[] t = Arrays.copyOf(modulesParts, modulesParts.length - 1);
                         t[t.length - 1] = t[t.length - 1] + "." + modulesParts[modulesParts.length - 1];
                         modulesParts = t;
                     }

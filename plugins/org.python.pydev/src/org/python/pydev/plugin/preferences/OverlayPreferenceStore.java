@@ -19,6 +19,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.python.pydev.shared_core.utils.ArrayUtils;
 
 /**
  * An overlaying preference store.
@@ -533,18 +534,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
         Assert.isTrue(!fLoaded);
         Assert.isNotNull(keys);
 
-        int overlayKeysLength = fOverlayKeys.length;
-        OverlayKey[] result = new OverlayKey[keys.length + overlayKeysLength];
-
-        for (int i = 0, length = overlayKeysLength; i < length; i++) {
-            result[i] = fOverlayKeys[i];
-        }
-
-        for (int i = 0, length = keys.length; i < length; i++) {
-            result[overlayKeysLength + i] = keys[i];
-        }
-
-        fOverlayKeys = result;
+        fOverlayKeys = ArrayUtils.concatArrays(fOverlayKeys, keys);
 
         if (fLoaded) {
             load();
