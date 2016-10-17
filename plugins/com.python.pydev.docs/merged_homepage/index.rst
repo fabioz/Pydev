@@ -175,9 +175,9 @@ Companies have the option of sponsoring PyDev through corporate sponsorship. See
 Release 5.3.0
 ==========================
 
-* **Important** PyDev now requires Java 8 and Eclipse 4.5 onwards.
+* **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
 
-    * PyDev 4.5.5 is the last release supporting Java 7 and Eclipse 3.8.
+    * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
     * See: `update sites page`_ for the update site of older versions of PyDev.
     * See: the **PyDev does not appear after install** section on `the download page`_ for help on using a Java 8 vm in Eclipse.
     

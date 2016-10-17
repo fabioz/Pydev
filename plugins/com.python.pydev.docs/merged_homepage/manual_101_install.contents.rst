@@ -84,11 +84,11 @@ Available update sites
 
 Main:
 
--  `http://pydev.org/updates <http://pydev.org/updates>`_
+-  `http://www.pydev.org/updates <http://www.pydev.org/updates>`_
 
 Nightly builds:
 
--  `http://pydev.org/nightly <http://pydev.org/nightly>`_
+-  `http://www.pydev.org/nightly <http://www.pydev.org/nightly>`_
 
 After entering the update sites, select the update site you entered or
 select "All available sites" and add a filter for PyDev, so that it

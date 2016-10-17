@@ -15,15 +15,15 @@
     <p> Go to the update manager (Help > Install New Software) and add:
         <br>
         <br>
-        <A href="http://pydev.org/updates">http://pydev.org/updates</A>&nbsp;&nbsp;&nbsp;(for latest version)&nbsp;&nbsp;&nbsp;or
+        <A href="http://www.pydev.org/updates">http://www.pydev.org/updates</A>&nbsp;&nbsp;&nbsp;(for latest version)&nbsp;&nbsp;&nbsp;or
         <br>
         <br>
-        <A href="http://pydev.org/nightly">http://pydev.org/nightly</A>&nbsp;&nbsp;&nbsp;(for nightly build)&nbsp;&nbsp;&nbsp
+        <A href="http://www.pydev.org/nightly">http://www.pydev.org/nightly</A>&nbsp;&nbsp;&nbsp;(for nightly build)&nbsp;&nbsp;&nbsp
         <br>
         <br>
         and follow the Eclipse steps.<br/>
         <br/>
-        <strong>Note: </strong>View <A href="http://pydev.org/update_sites">http://pydev.org/update_sites</A> to browse the update sites for other versions.
+        <strong>Note: </strong>View <A href="http://www.pydev.org/update_sites">http://www.pydev.org/update_sites</A> to browse the update sites for other versions.
         </p>
 
 
@@ -85,13 +85,13 @@ At least one of:
 
 and
 
--  `Eclipse (4.5 onwards) <http://www.eclipse.org/>`_
+-  `Eclipse 4.6 (Neon) onwards <http://www.eclipse.org/>`_
 
 **Note** if using Eclipse standalone: `Python <http://www.python.org/>`_
 and
 `IronPython <http://www.codeplex.com/Wiki/View.aspx?ProjectName=IronPython>`_
 require only the `Platform Runtime
-Binary <http://download.eclipse.org/eclipse/downloads/>`_ (download
+Binary <http://download.eclipse.org/eclipse/downloads/>`_ (get from http://download.eclipse.org/eclipse/downloads - download
 around 45-50 MB), and `Jython <http://www.jython.org/>`_ also requires
 `JDT <http://www.eclipse.org/jdt/>`_.
 
@@ -103,7 +103,7 @@ Well, the main issue at this time is that PyDev requires Java 8 in order to run.
 going the LiClipse route (which is mostly a PyDev standalone plus some goodies), you may have to go through some loops to
 make sure that you're actually using Java 8 to run Eclipse/PyDev (as explained below).
 
-Also, keep in mind that PyDev 5.x requires Eclipse 4.5 onwards (for Eclipse 3.8 use PyDev 4.x).
+Also, keep in mind that PyDev 5.x requires Eclipse 4.6 onwards (for Eclipse 3.8 use PyDev 4.x).
 
 All OSes
 ---------
@@ -125,15 +125,15 @@ Urls to use when updating with the Eclipse update manager:
 
 Latest version:
 
--  `http://pydev.org/updates <http://pydev.org/updates>`_
+-  `http://www.pydev.org/updates <http://www.pydev.org/updates>`_
 
 Nightly builds:
 
--  `http://pydev.org/nightly <http://pydev.org/nightly>`_
+-  `http://www.pydev.org/nightly <http://www.pydev.org/nightly>`_
 
 Browse other versions (open in browser):
 
--  `http://pydev.org/update_sites <http://pydev.org/update_sites>`_
+-  `http://www.pydev.org/update_sites <http://www.pydev.org/update_sites>`_
 
 Get zip releases
 ================
