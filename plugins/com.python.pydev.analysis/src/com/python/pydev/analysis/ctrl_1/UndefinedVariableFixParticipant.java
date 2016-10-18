@@ -118,7 +118,7 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
         Set<Tuple<String, String>> mods = new HashSet<Tuple<String, String>>();
 
         for (IModulesManager iModulesManager : managersInvolved) {
-            Set<String> allModules = projectModulesManager.getAllModuleNames(false, markerContents.toLowerCase());
+            Set<String> allModules = iModulesManager.getAllModuleNames(false, markerContents.toLowerCase());
 
             //when an undefined variable is found, we can:
             // - add an auto import (if it is a class or a method or some global attribute)
