@@ -152,7 +152,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         doc = new Document("from extendable import * #@UnusedWildImport\n" +
                 "__path__\n");
 
-        //__path__ does not come on "import *" 
+        //__path__ does not come on "import *"
         IMessage[] messages = checkError(1);
         assertEquals("Undefined variable: __path__", messages[0].getMessage());
     }
@@ -809,6 +809,14 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         } finally {
             unregisterFindDefinitionListener("", "check.Foo", "foo.Method", "foo");
         }
+    }
+
+    public void testUsedVariable() throws Exception {
+        doc = new Document("def foo():\n" +
+                "    a = []\n" +
+                "    _my = [*a]\n" +
+                "");
+        checkNoError();
     }
 
     //    public void testNonDefaultAfterDefault() throws IOException{
