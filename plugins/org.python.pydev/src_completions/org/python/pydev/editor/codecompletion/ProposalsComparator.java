@@ -71,6 +71,7 @@ public final class ProposalsComparator implements Comparator<ICompletionProposal
     private String qualifier;
     private String qualifierLower;
     private ICompareContext compareContext;
+    private boolean qualifierHasUpper;
 
     public ProposalsComparator(String qualifier, ICompareContext compareContext) {
         this.compareContext = compareContext;
@@ -80,6 +81,7 @@ public final class ProposalsComparator implements Comparator<ICompletionProposal
     public void setQualifier(String qualifier) {
         this.qualifier = qualifier;
         this.qualifierLower = qualifier.toLowerCase();
+        this.qualifierHasUpper = this.qualifierLower.equals(this.qualifier);
     }
 
     public void setCompareContext(CompareContext compareContext) {
@@ -207,11 +209,13 @@ public final class ProposalsComparator implements Comparator<ICompletionProposal
     }
 
     private int onlyStringCompare(String o1Str, String o2Str) {
-        if (o1Str.equals(qualifier) && !o2Str.equals(qualifier)) {
-            return -1;
-        } else {
-            if (o2Str.equals(qualifier) && !o1Str.equals(qualifier)) {
-                return 1;
+        if (qualifierHasUpper) {
+            if (o1Str.equals(qualifier) && !o2Str.equals(qualifier)) {
+                return -1;
+            } else {
+                if (o2Str.equals(qualifier) && !o1Str.equals(qualifier)) {
+                    return 1;
+                }
             }
         }
 
@@ -223,11 +227,13 @@ public final class ProposalsComparator implements Comparator<ICompletionProposal
             }
         }
 
-        if (o1Str.startsWith(qualifier) && !o2Str.startsWith(qualifier)) {
-            return -1;
-        } else {
-            if (o2Str.startsWith(qualifier) && !o1Str.startsWith(qualifier)) {
-                return 1;
+        if (qualifierHasUpper) {
+            if (o1Str.startsWith(qualifier) && !o2Str.startsWith(qualifier)) {
+                return -1;
+            } else {
+                if (o2Str.startsWith(qualifier) && !o1Str.startsWith(qualifier)) {
+                    return 1;
+                }
             }
         }
 

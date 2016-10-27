@@ -20,10 +20,8 @@ import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
@@ -47,7 +45,7 @@ import org.python.pydev.shared_ui.dialogs.DialogMemento;
 
 /**
  * This dialog will select an existing entry or give the user a chance to create a new one.
- * 
+ *
  * It's always persisted in the preference store and values are gotten from there (users just
  * need to pass the key which it should manage -- internally values are stored as a list separated
  * by '|').
@@ -92,7 +90,7 @@ public class SelectExistingOrCreateNewDialog extends TreeSelectionDialog impleme
     public SelectExistingOrCreateNewDialog(Shell parent, IPreferenceStore preferenceStore, String preferenceKey,
             String shellMementoId) {
 
-        super(parent, new ToStringLabelProvider(), new StringFromListContentProvider());
+        super(parent, new ToStringLabelProvider(), new ListContentProvider());
         this.memento = new DialogMemento(parent, shellMementoId);
         this.preferenceStore = preferenceStore;
 
@@ -347,7 +345,7 @@ public class SelectExistingOrCreateNewDialog extends TreeSelectionDialog impleme
     /**
      * Creates a new command (should be used only when OK is pressed, as it will add that
      * command to the key in the preferences)
-     * 
+     *
      * @return a list with a single command gotten from the text in the text field.
      */
     private List<String> newCommand() {
@@ -489,45 +487,5 @@ final class ToStringLabelProvider extends LabelProvider {
     @Override
     public String getText(Object element) {
         return "" + element;
-    }
-}
-
-/**
- * Works with lists of strings
- */
-final class StringFromListContentProvider implements ITreeContentProvider {
-
-    @Override
-    public Object[] getChildren(Object element) {
-        if (element instanceof List) {
-            List list = (List) element;
-            return list.toArray();
-        }
-        return new Object[0];
-    }
-
-    @Override
-    public Object getParent(Object element) {
-        return null;
-    }
-
-    @Override
-    public boolean hasChildren(Object element) {
-        return element instanceof List && ((List) element).size() > 0;
-    }
-
-    @Override
-    public Object[] getElements(Object inputElement) {
-        return getChildren(inputElement);
-    }
-
-    @Override
-    public void dispose() {
-        //do nothing
-    }
-
-    @Override
-    public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-        //do nothing
     }
 }

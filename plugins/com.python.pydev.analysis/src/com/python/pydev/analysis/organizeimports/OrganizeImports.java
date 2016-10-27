@@ -30,16 +30,18 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.IOrganizeImports;
+import org.python.pydev.editor.codecompletion.ProposalsComparator;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.ui.dialogs.ListContentProvider;
+import org.python.pydev.ui.dialogs.TreeSelectionDialog;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
@@ -62,7 +64,7 @@ public class OrganizeImports implements IOrganizeImports {
 
     /**
      * That's where everything happens.
-     * 
+     *
      * Important: if the document is in a rewrite session, trying to highlight a given session does not work
      * (so, we cannot be in a rewrite session in this case).
      */
@@ -122,29 +124,32 @@ public class OrganizeImports implements IOrganizeImports {
                                 props);
 
                         if (props.size() > 0) {
+                            // Sorting proposals on Ctrl+Shift+O.
+                            ProposalsComparator proposalsComparator = new ProposalsComparator("",
+                                    new ProposalsComparator.CompareContext(edit.getPythonNature()));
+                            props.sort(proposalsComparator);
+
                             edit.selectAndReveal(start, end - start);
                             treatedVars.add(string);
                             Shell activeShell = Display.getCurrent().getActiveShell();
 
-                            ElementListSelectionDialog dialog = new ElementListSelectionDialog(activeShell,
-                                    new LabelProvider() {
+                            // Changed from ElementListSelectionDialog so that we can control the sorting.
+                            TreeSelectionDialog dialog = new TreeSelectionDialog(activeShell, new LabelProvider() {
+                                //get the image and text for each completion
 
-                                        //get the image and text for each completion
+                                @Override
+                                public Image getImage(Object element) {
+                                    CtxInsensitiveImportComplProposal comp = ((CtxInsensitiveImportComplProposal) element);
+                                    return comp.getImage();
+                                }
 
-                                        @Override
-                                        public Image getImage(Object element) {
-                                            CtxInsensitiveImportComplProposal comp = ((CtxInsensitiveImportComplProposal) element);
-                                            return comp.getImage();
-                                        }
+                                @Override
+                                public String getText(Object element) {
+                                    CtxInsensitiveImportComplProposal comp = ((CtxInsensitiveImportComplProposal) element);
+                                    return comp.getDisplayString();
+                                }
 
-                                        @Override
-                                        public String getText(Object element) {
-                                            CtxInsensitiveImportComplProposal comp = ((CtxInsensitiveImportComplProposal) element);
-                                            return comp.getDisplayString();
-                                        }
-
-                                    }) {
-
+                            }, new ListContentProvider()) {
                                 //override things to return the last position of the dialog correctly
 
                                 @Override
@@ -201,7 +206,8 @@ public class OrganizeImports implements IOrganizeImports {
 
                             dialog.setTitle("Choose import");
                             dialog.setMessage("Which import should be added?");
-                            dialog.setElements(props.toArray());
+                            dialog.setInput(props);
+                            dialog.setInitialSelection(props.get(0));
                             int returnCode = dialog.open();
                             if (returnCode == Window.OK) {
                                 ICompletionProposalExtension2 firstResult = (ICompletionProposalExtension2) dialog
