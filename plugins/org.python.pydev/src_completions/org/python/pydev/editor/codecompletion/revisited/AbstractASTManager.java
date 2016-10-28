@@ -1831,7 +1831,6 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
         IModule mod = o.o1;
         String tok = o.o2;
-        String tokForSearchInOtherModule = getTokToSearchInOtherModule(o);
 
         if (tok.length() == 0) {
             //the activation token corresponds to an imported module. We have to get its global tokens and return them.
@@ -1840,6 +1839,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             copy.setBuiltinsGotten(true); //we don't want builtins...
             return getCompletionsForModule(mod, copy);
         } else if (mod != null) {
+            //String tokForSearchInOtherModule = getTokToSearchInOtherModule(o);
+            String tokForSearchInOtherModule = tok;
             ICompletionState copy = state.getCopy();
             copy.setActivationToken(tokForSearchInOtherModule);
             copy.setCol(-1);

@@ -3060,4 +3060,13 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals(2, comps.length);
     }
 
+    public void testCodeCompletionFromAliasedImport() throws Exception {
+        String s;
+        s = "" +
+                "from import_as_aliased import Foo\n" +
+                "Foo.C";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "ClassMet()" });
+        assertEquals(1, comps.length);
+    }
+
 }
