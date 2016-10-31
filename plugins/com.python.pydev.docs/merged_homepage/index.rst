@@ -190,6 +190,7 @@ Release 5.3.1
     * When fixing unresolved import (with Ctrl+1) it properly resolves dependent projects (bugfix for regression in 5.3.0).
     * **async** and **await** keywords are properly highlighted.
     * **async** blocks properly auto-indented.
+    * In PEP 448 list unpack variable was not being marked as a "Load" variable (which made the code analysis yield false positives).
     
 Release 5.3.0
 ==========================

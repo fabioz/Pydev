@@ -103,8 +103,6 @@ Well, the main issue at this time is that PyDev requires Java 8 in order to run.
 going the LiClipse route (which is mostly a PyDev standalone plus some goodies), you may have to go through some loops to
 make sure that you're actually using Java 8 to run Eclipse/PyDev (as explained below).
 
-Also, keep in mind that PyDev 5.x requires Eclipse 4.6 onwards (for Eclipse 3.8 use PyDev 4.x).
-
 All OSes
 ---------
 Make sure you download/install the latest Java 8 JRE or JDK, try restarting to see if it got it automatically.
@@ -116,6 +114,15 @@ If it didn't get it automatically, follow the instructions from:
 http://wiki.eclipse.org/Eclipse.ini to add the -vm argument to eclipse.ini on "Specifying the JVM" to specify the java 8 vm (this should also be used in case you just extracted java and didn't override the default system installation).
 
 **Note on Mac OS**: You can use the command "/usr/libexec/java_home -v 1.8" to get the base path for the JVM (though you also need to append "/bin/java" to the output of said command to the -vm arg in eclipse.ini).
+
+Need to use older Eclipse/Java
+================================
+
+If you need to use an older version of Eclipse/Java, below is the latest PyDev version to be used based on your requisites.
+
+- Eclipse 4.5, Java 8: PyDev 5.2.0
+- Eclipse 3.8, Java 7: PyDev 4.5.5
+- Eclipse 3.x, Java 6: PyDev 2.8.2
 
 
 URLs for PyDev as Eclipse plugin

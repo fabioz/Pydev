@@ -32,6 +32,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
@@ -79,6 +80,7 @@ import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.texteditor.ITextEditorExtension2;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
+import org.osgi.framework.Version;
 import org.python.pydev.changed_lines.ChangedLinesComputer;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.FileUtilsFileBuffer;
@@ -171,6 +173,7 @@ import org.python.pydev.shared_ui.utils.PyMarkerUtils;
 import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.ui.ColorAndStyleCache;
+import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
@@ -356,7 +359,39 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
             //Ask for people to consider funding PyDev.
             PydevShowBrowserMessage.show();
+
+            //Warn about the Eclipse version we require.
+            checkEclipseRunning();
         } catch (Throwable e) {
+            Log.log(e);
+        }
+    }
+
+    private boolean checkedEclipseVersion = false;
+
+    private void checkEclipseRunning() {
+        if (checkedEclipseVersion) {
+            return;
+        }
+        checkedEclipseVersion = true;
+        try {
+            String string = Platform.getBundle("org.eclipse.jface.text").getHeaders().get("Bundle-Version");
+            Version version = new Version(string);
+            if (version.compareTo(new Version("3.11.0")) < 0) {
+                Log.log("Error: This version of PyDev requires a newer version of Eclipse to run properly.");
+                RunInUiThread.async(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        PyDialogHelpers.openCritical("Eclipse version too old (4.6 -- Neon -- required).",
+                                "This version of PyDev requires a newer version of Eclipse to run properly.\n\n"
+                                        + "Please upgrade Eclipse or use an older version of PyDev.\n\n"
+                                        + "See: http://www.pydev.org/download.html for requirements\n"
+                                        + "(for this version or older versions).");
+                    }
+                }, false);
+            }
+        } catch (Exception e) {
             Log.log(e);
         }
     }
