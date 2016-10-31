@@ -112,6 +112,17 @@ public class PyAutoIndentStrategyTest extends TestCase {
         assertEquals("\n", docCmd.text);
     }
 
+    public void testNewLineOnAsyncDef() {
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+        String str = "\n" +
+                "async def foo():" +
+                "";
+        final Document doc = new Document(str);
+        DocCmd docCmd = new DocCmd(doc.getLength(), 0, "\n");
+        strategy.customizeDocumentCommand(doc, docCmd);
+        assertEquals("\n    ", docCmd.text);
+    }
+
     public void testTab() {
         strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
         String str = "        args = [ '-1', '-2',\n" +

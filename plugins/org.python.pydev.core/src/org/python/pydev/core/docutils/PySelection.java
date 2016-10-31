@@ -57,12 +57,12 @@ public final class PySelection extends TextSelectionUtils {
 
     public static final String[] CLASS_AND_FUNC_TOKENS = new String[] { "def", "class", };
 
-    public static final String[] FUNC_TOKEN = new String[] { "def" };
+    public static final String[] FUNC_TOKEN = new String[] { "def", "async def" };
 
     public static final String[] CLASS_TOKEN = new String[] { "class", };
 
-    public static final String[] INDENT_TOKENS = new String[] { "if", "for", "except", "def", "class", "else", "elif",
-            "while", "try", "with", "finally" };
+    public static final String[] INDENT_TOKENS = new String[] { "async", "if", "for", "except", "def", "class",
+            "else", "elif", "while", "try", "with", "finally" };
 
     public static final Set<String> STATEMENT_TOKENS = new HashSet<String>();
 

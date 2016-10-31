@@ -38,7 +38,8 @@ import org.python.pydev.ui.ColorAndStyleCache;
 public class PyCodeScanner extends RuleBasedScanner {
 
     // keywords list has to be alphabetized for the keyword detector to work properly
-    static final public String[] DEFAULT_KEYWORDS = { "and", "as", "assert", "break", "class", "continue", "def",
+    static final public String[] DEFAULT_KEYWORDS = { "and", "as", "assert", "async", "await", "break", "class",
+            "continue", "def",
             "del", "elif", "else", "except", "exec", "finally", "for", "from", "global", "if", "import", "in", "is",
             "lambda", "nonlocal", "not", "or", "pass", "print", "raise", "return", "self", "try", "while", "with",
             "yield", "False", "None", "True",
