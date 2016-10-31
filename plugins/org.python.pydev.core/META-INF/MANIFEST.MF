@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Core Plug-in
 Bundle-SymbolicName: org.python.pydev.core; singleton:=true
-Bundle-Version: 5.3.0.qualifier
+Bundle-Version: 5.3.1.qualifier
 Bundle-ClassPath: core.jar
 Bundle-Activator: org.python.pydev.core.CorePlugin
 Bundle-Vendor: Aptana
@@ -17,8 +17,8 @@ Require-Bundle: org.junit;bundle-version="4.0.0";resolution:=optional,
  org.eclipse.core.filebuffers,
  org.eclipse.ui.console,
  org.eclipse.core.variables,
- org.python.pydev.shared_core;bundle-version="[5.3.0,5.3.1)";visibility:=reexport,
- org.python.pydev.shared_ui;bundle-version="[5.3.0,5.3.1)"
+ org.python.pydev.shared_core;bundle-version="[5.3.1,5.3.2)";visibility:=reexport,
+ org.python.pydev.shared_ui;bundle-version="[5.3.1,5.3.2)"
 Bundle-ActivationPolicy: lazy
 Export-Package: org.python.pydev.core,
  org.python.pydev.core.cache,
