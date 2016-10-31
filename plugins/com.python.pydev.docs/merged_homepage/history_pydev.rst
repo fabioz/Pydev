@@ -6,6 +6,27 @@ History For PyDev
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
+Release 5.3.1
+==========================
+
+* **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
+
+    * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
+
+* **Code Completion**
+ 
+    * Substring completions are **on by default** (may be turned off in the code-completion preferences).
+    * Fixed issue with code-completion using from..import..as aliases.
+    
+* **Others**
+    
+    * Auto-fix imports with Ctrl+Shift+O properly sorts items based on the same sorting improvements for code-completion.
+    * When fixing unresolved import (with Ctrl+1) it properly resolves dependent projects (bugfix for regression in 5.3.0).
+    * **async** and **await** keywords are properly highlighted.
+    * **async** blocks properly auto-indented.
+    * In PEP 448 list unpack variable was not being marked as a "Load" variable (which made the code analysis yield false positives).
+    
+
 Release 5.3.0
 ==========================
 

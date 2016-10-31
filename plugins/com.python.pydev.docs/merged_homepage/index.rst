@@ -231,46 +231,5 @@ Release 5.3.0
     * May be activated with **%matplotlib qt5** (when using IPython) or in **"Preferences > PyDev > Interactive Console > Enable GUI event loop integration > PyQt5"**.
     
     
-    
-    
-Release 5.2.0
-==========================
-
-* **Important** PyDev now requires Java 8 and Eclipse 4.5 onwards.
-
-    * PyDev 4.5.5 is the last release supporting Java 7 and Eclipse 3.8.
-    * See: `update sites page`_ for the update site of older versions of PyDev.
-    * See: the **PyDev does not appear after install** section on `the download page`_ for help on using a Java 8 vm in Eclipse.
-
-* Inital support for code-completion using **PEP 484 static type declarations**.
-
-* **Debugger**
-
-    * Fixed racing condition where the variables view would not be properly shown in the debugger -- which made an additional select of the stack required in order to show the variables (#PyDev-672).
-    * Reusing the existing stack from the thread in the debugger (so that the expanded state of the variables is properly kept on step over).
-    * Fixed issue changing attribute of local variable in the variables view (#PyDev.Debugger-56).
-    * Fixed issue on attach to process: it required the pydevd_tracing to be at the top-level and it was moved to _pydevd_bundle (restored it to be a public API).
-
-* **Indentation**
-
-    * The default indent mode now changed to better follow PEP 8 guidelines:
-
-        * Indenting directly after {, [, ( will add one indent level.
-        * Indenting after another token in a line with a {, [, ( will indent to the {, [, ( level.
-
-    * It's possible to restore previous indent modes (which either always indented to the parenthesis level or always indented a single level) in the preferences > PyDev > Editor > Typing.
-
-* **Interactive console**
-
-    * IPython 5 now supported in interactive console (#PyDev-710).
-    * Fixed issue executing single line with multiple statements in console.
-    * Fixed issue executing a multiple line statement in Jython.
-
-* **Others**
-
-    * The (fast) parser which detects the outline of a Python module now handles mixed indentation (and additional fixes which could result in log entries such as "Did not expect to find item below node: Assign...").
-    * Support for unpacking generalizations (PEP 448) which could still result in a syntax error for the Python 3 grammar (#PyDev-701).
-    * Fixed error in code analysis when the code is connected to an RTC source control (#PyDev-184, patch by Wesley Barroso Lopes)
-
 `View release notes for previous releases`_
 
