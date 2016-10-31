@@ -812,11 +812,17 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
     }
 
     public void testUsedVariable() throws Exception {
-        doc = new Document("def foo():\n" +
-                "    a = []\n" +
-                "    _my = [*a]\n" +
-                "");
-        checkNoError();
+        int initial = GRAMMAR_TO_USE_FOR_PARSING;
+        try {
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+            doc = new Document("def foo():\n" +
+                    "    a = []\n" +
+                    "    my = [*a]\n" +
+                    "");
+            checkError("Unused variable: my");
+        } finally {
+            GRAMMAR_TO_USE_FOR_PARSING = initial;
+        }
     }
 
     //    public void testNonDefaultAfterDefault() throws IOException{

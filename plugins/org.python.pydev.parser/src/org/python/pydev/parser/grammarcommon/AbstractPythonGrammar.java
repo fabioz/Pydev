@@ -39,6 +39,10 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
 
     protected final IPythonGrammarActions grammarActions;
 
+    public IPythonGrammarActions getGrammarActions() {
+        return grammarActions;
+    }
+
     protected AbstractPythonGrammar(boolean generateTree) {
         this.generateTree = generateTree;
         if (generateTree) {

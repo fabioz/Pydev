@@ -276,7 +276,7 @@ public abstract class AbstractVisitor extends VisitorBase {
             boolean onlyAllowTokensIn__all__, IPythonNature nature) {
         AbstractVisitor modelVisitor;
         if (which == INNER_DEFS) {
-            modelVisitor = new InnerModelVisitor(moduleName, state);
+            modelVisitor = new InnerModelVisitor(moduleName, state, nature);
         } else {
             modelVisitor = new GlobalModelVisitor(which, moduleName, onlyAllowTokensIn__all__, nature);
         }

@@ -429,8 +429,8 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "from testOtherImports.f3 import test\n" +
                 "tes";
         ICompletionProposal[] p = requestCompl(s, s.length(), -1, new String[] { "test(a, b, c)" }, nature);
-        assertEquals("def test(a, b, c):    \"\"\"This is a docstring\"\"\"",
-                StringUtils.removeNewLineChars(p[0].getAdditionalProposalInfo()));
+        assertTrue(StringUtils.removeNewLineChars(p[0].getAdditionalProposalInfo())
+                .startsWith("def test(a, b, c):    \"\"\"This is a docstring\"\"\""));
     }
 
     public void testFromImportAs() throws Exception {
@@ -439,8 +439,8 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "from testOtherImports.f3 import test as AnotherTest\n" +
                 "t = AnotherTes";
         ICompletionProposal[] p = requestCompl(s, s.length(), -1, new String[] { "AnotherTest(a, b, c)" }, nature);
-        assertEquals("def test(a, b, c):    \"\"\"This is a docstring\"\"\"",
-                StringUtils.removeNewLineChars(p[0].getAdditionalProposalInfo()));
+        assertTrue(StringUtils.removeNewLineChars(p[0].getAdditionalProposalInfo()).startsWith(
+                "def test(a, b, c):    \"\"\"This is a docstring\"\"\""));
     }
 
     public void testFromImportAs2() throws Exception {
@@ -449,8 +449,8 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "from testOtherImports.f3 import Foo\n" +
                 "t = Fo";
         ICompletionProposal[] p = requestCompl(s, s.length(), -1, new String[] { "Foo" }, nature);
-        assertEquals("class SomeOtherTest(object):    '''SomeOtherTest'''    def __init__(self, a, b):        pass",
-                StringUtils.removeNewLineChars(p[0].getAdditionalProposalInfo()));
+        assertTrue(StringUtils.removeNewLineChars(p[0].getAdditionalProposalInfo()).startsWith(
+                "class SomeOtherTest(object):    '''SomeOtherTest'''    def __init__(self, a, b):        pass"));
     }
 
     public void testInnerImport() throws Exception {

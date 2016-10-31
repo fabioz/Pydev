@@ -270,7 +270,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
                 ret = new Attribute(null, null, Attribute.Load);
                 break;
             case JJTSTAR_EXPR:
-                ret = new Starred(null, Starred.Store);
+                ret = new Starred(null, stack.getGrammar().getGrammarActions().getStarExprScope());
                 break;
 
             default:
@@ -593,12 +593,6 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
                     asname = makeName(NameTok.ImportName);
                 }
                 return new aliasType(makeName(NameTok.ImportName), asname);
-
-            case JJTSTAR_EXPR:
-                Starred s = (Starred) n;
-                s.value = (exprType) this.stack.popNode();
-                ctx.setStore(s);
-                return s;
 
             case JJTSTRJOIN:
                 Str str2 = (Str) stack.popNode();

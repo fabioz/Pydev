@@ -36,6 +36,7 @@ import org.python.pydev.parser.jython.ast.Raise;
 import org.python.pydev.parser.jython.ast.Repr;
 import org.python.pydev.parser.jython.ast.Return;
 import org.python.pydev.parser.jython.ast.Slice;
+import org.python.pydev.parser.jython.ast.Starred;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.TryExcept;
@@ -400,6 +401,12 @@ public final class TreeBuilder24 extends AbstractTreeBuilder implements ITreeBui
             case JJTIMPORTFROM:
                 aliasType[] aliases = makeAliases(arity - 1);
                 return new ImportFrom(makeName(NameTok.ImportModule), aliases, 0); //relative import is always level 0 here (only actually added on version 25)
+
+            case JJTSTAR_EXPR:
+                Starred starred = (Starred) n;
+                starred.value = (exprType) this.stack.popNode();
+                ctx.setStore(starred);
+                return starred;
 
             default:
                 Log.log("Error at TreeBuilder: default not treated:" + n.getId());

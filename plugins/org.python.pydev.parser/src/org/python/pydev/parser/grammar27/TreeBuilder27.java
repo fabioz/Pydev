@@ -36,6 +36,7 @@ import org.python.pydev.parser.jython.ast.Repr;
 import org.python.pydev.parser.jython.ast.Return;
 import org.python.pydev.parser.jython.ast.Set;
 import org.python.pydev.parser.jython.ast.Slice;
+import org.python.pydev.parser.jython.ast.Starred;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.TryExcept;
@@ -416,6 +417,12 @@ public final class TreeBuilder27 extends AbstractTreeBuilder implements ITreeBui
 
             case JJTIMPORTFROM:
                 return makeImportFrom25Onwards(arity);
+
+            case JJTSTAR_EXPR:
+                Starred starred = (Starred) n;
+                starred.value = (exprType) this.stack.popNode();
+                ctx.setStore(starred);
+                return starred;
 
             default:
                 Log.log(("Error at TreeBuilder: default not treated:" + n.getId()));

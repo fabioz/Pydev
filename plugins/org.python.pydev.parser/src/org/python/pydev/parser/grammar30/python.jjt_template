@@ -654,7 +654,7 @@ void small_stmt() #void: {SimpleNode simpleNode;Token spStr;}
 // augassign: ('+=' | '-=' | '*=' | '@=' | '/=' | '%=' | '&=' | '|=' | '^=' |
 void expr_stmt() #void: {}
 {
-    testlist_star_expr() (
+    {grammarActions.pushStarExpr(Starred.Load);}testlist_star_expr(){grammarActions.popStarExpr();} (
     <PLUSEQ>        (yield_expr()|SmartTestList())   #aug_plus(2)
 |   <MINUSEQ>       (yield_expr()|SmartTestList())   #aug_minus(2)
 |   <MULTIPLYEQ>    (yield_expr()|SmartTestList())   #aug_multiply(2)
@@ -668,7 +668,7 @@ void expr_stmt() #void: {}
 |   <LSHIFTEQ>      (yield_expr()|SmartTestList())   #aug_lshift(2)
 |   <RSHIFTEQ>      (yield_expr()|SmartTestList())   #aug_rshift(2)
 |   <POWEREQ>       (yield_expr()|SmartTestList())   #aug_power(2)
-|  (<EQUAL>         (yield_expr()|testlist_star_expr()))* #expr_stmt(jjtree.nodeArity()+1))
+|  (<EQUAL>         (yield_expr()| {grammarActions.pushStarExpr(Starred.Store);} testlist_star_expr() {grammarActions.popStarExpr();}))* #expr_stmt(jjtree.nodeArity()+1))
 
 }
 
@@ -833,7 +833,7 @@ $BEGIN_ELSE
 
 //for_stmt: 'for' exprlist 'in' testlist ':' suite ['else' ':' suite]
 void for_stmt(): {}
-{   <FOR> {this.markLastAsSuiteStart();} {grammarActions.addSpecialTokenToLastOpened("for ");} exprlist() $IN SmartTestList() $COLON suite()
+{   <FOR> {this.markLastAsSuiteStart();} {grammarActions.addSpecialTokenToLastOpened("for ");} {grammarActions.pushStarExpr(Starred.Store);}exprlist(){grammarActions.popStarExpr();} $IN SmartTestList() $COLON suite()
     [begin_for_else_stmt() suite()]
 
 }
@@ -1148,7 +1148,7 @@ void dictorsetmaker() #void: {}
             )
             |
             (
-              (LOOKAHEAD(2) comp_for() | (LOOKAHEAD(2)$COMMA (test() | star_expr()))* #set) [$COMMA]
+              (LOOKAHEAD(2) comp_for() | (LOOKAHEAD(2)$COMMA (test() | {grammarActions.pushStarExpr(Starred.Load);}star_expr(){grammarActions.popStarExpr();}))* #set) [$COMMA]
             )
         )
     )
@@ -1161,10 +1161,10 @@ void dictorsetmaker() #void: {}
         (LOOKAHEAD(2) $COMMA ( (test()$COLON test())| (<POWER> expr())  ) )*[$COMMA]
     )
     |
-    star_expr() 
+    {grammarActions.pushStarExpr(Starred.Load);}star_expr(){grammarActions.popStarExpr();}
     (
         //Note: repeat the final construct for the set
-        (LOOKAHEAD(2) comp_for() | (LOOKAHEAD(2)$COMMA (test() | star_expr()))* #set) [$COMMA]
+        (LOOKAHEAD(2) comp_for() | (LOOKAHEAD(2)$COMMA (test() | {grammarActions.pushStarExpr(Starred.Load);}star_expr(){grammarActions.popStarExpr();}))* #set) [$COMMA]
     )
 
 }
@@ -1174,7 +1174,7 @@ void dictorsetmaker() #void: {}
 
 // testlist_comp: (test|star_expr) ( comp_for | (',' (test|star_expr))* [','] )
 void testlist_comp() #void: {}
-{ (test()|star_expr()) ( LOOKAHEAD(2)(comp_for())+ | (LOOKAHEAD(2) $COMMA (test()|star_expr()))* [Comma()] #tuple(>1)) }
+{ (test()|{grammarActions.pushStarExpr(Starred.Load);}star_expr(){grammarActions.popStarExpr();}) ( LOOKAHEAD(2)(comp_for())+ | (LOOKAHEAD(2) $COMMA (test()|{grammarActions.pushStarExpr(Starred.Load);}star_expr(){grammarActions.popStarExpr();}))* [Comma()] #tuple(>1)) }
 
 
 //comp_iter: [comp_for | comp_if]
@@ -1183,7 +1183,7 @@ void comp_iter() #void: {}
 
 //comp_for: 'for' exprlist 'in' or_test [comp_iter]
 void comp_for(): {}
-{ $FOR_COMP exprlist() $IN or_test() [comp_iter()] }
+{ $FOR_COMP {grammarActions.pushStarExpr(Starred.Store);} exprlist() {grammarActions.popStarExpr();} $IN or_test() [comp_iter()] }
 
 //comp_if: 'if' test_nocond [comp_iter]
 void comp_if()#void:{}

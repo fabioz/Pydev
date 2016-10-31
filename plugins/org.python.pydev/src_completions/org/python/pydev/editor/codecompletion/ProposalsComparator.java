@@ -43,7 +43,7 @@ public final class ProposalsComparator implements Comparator<ICompletionProposal
         }
 
         public CompareContext(PyEdit edit) {
-            this(edit.getProject());
+            this(edit == null ? null : edit.getProject());
         }
 
         @Override

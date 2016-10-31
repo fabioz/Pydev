@@ -175,7 +175,7 @@ public class AnalysisPlugin extends AbstractUIPlugin {
                                             Map<String, SourceToken> repToTokenWithArgs = new HashMap<String, SourceToken>();
                                             HeuristicFindAttrs heuristicFindAttrs = new HeuristicFindAttrs(
                                                     HeuristicFindAttrs.WHITIN_ANY, HeuristicFindAttrs.IN_ASSIGN, "",
-                                                    definition.module.getName(), null, repToTokenWithArgs);
+                                                    definition.module.getName(), null, repToTokenWithArgs, nature);
                                             heuristicFindAttrs.visitFunctionDef(functionDef);
 
                                             List<IToken> tokens = heuristicFindAttrs.getTokens();

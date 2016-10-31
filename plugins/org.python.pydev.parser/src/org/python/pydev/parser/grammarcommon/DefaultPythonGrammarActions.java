@@ -14,6 +14,7 @@ package org.python.pydev.parser.grammarcommon;
 import java.util.Iterator;
 import java.util.List;
 
+import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.jython.FastCharStream;
 import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.Node;
@@ -24,6 +25,7 @@ import org.python.pydev.parser.jython.Token;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Num;
+import org.python.pydev.parser.jython.ast.Starred;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
@@ -35,7 +37,7 @@ public final class DefaultPythonGrammarActions implements IPythonGrammarActions 
     private SimpleNode lastNodeWithSpecial;
     private SimpleNode prev;
 
-    /*default*/DefaultPythonGrammarActions(AbstractPythonGrammar grammar) {
+    /*default*/ DefaultPythonGrammarActions(AbstractPythonGrammar grammar) {
         this.grammar = grammar;
     }
 
@@ -513,5 +515,32 @@ public final class DefaultPythonGrammarActions implements IPythonGrammarActions 
     @Override
     public void addSpecialToPrev(Object special, boolean after) {
         this.prev.addSpecial(special, after);
+    }
+
+    IntStack starExpr;
+
+    @Override
+    public void popStarExpr() {
+        if (starExpr == null || starExpr.sp == 0) {
+            Log.log("Scope for star expr not properly set.");
+        }
+        starExpr.pop();
+    }
+
+    @Override
+    public void pushStarExpr(int ctx) {
+        if (starExpr == null) {
+            starExpr = new IntStack();
+        }
+        starExpr.push(ctx);
+    }
+
+    @Override
+    public int getStarExprScope() {
+        if (starExpr == null || starExpr.sp == 0) {
+            Log.log("Scope for star expr not properly set.");
+            return Starred.Load;
+        }
+        return starExpr.peek();
     }
 }

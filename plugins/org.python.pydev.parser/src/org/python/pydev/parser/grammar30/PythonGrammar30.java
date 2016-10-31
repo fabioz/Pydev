@@ -22,6 +22,7 @@ import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Num;
+import org.python.pydev.parser.jython.ast.Starred;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.Yield;
@@ -1470,7 +1471,9 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
 //                      ('=' (yield_expr|testlist_star_expr))*)
 // augassign: ('+=' | '-=' | '*=' | '@=' | '/=' | '%=' | '&=' | '|=' | '^=' |
   final public void expr_stmt() throws ParseException {
+     grammarActions.pushStarExpr(Starred.Load);
     testlist_star_expr();
+                                                                     grammarActions.popStarExpr();
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case PLUSEQ:
       jj_consume_token(PLUSEQ);
@@ -2464,7 +2467,9 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
           case SINGLE_USTRING2:
           case TRIPLE_USTRING:
           case TRIPLE_USTRING2:
+                                    grammarActions.pushStarExpr(Starred.Store);
             testlist_star_expr();
+                                                                                                       grammarActions.popStarExpr();
             break;
           default:
             jj_la1[45] = jj_gen;
@@ -3703,11 +3708,13 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       jj_consume_token(FOR);
            this.markLastAsSuiteStart();
                                           grammarActions.addSpecialTokenToLastOpened("for ");
+                                                                                                grammarActions.pushStarExpr(Starred.Store);
       exprlist();
-                                                                                                           grammarActions.findTokenAndAdd("in");
+                                                                                                                                                       grammarActions.popStarExpr();
+                                                                                                                                                                                       grammarActions.findTokenAndAdd("in");
       jj_consume_token(IN);
       SmartTestList();
-                                                                                                                                                                        grammarActions.findTokenAndAdd(":");
+                                                                                                                                                                                                                                                    grammarActions.findTokenAndAdd(":");
       jj_consume_token(COLON);
       suite();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -7140,7 +7147,9 @@ else
                 test();
                 break;
               case MULTIPLY:
+                                                                                                               grammarActions.pushStarExpr(Starred.Load);
                 star_expr();
+                                                                                                                                                                      grammarActions.popStarExpr();
                 break;
               default:
                 jj_la1[132] = jj_gen;
@@ -7171,7 +7180,7 @@ else
         }
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case COMMA:
-                                                                                                                                     grammarActions.findTokenAndAdd(",");
+                                                                                                                                                                                                                grammarActions.findTokenAndAdd(",");
           jj_consume_token(COMMA);
           break;
         default:
@@ -7259,7 +7268,9 @@ else
       }
       break;
     case MULTIPLY:
+     grammarActions.pushStarExpr(Starred.Load);
       star_expr();
+                                                            grammarActions.popStarExpr();
       if (jj_2_30(2)) {
         comp_for();
       } else {
@@ -7314,7 +7325,9 @@ else
               test();
               break;
             case MULTIPLY:
+                                                                                                         grammarActions.pushStarExpr(Starred.Load);
               star_expr();
+                                                                                                                                                                grammarActions.popStarExpr();
               break;
             default:
               jj_la1[138] = jj_gen;
@@ -7345,7 +7358,7 @@ else
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case COMMA:
-                                                                                                                               grammarActions.findTokenAndAdd(",");
+                                                                                                                                                                                                          grammarActions.findTokenAndAdd(",");
         jj_consume_token(COMMA);
         break;
       default:
@@ -7399,7 +7412,9 @@ else
       test();
       break;
     case MULTIPLY:
+           grammarActions.pushStarExpr(Starred.Load);
       star_expr();
+                                                                  grammarActions.popStarExpr();
       break;
     default:
       jj_la1[141] = jj_gen;
@@ -7427,7 +7442,7 @@ else
         } else {
           break label_47;
         }
-                                                                    grammarActions.findTokenAndAdd(",");
+                                                                                                                                               grammarActions.findTokenAndAdd(",");
         jj_consume_token(COMMA);
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case LPAREN:
@@ -7466,7 +7481,9 @@ else
           test();
           break;
         case MULTIPLY:
+                                                                                                                                                                                                     grammarActions.pushStarExpr(Starred.Load);
           star_expr();
+                                                                                                                                                                                                                                                            grammarActions.popStarExpr();
           break;
         default:
           jj_la1[143] = jj_gen;
@@ -7474,10 +7491,10 @@ else
           throw new ParseException();
         }
       }
-                                                                                                                                          SimpleNode jjtn001 = builder.openNode( JJTTUPLE);
-                                                                                                                                          boolean jjtc001 = true;
-                                                                                                                                          jjtree.openNodeScope(jjtn001);
-                                                                                                                                          jjtreeOpenNodeScope(jjtn001);
+                                                                                                                                                                                                                                                                                                SimpleNode jjtn001 = builder.openNode( JJTTUPLE);
+                                                                                                                                                                                                                                                                                                boolean jjtc001 = true;
+                                                                                                                                                                                                                                                                                                jjtree.openNodeScope(jjtn001);
+                                                                                                                                                                                                                                                                                                jjtreeOpenNodeScope(jjtn001);
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case COMMA:
@@ -7488,24 +7505,24 @@ else
           ;
         }
       } catch (Throwable jjte001) {
-                                                                                                                                          if (jjtc001) {
-                                                                                                                                            jjtree.clearNodeScope(jjtn001);
-                                                                                                                                            jjtc001 = false;
-                                                                                                                                          } else {
-                                                                                                                                            jjtree.popNode();
-                                                                                                                                          }
-                                                                                                                                          if (jjte001 instanceof RuntimeException) {
-                                                                                                                                            {if (true) throw (RuntimeException)jjte001;}
-                                                                                                                                          }
-                                                                                                                                          if (jjte001 instanceof ParseException) {
-                                                                                                                                            {if (true) throw (ParseException)jjte001;}
-                                                                                                                                          }
-                                                                                                                                          {if (true) throw (Error)jjte001;}
+                                                                                                                                                                                                                                                                                                if (jjtc001) {
+                                                                                                                                                                                                                                                                                                  jjtree.clearNodeScope(jjtn001);
+                                                                                                                                                                                                                                                                                                  jjtc001 = false;
+                                                                                                                                                                                                                                                                                                } else {
+                                                                                                                                                                                                                                                                                                  jjtree.popNode();
+                                                                                                                                                                                                                                                                                                }
+                                                                                                                                                                                                                                                                                                if (jjte001 instanceof RuntimeException) {
+                                                                                                                                                                                                                                                                                                  {if (true) throw (RuntimeException)jjte001;}
+                                                                                                                                                                                                                                                                                                }
+                                                                                                                                                                                                                                                                                                if (jjte001 instanceof ParseException) {
+                                                                                                                                                                                                                                                                                                  {if (true) throw (ParseException)jjte001;}
+                                                                                                                                                                                                                                                                                                }
+                                                                                                                                                                                                                                                                                                {if (true) throw (Error)jjte001;}
       } finally {
-                                                                                                                                          if (jjtc001) {
-                                                                                                                                            jjtree.closeNodeScope(jjtn001, jjtree.nodeArity() > 1);
-                                                                                                                                            jjtreeCloseNodeScope(jjtn001);
-                                                                                                                                          }
+                                                                                                                                                                                                                                                                                                if (jjtc001) {
+                                                                                                                                                                                                                                                                                                  jjtree.closeNodeScope(jjtn001, jjtree.nodeArity() > 1);
+                                                                                                                                                                                                                                                                                                  jjtreeCloseNodeScope(jjtn001);
+                                                                                                                                                                                                                                                                                                }
       }
     }
   }
@@ -7536,8 +7553,10 @@ else
     try {
    grammarActions.findTokenAndAdd("for");
       jj_consume_token(FOR);
+                                                 grammarActions.pushStarExpr(Starred.Store);
       exprlist();
-                                                            grammarActions.findTokenAndAdd("in");
+                                                                                                          grammarActions.popStarExpr();
+                                                                                                                                          grammarActions.findTokenAndAdd("in");
       jj_consume_token(IN);
       or_test();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -8535,8 +8554,24 @@ else
     finally { jj_save(34, xla); }
   }
 
+  private boolean jj_3_32() {
+    Token xsp;
+    if (jj_3R_82()) return true;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3R_82()) { jj_scanpos = xsp; break; }
+    }
+    return false;
+  }
+
   private boolean jj_3R_192() {
     if (jj_scan_token(BINNUMBER)) return true;
+    return false;
+  }
+
+  private boolean jj_3_5() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_52()) return true;
     return false;
   }
 
@@ -8555,12 +8590,6 @@ else
       xsp = jj_scanpos;
       if (jj_3R_159()) { jj_scanpos = xsp; break; }
     }
-    return false;
-  }
-
-  private boolean jj_3_5() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_52()) return true;
     return false;
   }
 
@@ -8776,17 +8805,6 @@ else
     return false;
   }
 
-  private boolean jj_3_31() {
-    if (jj_scan_token(COMMA)) return true;
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_80()) {
-    jj_scanpos = xsp;
-    if (jj_3R_81()) return true;
-    }
-    return false;
-  }
-
   private boolean jj_3R_142() {
     if (jj_scan_token(POWER)) return true;
     return false;
@@ -8841,11 +8859,6 @@ else
     return false;
   }
 
-  private boolean jj_3R_82() {
-    if (jj_3R_75()) return true;
-    return false;
-  }
-
   private boolean jj_3_6() {
     if (jj_scan_token(COLON)) return true;
     if (jj_3R_53()) return true;
@@ -8874,16 +8887,6 @@ else
     if (jj_3R_78()) {
     jj_scanpos = xsp;
     if (jj_3R_79()) return true;
-    }
-    return false;
-  }
-
-  private boolean jj_3_32() {
-    Token xsp;
-    if (jj_3R_82()) return true;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3R_82()) { jj_scanpos = xsp; break; }
     }
     return false;
   }
@@ -9454,6 +9457,11 @@ else
     return false;
   }
 
+  private boolean jj_3R_81() {
+    if (jj_3R_117()) return true;
+    return false;
+  }
+
   private boolean jj_3R_111() {
     if (jj_scan_token(YIELD)) return true;
     return false;
@@ -9462,6 +9470,11 @@ else
   private boolean jj_3_17() {
     if (jj_scan_token(POWER)) return true;
     if (jj_3R_63()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_80() {
+    if (jj_3R_53()) return true;
     return false;
   }
 
@@ -9891,6 +9904,17 @@ else
     return false;
   }
 
+  private boolean jj_3_31() {
+    if (jj_scan_token(COMMA)) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_80()) {
+    jj_scanpos = xsp;
+    if (jj_3R_81()) return true;
+    }
+    return false;
+  }
+
   private boolean jj_3R_93() {
     if (jj_scan_token(MULTIPLY)) return true;
     return false;
@@ -9960,11 +9984,6 @@ else
 
   private boolean jj_3R_103() {
     if (jj_3R_132()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_81() {
-    if (jj_3R_117()) return true;
     return false;
   }
 
@@ -10087,8 +10106,8 @@ else
     return false;
   }
 
-  private boolean jj_3R_80() {
-    if (jj_3R_53()) return true;
+  private boolean jj_3R_82() {
+    if (jj_3R_75()) return true;
     return false;
   }
 

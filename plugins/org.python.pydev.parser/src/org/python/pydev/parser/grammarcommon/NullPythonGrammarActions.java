@@ -17,6 +17,7 @@ import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
 import org.python.pydev.parser.jython.ast.Num;
+import org.python.pydev.parser.jython.ast.Starred;
 import org.python.pydev.parser.jython.ast.Str;
 
 public final class NullPythonGrammarActions implements IPythonGrammarActions {
@@ -137,6 +138,21 @@ public final class NullPythonGrammarActions implements IPythonGrammarActions {
     @Override
     public void setImportFromLevel(int level) {
 
+    }
+
+    @Override
+    public void popStarExpr() {
+
+    }
+
+    @Override
+    public void pushStarExpr(int store) {
+
+    }
+
+    @Override
+    public int getStarExprScope() {
+        return Starred.Load;
     }
 
 }
