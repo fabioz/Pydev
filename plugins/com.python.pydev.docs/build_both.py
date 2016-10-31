@@ -12,7 +12,7 @@ this_script_dir = os.path.split(this_script_path)[0]
 
     
 CURRENT_DATE = datetime.datetime.now()
-CURRENT_DATE = datetime.datetime(2016, 10, 13)
+# CURRENT_DATE = datetime.datetime(2016, 10, 13)
 
 update_site_versions = [
     '5.3.1',
