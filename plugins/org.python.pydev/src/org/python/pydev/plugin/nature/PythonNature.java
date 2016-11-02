@@ -1242,11 +1242,14 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
         } else if ("3.0".equals(grammarVersion)) {
             return GRAMMAR_PYTHON_VERSION_3_0;
+
+        } else if ("3.6".equals(grammarVersion)) {
+            return GRAMMAR_PYTHON_VERSION_3_6;
         }
 
         if (grammarVersion != null) {
             if (grammarVersion.startsWith("3")) {
-                return GRAMMAR_PYTHON_VERSION_3_0;
+                return LATEST_GRAMMAR_PY3_VERSION;
 
             } else if (grammarVersion.startsWith("2")) {
                 //latest in the 2.x series

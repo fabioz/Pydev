@@ -262,7 +262,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
 
                         @Override
                         public int getGrammarVersion() throws MisconfigurationException {
-                            return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0; // Always Python 3.0 here
+                            return IGrammarVersionProvider.LATEST_GRAMMAR_PY3_VERSION; // Always Python 3.0 here
                         }
 
                         @Override

@@ -115,7 +115,7 @@ public class NodeUtils {
 
                         @Override
                         public int getGrammarVersion() throws MisconfigurationException {
-                            return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0;
+                            return IGrammarVersionProvider.LATEST_GRAMMAR_PY3_VERSION;
                         }
 
                         @Override

@@ -35,6 +35,8 @@ public interface IGrammarVersionProvider {
      * Just in case you're wondering, Version 3.0 is not the latest... it's as if it's a new grammar entirely.
      */
     public static final int GRAMMAR_PYTHON_VERSION_3_0 = 99;
+    public static final int GRAMMAR_PYTHON_VERSION_3_6 = 100;
+    public static final int LATEST_GRAMMAR_PY3_VERSION = GRAMMAR_PYTHON_VERSION_3_6;
 
     /**
      * So, no specific reason for the 777 number (just wanted something unique that wouldn't be close to the other grammars).
@@ -89,6 +91,7 @@ class GrammarsIterator {
         grammarVersions.add(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6);
         grammarVersions.add(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7);
         grammarVersions.add(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
+        grammarVersions.add(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_6);
         return Collections.unmodifiableList(grammarVersions);
     }
 
@@ -99,6 +102,7 @@ class GrammarsIterator {
         grammarVersions.add("2.6");
         grammarVersions.add("2.7");
         grammarVersions.add("3.0");
+        grammarVersions.add("3.6");
         return Collections.unmodifiableList(grammarVersions);
     }
 
@@ -109,6 +113,7 @@ class GrammarsIterator {
         ret.put(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6, "2.6");
         ret.put(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7, "2.7");
         ret.put(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0, "3.0");
+        ret.put(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_6, "3.6");
         return Collections.unmodifiableMap(ret);
     }
 
@@ -119,6 +124,7 @@ class GrammarsIterator {
         ret.put("2.6", IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6);
         ret.put("2.7", IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7);
         ret.put("3.0", IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
+        ret.put("3.6", IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_6);
         return Collections.unmodifiableMap(ret);
     }
 }
