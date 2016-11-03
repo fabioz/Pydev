@@ -138,8 +138,9 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
             case JJTSTRING:
             case JJTUNICODE:
             case JJTBINARY:
+            case JJTFSTRING:
                 //the actual number will be set during the parsing (token image) -- see Num construct
-                ret = new Str(null, -1, false, false, false);
+                ret = new Str(null, -1, false, false, false, false);
                 break;
 
             case JJTFOR_STMT:
@@ -330,6 +331,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
             case JJTSTRING:
             case JJTUNICODE:
             case JJTBINARY:
+            case JJTFSTRING:
             case JJTBEGIN_DECORATOR:
             case JJTCOMMA:
             case JJTCOLON:

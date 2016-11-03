@@ -468,11 +468,15 @@ public final class DefaultPythonGrammarActions implements IPythonGrammarActions 
         int start = 0;
         boolean ustring = false;
         boolean bstring = false;
+        boolean fstring = false;
         if (quoteChar == 'u' || quoteChar == 'U') {
             ustring = true;
             start++;
         } else if (quoteChar == 'b' || quoteChar == 'B') {
             bstring = true;
+            start++;
+        } else if (quoteChar == 'f' || quoteChar == 'F') {
+            fstring = true;
             start++;
         }
         quoteChar = s.charAt(start);
@@ -485,6 +489,7 @@ public final class DefaultPythonGrammarActions implements IPythonGrammarActions 
             strToFill.unicode = ustring;
             strToFill.raw = true;
             strToFill.binary = bstring;
+            strToFill.fstring = fstring;
 
         } else {
             int n = s.length() - quotes;
@@ -497,6 +502,7 @@ public final class DefaultPythonGrammarActions implements IPythonGrammarActions 
             strToFill.unicode = ustring;
             strToFill.raw = false;
             strToFill.binary = bstring;
+            strToFill.fstring = fstring;
         }
     }
 

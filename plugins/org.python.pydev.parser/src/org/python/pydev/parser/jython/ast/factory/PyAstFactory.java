@@ -174,7 +174,7 @@ public class PyAstFactory {
     }
 
     public Str createString(String string) {
-        return new Str(string, Str.TripleSingle, false, false, false);
+        return new Str(string, Str.TripleSingle, false, false, false, false);
     }
 
     public Pass createPass() {

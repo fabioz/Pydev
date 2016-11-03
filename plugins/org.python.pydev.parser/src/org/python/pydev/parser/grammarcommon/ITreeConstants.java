@@ -149,5 +149,6 @@ public interface ITreeConstants {
     public static final int JJTAUG_DOT = 640;
     public static final int JJTAWAIT_ATOM_EXPR = 641;
     public static final int JJTANN_ASSIGN = 642;
+    public static final int JJTFSTRING = 643;
 
 }

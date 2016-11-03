@@ -10,13 +10,15 @@ public final class Str extends exprType implements str_typeType {
     public boolean unicode;
     public boolean raw;
     public boolean binary;
+    public boolean fstring;
 
-    public Str(String s, int type, boolean unicode, boolean raw, boolean binary) {
+    public Str(String s, int type, boolean unicode, boolean raw, boolean binary, boolean fstring) {
         this.s = s;
         this.type = type;
         this.unicode = unicode;
         this.raw = raw;
         this.binary = binary;
+        this.fstring = fstring;
     }
 
     @Override
@@ -28,6 +30,7 @@ public final class Str extends exprType implements str_typeType {
         result = prime * result + (unicode ? 17 : 137);
         result = prime * result + (raw ? 17 : 137);
         result = prime * result + (binary ? 17 : 137);
+        result = prime * result + (fstring ? 17 : 137);
         return result;
     }
 
@@ -43,6 +46,7 @@ public final class Str extends exprType implements str_typeType {
         if(this.unicode != other.unicode) return false;
         if(this.raw != other.raw) return false;
         if(this.binary != other.binary) return false;
+        if(this.fstring != other.fstring) return false;
         return true;
     }
     @Override
@@ -51,7 +55,7 @@ public final class Str extends exprType implements str_typeType {
     }
     @Override
     public Str createCopy(boolean copyComments) {
-        Str temp = new Str(s, type, unicode, raw, binary);
+        Str temp = new Str(s, type, unicode, raw, binary, fstring);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
         if(this.specialsBefore != null && copyComments){
@@ -90,6 +94,9 @@ public final class Str extends exprType implements str_typeType {
         sb.append(", ");
         sb.append("binary=");
         sb.append(dumpThis(this.binary));
+        sb.append(", ");
+        sb.append("fstring=");
+        sb.append(dumpThis(this.fstring));
         sb.append("]");
         return sb.toString();
     }

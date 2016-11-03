@@ -142,7 +142,7 @@ public class SelectionExtenderVisitor extends VisitorBase {
         Str stringNode = null;
         if (o instanceof ISpecialStr) {
             ISpecialStr special = (ISpecialStr) o;
-            stringNode = new Str(special.toString(), Str.SingleDouble, false, false, false);
+            stringNode = new Str(special.toString(), Str.SingleDouble, false, false, false, false);
             stringNode.beginLine = special.getBeginLine();
             stringNode.beginColumn = special.getBeginCol();
         }

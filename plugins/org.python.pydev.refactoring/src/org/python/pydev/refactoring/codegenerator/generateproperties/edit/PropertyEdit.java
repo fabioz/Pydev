@@ -90,7 +90,7 @@ public class PropertyEdit extends AbstractInsertEdit {
         addArgument(args, state.isSetter(), "set");
         addArgument(args, state.isDelete(), "del");
         if (state.isDocstring()) {
-            args.add(new Str(propertyName + "'s docstring", str_typeType.SingleDouble, false, false, false));
+            args.add(new Str(propertyName + "'s docstring", str_typeType.SingleDouble, false, false, false, false));
         } else {
             args.add(NONE);
         }

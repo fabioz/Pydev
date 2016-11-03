@@ -169,6 +169,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
         case SINGLE_BSTRING2:
         case TRIPLE_BSTRING:
         case TRIPLE_BSTRING2:
+        case SINGLE_FSTRING:
+        case SINGLE_FSTRING2:
+        case TRIPLE_FSTRING:
+        case TRIPLE_FSTRING2:
         case SINGLE_USTRING:
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
@@ -237,6 +241,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
         case SINGLE_BSTRING2:
         case TRIPLE_BSTRING:
         case TRIPLE_BSTRING2:
+        case SINGLE_FSTRING:
+        case SINGLE_FSTRING2:
+        case TRIPLE_FSTRING:
+        case TRIPLE_FSTRING2:
         case SINGLE_USTRING:
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
@@ -402,6 +410,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
           case SINGLE_BSTRING2:
           case TRIPLE_BSTRING:
           case TRIPLE_BSTRING2:
+          case SINGLE_FSTRING:
+          case SINGLE_FSTRING2:
+          case TRIPLE_FSTRING:
+          case TRIPLE_FSTRING2:
           case SINGLE_USTRING:
           case SINGLE_USTRING2:
           case TRIPLE_USTRING:
@@ -1388,6 +1400,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
       case SINGLE_BSTRING2:
       case TRIPLE_BSTRING:
       case TRIPLE_BSTRING2:
+      case SINGLE_FSTRING:
+      case SINGLE_FSTRING2:
+      case TRIPLE_FSTRING:
+      case TRIPLE_FSTRING2:
       case SINGLE_USTRING:
       case SINGLE_USTRING2:
       case TRIPLE_USTRING:
@@ -1446,6 +1462,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
     case SINGLE_BSTRING2:
     case TRIPLE_BSTRING:
     case TRIPLE_BSTRING2:
+    case SINGLE_FSTRING:
+    case SINGLE_FSTRING2:
+    case TRIPLE_FSTRING:
+    case TRIPLE_FSTRING2:
     case SINGLE_USTRING:
     case SINGLE_USTRING2:
     case TRIPLE_USTRING:
@@ -1537,6 +1557,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
     case SINGLE_BSTRING2:
     case TRIPLE_BSTRING:
     case TRIPLE_BSTRING2:
+    case SINGLE_FSTRING:
+    case SINGLE_FSTRING2:
+    case TRIPLE_FSTRING:
+    case TRIPLE_FSTRING2:
     case SINGLE_USTRING:
     case SINGLE_USTRING2:
     case TRIPLE_USTRING:
@@ -1656,6 +1680,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
         case SINGLE_BSTRING2:
         case TRIPLE_BSTRING:
         case TRIPLE_BSTRING2:
+        case SINGLE_FSTRING:
+        case SINGLE_FSTRING2:
+        case TRIPLE_FSTRING:
+        case TRIPLE_FSTRING2:
         case SINGLE_USTRING:
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
@@ -1728,6 +1756,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
         case SINGLE_BSTRING2:
         case TRIPLE_BSTRING:
         case TRIPLE_BSTRING2:
+        case SINGLE_FSTRING:
+        case SINGLE_FSTRING2:
+        case TRIPLE_FSTRING:
+        case TRIPLE_FSTRING2:
         case SINGLE_USTRING:
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
@@ -1800,6 +1832,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
         case SINGLE_BSTRING2:
         case TRIPLE_BSTRING:
         case TRIPLE_BSTRING2:
+        case SINGLE_FSTRING:
+        case SINGLE_FSTRING2:
+        case TRIPLE_FSTRING:
+        case TRIPLE_FSTRING2:
         case SINGLE_USTRING:
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
@@ -1872,6 +1908,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
         case SINGLE_BSTRING2:
         case TRIPLE_BSTRING:
         case TRIPLE_BSTRING2:
+        case SINGLE_FSTRING:
+        case SINGLE_FSTRING2:
+        case TRIPLE_FSTRING:
+        case TRIPLE_FSTRING2:
         case SINGLE_USTRING:
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
@@ -1944,6 +1984,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
         case SINGLE_BSTRING2:
         case TRIPLE_BSTRING:
         case TRIPLE_BSTRING2:
+        case SINGLE_FSTRING:
+        case SINGLE_FSTRING2:
+        case TRIPLE_FSTRING:
+        case TRIPLE_FSTRING2:
         case SINGLE_USTRING:
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
@@ -2016,6 +2060,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
         case SINGLE_BSTRING2:
         case TRIPLE_BSTRING:
         case TRIPLE_BSTRING2:
+        case SINGLE_FSTRING:
+        case SINGLE_FSTRING2:
+        case TRIPLE_FSTRING:
+        case TRIPLE_FSTRING2:
         case SINGLE_USTRING:
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
@@ -2088,6 +2136,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
         case SINGLE_BSTRING2:
         case TRIPLE_BSTRING:
         case TRIPLE_BSTRING2:
+        case SINGLE_FSTRING:
+        case SINGLE_FSTRING2:
+        case TRIPLE_FSTRING:
+        case TRIPLE_FSTRING2:
         case SINGLE_USTRING:
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
@@ -2160,6 +2212,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
         case SINGLE_BSTRING2:
         case TRIPLE_BSTRING:
         case TRIPLE_BSTRING2:
+        case SINGLE_FSTRING:
+        case SINGLE_FSTRING2:
+        case TRIPLE_FSTRING:
+        case TRIPLE_FSTRING2:
         case SINGLE_USTRING:
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
@@ -2232,6 +2288,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
         case SINGLE_BSTRING2:
         case TRIPLE_BSTRING:
         case TRIPLE_BSTRING2:
+        case SINGLE_FSTRING:
+        case SINGLE_FSTRING2:
+        case TRIPLE_FSTRING:
+        case TRIPLE_FSTRING2:
         case SINGLE_USTRING:
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
@@ -2304,6 +2364,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
         case SINGLE_BSTRING2:
         case TRIPLE_BSTRING:
         case TRIPLE_BSTRING2:
+        case SINGLE_FSTRING:
+        case SINGLE_FSTRING2:
+        case TRIPLE_FSTRING:
+        case TRIPLE_FSTRING2:
         case SINGLE_USTRING:
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
@@ -2376,6 +2440,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
         case SINGLE_BSTRING2:
         case TRIPLE_BSTRING:
         case TRIPLE_BSTRING2:
+        case SINGLE_FSTRING:
+        case SINGLE_FSTRING2:
+        case TRIPLE_FSTRING:
+        case TRIPLE_FSTRING2:
         case SINGLE_USTRING:
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
@@ -2448,6 +2516,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
         case SINGLE_BSTRING2:
         case TRIPLE_BSTRING:
         case TRIPLE_BSTRING2:
+        case SINGLE_FSTRING:
+        case SINGLE_FSTRING2:
+        case TRIPLE_FSTRING:
+        case TRIPLE_FSTRING2:
         case SINGLE_USTRING:
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
@@ -2520,6 +2592,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
         case SINGLE_BSTRING2:
         case TRIPLE_BSTRING:
         case TRIPLE_BSTRING2:
+        case SINGLE_FSTRING:
+        case SINGLE_FSTRING2:
+        case TRIPLE_FSTRING:
+        case TRIPLE_FSTRING2:
         case SINGLE_USTRING:
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
@@ -2604,6 +2680,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
           case SINGLE_BSTRING2:
           case TRIPLE_BSTRING:
           case TRIPLE_BSTRING2:
+          case SINGLE_FSTRING:
+          case SINGLE_FSTRING2:
+          case TRIPLE_FSTRING:
+          case TRIPLE_FSTRING2:
           case SINGLE_USTRING:
           case SINGLE_USTRING2:
           case TRIPLE_USTRING:
@@ -2824,6 +2904,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
       case SINGLE_BSTRING2:
       case TRIPLE_BSTRING:
       case TRIPLE_BSTRING2:
+      case SINGLE_FSTRING:
+      case SINGLE_FSTRING2:
+      case TRIPLE_FSTRING:
+      case TRIPLE_FSTRING2:
       case SINGLE_USTRING:
       case SINGLE_USTRING2:
       case TRIPLE_USTRING:
@@ -2948,6 +3032,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
       case SINGLE_BSTRING2:
       case TRIPLE_BSTRING:
       case TRIPLE_BSTRING2:
+      case SINGLE_FSTRING:
+      case SINGLE_FSTRING2:
+      case TRIPLE_FSTRING:
+      case TRIPLE_FSTRING2:
       case SINGLE_USTRING:
       case SINGLE_USTRING2:
       case TRIPLE_USTRING:
@@ -3025,6 +3113,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
     case SINGLE_BSTRING2:
     case TRIPLE_BSTRING:
     case TRIPLE_BSTRING2:
+    case SINGLE_FSTRING:
+    case SINGLE_FSTRING2:
+    case TRIPLE_FSTRING:
+    case TRIPLE_FSTRING2:
     case SINGLE_USTRING:
     case SINGLE_USTRING2:
     case TRIPLE_USTRING:
@@ -3082,6 +3174,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
       case SINGLE_BSTRING2:
       case TRIPLE_BSTRING:
       case TRIPLE_BSTRING2:
+      case SINGLE_FSTRING:
+      case SINGLE_FSTRING2:
+      case TRIPLE_FSTRING:
+      case TRIPLE_FSTRING2:
       case SINGLE_USTRING:
       case SINGLE_USTRING2:
       case TRIPLE_USTRING:
@@ -4154,6 +4250,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
       case SINGLE_BSTRING2:
       case TRIPLE_BSTRING:
       case TRIPLE_BSTRING2:
+      case SINGLE_FSTRING:
+      case SINGLE_FSTRING2:
+      case TRIPLE_FSTRING:
+      case TRIPLE_FSTRING2:
       case SINGLE_USTRING:
       case SINGLE_USTRING2:
       case TRIPLE_USTRING:
@@ -4359,6 +4459,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
         case SINGLE_BSTRING2:
         case TRIPLE_BSTRING:
         case TRIPLE_BSTRING2:
+        case SINGLE_FSTRING:
+        case SINGLE_FSTRING2:
+        case TRIPLE_FSTRING:
+        case TRIPLE_FSTRING2:
         case SINGLE_USTRING:
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
@@ -4434,6 +4538,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
             case SINGLE_BSTRING2:
             case TRIPLE_BSTRING:
             case TRIPLE_BSTRING2:
+            case SINGLE_FSTRING:
+            case SINGLE_FSTRING2:
+            case TRIPLE_FSTRING:
+            case TRIPLE_FSTRING2:
             case SINGLE_USTRING:
             case SINGLE_USTRING2:
             case TRIPLE_USTRING:
@@ -4512,6 +4620,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
             case SINGLE_BSTRING2:
             case TRIPLE_BSTRING:
             case TRIPLE_BSTRING2:
+            case SINGLE_FSTRING:
+            case SINGLE_FSTRING2:
+            case TRIPLE_FSTRING:
+            case TRIPLE_FSTRING2:
             case SINGLE_USTRING:
             case SINGLE_USTRING2:
             case TRIPLE_USTRING:
@@ -4601,6 +4713,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
       case SINGLE_BSTRING2:
       case TRIPLE_BSTRING:
       case TRIPLE_BSTRING2:
+      case SINGLE_FSTRING:
+      case SINGLE_FSTRING2:
+      case TRIPLE_FSTRING:
+      case TRIPLE_FSTRING2:
       case SINGLE_USTRING:
       case SINGLE_USTRING2:
       case TRIPLE_USTRING:
@@ -4673,6 +4789,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
     case SINGLE_BSTRING2:
     case TRIPLE_BSTRING:
     case TRIPLE_BSTRING2:
+    case SINGLE_FSTRING:
+    case SINGLE_FSTRING2:
+    case TRIPLE_FSTRING:
+    case TRIPLE_FSTRING2:
     case SINGLE_USTRING:
     case SINGLE_USTRING2:
     case TRIPLE_USTRING:
@@ -4872,6 +4992,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
     case SINGLE_BSTRING2:
     case TRIPLE_BSTRING:
     case TRIPLE_BSTRING2:
+    case SINGLE_FSTRING:
+    case SINGLE_FSTRING2:
+    case TRIPLE_FSTRING:
+    case TRIPLE_FSTRING2:
     case SINGLE_USTRING:
     case SINGLE_USTRING2:
     case TRIPLE_USTRING:
@@ -5669,6 +5793,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
     case SINGLE_BSTRING2:
     case TRIPLE_BSTRING:
     case TRIPLE_BSTRING2:
+    case SINGLE_FSTRING:
+    case SINGLE_FSTRING2:
+    case TRIPLE_FSTRING:
+    case TRIPLE_FSTRING2:
     case SINGLE_USTRING:
     case SINGLE_USTRING2:
     case TRIPLE_USTRING:
@@ -5843,6 +5971,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
         case SINGLE_BSTRING2:
         case TRIPLE_BSTRING:
         case TRIPLE_BSTRING2:
+        case SINGLE_FSTRING:
+        case SINGLE_FSTRING2:
+        case TRIPLE_FSTRING:
+        case TRIPLE_FSTRING2:
         case SINGLE_USTRING:
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
@@ -6017,6 +6149,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
         case SINGLE_BSTRING2:
         case TRIPLE_BSTRING:
         case TRIPLE_BSTRING2:
+        case SINGLE_FSTRING:
+        case SINGLE_FSTRING2:
+        case TRIPLE_FSTRING:
+        case TRIPLE_FSTRING2:
         case SINGLE_USTRING:
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
@@ -6092,6 +6228,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
           case SINGLE_BSTRING2:
           case TRIPLE_BSTRING:
           case TRIPLE_BSTRING2:
+          case SINGLE_FSTRING:
+          case SINGLE_FSTRING2:
+          case TRIPLE_FSTRING:
+          case TRIPLE_FSTRING2:
           case SINGLE_USTRING:
           case SINGLE_USTRING2:
           case TRIPLE_USTRING:
@@ -6166,6 +6306,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
           case SINGLE_BSTRING2:
           case TRIPLE_BSTRING:
           case TRIPLE_BSTRING2:
+          case SINGLE_FSTRING:
+          case SINGLE_FSTRING2:
+          case TRIPLE_FSTRING:
+          case TRIPLE_FSTRING2:
           case SINGLE_USTRING:
           case SINGLE_USTRING2:
           case TRIPLE_USTRING:
@@ -6279,6 +6423,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
       case SINGLE_BSTRING2:
       case TRIPLE_BSTRING:
       case TRIPLE_BSTRING2:
+      case SINGLE_FSTRING:
+      case SINGLE_FSTRING2:
+      case TRIPLE_FSTRING:
+      case TRIPLE_FSTRING2:
       case SINGLE_USTRING:
       case SINGLE_USTRING2:
       case TRIPLE_USTRING:
@@ -6295,6 +6443,10 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
           case SINGLE_BSTRING2:
           case TRIPLE_BSTRING:
           case TRIPLE_BSTRING2:
+          case SINGLE_FSTRING:
+          case SINGLE_FSTRING2:
+          case TRIPLE_FSTRING:
+          case TRIPLE_FSTRING2:
           case SINGLE_USTRING:
           case SINGLE_USTRING2:
           case TRIPLE_USTRING:
@@ -6542,6 +6694,10 @@ else
     case SINGLE_BSTRING2:
     case TRIPLE_BSTRING:
     case TRIPLE_BSTRING2:
+    case SINGLE_FSTRING:
+    case SINGLE_FSTRING2:
+    case TRIPLE_FSTRING:
+    case TRIPLE_FSTRING2:
     case SINGLE_USTRING:
     case SINGLE_USTRING2:
     case TRIPLE_USTRING:
@@ -6649,6 +6805,10 @@ else
     case SINGLE_BSTRING2:
     case TRIPLE_BSTRING:
     case TRIPLE_BSTRING2:
+    case SINGLE_FSTRING:
+    case SINGLE_FSTRING2:
+    case TRIPLE_FSTRING:
+    case TRIPLE_FSTRING2:
     case SINGLE_USTRING:
     case SINGLE_USTRING2:
     case TRIPLE_USTRING:
@@ -6692,6 +6852,10 @@ else
       case SINGLE_BSTRING2:
       case TRIPLE_BSTRING:
       case TRIPLE_BSTRING2:
+      case SINGLE_FSTRING:
+      case SINGLE_FSTRING2:
+      case TRIPLE_FSTRING:
+      case TRIPLE_FSTRING2:
       case SINGLE_USTRING:
       case SINGLE_USTRING2:
       case TRIPLE_USTRING:
@@ -6777,6 +6941,10 @@ else
       case SINGLE_BSTRING2:
       case TRIPLE_BSTRING:
       case TRIPLE_BSTRING2:
+      case SINGLE_FSTRING:
+      case SINGLE_FSTRING2:
+      case TRIPLE_FSTRING:
+      case TRIPLE_FSTRING2:
       case SINGLE_USTRING:
       case SINGLE_USTRING2:
       case TRIPLE_USTRING:
@@ -6828,6 +6996,10 @@ else
         case SINGLE_BSTRING2:
         case TRIPLE_BSTRING:
         case TRIPLE_BSTRING2:
+        case SINGLE_FSTRING:
+        case SINGLE_FSTRING2:
+        case TRIPLE_FSTRING:
+        case TRIPLE_FSTRING2:
         case SINGLE_USTRING:
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
@@ -6984,6 +7156,10 @@ else
       case SINGLE_BSTRING2:
       case TRIPLE_BSTRING:
       case TRIPLE_BSTRING2:
+      case SINGLE_FSTRING:
+      case SINGLE_FSTRING2:
+      case TRIPLE_FSTRING:
+      case TRIPLE_FSTRING2:
       case SINGLE_USTRING:
       case SINGLE_USTRING2:
       case TRIPLE_USTRING:
@@ -7037,6 +7213,10 @@ else
         case SINGLE_BSTRING2:
         case TRIPLE_BSTRING:
         case TRIPLE_BSTRING2:
+        case SINGLE_FSTRING:
+        case SINGLE_FSTRING2:
+        case TRIPLE_FSTRING:
+        case TRIPLE_FSTRING2:
         case SINGLE_USTRING:
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
@@ -7158,6 +7338,10 @@ else
     case SINGLE_BSTRING2:
     case TRIPLE_BSTRING:
     case TRIPLE_BSTRING2:
+    case SINGLE_FSTRING:
+    case SINGLE_FSTRING2:
+    case TRIPLE_FSTRING:
+    case TRIPLE_FSTRING2:
     case SINGLE_USTRING:
     case SINGLE_USTRING2:
     case TRIPLE_USTRING:
@@ -7218,6 +7402,10 @@ else
             case SINGLE_BSTRING2:
             case TRIPLE_BSTRING:
             case TRIPLE_BSTRING2:
+            case SINGLE_FSTRING:
+            case SINGLE_FSTRING2:
+            case TRIPLE_FSTRING:
+            case TRIPLE_FSTRING2:
             case SINGLE_USTRING:
             case SINGLE_USTRING2:
             case TRIPLE_USTRING:
@@ -7297,6 +7485,10 @@ else
               case SINGLE_BSTRING2:
               case TRIPLE_BSTRING:
               case TRIPLE_BSTRING2:
+              case SINGLE_FSTRING:
+              case SINGLE_FSTRING2:
+              case TRIPLE_FSTRING:
+              case TRIPLE_FSTRING2:
               case SINGLE_USTRING:
               case SINGLE_USTRING2:
               case TRIPLE_USTRING:
@@ -7395,6 +7587,10 @@ else
           case SINGLE_BSTRING2:
           case TRIPLE_BSTRING:
           case TRIPLE_BSTRING2:
+          case SINGLE_FSTRING:
+          case SINGLE_FSTRING2:
+          case TRIPLE_FSTRING:
+          case TRIPLE_FSTRING2:
           case SINGLE_USTRING:
           case SINGLE_USTRING2:
           case TRIPLE_USTRING:
@@ -7476,6 +7672,10 @@ else
             case SINGLE_BSTRING2:
             case TRIPLE_BSTRING:
             case TRIPLE_BSTRING2:
+            case SINGLE_FSTRING:
+            case SINGLE_FSTRING2:
+            case TRIPLE_FSTRING:
+            case TRIPLE_FSTRING2:
             case SINGLE_USTRING:
             case SINGLE_USTRING2:
             case TRIPLE_USTRING:
@@ -7563,6 +7763,10 @@ else
     case SINGLE_BSTRING2:
     case TRIPLE_BSTRING:
     case TRIPLE_BSTRING2:
+    case SINGLE_FSTRING:
+    case SINGLE_FSTRING2:
+    case TRIPLE_FSTRING:
+    case TRIPLE_FSTRING2:
     case SINGLE_USTRING:
     case SINGLE_USTRING2:
     case TRIPLE_USTRING:
@@ -7633,6 +7837,10 @@ else
         case SINGLE_BSTRING2:
         case TRIPLE_BSTRING:
         case TRIPLE_BSTRING2:
+        case SINGLE_FSTRING:
+        case SINGLE_FSTRING2:
+        case TRIPLE_FSTRING:
+        case TRIPLE_FSTRING2:
         case SINGLE_USTRING:
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
@@ -7881,6 +8089,10 @@ else
         case SINGLE_BSTRING2:
         case TRIPLE_BSTRING:
         case TRIPLE_BSTRING2:
+        case SINGLE_FSTRING:
+        case SINGLE_FSTRING2:
+        case TRIPLE_FSTRING:
+        case TRIPLE_FSTRING2:
         case SINGLE_USTRING:
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
@@ -8473,6 +8685,82 @@ else
       }
       }
       break;
+    case SINGLE_FSTRING:
+      SimpleNode jjtn013 = builder.openNode( JJTFSTRING);
+      boolean jjtc013 = true;
+      jjtree.openNodeScope(jjtn013);
+      jjtreeOpenNodeScope(jjtn013);
+      try {
+        t = jj_consume_token(SINGLE_FSTRING);
+                           grammarActions.makeString(t, 1, (Str)jjtn013);
+                                                                              jjtree.closeNodeScope(jjtn013, true);
+                                                                              jjtc013 = false;
+                                                                              jjtreeCloseNodeScope(jjtn013);
+
+      } finally {
+      if (jjtc013) {
+        jjtree.closeNodeScope(jjtn013, true);
+        jjtreeCloseNodeScope(jjtn013);
+      }
+      }
+      break;
+    case SINGLE_FSTRING2:
+      SimpleNode jjtn014 = builder.openNode( JJTFSTRING);
+      boolean jjtc014 = true;
+      jjtree.openNodeScope(jjtn014);
+      jjtreeOpenNodeScope(jjtn014);
+      try {
+        t = jj_consume_token(SINGLE_FSTRING2);
+                            grammarActions.makeString(t, 1, (Str)jjtn014);
+                                                                               jjtree.closeNodeScope(jjtn014, true);
+                                                                               jjtc014 = false;
+                                                                               jjtreeCloseNodeScope(jjtn014);
+
+      } finally {
+      if (jjtc014) {
+        jjtree.closeNodeScope(jjtn014, true);
+        jjtreeCloseNodeScope(jjtn014);
+      }
+      }
+      break;
+    case TRIPLE_FSTRING:
+      SimpleNode jjtn015 = builder.openNode( JJTFSTRING);
+      boolean jjtc015 = true;
+      jjtree.openNodeScope(jjtn015);
+      jjtreeOpenNodeScope(jjtn015);
+      try {
+        t = jj_consume_token(TRIPLE_FSTRING);
+                           grammarActions.makeString(t, 3, (Str)jjtn015);
+                                                                              jjtree.closeNodeScope(jjtn015, true);
+                                                                              jjtc015 = false;
+                                                                              jjtreeCloseNodeScope(jjtn015);
+
+      } finally {
+      if (jjtc015) {
+        jjtree.closeNodeScope(jjtn015, true);
+        jjtreeCloseNodeScope(jjtn015);
+      }
+      }
+      break;
+    case TRIPLE_FSTRING2:
+      SimpleNode jjtn016 = builder.openNode( JJTFSTRING);
+      boolean jjtc016 = true;
+      jjtree.openNodeScope(jjtn016);
+      jjtreeOpenNodeScope(jjtn016);
+      try {
+        t = jj_consume_token(TRIPLE_FSTRING2);
+                            grammarActions.makeString(t, 3, (Str)jjtn016);
+                                                                               jjtree.closeNodeScope(jjtn016, true);
+                                                                               jjtc016 = false;
+                                                                               jjtreeCloseNodeScope(jjtn016);
+
+      } finally {
+      if (jjtc016) {
+        jjtree.closeNodeScope(jjtn016, true);
+        jjtreeCloseNodeScope(jjtn016);
+      }
+      }
+      break;
     default:
       jj_la1[167] = jj_gen;
       jj_consume_token(-1);
@@ -8725,138 +9013,6 @@ else
     finally { jj_save(34, xla); }
   }
 
-  private boolean jj_3R_70() {
-    if (jj_3R_53()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_146() {
-    if (jj_scan_token(MULTIPLY)) return true;
-    return false;
-  }
-
-  private boolean jj_3_8() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_55()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_93() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_126()) {
-    jj_scanpos = xsp;
-    if (jj_3R_127()) return true;
-    }
-    return false;
-  }
-
-  private boolean jj_3R_126() {
-    if (jj_scan_token(POWER)) return true;
-    return false;
-  }
-
-  private boolean jj_3_7() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_54()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_92() {
-    if (jj_3R_93()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_125() {
-    if (jj_scan_token(MULTIPLY)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_56() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_91()) {
-    jj_scanpos = xsp;
-    if (jj_3R_92()) return true;
-    }
-    return false;
-  }
-
-  private boolean jj_3R_91() {
-    if (jj_3R_125()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_189() {
-    if (jj_3R_93()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_188() {
-    if (jj_3R_125()) return true;
-    return false;
-  }
-
-  private boolean jj_3_5() {
-    if (jj_scan_token(COMMA)) return true;
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_52()) jj_scanpos = xsp;
-    return false;
-  }
-
-  private boolean jj_3_9() {
-    if (jj_scan_token(COMMA)) return true;
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_56()) jj_scanpos = xsp;
-    return false;
-  }
-
-  private boolean jj_3R_129() {
-    if (jj_scan_token(WITH)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_187() {
-    if (jj_3R_54()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_172() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_187()) {
-    jj_scanpos = xsp;
-    if (jj_3R_188()) {
-    jj_scanpos = xsp;
-    if (jj_3R_189()) return true;
-    }
-    }
-    return false;
-  }
-
-  private boolean jj_3R_69() {
-    if (jj_3R_117()) return true;
-    return false;
-  }
-
-  private boolean jj_3_29() {
-    if (jj_scan_token(COMMA)) return true;
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_77()) {
-    jj_scanpos = xsp;
-    if (jj_3R_78()) return true;
-    }
-    return false;
-  }
-
-  private boolean jj_3R_68() {
-    if (jj_3R_53()) return true;
-    return false;
-  }
-
   private boolean jj_3_26() {
     if (jj_scan_token(COMMA)) return true;
     Token xsp;
@@ -8929,7 +9085,7 @@ else
     return false;
   }
 
-  private boolean jj_3R_249() {
+  private boolean jj_3R_253() {
     if (jj_3R_117()) return true;
     return false;
   }
@@ -8956,7 +9112,7 @@ else
     return false;
   }
 
-  private boolean jj_3R_248() {
+  private boolean jj_3R_252() {
     if (jj_scan_token(POWER)) return true;
     return false;
   }
@@ -9002,19 +9158,19 @@ else
     return false;
   }
 
-  private boolean jj_3R_247() {
+  private boolean jj_3R_251() {
     if (jj_3R_53()) return true;
     return false;
   }
 
-  private boolean jj_3R_246() {
+  private boolean jj_3R_250() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_247()) {
+    if (jj_3R_251()) {
     jj_scanpos = xsp;
-    if (jj_3R_248()) {
+    if (jj_3R_252()) {
     jj_scanpos = xsp;
-    if (jj_3R_249()) return true;
+    if (jj_3R_253()) return true;
     }
     }
     return false;
@@ -9222,7 +9378,7 @@ else
     return false;
   }
 
-  private boolean jj_3R_242() {
+  private boolean jj_3R_246() {
     if (jj_3R_192()) return true;
     return false;
   }
@@ -9241,7 +9397,7 @@ else
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_242()) { jj_scanpos = xsp; break; }
+      if (jj_3R_246()) { jj_scanpos = xsp; break; }
     }
     return false;
   }
@@ -9282,8 +9438,8 @@ else
     return false;
   }
 
-  private boolean jj_3R_241() {
-    if (jj_3R_246()) return true;
+  private boolean jj_3R_245() {
+    if (jj_3R_250()) return true;
     return false;
   }
 
@@ -9296,12 +9452,12 @@ else
     if (jj_scan_token(LBRACE)) return true;
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_241()) jj_scanpos = xsp;
+    if (jj_3R_245()) jj_scanpos = xsp;
     if (jj_scan_token(RBRACE)) return true;
     return false;
   }
 
-  private boolean jj_3R_240() {
+  private boolean jj_3R_244() {
     if (jj_3R_112()) return true;
     return false;
   }
@@ -9310,7 +9466,7 @@ else
     if (jj_scan_token(LBRACKET)) return true;
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_240()) jj_scanpos = xsp;
+    if (jj_3R_244()) jj_scanpos = xsp;
     if (jj_scan_token(RBRACKET)) return true;
     return false;
   }
@@ -9394,7 +9550,7 @@ else
     return false;
   }
 
-  private boolean jj_3R_245() {
+  private boolean jj_3R_249() {
     if (jj_scan_token(DOT)) return true;
     return false;
   }
@@ -9404,31 +9560,31 @@ else
     return false;
   }
 
-  private boolean jj_3R_244() {
+  private boolean jj_3R_248() {
     if (jj_scan_token(LBRACKET)) return true;
     return false;
   }
 
-  private boolean jj_3R_243() {
+  private boolean jj_3R_247() {
     if (jj_scan_token(LPAREN)) return true;
     return false;
   }
 
-  private boolean jj_3R_239() {
+  private boolean jj_3R_243() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_243()) {
+    if (jj_3R_247()) {
     jj_scanpos = xsp;
-    if (jj_3R_244()) {
+    if (jj_3R_248()) {
     jj_scanpos = xsp;
-    if (jj_3R_245()) return true;
+    if (jj_3R_249()) return true;
     }
     }
     return false;
   }
 
-  private boolean jj_3R_238() {
-    if (jj_3R_239()) return true;
+  private boolean jj_3R_242() {
+    if (jj_3R_243()) return true;
     return false;
   }
 
@@ -9468,7 +9624,7 @@ else
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_238()) { jj_scanpos = xsp; break; }
+      if (jj_3R_242()) { jj_scanpos = xsp; break; }
     }
     return false;
   }
@@ -9514,7 +9670,7 @@ else
     return false;
   }
 
-  private boolean jj_3R_237() {
+  private boolean jj_3R_241() {
     if (jj_scan_token(FLOORDIVIDE)) return true;
     return false;
   }
@@ -9530,7 +9686,7 @@ else
     return false;
   }
 
-  private boolean jj_3R_236() {
+  private boolean jj_3R_240() {
     if (jj_scan_token(MODULO)) return true;
     return false;
   }
@@ -9562,7 +9718,7 @@ else
     return false;
   }
 
-  private boolean jj_3R_235() {
+  private boolean jj_3R_239() {
     if (jj_scan_token(DIVIDE)) return true;
     return false;
   }
@@ -9591,32 +9747,52 @@ else
     return false;
   }
 
-  private boolean jj_3R_234() {
+  private boolean jj_3R_238() {
     if (jj_scan_token(AT)) return true;
     return false;
   }
 
-  private boolean jj_3R_233() {
+  private boolean jj_3R_215() {
+    if (jj_scan_token(TRIPLE_FSTRING2)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_237() {
     if (jj_scan_token(MULTIPLY)) return true;
     return false;
   }
 
-  private boolean jj_3R_230() {
+  private boolean jj_3R_234() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_233()) {
+    if (jj_3R_237()) {
     jj_scanpos = xsp;
-    if (jj_3R_234()) {
+    if (jj_3R_238()) {
     jj_scanpos = xsp;
-    if (jj_3R_235()) {
+    if (jj_3R_239()) {
     jj_scanpos = xsp;
-    if (jj_3R_236()) {
+    if (jj_3R_240()) {
     jj_scanpos = xsp;
-    if (jj_3R_237()) return true;
+    if (jj_3R_241()) return true;
     }
     }
     }
     }
+    return false;
+  }
+
+  private boolean jj_3R_214() {
+    if (jj_scan_token(TRIPLE_FSTRING)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_213() {
+    if (jj_scan_token(SINGLE_FSTRING2)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_212() {
+    if (jj_scan_token(SINGLE_FSTRING)) return true;
     return false;
   }
 
@@ -9650,17 +9826,17 @@ else
     return false;
   }
 
-  private boolean jj_3R_231() {
+  private boolean jj_3R_235() {
     if (jj_scan_token(PLUS)) return true;
     return false;
   }
 
-  private boolean jj_3R_227() {
+  private boolean jj_3R_231() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_231()) {
+    if (jj_3R_235()) {
     jj_scanpos = xsp;
-    if (jj_3R_232()) return true;
+    if (jj_3R_236()) return true;
     }
     return false;
   }
@@ -9670,17 +9846,17 @@ else
     return false;
   }
 
-  private boolean jj_3R_228() {
+  private boolean jj_3R_232() {
     if (jj_scan_token(LSHIFT)) return true;
     return false;
   }
 
-  private boolean jj_3R_226() {
+  private boolean jj_3R_230() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_228()) {
+    if (jj_3R_232()) {
     jj_scanpos = xsp;
-    if (jj_3R_229()) return true;
+    if (jj_3R_233()) return true;
     }
     return false;
   }
@@ -9695,7 +9871,7 @@ else
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_230()) { jj_scanpos = xsp; break; }
+      if (jj_3R_234()) { jj_scanpos = xsp; break; }
     }
     return false;
   }
@@ -9725,7 +9901,7 @@ else
     return false;
   }
 
-  private boolean jj_3R_232() {
+  private boolean jj_3R_236() {
     if (jj_scan_token(MINUS)) return true;
     return false;
   }
@@ -9760,7 +9936,19 @@ else
     jj_scanpos = xsp;
     if (jj_3R_210()) {
     jj_scanpos = xsp;
-    if (jj_3R_211()) return true;
+    if (jj_3R_211()) {
+    jj_scanpos = xsp;
+    if (jj_3R_212()) {
+    jj_scanpos = xsp;
+    if (jj_3R_213()) {
+    jj_scanpos = xsp;
+    if (jj_3R_214()) {
+    jj_scanpos = xsp;
+    if (jj_3R_215()) return true;
+    }
+    }
+    }
+    }
     }
     }
     }
@@ -9780,7 +9968,7 @@ else
     return false;
   }
 
-  private boolean jj_3R_225() {
+  private boolean jj_3R_229() {
     if (jj_scan_token(AND)) return true;
     return false;
   }
@@ -9790,17 +9978,17 @@ else
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_227()) { jj_scanpos = xsp; break; }
+      if (jj_3R_231()) { jj_scanpos = xsp; break; }
     }
     return false;
   }
 
-  private boolean jj_3R_229() {
+  private boolean jj_3R_233() {
     if (jj_scan_token(RSHIFT)) return true;
     return false;
   }
 
-  private boolean jj_3R_215() {
+  private boolean jj_3R_219() {
     if (jj_scan_token(XOR)) return true;
     return false;
   }
@@ -9810,12 +9998,12 @@ else
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_226()) { jj_scanpos = xsp; break; }
+      if (jj_3R_230()) { jj_scanpos = xsp; break; }
     }
     return false;
   }
 
-  private boolean jj_3R_213() {
+  private boolean jj_3R_217() {
     if (jj_scan_token(OR)) return true;
     return false;
   }
@@ -9830,7 +10018,7 @@ else
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_225()) { jj_scanpos = xsp; break; }
+      if (jj_3R_229()) { jj_scanpos = xsp; break; }
     }
     return false;
   }
@@ -9848,7 +10036,7 @@ else
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_215()) { jj_scanpos = xsp; break; }
+      if (jj_3R_219()) { jj_scanpos = xsp; break; }
     }
     return false;
   }
@@ -9858,12 +10046,12 @@ else
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_213()) { jj_scanpos = xsp; break; }
+      if (jj_3R_217()) { jj_scanpos = xsp; break; }
     }
     return false;
   }
 
-  private boolean jj_3R_224() {
+  private boolean jj_3R_228() {
     if (jj_scan_token(IS)) return true;
     return false;
   }
@@ -9898,12 +10086,12 @@ else
     return false;
   }
 
-  private boolean jj_3R_223() {
+  private boolean jj_3R_227() {
     if (jj_scan_token(NOT_BOOL)) return true;
     return false;
   }
 
-  private boolean jj_3R_222() {
+  private boolean jj_3R_226() {
     if (jj_scan_token(IN)) return true;
     return false;
   }
@@ -9913,33 +10101,33 @@ else
     return false;
   }
 
-  private boolean jj_3R_221() {
+  private boolean jj_3R_225() {
     if (jj_scan_token(NOTEQUAL)) return true;
     return false;
   }
 
-  private boolean jj_3R_220() {
+  private boolean jj_3R_224() {
     if (jj_scan_token(EQLESS)) return true;
     return false;
   }
 
-  private boolean jj_3R_219() {
+  private boolean jj_3R_223() {
     if (jj_scan_token(EQGREATER)) return true;
     return false;
   }
 
-  private boolean jj_3R_218() {
+  private boolean jj_3R_222() {
     if (jj_scan_token(EQEQUAL)) return true;
     return false;
   }
 
-  private boolean jj_3R_217() {
+  private boolean jj_3R_221() {
     if (jj_scan_token(GREATER)) return true;
     return false;
   }
 
-  private boolean jj_3R_212() {
-    if (jj_3R_214()) return true;
+  private boolean jj_3R_216() {
+    if (jj_3R_218()) return true;
     return false;
   }
 
@@ -9953,22 +10141,14 @@ else
     return false;
   }
 
-  private boolean jj_3R_216() {
+  private boolean jj_3R_220() {
     if (jj_scan_token(LESS)) return true;
     return false;
   }
 
-  private boolean jj_3R_214() {
+  private boolean jj_3R_218() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_216()) {
-    jj_scanpos = xsp;
-    if (jj_3R_217()) {
-    jj_scanpos = xsp;
-    if (jj_3R_218()) {
-    jj_scanpos = xsp;
-    if (jj_3R_219()) {
-    jj_scanpos = xsp;
     if (jj_3R_220()) {
     jj_scanpos = xsp;
     if (jj_3R_221()) {
@@ -9977,9 +10157,17 @@ else
     jj_scanpos = xsp;
     if (jj_3R_223()) {
     jj_scanpos = xsp;
+    if (jj_3R_224()) {
+    jj_scanpos = xsp;
+    if (jj_3R_225()) {
+    jj_scanpos = xsp;
+    if (jj_3R_226()) {
+    jj_scanpos = xsp;
+    if (jj_3R_227()) {
+    jj_scanpos = xsp;
     if (jj_3_16()) {
     jj_scanpos = xsp;
-    if (jj_3R_224()) return true;
+    if (jj_3R_228()) return true;
     }
     }
     }
@@ -10055,7 +10243,7 @@ else
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_212()) { jj_scanpos = xsp; break; }
+      if (jj_3R_216()) { jj_scanpos = xsp; break; }
     }
     return false;
   }
@@ -10372,6 +10560,138 @@ else
     return false;
   }
 
+  private boolean jj_3_8() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_55()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_93() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_126()) {
+    jj_scanpos = xsp;
+    if (jj_3R_127()) return true;
+    }
+    return false;
+  }
+
+  private boolean jj_3R_126() {
+    if (jj_scan_token(POWER)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_70() {
+    if (jj_3R_53()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_146() {
+    if (jj_scan_token(MULTIPLY)) return true;
+    return false;
+  }
+
+  private boolean jj_3_7() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_54()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_92() {
+    if (jj_3R_93()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_125() {
+    if (jj_scan_token(MULTIPLY)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_56() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_91()) {
+    jj_scanpos = xsp;
+    if (jj_3R_92()) return true;
+    }
+    return false;
+  }
+
+  private boolean jj_3R_91() {
+    if (jj_3R_125()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_189() {
+    if (jj_3R_93()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_188() {
+    if (jj_3R_125()) return true;
+    return false;
+  }
+
+  private boolean jj_3_5() {
+    if (jj_scan_token(COMMA)) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_52()) jj_scanpos = xsp;
+    return false;
+  }
+
+  private boolean jj_3_9() {
+    if (jj_scan_token(COMMA)) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_56()) jj_scanpos = xsp;
+    return false;
+  }
+
+  private boolean jj_3R_129() {
+    if (jj_scan_token(WITH)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_187() {
+    if (jj_3R_54()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_172() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_187()) {
+    jj_scanpos = xsp;
+    if (jj_3R_188()) {
+    jj_scanpos = xsp;
+    if (jj_3R_189()) return true;
+    }
+    }
+    return false;
+  }
+
+  private boolean jj_3R_69() {
+    if (jj_3R_117()) return true;
+    return false;
+  }
+
+  private boolean jj_3_29() {
+    if (jj_scan_token(COMMA)) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_77()) {
+    jj_scanpos = xsp;
+    if (jj_3R_78()) return true;
+    }
+    return false;
+  }
+
+  private boolean jj_3R_68() {
+    if (jj_3R_53()) return true;
+    return false;
+  }
+
   /** Generated Token Manager. */
   public PythonGrammar36TokenManager token_source;
   /** Current token. */
@@ -10388,12 +10708,14 @@ else
   static private int[] jj_la1_2;
   static private int[] jj_la1_3;
   static private int[] jj_la1_4;
+  static private int[] jj_la1_5;
   static {
       jj_la1_init_0();
       jj_la1_init_1();
       jj_la1_init_2();
       jj_la1_init_3();
       jj_la1_init_4();
+      jj_la1_init_5();
    }
    private static void jj_la1_init_0() {
       jj_la1_0 = new int[] {0x5a2a0040,0x5a2a0040,0x20000000,0x5a2a0000,0x20000,0x0,0x40000000,0x1000000,0x0,0x1000000,0x1000000,0x40000000,0x40000000,0x1000000,0x0,0x1000000,0x40000000,0x0,0x0,0x0,0x1000000,0x40000000,0x1000000,0x1000000,0x40000000,0x40000000,0x1000000,0x40000000,0x1000000,0x40020000,0x0,0x40000000,0x0,0x0,0x20000,0x1000000,0x5a2a0000,0x5a2a0000,0x800000,0x5a2a0000,0x1a2a0000,0x1a2a0000,0x1a2a0000,0x1a2a0000,0x1a2a0000,0x1a2a0000,0x1a2a0000,0x1a2a0000,0x1a2a0000,0x1a2a0000,0x1a2a0000,0x1a2a0000,0x1a2a0000,0x0,0x5a2a0000,0x4000000,0x0,0x0,0x1a2a0000,0x1a2a0000,0x1a2a0000,0x0,0x1a2a0000,0x0,0x1000000,0x2000000,0x0,0x1000000,0x1000000,0x0,0x40020000,0x0,0x2000000,0x0,0x1000000,0x1000000,0x0,0x1000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1a2a0000,0x1000000,0x0,0x5a2a0000,0x5a2a0000,0x5a2a4040,0x0,0x1a2a0000,0x1a2a0000,0x0,0x0,0x1a2a0000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x18000000,0x18000000,0xc0000000,0xc0000000,0x1a2a0000,0x2220000,0x2220000,0x5a2a0000,0x2220000,0x5a2a0000,0x5a2a0000,0x5a2a0000,0x0,0x2280000,0x40020000,0x40020000,0x1000000,0x4000000,0x1e2a0000,0x1a2a0000,0x1a2a0000,0x4000000,0x5a2a0000,0x5a2a0000,0x1000000,0x1000000,0x1000000,0x5a2a0000,0x5a2a0000,0x1000000,0x1a2a0000,0x1000000,0x0,0x5a2a0000,0x1000000,0x4000000,0x1a2a0000,0x1000000,0x0,0x5a2a0000,0x1000000,0x5a2a0000,0x5a2a0000,0x0,0x5a2a0000,0x1000000,0x0,0x0,0x0,0x0,0x0,0x5a2a0000,0x20000,0x1000000,0x0,0x40000000,0x0,0x0,0x0,};
@@ -10405,10 +10727,13 @@ else
       jj_la1_2 = new int[] {0xf7ffbdcc,0xf7ffbdcc,0x0,0xe0001804,0x0,0x0,0x1800,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1800,0x1800,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1800,0x1800,0x0,0x0,0x0,0x1800,0x0,0xf7ffbdcc,0xf7ffbdcc,0x0,0xe7ff9804,0xe0081804,0xe0081804,0xe0081804,0xe0081804,0xe0081804,0xe0081804,0xe0081804,0xe0081804,0xe0081804,0xe0081804,0xe0081804,0xe0081804,0xe0081804,0x0,0xe0081804,0x0,0x0,0x8f0000,0xe0001804,0xe0201804,0xe0201804,0x200000,0xe0001804,0x300000,0x0,0x0,0x1800,0x0,0x0,0x1800,0x1800,0x8000000,0x0,0x8000000,0x0,0x0,0x0,0x0,0x100025c8,0x10000480,0x20,0x10,0x10,0x10,0x200,0x10,0x4000,0x4200,0x8000000,0xe0001804,0x0,0x8000000,0xf7ffbdcc,0xf7ffbdcc,0xe7ff9804,0x8,0xe0001804,0xe0001804,0x0,0x0,0xe0001800,0x3,0x2,0x1,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0xe0001800,0x0,0x0,0xe0001804,0x0,0xe0081804,0xe0001804,0xe0001804,0x0,0xe0001800,0x1800,0x1800,0x0,0x0,0xe0001804,0xe0001804,0xe0001804,0x0,0xe0001800,0xe0001800,0x0,0x0,0x0,0xe0001804,0xe0001804,0x0,0xe0001804,0x0,0x880,0xe0001804,0x0,0x0,0xe0001804,0x0,0x880,0xe0001804,0x0,0xe0001804,0xe0001804,0x880,0xe0001804,0x0,0x888,0x800,0x888,0x888,0x2c00,0xe0001804,0x0,0x0,0x880,0x0,0x0,0x1800,0x0,};
    }
    private static void jj_la1_init_3() {
-      jj_la1_3 = new int[] {0xff8001fb,0xff8001fb,0x0,0xff8001fa,0x0,0x1,0x2,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x2,0x2,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x2,0x2,0x0,0x0,0x0,0x2,0x0,0xff8001fb,0xff8001fb,0x0,0xff8001fa,0xff8001fa,0xff8001fa,0xff8001fa,0xff8001fa,0xff8001fa,0xff8001fa,0xff8001fa,0xff8001fa,0xff8001fa,0xff8001fa,0xff8001fa,0xff8001fa,0xff8001fa,0x0,0xff8001fa,0x0,0x0,0x0,0xff8001fa,0xff8001fa,0xff8001fa,0x0,0xff8001fa,0x0,0x0,0x0,0x2,0x0,0x0,0x2,0x2,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0xff8001fa,0x0,0x0,0xff8001fb,0xff8001fb,0xff8001fa,0x0,0xff8001fa,0xff8001fa,0x0,0x0,0xff8001fa,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1,0x1,0xff8001fa,0x0,0x0,0xff8001fa,0x0,0xff8001fa,0xff8001fa,0xff8001fa,0xff800000,0xff8001fa,0x2,0x2,0x0,0x0,0xff8001fa,0xff8001fa,0xff8001fa,0x0,0xff8001fa,0xff8001fa,0x0,0x0,0x0,0xff8001fa,0xff8001fa,0x0,0xff8001fa,0x0,0x0,0xff8001fa,0x0,0x0,0xff8001fa,0x0,0x0,0xff8001fa,0x0,0xff8001fa,0xff8001fa,0x0,0xff8001fa,0x0,0x0,0x0,0x0,0x0,0x0,0xff8001fa,0x0,0x0,0x0,0x0,0x1f8,0x2,0xff800000,};
+      jj_la1_3 = new int[] {0xf80001fb,0xf80001fb,0x0,0xf80001fa,0x0,0x1,0x2,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x2,0x2,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x2,0x2,0x0,0x0,0x0,0x2,0x0,0xf80001fb,0xf80001fb,0x0,0xf80001fa,0xf80001fa,0xf80001fa,0xf80001fa,0xf80001fa,0xf80001fa,0xf80001fa,0xf80001fa,0xf80001fa,0xf80001fa,0xf80001fa,0xf80001fa,0xf80001fa,0xf80001fa,0x0,0xf80001fa,0x0,0x0,0x0,0xf80001fa,0xf80001fa,0xf80001fa,0x0,0xf80001fa,0x0,0x0,0x0,0x2,0x0,0x0,0x2,0x2,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0xf80001fa,0x0,0x0,0xf80001fb,0xf80001fb,0xf80001fa,0x0,0xf80001fa,0xf80001fa,0x0,0x0,0xf80001fa,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1,0x1,0xf80001fa,0x0,0x0,0xf80001fa,0x0,0xf80001fa,0xf80001fa,0xf80001fa,0xf8000000,0xf80001fa,0x2,0x2,0x0,0x0,0xf80001fa,0xf80001fa,0xf80001fa,0x0,0xf80001fa,0xf80001fa,0x0,0x0,0x0,0xf80001fa,0xf80001fa,0x0,0xf80001fa,0x0,0x0,0xf80001fa,0x0,0x0,0xf80001fa,0x0,0x0,0xf80001fa,0x0,0xf80001fa,0xf80001fa,0x0,0xf80001fa,0x0,0x0,0x0,0x0,0x0,0x0,0xf80001fa,0x0,0x0,0x0,0x0,0x1f8,0x2,0xf8000000,};
    }
    private static void jj_la1_init_4() {
-      jj_la1_4 = new int[] {0x7,0x7,0x0,0x7,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x7,0x7,0x0,0x7,0x7,0x7,0x7,0x7,0x7,0x7,0x7,0x7,0x7,0x7,0x7,0x7,0x7,0x0,0x7,0x0,0x0,0x0,0x7,0x7,0x7,0x0,0x7,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x7,0x0,0x0,0x7,0x7,0x7,0x0,0x7,0x7,0x0,0x0,0x7,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x7,0x0,0x0,0x7,0x0,0x7,0x7,0x7,0x7,0x7,0x0,0x0,0x0,0x0,0x7,0x7,0x7,0x0,0x7,0x7,0x0,0x0,0x0,0x7,0x7,0x0,0x7,0x0,0x0,0x7,0x0,0x0,0x7,0x0,0x0,0x7,0x0,0x7,0x7,0x0,0x7,0x0,0x0,0x0,0x0,0x0,0x0,0x7,0x0,0x0,0x0,0x0,0x0,0x0,0x7,};
+      jj_la1_4 = new int[] {0x7ff,0x7ff,0x0,0x7ff,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x7ff,0x7ff,0x0,0x7ff,0x7ff,0x7ff,0x7ff,0x7ff,0x7ff,0x7ff,0x7ff,0x7ff,0x7ff,0x7ff,0x7ff,0x7ff,0x7ff,0x0,0x7ff,0x0,0x0,0x0,0x7ff,0x7ff,0x7ff,0x0,0x7ff,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x7ff,0x0,0x0,0x7ff,0x7ff,0x7ff,0x0,0x7ff,0x7ff,0x0,0x0,0x7ff,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x7ff,0x0,0x0,0x7ff,0x0,0x7ff,0x7ff,0x7ff,0x7ff,0x7ff,0x0,0x0,0x0,0x0,0x7ff,0x7ff,0x7ff,0x0,0x7ff,0x7ff,0x0,0x0,0x0,0x7ff,0x7ff,0x0,0x7ff,0x0,0x0,0x7ff,0x0,0x0,0x7ff,0x0,0x0,0x7ff,0x0,0x7ff,0x7ff,0x0,0x7ff,0x0,0x0,0x0,0x0,0x0,0x0,0x7ff,0x0,0x0,0x0,0x0,0x0,0x0,0x7ff,};
+   }
+   private static void jj_la1_init_5() {
+      jj_la1_5 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
    }
   final private JJCalls[] jj_2_rtns = new JJCalls[35];
   private boolean jj_rescan = false;
@@ -10552,7 +10877,7 @@ else
   /** Generate ParseException. */
   public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[156];
+    boolean[] la1tokens = new boolean[170];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
@@ -10575,10 +10900,13 @@ else
           if ((jj_la1_4[i] & (1<<j)) != 0) {
             la1tokens[128+j] = true;
           }
+          if ((jj_la1_5[i] & (1<<j)) != 0) {
+            la1tokens[160+j] = true;
+          }
         }
       }
     }
-    for (int i = 0; i < 156; i++) {
+    for (int i = 0; i < 170; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;

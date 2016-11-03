@@ -298,6 +298,11 @@ MORE : /* Strings */
 |   < (["b", "B"]) (["r", "R"])? "'''" > :  IN_BSTRING13
 |   < (["b", "B"]) (["r", "R"])? "\"\"\"" > :  IN_BSTRING23
 
+|   < (["f", "F"]) (["r", "R"])? "'" > :  IN_FSTRING11
+|   < (["f", "F"]) (["r", "R"])? "\"" > :  IN_FSTRING21
+|   < (["f", "F"]) (["r", "R"])? "'''" > :  IN_FSTRING13
+|   < (["f", "F"]) (["r", "R"])? "\"\"\"" > :  IN_FSTRING23
+
 |   < (["r", "R"])? "'" > :  IN_STRING11
 |   < (["r", "R"])? "\"" > :  IN_STRING21
 |   < (["r", "R"])? "'''" > :  IN_STRING13
@@ -320,6 +325,15 @@ MORE : /* Strings */
 <IN_BSTRING13> TOKEN : { <TRIPLE_BSTRING: "'''"> {
     matchedToken.image = image.toString(); } : DEFAULT}
 <IN_BSTRING23> TOKEN : { <TRIPLE_BSTRING2: "\"\"\""> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+
+<IN_FSTRING11> TOKEN : { <SINGLE_FSTRING: "'"> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+<IN_FSTRING21> TOKEN : { <SINGLE_FSTRING2: "\""> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+<IN_FSTRING13> TOKEN : { <TRIPLE_FSTRING: "'''"> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+<IN_FSTRING23> TOKEN : { <TRIPLE_FSTRING2: "\"\"\""> {
     matchedToken.image = image.toString(); } : DEFAULT}
 
 <IN_USTRING11> TOKEN : { <SINGLE_USTRING: "'"> {
@@ -367,6 +381,18 @@ MORE : /* Strings */
 |   <("\\" ("\n"|"\r"))> { image.setLength(image.length()-2); } : IN_BSTRING2NLC
 }
 
+<IN_FSTRING11> MORE:
+{
+    <"\\\r\n">           { image.setLength(image.length()-3); } : IN_FSTRING1NLC
+|   <("\\" ("\n"|"\r"))> { image.setLength(image.length()-2); } : IN_FSTRING1NLC
+}
+
+<IN_FSTRING21> MORE:
+{
+    <"\\\r\n">           { image.setLength(image.length()-3); } : IN_FSTRING2NLC
+|   <("\\" ("\n"|"\r"))> { image.setLength(image.length()-2); } : IN_FSTRING2NLC
+}
+
 <IN_STRING1NLC> MORE:
 {
  <""> : IN_STRING11
@@ -397,8 +423,18 @@ MORE : /* Strings */
  <""> : IN_BSTRING21
 }
 
-<IN_STRING11, IN_USTRING11, IN_BSTRING11> MORE: { <("\\" ("\\"|"'")) | ~["\n","\r"]> }
-<IN_STRING21, IN_USTRING21, IN_BSTRING21> MORE: { <("\\" ("\\"|"\"")) | ~["\n","\r"]> }
+<IN_FSTRING1NLC> MORE:
+{
+ <""> : IN_FSTRING11
+}
+
+<IN_FSTRING2NLC> MORE:
+{
+ <""> : IN_FSTRING21
+}
+
+<IN_STRING11, IN_USTRING11, IN_BSTRING11, IN_FSTRING11> MORE: { <("\\" ("\\"|"'")) | ~["\n","\r"]> }
+<IN_STRING21, IN_USTRING21, IN_BSTRING21, IN_FSTRING21> MORE: { <("\\" ("\\"|"\"")) | ~["\n","\r"]> }
 
 /* This is a test to see if we can make the loading of strings more efficient (and maybe replace the MORE that is declared below.
 I stopped this because I've seen that making the CharStream was apparently the number 1 thing to do, but it might be worth
@@ -425,7 +461,7 @@ comming back to this approach later).
 }
 */
 
-<IN_STRING13, IN_STRING23, IN_USTRING13, IN_USTRING23, IN_BSTRING13, IN_BSTRING23> MORE:
+<IN_STRING13, IN_STRING23, IN_USTRING13, IN_USTRING23, IN_BSTRING13, IN_BSTRING23, IN_FSTRING13, IN_FSTRING23> MORE:
 {
     <"\r\n"> {
         int l = image.length();
@@ -1383,5 +1419,9 @@ void String() #void :
 |   ( t=<SINGLE_BSTRING2> { grammarActions.makeString(t, 1, (Str)jjtThis); } {} )#Binary
 |   ( t=<TRIPLE_BSTRING> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#Binary
 |   ( t=<TRIPLE_BSTRING2> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#Binary
+|   ( t=<SINGLE_FSTRING> { grammarActions.makeString(t, 1, (Str)jjtThis); } {} )#FString
+|   ( t=<SINGLE_FSTRING2> { grammarActions.makeString(t, 1, (Str)jjtThis); } {} )#FString
+|   ( t=<TRIPLE_FSTRING> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#FString
+|   ( t=<TRIPLE_FSTRING2> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#FString
 }
 

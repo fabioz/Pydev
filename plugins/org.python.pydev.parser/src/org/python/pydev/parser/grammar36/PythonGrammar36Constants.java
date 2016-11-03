@@ -211,29 +211,37 @@ public interface PythonGrammar36Constants {
   /** RegularExpression Id. */
   int DIGIT = 106;
   /** RegularExpression Id. */
-  int SINGLE_STRING = 119;
+  int SINGLE_STRING = 123;
   /** RegularExpression Id. */
-  int SINGLE_STRING2 = 120;
+  int SINGLE_STRING2 = 124;
   /** RegularExpression Id. */
-  int TRIPLE_STRING = 121;
+  int TRIPLE_STRING = 125;
   /** RegularExpression Id. */
-  int TRIPLE_STRING2 = 122;
+  int TRIPLE_STRING2 = 126;
   /** RegularExpression Id. */
-  int SINGLE_BSTRING = 123;
+  int SINGLE_BSTRING = 127;
   /** RegularExpression Id. */
-  int SINGLE_BSTRING2 = 124;
+  int SINGLE_BSTRING2 = 128;
   /** RegularExpression Id. */
-  int TRIPLE_BSTRING = 125;
+  int TRIPLE_BSTRING = 129;
   /** RegularExpression Id. */
-  int TRIPLE_BSTRING2 = 126;
+  int TRIPLE_BSTRING2 = 130;
   /** RegularExpression Id. */
-  int SINGLE_USTRING = 127;
+  int SINGLE_FSTRING = 131;
   /** RegularExpression Id. */
-  int SINGLE_USTRING2 = 128;
+  int SINGLE_FSTRING2 = 132;
   /** RegularExpression Id. */
-  int TRIPLE_USTRING = 129;
+  int TRIPLE_FSTRING = 133;
   /** RegularExpression Id. */
-  int TRIPLE_USTRING2 = 130;
+  int TRIPLE_FSTRING2 = 134;
+  /** RegularExpression Id. */
+  int SINGLE_USTRING = 135;
+  /** RegularExpression Id. */
+  int SINGLE_USTRING2 = 136;
+  /** RegularExpression Id. */
+  int TRIPLE_USTRING = 137;
+  /** RegularExpression Id. */
+  int TRIPLE_USTRING2 = 138;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -264,25 +272,37 @@ public interface PythonGrammar36Constants {
   /** Lexical state. */
   int IN_BSTRING23 = 13;
   /** Lexical state. */
-  int IN_USTRING11 = 14;
+  int IN_FSTRING11 = 14;
   /** Lexical state. */
-  int IN_USTRING21 = 15;
+  int IN_FSTRING21 = 15;
   /** Lexical state. */
-  int IN_USTRING13 = 16;
+  int IN_FSTRING13 = 16;
   /** Lexical state. */
-  int IN_USTRING23 = 17;
+  int IN_FSTRING23 = 17;
   /** Lexical state. */
-  int IN_STRING1NLC = 18;
+  int IN_USTRING11 = 18;
   /** Lexical state. */
-  int IN_STRING2NLC = 19;
+  int IN_USTRING21 = 19;
   /** Lexical state. */
-  int IN_USTRING1NLC = 20;
+  int IN_USTRING13 = 20;
   /** Lexical state. */
-  int IN_USTRING2NLC = 21;
+  int IN_USTRING23 = 21;
   /** Lexical state. */
-  int IN_BSTRING1NLC = 22;
+  int IN_STRING1NLC = 22;
   /** Lexical state. */
-  int IN_BSTRING2NLC = 23;
+  int IN_STRING2NLC = 23;
+  /** Lexical state. */
+  int IN_USTRING1NLC = 24;
+  /** Lexical state. */
+  int IN_USTRING2NLC = 25;
+  /** Lexical state. */
+  int IN_BSTRING1NLC = 26;
+  /** Lexical state. */
+  int IN_BSTRING2NLC = 27;
+  /** Lexical state. */
+  int IN_FSTRING1NLC = 28;
+  /** Lexical state. */
+  int IN_FSTRING2NLC = 29;
 
   /** Literal token values. */
   String[] tokenImage = {
@@ -405,6 +425,10 @@ public interface PythonGrammar36Constants {
     "<token of kind 116>",
     "<token of kind 117>",
     "<token of kind 118>",
+    "<token of kind 119>",
+    "<token of kind 120>",
+    "<token of kind 121>",
+    "<token of kind 122>",
     "\"\\\'\"",
     "\"\\\"\"",
     "\"\\\'\\\'\\\'\"",
@@ -417,31 +441,41 @@ public interface PythonGrammar36Constants {
     "\"\\\"\"",
     "\"\\\'\\\'\\\'\"",
     "\"\\\"\\\"\\\"\"",
-    "\"\\\\\\r\\n\"",
-    "<token of kind 132>",
-    "\"\\\\\\r\\n\"",
-    "<token of kind 134>",
-    "\"\\\\\\r\\n\"",
-    "<token of kind 136>",
-    "\"\\\\\\r\\n\"",
-    "<token of kind 138>",
+    "\"\\\'\"",
+    "\"\\\"\"",
+    "\"\\\'\\\'\\\'\"",
+    "\"\\\"\\\"\\\"\"",
     "\"\\\\\\r\\n\"",
     "<token of kind 140>",
     "\"\\\\\\r\\n\"",
     "<token of kind 142>",
-    "\"\"",
-    "\"\"",
-    "\"\"",
-    "\"\"",
-    "\"\"",
-    "\"\"",
-    "<token of kind 149>",
+    "\"\\\\\\r\\n\"",
+    "<token of kind 144>",
+    "\"\\\\\\r\\n\"",
+    "<token of kind 146>",
+    "\"\\\\\\r\\n\"",
+    "<token of kind 148>",
+    "\"\\\\\\r\\n\"",
     "<token of kind 150>",
+    "\"\\\\\\r\\n\"",
+    "<token of kind 152>",
+    "\"\\\\\\r\\n\"",
+    "<token of kind 154>",
+    "\"\"",
+    "\"\"",
+    "\"\"",
+    "\"\"",
+    "\"\"",
+    "\"\"",
+    "\"\"",
+    "\"\"",
+    "<token of kind 163>",
+    "<token of kind 164>",
     "\"\\r\\n\"",
     "\"\\n\"",
     "\"\\r\"",
-    "<token of kind 154>",
-    "<token of kind 155>",
+    "<token of kind 168>",
+    "<token of kind 169>",
   };
 
 }

@@ -83,4 +83,11 @@ public class PyParser36Test extends PyParserTestBase {
         parseLegalDocStr(s);
     }
 
+    public void testFString() {
+        String s = "" +
+                "a = f'some{string}'\n" +
+                "";
+        parseLegalDocStr(s);
+    }
+
 }
