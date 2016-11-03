@@ -71,4 +71,16 @@ public class PyParser36Test extends PyParserTestBase {
         parseLegalDocStr(s);
     }
 
+    public void testIntSeparators() {
+        String s = "" +
+                "a = 1_000_000\n" +
+                "b = 0x00_ff_aa\n" +
+                "c = 0b001_0010_1111\n" +
+                "d = 0o00_44_55\n" +
+                "f = 1_34_3.45_45\n" +
+                "f = 1_34_3.45_45e12_23\n" +
+                "";
+        parseLegalDocStr(s);
+    }
+
 }

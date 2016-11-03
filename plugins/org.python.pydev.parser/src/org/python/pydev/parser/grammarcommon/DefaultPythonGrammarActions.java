@@ -386,6 +386,7 @@ public final class DefaultPythonGrammarActions implements IPythonGrammarActions 
     }
 
     private void makeInt(String s, int radix, Token token, Num numberToFill) throws ParseException {
+        s = s.replace("_", "");
         numberToFill.num = token.image;
 
         if (s.endsWith("L") || s.endsWith("l")) {
@@ -423,7 +424,7 @@ public final class DefaultPythonGrammarActions implements IPythonGrammarActions 
 
     @Override
     public void makeFloat(Token t, Num numberToFill) throws ParseException {
-        String s = t.image;
+        String s = t.image.replace("_", "");
         numberToFill.num = s;
         try {
             numberToFill.n = Float.valueOf(s);
@@ -439,7 +440,7 @@ public final class DefaultPythonGrammarActions implements IPythonGrammarActions 
 
     @Override
     public void makeComplex(Token t, Num numberToFill) throws ParseException {
-        String s = t.image;
+        String s = t.image.replace("_", "");
         String compNumber = s.substring(0, s.length() - 1);
         numberToFill.num = s;
         try {
