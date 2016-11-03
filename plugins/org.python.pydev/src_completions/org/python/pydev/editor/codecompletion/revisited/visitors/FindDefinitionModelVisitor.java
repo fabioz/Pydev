@@ -509,7 +509,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
             if (j >= valueElts.length) {
                 j = valueElts.length - 1;
             }
-            Assign assign = new Assign(new exprType[] { targetTuple.elts[i] }, valueElts[j]);
+            Assign assign = new Assign(new exprType[] { targetTuple.elts[i] }, valueElts[j], null);
             assign.beginLine = targetTuple.beginLine;
             assign.beginColumn = targetTuple.beginColumn;
             if (unpackElements) {

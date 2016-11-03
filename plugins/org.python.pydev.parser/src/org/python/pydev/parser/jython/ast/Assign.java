@@ -7,10 +7,12 @@ import java.util.Arrays;
 public final class Assign extends stmtType {
     public exprType[] targets;
     public exprType value;
+    public exprType type;
 
-    public Assign(exprType[] targets, exprType value) {
+    public Assign(exprType[] targets, exprType value, exprType type) {
         this.targets = targets;
         this.value = value;
+        this.type = type;
     }
 
     @Override
@@ -19,6 +21,7 @@ public final class Assign extends stmtType {
         int result = 1;
         result = prime * result + Arrays.hashCode(targets);
         result = prime * result + ((value == null) ? 0 : value.hashCode());
+        result = prime * result + ((type == null) ? 0 : type.hashCode());
         return result;
     }
 
@@ -31,6 +34,8 @@ public final class Assign extends stmtType {
         if (!Arrays.equals(targets, other.targets)) return false;
         if (value == null) { if (other.value != null) return false;}
         else if (!value.equals(other.value)) return false;
+        if (type == null) { if (other.type != null) return false;}
+        else if (!type.equals(other.type)) return false;
         return true;
     }
     @Override
@@ -49,7 +54,8 @@ public final class Assign extends stmtType {
         }else{
             new0 = this.targets;
         }
-        Assign temp = new Assign(new0, value!=null?(exprType)value.createCopy(copyComments):null);
+        Assign temp = new Assign(new0, value!=null?(exprType)value.createCopy(copyComments):null,
+        type!=null?(exprType)type.createCopy(copyComments):null);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
         if(this.specialsBefore != null && copyComments){
@@ -79,6 +85,9 @@ public final class Assign extends stmtType {
         sb.append(", ");
         sb.append("value=");
         sb.append(dumpThis(this.value));
+        sb.append(", ");
+        sb.append("type=");
+        sb.append(dumpThis(this.type));
         sb.append("]");
         return sb.toString();
     }
@@ -99,6 +108,9 @@ public final class Assign extends stmtType {
         }
         if (value != null) {
             value.accept(visitor);
+        }
+        if (type != null) {
+            type.accept(visitor);
         }
     }
 

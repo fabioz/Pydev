@@ -77,7 +77,7 @@ public final class TreeBuilder25 extends AbstractTreeBuilder implements ITreeBui
                 if (arity > 1) {
                     exprs = makeExprs(arity - 1);
                     ctx.setStore(exprs);
-                    return new Assign(exprs, value);
+                    return new Assign(exprs, value, null);
                 } else {
                     return new Expr(value);
                 }

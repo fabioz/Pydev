@@ -1025,7 +1025,7 @@ public abstract class ModulesManager implements IModulesManager {
                             Name name = new Name((String) objAndType[0], Name.Store, false);
                             name.beginColumn = classDef.beginColumn + 4;
                             name.beginLine = classDef.beginLine + 1;
-                            newBody[i] = new Assign(new exprType[] { name }, (exprType) objAndType[1]);
+                            newBody[i] = new Assign(new exprType[] { name }, (exprType) objAndType[1], null);
                             newBody[i].beginColumn = classDef.beginColumn + 4;
                             newBody[i].beginLine = classDef.beginLine + 1;
 

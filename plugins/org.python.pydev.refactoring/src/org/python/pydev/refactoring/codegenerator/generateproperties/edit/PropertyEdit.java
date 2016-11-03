@@ -74,7 +74,7 @@ public class PropertyEdit extends AbstractInsertEdit {
         exprType[] target = new exprType[] { new Name(propertyName, Name.Store, false) };
         Call property = createPropertyCall();
 
-        return new Assign(target, property);
+        return new Assign(target, property, null);
     }
 
     private Call createPropertyCall() {

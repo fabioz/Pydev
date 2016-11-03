@@ -74,7 +74,7 @@ public class CreateLocalVariableEdit extends AbstractInsertEdit {
         exprType variable = new Name(variableName, expr_contextType.Store, false);
         exprType[] target = { variable };
 
-        return new Assign(target, expression);
+        return new Assign(target, expression, null);
     }
 
     private int calculateLineForLocal() {

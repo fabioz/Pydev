@@ -85,7 +85,7 @@ public class ExtractCallEdit extends AbstractReplaceEdit {
                 expr = new exprType[] { new Tuple(expr, Tuple.Load, false) };
             }
 
-            return new Assign(expr, methodCall);
+            return new Assign(expr, methodCall, null);
         }
     }
 

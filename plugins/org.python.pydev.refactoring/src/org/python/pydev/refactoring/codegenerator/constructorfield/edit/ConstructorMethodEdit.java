@@ -122,7 +122,7 @@ public class ConstructorMethodEdit extends AbstractInsertEdit {
             exprType target = new Attribute(new Name(NodeHelper.KEYWORD_SELF, Name.Load, false), new NameTok(
                     adapter.getName(), NameTok.Attrib), Attribute.Store);
             Assign initParam1 = new Assign(new exprType[] { target }, new Name(nodeHelper.getPublicAttr(adapter
-                    .getName()), Name.Load, false));
+                    .getName()), Name.Load, false), null);
             Assign initParam = initParam1;
             body.add(initParam);
         }

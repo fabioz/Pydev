@@ -134,7 +134,7 @@ public class FastDefinitionsParserTest extends TestCase {
                     break;
             }
 
-        } catch (Exception e) {
+        } catch (Throwable e) {
             System.out.println("Error parsing:" + f);
             e.printStackTrace();
         }

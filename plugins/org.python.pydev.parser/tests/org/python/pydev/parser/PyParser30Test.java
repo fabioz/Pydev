@@ -864,4 +864,13 @@ public class PyParser30Test extends PyParserTestBase {
         parseLegalDocStr(s);
 
     }
+
+    public void testTestGrammar35() {
+        String contents = FileUtils.getFileContents(new File(TestDependent.TEST_PYDEV_PARSER_PLUGIN_LOC +
+                "/tests/org/python/pydev/parser/python_test_grammar_35.py"));
+
+        parseLegalDocStr(contents);
+        parseLegalDocStrWithoutTree(contents);
+    }
+
 }

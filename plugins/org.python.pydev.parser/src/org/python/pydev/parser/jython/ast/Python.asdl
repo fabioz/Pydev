@@ -30,7 +30,7 @@ module Python
 	      | Return(expr? value) 
 
 	      | Delete(expr* targets)
-	      | Assign(expr* targets, expr value)
+	      | Assign(expr* targets, expr value, expr? type)
 	      | AugAssign(expr target, operator op, expr value)
 
 	      -- not sure if bool is allowed, can always use int

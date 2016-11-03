@@ -76,7 +76,7 @@ public final class TreeBuilder36 extends AbstractTreeBuilder implements ITreeBui
                 if (arity > 1) {
                     exprs = makeExprs(arity - 1);
                     ctx.setStore(exprs);
-                    return new Assign(exprs, value);
+                    return new Assign(exprs, value, null);
                 } else {
                     return new Expr(value);
                 }
@@ -525,6 +525,12 @@ public final class TreeBuilder36 extends AbstractTreeBuilder implements ITreeBui
                 ctx.setCtx(starred, starred.ctx);
                 return starred;
 
+            case JJTANN_ASSIGN:
+                value = (exprType) stack.popNode();
+                type = (exprType) stack.popNode();
+                exprs = makeExprs(arity - 2);
+                ctx.setStore(exprs);
+                return new Assign(exprs, value, type);
             default:
                 Log.log(("Error at TreeBuilder: default not treated:" + n.getId()));
                 return null;

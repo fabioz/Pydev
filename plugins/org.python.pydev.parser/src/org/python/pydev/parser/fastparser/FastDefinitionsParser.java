@@ -325,7 +325,7 @@ public final class FastDefinitionsParser {
                             }
 
                             if (targets.size() > 0) {
-                                Assign assign = new Assign(targets.toArray(new exprType[targets.size()]), null);
+                                Assign assign = new Assign(targets.toArray(new exprType[targets.size()]), null, null);
                                 assign.beginColumn = this.firstCharCol;
                                 assign.beginLine = this.row;
                                 stack.push(new NodeEntry(assign, leadingTabsInLine));
