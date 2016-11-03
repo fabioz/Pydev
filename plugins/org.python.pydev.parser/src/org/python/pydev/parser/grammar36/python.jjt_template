@@ -1230,7 +1230,7 @@ void comp_iter() #void: {}
 
 //comp_for: 'for' exprlist 'in' or_test [comp_iter]
 void comp_for(): {}
-{ <ASYNC> $FOR_COMP {grammarActions.pushStarExpr(Starred.Store);} exprlist() {grammarActions.popStarExpr();} $IN or_test() [comp_iter()] }
+{ (<ASYNC>)? $FOR_COMP {grammarActions.pushStarExpr(Starred.Store);} exprlist() {grammarActions.popStarExpr();} $IN or_test() [comp_iter()] }
 
 //comp_if: 'if' test_nocond [comp_iter]
 void comp_if()#void:{}
