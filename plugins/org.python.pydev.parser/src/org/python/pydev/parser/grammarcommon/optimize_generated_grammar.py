@@ -30,7 +30,7 @@ def main():
     print 'Optimizing grammar at: ', target_dir
     for f in os.listdir(target_dir):
         if f.endswith('.java'):
-            if f.startswith('PythonGrammar'):
+            if f.startswith('PythonGrammar') or f.startswith('FStringsGrammar'):
                 full_filename = os.path.join(target_dir, f)
                 with open(full_filename, 'rb') as stream:
                     contents = stream.read()
@@ -51,7 +51,7 @@ def main():
                     i = contents.find('Token jjFillToken')
                     regexp_to_match = re.compile(r'Token jjFillToken[^}]*')
 
-                    if 'tokenmanager' in f.lower():
+                    if 'tokenmanager' in f.lower() and not f.startswith('FStringsGrammar'):
                         new_jj_fill_token = '''
 Token jjFillToken()
 {

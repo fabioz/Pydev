@@ -2,42 +2,109 @@ package org.python.pydev.editor;
 
 import java.util.Queue;
 
-import org.eclipse.jface.text.Document;
+import org.eclipse.core.runtime.Assert;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.rules.IToken;
+import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.rules.Token;
+import org.python.pydev.parser.fastparser.grammar_fstrings_common.SimpleNode;
+import org.python.pydev.parser.grammar_fstrings.FStringsGrammar;
+import org.python.pydev.parser.grammar_fstrings.FStringsGrammarTreeConstants;
+import org.python.pydev.parser.jython.FastCharStream;
 import org.python.pydev.shared_core.partitioner.SubRuleToken;
 import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 import org.python.pydev.ui.ColorAndStyleCache;
 
-public class PyFStringScanner extends AbstractTokenScanner {
+public class PyFStringScanner implements ITokenScanner {
 
     private Token fStringReturnToken;
     private Token fStringExpressionReturnToken;
-    private PyCodeScanner pyCodeScanner;
+    protected final ColorAndStyleCache colorCache;
 
     public PyFStringScanner(ColorAndStyleCache colorCache) {
-        super(colorCache);
-        pyCodeScanner = new PyCodeScanner(colorCache);
+        this.colorCache = colorCache;
+        updateColorAndStyle();
     }
 
-    @Override
     public void updateColorAndStyle() {
         fStringReturnToken = new Token(colorCache.getUnicodeTextAttribute());
         fStringExpressionReturnToken = new Token(colorCache.getStringTextAttribute());
-        if (pyCodeScanner != null) {
-            pyCodeScanner.updateColors();
+    }
+
+    /*
+     * @see ITokenScanner#setRange(IDocument, int, int)
+     */
+    @Override
+    public void setRange(final IDocument document, final int offset, final int length) {
+        Assert.isLegal(document != null);
+        final int documentLength = document.getLength();
+        checkRange(offset, length, documentLength);
+
+        cachedSubTokens.clear();
+        cachedSubTokens.add(new SubRuleToken(fStringReturnToken, offset, length));
+
+        char[] chars;
+        try {
+            chars = document.get(offset, length).toCharArray();
+        } catch (BadLocationException e) {
+            throw new RuntimeException(e);
         }
+
+        FastCharStream in = new FastCharStream(chars);
+        FStringsGrammar fStringsGrammar = new FStringsGrammar(in);
+        SimpleNode ast = null;
+        try {
+            ast = fStringsGrammar.file_input();
+        } catch (Throwable e) {
+            // Just ignore any errors for this.
+        }
+
+        if (ast != null) {
+            // ast.dump("");
+            int numChildren = ast.jjtGetNumChildren();
+            if (numChildren > 0) {
+                // We have children -- clear the one initially set and set the proper children.
+                cachedSubTokens.clear();
+                int currOffset = 0;
+                for (int i = 0; i < numChildren; i++) {
+                    SimpleNode node = (SimpleNode) ast.jjtGetChild(i);
+                    if (node.id == FStringsGrammarTreeConstants.JJTF_STRING_EXPR) {
+                        if (currOffset != node.beginColumn - 1) {
+                            cachedSubTokens.add(new SubRuleToken(fStringReturnToken,
+                                    offset + currOffset, node.beginColumn - 1 - currOffset));
+                        }
+                        cachedSubTokens.add(new SubRuleToken(fStringExpressionReturnToken,
+                                offset + node.beginColumn - 1, node.endColumn - node.beginColumn + 1));
+                        currOffset = node.endColumn;
+                    }
+                }
+
+                if (currOffset != length) {
+                    cachedSubTokens.add(new SubRuleToken(fStringReturnToken,
+                            offset + currOffset, length - currOffset));
+                }
+            }
+        }
+    }
+
+    private void checkRange(int offset, int length, int documentLength) {
+        Assert.isLegal(offset > -1);
+        Assert.isLegal(length > -1);
+        Assert.isLegal(offset + length <= documentLength);
     }
 
     private final Queue<SubRuleToken> cachedSubTokens = new LinkedListWarningOnSlowOperations<SubRuleToken>();
     private SubRuleToken curr = null;
+    private int fOffset;
+    private int fLen;
 
     /*
      * @see ITokenScanner#getTokenOffset()
      */
     @Override
     public int getTokenOffset() {
-        return this.curr != null ? this.curr.offset : super.getTokenOffset();
+        return this.fOffset;
     }
 
     /*
@@ -45,68 +112,20 @@ public class PyFStringScanner extends AbstractTokenScanner {
      */
     @Override
     public int getTokenLength() {
-        return this.curr != null ? this.curr.len : super.getTokenLength();
+        return this.fLen;
     }
 
     @Override
     public IToken nextToken() {
         this.curr = cachedSubTokens.poll();
         if (this.curr != null) {
+            this.fOffset = this.curr.offset;
+            this.fLen = this.curr.len;
             return this.curr.token;
         }
-        fCurrentTokenIndexStartRelativeToInitialOffset = fCurrentIndexRelativeToInitialOffset;
-
-        int c = read();
-        if (c == -1) {
-            //This isn't really in the contract, but it should work anyways: users do a setRange, then:
-            //consume tokens until EOF (at which point we can clear our buffer).
-            fChars = null;
-            return Token.EOF;
-        }
-
-        if (c == '{') {
-            int currIndex = fCurrentIndexRelativeToInitialOffset;
-            while (c != -1 && c != '\r' && c != '\n' && c != '}') {
-                c = read();
-            }
-            if (c != '}') {
-                // { without } is just a regular string up to this point (nothing special about it).
-            } else {
-                Document doc = new Document(
-                        new String(this.fChars, currIndex, fCurrentIndexRelativeToInitialOffset - currIndex - 1));
-                pyCodeScanner.setRange(doc, 0, doc.getLength());
-                cachedSubTokens.clear();
-                cachedSubTokens.add(new SubRuleToken(fStringExpressionReturnToken,
-                        fInitialOffset + fCurrentTokenIndexStartRelativeToInitialOffset, 1));
-                while (true) {
-                    IToken nextToken = pyCodeScanner.nextToken();
-                    if (nextToken.isEOF()) {
-                        break;
-                    }
-                    cachedSubTokens.add(
-                            new SubRuleToken(nextToken, fInitialOffset + currIndex + pyCodeScanner.getTokenOffset(),
-                                    pyCodeScanner.getTokenLength()));
-                }
-                cachedSubTokens.add(
-                        new SubRuleToken(fStringExpressionReturnToken,
-                                fInitialOffset + fCurrentIndexRelativeToInitialOffset - 1, 1));
-                this.curr = cachedSubTokens.poll();
-                return this.curr.token;
-            }
-        }
-
-        while (c != -1 && c != '\r' && c != '\n' && c != '{') {
-            c = read();
-        }
-        if (c == -1) {
-            unread();
-            return fStringReturnToken;
-        }
-        while (c == '\r' && c == '\n') {
-            c = read();
-        }
-        unread();
-        return fStringReturnToken;
-
+        // Reached end
+        this.fOffset += fLen;
+        this.fLen = 0;
+        return Token.EOF;
     }
 }

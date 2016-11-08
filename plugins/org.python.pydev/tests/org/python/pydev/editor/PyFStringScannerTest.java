@@ -14,9 +14,7 @@ public class PyFStringScannerTest extends TestCase {
                 "a {b} a",
                 "" +
                         "unicode:0:2\n" +
-                        "string:2:1\n" +
-                        "code:3:1\n" +
-                        "string:4:1\n" +
+                        "string:2:3\n" +
                         "unicode:5:2\n" +
                         "");
     }
@@ -25,9 +23,7 @@ public class PyFStringScannerTest extends TestCase {
         check(
                 "{b}",
                 "" +
-                        "string:0:1\n" +
-                        "code:1:1\n" +
-                        "string:2:1\n" +
+                        "string:0:3\n" +
                         "");
     }
 
@@ -35,9 +31,7 @@ public class PyFStringScannerTest extends TestCase {
         check(
                 "  {b}",
                 "" +
-                        "string:2:1\n" +
-                        "code:3:1\n" +
-                        "string:4:1\n" +
+                        "string:2:3\n" +
                         "",
                 2,
                 3);
@@ -47,7 +41,7 @@ public class PyFStringScannerTest extends TestCase {
         check(
                 "{bsn",
                 "" +
-                        "unicode:0:4\n" +
+                        "string:0:4\n" +
                         "");
     }
 
@@ -56,7 +50,7 @@ public class PyFStringScannerTest extends TestCase {
                 "aa{bsn",
                 "" +
                         "unicode:0:2\n" +
-                        "unicode:2:4\n" +
+                        "string:2:4\n" +
                         "");
     }
 
@@ -66,15 +60,11 @@ public class PyFStringScannerTest extends TestCase {
                 "" +
                         "unicode:0:1\n" +
 
-                        "string:1:1\n" +
-                        "code:2:1\n" +
-                        "string:3:1\n" +
+                        "string:1:3\n" +
 
                         "unicode:4:1\n" +
 
-                        "string:5:1\n" +
-                        "code:6:1\n" +
-                        "string:7:1\n" +
+                        "string:5:3\n" +
 
                         "unicode:8:1\n" +
                         "");
@@ -85,9 +75,17 @@ public class PyFStringScannerTest extends TestCase {
         check(
                 "{'{b}'}",
                 "" +
-                        "string:0:1\n" +
-                        "code:1:5\n" +
-                        "string:2:1\n" +
+                        "string:0:7\n" +
+                        "");
+
+    }
+
+    public void testFStringTokenScanner8() {
+        check(
+                "{}{}",
+                "" +
+                        "string:0:2\n" +
+                        "string:2:2\n" +
                         "");
 
     }
