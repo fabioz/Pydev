@@ -202,6 +202,14 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener 
                     textPresentation.addStyleRange(new StyleRange(offset, len, textAttribute.getForeground(), null,
                             textAttribute.getStyle()));
 
+                } else if (IPythonPartitions.PY_MULTILINE_FSTRING1.equals(type)
+                        || IPythonPartitions.PY_MULTILINE_FSTRING2.equals(type)
+                        || IPythonPartitions.PY_SINGLELINE_FSTRING1.equals(type)
+                        || IPythonPartitions.PY_SINGLELINE_FSTRING2.equals(type)) {
+                    TextAttribute textAttribute = colorCache.getUnicodeTextAttribute();
+                    textPresentation.addStyleRange(new StyleRange(offset, len, textAttribute.getForeground(), null,
+                            textAttribute.getStyle()));
+
                 } else if (IPythonPartitions.PY_MULTILINE_UNICODE1.equals(type)
                         || IPythonPartitions.PY_MULTILINE_UNICODE2.equals(type)
                         || IPythonPartitions.PY_SINGLELINE_UNICODE1.equals(type)

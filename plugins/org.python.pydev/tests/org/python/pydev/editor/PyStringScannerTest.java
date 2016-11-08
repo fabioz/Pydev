@@ -11,39 +11,17 @@
 ******************************************************************************/
 package org.python.pydev.editor;
 
-import junit.framework.TestCase;
-
 import org.eclipse.jface.text.Document;
-import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.rules.IToken;
+import org.python.pydev.editor.ColorCacheAndStyleForTesting.TextAttr;
 import org.python.pydev.shared_core.string.FastStringBuffer;
-import org.python.pydev.ui.ColorAndStyleCache;
+
+import junit.framework.TestCase;
 
 public class PyStringScannerTest extends TestCase {
 
-    private static class TextAttr extends TextAttribute {
-
-        public String data;
-
-        public TextAttr(String data) {
-            super(null);
-            this.data = data;
-        }
-
-    }
-
     public void testStringTokenScanner() {
-        ColorAndStyleCache colorCache = new ColorAndStyleCache(null) {
-            @Override
-            public TextAttribute getStringTextAttribute() {
-                return new TextAttr("string");
-            }
-
-            @Override
-            public TextAttribute getDocstringMarkupTextAttribute() {
-                return new TextAttr("markup");
-            }
-        };
+        ColorCacheAndStyleForTesting colorCache = new ColorCacheAndStyleForTesting();
         PyStringScanner pyStringScanner = new PyStringScanner(colorCache);
         Document document = new Document("@param foo: this is foo");
         pyStringScanner.setRange(document, 0, document.getLength());
@@ -57,7 +35,7 @@ public class PyStringScannerTest extends TestCase {
                     .append(':').append(pyStringScanner.getTokenLength()).append('\n');
         }
         assertEquals(""
-                + "markup:0:6\n"
+                + "docstring_markup:0:6\n"
                 + "string:6:1\n"
                 + "string:7:16\n"
                 + "", buf.toString());

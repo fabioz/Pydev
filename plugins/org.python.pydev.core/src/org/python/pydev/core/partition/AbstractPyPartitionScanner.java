@@ -30,6 +30,10 @@ public class AbstractPyPartitionScanner extends CustomRuleBasedPartitionScanner 
     private Token singleLineBytesOrUnicodeToken2;
     private Token multiLineBytesOrUnicodeToken1;
     private Token multiLineBytesOrUnicodeToken2;
+    private Token singleLineFStringToken1;
+    private Token singleLineFStringToken2;
+    private Token multiLineFStringToken1;
+    private Token multiLineFStringToken2;
 
     /**
      * Note: the formats supported for strings are:
@@ -65,6 +69,8 @@ public class AbstractPyPartitionScanner extends CustomRuleBasedPartitionScanner 
         singleLineUnicodeToken2 = new Token(IPythonPartitions.PY_SINGLELINE_UNICODE2);
         singleLineBytesToken1 = new Token(IPythonPartitions.PY_SINGLELINE_BYTES1);
         singleLineBytesToken2 = new Token(IPythonPartitions.PY_SINGLELINE_BYTES2);
+        singleLineFStringToken1 = new Token(IPythonPartitions.PY_SINGLELINE_FSTRING1);
+        singleLineFStringToken2 = new Token(IPythonPartitions.PY_SINGLELINE_FSTRING2);
         singleLineBytesOrUnicodeToken1 = new Token(IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE1);
         singleLineBytesOrUnicodeToken2 = new Token(IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE2);
 
@@ -75,6 +81,11 @@ public class AbstractPyPartitionScanner extends CustomRuleBasedPartitionScanner 
         //                breaksOnEOF, escapeContinuesLine);
         //        IPredicateRule singlelineUnicodeRule2 = new PatternRule("\"", "\"", singleLineUnicodeToken2, '\\', breaksOnEOL,
         //                breaksOnEOF, escapeContinuesLine);
+
+        SingleLineRuleWithMultipleStarts singlelineFString1 = new SingleLineRuleWithMultipleStarts(
+                new String[] { "f'", "fr'" }, "'", singleLineFStringToken1, '\\', true);
+        SingleLineRuleWithMultipleStarts singlelineFString2 = new SingleLineRuleWithMultipleStarts(
+                new String[] { "f\"", "fr\"" }, "\"", singleLineFStringToken2, '\\', true);
 
         SingleLineRuleWithMultipleStarts singlelineBytes1 = new SingleLineRuleWithMultipleStarts(
                 new String[] { "b'", "br'" }, "'", singleLineBytesToken1, '\\', true);
@@ -94,6 +105,8 @@ public class AbstractPyPartitionScanner extends CustomRuleBasedPartitionScanner 
         // multiline
         multiLineBytesToken1 = new Token(IPythonPartitions.PY_MULTILINE_BYTES1);
         multiLineBytesToken2 = new Token(IPythonPartitions.PY_MULTILINE_BYTES2);
+        multiLineFStringToken1 = new Token(IPythonPartitions.PY_MULTILINE_FSTRING1);
+        multiLineFStringToken2 = new Token(IPythonPartitions.PY_MULTILINE_FSTRING2);
         multiLineUnicodeToken1 = new Token(IPythonPartitions.PY_MULTILINE_UNICODE1);
         multiLineUnicodeToken2 = new Token(IPythonPartitions.PY_MULTILINE_UNICODE2);
         multiLineBytesOrUnicodeToken1 = new Token(IPythonPartitions.PY_MULTILINE_BYTES_OR_UNICODE1);
@@ -109,6 +122,11 @@ public class AbstractPyPartitionScanner extends CustomRuleBasedPartitionScanner 
 
         // IPredicateRule multilineBytes1 = new MultiLineRule("'''", "'''", multiLineBytesToken1, '\\', breaksOnEOF);
         // IPredicateRule multilineBytes2 = new MultiLineRule("\"\"\"", "\"\"\"", multiLineBytesToken2, '\\', breaksOnEOF);
+
+        MultiLineRuleWithMultipleStarts multilineFString1 = new MultiLineRuleWithMultipleStarts(
+                new String[] { "f'''", "fr'''" }, "'''", multiLineFStringToken1, '\\');
+        MultiLineRuleWithMultipleStarts multilineFString2 = new MultiLineRuleWithMultipleStarts(
+                new String[] { "f\"\"\"", "fr\"\"\"" }, "\"\"\"", multiLineFStringToken2, '\\');
 
         MultiLineRuleWithMultipleStarts multilineBytes1 = new MultiLineRuleWithMultipleStarts(
                 new String[] { "b'''", "br'''" }, "'''", multiLineBytesToken1, '\\');
@@ -129,6 +147,8 @@ public class AbstractPyPartitionScanner extends CustomRuleBasedPartitionScanner 
 
         setPredicateRules(new IPredicateRule[] {
                 reprRule,
+                multilineFString1,
+                multilineFString2,
                 multilineBytes1,
                 multilineBytes2,
                 multilineUnicode1,
@@ -137,6 +157,8 @@ public class AbstractPyPartitionScanner extends CustomRuleBasedPartitionScanner 
                 multilineBytesOrUnicode2,
 
                 //Note: the order is important (so, single lines after multi lines)
+                singlelineFString1,
+                singlelineFString2,
                 singlelineBytes1,
                 singlelineBytes2,
                 singlelineUnicode1,

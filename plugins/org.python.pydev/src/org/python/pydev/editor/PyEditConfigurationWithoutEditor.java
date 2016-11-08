@@ -50,6 +50,8 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
 
     private PyStringScanner stringScanner;
 
+    private PyFStringScanner fStringScanner;
+
     private PyUnicodeScanner unicodeScanner;
 
     private PyBytesOrUnicodeScanner bytesOrUnicodeScanner;
@@ -78,6 +80,11 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
                 IDocument.DEFAULT_CONTENT_TYPE,
                 IPythonPartitions.PY_COMMENT,
                 IPythonPartitions.PY_BACKQUOTES,
+
+                IPythonPartitions.PY_SINGLELINE_FSTRING1,
+                IPythonPartitions.PY_SINGLELINE_FSTRING2,
+                IPythonPartitions.PY_MULTILINE_FSTRING1,
+                IPythonPartitions.PY_MULTILINE_FSTRING2,
 
                 IPythonPartitions.PY_SINGLELINE_BYTES1,
                 IPythonPartitions.PY_SINGLELINE_BYTES2,
@@ -248,6 +255,18 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
                 reconciler.setDamager(dr, IPythonPartitions.PY_MULTILINE_BYTES2);
                 reconciler.setRepairer(dr, IPythonPartitions.PY_MULTILINE_BYTES2);
 
+                fStringScanner = new PyFStringScanner(colorCache);
+                dr = new DefaultDamagerRepairer(fStringScanner);
+                reconciler.setDamager(dr, IPythonPartitions.PY_SINGLELINE_FSTRING1);
+                reconciler.setRepairer(dr, IPythonPartitions.PY_SINGLELINE_FSTRING1);
+                reconciler.setDamager(dr, IPythonPartitions.PY_SINGLELINE_FSTRING2);
+                reconciler.setRepairer(dr, IPythonPartitions.PY_SINGLELINE_FSTRING2);
+
+                reconciler.setDamager(dr, IPythonPartitions.PY_MULTILINE_FSTRING1);
+                reconciler.setRepairer(dr, IPythonPartitions.PY_MULTILINE_FSTRING1);
+                reconciler.setDamager(dr, IPythonPartitions.PY_MULTILINE_FSTRING2);
+                reconciler.setRepairer(dr, IPythonPartitions.PY_MULTILINE_FSTRING2);
+
                 unicodeScanner = new PyUnicodeScanner(colorCache);
                 dr = new DefaultDamagerRepairer(unicodeScanner);
                 reconciler.setDamager(dr, IPythonPartitions.PY_SINGLELINE_UNICODE1);
@@ -342,6 +361,10 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
 
                 if (bytesOrUnicodeScanner != null) {
                     bytesOrUnicodeScanner.updateColorAndStyle();
+                }
+
+                if (fStringScanner != null) {
+                    fStringScanner.updateColorAndStyle();
                 }
 
                 if (backquotesScanner != null) {

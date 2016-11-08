@@ -1,79 +1,16 @@
 package org.python.pydev.editor;
 
-import org.eclipse.core.runtime.Assert;
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.rules.IToken;
-import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.rules.Token;
 import org.python.pydev.ui.ColorAndStyleCache;
 
-public abstract class AbstractStringScanner implements ITokenScanner {
-    protected final ColorAndStyleCache colorCache;
+public abstract class AbstractStringScanner extends AbstractTokenScanner {
+
     protected Token fDocStringMarkupTextReturnToken;
     protected IToken fStringReturnToken;
-    protected char[] fChars;
-    protected int fOffset;
-    protected int fCurrIndex;
-    protected int fstart;
 
     public AbstractStringScanner(ColorAndStyleCache colorCache) {
-        super();
-        this.colorCache = colorCache;
-        updateColorAndStyle();
-    }
-
-    protected abstract void updateColorAndStyle();
-
-    /*
-     * @see ITokenScanner#setRange(IDocument, int, int)
-     */
-    @Override
-    public void setRange(final IDocument document, int offset, int length) {
-        Assert.isLegal(document != null);
-        final int documentLength = document.getLength();
-        checkRange(offset, length, documentLength);
-
-        fOffset = offset;
-        fCurrIndex = 0;
-        fstart = 0;
-        try {
-            fChars = document.get(offset, length).toCharArray();
-        } catch (BadLocationException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
-
-    /**
-     * Checks that the given range is valid.
-     * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=69292
-     *
-     * @param offset the offset of the document range to scan
-     * @param length the length of the document range to scan
-     * @param documentLength the document's length
-     * @since 3.3
-     */
-    private void checkRange(int offset, int length, int documentLength) {
-        Assert.isLegal(offset > -1);
-        Assert.isLegal(length > -1);
-        Assert.isLegal(offset + length <= documentLength);
-    }
-
-    /*
-     * @see ITokenScanner#getTokenOffset()
-     */
-    @Override
-    public int getTokenOffset() {
-        return fOffset + fstart;
-    }
-
-    /*
-     * @see ITokenScanner#getTokenLength()
-     */
-    @Override
-    public int getTokenLength() {
-        return fCurrIndex - fstart;
+        super(colorCache);
     }
 
     /*
@@ -81,7 +18,7 @@ public abstract class AbstractStringScanner implements ITokenScanner {
      */
     @Override
     public IToken nextToken() {
-        fstart = fCurrIndex;
+        fCurrentTokenIndexStartRelativeToInitialOffset = fCurrentIndexRelativeToInitialOffset;
 
         int c = read();
         if (c == -1) {
@@ -129,17 +66,4 @@ public abstract class AbstractStringScanner implements ITokenScanner {
         return fStringReturnToken;
     }
 
-    private int read() {
-        if (fCurrIndex >= fChars.length) {
-            fCurrIndex++;
-            return -1;
-        }
-        char c = fChars[fCurrIndex];
-        fCurrIndex++;
-        return c;
-    }
-
-    private void unread() {
-        fCurrIndex--;
-    }
 }
