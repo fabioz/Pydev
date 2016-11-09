@@ -83,6 +83,8 @@ public abstract class AbstractDebuggerCommand {
     static public final int CMD_IGNORE_THROWN_EXCEPTION_AT = 140;
     static public final int CMD_ENABLE_DONT_TRACE = 141;
 
+    static public final int CMD_SHOW_RETURN_VALUES = 146;
+
     static public final int CMD_ERROR = 901;
     static public final int CMD_VERSION = 501;
     static public final int CMD_RETURN = 502;

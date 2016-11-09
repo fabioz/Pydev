@@ -59,6 +59,7 @@ import org.python.pydev.debug.model.remote.SetBreakpointCommand;
 import org.python.pydev.debug.model.remote.SetDjangoExceptionBreakpointCommand;
 import org.python.pydev.debug.model.remote.SetDontTraceEnabledCommand;
 import org.python.pydev.debug.model.remote.SetPropertyTraceCommand;
+import org.python.pydev.debug.model.remote.SetShowReturnValuesEnabledCommand;
 import org.python.pydev.debug.model.remote.ThreadListCommand;
 import org.python.pydev.debug.model.remote.VersionCommand;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
@@ -761,6 +762,9 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
             if (property.equals(PydevEditorPrefs.DONT_TRACE_ENABLED)) {
                 sendDontTraceEnabledCommand();
 
+            } else if (property.equals(PydevEditorPrefs.SHOW_RETURN_VALUES)) {
+                sendShowReturnValuesEnabledCommand();
+
             } else if (property.equals(PydevEditorPrefs.TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS)) {
                 sendSetDjangoExceptionBreakpointCommand();
             }
@@ -787,6 +791,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         this.onUpdateIgnoreThrownExceptions();
         this.sendSetDjangoExceptionBreakpointCommand();
         this.sendDontTraceEnabledCommand();
+        this.sendShowReturnValuesEnabledCommand();
 
         IPreferenceStore pyPrefsStore = PydevPlugin.getDefault().getPreferenceStore();
         pyPrefsStore.addPropertyChangeListener(listener);
@@ -800,6 +805,13 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         IPreferenceStore pyPrefsStore = PydevPlugin.getDefault().getPreferenceStore();
         SetDontTraceEnabledCommand cmd = new SetDontTraceEnabledCommand(this,
                 pyPrefsStore.getBoolean(PydevEditorPrefs.DONT_TRACE_ENABLED));
+        this.postCommand(cmd);
+    }
+
+    private void sendShowReturnValuesEnabledCommand() {
+        IPreferenceStore pyPrefsStore = PydevPlugin.getDefault().getPreferenceStore();
+        SetShowReturnValuesEnabledCommand cmd = new SetShowReturnValuesEnabledCommand(this,
+                pyPrefsStore.getBoolean(PydevEditorPrefs.SHOW_RETURN_VALUES));
         this.postCommand(cmd);
     }
 

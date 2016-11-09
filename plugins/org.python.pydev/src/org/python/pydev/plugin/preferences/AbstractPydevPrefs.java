@@ -157,6 +157,9 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     public static final String DONT_TRACE_ENABLED = "DONT_TRACE_ENABLED";
     public static final boolean DEFAULT_DONT_TRACE_ENABLED = true;
 
+    public static final String SHOW_RETURN_VALUES = "SHOW_RETURN_VALUES";
+    public static final boolean DEFAULT_SHOW_RETURN_VALUES = true;
+
     public static final String TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS = "TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS";
     public static final boolean DEFAULT_TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS = false;
 

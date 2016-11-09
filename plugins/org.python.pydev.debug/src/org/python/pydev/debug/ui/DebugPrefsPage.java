@@ -68,8 +68,16 @@ public class DebugPrefsPage extends FieldEditorPreferencePage implements IWorkbe
                 "On a step in, skip over methods which have a @DontTrace comment?", BooleanFieldEditor.SEPARATE_LABEL,
                 p);
         c = editor.getDescriptionControl(p);
-        c.setToolTipText("When a comment: # @DontTrace is found after a method, it's skipped by the debugger if this setting is on.\n\n"
-                + "Use Ctrl+1 in a method line to add such a comment.");
+        c.setToolTipText(
+                "When a comment: # @DontTrace is found after a method, it's skipped by the debugger if this setting is on.\n\n"
+                        + "Use Ctrl+1 in a method line to add such a comment.");
+        addField(editor);
+
+        editor = new BooleanFieldEditor(PydevEditorPrefs.SHOW_RETURN_VALUES,
+                "Show return values for methods?", BooleanFieldEditor.SEPARATE_LABEL,
+                p);
+        c = editor.getDescriptionControl(p);
+        c.setToolTipText("When this option is enabled, upon returning from a method, its return value is shown.");
         addField(editor);
 
         List<IDebugPreferencesPageParticipant> participants = ExtensionHelper
@@ -108,6 +116,10 @@ public class DebugPrefsPage extends FieldEditorPreferencePage implements IWorkbe
 
     public static boolean getDontTraceEnabled() {
         return PydevPrefs.getPreferences().getBoolean(PydevEditorPrefs.DONT_TRACE_ENABLED);
+    }
+
+    public static boolean getShowReturnValuesEnabled() {
+        return PydevPrefs.getPreferences().getBoolean(PydevEditorPrefs.SHOW_RETURN_VALUES);
     }
 
     public static boolean getDebugMultiprocessingEnabled() {

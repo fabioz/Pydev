@@ -130,6 +130,7 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.putInt(PydevEditorPrefs.CONNECT_TIMEOUT, PydevEditorPrefs.DEFAULT_CONNECT_TIMEOUT);
         node.putBoolean(PydevEditorPrefs.RELOAD_MODULE_ON_CHANGE, PydevEditorPrefs.DEFAULT_RELOAD_MODULE_ON_CHANGE);
         node.putBoolean(PydevEditorPrefs.DONT_TRACE_ENABLED, PydevEditorPrefs.DEFAULT_DONT_TRACE_ENABLED);
+        node.putBoolean(PydevEditorPrefs.SHOW_RETURN_VALUES, PydevEditorPrefs.DEFAULT_SHOW_RETURN_VALUES);
         node.putBoolean(PydevEditorPrefs.DEBUG_MULTIPROCESSING_ENABLED,
                 PydevEditorPrefs.DEFAULT_DEBUG_MULTIPROCESSING_ENABLED);
         node.putBoolean(PydevEditorPrefs.KILL_SUBPROCESSES_WHEN_TERMINATING_PROCESS,
