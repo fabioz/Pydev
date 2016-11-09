@@ -66,6 +66,8 @@ public class FStringsParserTest extends TestCase {
     }
 
     public void testFStringParsing() throws ParseException, BadLocationException {
+        checkExprs("{{'c':20}}", ArrayUtils.asSet("{'c':20}"));
+
         checkExprs("a{text}a{text2}b", ArrayUtils.asSet("text", "text2"));
         checkExprs("{text!a}", ArrayUtils.asSet("text"));
         checkExprs("{text!s}", ArrayUtils.asSet("text"));
@@ -91,6 +93,7 @@ public class FStringsParserTest extends TestCase {
 
         checkError("{text!}", "Only '!a', '!s' or '!r' accepted.");
 
+        checkError("}", "Single '}' not allowed");
         checkError("{text", "Unbalanced '{'");
         checkError("{\"a}", "Unbalanced '\"'");
         checkError("{ { }", "Unbalanced '{'");
@@ -100,6 +103,5 @@ public class FStringsParserTest extends TestCase {
         checkError("{text!x}", "Expecting '!a', '!s' or '!r'. Found: x");
         checkError("{no backslash\\\\n}", "Backslash (\\) not valid inside f-string expressions.");
         checkError("{no backslash'\\\\n'}", "Backslash (\\) not valid inside f-string expressions.");
-
     }
 }

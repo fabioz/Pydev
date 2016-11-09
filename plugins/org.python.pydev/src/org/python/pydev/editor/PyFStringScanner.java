@@ -4,15 +4,19 @@ import java.util.Queue;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.rules.Token;
+import org.python.pydev.core.docutils.ParsingUtils;
+import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.parser.fastparser.grammar_fstrings_common.FStringsAST;
 import org.python.pydev.parser.fastparser.grammar_fstrings_common.SimpleNode;
 import org.python.pydev.parser.grammar_fstrings.FStringsGrammar;
 import org.python.pydev.parser.jython.FastCharStream;
 import org.python.pydev.shared_core.partitioner.SubRuleToken;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 import org.python.pydev.ui.ColorAndStyleCache;
 
@@ -44,14 +48,70 @@ public class PyFStringScanner implements ITokenScanner {
         cachedSubTokens.clear();
         cachedSubTokens.add(new SubRuleToken(fStringReturnToken, offset, length));
 
-        char[] chars;
+        String str;
         try {
-            chars = document.get(offset, length).toCharArray();
+            str = document.get(offset, length);
         } catch (BadLocationException e) {
             throw new RuntimeException(e);
         }
+        ParsingUtils pu = ParsingUtils.create(str);
+        int len = pu.len();
+        int startInternalStrOffset = 0;
+        int endInternalStrOffet = 0;
+        String buf = "";
+        for (; startInternalStrOffset < len; startInternalStrOffset++) {
+            char c = pu.charAt(startInternalStrOffset);
+            if (c == '\'' || c == '"') {
+                if (startInternalStrOffset > 2) {
+                    //Something went wrong, this should be after f' or at most fr'
+                    return;
+                }
+                try {
+                    int endPos = pu.getLiteralEnd(startInternalStrOffset, c);
+                    boolean isMulti = pu.isMultiLiteral(startInternalStrOffset, c);
+                    if (isMulti) {
 
-        FastCharStream in = new FastCharStream(chars);
+                        startInternalStrOffset += 3;
+                        boolean reachedEndBecauseOfEndOfString = endPos <= startInternalStrOffset;
+                        if (!reachedEndBecauseOfEndOfString) {
+                            for (int i = endPos - 2; i < endPos; i++) {
+                                if (pu.charAt(i) != c) {
+                                    reachedEndBecauseOfEndOfString = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (reachedEndBecauseOfEndOfString) {
+                            buf = str.substring(startInternalStrOffset, endPos);
+                            endInternalStrOffet = 0;
+                        } else {
+                            buf = str.substring(startInternalStrOffset, endPos - 2);
+                            endInternalStrOffet = 3;
+                        }
+                    } else {
+                        startInternalStrOffset += 1;
+                        boolean reachedEndBecauseOfEndOfString = endPos <= startInternalStrOffset || endPos >= pu.len();
+
+                        buf = str.substring(startInternalStrOffset, endPos);
+                        if (reachedEndBecauseOfEndOfString) {
+                            endInternalStrOffet = 0;
+
+                        } else {
+                            endInternalStrOffet = 1;
+                        }
+                    }
+                    break;
+                } catch (SyntaxErrorException e) {
+                    return; // Something went wrong... 
+                }
+            }
+        }
+        if (buf.length() < 0) {
+            return;
+        }
+
+        FastCharStream in = new FastCharStream(buf.toCharArray());
         FStringsGrammar fStringsGrammar = new FStringsGrammar(in);
         FStringsAST ast = null;
         try {
@@ -64,20 +124,36 @@ public class PyFStringScanner implements ITokenScanner {
             // ast.dump();
             // We have children -- clear the one initially set and set the proper children.
             cachedSubTokens.clear();
+            Document doc = new Document(buf.toString());
             int currOffset = 0;
-            for (SimpleNode node : ast.getFStringExpressions()) {
-                if (currOffset != node.beginColumn - 1) {
-                    cachedSubTokens.add(new SubRuleToken(fStringReturnToken,
-                            offset + currOffset, node.beginColumn - 1 - currOffset));
-                }
-                cachedSubTokens.add(new SubRuleToken(fStringExpressionReturnToken,
-                        offset + node.beginColumn - 1, node.endColumn - node.beginColumn + 1));
-                currOffset = node.endColumn;
+
+            if (startInternalStrOffset != 0) {
+                cachedSubTokens.add(new SubRuleToken(fStringReturnToken,
+                        offset, startInternalStrOffset));
             }
 
-            if (currOffset != length) {
+            for (SimpleNode node : ast.getFStringExpressions()) {
+                int startRelOffset = TextSelectionUtils.getAbsoluteCursorOffset(doc, node.beginLine - 1,
+                        node.beginColumn - 1);
+                int endRelOffset = TextSelectionUtils.getAbsoluteCursorOffset(doc, node.endLine - 1, node.endColumn);
+
+                if (currOffset != startRelOffset) {
+                    cachedSubTokens.add(new SubRuleToken(fStringReturnToken,
+                            offset + startInternalStrOffset + currOffset, startRelOffset - currOffset));
+                }
+                cachedSubTokens.add(new SubRuleToken(fStringExpressionReturnToken,
+                        offset + startInternalStrOffset + startRelOffset, endRelOffset - startRelOffset));
+                currOffset = endRelOffset;
+            }
+
+            if (currOffset != doc.getLength()) {
                 cachedSubTokens.add(new SubRuleToken(fStringReturnToken,
-                        offset + currOffset, length - currOffset));
+                        offset + startInternalStrOffset + currOffset, doc.getLength() - currOffset));
+            }
+
+            if (endInternalStrOffet != 0) {
+                cachedSubTokens.add(new SubRuleToken(fStringReturnToken,
+                        offset + startInternalStrOffset + doc.getLength(), endInternalStrOffet));
             }
         }
     }

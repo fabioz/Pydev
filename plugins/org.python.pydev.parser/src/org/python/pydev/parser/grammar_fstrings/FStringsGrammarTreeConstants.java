@@ -8,9 +8,10 @@ public interface FStringsGrammarTreeConstants
   public int JJTTYPE_CONVERSION = 2;
   public int JJTFORMAT_SPEC = 3;
   public int JJTBALANCED_EXPRESSION_TEXT = 4;
-  public int JJTINNER_BALANCED_EXPRESSION_TEXT = 5;
-  public int JJTSTRING = 6;
-  public int JJTSTRING2 = 7;
+  public int JJTINITIAL_BALANCED_EXPRESSION_TEXT = 5;
+  public int JJTINNER_BALANCED_EXPRESSION_TEXT_WITH_EXCLAMATION_AND_COLON = 6;
+  public int JJTSTRING = 7;
+  public int JJTSTRING2 = 8;
 
 
   public String[] jjtNodeName = {
@@ -19,9 +20,10 @@ public interface FStringsGrammarTreeConstants
     "type_conversion",
     "format_spec",
     "balanced_expression_text",
-    "inner_balanced_expression_text",
+    "initial_balanced_expression_text",
+    "inner_balanced_expression_text_with_exclamation_and_colon",
     "string",
     "string2",
   };
 }
-/* JavaCC - OriginalChecksum=97242487863cd1b99a5fc21ddda948e7 (do not edit this line) */
+/* JavaCC - OriginalChecksum=59fd547eaece0ccb4db529e49f8d8d50 (do not edit this line) */

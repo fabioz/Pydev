@@ -256,7 +256,10 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
                 reconciler.setRepairer(dr, IPythonPartitions.PY_MULTILINE_BYTES2);
 
                 fStringScanner = new PyFStringScanner(colorCache);
-                dr = new DefaultDamagerRepairer(fStringScanner);
+                // We have to damage the whole partition because internal tokens may span
+                // multiple lines (i.e.: an expression inside an f-string may have
+                // multiple lines).
+                dr = new FullPartitionDamagerRepairer(fStringScanner);
                 reconciler.setDamager(dr, IPythonPartitions.PY_SINGLELINE_FSTRING1);
                 reconciler.setRepairer(dr, IPythonPartitions.PY_SINGLELINE_FSTRING1);
                 reconciler.setDamager(dr, IPythonPartitions.PY_SINGLELINE_FSTRING2);

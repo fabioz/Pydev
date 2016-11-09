@@ -36,6 +36,10 @@ public class AbstractFStringsGrammar {
         parseErrors.add(e);
     }
 
+    protected void addParseError(Token t, String msg) {
+        addParseError(new ParseException(msg, t));
+    }
+
     protected void addParseError(ParseException e, String msg) {
         if (e.currentToken != null) {
             parseErrors.add(new ParseException(msg, e.currentToken.beginLine, e.currentToken.beginColumn));

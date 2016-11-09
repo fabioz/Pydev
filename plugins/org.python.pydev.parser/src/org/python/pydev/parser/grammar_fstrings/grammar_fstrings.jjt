@@ -13,8 +13,26 @@
 //
 // This grammar is expected to be used along with the regular Python grammar:
 // after finding an f-string in the regular python grammar, it should be verified
-// with this grammar (and expressions can be extracted based on its AST) and later
+// with this grammar (and expressions should be extracted based on this AST) and later
 // on, each expression can be fed to the python grammar again (to eval_input).
+//
+// it's even interesting to note that f-strings are actually a disguised eval -- so, things
+// such as:
+//
+// a = 10
+// print(f'''{f"{f'{a}'}"}''')
+//
+// are actually possible -- this means that to check for syntax errors we may need to 
+// recursively check it (although that's a corner case, so, we may skip it initially).
+//
+// Known differences from the 'official version':
+//
+// f' <text> { <expression> <optional !s, !r, or !a> <optional : format specifier> } <text>
+//
+// the optional versions can't have any space between them and the ending '}', whereas
+// this grammar lets that happen (spaces are always skipped).
+//
+// i.e.: f'''{text !r }''' -- this is not valid in the regular version but is valid in this one.
 
 options
 {
@@ -126,6 +144,7 @@ FStringsAST f_string(): {Token t;}
         |<RPAREN>
         |<LBRACKET>
         |<RBRACKET>
+        |t=<RBRACE> {addParseError(t, "Single '}' not allowed.");}
     )* <EOF>
     
     // jjtree does most things automatically for us, so, just
@@ -158,8 +177,12 @@ void f_string_expr(): {Token start, end, bStart, bEnd;boolean empty=true;SimpleN
         end = token;
     }
     
-    {jjtree.markNodeStartEnd(jjtThis, start, end);}
-    {if(empty){errorPyExprEmpty(jjtThis);}}
+    {
+        jjtree.markNodeStartEnd(jjtThis, start, end);
+        if(empty){
+            errorPyExprEmpty(jjtThis);
+        }
+    }
     
 }
 
@@ -185,17 +208,17 @@ void format_spec(): {}
 SimpleNode balanced_expression_text(): {Token t;}
 {
     (
-        inner_balanced_expression_text()
+        initial_balanced_expression_text()
     )+
     {return (SimpleNode)jjtree.peekNode();}
 }
 
-SimpleNode inner_balanced_expression_text(): {Token t;}
+SimpleNode initial_balanced_expression_text(): {Token t;}
 {
     (
         (
             <LPAREN> 
-            (inner_balanced_expression_text())* 
+            (inner_balanced_expression_text_with_exclamation_and_colon())* 
             try{
                 <RPAREN>
             }catch(ParseException e){
@@ -205,7 +228,7 @@ SimpleNode inner_balanced_expression_text(): {Token t;}
         |
         (
             <LBRACE> 
-            (inner_balanced_expression_text())* 
+            (inner_balanced_expression_text_with_exclamation_and_colon())* 
             try{
                 <RBRACE>
             }catch(ParseException e){
@@ -215,7 +238,7 @@ SimpleNode inner_balanced_expression_text(): {Token t;}
         |
         (
             <LBRACKET> 
-            (inner_balanced_expression_text())* 
+            (inner_balanced_expression_text_with_exclamation_and_colon())* 
             try{
                 <RBRACKET>
             }catch(ParseException e){
@@ -227,7 +250,58 @@ SimpleNode inner_balanced_expression_text(): {Token t;}
         |
         string2()
         |
+        // The main difference from this one to inner_balanced_expression_text_with_exclamation_and_colon
+        // is that at this level an exclamation or colon shoud not be matched, whereas in the next one it
+        // can be matched (so, the user can do f"{{'c':20}}").
         (<TEXT>)+
+        |
+        t = <BACKSLASH> {errorBackSlashInvalidInFStrings(t);}
+    )
+    {return (SimpleNode)jjtree.peekNode();}
+}
+
+SimpleNode inner_balanced_expression_text_with_exclamation_and_colon(): {Token t;}
+{
+    (
+        (
+            <LPAREN> 
+            (inner_balanced_expression_text_with_exclamation_and_colon())* 
+            try{
+                <RPAREN>
+            }catch(ParseException e){
+                addParseError(e, "Unbalanced '('");
+            }
+        )
+        |
+        (
+            <LBRACE> 
+            (inner_balanced_expression_text_with_exclamation_and_colon())* 
+            try{
+                <RBRACE>
+            }catch(ParseException e){
+                addParseError(e, "Unbalanced '{'");
+            }
+        )
+        |
+        (
+            <LBRACKET> 
+            (inner_balanced_expression_text_with_exclamation_and_colon())* 
+            try{
+                <RBRACKET>
+            }catch(ParseException e){
+                addParseError(e, "Unbalanced '['");
+            }
+        )
+        |
+        string()
+        |
+        string2()
+        |
+        (
+        <TEXT>
+        |<EXCLAMATION>
+        |<COLON>
+        )+
         |
         t = <BACKSLASH> {errorBackSlashInvalidInFStrings(t);}
     )

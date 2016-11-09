@@ -9,83 +9,134 @@ import junit.framework.TestCase;
 
 public class PyFStringScannerTest extends TestCase {
 
-    public void testFStringTokenScanner() {
+    public void testFStringTokenScanner1() {
         check(
-                "a {b} a",
+                "f'a {b} a'",
                 "" +
                         "unicode:0:2\n" +
-                        "string:2:3\n" +
-                        "unicode:5:2\n" +
+                        "unicode:2:2\n" +
+                        "string:4:3\n" +
+                        "unicode:7:2\n" +
+                        "unicode:9:1\n" +
+                        "");
+    }
+
+    //It's possible that the damage comes from a non-full damager 
+    //if the damage was done in another partition, so, we need to 
+    //cover for this situation.
+    public void testFStringTokenScanner1a() {
+        check(
+                "f'''",
+                "" +
+                        "unicode:0:4\n" +
+                        "");
+    }
+
+    public void testFStringTokenScanner1b() {
+        check(
+                "f'''{",
+                "" +
+                        "unicode:0:4\n" +
+                        "string:4:1\n" +
+                        "");
+    }
+
+    public void testFStringTokenScanner1c() {
+        check(
+                "f'''{}a",
+                "" +
+                        "unicode:0:4\n" +
+                        "string:4:2\n" +
+                        "unicode:6:1\n" +
                         "");
     }
 
     public void testFStringTokenScanner2() {
         check(
-                "{b}",
+                "f'{b}'",
                 "" +
-                        "string:0:3\n" +
+                        "unicode:0:2\n" +
+                        "string:2:3\n" +
+                        "unicode:5:1\n" +
                         "");
     }
 
     public void testFStringTokenScanner2a() {
         check(
-                "  {b}",
+                "  f'  {b}'  ", //Note: checking on a substring
                 "" +
-                        "string:2:3\n" +
+                        "unicode:2:2\n" +
+                        "unicode:4:2\n" +
+                        "string:6:3\n" +
+                        "unicode:9:1\n" +
                         "",
                 2,
-                3);
+                8);
     }
 
     public void testFStringTokenScanner3() {
         check(
-                "{bsn",
+                "f'{bsn'",
                 "" +
-                        "string:0:4\n" +
+                        "unicode:0:2\n" +
+                        "string:2:4\n" +
+                        "unicode:6:1\n" +
                         "");
     }
 
     public void testFStringTokenScanner4() {
         check(
-                "aa{bsn",
+                "f'aa{bsn",
                 "" +
                         "unicode:0:2\n" +
-                        "string:2:4\n" +
+                        "unicode:2:2\n" +
+                        "string:4:4\n" +
                         "");
     }
 
     public void testFStringTokenScanner5() {
         check(
-                "a{b}a{b}a",
+                "f'a{b}a{b}a",
                 "" +
-                        "unicode:0:1\n" +
-
-                        "string:1:3\n" +
-
-                        "unicode:4:1\n" +
-
-                        "string:5:3\n" +
-
-                        "unicode:8:1\n" +
+                        "unicode:0:2\n" +
+                        "unicode:2:1\n" +
+                        "string:3:3\n" +
+                        "unicode:6:1\n" +
+                        "string:7:3\n" +
+                        "unicode:10:1\n" +
                         "");
 
     }
 
     public void testFStringTokenScanner6() {
         check(
-                "{'{b}'}",
+                "f\"{'{b}'}\"",
                 "" +
-                        "string:0:7\n" +
+                        "unicode:0:2\n" +
+                        "string:2:7\n" +
+                        "unicode:9:1\n" +
                         "");
 
     }
 
     public void testFStringTokenScanner8() {
         check(
-                "{}{}",
+                "f'{}{}",
                 "" +
-                        "string:0:2\n" +
+                        "unicode:0:2\n" +
                         "string:2:2\n" +
+                        "string:4:2\n" +
+                        "");
+
+    }
+
+    public void testFStringTokenScanner9() {
+        check(
+                "f'th\n{an}",
+                "" +
+                        "unicode:0:2\n" +
+                        "unicode:2:3\n" +
+                        "string:5:4\n" +
                         "");
 
     }
