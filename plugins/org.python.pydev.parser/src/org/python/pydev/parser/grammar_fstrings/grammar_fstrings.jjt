@@ -46,6 +46,7 @@ import org.python.pydev.parser.fastparser.grammar_fstrings_common.AbstractFStrin
 import org.python.pydev.parser.fastparser.grammar_fstrings_common.JJTFStringsGrammarState;
 import org.python.pydev.parser.fastparser.grammar_fstrings_common.Node;
 import org.python.pydev.parser.fastparser.grammar_fstrings_common.SimpleNode;
+import org.python.pydev.parser.fastparser.grammar_fstrings_common.FStringsAST;
 
 public final class FStringsGrammar extends AbstractFStringsGrammar
 {
@@ -111,7 +112,7 @@ TOKEN : // Anything which is not important but is a visible char should be marke
 
 // ============= Syntatic/Semantic actions ============= 
 
-SimpleNode file_input(): {Token t;} 
+FStringsAST f_string(): {Token t;} 
 {
     (
         f_string_expr()
@@ -130,15 +131,23 @@ SimpleNode file_input(): {Token t;}
     // jjtree does most things automatically for us, so, just
     // popping its final node should do the trick for a reasonable AST.
     // Note that we may need to mark the start/end of the nodes we're 
-    // interested in (as jjtree.markPyExprStartEnd).
-    {return (SimpleNode)jjtree.popNode();} 
+    // interested in (as jjtree.markNodeStartEnd).
+    {return new FStringsAST((SimpleNode)jjtree.popNode());} 
 }
 
-void f_string_expr(): {Token start;Token end;boolean empty=true;}
+void f_string_expr(): {Token start, end, bStart, bEnd;boolean empty=true;SimpleNode bText;}
 {
     start = <LBRACE>
     
-        (balanced_expression_text() {empty=false;})*
+        (
+            {bStart=getToken(1);} 
+            bText=balanced_expression_text()
+            {
+                bEnd=token;
+                empty=false;
+                jjtree.markNodeStartEnd(bText, bStart, bEnd);
+            }
+        )?
         (type_conversion())?
         (format_spec())?
         
@@ -149,7 +158,7 @@ void f_string_expr(): {Token start;Token end;boolean empty=true;}
         end = token;
     }
     
-    {jjtree.markPyExprStartEnd(jjtThis, start, end);}
+    {jjtree.markNodeStartEnd(jjtThis, start, end);}
     {if(empty){errorPyExprEmpty(jjtThis);}}
     
 }
@@ -173,45 +182,56 @@ void format_spec(): {}
     <COLON>(<TEXT>)?
 }
 
-void balanced_expression_text(): {Token t;}
+SimpleNode balanced_expression_text(): {Token t;}
 {
     (
-        <LPAREN> 
-        (balanced_expression_text())* 
-        try{
-            <RPAREN>
-        }catch(ParseException e){
-            addParseError(e, "Unbalanced '('");
-        }
-    )
-    |
+        inner_balanced_expression_text()
+    )+
+    {return (SimpleNode)jjtree.peekNode();}
+}
+
+SimpleNode inner_balanced_expression_text(): {Token t;}
+{
     (
-        <LBRACE> 
-        (balanced_expression_text())* 
-        try{
-            <RBRACE>
-        }catch(ParseException e){
-            addParseError(e, "Unbalanced '{'");
-        }
+        (
+            <LPAREN> 
+            (inner_balanced_expression_text())* 
+            try{
+                <RPAREN>
+            }catch(ParseException e){
+                addParseError(e, "Unbalanced '('");
+            }
+        )
+        |
+        (
+            <LBRACE> 
+            (inner_balanced_expression_text())* 
+            try{
+                <RBRACE>
+            }catch(ParseException e){
+                addParseError(e, "Unbalanced '{'");
+            }
+        )
+        |
+        (
+            <LBRACKET> 
+            (inner_balanced_expression_text())* 
+            try{
+                <RBRACKET>
+            }catch(ParseException e){
+                addParseError(e, "Unbalanced '['");
+            }
+        )
+        |
+        string()
+        |
+        string2()
+        |
+        (<TEXT>)+
+        |
+        t = <BACKSLASH> {errorBackSlashInvalidInFStrings(t);}
     )
-    |
-    (
-        <LBRACKET> 
-        (balanced_expression_text())* 
-        try{
-            <RBRACKET>
-        }catch(ParseException e){
-            addParseError(e, "Unbalanced '['");
-        }
-    )
-    |
-    string()
-    |
-    string2()
-    |
-    (<TEXT>)+
-    |
-    t = <BACKSLASH> {errorBackSlashInvalidInFStrings(t);}
+    {return (SimpleNode)jjtree.peekNode();}
 }
 
 

@@ -2,9 +2,12 @@
 /* JavaCCOptions:MULTI=false,NODE_USES_PARSER=true,VISITOR=false,TRACK_TOKENS=false,NODE_PREFIX=AST,NODE_EXTENDS=,NODE_FACTORY=*,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package org.python.pydev.parser.fastparser.grammar_fstrings_common;
 
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
 import org.python.pydev.parser.grammar_fstrings.FStringsGrammar;
 import org.python.pydev.parser.grammar_fstrings.FStringsGrammarTreeConstants;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
 
 public class SimpleNode implements Node {
 
@@ -103,6 +106,12 @@ public class SimpleNode implements Node {
                 }
             }
         }
+    }
+
+    public String getContentsFromString(String str, Document doc) throws BadLocationException {
+        int offset1 = TextSelectionUtils.getAbsoluteCursorOffset(doc, this.beginLine - 1, this.beginColumn - 1);
+        int offset2 = TextSelectionUtils.getAbsoluteCursorOffset(doc, this.endLine - 1, this.endColumn);
+        return doc.get(offset1, offset2 - offset1);
     }
 }
 

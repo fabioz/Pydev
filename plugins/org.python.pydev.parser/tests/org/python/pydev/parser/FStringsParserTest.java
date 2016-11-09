@@ -1,22 +1,28 @@
 package org.python.pydev.parser;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
+import org.python.pydev.parser.fastparser.grammar_fstrings_common.FStringsAST;
 import org.python.pydev.parser.fastparser.grammar_fstrings_common.SimpleNode;
 import org.python.pydev.parser.grammar_fstrings.FStringsGrammar;
 import org.python.pydev.parser.jython.FastCharStream;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.utils.ArrayUtils;
 
 import junit.framework.TestCase;
 
 public class FStringsParserTest extends TestCase {
 
-    private Tuple<SimpleNode, List> check(String str) throws ParseException {
+    private Tuple<FStringsAST, List> check(String str) throws ParseException {
         FastCharStream in = new FastCharStream(str.toCharArray());
         FStringsGrammar fStringsGrammar = new FStringsGrammar(in);
-        SimpleNode ast = fStringsGrammar.file_input();
+        FStringsAST ast = fStringsGrammar.f_string();
         //Note: we always try to generate a valid AST and get any errors in getParseErrors().
         List<ParseException> parseErrors = fStringsGrammar.getParseErrors();
         //        System.out.println("\n\n-----\n" + str);
@@ -24,15 +30,22 @@ public class FStringsParserTest extends TestCase {
         return new Tuple<>(ast, parseErrors);
     }
 
-    private void checkError(String str) throws ParseException {
-        Tuple<SimpleNode, List> tup = check(str);
-        if (tup.o2 == null || tup.o2.size() == 0) {
-            fail("Expected error");
+    private Tuple<FStringsAST, List> checkExprs(String str, Set<String> exprs)
+            throws ParseException, BadLocationException {
+        Tuple<FStringsAST, List> ret = check(str);
+        //        ret.o1.dump();
+        Document doc = new Document(str);
+        Set<String> found = new HashSet<>();
+        for (SimpleNode b : ret.o1.getBalancedExpressions()) {
+            String contents = b.getContentsFromString(str, doc);
+            found.add(contents);
         }
+        assertEquals(exprs, found);
+        return ret;
     }
 
     private void checkError(String str, String... expected) throws ParseException {
-        Tuple<SimpleNode, List> tup = check(str);
+        Tuple<FStringsAST, List> tup = check(str);
         if (tup.o2 == null || tup.o2.size() == 0) {
             fail("Expected error");
         }
@@ -52,22 +65,23 @@ public class FStringsParserTest extends TestCase {
         }
     }
 
-    public void testFStringParsing() throws ParseException {
-        check("a{text}a{text}b");
-        check("{text!a}");
-        check("{text!s}");
-        check("{text!r}");
-        check("{text!r:foo}");
-        check("{text:#.6f}");
-        check("{text#.6f}");
-        check("{text:}");
-        check("newline: {call('{}')}");
-        check("'.nhunsoeth{'{uoesnth{ueo:{}''}'}");
-        check("\".nhunsoeth{'{uoesnth{ueo:{}''}'}");
-        check("{text:}");
-        check("{call(\"\")}");
-        check("slash\\\\{aa}");
-        check("special chars !\\:'\"()[]{aa}");
+    public void testFStringParsing() throws ParseException, BadLocationException {
+        checkExprs("a{text}a{text2}b", ArrayUtils.asSet("text", "text2"));
+        checkExprs("{text!a}", ArrayUtils.asSet("text"));
+        checkExprs("{text!s}", ArrayUtils.asSet("text"));
+        checkExprs("{text!r}", ArrayUtils.asSet("text"));
+        checkExprs("{text!r:foo}", ArrayUtils.asSet("text"));
+        checkExprs("{text:#.6f}", ArrayUtils.asSet("text"));
+        checkExprs("{text#.6f}", ArrayUtils.asSet("text#.6f"));
+        checkExprs("{text:}", ArrayUtils.asSet("text"));
+        checkExprs("newline: {call('{}')}", ArrayUtils.asSet("call('{}')"));
+        checkExprs("'.nhunsoeth{'{uoesnth{ueo:{}''}'}", ArrayUtils.asSet("'{uoesnth{ueo:{}''}'"));
+        checkExprs("\".nhunsoeth{'{uoesnth{ueo:{}''}'}", ArrayUtils.asSet("'{uoesnth{ueo:{}''}'"));
+        checkExprs("{text:}", ArrayUtils.asSet("text"));
+        checkExprs("{call(\"\")}", ArrayUtils.asSet("call(\"\")"));
+        checkExprs("slash\\\\{aa}", ArrayUtils.asSet("aa"));
+        checkExprs("special chars !\\:'\"()[]{aa}", ArrayUtils.asSet("aa"));
+        checkExprs("multi\nline\n{aaa}", ArrayUtils.asSet("aaa"));
 
         checkError("{}", "Empty expression not allowed in f-string");
         checkError("{   }", "Empty expression not allowed in f-string");

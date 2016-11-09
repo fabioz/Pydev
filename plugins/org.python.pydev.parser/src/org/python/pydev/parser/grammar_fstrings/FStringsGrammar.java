@@ -10,17 +10,18 @@ import org.python.pydev.parser.fastparser.grammar_fstrings_common.AbstractFStrin
 import org.python.pydev.parser.fastparser.grammar_fstrings_common.JJTFStringsGrammarState;
 import org.python.pydev.parser.fastparser.grammar_fstrings_common.Node;
 import org.python.pydev.parser.fastparser.grammar_fstrings_common.SimpleNode;
+import org.python.pydev.parser.fastparser.grammar_fstrings_common.FStringsAST;
 
 public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree)*/implements FStringsGrammarTreeConstants, FStringsGrammarConstants {/*@bgen(jjtree)*/
   protected final JJTFStringsGrammarState jjtree = new JJTFStringsGrammarState(this);
 
 // ============= Syntatic/Semantic actions ============= 
-  final public SimpleNode file_input() throws ParseException {
-                          /*@bgen(jjtree) file_input */
-                          SimpleNode jjtn000 = (SimpleNode)SimpleNode.jjtCreate(this, JJTFILE_INPUT);
-                          boolean jjtc000 = true;
-                          jjtree.openNodeScope(jjtn000);
-                          jjtreeOpenNodeScope(jjtn000);Token t;
+  final public FStringsAST f_string() throws ParseException {
+                         /*@bgen(jjtree) f_string */
+                         SimpleNode jjtn000 = (SimpleNode)SimpleNode.jjtCreate(this, JJTF_STRING);
+                         boolean jjtc000 = true;
+                         jjtree.openNodeScope(jjtn000);
+                         jjtreeOpenNodeScope(jjtn000);Token t;
     try {
       label_1:
       while (true) {
@@ -86,7 +87,7 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
       jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
       jjtreeCloseNodeScope(jjtn000);
-     {if (true) return (SimpleNode)jjtree.popNode();}
+     {if (true) return new FStringsAST((SimpleNode)jjtree.popNode());}
     } catch (Throwable jjte000) {
       if (jjtc000) {
         jjtree.clearNodeScope(jjtn000);
@@ -115,27 +116,26 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
                        SimpleNode jjtn000 = (SimpleNode)SimpleNode.jjtCreate(this, JJTF_STRING_EXPR);
                        boolean jjtc000 = true;
                        jjtree.openNodeScope(jjtn000);
-                       jjtreeOpenNodeScope(jjtn000);Token start;Token end;boolean empty=true;
+                       jjtreeOpenNodeScope(jjtn000);Token start, end, bStart, bEnd;boolean empty=true;SimpleNode bText;
     try {
       start = jj_consume_token(LBRACE);
-      label_2:
-      while (true) {
-        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case LPAREN:
-        case LBRACE:
-        case LBRACKET:
-        case QUOTE:
-        case QUOTE2:
-        case BACKSLASH:
-        case TEXT:
-          ;
-          break;
-        default:
-          jj_la1[2] = jj_gen;
-          break label_2;
-        }
-        balanced_expression_text();
-                                     empty=false;
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case LPAREN:
+      case LBRACE:
+      case LBRACKET:
+      case QUOTE:
+      case QUOTE2:
+      case BACKSLASH:
+      case TEXT:
+             bStart=getToken(1);
+        bText = balanced_expression_text();
+                bEnd=token;
+                empty=false;
+                jjtree.markNodeStartEnd(bText, bStart, bEnd);
+        break;
+      default:
+        jj_la1[2] = jj_gen;
+        ;
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case EXCLAMATION:
@@ -159,7 +159,7 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
         addParseError(e, "Unbalanced '{'");
         end = token;
       }
-     jjtree.markPyExprStartEnd(jjtn000, start, end);
+     jjtree.markNodeStartEnd(jjtn000, start, end);
       jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
       jjtreeCloseNodeScope(jjtn000);
@@ -240,124 +240,35 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
     }
   }
 
-  final public void balanced_expression_text() throws ParseException {
-                                  /*@bgen(jjtree) balanced_expression_text */
-                                  SimpleNode jjtn000 = (SimpleNode)SimpleNode.jjtCreate(this, JJTBALANCED_EXPRESSION_TEXT);
-                                  boolean jjtc000 = true;
-                                  jjtree.openNodeScope(jjtn000);
-                                  jjtreeOpenNodeScope(jjtn000);Token t;
+  final public SimpleNode balanced_expression_text() throws ParseException {
+                                        /*@bgen(jjtree) balanced_expression_text */
+                                        SimpleNode jjtn000 = (SimpleNode)SimpleNode.jjtCreate(this, JJTBALANCED_EXPRESSION_TEXT);
+                                        boolean jjtc000 = true;
+                                        jjtree.openNodeScope(jjtn000);
+                                        jjtreeOpenNodeScope(jjtn000);Token t;
     try {
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case LPAREN:
-        jj_consume_token(LPAREN);
-        label_3:
-        while (true) {
-          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case LPAREN:
-          case LBRACE:
-          case LBRACKET:
-          case QUOTE:
-          case QUOTE2:
-          case BACKSLASH:
-          case TEXT:
-            ;
-            break;
-          default:
-            jj_la1[7] = jj_gen;
-            break label_3;
-          }
-          balanced_expression_text();
+      label_2:
+      while (true) {
+        inner_balanced_expression_text();
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case LPAREN:
+        case LBRACE:
+        case LBRACKET:
+        case QUOTE:
+        case QUOTE2:
+        case BACKSLASH:
+        case TEXT:
+          ;
+          break;
+        default:
+          jj_la1[7] = jj_gen;
+          break label_2;
         }
-        try {
-          jj_consume_token(RPAREN);
-        } catch (ParseException e) {
-            addParseError(e, "Unbalanced '('");
-        }
-        break;
-      case LBRACE:
-        jj_consume_token(LBRACE);
-        label_4:
-        while (true) {
-          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case LPAREN:
-          case LBRACE:
-          case LBRACKET:
-          case QUOTE:
-          case QUOTE2:
-          case BACKSLASH:
-          case TEXT:
-            ;
-            break;
-          default:
-            jj_la1[8] = jj_gen;
-            break label_4;
-          }
-          balanced_expression_text();
-        }
-        try {
-          jj_consume_token(RBRACE);
-        } catch (ParseException e) {
-            addParseError(e, "Unbalanced '{'");
-        }
-        break;
-      case LBRACKET:
-        jj_consume_token(LBRACKET);
-        label_5:
-        while (true) {
-          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case LPAREN:
-          case LBRACE:
-          case LBRACKET:
-          case QUOTE:
-          case QUOTE2:
-          case BACKSLASH:
-          case TEXT:
-            ;
-            break;
-          default:
-            jj_la1[9] = jj_gen;
-            break label_5;
-          }
-          balanced_expression_text();
-        }
-        try {
-          jj_consume_token(RBRACKET);
-        } catch (ParseException e) {
-            addParseError(e, "Unbalanced '['");
-        }
-        break;
-      case QUOTE:
-        string();
-        break;
-      case QUOTE2:
-        string2();
-        break;
-      case TEXT:
-        label_6:
-        while (true) {
-          jj_consume_token(TEXT);
-          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case TEXT:
-            ;
-            break;
-          default:
-            jj_la1[10] = jj_gen;
-            break label_6;
-          }
-        }
-        break;
-      case BACKSLASH:
-        t = jj_consume_token(BACKSLASH);
-                      jjtree.closeNodeScope(jjtn000, true);
-                      jjtc000 = false;
-                      jjtreeCloseNodeScope(jjtn000);
-                     errorBackSlashInvalidInFStrings(t);
-        break;
-      default:
-        jj_la1[11] = jj_gen;
-        jj_consume_token(-1);
-        throw new ParseException();
       }
+      jjtree.closeNodeScope(jjtn000, true);
+      jjtc000 = false;
+      jjtreeCloseNodeScope(jjtn000);
+     {if (true) return (SimpleNode)jjtree.peekNode();}
     } catch (Throwable jjte000) {
       if (jjtc000) {
         jjtree.clearNodeScope(jjtn000);
@@ -378,6 +289,149 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
         jjtreeCloseNodeScope(jjtn000);
       }
     }
+    throw new Error("Missing return statement in function");
+  }
+
+  final public SimpleNode inner_balanced_expression_text() throws ParseException {
+                                              /*@bgen(jjtree) inner_balanced_expression_text */
+                                              SimpleNode jjtn000 = (SimpleNode)SimpleNode.jjtCreate(this, JJTINNER_BALANCED_EXPRESSION_TEXT);
+                                              boolean jjtc000 = true;
+                                              jjtree.openNodeScope(jjtn000);
+                                              jjtreeOpenNodeScope(jjtn000);Token t;
+    try {
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case LPAREN:
+        jj_consume_token(LPAREN);
+        label_3:
+        while (true) {
+          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+          case LPAREN:
+          case LBRACE:
+          case LBRACKET:
+          case QUOTE:
+          case QUOTE2:
+          case BACKSLASH:
+          case TEXT:
+            ;
+            break;
+          default:
+            jj_la1[8] = jj_gen;
+            break label_3;
+          }
+          inner_balanced_expression_text();
+        }
+        try {
+          jj_consume_token(RPAREN);
+        } catch (ParseException e) {
+                addParseError(e, "Unbalanced '('");
+        }
+        break;
+      case LBRACE:
+        jj_consume_token(LBRACE);
+        label_4:
+        while (true) {
+          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+          case LPAREN:
+          case LBRACE:
+          case LBRACKET:
+          case QUOTE:
+          case QUOTE2:
+          case BACKSLASH:
+          case TEXT:
+            ;
+            break;
+          default:
+            jj_la1[9] = jj_gen;
+            break label_4;
+          }
+          inner_balanced_expression_text();
+        }
+        try {
+          jj_consume_token(RBRACE);
+        } catch (ParseException e) {
+                addParseError(e, "Unbalanced '{'");
+        }
+        break;
+      case LBRACKET:
+        jj_consume_token(LBRACKET);
+        label_5:
+        while (true) {
+          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+          case LPAREN:
+          case LBRACE:
+          case LBRACKET:
+          case QUOTE:
+          case QUOTE2:
+          case BACKSLASH:
+          case TEXT:
+            ;
+            break;
+          default:
+            jj_la1[10] = jj_gen;
+            break label_5;
+          }
+          inner_balanced_expression_text();
+        }
+        try {
+          jj_consume_token(RBRACKET);
+        } catch (ParseException e) {
+                addParseError(e, "Unbalanced '['");
+        }
+        break;
+      case QUOTE:
+        string();
+        break;
+      case QUOTE2:
+        string2();
+        break;
+      case TEXT:
+        label_6:
+        while (true) {
+          jj_consume_token(TEXT);
+          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+          case TEXT:
+            ;
+            break;
+          default:
+            jj_la1[11] = jj_gen;
+            break label_6;
+          }
+        }
+        break;
+      case BACKSLASH:
+        t = jj_consume_token(BACKSLASH);
+                         errorBackSlashInvalidInFStrings(t);
+        break;
+      default:
+        jj_la1[12] = jj_gen;
+        jj_consume_token(-1);
+        throw new ParseException();
+      }
+      jjtree.closeNodeScope(jjtn000, true);
+      jjtc000 = false;
+      jjtreeCloseNodeScope(jjtn000);
+     {if (true) return (SimpleNode)jjtree.peekNode();}
+    } catch (Throwable jjte000) {
+      if (jjtc000) {
+        jjtree.clearNodeScope(jjtn000);
+        jjtc000 = false;
+      } else {
+        jjtree.popNode();
+      }
+      if (jjte000 instanceof RuntimeException) {
+        {if (true) throw (RuntimeException)jjte000;}
+      }
+      if (jjte000 instanceof ParseException) {
+        {if (true) throw (ParseException)jjte000;}
+      }
+      {if (true) throw (Error)jjte000;}
+    } finally {
+      if (jjtc000) {
+        jjtree.closeNodeScope(jjtn000, true);
+        jjtreeCloseNodeScope(jjtn000);
+      }
+    }
+    throw new Error("Missing return statement in function");
   }
 
   final public void string() throws ParseException {
@@ -405,7 +459,7 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
           ;
           break;
         default:
-          jj_la1[12] = jj_gen;
+          jj_la1[13] = jj_gen;
           break label_7;
         }
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -444,7 +498,7 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
                           errorBackSlashInvalidInFStrings(t);
           break;
         default:
-          jj_la1[13] = jj_gen;
+          jj_la1[14] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
@@ -487,7 +541,7 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
           ;
           break;
         default:
-          jj_la1[14] = jj_gen;
+          jj_la1[15] = jj_gen;
           break label_8;
         }
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -526,7 +580,7 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
                           errorBackSlashInvalidInFStrings(t);
           break;
         default:
-          jj_la1[15] = jj_gen;
+          jj_la1[16] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
@@ -552,13 +606,13 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
   public Token jj_nt;
   private int jj_ntk;
   private int jj_gen;
-  final private int[] jj_la1 = new int[16];
+  final private int[] jj_la1 = new int[17];
   static private int[] jj_la1_0;
   static {
       jj_la1_init_0();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x1fee0,0x1fee0,0x1e2a0,0x800,0x1000,0x10000,0x10000,0x1e2a0,0x1e2a0,0x1e2a0,0x10000,0x1e2a0,0x1dfe0,0x1dfe0,0x1bfe0,0x1bfe0,};
+      jj_la1_0 = new int[] {0x1fee0,0x1fee0,0x1e2a0,0x800,0x1000,0x10000,0x10000,0x1e2a0,0x1e2a0,0x1e2a0,0x1e2a0,0x10000,0x1e2a0,0x1dfe0,0x1dfe0,0x1bfe0,0x1bfe0,};
    }
 
   /** Constructor with user supplied FastCharStream. */
@@ -567,7 +621,7 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 16; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 17; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -579,7 +633,7 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 16; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 17; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -638,7 +692,7 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 16; i++) {
+    for (int i = 0; i < 17; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {

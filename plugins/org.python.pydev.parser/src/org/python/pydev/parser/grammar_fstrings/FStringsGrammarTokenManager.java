@@ -9,6 +9,7 @@ import org.python.pydev.parser.fastparser.grammar_fstrings_common.AbstractFStrin
 import org.python.pydev.parser.fastparser.grammar_fstrings_common.JJTFStringsGrammarState;
 import org.python.pydev.parser.fastparser.grammar_fstrings_common.Node;
 import org.python.pydev.parser.fastparser.grammar_fstrings_common.SimpleNode;
+import org.python.pydev.parser.fastparser.grammar_fstrings_common.FStringsAST;
 
 /** Token Manager. */
 @SuppressWarnings("unused") public final class FStringsGrammarTokenManager extends AbstractFStringsTokenManager implements FStringsGrammarConstants

@@ -8,7 +8,9 @@ package org.python.pydev.shared_core.utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.runtime.Assert;
 import org.python.pydev.shared_core.callbacks.ICallback;
@@ -83,5 +85,9 @@ public class ArrayUtils {
             return false;
         }
         return Arrays.asList(array).contains(o);
+    }
+
+    public static <T> Set<T> asSet(T... objects) {
+        return new HashSet<>(Arrays.asList(objects));
     }
 }

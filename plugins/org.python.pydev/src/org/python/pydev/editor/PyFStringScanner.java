@@ -8,9 +8,9 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.rules.Token;
+import org.python.pydev.parser.fastparser.grammar_fstrings_common.FStringsAST;
 import org.python.pydev.parser.fastparser.grammar_fstrings_common.SimpleNode;
 import org.python.pydev.parser.grammar_fstrings.FStringsGrammar;
-import org.python.pydev.parser.grammar_fstrings.FStringsGrammarTreeConstants;
 import org.python.pydev.parser.jython.FastCharStream;
 import org.python.pydev.shared_core.partitioner.SubRuleToken;
 import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
@@ -53,37 +53,31 @@ public class PyFStringScanner implements ITokenScanner {
 
         FastCharStream in = new FastCharStream(chars);
         FStringsGrammar fStringsGrammar = new FStringsGrammar(in);
-        SimpleNode ast = null;
+        FStringsAST ast = null;
         try {
-            ast = fStringsGrammar.file_input();
+            ast = fStringsGrammar.f_string();
         } catch (Throwable e) {
             // Just ignore any errors for this.
         }
 
-        if (ast != null) {
-            // ast.dump("");
-            int numChildren = ast.jjtGetNumChildren();
-            if (numChildren > 0) {
-                // We have children -- clear the one initially set and set the proper children.
-                cachedSubTokens.clear();
-                int currOffset = 0;
-                for (int i = 0; i < numChildren; i++) {
-                    SimpleNode node = (SimpleNode) ast.jjtGetChild(i);
-                    if (node.id == FStringsGrammarTreeConstants.JJTF_STRING_EXPR) {
-                        if (currOffset != node.beginColumn - 1) {
-                            cachedSubTokens.add(new SubRuleToken(fStringReturnToken,
-                                    offset + currOffset, node.beginColumn - 1 - currOffset));
-                        }
-                        cachedSubTokens.add(new SubRuleToken(fStringExpressionReturnToken,
-                                offset + node.beginColumn - 1, node.endColumn - node.beginColumn + 1));
-                        currOffset = node.endColumn;
-                    }
-                }
-
-                if (currOffset != length) {
+        if (ast != null && ast.hasChildren()) {
+            // ast.dump();
+            // We have children -- clear the one initially set and set the proper children.
+            cachedSubTokens.clear();
+            int currOffset = 0;
+            for (SimpleNode node : ast.getFStringExpressions()) {
+                if (currOffset != node.beginColumn - 1) {
                     cachedSubTokens.add(new SubRuleToken(fStringReturnToken,
-                            offset + currOffset, length - currOffset));
+                            offset + currOffset, node.beginColumn - 1 - currOffset));
                 }
+                cachedSubTokens.add(new SubRuleToken(fStringExpressionReturnToken,
+                        offset + node.beginColumn - 1, node.endColumn - node.beginColumn + 1));
+                currOffset = node.endColumn;
+            }
+
+            if (currOffset != length) {
+                cachedSubTokens.add(new SubRuleToken(fStringReturnToken,
+                        offset + currOffset, length - currOffset));
             }
         }
     }

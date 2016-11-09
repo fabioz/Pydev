@@ -121,12 +121,20 @@ public class JJTFStringsGrammarState {
         }
     }
 
-    public void markPyExprStartEnd(SimpleNode jjtn000, Token start, Token end) {
-        jjtn000.beginColumn = start.beginColumn;
-        jjtn000.endLine = start.beginLine;
+    public void markNodeStartEnd(SimpleNode node, Token start, Token end) {
+        node.beginLine = start.beginLine;
+        node.beginColumn = start.beginColumn;
 
-        jjtn000.endColumn = end.endColumn;
-        jjtn000.endLine = end.endLine;
+        node.endColumn = end.endColumn;
+        node.endLine = end.endLine;
+    }
+
+    public void markNodeStartEnd(SimpleNode node, Node peekNode) {
+        SimpleNode pNode = (SimpleNode) peekNode;
+        node.beginLine = pNode.beginLine;
+        node.beginColumn = pNode.beginColumn;
+        node.endLine = pNode.endLine;
+        node.endColumn = pNode.endColumn;
     }
 }
 /* JavaCC - OriginalChecksum=13d706ae8c0fa2fed56b187fe6fcf348 (do not edit this line) */

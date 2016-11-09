@@ -3,23 +3,25 @@ package org.python.pydev.parser.grammar_fstrings;
 
 public interface FStringsGrammarTreeConstants
 {
-  public int JJTFILE_INPUT = 0;
+  public int JJTF_STRING = 0;
   public int JJTF_STRING_EXPR = 1;
   public int JJTTYPE_CONVERSION = 2;
   public int JJTFORMAT_SPEC = 3;
   public int JJTBALANCED_EXPRESSION_TEXT = 4;
-  public int JJTSTRING = 5;
-  public int JJTSTRING2 = 6;
+  public int JJTINNER_BALANCED_EXPRESSION_TEXT = 5;
+  public int JJTSTRING = 6;
+  public int JJTSTRING2 = 7;
 
 
   public String[] jjtNodeName = {
-    "file_input",
+    "f_string",
     "f_string_expr",
     "type_conversion",
     "format_spec",
     "balanced_expression_text",
+    "inner_balanced_expression_text",
     "string",
     "string2",
   };
 }
-/* JavaCC - OriginalChecksum=e7eb285ea9032a53a8580ed3313063d0 (do not edit this line) */
+/* JavaCC - OriginalChecksum=97242487863cd1b99a5fc21ddda948e7 (do not edit this line) */
