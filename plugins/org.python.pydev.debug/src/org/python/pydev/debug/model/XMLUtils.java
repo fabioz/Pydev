@@ -513,9 +513,11 @@ public class XMLUtils {
         } catch (CoreException e) {
             throw e;
         } catch (SAXException e) {
-            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML error", e));
+            throw new CoreException(
+                    PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML error. Payload:\n" + payload, e));
         } catch (IOException e) {
-            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML error", e));
+            throw new CoreException(
+                    PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML error. Payload:\n" + payload, e));
         }
 
     }
