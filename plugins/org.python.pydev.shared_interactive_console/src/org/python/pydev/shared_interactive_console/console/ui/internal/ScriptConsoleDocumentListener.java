@@ -544,6 +544,11 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
 
         //and the command line the actual contents to be executed at this time
         final String commandLine = getCommandLine();
+
+        if (handler.isOnStateWhereCommandHandlingShouldStop(commandLine)) {
+            return;
+        }
+
         history.update(commandLine);
 
         // handle the command line:

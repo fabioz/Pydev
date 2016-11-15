@@ -31,6 +31,7 @@ import org.eclipse.ui.console.TextConsoleViewer;
 import org.eclipse.ui.internal.console.IOConsolePage;
 import org.eclipse.ui.internal.console.IOConsolePartitioner;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.debug.model.PyDebugTarget;
 import org.python.pydev.debug.newconsole.CurrentPyStackFrameForConsole;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
 import org.python.pydev.debug.newconsole.PydevConsoleFactory;
@@ -60,6 +61,7 @@ public class PromptOverlay implements DisposeListener, Listener, IScriptConsoleC
     private double percSize = .3;
     private PydevDebugConsole debugConsole;
     private boolean bufferedOutput = false;
+    private PyDebugTarget debugTarget;
 
     public PromptOverlay(IOConsolePage consolePage, final ProcessConsole processConsole,
             CurrentPyStackFrameForConsole currentPyStackFrameForConsole) {
@@ -68,6 +70,10 @@ public class PromptOverlay implements DisposeListener, Listener, IScriptConsoleC
         SourceViewerConfiguration cfg;
         try {
             ILaunch launch = processConsole.getProcess().getLaunch();
+            debugTarget = (PyDebugTarget) launch.getDebugTarget();
+            if (debugTarget == null) {
+                throw new RuntimeException("debugTarget should be a non-null PyDebugTarget.");
+            }
             debugConsole = new PydevConsoleFactory().createDebugConsole(launch, "", false, bufferedOutput,
                     currentPyStackFrameForConsole);
             cfg = debugConsole.createSourceViewerConfiguration();
@@ -132,6 +138,19 @@ public class PromptOverlay implements DisposeListener, Listener, IScriptConsoleC
             @Override
             public void interpreterResponse(InterpreterResponse response, ScriptConsolePrompt prompt) {
 
+            }
+
+            @Override
+            public boolean isOnStateWhereCommandHandlingShouldStop(String commandLine) {
+                if (debugTarget.isWaitingForInput()) {
+                    if (!commandLine.endsWith("\n")) {
+                        commandLine += "\n";
+                    }
+                    // This should add the command to the input stream.
+                    styledText.append(commandLine);
+                    return true;
+                }
+                return false;
             }
         });
 

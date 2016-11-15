@@ -84,6 +84,8 @@ public abstract class AbstractDebuggerCommand {
     static public final int CMD_ENABLE_DONT_TRACE = 141;
 
     static public final int CMD_SHOW_RETURN_VALUES = 146;
+    static public final int CMD_INPUT_REQUESTED = 147;
+    static public final int CMD_PROCESS_CREATED = 149;
 
     static public final int CMD_ERROR = 901;
     static public final int CMD_VERSION = 501;

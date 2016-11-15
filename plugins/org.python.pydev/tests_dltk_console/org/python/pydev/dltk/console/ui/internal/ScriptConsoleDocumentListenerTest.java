@@ -114,6 +114,11 @@ public class ScriptConsoleDocumentListenerTest extends TestCase {
                             ICallback<Object, Tuple<String, String>> onContentsReceived) {
                     }
 
+                    @Override
+                    public boolean isOnStateWhereCommandHandlingShouldStop(String commandLine) {
+                        return false;
+                    }
+
                 },
 
                 prompt, new ScriptConsoleHistory(), new ArrayList<IConsoleLineTracker>(), "",

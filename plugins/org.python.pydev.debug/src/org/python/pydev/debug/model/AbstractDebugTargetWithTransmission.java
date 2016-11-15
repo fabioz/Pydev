@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 import org.eclipse.core.runtime.PlatformObject;
+import org.eclipse.ui.console.IOConsole;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.model.remote.DebuggerReader;
 import org.python.pydev.debug.model.remote.DebuggerWriter;
@@ -35,6 +36,29 @@ public class AbstractDebugTargetWithTransmission extends PlatformObject {
      * sequence seed for command numbers
      */
     protected int sequence = -1;
+
+    private volatile boolean waitingForInput = false;
+
+    public boolean isWaitingForInput() {
+        return waitingForInput;
+    }
+
+    public void setWaitingForInput(boolean waitingForInput) {
+        this.waitingForInput = waitingForInput;
+    }
+
+    protected void addProcessConsole(IOConsole c) {
+        // What we'd like to do is not put in the input stream the contents we received
+        // in the console UNLESS we're waiting for input (but unfortunately, it seems there's
+        // no API for that).
+        //
+        // This means that if the user writes something (to do an evaluation) and later
+        // does a raw_input('say something:\n'), the raw_input will get the contents that
+        // the user wrote for the evaluation and not the contents it'd write now.
+        // As we now have a separate input console, this shouldn't be so troublesome, as
+        // we control things better when the user writes to the PromptOverlay console, but
+        // if he writes to the other console, things may misbehave.
+    }
 
     /**
      * @return next available debugger command sequence number

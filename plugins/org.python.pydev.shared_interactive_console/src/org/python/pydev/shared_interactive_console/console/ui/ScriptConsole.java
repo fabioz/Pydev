@@ -263,6 +263,18 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
     }
 
     @Override
+    public boolean isOnStateWhereCommandHandlingShouldStop(String commandLine) {
+        final Object[] listeners = consoleListeners.getListeners();
+
+        for (Object listener : listeners) {
+            if (((IScriptConsoleListener) listener).isOnStateWhereCommandHandlingShouldStop(commandLine)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public void beforeHandleCommand(String userInput, ICallback<Object, InterpreterResponse> onResponseReceived) {
         final Object[] listeners = consoleListeners.getListeners();
 

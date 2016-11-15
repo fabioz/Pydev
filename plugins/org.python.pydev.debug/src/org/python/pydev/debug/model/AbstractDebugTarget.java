@@ -430,6 +430,21 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
             } else if (cmdCode == AbstractDebuggerCommand.CMD_SEND_CURR_EXCEPTION_TRACE_PROCEEDED) {
                 processCaughtExceptionTraceProceededSent(payload);
 
+            } else if (cmdCode == AbstractDebuggerCommand.CMD_INPUT_REQUESTED) {
+                if ("true".equalsIgnoreCase(payload.trim())) {
+                    this.setWaitingForInput(true);
+
+                } else if ("false".equalsIgnoreCase(payload.trim())) {
+                    this.setWaitingForInput(false);
+
+                } else {
+                    PydevDebugPlugin.log(IStatus.WARNING, "Unexpected payload for CMD_INPUT_REQUESTED" +
+                            "\npayload:" + payload, null);
+                }
+
+            } else if (cmdCode == AbstractDebuggerCommand.CMD_PROCESS_CREATED) {
+                // We don't really need to handle process created for now.
+
             } else {
                 PydevDebugPlugin.log(IStatus.WARNING, "Unexpected debugger command:" + sCmdCode +
                         "\nseq:" + sSeqCode
@@ -866,11 +881,18 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
             final List<IConsoleInputListener> participants = ExtensionHelper
                     .getParticipants(ExtensionHelper.PYDEV_DEBUG_CONSOLE_INPUT_LISTENER);
             final AbstractDebugTarget target = this;
+
+            target.addProcessConsole(c);
+
             //let's listen the doc for the changes
             c.getDocument().addDocumentListener(new IDocumentListener() {
 
                 @Override
                 public void documentAboutToBeChanged(DocumentEvent event) {
+                    if (target.isWaitingForInput()) {
+                        return;
+                    }
+
                     //only report when we have a new line
                     if (event.fText.indexOf('\r') != -1 || event.fText.indexOf('\n') != -1) {
                         try {
@@ -899,6 +921,10 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
 
                 @Override
                 public void documentChanged(DocumentEvent event) {
+                    if (target.isWaitingForInput()) {
+                        return;
+                    }
+
                     //only report when we have a new line
                     if (event.fText.indexOf('\r') != -1 || event.fText.indexOf('\n') != -1) {
                         try {

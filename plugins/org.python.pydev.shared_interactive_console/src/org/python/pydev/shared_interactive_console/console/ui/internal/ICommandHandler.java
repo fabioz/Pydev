@@ -23,4 +23,6 @@ public interface ICommandHandler {
     void setOnContentsReceivedCallback(ICallback<Object, Tuple<String, String>> onContentsReceived);
 
     void beforeHandleCommand(String userInput, ICallback<Object, InterpreterResponse> onResponseReceived);
+
+    boolean isOnStateWhereCommandHandlingShouldStop(String commandLine);
 }
