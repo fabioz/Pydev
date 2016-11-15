@@ -57,6 +57,10 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
      */
     protected String id;
 
+    private boolean isReturnValue;
+    private boolean isIPythonHidden;
+    private boolean isErrorOnEval;
+
     /**
      * This method sets information about how this variable was found.
      */
@@ -237,4 +241,27 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
         //no-op for variable (only really available for PyVariableCollection).
     }
 
+    public void setIsReturnValue(boolean isReturnValue) {
+        this.isReturnValue = isReturnValue;
+    }
+
+    public boolean isReturnValue() {
+        return isReturnValue;
+    }
+
+    public void setIsIPythonHidden(boolean isIPythonHidden) {
+        this.isIPythonHidden = isIPythonHidden;
+    }
+
+    public boolean isIPythonHidden() {
+        return isIPythonHidden;
+    }
+
+    public void setIsErrorOnEval(boolean isErrorOnEval) {
+        this.isErrorOnEval = isErrorOnEval;
+    }
+
+    public boolean isErrorOnEval() {
+        return isErrorOnEval;
+    }
 }

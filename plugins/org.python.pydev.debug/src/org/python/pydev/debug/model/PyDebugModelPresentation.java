@@ -109,9 +109,17 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
             }
 
         } else if (element instanceof PyVariableCollection) {
+            PyVariableCollection pyVariableCollection = (PyVariableCollection) element;
+            if (pyVariableCollection.isReturnValue()) {
+                return imageCache.get("icons/return_value.png");
+            }
             return imageCache.get("icons/greendot_big.gif");
 
         } else if (element instanceof PyVariable) {
+            PyVariable pyVariable = (PyVariable) element;
+            if (pyVariable.isReturnValue()) {
+                return imageCache.get("icons/return_value.png");
+            }
             return imageCache.get("icons/greendot.gif");
 
         } else if (element instanceof CaughtException) {

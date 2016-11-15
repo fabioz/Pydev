@@ -145,6 +145,18 @@ public class XMLUtils {
         } else {
             var = new PyVariable(target, name, type, value, locator);
         }
+        String isRetVal = attributes.getValue("isRetVal");
+        if ("True".equals(isRetVal)) {
+            var.setIsReturnValue(true);
+        }
+        String isIPythonHidden = attributes.getValue("isIPythonHidden");
+        if ("True".equals(isIPythonHidden)) {
+            var.setIsIPythonHidden(true);
+        }
+        String isErrorOnEval = attributes.getValue("isErrorOnEval");
+        if ("True".equals(isErrorOnEval)) {
+            var.setIsErrorOnEval(true);
+        }
         return var;
     }
 

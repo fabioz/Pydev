@@ -825,6 +825,36 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         }
     }
 
+    public void testUsedVariable1() throws Exception {
+        int initial = GRAMMAR_TO_USE_FOR_PARSING;
+        try {
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+            doc = new Document(""
+                    + "def bar(a):\n" +
+                    "    pass\n" +
+                    "\n" +
+                    "def foo():\n" +
+                    "    v = [1]\n" +
+                    "    bar(a=(*v, ))" +
+                    "");
+            checkNoError();
+        } finally {
+            GRAMMAR_TO_USE_FOR_PARSING = initial;
+        }
+    }
+
+    public void testErrorOnFStrings() throws Exception {
+        int initial = GRAMMAR_TO_USE_FOR_PARSING;
+        try {
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_6;
+            doc = new Document("f'fstring{'" +
+                    "");
+            checkError("Unused variable: my");
+        } finally {
+            GRAMMAR_TO_USE_FOR_PARSING = initial;
+        }
+    }
+
     //    public void testNonDefaultAfterDefault() throws IOException{
     //        doc = new Document(
     //                "def m1(a=20, 20):\n"+ //non-default after default
