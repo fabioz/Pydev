@@ -22,7 +22,6 @@ import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
@@ -270,7 +269,7 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
     }
 
     private void analyzeFStringAst(Str node, int startInternalStrColOffset, FStringsAST ast, IDocument doc)
-            throws MisconfigurationException {
+            throws Exception {
         for (FStringExpressionContent content : ast.getFStringExpressionsContent(doc)) {
             Document contentDoc = new Document(content.string);
 
@@ -285,15 +284,22 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
                 } catch (Throwable e) {
                     errorOnParsing = e;
                 }
+                // -1 to account that content.beginLine is 1-based and node.beginLine is also 1-based
+                int startInternalStrLineOffset = content.beginLine + node.beginLine - 1;
+                int startInternalStrColOffset2 = content.beginLine == 1
+                        ? (startInternalStrColOffset + content.beginColumn + node.beginColumn - 1)
+                        : content.beginColumn;
                 if (errorOnParsing != null) {
-                    reportParserError(node, content.beginLine + node.beginLine - 1, // -1 to account that content.beginLine is 1-based and node.beginLine is also 1-based
-                            content.beginLine == 1
-                                    ? (startInternalStrColOffset + content.beginColumn + node.beginColumn - 1)
-                                    : content.beginColumn,
+                    reportParserError(node, startInternalStrLineOffset,
+                            startInternalStrColOffset2,
                             contentDoc,
                             errorOnParsing);
                 } else if (expr != null) {
-                    System.out.println("TODO: Make code analysis.");
+                    // Note: we need to "fix" the nodes lines/columns so that they become part of the 'main' grammar.
+                    FixLinesVisitor fixLinesVisitor = new FixLinesVisitor(startInternalStrLineOffset - 1,
+                            startInternalStrColOffset2 - 1);
+                    expr.accept(fixLinesVisitor);
+                    expr.accept(this);
                 }
             } else {
                 Log.log("Expected: " + grammar + " to implement IGrammar2.");
