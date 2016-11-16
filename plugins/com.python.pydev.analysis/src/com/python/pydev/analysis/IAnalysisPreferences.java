@@ -32,6 +32,7 @@ public interface IAnalysisPreferences {
     public static final int TYPE_ASSIGNMENT_TO_BUILT_IN_SYMBOL = 14;
     public static final int TYPE_PEP8 = 15;
     public static final int TYPE_ARGUMENTS_MISATCH = 16;
+    public static final int TYPE_FSTRING_SYNTAX_ERROR = 17;
 
     public static final String MSG_TO_IGNORE_TYPE_UNUSED_IMPORT = "@UnusedImport";
     public static final String MSG_TO_IGNORE_TYPE_UNUSED_WILD_IMPORT = "@UnusedWildImport";

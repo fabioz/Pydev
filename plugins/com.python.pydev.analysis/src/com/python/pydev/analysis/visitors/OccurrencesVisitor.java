@@ -9,20 +9,30 @@
  */
 package com.python.pydev.analysis.visitors;
 
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
+import org.python.pydev.parser.PyParser;
+import org.python.pydev.parser.PyParser.ParserInfo;
+import org.python.pydev.parser.fastparser.grammar_fstrings_common.FStringsAST;
+import org.python.pydev.parser.fastparser.grammar_fstrings_common.FStringsAST.FStringExpressionContent;
+import org.python.pydev.parser.grammar_fstrings.FStringsGrammar;
+import org.python.pydev.parser.jython.FastCharStream;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assert;
 import org.python.pydev.parser.jython.ast.Assign;
@@ -44,12 +54,16 @@ import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.decoratorsType;
+import org.python.pydev.parser.jython.ast.str_typeType;
 import org.python.pydev.shared_core.callbacks.ICallbackListener;
+import org.python.pydev.shared_core.model.ErrorDescription;
+import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
 import org.python.pydev.shared_core.structure.FastStack;
 import org.python.pydev.shared_core.structure.Tuple;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.messages.IMessage;
+import com.python.pydev.analysis.messages.Message;
 import com.python.pydev.analysis.scopeanalysis.AbstractScopeAnalyzerVisitor;
 
 /**
@@ -85,10 +99,13 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
      */
     private final boolean analyzeArgumentsMismatch;
 
+    private IAnalysisPreferences prefs;
+
     public OccurrencesVisitor(IPythonNature nature, String moduleName, IModule current, IAnalysisPreferences prefs,
             IDocument document, IProgressMonitor monitor) {
         super(nature, moduleName, current, document, monitor);
         this.messagesManager = new MessagesManager(prefs, moduleName, document);
+        this.prefs = prefs;
 
         this.analyzeArgumentsMismatch = prefs
                 .getSeverityForType(IAnalysisPreferences.TYPE_ARGUMENTS_MISATCH) > IMarker.SEVERITY_INFO; //Don't even run checks if we don't raise at least a warning.
@@ -206,6 +223,94 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
             argumentsChecker.visitAssign(node);
         }
         return r;
+    }
+
+    @Override
+    public Object visitStr(Str node) throws Exception {
+        if (node.fstring) {
+            String s = node.s;
+            @SuppressWarnings("rawtypes")
+            List parseErrors;
+            int startInternalStrColOffset = 2; // +1 for 'f' and +1 for the quote.
+            if (node.raw) {
+                startInternalStrColOffset += 1;
+            }
+            if (node.unicode) {
+                startInternalStrColOffset += 1;
+            }
+            if (node.type == str_typeType.TripleDouble || node.type == str_typeType.TripleSingle) {
+                startInternalStrColOffset += 2;
+            }
+            FStringsAST ast = null;
+            try {
+                FastCharStream in = new FastCharStream(s.toCharArray());
+                FStringsGrammar fStringsGrammar = new FStringsGrammar(in);
+                ast = fStringsGrammar.f_string();
+                //Note: we always try to generate a valid AST and get any errors in getParseErrors().
+                parseErrors = fStringsGrammar.getParseErrors();
+            } catch (Throwable e) {
+                parseErrors = Arrays.asList(e);
+            }
+
+            IDocument doc = new Document(s);
+            if (parseErrors != null && parseErrors.size() > 0) {
+                for (@SuppressWarnings("unchecked")
+                Iterator<Exception> iterator = parseErrors.iterator(); iterator.hasNext();) {
+                    Exception parserError = iterator.next();
+                    reportParserError(node, node.beginLine, node.beginColumn + startInternalStrColOffset, doc,
+                            parserError);
+                }
+            } else {
+                if (ast != null) {
+                    analyzeFStringAst(node, startInternalStrColOffset, ast, doc);
+                }
+            }
+        }
+        return super.visitStr(node);
+    }
+
+    private void analyzeFStringAst(Str node, int startInternalStrColOffset, FStringsAST ast, IDocument doc)
+            throws MisconfigurationException {
+        for (FStringExpressionContent content : ast.getFStringExpressionsContent(doc)) {
+            Document contentDoc = new Document(content.string);
+            ParseOutput parseOutput = PyParser
+                    .reparseDocument(new ParserInfo(contentDoc, nature));
+            if (parseOutput.error != null) {
+                reportParserError(node, content.beginLine + node.beginLine - 1, // -1 to account that content.beginLine is 1-based and node.beginLine is also 1-based
+                        content.beginLine == 1
+                                ? (startInternalStrColOffset + content.beginColumn + node.beginColumn - 1)
+                                : content.beginColumn,
+                        contentDoc,
+                        parseOutput.error);
+            }
+        }
+    }
+
+    private void reportParserError(Str node, int startInternalStrLineOffset, int startInternalStrColOffset,
+            IDocument doc, Throwable parserError) {
+        ErrorDescription errorDescription = PyParser.createErrorDesc(parserError, doc);
+
+        //line
+        int errorDescriptionBeginLine = errorDescription.getBeginLine(doc);
+        int startLine = errorDescriptionBeginLine + startInternalStrLineOffset - 1; // -1 to account that startInternalStrLineOffset is 1-based and getBeginLine is also 1-based
+        int endLine = errorDescription.getEndLine(doc) + startInternalStrLineOffset - 1;
+
+        //col
+        int startCol = errorDescription.getBeginColumn(doc);
+        int endCol = errorDescription.getEndCol(doc);
+        if (errorDescriptionBeginLine == 1) {
+            startCol += startInternalStrColOffset;
+
+            if (startLine == endLine) {
+                endCol += startInternalStrColOffset;
+            }
+        }
+
+        Message message = new Message(IAnalysisPreferences.TYPE_FSTRING_SYNTAX_ERROR,
+                errorDescription.message, startLine, endLine, startCol, endCol, prefs);
+        messagesManager.addMessage(
+                AbstractVisitor.makeToken(node, this.moduleName, nature), message);
+
     }
 
     @Override

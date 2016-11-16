@@ -162,7 +162,8 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
         for (String s : errors) {
             if (!found.remove(s)) {
                 printMessages(msgs);
-                fail("Could not find error: " + s + " in current errors.");
+                fail("Could not find error: " + s + " in current errors.\nAvailable:\n"
+                        + StringUtils.join(", ", found));
             }
         }
 
@@ -170,6 +171,7 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
     }
 
     private IMessage[] analyze() {
+        assertEquals(GRAMMAR_TO_USE_FOR_PARSING, nature.getGrammarVersion());
         try {
             return analyzer.analyzeDocument(nature,
                     AbstractModule.createModuleFromDoc(null, null, doc, nature, true), prefs, doc,

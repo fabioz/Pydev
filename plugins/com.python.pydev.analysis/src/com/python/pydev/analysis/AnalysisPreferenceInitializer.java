@@ -89,6 +89,9 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
     public static final String SEVERITY_ARGUMENTS_MISMATCH = "SEVERITY_ARGUMENTS_MISMATCH";
     public static final int DEFAULT_SEVERITY_ARGUMENTS_MISMATCH = IMarker.SEVERITY_INFO; //Currently does not run by default!
 
+    public static final String SEVERITY_FSTRING_ERROR = "SEVERITY_FSTRING_ERROR";
+    public static final int DEFAULT_SEVERITY_FSTRING_ERROR = IMarker.SEVERITY_ERROR;
+
     @Override
     public void initializeDefaultPreferences() {
         Preferences node = DefaultScope.INSTANCE.getNode(DEFAULT_SCOPE);

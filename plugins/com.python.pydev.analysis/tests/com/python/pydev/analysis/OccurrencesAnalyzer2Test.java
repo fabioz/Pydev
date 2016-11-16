@@ -10,6 +10,7 @@
  */
 package com.python.pydev.analysis;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -811,47 +812,25 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         }
     }
 
+    protected Closeable setGrammar(int grammarVersion) {
+        final int initial = GRAMMAR_TO_USE_FOR_PARSING;
+        GRAMMAR_TO_USE_FOR_PARSING = grammarVersion;
+        return new Closeable() {
+
+            @Override
+            public void close() throws IOException {
+                GRAMMAR_TO_USE_FOR_PARSING = initial;
+            }
+        };
+    }
+
     public void testUsedVariable() throws Exception {
-        int initial = GRAMMAR_TO_USE_FOR_PARSING;
-        try {
-            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+        try (Closeable x = setGrammar(IPythonNature.GRAMMAR_PYTHON_VERSION_3_0)) {
             doc = new Document("def foo():\n" +
                     "    a = []\n" +
                     "    my = [*a]\n" +
                     "");
             checkError("Unused variable: my");
-        } finally {
-            GRAMMAR_TO_USE_FOR_PARSING = initial;
-        }
-    }
-
-    public void testUsedVariable1() throws Exception {
-        int initial = GRAMMAR_TO_USE_FOR_PARSING;
-        try {
-            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
-            doc = new Document(""
-                    + "def bar(a):\n" +
-                    "    pass\n" +
-                    "\n" +
-                    "def foo():\n" +
-                    "    v = [1]\n" +
-                    "    bar(a=(*v, ))" +
-                    "");
-            checkNoError();
-        } finally {
-            GRAMMAR_TO_USE_FOR_PARSING = initial;
-        }
-    }
-
-    public void testErrorOnFStrings() throws Exception {
-        int initial = GRAMMAR_TO_USE_FOR_PARSING;
-        try {
-            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_6;
-            doc = new Document("f'fstring{'" +
-                    "");
-            checkError("Unused variable: my");
-        } finally {
-            GRAMMAR_TO_USE_FOR_PARSING = initial;
         }
     }
 

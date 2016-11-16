@@ -96,6 +96,7 @@ public abstract class AbstractMessage implements IMessage {
                     "Assignment to reserved built-in symbol: %s");
             messages.put(IAnalysisPreferences.TYPE_PEP8, "%s");
             messages.put(IAnalysisPreferences.TYPE_ARGUMENTS_MISATCH, "%s");
+            messages.put(IAnalysisPreferences.TYPE_FSTRING_SYNTAX_ERROR, "SyntaxError: %s");
         }
         return messages.get(getType());
 

@@ -54,59 +54,10 @@ public class PyFStringScanner implements ITokenScanner {
         } catch (BadLocationException e) {
             throw new RuntimeException(e);
         }
-        ParsingUtils pu = ParsingUtils.create(str);
-        int len = pu.len();
-        int startInternalStrOffset = 0;
-        int endInternalStrOffet = 0;
-        String buf = "";
-        for (; startInternalStrOffset < len; startInternalStrOffset++) {
-            char c = pu.charAt(startInternalStrOffset);
-            if (c == '\'' || c == '"') {
-                if (startInternalStrOffset > 2) {
-                    //Something went wrong, this should be after f' or at most fr'
-                    return;
-                }
-                try {
-                    int endPos = pu.getLiteralEnd(startInternalStrOffset, c);
-                    boolean isMulti = pu.isMultiLiteral(startInternalStrOffset, c);
-                    if (isMulti) {
-
-                        startInternalStrOffset += 3;
-                        boolean reachedEndBecauseOfEndOfString = endPos <= startInternalStrOffset;
-                        if (!reachedEndBecauseOfEndOfString) {
-                            for (int i = endPos - 2; i < endPos; i++) {
-                                if (pu.charAt(i) != c) {
-                                    reachedEndBecauseOfEndOfString = true;
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (reachedEndBecauseOfEndOfString) {
-                            buf = str.substring(startInternalStrOffset, endPos);
-                            endInternalStrOffet = 0;
-                        } else {
-                            buf = str.substring(startInternalStrOffset, endPos - 2);
-                            endInternalStrOffet = 3;
-                        }
-                    } else {
-                        startInternalStrOffset += 1;
-                        boolean reachedEndBecauseOfEndOfString = endPos <= startInternalStrOffset || endPos >= pu.len();
-
-                        buf = str.substring(startInternalStrOffset, endPos);
-                        if (reachedEndBecauseOfEndOfString) {
-                            endInternalStrOffet = 0;
-
-                        } else {
-                            endInternalStrOffet = 1;
-                        }
-                    }
-                    break;
-                } catch (SyntaxErrorException e) {
-                    return; // Something went wrong... 
-                }
-            }
-        }
+        FStringInfo fstringInfo = extractFStringInfo(str);
+        String buf = fstringInfo.buf;
+        int startInternalStrOffset = fstringInfo.startInternalStrOffset;
+        int endInternalStrOffet = fstringInfo.endInternalStrOffet;
         if (buf.length() < 0) {
             return;
         }
@@ -156,6 +107,80 @@ public class PyFStringScanner implements ITokenScanner {
                         offset + startInternalStrOffset + doc.getLength(), endInternalStrOffet));
             }
         }
+    }
+
+    public static class FStringInfo {
+
+        public final int startInternalStrOffset;
+        public final int endInternalStrOffet;
+        public final String buf;
+
+        public FStringInfo(int startInternalStrOffset, int endInternalStrOffet, String buf) {
+            this.startInternalStrOffset = startInternalStrOffset;
+            this.endInternalStrOffet = endInternalStrOffet;
+            this.buf = buf;
+        }
+
+    }
+
+    /**
+     * May return null;
+     */
+    public static FStringInfo extractFStringInfo(String str) {
+        ParsingUtils pu = ParsingUtils.create(str);
+        int len = pu.len();
+        int startInternalStrOffset = 0;
+        int endInternalStrOffet = 0;
+        String buf = "";
+        for (; startInternalStrOffset < len; startInternalStrOffset++) {
+            char c = pu.charAt(startInternalStrOffset);
+            if (c == '\'' || c == '"') {
+                if (startInternalStrOffset > 2) {
+                    //Something went wrong, this should be after f' or at most fr'
+                    return null;
+                }
+                try {
+                    int endPos = pu.getLiteralEnd(startInternalStrOffset, c);
+                    boolean isMulti = pu.isMultiLiteral(startInternalStrOffset, c);
+                    if (isMulti) {
+
+                        startInternalStrOffset += 3;
+                        boolean reachedEndBecauseOfEndOfString = endPos <= startInternalStrOffset;
+                        if (!reachedEndBecauseOfEndOfString) {
+                            for (int i = endPos - 2; i < endPos; i++) {
+                                if (pu.charAt(i) != c) {
+                                    reachedEndBecauseOfEndOfString = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (reachedEndBecauseOfEndOfString) {
+                            buf = str.substring(startInternalStrOffset, endPos);
+                            endInternalStrOffet = 0;
+                        } else {
+                            buf = str.substring(startInternalStrOffset, endPos - 2);
+                            endInternalStrOffet = 3;
+                        }
+                    } else {
+                        startInternalStrOffset += 1;
+                        boolean reachedEndBecauseOfEndOfString = endPos <= startInternalStrOffset || endPos >= pu.len();
+
+                        buf = str.substring(startInternalStrOffset, endPos);
+                        if (reachedEndBecauseOfEndOfString) {
+                            endInternalStrOffet = 0;
+
+                        } else {
+                            endInternalStrOffet = 1;
+                        }
+                    }
+                    break;
+                } catch (SyntaxErrorException e) {
+                    return null; // Something went wrong... 
+                }
+            }
+        }
+        return new FStringInfo(startInternalStrOffset, endInternalStrOffet, buf);
     }
 
     private void checkRange(int offset, int length, int documentLength) {

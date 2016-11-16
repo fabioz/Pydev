@@ -333,7 +333,7 @@ public class PyParser30Test extends PyParserTestBase {
                 +
                 "Set[elts=[Num[n=1, type=Int, num=1], Num[n=2, type=Int, num=2], "
                 +
-                "Num[n=3, type=Int, num=3], Num[n=4, type=Int, num=4]]]]", a0.toString());
+                "Num[n=3, type=Int, num=3], Num[n=4, type=Int, num=4]]], type=null]", a0.toString());
     }
 
     public void testDictComprehension() {

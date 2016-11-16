@@ -700,7 +700,7 @@ public class PyParser extends BaseParser implements IPyParser {
      * 
      * Must return an error!
      */
-    private static ErrorDescription createErrorDesc(Throwable error, IDocument doc) {
+    public static ErrorDescription createErrorDesc(Throwable error, IDocument doc) {
         try {
             int errorStart = -1;
             int errorEnd = -1;
@@ -761,7 +761,7 @@ public class PyParser extends BaseParser implements IPyParser {
                 return new ErrorDescription("Internal PyDev Error", 0, 0, 0);
             }
             try {
-                errorLine = doc.getLineOfOffset(errorStart);
+                errorLine = doc.getLineOfOffset(errorStart) + 1;
             } catch (BadLocationException e) {
                 errorLine = tokenBeginLine;
             }

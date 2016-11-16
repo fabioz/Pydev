@@ -213,7 +213,7 @@ public class PyParserTest extends PyParserTestBase {
 
             @Override
             public Boolean call(Integer arg) {
-                if (arg == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0) {
+                if (arg >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0) {
                     //yeap, invalid in python 3.0
                     parseILegalDocStr(s);
                 } else {
@@ -232,7 +232,7 @@ public class PyParserTest extends PyParserTestBase {
 
             @Override
             public Boolean call(Integer arg) {
-                if (arg == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0) {
+                if (arg >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0) {
                     //yeap, invalid in python 3.0
                     parseILegalDocStr(s);
                 } else {
@@ -251,7 +251,7 @@ public class PyParserTest extends PyParserTestBase {
 
             @Override
             public Boolean call(Integer arg) {
-                if (arg == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0) {
+                if (arg >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0) {
                     //yeap, invalid in python 3.0
                     parseILegalDocStr(s);
                 } else {

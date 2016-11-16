@@ -73,7 +73,10 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences {
             { IAnalysisPreferences.TYPE_PEP8, AnalysisPreferenceInitializer.SEVERITY_PEP8,
                     AnalysisPreferenceInitializer.DEFAULT_SEVERITY_PEP8 },
             { IAnalysisPreferences.TYPE_ARGUMENTS_MISATCH, AnalysisPreferenceInitializer.SEVERITY_ARGUMENTS_MISMATCH,
-                    AnalysisPreferenceInitializer.DEFAULT_SEVERITY_ARGUMENTS_MISMATCH }, };
+                    AnalysisPreferenceInitializer.DEFAULT_SEVERITY_ARGUMENTS_MISMATCH },
+            { IAnalysisPreferences.TYPE_FSTRING_SYNTAX_ERROR, AnalysisPreferenceInitializer.SEVERITY_FSTRING_ERROR,
+                    AnalysisPreferenceInitializer.DEFAULT_SEVERITY_FSTRING_ERROR },
+    };
 
     private HashMap<Integer, Integer> severityTypeMapCache;
     private final Object lock = new Object();

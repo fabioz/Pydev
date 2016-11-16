@@ -137,7 +137,7 @@ public final class MessagesManager {
         doAddMessage(msgs, messageToAdd);
     }
 
-    private void doAddMessage(List<IMessage> msgs, Message messageToAdd) {
+    private void doAddMessage(List<IMessage> msgs, IMessage messageToAdd) {
         String messageToIgnore = prefs.getRequiredMessageToIgnore(messageToAdd.getType());
         if (messageToIgnore != null) {
             int startLine = messageToAdd.getStartLine(document) - 1;
@@ -149,6 +149,11 @@ public final class MessagesManager {
         }
 
         msgs.add(messageToAdd);
+    }
+
+    public void addMessage(IToken token, IMessage message) {
+        List<IMessage> msgs = getMsgsList(token);
+        doAddMessage(msgs, message);
     }
 
     /**
@@ -348,7 +353,7 @@ public final class MessagesManager {
                             break;
                         }
                     }
-                }//END if (type == IAnalysisPreferences.TYPE_UNUSED_PARAMETER)
+                } //END if (type == IAnalysisPreferences.TYPE_UNUSED_PARAMETER)
 
                 if (addMessage) {
                     addMessage(type, g.generator, g.tok);
