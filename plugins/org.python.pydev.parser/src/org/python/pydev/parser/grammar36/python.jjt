@@ -52,8 +52,10 @@ import org.python.pydev.parser.jython.ast.modType;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
 import org.python.pydev.parser.jython.ast.Await;
+import org.python.pydev.parser.jython.ast.Expr;
+import org.python.pydev.parser.IGrammar2;
 
-public final class PythonGrammar36 extends AbstractPythonGrammar implements IGrammar
+public final class PythonGrammar36 extends AbstractPythonGrammar implements IGrammar, IGrammar2
 {
 
     private boolean insideAsync;
@@ -604,6 +606,13 @@ modType file_input(): {}
     { return (modType) jjtree.popNode(); }
 }
 
+
+//eval_input: testlist NEWLINE* ENDMARKER
+Expr eval_input(): {}
+{
+    SmartTestList() (<NEWLINE>)* <EOF>
+    { return (Expr) jjtree.popNode(); }
+}
 
 
 //funcdef: 'def' NAME parameters ['->' test] ':' suite

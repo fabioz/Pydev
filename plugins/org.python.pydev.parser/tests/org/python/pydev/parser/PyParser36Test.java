@@ -10,6 +10,10 @@ import java.io.File;
 
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.parser.grammar36.PythonGrammar36;
+import org.python.pydev.parser.jython.FastCharStream;
+import org.python.pydev.parser.jython.ParseException;
+import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.shared_core.io.FileUtils;
 
 public class PyParser36Test extends PyParserTestBase {
@@ -88,6 +92,19 @@ public class PyParser36Test extends PyParserTestBase {
                 "a = f'some{string}'\n" +
                 "";
         parseLegalDocStr(s);
+    }
+
+    public void testEvalInput() throws ParseException {
+        String s = "" +
+                "call(20, 20), 20\n" +
+                "";
+        FastCharStream in = new FastCharStream(s.toCharArray());
+        PythonGrammar36 grammar = new PythonGrammar36(true, in);
+        Expr eval_input = grammar.eval_input();
+        assertEquals(
+                "Expr[value=Tuple[elts=[Call[func=Name[id=call, ctx=Load, reserved=false], args=[Num[n=20, type=Int, num=20], Num[n=20, type=Int, num=20]], keywords=[], starargs=null, kwargs=null], Num[n=20, type=Int, num=20]], ctx=Load, endsWithComma=false]]",
+                eval_input.toString());
+
     }
 
 }

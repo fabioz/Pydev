@@ -150,5 +150,6 @@ public interface ITreeConstants {
     public static final int JJTAWAIT_ATOM_EXPR = 641;
     public static final int JJTANN_ASSIGN = 642;
     public static final int JJTFSTRING = 643;
+    public static final int JJTEVAL_INPUT = 644;
 
 }

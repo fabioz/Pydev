@@ -24,8 +24,10 @@ PARSER_BEGIN(PythonGrammar36)
 package org.python.pydev.parser.grammar36;
 $IMPORTS
 import org.python.pydev.parser.jython.ast.Await;
+import org.python.pydev.parser.jython.ast.Expr;
+import org.python.pydev.parser.IGrammar2;
 
-public final class PythonGrammar36 extends AbstractPythonGrammar implements IGrammar
+public final class PythonGrammar36 extends AbstractPythonGrammar implements IGrammar, IGrammar2
 {
 
     private boolean insideAsync;
@@ -476,6 +478,13 @@ comming back to this approach later).
 
 
 $FILE_INPUT
+
+//eval_input: testlist NEWLINE* ENDMARKER
+Expr eval_input(): {}
+{
+    SmartTestList() (<NEWLINE>)* <EOF>
+    { return (Expr) jjtree.popNode(); }
+}
 
 
 //funcdef: 'def' NAME parameters ['->' test] ':' suite

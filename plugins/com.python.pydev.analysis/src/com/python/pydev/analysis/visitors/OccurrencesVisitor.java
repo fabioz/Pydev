@@ -27,8 +27,9 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
+import org.python.pydev.parser.IGrammar;
+import org.python.pydev.parser.IGrammar2;
 import org.python.pydev.parser.PyParser;
-import org.python.pydev.parser.PyParser.ParserInfo;
 import org.python.pydev.parser.fastparser.grammar_fstrings_common.FStringsAST;
 import org.python.pydev.parser.fastparser.grammar_fstrings_common.FStringsAST.FStringExpressionContent;
 import org.python.pydev.parser.grammar_fstrings.FStringsGrammar;
@@ -57,7 +58,6 @@ import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.str_typeType;
 import org.python.pydev.shared_core.callbacks.ICallbackListener;
 import org.python.pydev.shared_core.model.ErrorDescription;
-import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
 import org.python.pydev.shared_core.structure.FastStack;
 import org.python.pydev.shared_core.structure.Tuple;
 
@@ -273,15 +273,30 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
             throws MisconfigurationException {
         for (FStringExpressionContent content : ast.getFStringExpressionsContent(doc)) {
             Document contentDoc = new Document(content.string);
-            ParseOutput parseOutput = PyParser
-                    .reparseDocument(new ParserInfo(contentDoc, nature));
-            if (parseOutput.error != null) {
-                reportParserError(node, content.beginLine + node.beginLine - 1, // -1 to account that content.beginLine is 1-based and node.beginLine is also 1-based
-                        content.beginLine == 1
-                                ? (startInternalStrColOffset + content.beginColumn + node.beginColumn - 1)
-                                : content.beginColumn,
-                        contentDoc,
-                        parseOutput.error);
+
+            IGrammar grammar = PyParser.createGrammar(true, nature.getGrammarVersion(), content.string.toCharArray());
+            if (grammar instanceof IGrammar2) {
+                IGrammar2 iGrammar2 = (IGrammar2) grammar;
+                Throwable errorOnParsing = null;
+                Expr expr = null;
+                try {
+                    expr = iGrammar2.eval_input();
+                    errorOnParsing = grammar.getErrorOnParsing();
+                } catch (Throwable e) {
+                    errorOnParsing = e;
+                }
+                if (errorOnParsing != null) {
+                    reportParserError(node, content.beginLine + node.beginLine - 1, // -1 to account that content.beginLine is 1-based and node.beginLine is also 1-based
+                            content.beginLine == 1
+                                    ? (startInternalStrColOffset + content.beginColumn + node.beginColumn - 1)
+                                    : content.beginColumn,
+                            contentDoc,
+                            errorOnParsing);
+                } else if (expr != null) {
+                    System.out.println("TODO: Make code analysis.");
+                }
+            } else {
+                Log.log("Expected: " + grammar + " to implement IGrammar2.");
             }
         }
     }

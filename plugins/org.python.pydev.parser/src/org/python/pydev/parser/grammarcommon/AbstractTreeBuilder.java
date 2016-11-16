@@ -109,10 +109,6 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
 
         switch (id) {
 
-            case JJTFILE_INPUT:
-                ret = new Module(null);
-                break;
-
             case JJTFALSE:
                 ret = new Name("False", Name.Load, true);
                 break;
@@ -272,6 +268,14 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
                 break;
             case JJTSTAR_EXPR:
                 ret = new Starred(null, stack.getGrammar().getGrammarActions().getStarExprScope());
+                break;
+
+            case JJTFILE_INPUT:
+                ret = new Module(null);
+                break;
+
+            case JJTEVAL_INPUT:
+                ret = new Expr(null);
                 break;
 
             default:

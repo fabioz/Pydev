@@ -531,6 +531,24 @@ public final class TreeBuilder36 extends AbstractTreeBuilder implements ITreeBui
                 exprs = makeExprs(arity - 2);
                 ctx.setStore(exprs);
                 return new Assign(exprs, value, type);
+
+            case JJTEVAL_INPUT:
+                Expr expr = (Expr) n;
+
+                if (arity != 1) {
+                    Log.log("Expected arity to be == 1 here.");
+                }
+                for (int i = arity - 1; i >= 0; i--) {
+                    SimpleNode popNode = stack.popNode();
+                    try {
+                        exprType node = (exprType) popNode;
+                        expr = new Expr(node);
+                    } catch (Exception e) {
+                        Log.log("Expected expr. Found: " + popNode);
+                    }
+                }
+                return expr;
+
             default:
                 Log.log(("Error at TreeBuilder: default not treated:" + n.getId()));
                 return null;

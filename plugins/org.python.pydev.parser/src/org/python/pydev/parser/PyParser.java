@@ -478,7 +478,7 @@ public class PyParser extends BaseParser implements IPyParser {
      * Actually creates the grammar.
      * @param generateTree whether we should generate the AST or not.
      */
-    private static IGrammar createGrammar(boolean generateTree, int grammarVersion, char[] charArray) {
+    public static IGrammar createGrammar(boolean generateTree, int grammarVersion, char[] charArray) {
         IGrammar grammar;
         FastCharStream in = new FastCharStream(charArray);
         switch (grammarVersion) {

@@ -28,6 +28,8 @@ import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.modType;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.parser.jython.ast.Await;
+import org.python.pydev.parser.jython.ast.Expr;
+import org.python.pydev.parser.IGrammar2;
 
 /** Token Manager. */
 @SuppressWarnings("unused") public final class PythonGrammar36TokenManager extends AbstractTokenManager implements PythonGrammar36Constants
