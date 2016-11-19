@@ -133,7 +133,8 @@ class ReaderThread(threading.Thread):
 
     def do_kill(self):
         self._kill = True
-        self.sock.close()
+        if hasattr(self, 'sock'):
+            self.sock.close()
 
 
 class DebuggerRunner(object):
@@ -149,7 +150,7 @@ class DebuggerRunner(object):
         port = int(writer_thread.port)
 
         localhost = pydev_localhost.get_localhost()
-        return args + [
+        ret = args + [
             writer_thread.get_pydevd_file(),
             '--DEBUG_RECORD_SOCKET_READS',
             '--qt-support',
@@ -157,15 +158,21 @@ class DebuggerRunner(object):
             localhost,
             '--port',
             str(port),
-            '--file',
-        ] + writer_thread.get_command_line_args()
-        return args
+        ]
+        
+        if writer_thread.IS_MODULE:
+            ret += ['--module']
+        
+        ret = ret + ['--file'] + writer_thread.get_command_line_args()
+        return ret
 
     def check_case(self, writer_thread_class):
         writer_thread = writer_thread_class()
         try:
             writer_thread.start()
-            while not hasattr(writer_thread, 'port'):
+            for _i in xrange(40000):
+                if hasattr(writer_thread, 'port'):
+                    break
                 time.sleep(.01)
             self.writer_thread = writer_thread
 
@@ -287,6 +294,7 @@ class DebuggerRunner(object):
 class AbstractWriterThread(threading.Thread):
 
     FORCE_KILL_PROCESS_WHEN_FINISHED_OK = False
+    IS_MODULE = False
 
     def __init__(self):
         threading.Thread.__init__(self)
@@ -313,7 +321,8 @@ class AbstractWriterThread(threading.Thread):
         if hasattr(self, 'reader_thread'):
             # if it's not created, it's not there...
             self.reader_thread.do_kill()
-        self.sock.close()
+        if hasattr(self, 'sock'):
+            self.sock.close()
 
     def write(self, s):
         self.log.append('write: %s' % (s,))
@@ -333,12 +342,12 @@ class AbstractWriterThread(threading.Thread):
             time.sleep(0.1)
 
 
-    def start_socket(self):
+    def start_socket(self, port=0):
         if SHOW_WRITES_AND_READS:
             print('start_socket')
 
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.bind(('', 0))
+        s.bind(('', port))
         self.port = s.getsockname()[1]
         s.listen(1)
         if SHOW_WRITES_AND_READS:
@@ -516,13 +525,16 @@ class AbstractWriterThread(threading.Thread):
 
     def write_version(self):
         self.write("501\t%s\t1.0\tWINDOWS\tID" % self.next_seq())
+        
+    def get_main_filename(self):
+        return self.TEST_FILE
 
     def write_add_breakpoint(self, line, func):
         '''
             @param line: starts at 1
         '''
         breakpoint_id = self.next_breakpoint_id()
-        self.write("111\t%s\t%s\t%s\t%s\t%s\t%s\tNone\tNone" % (self.next_seq(), breakpoint_id, 'python-line', self.TEST_FILE, line, func))
+        self.write("111\t%s\t%s\t%s\t%s\t%s\t%s\tNone\tNone" % (self.next_seq(), breakpoint_id, 'python-line', self.get_main_filename(), line, func))
         self.log.append('write_add_breakpoint: %s line: %s func: %s' % (breakpoint_id, line, func))
         return breakpoint_id
 
@@ -531,7 +543,7 @@ class AbstractWriterThread(threading.Thread):
         self.log.append('write_add_exception_breakpoint: %s' % (exception,))
 
     def write_remove_breakpoint(self, breakpoint_id):
-        self.write("112\t%s\t%s\t%s\t%s" % (self.next_seq(), 'python-line', self.TEST_FILE, breakpoint_id))
+        self.write("112\t%s\t%s\t%s\t%s" % (self.next_seq(), 'python-line', self.get_main_filename(), breakpoint_id))
 
     def write_change_variable(self, thread_id, frame_id, varname, value):
         self.write("117\t%s\t%s\t%s\t%s\t%s\t%s" % (self.next_seq(), thread_id, frame_id, 'FRAME', varname, value))

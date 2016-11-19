@@ -169,6 +169,9 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     public static final String KILL_SUBPROCESSES_WHEN_TERMINATING_PROCESS = "KILL_SUBPROCESSES_WHEN_TERMINATING_PROCESS";
     public static final boolean DEFAULT_KILL_SUBPROCESSES_WHEN_TERMINATING_PROCESS = true;
 
+    public static final String MAKE_LAUNCHES_WITH_M_FLAG = "MAKE_LAUNCHES_WITH_M_FLAG";
+    public static final boolean DEFAULT_MAKE_LAUNCHES_WITH_M_FLAG = false;
+
     public static final String GEVENT_DEBUGGING = "GEVENT_DEBUGGING";
     public static final boolean DEFAULT_GEVENT_DEBUGGING = false;
 

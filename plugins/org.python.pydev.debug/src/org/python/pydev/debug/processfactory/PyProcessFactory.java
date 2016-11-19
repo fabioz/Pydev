@@ -11,7 +11,7 @@ import org.eclipse.debug.core.model.RuntimeProcess;
 import org.jvnet.process_factory.AbstractProcess;
 import org.jvnet.process_factory.ProcessFactory;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.debug.ui.DebugPrefsPage;
+import org.python.pydev.debug.ui.RunPreferencesPage;
 
 public class PyProcessFactory implements IProcessFactory {
 
@@ -57,7 +57,7 @@ public class PyProcessFactory implements IProcessFactory {
 
         @Override
         public void destroy() {
-            if (DebugPrefsPage.getKillSubprocessesWhenTerminatingProcess()) {
+            if (RunPreferencesPage.getKillSubprocessesWhenTerminatingProcess()) {
                 try {
                     AbstractProcess p = ProcessFactory.CreateProcess(process);
                     //I.e.: this is the real change in this wrapper: when killing a process, we'll kill the children 

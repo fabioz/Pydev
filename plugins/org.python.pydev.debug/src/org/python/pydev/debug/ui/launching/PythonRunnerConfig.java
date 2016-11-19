@@ -53,6 +53,7 @@ import org.python.pydev.debug.model.remote.ListenConnector;
 import org.python.pydev.debug.profile.PyProfilePreferences;
 import org.python.pydev.debug.pyunit.PyUnitServer;
 import org.python.pydev.debug.ui.DebugPrefsPage;
+import org.python.pydev.debug.ui.RunPreferencesPage;
 import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks.CreatedCommandLineParams;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.plugin.PydevPlugin;
@@ -232,7 +233,8 @@ public class PythonRunnerConfig {
                 }
                 throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR,
                         "Unable to get working location for the run \n(the location: '" + expandedLocation
-                                + "' is not a valid directory).", null));
+                                + "' is not a valid directory).",
+                        null));
             }
         }
         return null;
@@ -639,6 +641,20 @@ public class PythonRunnerConfig {
         List<String> cmdArgs = new ArrayList<String>();
 
         boolean profileRun = PyProfilePreferences.getAllRunsDoProfile();
+        boolean coverageRun = PyCoveragePreferences.getAllRunsDoCoverage();
+
+        boolean addWithDashMFlag = false;
+        String modName = null;
+        if (resource.length == 1 && RunPreferencesPage.getLaunchWithMFlag() && !isUnittest() && !coverageRun
+                && !isInteractive) {
+            IPath p = resource[0];
+            String osString = p.toOSString();
+            PythonNature pythonNature = PythonNature.getPythonNature(project);
+            modName = pythonNature.resolveModule(osString);
+            if (modName != null) {
+                addWithDashMFlag = true;
+            }
+        }
 
         if (isJython()) {
             //"java.exe" -classpath "C:\bin\jython21\jython.jar" org.python.util.jython script %ARGS%
@@ -673,7 +689,7 @@ public class PythonRunnerConfig {
                 //cmdArgs.add("-Dpython.security.respectJavaAccessibility=false"); 
 
                 cmdArgs.add("org.python.util.jython");
-                addDebugArgs(cmdArgs, "jython", actualRun);
+                addDebugArgs(cmdArgs, "jython", actualRun, addWithDashMFlag, modName);
             } else {
                 cmdArgs.add("org.python.util.jython");
             }
@@ -692,11 +708,10 @@ public class PythonRunnerConfig {
                 addIronPythonDebugVmArgs(cmdArgs);
             }
 
-            addDebugArgs(cmdArgs, "python", actualRun);
+            addDebugArgs(cmdArgs, "python", actualRun, addWithDashMFlag, modName);
         }
 
         //Check if we should do code-coverage...
-        boolean coverageRun = PyCoveragePreferences.getAllRunsDoCoverage();
         if (coverageRun && isDebug) {
             if (actualRun) {
                 RunInUiThread.async(new Runnable() {
@@ -730,8 +745,15 @@ public class PythonRunnerConfig {
             }
         }
 
-        for (IPath p : resource) {
-            cmdArgs.add(p.toOSString());
+        if (!addWithDashMFlag) {
+            for (IPath p : resource) {
+                cmdArgs.add(p.toOSString());
+            }
+        } else {
+            if (!isDebug) {
+                cmdArgs.add("-m");
+                cmdArgs.add(modName);
+            }
         }
 
         if (!isUnittest()) {
@@ -910,8 +932,11 @@ public class PythonRunnerConfig {
 
     /**
      * Adds a set of arguments needed for debugging.
+     * @param modName 
+     * @param addWithDashMFlag 
      */
-    private void addDebugArgs(List<String> cmdArgs, String vmType, boolean actualRun) throws CoreException {
+    private void addDebugArgs(List<String> cmdArgs, String vmType, boolean actualRun, boolean addWithDashMFlag,
+            String modName) throws CoreException {
         if (isDebug) {
             cmdArgs.add(getDebugScript());
             if (DebugPrefsPage.getDebugMultiprocessingEnabled()) {
@@ -933,7 +958,14 @@ public class PythonRunnerConfig {
             } else {
                 cmdArgs.add("0");
             }
-            cmdArgs.add("--file");
+            if (addWithDashMFlag) {
+                cmdArgs.add("--module");
+                cmdArgs.add("--file");
+                cmdArgs.add(modName);
+
+            } else {
+                cmdArgs.add("--file");
+            }
         }
     }
 

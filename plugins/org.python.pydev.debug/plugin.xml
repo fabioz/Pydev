@@ -701,7 +701,13 @@
 
 <extension point="org.eclipse.ui.preferencePages">
       <page
-            name="Run/Debug"
+            name="Run"
+            category="org.python.pydev.prefs"
+            class="org.python.pydev.debug.ui.RunPreferencesPage"
+            id="org.python.pydev.prefs.runPage">
+      </page>
+      <page
+            name="Debug"
             category="org.python.pydev.prefs"
             class="org.python.pydev.debug.ui.DebugPrefsPage"
             id="org.python.pydev.prefs.debugPage">
