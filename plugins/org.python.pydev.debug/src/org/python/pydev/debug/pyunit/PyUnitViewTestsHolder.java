@@ -177,21 +177,26 @@ public class PyUnitViewTestsHolder {
             for (Entry<Integer, File> entry : entrySet) {
                 File file = entry.getValue();
                 try {
-                    PyUnitTestRun testRunRestored = PyUnitTestRun.fromXML(FileUtils.getFileContents(file));
-                    setSavedDiskIndex(testRunRestored, workspaceMetadataFile, i, entry);
-                    i += 1;
+                    String fileContents = FileUtils.getFileContents(file);
+                    try {
+                        PyUnitTestRun testRunRestored = PyUnitTestRun.fromXML(fileContents);
+                        setSavedDiskIndex(testRunRestored, workspaceMetadataFile, i, entry);
+                        i += 1;
 
-                    // If the pinned files are current files, we have to restore them too.
-                    if (entry.getKey() == currentPin) {
-                        currentPinned = testRunRestored;
+                        // If the pinned files are current files, we have to restore them too.
+                        if (entry.getKey() == currentPin) {
+                            currentPinned = testRunRestored;
+                        }
+                        if (entry.getKey() == lastPin) {
+                            lastPinned = testRunRestored;
+                        }
+                        DummyPyUnitServer pyUnitServer = new DummyPyUnitServer(testRunRestored.getPyUnitLaunch());
+                        final PyUnitViewServerListener serverListener = new PyUnitViewServerListener(pyUnitServer,
+                                testRunRestored);
+                        addServerListener(serverListener);
+                    } catch (Exception e) {
+                        Log.log("Error with contents: " + fileContents, e);
                     }
-                    if (entry.getKey() == lastPin) {
-                        lastPinned = testRunRestored;
-                    }
-                    DummyPyUnitServer pyUnitServer = new DummyPyUnitServer(testRunRestored.getPyUnitLaunch());
-                    final PyUnitViewServerListener serverListener = new PyUnitViewServerListener(pyUnitServer,
-                            testRunRestored);
-                    addServerListener(serverListener);
                 } catch (Exception e) {
                     Log.log(e);
                 }
@@ -309,7 +314,7 @@ public class PyUnitViewTestsHolder {
     }
 
     /**
-     * @return the directory to save the files 
+     * @return the directory to save the files
      */
     private static File getPyUnitTestsDir() {
         File workspaceMetadataFile = PydevPlugin.getWorkspaceMetadataFile("pyunit_tests");
