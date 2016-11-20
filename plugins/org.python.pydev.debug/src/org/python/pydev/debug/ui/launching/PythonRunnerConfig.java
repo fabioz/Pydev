@@ -592,6 +592,9 @@ public class PythonRunnerConfig {
     }
 
     public static String getRunningName(IPath[] paths) {
+        if (paths == null || paths.length == 0) {
+            return "";
+        }
         FastStringBuffer buf = new FastStringBuffer(20 * paths.length);
         for (IPath p : paths) {
             if (buf.length() > 0) {
@@ -603,8 +606,31 @@ public class PythonRunnerConfig {
 
     }
 
-    public String getRunningName() {
-        return getRunningName(resource);
+    public String getConsoleLabel(String[] commandLine) {
+        ArrayList<String> lst = new ArrayList<>();
+        lst.add(getRunningName(resource));
+        if (isDebug) {
+            lst.add(" [debug]");
+        }
+        if (isUnittest()) {
+            lst.add(" [unittest]");
+        }
+        if (isInteractive) {
+            lst.add(" [interactive]");
+        }
+        if (PyProfilePreferences.getAllRunsDoProfile()) {
+            lst.add(" [profile]");
+        }
+        if (PyCoveragePreferences.getAllRunsDoCoverage()) {
+            lst.add(" [coverage]");
+        }
+
+        if (commandLine.length > 0) {
+            lst.add(" [");
+            lst.add(commandLine[0]);
+            lst.add("]");
+        }
+        return StringUtils.join("", lst);
     }
 
     /**
