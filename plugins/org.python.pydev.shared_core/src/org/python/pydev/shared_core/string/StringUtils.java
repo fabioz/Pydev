@@ -548,6 +548,41 @@ public final class StringUtils {
     }
 
     /**
+     * Splits keeping empty partitions.
+     * 
+     * Notes:
+     * If ending with the char to split, adds an empty partition to the end.
+     * 
+     * I.e.:
+     * aaa|   will give "aaa", "" 
+     */
+    public static List<String> splitKeepEmpty(String string, char toSplit) {
+        int len = string.length();
+        if (len == 0) {
+            return new ArrayList<>(0);
+        }
+        ArrayList<String> ret = new ArrayList<String>();
+
+        int last = -1;
+
+        char c = 0;
+
+        for (int i = 0; i < len; i++) {
+            c = string.charAt(i);
+            if (c == toSplit) {
+                ret.add(string.substring(last + 1, i));
+                last = i;
+            }
+        }
+        if (c != toSplit) {
+            ret.add(string.substring(last + 1, len));
+        } else {
+            ret.add("");
+        }
+        return ret;
+    }
+
+    /**
      * Splits some string given some char (that char will not appear in the returned strings)
      * Empty strings are also never added.
      */

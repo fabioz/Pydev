@@ -196,6 +196,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
     private boolean disposed = false;
 
     public PyUnitView() {
+        this.currentRun = PyUnitViewTestsHolder.getCurrentTest();
         if (SharedCorePlugin.inTestMode()) {
             // leave showOnlyErrors at default under test
         } else {
@@ -921,6 +922,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
      */
     public void setCurrentRun(PyUnitTestRun testRun) {
         this.currentRun = testRun;
+        PyUnitViewTestsHolder.setCurrentTest(testRun);
         tree.setRedraw(false);
         try {
             tree.removeAll();
