@@ -104,7 +104,11 @@ public class PyUnitTestResult {
             String thisTest = this.test;
             int i = thisTest.indexOf('['); // This happens when parameterizing pytest tests.
             if (i != -1) {
-                thisTest = thisTest.substring(0, i);
+                thisTest = thisTest.substring(0, i).trim();
+            }
+            i = thisTest.indexOf('('); // This happens with unittest subtests.
+            if (i != -1) {
+                thisTest = thisTest.substring(0, i).trim();
             }
             ItemPointer itemPointer = getItemPointer(file, fileContents, thisTest);
             openAction.run(itemPointer);
