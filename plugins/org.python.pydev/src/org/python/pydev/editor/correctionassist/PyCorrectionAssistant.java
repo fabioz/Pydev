@@ -32,6 +32,7 @@ public class PyCorrectionAssistant extends QuickAssistAssistant {
             // Workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=508245 (hack can be removed when that's fixed).
             try {
                 Field field = QuickAssistAssistant.class.getDeclaredField("fQuickAssistAssistantImpl");
+                field.setAccessible(true);
                 ContentAssistant assistant = (ContentAssistant) field.get(this);
                 ContentAssistHackingAroundBugs.fixAssistBugs(assistant);
             } catch (Throwable e) {
