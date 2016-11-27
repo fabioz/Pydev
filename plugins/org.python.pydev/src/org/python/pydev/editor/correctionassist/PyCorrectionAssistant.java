@@ -11,7 +11,12 @@
  */
 package org.python.pydev.editor.correctionassist;
 
+import java.lang.reflect.Field;
+
+import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.quickassist.QuickAssistAssistant;
+import org.python.pydev.shared_core.utils.PlatformUtils;
+import org.python.pydev.shared_ui.content_assist.ContentAssistHackingAroundBugs;
 
 /**
  * 
@@ -21,5 +26,18 @@ import org.eclipse.jface.text.quickassist.QuickAssistAssistant;
  * @author Fabio Zadrozny
  */
 public class PyCorrectionAssistant extends QuickAssistAssistant {
+
+    public PyCorrectionAssistant() {
+        if (PlatformUtils.isLinuxPlatform()) {
+            // Workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=508245 (hack can be removed when that's fixed).
+            try {
+                Field field = QuickAssistAssistant.class.getDeclaredField("fQuickAssistAssistantImpl");
+                ContentAssistant assistant = (ContentAssistant) field.get(this);
+                ContentAssistHackingAroundBugs.fixAssistBugs(assistant);
+            } catch (Throwable e) {
+                // Just ignore if this hack fails.
+            }
+        }
+    }
 
 }
