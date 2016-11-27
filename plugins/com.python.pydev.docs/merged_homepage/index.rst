@@ -172,6 +172,42 @@ Companies have the option of sponsoring PyDev through corporate sponsorship. See
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
+Release 5.4.0
+==========================
+
+* **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
+
+    * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
+    
+* If you enjoy PyDev, you can now help me support it through Patreon: https://www.patreon.com/fabioz
+    
+* Initial support for Python 3.6
+
+    * Providing syntax and code analysis for expressions on f-strings.
+    * Syntax highlighting on f-strings.
+    * Parsing underscores in numeric literals.
+    * Parsing (but still not using) variable annotations.
+    * Parsing asynchronous generators and comprehensions.
+    
+* Support launching files with python -m module.name (instead of python module/name.py)
+
+    * Has to be enabled at Preferences > PyDev > Run.
+    
+* Debugger 
+
+    * Shows return values (may be disabled on preferences > PyDev > Debug).
+    * When the user is waiting for some input, it'll no longer try to evaluate the entered contents.
+    * Fix for multiprocess debugging when the debugger is started with a programmatic breakpoint (pydevd.settrace).
+
+* Unittest integration
+    
+    * Bugfixes in the pytest integration related to unicode errors.
+    * unittest subtests are now properly handled in the PyDev unittest runner.
+    * The currently selected tests are persisted. 
+
+* In Linux, when applying a completion which would automatically add an import, if the user focuses the completion pop-up (with Tab) and applies the completion with Shift+Enter, a local import is properly made.    
+
+
 Release 5.3.1
 ==========================
 
