@@ -29,8 +29,7 @@
 
 PyDev enables Eclipse to support Python (and is among the leading tools for Python coding).
 It's also an open source project created by Aleks Totic in 2003 and kept going
-by Fabio Zadrozny since 2005 with financial support from the PyDev user community
-and corporate sponsors.
+by Fabio Zadrozny since 2005 with financial support from the PyDev user community.
 
 **License: EPL (Eclipse Public License)**
 
@@ -38,32 +37,26 @@ See: `http://www.eclipse.org/legal/epl-v10.html <http://www.eclipse.org/legal/ep
 
 
 
-Corporate sponsorship
------------------------
+Becoming a Patron for PyDev
+-----------------------------
 
 PyDev is Open Source software and depends on contributions from its users
-to remain financially viable. For companies that use PyDev, it's possible to financially
-support it through corporate sponsorship.
+to remain financially viable. 
 
+If you enjoy using it, you can help to keep it going strong by 
+becoming a Patron at http://www.patreon.com/fabioz.
 
-How to become a corporate sponsor
-----------------------------------
-
-Sponsorship is available for all companies worldwide. The basic idea is that
-a company finances the work on a particular feature of PyDev -- for which
-a proper invoice is provided -- the code is done and is integrated in PyDev
-under the EPL license.
-
-That way the company gets its favorite missing feature, it's later kept supported
-in the development mainline and everyone benefits from the work done.
-
-All negotiations are kept strictly confidential. For inquiries, please contact:
-
-fabioz.pydev at gmail.com.
 
 
 .. raw:: html
     
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
     <br/>
     <br/>
     <br/>

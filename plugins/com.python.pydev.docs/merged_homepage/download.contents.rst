@@ -64,13 +64,6 @@ it provides support for those languages (among others such as C++, CoffeScript, 
 with theming support -- which is especially nice for dark themes -- if you're into it :)
 
 
-Profiling
-============
-
-To profile your programs, `PyVmMonitor <http://www.pyvmmonitor.com/>`_ is required and integrated through the
-profile view inside PyDev (window > show view > other > PyDev > profile).
-
-
 Requirements
 ============
 
@@ -95,6 +88,12 @@ Binary <http://download.eclipse.org/eclipse/downloads/>`_ (get from http://downl
 around 45-50 MB), and `Jython <http://www.jython.org/>`_ also requires
 `JDT <http://www.eclipse.org/jdt/>`_.
 
+
+Requirements for Profiling
+===========================
+
+To profile your programs, `PyVmMonitor <http://www.pyvmmonitor.com/>`_ is required and integrated through the
+profile view inside PyDev (window > show view > other > PyDev > profile).
 
 PyDev does not appear after install!
 ======================================

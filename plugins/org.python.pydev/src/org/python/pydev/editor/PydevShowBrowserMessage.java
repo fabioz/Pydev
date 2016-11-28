@@ -71,40 +71,29 @@ final class DialogNotifier extends Dialog {
         createLabel(composite, WrapAndCaseUtils.wrap(msg, BOLD_COLS), 1);
 
         try {
-            final String html = "<html><head>"
+            final String html = "<!DOCTYPE html>\n" +
+                    "<html>\n" +
+                    "    <head>\n" +
+                    "        <base href=\"http://pydev.org\">\n" +
+                    "        <title>Keeping PyDev supported</title>\n" +
+                    "    </head>\n" +
+                    "    <body>\n" +
+                    //                    "        I'm reaching out for you today to ask for your help to keep PyDev properly supported.\n" +
+                    //                    "        <br><br>\n" +
+                    //                    "        PyDev is kept as an open source product and relies on contributions to remain being developed,\n"
+                    //                    +
+                    //                    "        so, if you feel that's a worthy goal, please help by becoming a patron at <a href=\"https://www.patreon.com/fabioz\">https://www.patreon.com/fabioz</a>.\n"
+                    //                    +
+                    "        PyDev is kept as an open source product and relies on contributions to remain being developed.<br/><br/>\n"
                     +
-                    "<base href=\"http://pydev.org\" >"
+                    "        Participate in the PyDev crowdfunding by becoming a patron at <a href=\"https://www.patreon.com/fabioz\">https://www.patreon.com/fabioz</a>.\n"
                     +
-                    "<title>Keeping PyDev supported</title></head>"
+                    "        <br><br>\n" +
+                    "        Thank you,<br><br>Fabio<br><br>p.s.: Sorry for the dialog. It won't be shown again in this workspace after you click the \"Read it\" button.\n"
                     +
-                    "<body>"
-                    +
-                    "I'm reaching out for you today to ask for your help to keep PyDev properly supported."
-                    +
-                    "<br/>"
-                    +
-                    "<br/>"
-                    +
-                    "PyDev is kept as an open source product and relies on contributions to remain being developed, so, if you feel that's a worthy goal, please take a look at <a href=\"http://pydev.org\">http://pydev.org</a> and contribute if you can.<br/><br/>"
-                    +
-                    ""
-                    +
-                    "Thank you,"
-                    +
-                    "<br/>"
-                    +
-                    "<br/>"
-                    +
-                    "Fabio"
-                    +
-                    "<br/>"
-                    +
-                    "<br/>"
-                    +
-                    "p.s.: Sorry for the dialog. It won't be shown again in this workspace after you click the \"Read it\" button."
-                    +
-
-                    "</body></html>";
+                    "    </body>\n" +
+                    "</html>\n" +
+                    "";
             ToolBar navBar = new ToolBar(composite, SWT.NONE);
             //this is the place where it might fail
             final Browser browser = new Browser(composite, SWT.BORDER);
@@ -161,14 +150,18 @@ final class DialogNotifier extends Dialog {
         } catch (Throwable e) {
             //some error might happen creating it according to the docs, so, let's put another text into the widget
             String msg2 = "I'm reaching out for you today to ask for your help to keep PyDev\n"
-                    + "properly supported.\n"
+                    + "properly supported.\n\n"
                     +
-                    "\n"
+                    "PyDev is kept as an open source product and relies on contributions to remain being developed.\n" +
+                    ""
+                    + "\n" +
+                    "Participate in the PyDev crowdfunding by becoming a patron at https://www.patreon.com/fabioz. \n" +
+                    ""
                     +
-                    "PyDev is kept as an open source product and relies on contributions\n"
-                    + "to remain being developed, so, if you feel that's a worthy goal, please\n"
-                    + "take a look at http://pydev.org and contribute if you can.\n"
-                    +
+                    //                    "PyDev is kept as an open source product and relies on contributions\n"
+                    //                    + "to remain being developed, so, if you feel that's a worthy goal, please\n"
+                    //                    + "help by becoming a patron at https://www.patreon.com/fabioz.\n"
+                    //                    +
                     "\n"
                     +
                     "Thank you,\n"
@@ -261,7 +254,7 @@ final class DialogNotifier extends Dialog {
 
 public class PydevShowBrowserMessage {
 
-    public static final String PYDEV_FUNDING_SHOW_AT_TIME = "PYDEV_FUNDING_SHOW_AT_TIME";
+    public static final String PYDEV_FUNDING_SHOW_AT_TIME = "PYDEV_FUNDING_SHOW_AT_TIME_2016";
     private static boolean shownInSession = false;
     public static final long ONE_DAY_IN_MILLIS = 86400000;
 

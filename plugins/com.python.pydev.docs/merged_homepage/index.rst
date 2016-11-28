@@ -161,10 +161,7 @@ Supporting PyDev
 Thank you to all PyDev supporters: https://www.brainwy.com/supporters/PyDev.
 
 
-To show your appreciation for PyDev and to help to keep it going too, support it at https://www.brainwy.com. Supporter benefits
-include having votes to decide the next tackled tickets and space in the homepage.
-
-Companies have the option of sponsoring PyDev through corporate sponsorship. See `About/Sponsorship <about.html>`_ for details.
+To show your appreciation for PyDev and to keep it going strong, help to crowdfund through https://www.patreon.com/fabioz. 
 
 
 .. _`Getting started guide`: manual_101_root.html
@@ -179,33 +176,37 @@ Release 5.4.0
 
     * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
     
-* If you enjoy PyDev, you can now help me support it through Patreon: https://www.patreon.com/fabioz
+* If you enjoy **PyDev**, please show your appreciation through its **Patreon crowdfunding**: https://www.patreon.com/fabioz.
     
-* Initial support for Python 3.6
+* **Initial support for Python 3.6**
 
-    * Providing syntax and code analysis for expressions on f-strings.
+    * Code analysis for expressions on f-strings.
     * Syntax highlighting on f-strings.
-    * Parsing underscores in numeric literals.
+    * Handling of underscores in numeric literals.
     * Parsing (but still not using) variable annotations.
     * Parsing asynchronous generators and comprehensions.
     
-* Support launching files with python -m module.name (instead of python module/name.py)
+* **Launching**
 
-    * Has to be enabled at Preferences > PyDev > Run.
+    * Improved console description of the launch.
+    * Support launching files with **python -m module.name** (instead of python module/name.py). **Note**: Has to be enabled at **Preferences > PyDev > Run**.
+        
     
-* Debugger 
+* **Debugger** 
 
     * Shows return values (may be disabled on preferences > PyDev > Debug).
     * When the user is waiting for some input, it'll no longer try to evaluate the entered contents.
     * Fix for multiprocess debugging when the debugger is started with a programmatic breakpoint (pydevd.settrace).
 
-* Unittest integration
+* **Unittest integration**
     
     * Bugfixes in the pytest integration related to unicode errors.
     * unittest subtests are now properly handled in the PyDev unittest runner.
     * The currently selected tests are persisted. 
 
-* In Linux, when applying a completion which would automatically add an import, if the user focuses the completion pop-up (with Tab) and applies the completion with Shift+Enter, a local import is properly made.    
+* **Others**
+
+    * In Linux, when applying a completion which would automatically add an import, if the user focuses the completion pop-up (with Tab) and applies the completion with Shift+Enter, a local import is properly made.    
 
 
 Release 5.3.1
@@ -227,44 +228,6 @@ Release 5.3.1
     * **async** and **await** keywords are properly highlighted.
     * **async** blocks properly auto-indented.
     * In PEP 448 list unpack variable was not being marked as a "Load" variable (which made the code analysis yield false positives).
-    
-Release 5.3.0
-==========================
-
-* **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
-
-    * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
-    * See: `update sites page`_ for the update site of older versions of PyDev.
-    * See: the **PyDev does not appear after install** section on `the download page`_ for help on using a Java 8 vm in Eclipse.
-    
-* **Syntax validation for multiple grammars**
-
-    * Helps to make code which is **Python 2 and 3 compatible**.
-    * To customize, go to `Project Properties > PyDev - Interpreter/Grammar, and select`  **grammars for "additional syntax validation"**.
-    
-* **Code completion**
-
-    * The code-completion can now do substring based matches (i.e.: the proposals will be shown if any part of the completion matches the requested name).
-    * It's **still** not the default (to activate it, change the setting **"Preferences > PyDev > Editor > Code Completion > Match substrings on code completion?"** to true).
-    * Completion proposals have the part of the completion used to do the match in bold.
-    * Qualifiers of the completion (i.e.: package name) are styled differently (color may be customized in **General > Appearance > Colors and Fonts > Basic Qualifier Information Color**).
-    * Completions are re-sorted when the name used to request a code completion changes.
-    * **Sorting** is based on:
-    
-        * The current name typed (so that matches that are exact or start with the requested token appear first).
-        * The type of the completion (parameter, local, context insensitive with auto-import, etc). 
-        * Where the completion was found (so, matches from the same project go first, referenced projects second and standard library last).
-        
-    * **Ctrl and Shift Behavior when applying code-completion proposal**
-    
-        * Ctrl is always **"replace the current name with the completion"** for all completions.
-        * Pressing Ctrl to override the next name in code completion no longer looses the highlight in the editor.
-        * On code completion with auto-import, for doing local imports, the pop-up must be focused and Shift must be kept pressed while the completion is applied. 
-        
-* **PyQt5 support in Interactive Console**
-
-    * PyQt5 may now be used as a backend in the interactive console so that widgets/plots can be inspected interactively while using the console.
-    * May be activated with **%matplotlib qt5** (when using IPython) or in **"Preferences > PyDev > Interactive Console > Enable GUI event loop integration > PyQt5"**.
     
     
 `View release notes for previous releases`_
