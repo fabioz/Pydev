@@ -87,16 +87,17 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
             this.document = document;
             this.location = location;
         }
-
+        
         /**
+         * @throws InterruptedException
          * @return
          */
-        private boolean canPassPyLint() {
-            if (pyLintThreads.size() < PyLintPrefPage.getMaxPyLintDelta()) {
-                pyLintThreads.add(this);
-                return true;
+        private boolean canPassPyLint() throws InterruptedException {
+            while (pyLintThreads.size() >= PyLintPrefPage.getMaxPyLintDelta()) {
+                Thread.sleep(100);
             }
-            return false;
+            pyLintThreads.add(this);
+            return true;
         }
 
         /**
