@@ -292,6 +292,9 @@
 	<extension point="org.eclipse.ui.keywords" name="Minimap">
 	    <keyword id="org.python.pydev.minimap"  label="minimap horizontal vertical scrollbar ruler birds"/>
 	</extension>
+	<extension point="org.eclipse.ui.keywords" name="PyUnit">
+	    <keyword id="org.python.pydev.pyunit"  label="py.test pytest unittest nose pyunit"/>
+	</extension>
 
 <!-- Preference page -->
    <extension point="org.eclipse.ui.preferencePages">
@@ -373,7 +376,9 @@
       		name="PyUnit"
             category="org.python.pydev.prefs"
             class="org.python.pydev.pyunit.preferences.PyUnitPrefsPage2"
-            id="org.python.pydev.prefs.pyunitPage"/>
+            id="org.python.pydev.prefs.pyunitPage">
+            <keywordReference id="org.python.pydev.pyunit"/>
+      </page>
       <page
             name="Code Style"
             category="org.python.pydev.prefs.editor"
