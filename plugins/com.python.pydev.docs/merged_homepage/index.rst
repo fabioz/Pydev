@@ -37,10 +37,12 @@
 
         <div class="section" id="bronze-sponsors">
         <h1>Bronze Sponsors</h1>
-        <!- -Added 2016-10-06- ->
+        <!-- Added 2016-10-06 -->
         <a href="https://acemypaper.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/ace_my_paper_50_50.png" alt="Ace My Paper" title="https://acemypaper.com/" /></a>
-        <!- -Added 2016-10-07- ->
+        <!-- Added 2016-10-07 -->
         <a href="http://www.promovouchers.co.uk" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/promovouchers_uk_50_50.png" alt="Promo Vouchers" title="http://www.promovouchers.co.uk" /></a>
+        <!-- Added 2016-12-21 -->
+        <a href="https://www.vpsserver.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/vpsserver50-50.png" alt="vpsserver" title="https://www.vpsserver.com" /></a>
         </div>
         
     <br/>
