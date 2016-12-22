@@ -43,7 +43,14 @@
         <a href="http://www.promovouchers.co.uk" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/promovouchers_uk_50_50.png" alt="Promo Vouchers" title="http://www.promovouchers.co.uk" /></a>
         <!-- Added 2016-12-21 -->
         <a href="https://www.vpsserver.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/vpsserver50-50.png" alt="vpsserver" title="https://www.vpsserver.com" /></a>
+        
+        <!-- Added 2016-12-22 -->
+        <a href="https://ultimatewebtraffic.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/ultimatewebtraffic.png" alt="ultimawebtraffic" title="https://ultimatewebtraffic.com" /></a>
+        <a href="https://buywebtrafficexperts.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/buywebtrafficexperts.png" alt="buywebtrafficexperts" title="https://buywebtrafficexperts.com" /></a>
+        <a href="https://webtrafficgeeks.org" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/webtrafficgeeks.png" alt="webtrafficgeeks" title="https://webtrafficgeeks.org" /></a>
         </div>
+        
+
         
     <br/>
     <strong>Acknowledgements</strong>
