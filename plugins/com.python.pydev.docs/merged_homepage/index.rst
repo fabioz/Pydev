@@ -32,6 +32,9 @@
 
         <!--Added 2016-09-09-->
         <a href="http://www.binaryoptionrobotinfo.com/brokers/" border=0><img class="sponsors" src="images/sponsors/binary_option_robot_info_150_60.png" style="width:150px;height:60px;" alt="Binary Option Robot Info" title="http://www.binaryoptionrobotinfo.com/brokers/" /></a>
+        
+        <!--Added 2016-12-24-->
+        <a href="http://www.givemedeals.com/?utm_source=PYD&utm_medium=donate&utm_campaign=PyDev" border=0><img class="sponsors" src="images/sponsors/give_me_deals.png" style="width:150px;height:60px;" alt="Give Me Deals" title="http://www.givemedeals.com/?utm_source=PYD&utm_medium=donate&utm_campaign=PyDev" /></a>
 		</div>
 
 
