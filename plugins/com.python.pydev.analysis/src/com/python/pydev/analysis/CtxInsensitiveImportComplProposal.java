@@ -304,6 +304,8 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
                             iLine = startLineIndex;
                             line = ps.getLine(iLine);
                         }
+                        final String indent = line.substring(0, PySelection.getFirstCharPosition(line));
+
                         if (addLocalImportsOnTopOfFunc) {
                             if (iLine < startLineIndex) {
                                 // Ok, should be on top of the function, but still, after the docstring.
@@ -332,13 +334,18 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
                                 while (j < startLineIndex) {
                                     line2 = ps.getLine(j);
                                     trimmed = line2.trim();
-                                    if (trimmed.length() == 0 || PySelection.isImportLine(trimmed)) {
+                                    if (trimmed.length() == 0) {
                                         j++;
+                                        // Just a new line won't update the iLine
+                                        continue;
+                                    }
+                                    if (PySelection.isImportLine(trimmed)) {
+                                        j++;
+                                        iLine = j;
                                         continue;
                                     }
                                     break;
                                 }
-                                iLine = j;
                                 line = ps.getLine(iLine);
                             }
 
@@ -361,7 +368,6 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
                             }
                         }
 
-                        String indent = line.substring(0, PySelection.getFirstCharPosition(line));
                         String strToAdd = indent + realImportRep + delimiter;
                         ps.addLine(strToAdd, iLine - 1); //Will add it just after the line passed as a parameter.
                         importLen = strToAdd.length();
