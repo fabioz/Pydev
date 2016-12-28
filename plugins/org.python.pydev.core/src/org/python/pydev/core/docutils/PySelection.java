@@ -55,7 +55,7 @@ public final class PySelection extends TextSelectionUtils {
             //      after seeing the std lib, several cases use yield at the middle of the scope
     };
 
-    public static final String[] CLASS_AND_FUNC_TOKENS = new String[] { "def", "class", };
+    public static final String[] CLASS_AND_FUNC_TOKENS = new String[] { "def", "class", "async def" };
 
     public static final String[] FUNC_TOKEN = new String[] { "def", "async def" };
 
@@ -715,10 +715,6 @@ public final class PySelection extends TextSelectionUtils {
         return getNextLineThatStartsScope(indentTokens, lineToStart, mustHaveIndentLowerThan);
     }
 
-    public LineStartingScope getPreviousLineThatStartsScope(int lineToStart) {
-        return getPreviousLineThatStartsScope(PySelection.INDENT_TOKENS, lineToStart, Integer.MAX_VALUE);
-    }
-
     public static class LineStartingScope {
 
         public final String lineStartingScope;
@@ -793,10 +789,13 @@ public final class PySelection extends TextSelectionUtils {
                 foundDedent = line;
 
             } else if (foundDedent == null && trimmed.length() > 0) {
-                int firstCharPosition = getFirstCharPosition(line);
-                if (firstCharPosition < mustHaveIndentLowerThan) {
-                    mustHaveIndentLowerThan = firstCharPosition;
-                    lowestStr = line;
+                if (!trimmed.startsWith(")")
+                        && !trimmed.startsWith("'") && !trimmed.startsWith("\"")) {
+                    int firstCharPosition = getFirstCharPosition(line);
+                    if (firstCharPosition < mustHaveIndentLowerThan) {
+                        mustHaveIndentLowerThan = firstCharPosition;
+                        lowestStr = line;
+                    }
                 }
             }
 

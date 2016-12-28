@@ -481,15 +481,16 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
         char startChar = charAt(startPos);
 
         if (startChar != '"' && startChar != '\'') {
-            throw new RuntimeException("Wrong location to eat literals. Expecting ' or \" ");
+            throw new RuntimeException(
+                    "Wrong location to eat literals. Expecting ' or \". Found: >>" + startChar + "<<");
         }
 
         // Retrieves the correct end position for single- and multi-line
         // string literals.
         int endPos = getLiteralEnd(startPos, startChar);
-        boolean rightTrim = rightTrimMultiline && isMultiLiteral(startPos, startChar);
 
         if (buf != null) {
+            boolean rightTrim = rightTrimMultiline && isMultiLiteral(startPos, startChar);
             int lastPos = Math.min(endPos, len() - 1);
             for (int i = startPos; i <= lastPos; i++) {
                 char ch = charAt(i);
