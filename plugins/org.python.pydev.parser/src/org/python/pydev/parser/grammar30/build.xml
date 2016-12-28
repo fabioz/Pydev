@@ -13,14 +13,14 @@ This can be done either inside this build.xml (first top property), or on the co
 
 This build only handles javacc. If changes are done to the python.asdl file, you have to
 re-generate it by hand with "python asdl_java.py Python.asdl" inside of the ast package.
-            
+
 Current setting is: ${javaccHome}
         </echo>
     </target>
 
     <!-- checks if work to do / can be done -->
     <target name="pre">
-        <!-- set the property parser.regen.notreq if PythonGrammer.java is more up to date than python.jjt 
+        <!-- set the property parser.regen.notreq if PythonGrammer.java is more up to date than python.jjt
         <uptodate property="parser.regen.notreq" targetfile="${parser.dir}/PythonGrammar.java">
             <srcfiles dir="${parser.dir}" includes="python.jjt" />
         </uptodate>
@@ -75,7 +75,7 @@ Current setting is: ${javaccHome}
             <arg file="${parser.dir}/python.jj" />
         </java>
         <delete file="${parser.dir}/python.jj" />
-            
+
         <echo>Removing the files that are common among versions</echo>
         <delete file="${parser.dir}/TokenMgrError.java" />
         <delete file="${parser.dir}/Token.java" />
@@ -85,22 +85,22 @@ Current setting is: ${javaccHome}
         <delete file="${parser.dir}/CharStream.java" />
         <delete file="${parser.dir}/PythonGrammar30TreeConstants.java" />
         <delete file="${parser.dir}/JJTPythonGrammar30State.java" />
-        
+
         <echo>Updating jjFillToken in file PythonGrammar30TokenManager.java</echo>
-        <replace file="${parser.dir}/PythonGrammar30TokenManager.java" token="public class PythonGrammar30TokenManager implements PythonGrammar30Constants" 
+        <replace file="${parser.dir}/PythonGrammar30TokenManager.java" token="public class PythonGrammar30TokenManager implements PythonGrammar30Constants"
             value="@SuppressWarnings(&quot;unused&quot;) public final class PythonGrammar30TokenManager extends AbstractTokenManager implements PythonGrammar30Constants"/>
-        
+
         <echo>Updating jjtree.builder.openNode</echo>
         <replace file="${parser.dir}/PythonGrammar30.java" token="(SimpleNode)SimpleNode.jjtCreate(this," value="jjtree.builder.openNode("/>
         <replace file="${parser.dir}/PythonGrammar30.java" token="PythonGrammar30TreeConstants," value=""/>
-    	<replace file="${parser.dir}/PythonGrammar30.java" token="protected JJTPythonGrammar30State jjtree = new JJTPythonGrammar30State();" 
+    	<replace file="${parser.dir}/PythonGrammar30.java" token="protected JJTPythonGrammar30State jjtree = new JJTPythonGrammar30State();"
     		value="protected final AbstractJJTPythonGrammarState jjtree = createJJTPythonGrammarState(TreeBuilder30.class);"/>
-        
+
         <exec executable="${python}" dir="${parser.dir}">
             <arg value="${parser.dir}/../grammarcommon/optimize_generated_grammar.py" />
             <arg value="${parser.dir}" />
         </exec>
-        
+
     	<fixcrlf srcdir="${parser.dir}" eol="unix"></fixcrlf>
     </target>
 

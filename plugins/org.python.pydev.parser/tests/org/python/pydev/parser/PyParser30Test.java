@@ -873,4 +873,16 @@ public class PyParser30Test extends PyParserTestBase {
         parseLegalDocStrWithoutTree(contents);
     }
 
+    public void testAsync4() {
+        String s = "" +
+                "async def test2(session):\n" +
+                "    async with session:\n" +
+                "        async for _msg in session:\n" +
+                "            pass\n" +
+                "\n" +
+                "    # broken grammar\n" +
+                "    await session\n" +
+                "";
+        parseLegalDocStr(s);
+    }
 }

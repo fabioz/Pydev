@@ -35,11 +35,11 @@ import org.python.pydev.parser.IGrammar2;
 
 public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bgen(jjtree)*/ IGrammar, IGrammar2, PythonGrammar36Constants {/*@bgen(jjtree)*/
   protected final AbstractJJTPythonGrammarState jjtree = createJJTPythonGrammarState(TreeBuilder36.class);
-    private boolean insideAsync;
+    private int insideAsync;
 
     @Override
     public boolean getInsideAsync() {
-        return insideAsync;
+        return insideAsync != 0;
     }
 
 
@@ -579,20 +579,20 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
   }
 
 // (
-//     tfpdef ['=' test] 
+//     tfpdef ['=' test]
 //     (
 //         ',' tfpdef ['=' test]
-//     )* 
+//     )*
 //     [
 //         ',' [
-//             '*' [tfpdef] (',' tfpdef ['=' test])* [',' ['**' tfpdef [',']]] 
+//             '*' [tfpdef] (',' tfpdef ['=' test])* [',' ['**' tfpdef [',']]]
 //             | '**' tfpdef [',']
 //             ]
 //     ]
 //     | '*' [tfpdef] (',' tfpdef ['=' test])* [',' ['**' tfpdef [',']]]  | '**' tfpdef [',']
 // )
 
-// aliases: 
+// aliases:
 //  - defaultarg2 is tfpdef ['=' test]
 //  - onlykeywordarg2 is tfpdef ['=' test]
 //  - ExtraArgList2 is '*' [tfpdef]
@@ -602,13 +602,13 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
 //
 //
 // (
-//     defaultarg2 
+//     defaultarg2
 //     (
 //         ',' defaultarg2
-//     )* 
+//     )*
 //     [
 //         ',' [
-//            ExtraArgList2 (',' defaultarg2)* [',' [ExtraKeywordList2 [',']]] 
+//            ExtraArgList2 (',' defaultarg2)* [',' [ExtraKeywordList2 [',']]]
 //             | ExtraKeywordList2 [',']
 //             ]
 //     ]
@@ -956,24 +956,24 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
     }
   }
 
-// varargslist: 
+// varargslist:
 // (
-//     vfpdef ['=' test] 
+//     vfpdef ['=' test]
 //     (
 //         ',' vfpdef ['=' test]
-//     )* 
+//     )*
 //     [
-//         ',' 
+//         ','
 //         [
 //             '*' [vfpdef] (
 //                 ',' vfpdef ['=' test]
-//             )* [',' ['**' vfpdef [',']]] 
+//             )* [',' ['**' vfpdef [',']]]
 //             | '**' vfpdef [',']
 //         ]
 //     ]
-//     | 
+//     |
 //     '*' [vfpdef] (',' vfpdef ['=' test])* [',' ['**' vfpdef [',']]]
-//     | 
+//     |
 //     '**' vfpdef [',']
 // )
 // aliased:
@@ -984,22 +984,22 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
 //
 //
 // (
-//     defaultarg 
+//     defaultarg
 //     (
 //         ',' defaultarg
-//     )* 
+//     )*
 //     [
-//         ',' 
+//         ','
 //         [
 //             ExtraArgList (
 //                 ',' onlykeywordarg
-//             )* [',' [ExtraKeywordList [',']]] 
+//             )* [',' [ExtraKeywordList [',']]]
 //             | ExtraKeywordList [',']
 //         ]
 //     ]
-//     | 
+//     |
 //     ExtraArgList (',' onlykeywordarg)* [',' [ExtraKeywordList [',']]]
-//     | 
+//     |
 //     ExtraKeywordList [',']
 // )
   final public void varargslist() throws ParseException {
@@ -3806,7 +3806,7 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
 
 //async_stmt: ASYNC (funcdef | with_stmt | for_stmt)
   final public void async_stmt() throws ParseException {
-         insideAsync = true;
+         insideAsync += 1;
     try {
       jj_consume_token(ASYNC);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -3825,7 +3825,7 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
         throw new ParseException();
       }
     } finally {
-            insideAsync = false;
+            insideAsync -= 1;
     }
   }
 
@@ -5907,7 +5907,7 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
   final public void atom_expr() throws ParseException {
         // getToken(1) just peeks the next token without consuming it.
         Token t = getToken(1);
-        if(insideAsync && t != null && t.kind == AWAIT){
+        if(insideAsync != 0 && t != null && t.kind == AWAIT){
             // The await statement is only valid inside an async block!
             await_atom_expr();
             {if (true) return;}
@@ -7346,17 +7346,17 @@ else
     }
   }
 
-// dictorsetmaker: 
+// dictorsetmaker:
 // (
 //     (
 //         (test ':' test | '**' expr)
 //         (comp_for | (',' (test ':' test | '**' expr))* [','])
-//     ) 
+//     )
 // |
 //     (
 //         (test | star_expr)
 //         (comp_for | (',' (test | star_expr))* [','])
-//     ) 
+//     )
 // )
   final public void dictorsetmaker() throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -8083,12 +8083,12 @@ else
 
 //async_funcdef: ASYNC funcdef
   final public void async_funcdef() throws ParseException {
-     insideAsync = true;
+     insideAsync += 1;
     try {
       jj_consume_token(ASYNC);
       funcdef();
     } finally {
-        insideAsync=false;
+        insideAsync -= 1;
     }
   }
 
