@@ -28,6 +28,7 @@ import org.python.pydev.core.docutils.ImportHandle;
 import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
 import org.python.pydev.core.docutils.ImportNotRecognizedException;
 import org.python.pydev.core.docutils.ParsingUtils;
+import org.python.pydev.core.docutils.PyDocIterator;
 import org.python.pydev.core.docutils.PyImportsHandling;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
@@ -40,6 +41,7 @@ import org.python.pydev.editor.codecompletion.IPyCompletionProposal2;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 
@@ -340,7 +342,32 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
                                         continue;
                                     }
                                     if (PySelection.isImportLine(trimmed)) {
-                                        j++;
+                                        PyDocIterator docIterator = new PyDocIterator(ps.getDoc(), true, true, false,
+                                                false);
+                                        docIterator.setStartingOffset(ps.getLineOffset(j));
+                                        String str = docIterator.next();
+
+                                        if (str.contains("(")) { //we have something like from os import (pipe,\nfoo)
+                                            while (docIterator.hasNext()) {
+                                                if (str.contains(")")) {
+                                                    j = docIterator.getLastReturnedLine() + 1;
+                                                    break;
+                                                } else {
+                                                    str = docIterator.next();
+                                                }
+                                            }
+                                        } else if (StringUtils.endsWith(str.trim(), '\\')) {
+                                            while (docIterator.hasNext()) {
+                                                if (!StringUtils.endsWith(str.trim(), '\\')) {
+                                                    j = docIterator.getLastReturnedLine() + 1;
+                                                    break;
+                                                }
+                                                str = docIterator.next();
+                                            }
+                                        } else {
+                                            j++;
+                                        }
+
                                         iLine = j;
                                         continue;
                                     }
