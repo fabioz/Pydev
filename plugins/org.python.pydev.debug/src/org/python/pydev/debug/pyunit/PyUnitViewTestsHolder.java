@@ -342,15 +342,15 @@ public class PyUnitViewTestsHolder {
                 }
 
                 FastStringBuffer buf = new FastStringBuffer();
-                if (currPin != null) {
+                if (currPin != null && currPin.savedDiskIndex != null) {
                     buf.append(currPin.savedDiskIndex);
                 }
                 buf.append('|');
-                if (lastPin != null) {
+                if (lastPin != null && lastPin.savedDiskIndex != null) {
                     buf.append(lastPin.savedDiskIndex);
                 }
                 buf.append('|');
-                if (currRun != null) {
+                if (currRun != null && currRun.savedDiskIndex != null) {
                     buf.append(currRun.savedDiskIndex);
                 }
                 FileUtils.writeBytesToFile(buf.getBytes(), new File(workspaceMetadataFile, "test_run_pin_info.txt"));
