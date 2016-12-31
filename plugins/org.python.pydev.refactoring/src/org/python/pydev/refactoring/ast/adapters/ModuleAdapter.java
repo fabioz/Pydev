@@ -72,7 +72,6 @@ import org.python.pydev.refactoring.ast.adapters.offsetstrategy.InitOffset;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.ast.visitors.info.ImportVisitor;
 
-
 public class ModuleAdapter extends AbstractScopeNode<Module> {
     private List<FQIdentifier> aliasToFQIdentifier;
     private IDocument doc;
@@ -211,7 +210,8 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
         return this;
     }
 
-    public int getOffset(IASTNodeAdapter<? extends SimpleNode> adapter, int strategy, AbstractScopeNode<?> scopeAdapter) {
+    public int getOffset(IASTNodeAdapter<? extends SimpleNode> adapter, int strategy,
+            AbstractScopeNode<?> scopeAdapter) {
         int offset = 0;
 
         setStrategy(adapter, strategy, scopeAdapter);
@@ -242,7 +242,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
                 bestClassScope = classScope;
             }
 
-            if (classScope.getNodeFirstLine() > selection.getEndLine()) {
+            if (classScope.getNodeFirstLine(false) > selection.getEndLine()) {
                 break;
             }
         }
@@ -266,7 +266,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 
         try {
             int lastLine = adapter.getNodeLastLine() - 1;
-            int adapterStartOffset = doc.getLineOffset(adapter.getNodeFirstLine() - 1) + adapter.getNodeIndent();
+            int adapterStartOffset = doc.getLineOffset(adapter.getNodeFirstLine(false) - 1) + adapter.getNodeIndent();
             int adapterEndOffset = doc.getLineOffset(lastLine) + doc.getLineLength(lastLine);
 
             return (adapterStartOffset <= startOffSet && adapterEndOffset >= endOffSet);
@@ -307,14 +307,15 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
     }
 
     public int getStartOffset(IASTNodeAdapter<? extends SimpleNode> adapter) throws BadLocationException {
-        return doc.getLineOffset(adapter.getNodeFirstLine() - 1) + adapter.getNodeIndent();
+        return doc.getLineOffset(adapter.getNodeFirstLine(false) - 1) + adapter.getNodeIndent();
     }
 
     public boolean isNodeInSelection(ITextSelection selection, SimpleNode node) {
         return isAdapterInSelection(selection, new SimpleAdapter(this, this, node, getAdapterPrefs()));
     }
 
-    private IClassDefAdapter resolveClassHierarchy(List<IClassDefAdapter> bases, IClassDefAdapter adap, Set<String> memo)
+    private IClassDefAdapter resolveClassHierarchy(List<IClassDefAdapter> bases, IClassDefAdapter adap,
+            Set<String> memo)
             throws MisconfigurationException {
         if (adap.hasBaseClass() && adap.getModule() != null) {
 
@@ -545,7 +546,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
                 scopeAdapter = functionScope;
             }
 
-            if (functionScope.getNodeFirstLine() > selection.getEndLine()) {
+            if (functionScope.getNodeFirstLine(false) > selection.getEndLine()) {
                 break;
             }
         }
@@ -652,12 +653,16 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
      * Note that the line returned is 1-based.
      */
     @Override
-    public int getNodeFirstLine() {
+    public int getNodeFirstLine(boolean considerDecorators) {
         Module astNode = getASTNode();
         for (int i = 0; i < astNode.body.length; i++) {
             SimpleNode node = astNode.body[i];
             if (!nodeHelper.isImport(node) && !nodeHelper.isStr(node)) {
-                return node.beginLine;
+                if (!considerDecorators) {
+                    return node.beginLine;
+                } else {
+                    return nodeHelper.getFirstLineConsideringDecorators(node);
+                }
             }
         }
         return 1;

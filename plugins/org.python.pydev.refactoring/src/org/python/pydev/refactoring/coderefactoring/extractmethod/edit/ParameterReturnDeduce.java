@@ -148,21 +148,21 @@ public class ParameterReturnDeduce {
     }
 
     private boolean isAfterOnSameLine(SimpleAdapter lastSelectedVariable, SimpleAdapter adapter) {
-        return adapter.getNodeFirstLine() == lastSelectedVariable.getNodeFirstLine()
+        return adapter.getNodeFirstLine(false) == lastSelectedVariable.getNodeFirstLine(false)
                 && (adapter.getNodeIndent() > lastSelectedVariable.getNodeIndent());
     }
 
     private boolean isAfterSelectedLine(SimpleAdapter lastSelectedVariable, SimpleAdapter adapter) {
-        return adapter.getNodeFirstLine() > lastSelectedVariable.getNodeFirstLine();
+        return adapter.getNodeFirstLine(false) > lastSelectedVariable.getNodeFirstLine(false);
     }
 
     private boolean isBeforeOnSameLine(SimpleAdapter firstSelectedVariable, SimpleAdapter adapter) {
-        return adapter.getNodeFirstLine() == firstSelectedVariable.getNodeFirstLine()
+        return adapter.getNodeFirstLine(false) == firstSelectedVariable.getNodeFirstLine(false)
                 && (adapter.getNodeIndent() < firstSelectedVariable.getNodeIndent());
     }
 
     private boolean isBeforeSelectedLine(SimpleAdapter firstSelectedVariable, SimpleAdapter adapter) {
-        return adapter.getNodeFirstLine() < firstSelectedVariable.getNodeFirstLine();
+        return adapter.getNodeFirstLine(false) < firstSelectedVariable.getNodeFirstLine(false);
     }
 
     /**

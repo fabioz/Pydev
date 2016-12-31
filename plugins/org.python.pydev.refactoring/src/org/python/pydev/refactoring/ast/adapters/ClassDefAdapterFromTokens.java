@@ -201,7 +201,7 @@ public class ClassDefAdapterFromTokens implements IClassDefAdapter {
     }
 
     @Override
-    public int getNodeFirstLine() {
+    public int getNodeFirstLine(boolean considerDecorators) {
         return 0;
     }
 

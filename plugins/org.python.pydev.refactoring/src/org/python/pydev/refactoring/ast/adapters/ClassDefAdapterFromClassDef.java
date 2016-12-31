@@ -176,7 +176,7 @@ public class ClassDefAdapterFromClassDef implements IClassDefAdapter {
     }
 
     @Override
-    public int getNodeFirstLine() {
+    public int getNodeFirstLine(boolean considerDecorators) {
         throw new RuntimeException("Not implemented");
     }
 

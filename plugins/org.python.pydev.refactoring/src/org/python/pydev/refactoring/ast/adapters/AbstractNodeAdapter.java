@@ -100,8 +100,13 @@ public abstract class AbstractNodeAdapter<T extends SimpleNode> implements IASTN
      * @see org.python.pydev.refactoring.ast.adapters.IASTNodeAdapte#getNodeFirstLine()
      */
     @Override
-    public int getNodeFirstLine() {
-        return getASTNode().beginLine;
+    public int getNodeFirstLine(boolean considerDecorators) {
+        T astNode = getASTNode();
+        if (!considerDecorators) {
+            return astNode.beginLine;
+        } else {
+            return nodeHelper.getFirstLineConsideringDecorators(astNode);
+        }
     }
 
     /**

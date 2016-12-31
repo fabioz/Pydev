@@ -555,4 +555,22 @@ public class NodeHelper {
         return this.adapterPrefs;
     }
 
+    public int getFirstLineConsideringDecorators(SimpleNode node) {
+        decoratorsType[] decs = null;
+        if (node instanceof FunctionDef) {
+            FunctionDef functionDef = (FunctionDef) node;
+            decs = functionDef.decs;
+
+        } else if (node instanceof ClassDef) {
+            ClassDef classDef = (ClassDef) node;
+            decs = classDef.decs;
+        }
+        if (decs != null && decs.length > 0) {
+            for (decoratorsType dec : decs) {
+                return dec.beginLine;
+            }
+        }
+        return node.beginLine;
+    }
+
 }

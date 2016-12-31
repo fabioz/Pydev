@@ -33,7 +33,7 @@ public interface IASTNodeAdapter<T extends SimpleNode> extends INodeAdapter {
 
     String getNodeBodyIndent();
 
-    int getNodeFirstLine();
+    int getNodeFirstLine(boolean considerDecorators);
 
     int getNodeIndent();
 
