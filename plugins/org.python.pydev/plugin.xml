@@ -675,6 +675,12 @@
                class="org.python.pydev.editor.actions.PyScopeDeselection"
                id="org.python.pydev.editor.actions.deselectEnclosingScope">
          </action>
+         <action
+               definitionId="org.python.pydev.editor.actions.openLastConsoleHyperlink"
+               label="Open Last Hyperlink in Console"
+               class="org.python.pydev.editor.actions.PyOpenLastConsoleHyperlink"
+               id="org.python.pydev.editor.actions.openLastConsoleHyperlink">
+         </action>
       </editorContribution>
    </extension>
 
@@ -907,6 +913,12 @@
             description="Deselect Enclosing Scope"
             categoryId="org.python.pydev.ui.category.source"
             id="org.python.pydev.editor.actions.deselectEnclosingScope"/>
+  <!-- Open last hyperlink in console -->
+      <command
+            name="Open last hyperlink in console"
+            description="Open last hyperlink in console"
+            categoryId="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.openLastConsoleHyperlink"/>
    </extension>
 
    <extension point="org.eclipse.ui.bindings">
@@ -1066,6 +1078,12 @@
             sequence="M2+M3+Arrow_Down"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.deselectEnclosingScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            sequence="M1+M2+M3+O"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="org.python.pydev.editor.actions.openLastConsoleHyperlink"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
    </extension>
