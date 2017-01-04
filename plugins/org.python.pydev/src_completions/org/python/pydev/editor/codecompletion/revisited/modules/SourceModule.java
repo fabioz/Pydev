@@ -466,6 +466,23 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                 } else if (d.ast instanceof Name) {
                                     ClassDef classDef = (ClassDef) d.scope.getClassDef();
                                     if (classDef != null) {
+                                        ClassDef classDef2 = classDef;
+                                        if (classDef2.bases != null) {
+                                            for (int j = 0; j < classDef2.bases.length; j++) {
+                                                String representationString = NodeUtils
+                                                        .getRepresentationString(classDef2.bases[j]);
+                                                if ("Enum".equals(representationString)
+                                                        || "IntEnum".equals(representationString)) {
+                                                    return new IToken[] {
+                                                            new ConcreteToken("name", "Enum name", "", "enum",
+                                                                    ConcreteToken.TYPE_ATTR, manager.getNature()),
+                                                            new ConcreteToken("value", "Enum value", "", "enum",
+                                                                    ConcreteToken.TYPE_ATTR, manager.getNature())
+                                                    };
+                                                }
+                                            }
+                                        }
+
                                         FindDefinitionModelVisitor visitor = new FindDefinitionModelVisitor(
                                                 actToks.get(actToksLen - 1), d.line, d.col, d.module,
                                                 initialState.getNature());

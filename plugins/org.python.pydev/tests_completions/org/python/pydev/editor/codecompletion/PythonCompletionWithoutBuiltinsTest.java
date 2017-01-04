@@ -3069,4 +3069,16 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals(1, comps.length);
     }
 
+    public void testEnum() throws Exception {
+        String s;
+        s = "" +
+                "from enum import Enum\n" +
+                "\n" +
+                "class Color(Enum):\n" +
+                "    Black = '#000000'\n" +
+                "    White = '#ffffff'\n" +
+                "Color.Black.";
+        requestCompl(s, s.length(), -1, new String[] { "name", "value" });
+    }
+
 }
