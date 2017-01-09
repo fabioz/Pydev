@@ -72,6 +72,10 @@ public class PyImportsIterator implements Iterator<ImportHandle> {
         this(doc, addOnlyGlobalImports, false);
     }
 
+    public void setStartingOffset(int offset) {
+        this.docIterator.setStartingOffset(offset);
+    }
+
     /**
      * Pre-calculates the next return value and whether there is a next value to be returned.
      */
@@ -111,6 +115,7 @@ public class PyImportsIterator implements Iterator<ImportHandle> {
                 try {
                     nextImport = new ImportHandle(doc, str, startFoundLine, -1, allowBadInput); //-1 == endFoundLine (which will be properly set later on).
                 } catch (ImportNotRecognizedException e) {
+                    e.printStackTrace();
                     continue;
                 }
                 hasNext = true;

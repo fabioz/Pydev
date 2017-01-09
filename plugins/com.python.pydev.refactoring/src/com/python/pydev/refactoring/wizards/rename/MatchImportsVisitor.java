@@ -13,7 +13,6 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.text.edits.ReplaceEdit;
@@ -48,7 +47,6 @@ import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.shared_core.string.StringUtils;
-import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.FastStack;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.ArrayUtils;
@@ -200,17 +198,8 @@ public class MatchImportsVisitor extends VisitorBase {
             }
             if (str != null) {
                 str = StringUtils.rightTrim(str);
-                int offset;
-                try {
-                    offset = doc.getLineOffset(this.node.beginLine - 1);
-                } catch (BadLocationException e) {
-                    throw new RuntimeException(e);
-                }
-                int firstCharPosition = TextSelectionUtils.getFirstCharPosition(line);
-                if (firstCharPosition > 0) {
-                    str = line.substring(0, firstCharPosition) + str;
-                }
-                TextEdit replaceEdit = new ReplaceEdit(offset, line.length(), str);
+                Tuple<Integer, Integer> startEndOffset = NodeUtils.getStartEndOffset(doc, this.node);
+                TextEdit replaceEdit = new ReplaceEdit(startEndOffset.o1, startEndOffset.o2 - startEndOffset.o1, str);
                 ret.add(replaceEdit);
             }
 

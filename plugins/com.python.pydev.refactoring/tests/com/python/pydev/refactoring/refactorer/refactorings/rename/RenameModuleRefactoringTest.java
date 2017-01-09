@@ -427,6 +427,28 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
                 asStr);
     }
 
+    public void testRenameModuleInWorkspace15() throws Exception {
+
+        Map<Tuple<String, File>, HashSet<ASTEntry>> referencesForModuleRename = getReferencesForModuleRename(
+                "reflib.renamemodule7.inside7a", "reflib.renamemodule7.inside7b", false);
+        String asStr = asStr(referencesForModuleRename);
+        assertEquals(
+                "" +
+                        "reflib.renamemodule7.inside7\n" +
+                        "  ImportFromRenameAstEntry<from reflib.renamemodule7 import inside7a (ImportFrom L=1 C=6)>\n" +
+                        "    Initial:\n" +
+                        "from reflib\\\n" +
+                        "    .renamemodule7 import inside7a\n" +
+                        "    Final:\n" +
+                        "from reflib.renamemodule7 import inside7b\n" +
+                        "\n" +
+                        "reflib.renamemodule7.inside7a\n" +
+                        "  ASTEntryWithSourceModule<Module (Module L=0 C=0)>\n" +
+                        "\n" +
+                        "",
+                asStr);
+    }
+
     protected Map<Tuple<String, File>, HashSet<ASTEntry>> getReferencesForModuleRename(String moduleName,
             String newName,
             boolean expectError) {

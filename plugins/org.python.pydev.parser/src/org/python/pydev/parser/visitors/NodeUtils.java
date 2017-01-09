@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IGrammarVersionProvider;
@@ -72,6 +73,7 @@ import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorWithLoop;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.utils.Reflection;
 
 public class NodeUtils {
@@ -1861,6 +1863,48 @@ public class NodeUtils {
             }
         }
         return null;
+    }
+
+    public static org.python.pydev.shared_core.structure.Tuple<Integer, Integer> getStartEndOffset(IDocument doc,
+            SimpleNode node) {
+        if (node instanceof ImportFrom) {
+            org.python.pydev.shared_core.structure.Tuple<Integer, Integer> ret = new org.python.pydev.shared_core.structure.Tuple<>(
+                    -1, -1);
+            ImportFrom importFrom = (ImportFrom) node;
+            int offset;
+            try {
+                offset = doc.getLineOffset(node.beginLine - 1);
+            } catch (BadLocationException e) {
+                throw new RuntimeException(e);
+            }
+            ret.o1 = offset;
+            int firstCharPosition = TextSelectionUtils
+                    .getFirstCharPosition(PySelection.getLine(doc, node.beginLine - 1));
+            offset += firstCharPosition;
+
+            NameTokType last = null;
+            for (aliasType name : importFrom.names) {
+                if (name == null) {
+                    continue;
+                }
+                if (name.asname != null) {
+                    last = name.asname;
+                } else {
+                    last = name.name;
+                }
+            }
+            if (last == null) {
+                throw new AssertionError("ImportFrom not complete: " + node);
+            }
+
+            ret.o2 = PySelection.getAbsoluteCursorOffset(doc, last.beginLine - 1, last.beginColumn - 1)
+                    + NodeUtils.getRepresentationString(last).length();
+            return ret;
+
+        } else {
+            throw new AssertionError("Node: " + node + " not handled.");
+        }
+
     }
 
 }
