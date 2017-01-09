@@ -221,9 +221,20 @@ public class ImportHandle {
         }
 
         /**
-         * @return the from module in the import
+         * @return the from module in the import (may be null).
          */
         public String getFromImportStr() {
+            return this.fromStr;
+        }
+
+        /**
+         * @return the from module in the import without chars which may appear in the from but should not be considered
+         * (such as \ and spaces)
+         */
+        public String getFromImportStrWithoutUnwantedChars() {
+            if (this.fromStr != null) {
+                return CHARS_NOT_CONSIDERED_IN_IMPORT_INFO.matcher(this.fromStr).replaceAll("");
+            }
             return this.fromStr;
         }
 
@@ -359,6 +370,8 @@ public class ImportHandle {
         this(doc, importFound, startFoundLine, endFoundLine, false);
     }
 
+    private static Pattern CHARS_NOT_CONSIDERED_IN_IMPORT_INFO = Pattern.compile("\\s|\\\\");
+
     /**
      * @param realImportHandleInfo the import to match. Note that only a single import statement may be passed as a parameter.
      * 
@@ -370,11 +383,14 @@ public class ImportHandle {
         List<ImportHandleInfo> importHandleInfo = this.getImportInfo();
 
         for (ImportHandleInfo info : importHandleInfo) {
+
             if (info.fromStr != otherImportInfo.fromStr) {
-                if (otherImportInfo.fromStr == null || info.fromStr == null) {
+                String thisFromStr = info.getFromImportStrWithoutUnwantedChars();
+                String otherImportInfoFromStr = otherImportInfo.getFromImportStrWithoutUnwantedChars();
+                if (otherImportInfoFromStr == null || thisFromStr == null) {
                     continue; //keep on to the next possible match
                 }
-                if (!otherImportInfo.fromStr.equals(info.fromStr)) {
+                if (!otherImportInfoFromStr.equals(thisFromStr)) {
                     continue; //keep on to the next possible match
                 }
             }

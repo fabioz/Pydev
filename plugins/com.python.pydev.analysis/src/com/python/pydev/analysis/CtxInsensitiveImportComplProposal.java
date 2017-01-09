@@ -229,9 +229,11 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
                                 List<ImportHandleInfo> handleImportInfo = handle.getImportInfo();
 
                                 for (ImportHandleInfo importHandleInfo : handleImportInfo) {
-
-                                    if (realImportHandleInfo.getFromImportStr().equals(
-                                            importHandleInfo.getFromImportStr())) {
+                                    if (realImportHandleInfo.getFromImportStr() == null) {
+                                        continue;
+                                    }
+                                    if (realImportHandleInfo.getFromImportStrWithoutUnwantedChars().equals(
+                                            importHandleInfo.getFromImportStrWithoutUnwantedChars())) {
                                         List<String> commentsForImports = importHandleInfo.getCommentsForImports();
                                         if (commentsForImports.size() > 0
                                                 && commentsForImports.get(commentsForImports.size() - 1)
