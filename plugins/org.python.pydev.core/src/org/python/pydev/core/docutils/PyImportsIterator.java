@@ -115,7 +115,6 @@ public class PyImportsIterator implements Iterator<ImportHandle> {
                 try {
                     nextImport = new ImportHandle(doc, str, startFoundLine, -1, allowBadInput); //-1 == endFoundLine (which will be properly set later on).
                 } catch (ImportNotRecognizedException e) {
-                    e.printStackTrace();
                     continue;
                 }
                 hasNext = true;

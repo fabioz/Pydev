@@ -33,9 +33,9 @@ public class ImportHandle {
 
         //spaces* 'from' space+ module space+ import (mod as y)
         private static final Pattern FromImportPattern = Pattern
-                .compile("(from\\s+)(\\.|\\w|\\s)+((\\\\|\\s)+import(\\\\|\\s)+)");
+                .compile("(from\\s+)(\\.|\\w|\\s|\\\\)+((\\\\|\\s)+import(\\\\|\\s)+)");
         private static final Pattern BadFromPattern = Pattern
-                .compile("from\\s+(\\.|\\w|\\s)+(\\\\|\\s)+import");
+                .compile("from\\s+(\\.|\\w|\\s|\\\\)+(\\\\|\\s)+import");
         private static final Pattern ImportPattern = Pattern.compile("(import\\s+)");
 
         /**
@@ -97,8 +97,6 @@ public class ImportHandle {
             if (importFound.length() == 0) {
                 throw new ImportNotRecognizedException("Could not recognize empty string as import");
             }
-            importFound = StringUtils.replaceNewLines(importFound, "");
-            importFound = StringUtils.replaceAll(importFound, "\\", "");
             char firstChar = importFound.charAt(0);
 
             if (firstChar == 'f') {

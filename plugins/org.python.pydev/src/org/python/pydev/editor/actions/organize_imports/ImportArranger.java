@@ -274,17 +274,7 @@ public class ImportArranger {
         sortImports(list);
 
         //now, re-add the imports
-        FastStringBuffer all = new FastStringBuffer();
-
-        if (!groupFromImports) {
-            writeImports(list, all);
-
-        } else { //we have to group the imports!
-
-            groupAndWriteImports(list, all);
-        }
-
-        String finalStr = all.toString();
+        String finalStr = createImportsStr(groupFromImports, list);
 
         if (executeOnlyIfChanged) {
             //If going automatic, let's check the contents before actually doing the organize 
@@ -332,6 +322,21 @@ public class ImportArranger {
 
         PySelection.addLine(doc, endLineDelim, finalStr, lineForNewImports);
 
+    }
+
+    private String createImportsStr(boolean groupFromImports, List<Tuple3<Integer, String, ImportHandle>> list) {
+        FastStringBuffer all = new FastStringBuffer();
+
+        if (!groupFromImports) {
+            writeImports(list, all);
+
+        } else { //we have to group the imports!
+
+            groupAndWriteImports(list, all);
+        }
+
+        String finalStr = all.toString();
+        return finalStr;
     }
 
     private void pruneEmptyImports(List<Tuple3<Integer, String, ImportHandle>> list) {
@@ -429,7 +434,7 @@ public class ImportArranger {
 
             List<ImportHandleInfo> importInfo = element.o3.getImportInfo();
             for (ImportHandleInfo importHandleInfo : importInfo) {
-                String fromImportStr = importHandleInfo.getFromImportStr();
+                String fromImportStr = importHandleInfo.getFromImportStrWithoutUnwantedChars();
                 if (fromImportStr == null) {
                     importsWithoutFrom.add(importHandleInfo);
                 } else {

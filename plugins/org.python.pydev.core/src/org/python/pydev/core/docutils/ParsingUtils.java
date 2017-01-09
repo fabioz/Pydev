@@ -1085,4 +1085,31 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
         return isCommentContentType(contentType);
     }
 
+    public static String removeCalls(String activationToken) {
+        ParsingUtils parsingUtils = ParsingUtils.create(activationToken);
+        FastStringBuffer buf = new FastStringBuffer(activationToken.length());
+        int i = 0;
+        while (true) {
+            int nextParI = parsingUtils.findNextChar(i, '(');
+            if (nextParI == -1) {
+                break;
+            }
+
+            buf.append(activationToken.substring(i, nextParI));
+            try {
+                int j = parsingUtils.eatPar(nextParI, null);
+                if (j != -1) {
+                    i = j;
+                }
+            } catch (SyntaxErrorException e) {
+            }
+            i++;
+        }
+        if (i < parsingUtils.len()) {
+            //Add the remainder of the string if it didn't end with a ')'.
+            buf.append(activationToken.substring(i));
+        }
+        return buf.toString();
+    }
+
 }

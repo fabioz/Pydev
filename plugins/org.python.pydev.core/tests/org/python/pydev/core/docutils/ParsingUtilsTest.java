@@ -611,4 +611,16 @@ public class ParsingUtilsTest extends TestCase {
         assertEquals("from a import x ", buf.toString());
 
     }
+
+    public void testRemoveCalls() {
+        assertEquals("a.call.foo.fff", ParsingUtils.removeCalls("a.call().foo(a=another('(')).fff"));
+        //Dangling '('
+        assertEquals("a.call", ParsingUtils.removeCalls("a.call(.foo(a=another('(')).fff"));
+        assertEquals("a.call", ParsingUtils.removeCalls("a.call"));
+        assertEquals("", ParsingUtils.removeCalls(""));
+        assertEquals("", ParsingUtils.removeCalls("("));
+        assertEquals(")", ParsingUtils.removeCalls(")"));
+        assertEquals("", ParsingUtils.removeCalls("()"));
+        assertEquals("bb", ParsingUtils.removeCalls("bb()"));
+    }
 }

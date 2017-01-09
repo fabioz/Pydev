@@ -37,6 +37,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.TupleN;
 import org.python.pydev.core.UnpackInfo;
+import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
@@ -658,7 +659,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         int parI = act.indexOf('(');
         if (parI != -1) {
             state.setFullActivationToken(act);
-            act = act.substring(0, parI);
+            act = ParsingUtils.removeCalls(act);
             state.setActivationToken(act);
             state.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
         }

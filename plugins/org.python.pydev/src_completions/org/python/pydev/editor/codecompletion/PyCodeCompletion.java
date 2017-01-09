@@ -41,6 +41,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
+import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.log.Log;
@@ -567,7 +568,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
         final String initialActivationToken = request.activationToken;
         int parI = request.activationToken.indexOf('(');
         if (parI != -1) {
-            request.activationToken = request.activationToken.substring(0, parI);
+            request.activationToken = ParsingUtils.removeCalls(request.activationToken);
         }
 
         char[] toks = new char[] { '.', ' ' };

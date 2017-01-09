@@ -3081,4 +3081,27 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         requestCompl(s, s.length(), -1, new String[] { "name", "value" });
     }
 
+    public void testCallChain() throws Exception {
+        String s;
+        s = "" +
+                "class Third:\n" +
+                "\n" +
+                "    def after_third(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "class Second:\n" +
+                "\n" +
+                "    def after_second(self):\n" +
+                "        return Third()\n" +
+                "\n" +
+                "class First:\n" +
+                "\n" +
+                "    def after_first(self):\n" +
+                "        return Second()\n" +
+                "\n" +
+                "f = First()\n" +
+                "f.after_first().after_second().";
+        requestCompl(s, s.length(), -1, new String[] { "after_third()" });
+    }
+
 }
