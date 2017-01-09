@@ -3104,4 +3104,21 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         requestCompl(s, s.length(), -1, new String[] { "after_third()" });
     }
 
+    public void testReturnSelf() throws Exception {
+        String s;
+        s = "\n" +
+                "class Killer(object):\n" +
+                "\n" +
+                "    def method_a(self):\n" +
+                "        return self\n" +
+                "\n" +
+                "    def method_b(self):\n" +
+                "        return self\n" +
+                "\n" +
+                "killer = Killer()\n" +
+                "killer.method_a().";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()" });
+
+    }
+
 }

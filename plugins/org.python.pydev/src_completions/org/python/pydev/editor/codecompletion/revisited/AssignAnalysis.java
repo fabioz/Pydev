@@ -6,6 +6,7 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -14,6 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.CoreException;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
@@ -21,11 +23,16 @@ import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.ITokenCompletionRequest;
 import org.python.pydev.core.ITypeInfo;
+import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.UnpackInfo;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
+import org.python.pydev.editor.codecompletion.PyCodeCompletion;
+import org.python.pydev.editor.codecompletion.TokenCompletionRequest;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
@@ -192,22 +199,29 @@ public class AssignAnalysis {
         }
 
         for (Return return1 : ReturnVisitor.findReturns(functionDef)) {
-            ICompletionState copy = state.getCopy();
             String act = NodeUtils.getFullRepresentationString(return1.value);
             if (act == null) {
                 continue; //may happen if the return we're seeing is a return without anything (keep on going to check other returns)
             }
+            ITokenCompletionRequest request = new TokenCompletionRequest(act, definition.module, state.getNature(), "",
+                    definition.line - 1, definition.col - 1);
+            List<Object> tokensList = new ArrayList<Object>();
+            ICompletionState copy = state.getCopy();
             copy.setActivationToken(act);
             copy.setLine(return1.value.beginLine - 1);
             copy.setCol(return1.value.beginColumn - 1);
             IModule module = definition.module;
 
             state.checkDefinitionMemory(module, definition);
-
-            IToken[] tks = manager.getCompletionsForModule(module, copy);
-            if (tks.length > 0) {
-                ret.addAll(Arrays.asList(tks));
+            try {
+                PyCodeCompletion.doTokenCompletion(request, manager, tokensList, act, copy);
+            } catch (MisconfigurationException | IOException | CoreException
+                    | PythonNatureWithoutProjectException e) {
+                throw new RuntimeException(e);
             }
+            List returnUncast = ret;
+            List tokensListUncast = tokensList;
+            returnUncast.addAll(tokensList);
         }
         return ret;
     }

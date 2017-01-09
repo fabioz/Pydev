@@ -13,10 +13,13 @@ package org.python.pydev.editor.codecompletion;
 
 import java.io.File;
 
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IRegion;
 import org.python.pydev.core.ICompletionRequest;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.ITokenCompletionRequest;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
@@ -28,7 +31,7 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
  * 
  * @author Fabio Zadrozny
  */
-public final class CompletionRequest implements ICompletionRequest {
+public final class CompletionRequest implements ICompletionRequest, ITokenCompletionRequest {
 
     /**
      * This is used on the AssistOverride: the activationToken is pre-specified
@@ -261,6 +264,33 @@ public final class CompletionRequest implements ICompletionRequest {
             module = AbstractASTManager.createModule(this.editorFile, this.doc, this.nature);
         }
         return module;
+    }
+
+    @Override
+    public String getActivationToken() {
+        return this.activationToken;
+    }
+
+    @Override
+    public void setActivationToken(String activationToken) {
+        this.activationToken = activationToken;
+    }
+
+    @Override
+    public String getQualifier() {
+        return qualifier;
+    }
+
+    @Override
+    public int getLine() throws BadLocationException {
+        return doc.getLineOfOffset(documentOffset);
+    }
+
+    @Override
+    public int getCol() throws BadLocationException {
+        IRegion region = doc.getLineInformationOfOffset(documentOffset);
+        int col = documentOffset - region.getOffset();
+        return col;
     }
 
 }

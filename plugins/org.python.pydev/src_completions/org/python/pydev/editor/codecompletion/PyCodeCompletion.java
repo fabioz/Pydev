@@ -39,6 +39,7 @@ import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.ITokenCompletionRequest;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.docutils.ParsingUtils;
@@ -160,7 +161,12 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
 
             } else if (trimmed.length() > 0 && request.activationToken.indexOf('.') != -1) {
                 //code completion for a token
-                doTokenCompletion(request, astManager, tokensList, trimmed, state);
+                if (false) { //disabled for now.
+                    fillTokensWithJediCompletions(request, request.getPySelection(), request.nature, astManager,
+                            tokensList);
+                } else {
+                    doTokenCompletion(request, astManager, tokensList, trimmed, state);
+                }
                 handleKeywordParam(request, line, alreadyChecked);
 
             } else {
@@ -435,7 +441,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
         }
     }
 
-    private void fillTokensWithJediCompletions(CompletionRequest request, PySelection ps, IPythonNature nature,
+    private static void fillTokensWithJediCompletions(CompletionRequest request, PySelection ps, IPythonNature nature,
             ICodeCompletionASTManager astManager, List<Object> tokensList) throws IOException, CoreException,
             MisconfigurationException, PythonNatureWithoutProjectException {
 
@@ -553,22 +559,19 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
      * @throws CoreException
      * @throws IOException
      */
-    private void doTokenCompletion(CompletionRequest request, ICodeCompletionASTManager astManager,
+    public static void doTokenCompletion(ITokenCompletionRequest request, ICodeCompletionASTManager astManager,
             List<Object> tokensList, String trimmed, ICompletionState state) throws CompletionRecursionException,
             MisconfigurationException, IOException, CoreException, PythonNatureWithoutProjectException {
-        if (false) { //disabled for now.
-            fillTokensWithJediCompletions(request, request.getPySelection(), request.nature, astManager, tokensList);
-            return;
+
+        if (request.getActivationToken().endsWith(".")) {
+            request.setActivationToken(
+                    request.getActivationToken().substring(0, request.getActivationToken().length() - 1));
         }
 
-        if (request.activationToken.endsWith(".")) {
-            request.activationToken = request.activationToken.substring(0, request.activationToken.length() - 1);
-        }
-
-        final String initialActivationToken = request.activationToken;
-        int parI = request.activationToken.indexOf('(');
+        final String initialActivationToken = request.getActivationToken();
+        int parI = request.getActivationToken().indexOf('(');
         if (parI != -1) {
-            request.activationToken = ParsingUtils.removeCalls(request.activationToken);
+            request.setActivationToken(ParsingUtils.removeCalls(request.getActivationToken()));
         }
 
         char[] toks = new char[] { '.', ' ' };
@@ -590,9 +593,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             IModule module = request.getModule();
             if (module != null) {
                 IToken[] comps = astManager.getCompletionsForModule(module, state, true, true);
-                for (int i = 0; i < comps.length; i++) {
-                    tokensList.add(comps[i]);
-                }
+                tokensList.addAll(Arrays.asList(comps));
             }
         }
     }
@@ -654,7 +655,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
      * @throws MisconfigurationException
      */
     @SuppressWarnings("unchecked")
-    public static boolean getSelfOrClsCompletions(CompletionRequest request, List theList, ICompletionState state,
+    public static boolean getSelfOrClsCompletions(ITokenCompletionRequest request, List theList, ICompletionState state,
             boolean getOnlySupers, boolean checkIfInCorrectScope, String lookForRep) throws MisconfigurationException {
 
         IModule module = request.getModule();
@@ -708,7 +709,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
      * @throws MisconfigurationException
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public static void getSelfOrClsCompletions(ILocalScope scope, CompletionRequest request, List theList,
+    public static void getSelfOrClsCompletions(ILocalScope scope, ITokenCompletionRequest request, List theList,
             ICompletionState state, boolean getOnlySupers) throws BadLocationException, MisconfigurationException {
         for (Iterator<SimpleNode> it = scope.iterator(); it.hasNext();) {
             SimpleNode node = it.next();
@@ -722,7 +723,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                             state.setActivationToken(n.id);
                             IToken[] completions;
                             try {
-                                ICodeCompletionASTManager astManager = request.nature.getAstManager();
+                                ICodeCompletionASTManager astManager = request.getNature().getAstManager();
                                 IModule module = request.getModule();
                                 if (module != null) {
                                     completions = astManager.getCompletionsForModule(module, state, true, true);
@@ -740,7 +741,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                     //not have only 'self' for completion, but something like self.foo.
                     //so, let's analyze our activation token to see what should we do.
 
-                    String trimmed = request.activationToken.replace('.', ' ').trim();
+                    String trimmed = request.getActivationToken().replace('.', ' ').trim();
                     String[] actTokStrs = trimmed.split(" ");
                     if (actTokStrs.length == 0 || (!actTokStrs[0].equals("self") && !actTokStrs[0].equals("cls"))) {
                         throw new AssertionError(
@@ -751,7 +752,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                         //ok, it's just really self, let's get on to get the completions
                         state.setActivationToken(NodeUtils.getNameFromNameTok((NameTok) d.name));
                         try {
-                            ICodeCompletionASTManager astManager = request.nature.getAstManager();
+                            ICodeCompletionASTManager astManager = request.getNature().getAstManager();
                             IModule module = request.getModule();
                             IToken[] completions = astManager.getCompletionsForModule(module, state, true, true);
                             for (int j = 0; j < completions.length; j++) {
@@ -765,17 +766,19 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                         //it's not only self, so, first we have to get the definition of the token
                         //the first one is self, so, just discard it, and go on, token by token to know what is the last
                         //one we are completing (e.g.: self.foo.bar)
-                        int line = request.doc.getLineOfOffset(request.documentOffset);
-                        IRegion region = request.doc.getLineInformationOfOffset(request.documentOffset);
-                        int col = request.documentOffset - region.getOffset();
+                        int line = request.getLine();
+                        int col = request.getCol();
 
                         //ok, try our best shot at getting the module name of the current buffer used in the request.
                         IModule module = request.getModule();
 
-                        AbstractASTManager astMan = ((AbstractASTManager) request.nature.getAstManager());
-                        theList.addAll(new AssignAnalysis().getAssignCompletions(astMan, module, new CompletionState(
-                                line, col, request.activationToken, request.nature, request.qualifier),
-                                scope).completions);
+                        AbstractASTManager astMan = ((AbstractASTManager) request.getNature().getAstManager());
+                        ArrayList<IToken> assignCompletions = new AssignAnalysis().getAssignCompletions(astMan, module,
+                                new CompletionState(
+                                        line, col, request.getActivationToken(), request.getNature(),
+                                        request.getQualifier()),
+                                scope).completions;
+                        theList.addAll(assignCompletions);
                     }
                 }
             }
