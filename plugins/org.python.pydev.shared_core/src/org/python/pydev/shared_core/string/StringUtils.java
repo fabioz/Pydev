@@ -12,6 +12,7 @@
 ******************************************************************************/
 package org.python.pydev.shared_core.string;
 
+import java.io.BufferedReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.math.BigInteger;
@@ -30,6 +31,7 @@ import java.util.NoSuchElementException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
 
 import javax.swing.text.Document;
 import javax.swing.text.EditorKit;
@@ -1765,6 +1767,12 @@ public final class StringUtils {
             }
         }
         return onlyWildCardsInPart;
+    }
+
+    public static String readAll(Reader reader) {
+        BufferedReader bufferedReader = new BufferedReader(reader);
+        //java8 idiom to read all lines.
+        return bufferedReader.lines().collect(Collectors.joining());
     }
 
 }

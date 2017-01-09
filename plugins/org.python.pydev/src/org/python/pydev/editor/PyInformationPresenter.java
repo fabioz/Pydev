@@ -9,8 +9,12 @@ package org.python.pydev.editor;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.jface.resource.JFaceColors;
 import org.eclipse.jface.text.Region;
@@ -90,60 +94,42 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
     /**
      * Creates the reader and properly puts the presentation into place.
      */
-    protected Reader createReader(String hoverInfo, TextPresentation presentation) {
+    public Reader createReader(String hoverInfo, TextPresentation presentation) {
         String str = PyStringUtils.removeWhitespaceColumnsToLeft(hoverInfo);
 
         str = correctLineDelimiters(str);
-        str = handlePydevTags(presentation, str);
-        str = makeEpydocsBold(presentation, str);
+
+        List<PyStyleRange> lst = new ArrayList<>();
+
+        str = handlePydevTags(lst, str);
+
+        Collections.sort(lst, new Comparator<PyStyleRange>() {
+
+            @Override
+            public int compare(PyStyleRange o1, PyStyleRange o2) {
+                return Integer.compare(o1.start, o2.start);
+            }
+        });
+
+        for (PyStyleRange pyStyleRange : lst) {
+            presentation.addStyleRange(pyStyleRange);
+        }
 
         return new StringReader(str);
     }
 
     /**
-     * Changes the @xxx bbb: things for bold
-     */
-    private String makeEpydocsBold(TextPresentation presentation, String str) {
-        int lastIndex = 0;
-
-        //1st, let's mark in bold the things generated in epydocs.
-        while (true) {
-            int start = str.indexOf('@', lastIndex);
-            if (start == -1) {
-                break;
-            }
-            int end = start + 1;
-            while (end < str.length()) {
-                if (!(str.charAt(end) == ':')) {
-                    end++;
-                } else {
-                    break;
-                }
-            }
-            if (end == start) {
-                break;
-            }
-            lastIndex = end;
-            presentation.addStyleRange(new PyStyleRange(start, end - start, JFaceColors.getHyperlinkText(Display
-                    .getDefault()), null, SWT.BOLD));
-        }
-
-        //return the input (this one doesn't change the string)
-        return str;
-    }
-
-    /**
      * Changes for bold any Pydev hints.
      */
-    public String handlePydevTags(TextPresentation presentation, String str) {
+    private String handlePydevTags(List<PyStyleRange> lst, String str) {
         FastStringBuffer buf = new FastStringBuffer(str.length());
 
-        String newString = handleLinks(presentation, str, buf.clear(), "pydev_hint_bold", false);
-        newString = handleLinks(presentation, newString, buf.clear(), "pydev_link", true);
+        String newString = handleLinks(lst, str, buf.clear(), "pydev_hint_bold", false);
+        newString = handleLinks(lst, newString, buf.clear(), "pydev_link", true);
         return newString;
     }
 
-    private String handleLinks(TextPresentation presentation, String str, FastStringBuffer buf, String tag,
+    private String handleLinks(List<PyStyleRange> lst, String str, FastStringBuffer buf, String tag,
             boolean addLinkUnderline) {
         int lastIndex = 0;
 
@@ -182,7 +168,7 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
                     //Ignore (not available on earlier versions of eclipse)
                 }
             }
-            presentation.addStyleRange(styleRange);
+            lst.add(styleRange);
         }
 
         buf.append(str.substring(lastIndex, str.length()));
@@ -200,29 +186,32 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
         Iterator<StyleRange> e = presentation.getAllStyleRangeIterator();
         while (e.hasNext()) {
 
-            StyleRange range = (StyleRange) e.next();
+            StyleRange range = e.next();
 
             int myStart = range.start;
             int myEnd = range.start + range.length - 1;
             myEnd = Math.max(myStart, myEnd);
 
-            if (myEnd < yoursStart)
+            if (myEnd < yoursStart) {
                 continue;
+            }
 
-            if (myStart < yoursStart)
+            if (myStart < yoursStart) {
                 range.length += insertLength;
-            else
+            } else {
                 range.start += insertLength;
             }
         }
+    }
 
     private void append(FastStringBuffer buffer, String string, TextPresentation presentation) {
 
         int length = string.length();
         buffer.append(string);
 
-        if (presentation != null)
+        if (presentation != null) {
             adaptTextPresentation(presentation, fCounter, length);
+        }
 
         fCounter += length;
     }
@@ -231,8 +220,9 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
         int length = line.length();
 
         int i = 0;
-        while (i < length && Character.isWhitespace(line.charAt(i)))
+        while (i < length && Character.isWhitespace(line.charAt(i))) {
             ++i;
+        }
 
         return (i == length ? line : line.substring(0, i)) + " "; //$NON-NLS-1$
     }
@@ -280,8 +270,9 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
             }
         }
 
-        if (hoverInfo == null)
+        if (hoverInfo == null) {
             return null;
+        }
 
         GC gc = new GC(drawable);
         try {
@@ -301,27 +292,30 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
 
             while (line != null) {
 
-                if (fEnforceUpperLineLimit && maxNumberOfLines <= 0)
+                if (fEnforceUpperLineLimit && maxNumberOfLines <= 0) {
                     break;
+                }
 
                 if (firstLineProcessed) {
-                    if (!lastLineFormatted)
+                    if (!lastLineFormatted) {
                         append(buffer, LINE_DELIM, null);
-                    else {
+                    } else {
                         append(buffer, LINE_DELIM, presentation);
-                        if (lastLineIndent != null)
+                        if (lastLineIndent != null) {
                             append(buffer, lastLineIndent, presentation);
                         }
                     }
+                }
 
                 append(buffer, line, null);
                 firstLineProcessed = true;
 
                 lastLineFormatted = lineFormatted;
-                if (!lineFormatted)
+                if (!lineFormatted) {
                     lastLineIndent = null;
-                else if (lastLineIndent == null)
+                } else if (lastLineIndent == null) {
                     lastLineIndent = getIndent(line);
+                }
 
                 line = reader.readLine();
                 lineFormatted = reader.isFormattedLine();
@@ -350,20 +344,24 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
         int length = buffer.length();
 
         int end = length - 1;
-        while (end >= 0 && Character.isWhitespace(buffer.charAt(end)))
+        while (end >= 0 && Character.isWhitespace(buffer.charAt(end))) {
             --end;
+        }
 
-        if (end == -1)
+        if (end == -1) {
             return ""; //$NON-NLS-1$
+        }
 
-        if (end < length - 1)
+        if (end < length - 1) {
             buffer.delete(end + 1, length);
-        else
+        } else {
             end = length;
+        }
 
         int start = 0;
-        while (start < end && Character.isWhitespace(buffer.charAt(start)))
+        while (start < end && Character.isWhitespace(buffer.charAt(start))) {
             ++start;
+        }
 
         buffer.delete(0, start);
         presentation.setResultWindow(new Region(start, buffer.length()));
