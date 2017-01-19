@@ -190,7 +190,7 @@ Release 5.5.0
 
 * **Refactoring**
 
-    * Fixed refactoring error when dealing with import which has a continuation char inside the module name part. **#PyDev-712**
+    * Fixed refactoring error when dealing with imports which have a continuation char inside the module name part. **#PyDev-712**
 
     * When extracting a method, decorators are properly considered for the new method position. **#PyDev-321**
     
@@ -208,9 +208,9 @@ Release 5.5.0
     
 * **New actions**
 
-    * **Ctrl+Shift+Alt+O** can be used to open the last hyperlink in console (when in the editor). **#PyDev-755**
+    * **Ctrl+Shift+Alt+O** can be used to open the last hyperlink in the console that's currently open (it's now possible to jump directly to the error in some exception). **#PyDev-755**
 
-    * **Ctrl+2,sw** switches the target and value from assign statements.
+    * **Ctrl+2,sw** switches the target and value in assign statements (may not work properly if more than one '=' is found in the line).
     
 * **Debugger**
 

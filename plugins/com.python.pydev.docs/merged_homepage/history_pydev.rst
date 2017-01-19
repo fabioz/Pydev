@@ -6,6 +6,47 @@ History For PyDev
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
+Release 5.5.0
+==========================
+
+* **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
+
+    * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
+
+* **Refactoring**
+
+    * Fixed refactoring error when dealing with imports which have a continuation char inside the module name part. **#PyDev-712**
+
+    * When extracting a method, decorators are properly considered for the new method position. **#PyDev-321**
+    
+* **Code completion**
+
+    * When accessing enums, 'value' and 'name' are properly found. **#PyDev-591**
+    
+    * Code completion improved on method chaining. **#PyDev-636** and **#PyDev-583**
+
+    * It's now possible to choose whether when a code-completion which adds a local import should add the import to the beginning of the function or the line above where it was requested.
+    
+        * It may be configured in the preferences (Preferences > PyDev > Editor > Code Completion > Put local imports on top of method?).
+        
+        * Default was changed to add it to the top of the method.
+    
+* **New actions**
+
+    * **Ctrl+Shift+Alt+O** can be used to open the last hyperlink in the console that's currently open (it's now possible to jump directly to the error in some exception). **#PyDev-755**
+
+    * **Ctrl+2,sw** switches the target and value in assign statements (may not work properly if more than one '=' is found in the line).
+    
+* **Debugger**
+
+    * Fixed error when hovering over variable when debugging. **#PyDev-580**
+
+* **Others**
+
+    * Fixed issue in grammar parsing on nested async calls. **#PyDev-753**
+    
+    * Fixed issue grouping imports when an import has a continuation char inside the module part. **#PyDev 712**
+
 
 Release 5.4.0
 ==========================
