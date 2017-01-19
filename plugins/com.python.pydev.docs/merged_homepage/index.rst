@@ -181,6 +181,47 @@ To show your appreciation for PyDev and to keep it going strong, help to crowdfu
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
+Release 5.5.0
+==========================
+
+* **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
+
+    * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
+
+* **Refactoring**
+
+    * Fixed refactoring error when dealing with import which has a continuation char inside the module name part. **#PyDev-712**
+
+    * When extracting a method, decorators are properly considered for the new method position. **#PyDev-321**
+    
+* **Code completion**
+
+    * When accessing enums, 'value' and 'name' are properly found. **#PyDev-591**
+    
+    * Code completion improved on method chaining. **#PyDev-636** and **#PyDev-583**
+
+    * It's now possible to choose whether when a code-completion which adds a local import should add the import to the beginning of the function or the line above where it was requested.
+    
+        * It may be configured in the preferences (Preferences > PyDev > Editor > Code Completion > Put local imports on top of method?).
+        
+        * Default was changed to add it to the top of the method.
+    
+* **New actions**
+
+    * **Ctrl+Shift+Alt+O** can be used to open the last hyperlink in console (when in the editor). **#PyDev-755**
+
+    * **Ctrl+2,sw** switches the target and value from assign statements.
+    
+* **Debugger**
+
+    * Fixed error when hovering over variable when debugging. **#PyDev-580**
+
+* **Others**
+
+    * Fixed issue in grammar parsing on nested async calls. **#PyDev-753**
+    
+    * Fixed issue grouping imports when an import has a continuation char inside the module part. **#PyDev 712**
+
 Release 5.4.0
 ==========================
 
@@ -220,26 +261,6 @@ Release 5.4.0
 
     * In Linux, when applying a completion which would automatically add an import, if the user focuses the completion pop-up (with Tab) and applies the completion with Shift+Enter, a local import is properly made.    
 
-
-Release 5.3.1
-==========================
-
-* **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
-
-    * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
-
-* **Code Completion**
- 
-    * Substring completions are **on by default** (may be turned off in the code-completion preferences).
-    * Fixed issue with code-completion using from..import..as aliases.
-    
-* **Others**
-    
-    * Auto-fix imports with Ctrl+Shift+O properly sorts items based on the same sorting improvements for code-completion.
-    * When fixing unresolved import (with Ctrl+1) it properly resolves dependent projects (bugfix for regression in 5.3.0).
-    * **async** and **await** keywords are properly highlighted.
-    * **async** blocks properly auto-indented.
-    * In PEP 448 list unpack variable was not being marked as a "Load" variable (which made the code analysis yield false positives).
     
     
 `View release notes for previous releases`_

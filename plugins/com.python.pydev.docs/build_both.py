@@ -15,6 +15,7 @@ CURRENT_DATE = datetime.datetime.now()
 # CURRENT_DATE = datetime.datetime(2016, 12, 4)
 
 update_site_versions = [
+    '5.5.0',
     '5.4.0',
     '5.3.1',
     '5.3.0',
