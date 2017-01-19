@@ -74,6 +74,9 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
     public static final String MATCH_BY_SUBSTRING_IN_CODE_COMPLETION = "MATCH_BY_SUBSTRING_IN_CODE_COMPLETION";
     public static final boolean DEFAULT_MATCH_BY_SUBSTRING_IN_CODE_COMPLETION = true;
 
+    public static final String PUT_LOCAL_IMPORTS_IN_TOP_OF_METHOD = "PUT_LOCAL_IMPORTS_IN_TOP_OF_METHOD";
+    public static final boolean DEFAULT_PUT_LOCAL_IMPORTS_IN_TOP_OF_METHOD = true;
+
     /**
      */
     public PyCodeCompletionPreferencesPage() {
@@ -133,6 +136,11 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
         addField(new BooleanFieldEditor(APPLY_COMPLETION_ON_LPAREN, "Apply completion on '('?", p));
 
         addField(new BooleanFieldEditor(APPLY_COMPLETION_ON_RPAREN, "Apply completion on ')'?", p));
+
+        addField(new BooleanFieldEditor(PUT_LOCAL_IMPORTS_IN_TOP_OF_METHOD, "Put local imports on top of method?", p));
+        addField(new LabelFieldEditor("LABEL_PUT_LOCAL_IMPORTS_IN_TOP_OF_METHOD_ALWAYS_THERE_0",
+                "Note: in a code-completion with a local auto-import.", p));
+        addField(new LabelFieldEditor("LABEL_FIELD_EDITOR_NEW_LINE_ALWAYS_THERE_a", "", p));
 
         addField(new LabelFieldEditor("LABEL_FIELD_EDITOR_NEW_LINE_ALWAYS_THERE_a", "", p));
         addField(new LabelFieldEditor("LABEL_FIELD_EDITOR_NEW_LINE_ALWAYS_THERE_b", "", p));
@@ -246,6 +254,10 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
 
     public static boolean getUseSubstringMatchInCodeCompletion() {
         return getPreferences().getBoolean(PyCodeCompletionPreferencesPage.MATCH_BY_SUBSTRING_IN_CODE_COMPLETION);
+    }
+
+    public static boolean getPutLocalImportsOnTopOfMethod() {
+        return getPreferences().getBoolean(PyCodeCompletionPreferencesPage.PUT_LOCAL_IMPORTS_IN_TOP_OF_METHOD);
     }
 
     private static IPreferenceStore getPreferences() {

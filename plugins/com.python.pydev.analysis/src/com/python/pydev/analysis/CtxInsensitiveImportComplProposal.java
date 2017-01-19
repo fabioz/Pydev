@@ -38,6 +38,7 @@ import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.codecompletion.AbstractPyCompletionProposalExtension2;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal2;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
@@ -84,9 +85,21 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
      */
     private boolean addLocalImport = false;
 
-    // TODO: For now we can support the old style to keep tests, but maybe we should just remove this flag
-    // altogether.
-    public boolean addLocalImportsOnTopOfFunc = true;
+    /**
+     * Can be used to override the preferences in tests.
+     */
+    public Boolean addLocalImportsOnTopOfFunc = null;
+
+    public boolean getAddLocalImportsOnTopOfMethod() {
+        if (SharedCorePlugin.inTestMode()) {
+            if (addLocalImportsOnTopOfFunc != null) {
+                return addLocalImportsOnTopOfFunc;
+            }
+            // In tests the default is true.
+            return true;
+        }
+        return PyCodeCompletionPreferencesPage.getPutLocalImportsOnTopOfMethod();
+    }
 
     public CtxInsensitiveImportComplProposal(String replacementString, int replacementOffset, int replacementLength,
             int cursorPosition, Image image, String displayString, IContextInformation contextInformation,
@@ -193,7 +206,7 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
                     this.addLocalImport = false;
                 } else {
                     String[] indentTokens = PySelection.INDENT_TOKENS;
-                    if (addLocalImportsOnTopOfFunc) {
+                    if (getAddLocalImportsOnTopOfMethod()) {
                         indentTokens = PySelection.FUNC_TOKEN;
                     }
                     previousLineThatStartsScope = ps.getPreviousLineThatStartsScope(indentTokens,
@@ -310,7 +323,7 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
                         }
                         final String indent = line.substring(0, PySelection.getFirstCharPosition(line));
 
-                        if (addLocalImportsOnTopOfFunc) {
+                        if (getAddLocalImportsOnTopOfMethod()) {
                             if (iLine < startLineIndex) {
                                 // Ok, should be on top of the function, but still, after the docstring.
                                 String line2 = ps.getLine(iLine);
