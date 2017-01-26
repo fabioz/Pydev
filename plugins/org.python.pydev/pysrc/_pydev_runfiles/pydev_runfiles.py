@@ -492,8 +492,12 @@ class PydevTestRunner(object):
         #let's make sure that the paths we want are in the pythonpath...
         imports = [(s, self.__importify(s)) for s in pyfiles]
 
+        # remove duplicated sys.paths
+        sys_path = [os.path.normpath(path) for path in sys.path]
+        sys_path = list(set(sys_path))
+        
         system_paths = []
-        for s in sys.path:
+        for s in sys_path:
             system_paths.append(self.__importify(s, True))
 
 
