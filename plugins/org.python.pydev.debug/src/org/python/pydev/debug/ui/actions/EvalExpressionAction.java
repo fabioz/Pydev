@@ -12,7 +12,7 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler;
-import org.eclipse.core.expressions.EvaluationContext;
+import org.eclipse.core.expressions.IEvaluationContext;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
@@ -36,6 +36,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 
 /**
@@ -169,19 +170,24 @@ public class EvalExpressionAction extends AbstractHandler implements IHandler, I
      */
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        EvaluationContext evalCtx = (org.eclipse.core.expressions.EvaluationContext) event.getApplicationContext();
-        Object obj = evalCtx.getDefaultVariable();
-        if (obj instanceof Set) {
-            Set set = (Set) obj;
-            if (set.size() > 0) {
-                Object sel = set.iterator().next();
-                if (sel instanceof TextSelection) {
-                    String expr = ((TextSelection) sel).getText();
-                    if (expr != null && expr.trim().length() > 0) {
-                        eval(expr);
+        Object applicationContext = event.getApplicationContext();
+        if (applicationContext instanceof IEvaluationContext) {
+            IEvaluationContext evalCtx = (IEvaluationContext) applicationContext;
+            Object obj = evalCtx.getDefaultVariable();
+            if (obj instanceof Set) {
+                Set set = (Set) obj;
+                if (set.size() > 0) {
+                    Object sel = set.iterator().next();
+                    if (sel instanceof TextSelection) {
+                        String expr = ((TextSelection) sel).getText();
+                        if (expr != null && expr.trim().length() > 0) {
+                            eval(expr);
+                        }
                     }
                 }
             }
+        } else {
+            Log.log("Expected IEvaluationContext. Received: " + applicationContext.getClass());
         }
         return null;
     }
@@ -228,7 +234,8 @@ public class EvalExpressionAction extends AbstractHandler implements IHandler, I
         @Override
         protected Control createDialogArea(Composite parent) {
             GridData gd = new GridData(GridData.FILL_BOTH);
-            StyledText text = new StyledText(parent, SWT.MULTI | SWT.READ_ONLY | SWT.WRAP | SWT.H_SCROLL | SWT.V_SCROLL);
+            StyledText text = new StyledText(parent,
+                    SWT.MULTI | SWT.READ_ONLY | SWT.WRAP | SWT.H_SCROLL | SWT.V_SCROLL);
             text.setLayoutData(gd);
 
             text.setForeground(parent.getDisplay().getSystemColor(SWT.COLOR_INFO_FOREGROUND));

@@ -1,43 +1,48 @@
-PyDev 5.4.0 Released
+PyDev 5.5.0 Released
 
-Release Highlights:
+PyDev 5.5.0 Release Highlights
 -------------------------------
 
 * **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
 
     * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
     
-* If you enjoy PyDev, please show your appreciation through its Patreon crowdfunding: https://www.patreon.com/fabioz.
+* If you enjoy PyDev, you can help in keeping it supported through its Patreon crowdfunding: https://www.patreon.com/fabioz.
     
-* **Initial support for Python 3.6**
+* **Refactoring**
 
-    * Code analysis for expressions on f-strings.
-    * Syntax highlighting on f-strings.
-    * Handling of underscores in numeric literals.
-    * Parsing (but still not using) variable annotations.
-    * Parsing asynchronous generators and comprehensions.
+    * Fixed refactoring error when dealing with imports which have a continuation char inside the module name part. **#PyDev-712**
+
+    * When extracting a method, decorators are properly considered for the new method position. **#PyDev-321**
     
-* **Launching**
+* **Code completion**
 
-    * Improved console description of the launch.
-    * Support launching files with **python -m module.name** (instead of python module/name.py). **Note**: Has to be enabled at **Preferences > PyDev > Run**.
+    * When accessing enums, 'value' and 'name' are properly found. **#PyDev-591**
+    
+    * Code completion improved on method chaining. **#PyDev-636** and **#PyDev-583**
+
+    * It's now possible to choose whether when a code-completion which adds a local import should add the import to the beginning of the function or the line above where it was requested.
+    
+        * It may be configured in the preferences (Preferences > PyDev > Editor > Code Completion > Put local imports on top of method?).
         
+        * Default was changed to add it to the top of the method.
     
-* **Debugger** 
+* **New actions**
 
-    * Shows return values (may be disabled on preferences > PyDev > Debug).
-    * When the user is waiting for some input, it'll no longer try to evaluate the entered contents.
-    * Fix for multiprocess debugging when the debugger is started with a programmatic breakpoint (pydevd.settrace).
+    * **Ctrl+Shift+Alt+O** can be used to open the last hyperlink in the console that's currently open (it's now possible to jump directly to the error in some exception). **#PyDev-755**
 
-* **Unittest integration**
+    * **Ctrl+2,sw** switches the target and value in assign statements (may not work properly if more than one '=' is found in the line).
     
-    * Bugfixes in the pytest integration related to unicode errors.
-    * unittest subtests are now properly handled in the PyDev unittest runner.
-    * The currently selected tests are persisted. 
+* **Debugger**
+
+    * Fixed error when hovering over variable when debugging. **#PyDev-580**
 
 * **Others**
 
-    * In Linux, when applying a completion which would automatically add an import, if the user focuses the completion pop-up (with Tab) and applies the completion with Shift+Enter, a local import is properly made.    
+    * Fixed issue in grammar parsing on nested async calls. **#PyDev-753**
+    
+    * Fixed issue grouping imports when an import has a continuation char inside the module part. **#PyDev 712**
+
 
 What is PyDev?
 ---------------------------
