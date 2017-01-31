@@ -108,8 +108,8 @@ p:\FileZilla\filezilla.exe sftp://fabioz,pydev@frs.sourceforge.net/home/project-
 		** Twitter
 
         ** Update the versions:
-			x:
-			cd x:\pydev
-			python update_version.py 5.5.0
+x:
+cd x:\pydev
+python update_version.py 5.6.0
 
 			
