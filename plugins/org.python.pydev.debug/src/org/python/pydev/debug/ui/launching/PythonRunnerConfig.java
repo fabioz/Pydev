@@ -33,7 +33,6 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.ExtensionHelper;
@@ -883,7 +882,7 @@ public class PythonRunnerConfig {
                 }
             }
 
-            if (PyUnitPrefsPage2.getUsePyUnitView()) {
+            if (PyUnitPrefsPage2.getUsePyUnitView(project)) {
                 //If we want to use the PyUnitView, we need to get the port used so that the python side can connect.
                 cmdArgs.add("--port");
                 if (actualRun) {
@@ -901,8 +900,7 @@ public class PythonRunnerConfig {
                 cmdArgs.add(PyCodeCoverageView.getChosenDir().getLocation().toOSString());
 
                 if (actualRun) {
-                    IPreferenceStore prefs = PydevPrefs.getPreferenceStore();
-                    int testRunner = prefs.getInt(PyUnitPrefsPage2.TEST_RUNNER);
+                    int testRunner = PyUnitPrefsPage2.getTestRunner(this.configuration, project);
 
                     switch (testRunner) {
                         case PyUnitPrefsPage2.TEST_RUNNER_NOSE:

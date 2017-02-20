@@ -10,10 +10,9 @@ import java.util.StringTokenizer;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.jface.preference.BooleanFieldEditor;
-import org.eclipse.jface.preference.FieldEditorPreferencePage;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.jface.text.DefaultInformationControl.IInformationPresenter;
 import org.eclipse.jface.text.TextPresentation;
@@ -28,6 +27,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.editor.preferences.PyScopedPreferences;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
@@ -36,10 +36,12 @@ import org.python.pydev.shared_ui.field_editors.ComboFieldEditor;
 import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;
 import org.python.pydev.shared_ui.field_editors.LinkFieldEditor;
 import org.python.pydev.shared_ui.field_editors.MultiStringFieldEditor;
+import org.python.pydev.shared_ui.field_editors.ScopedFieldEditorPreferencePage;
+import org.python.pydev.shared_ui.field_editors.ScopedPreferencesFieldEditor;
 import org.python.pydev.shared_ui.tooltips.presenter.AbstractTooltipInformationPresenter;
 import org.python.pydev.shared_ui.tooltips.presenter.ToolTipPresenterHandler;
 
-public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
+public class PyUnitPrefsPage2 extends ScopedFieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
     private class PyUnitPageLinkListener implements SelectionListener {
 
@@ -51,7 +53,15 @@ public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWork
 
         @Override
         public void widgetSelected(SelectionEvent e) {
-            int testRunner = getTestRunner();
+            String comboValue = comboField.getComboValue();
+            int val = 0;
+            try {
+                val = Integer.parseInt(comboValue);
+            } catch (NumberFormatException e1) {
+                Log.log(e1);
+            }
+
+            int testRunner = val;
             String tag;
             boolean addEquals = true;
             boolean addSpace = false;
@@ -137,6 +147,7 @@ public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWork
     private Composite parentPyDev;
     private Composite parentNose;
     private Composite parentPyTest;
+    private ComboFieldEditor comboField;
 
     /**
      * Create the preference page.
@@ -169,7 +180,7 @@ public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWork
         final Composite parentAll = p;
         final StackLayout stackLayout = new StackLayout();
 
-        final ComboFieldEditor comboField = createTestRunnerEditor(p);
+        comboField = createTestRunnerEditor(p);
         addField(comboField);
         Combo combo = comboField.getCombo();
 
@@ -191,7 +202,8 @@ public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWork
         parentPyTest = p = new Composite(contentPanel, SWT.None);
         add("-<a>n</a> number of processes (requires xdist plugin)", "n",
                 "Sets the number of processes to be used to run\n"
-                        + "tests (requires py.test xdist plugin)\n\n", p);
+                        + "tests (requires py.test xdist plugin)\n\n",
+                p);
 
         add("--<a>maxfail</a>=number (max number of failures)", "maxfail", "When the maximum number of failures\n"
                 + "is reached execution stops.\n\n", p);
@@ -216,7 +228,8 @@ public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWork
                         "statements after they failed to provide assertion\n" +
                         "expression information. 'rewrite' (the default)\n" +
                         "rewrites assert statements in test modules on import\n" +
-                        "to provide assert expression information..\n\n", p);
+                        "to provide assert expression information..\n\n",
+                p);
 
         add("--<a>durations</a>=number of slower tests to show", "durations", "Profiling test execution duration\n"
                 + "(shows n slowest tests).\n\n", p);
@@ -234,27 +247,32 @@ public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWork
                 "tests:  if 'tests' is passed (default), a process will randomly get a\n"
                         + "\tnew test to be run after the current one finishes running.\n\n"
                         + "module: if 'module' is passed, a given job will always run all the\n"
-                        + "\ttests from a module and then get a new module to run tests from.", p);
+                        + "\ttests from a module and then get a new module to run tests from.",
+                p);
 
         add("--<a>include_files</a>=comma separated list of patterns to match files to include", "include_files",
                 "Patters to match filenames to be included during test discovery.\n\n"
                         + "Patters are fnmatch-style patterns (i.e.: test*, todo* and not regexps).\n\n"
                         + "Note that *.py,*.pyw files are already pre-selected, so, patterns\n"
-                        + "will be matched against those pre-selected by default.", p);
+                        + "will be matched against those pre-selected by default.",
+                p);
 
         add("--<a>exclude_files</a>=comma separated list of patterns to match files to exclude", "exclude_files",
                 "Patters to match filenames to be excluded during test discovery.\n\n"
                         + "Patters are fnmatch-style patterns (i.e.: test*, todo* and not regexps).\n\n"
                         + "Note that *.py,*.pyw files are already pre-selected, so, patterns\n"
-                        + "will be matched against those pre-selected by default.", p);
+                        + "will be matched against those pre-selected by default.",
+                p);
 
         add("--<a>include_tests</a>=comma separated list of patterns to match tests to include", "include_tests",
                 "Patters to match tests (method names) to be included during test discovery.\n\n"
-                        + "Patters are fnmatch-style patterns (i.e.: *_todo, *_slow and not regexps).\n\n", p);
+                        + "Patters are fnmatch-style patterns (i.e.: *_todo, *_slow and not regexps).\n\n",
+                p);
 
         add("--<a>exclude_tests</a>=comma separated list of patterns to match tests to exclude", "exclude_tests",
                 "Patters to match tests (method names) to be excluded during test discovery.\n\n"
-                        + "Patters are fnmatch-style patterns (i.e.: *_todo, *_slow and not regexps).\n\n", p);
+                        + "Patters are fnmatch-style patterns (i.e.: *_todo, *_slow and not regexps).\n\n",
+                p);
 
         add("--<a>django</a>=true | false (default is true on django projects and false otherwise)", "django",
                 "Whether the django runner should be used for setup/teardown of the django test environment\n\n", p);
@@ -280,8 +298,10 @@ public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWork
             }
         });
 
-        layoutTestRunnerOptions(stackLayout, getTestRunner(), contentPanel);
+        layoutTestRunnerOptions(stackLayout, getTestRunner(null), contentPanel);
 
+        addField(
+                new ScopedPreferencesFieldEditor(parentAll, PydevPlugin.DEFAULT_PYDEV_SCOPE, this));
     }
 
     private void add(String linkText, String flag, String tooltip, Composite p) {
@@ -324,28 +344,23 @@ public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWork
     }
 
     public static String getTestRunnerParameters(ILaunchConfiguration config, IProject project) {
+        int testRunner = getTestRunner(config, project);
+
         boolean override = false;
         try {
             override = config.getAttribute(LAUNCH_CONFIG_OVERRIDE_PYUNIT_RUN_PARAMS_CHOICE, false);
         } catch (CoreException e) {
             Log.log(e);
         }
-        IPreferenceStore prefs = PydevPrefs.getPreferenceStore();
-        int testRunner = prefs.getInt(TEST_RUNNER);
-        String ret = prefs.getString(TEST_RUNNER_DEFAULT_PARAMETERS);
+
+        String ret = PyScopedPreferences.getString(TEST_RUNNER_DEFAULT_PARAMETERS, project);
         if (override) {
-            try {
-                testRunner = config.getAttribute(LAUNCH_CONFIG_OVERRIDE_TEST_RUNNER, testRunner);
-            } catch (CoreException e) {
-                Log.log(e);
-            }
             try {
                 ret = config.getAttribute(LAUNCH_CONFIG_OVERRIDE_PYUNIT_RUN_PARAMS, ret);
             } catch (CoreException e) {
                 Log.log(e);
             }
         }
-
         switch (testRunner) {
             case TEST_RUNNER_NOSE:
                 ret = "--nose-params " + ret; //From this point onwards, only nose parameters.
@@ -370,15 +385,32 @@ public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWork
         return ret;
     }
 
+    public static int getTestRunner(ILaunchConfiguration config, IProject project) {
+        boolean override = false;
+        try {
+            override = config.getAttribute(LAUNCH_CONFIG_OVERRIDE_PYUNIT_RUN_PARAMS_CHOICE, false);
+        } catch (CoreException e) {
+            Log.log(e);
+        }
+        int testRunner = getTestRunner(project);
+        if (override) {
+            try {
+                testRunner = config.getAttribute(LAUNCH_CONFIG_OVERRIDE_TEST_RUNNER, testRunner);
+            } catch (CoreException e) {
+                Log.log(e);
+            }
+        }
+        return testRunner;
+    }
+
     /**
      * See: TEST_RUNNER_NOSE or TEST_RUNNER_PY_TEST (any other value indicates the default runner).
      */
-    public static int getTestRunner() {
-        IPreferenceStore prefs = PydevPrefs.getPreferenceStore();
-        return prefs.getInt(TEST_RUNNER);
+    public static int getTestRunner(IAdaptable projectAdaptable) {
+        return PyScopedPreferences.getInt(TEST_RUNNER, projectAdaptable, 0);
     }
 
-    public static boolean getUsePyUnitView() {
+    public static boolean getUsePyUnitView(IAdaptable projectAdaptable) {
         return PydevPrefs.getPreferenceStore().getBoolean(USE_PYUNIT_VIEW);
     }
 
@@ -388,8 +420,8 @@ public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWork
         prefDialog.open();
     }
 
-    public static boolean isPyTestRun() {
-        return getTestRunner() == TEST_RUNNER_PY_TEST;
+    public static boolean isPyTestRun(IAdaptable projectAdaptable) {
+        return getTestRunner(projectAdaptable) == TEST_RUNNER_PY_TEST;
     }
 
 }

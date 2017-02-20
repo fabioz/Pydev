@@ -108,7 +108,7 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction {
 
         try {
             TreeSelectionDialog dialog = new TreeSelectionDialog(shell, new SelectTestLabelProvider(),
-                    new SelectTestTreeContentProvider()) {
+                    new SelectTestTreeContentProvider(pyEdit)) {
 
                 private Label labelShiftToDebug;
 
@@ -306,8 +306,8 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction {
                 @Override
                 public ILaunchConfigurationWorkingCopy createDefaultLaunchConfigurationWithoutSaving(
                         FileOrResource[] resource) throws CoreException {
-                    ILaunchConfigurationWorkingCopy workingCopy = super
-                            .createDefaultLaunchConfigurationWithoutSaving(resource);
+                    ILaunchConfigurationWorkingCopy workingCopy = super.createDefaultLaunchConfigurationWithoutSaving(
+                            resource);
                     if (arguments.length() > 0) {
                         workingCopy.setAttribute(Constants.ATTR_UNITTEST_TESTS, arguments);
                     }
@@ -371,6 +371,11 @@ final class SelectTestTreeContentProvider implements ITreeContentProvider {
 
     private EasyASTIteratorVisitor visitor;
     private Map<Object, ASTEntry[]> cache = new HashMap<Object, ASTEntry[]>();
+    private PyEdit pyEdit;
+
+    public SelectTestTreeContentProvider(PyEdit pyEdit) {
+        this.pyEdit = pyEdit;
+    }
 
     @Override
     public Object[] getChildren(Object element) {
@@ -433,7 +438,7 @@ final class SelectTestTreeContentProvider implements ITreeContentProvider {
             }
         }
 
-        if (PyUnitPrefsPage2.isPyTestRun()) {
+        if (PyUnitPrefsPage2.isPyTestRun(this.pyEdit)) {
             // We'll only add methods which are top-level when in the py.test run (which accepts those, as
             // the regular unit-test runner doesn't accept it).
             it = visitor.getMethodsIterator();
