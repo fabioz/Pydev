@@ -871,4 +871,31 @@ public class PySelectionTest extends TestCase {
         Tuple<Integer, Integer> startEndLines = ps.getCurrentMethodStartEndLines();
         assertEquals(new Tuple<Integer, Integer>(1, 2), startEndLines);
     }
+
+    /**
+     * Test that we are identifying the correct strings to suppress completions for.
+     */
+    public void testIsCompletionForLiteralNumber() throws Exception {
+        // activation token must end with a dot to be considered for suppression
+        assertFalse(PySelection.isCompletionForLiteralNumber(""));
+        assertFalse(PySelection.isCompletionForLiteralNumber("a"));
+        assertFalse(PySelection.isCompletionForLiteralNumber("1.0"));
+
+        // things which don't look like numbers aren't considered for suppression
+        assertFalse(PySelection.isCompletionForLiteralNumber("a."));
+        assertFalse(PySelection.isCompletionForLiteralNumber("a1."));
+        assertFalse(PySelection.isCompletionForLiteralNumber("(1)."));
+
+        // floating points are allowed completions
+        assertFalse(PySelection.isCompletionForLiteralNumber("1.0."));
+        // hex numbers are also allowed completions
+        assertFalse(PySelection.isCompletionForLiteralNumber("0x0."));
+
+        // decimal numbers cannot have completions (it would be a syntax error)
+        assertTrue(PySelection.isCompletionForLiteralNumber("1."));
+        assertTrue(PySelection.isCompletionForLiteralNumber("1234."));
+
+        // Python 3.6 numbers allow _ (underscore) for readability
+        assertTrue(PySelection.isCompletionForLiteralNumber("1_1."));
+    }
 }

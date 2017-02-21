@@ -130,6 +130,11 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
         String textForCompletionInConsole = PySelection
                 .getTextForCompletionInConsole(new Document(text), text.length());
 
+        if (PySelection.isCompletionForLiteralNumber(tokenAndQual.activationToken)) {
+            // suppress completions that would be invalid
+            return new ICompletionProposal[0];
+        }
+
         //Code-completion for imports
         ImportInfo importsTipper = ImportsSelection.getImportsTipperStr(text, false);
         Set<IPythonNature> natureAndRelatedNatures = getNatureAndRelatedNatures();

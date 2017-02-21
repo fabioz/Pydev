@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -100,6 +101,12 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             //this may happen if the context is still not correctly computed in python
             return new PyStringCodeCompletion().getCodeCompletionProposals(viewer, request);
         }
+
+        if (PySelection.isCompletionForLiteralNumber(request.getActivationToken())) {
+            // suppress completions that would be invalid
+            return Collections.emptyList();
+        }
+
         if (DebugSettings.DEBUG_CODE_COMPLETION) {
             Log.toLogFile(this, "Starting getCodeCompletionProposals");
             Log.addLogLevel();
