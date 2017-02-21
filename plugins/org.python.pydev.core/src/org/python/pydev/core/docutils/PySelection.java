@@ -1460,4 +1460,40 @@ public final class PySelection extends TextSelectionUtils {
         return new Tuple<Integer, Integer>(0, numberOfLines);
     }
 
+    /**
+     * Is a digit, according to Python. (Can't use Character.isDigit as
+     * that allows unicode digits too.)
+     */
+    private static boolean isDigit(char c) {
+        return c >= '0' && c <= '9';
+    }
+
+    /**
+     * Return true if the completion is at the dot after a literal number.
+     * Literal numbers have no valid completions as they can be the first part of floats.
+     * 
+     * @param activationToken this comes from either the console's ActivationTokenAndQual
+     *      or editor's CompletionRequest
+     * @return true if this completion is for a number
+     */
+    public static boolean isCompletionForLiteralNumber(String activationToken) {
+        int length = activationToken.length();
+        if (length == 0) {
+            return false;
+        }
+        if (activationToken.charAt(length - 1) != '.') {
+            return false;
+        }
+        if (!isDigit(activationToken.charAt(0))) {
+            return false;
+        }
+        for (int i = 1; i < length - 1; i++) {
+            char c = activationToken.charAt(i);
+            if (!isDigit(c) && c != '_') {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }
