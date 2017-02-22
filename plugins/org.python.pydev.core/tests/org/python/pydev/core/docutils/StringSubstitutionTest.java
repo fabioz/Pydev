@@ -556,6 +556,10 @@ public class StringSubstitutionTest extends TestCase {
                         throw new RuntimeException("Not implemented");
                     }
 
+                    public void clearCachedDynamicReferences() {
+
+                    }
+
                     @Override
                     public IPathVariableManager getPathVariableManager() {
                         return new IPathVariableManager() {

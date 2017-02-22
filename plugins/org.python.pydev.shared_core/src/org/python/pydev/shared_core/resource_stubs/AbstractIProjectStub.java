@@ -193,4 +193,7 @@ public class AbstractIProjectStub extends AbstractIContainerStub implements IPro
         return IResource.PROJECT;
     }
 
+    public void clearCachedDynamicReferences() {
+    }
+
 }
