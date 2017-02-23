@@ -13,11 +13,13 @@ package org.python.pydev.debug.ui;
 import java.util.List;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
+import org.eclipse.jface.preference.ComboFieldEditor;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.core.ExtensionHelper;
@@ -101,6 +103,11 @@ public class DebugPrefsPage extends FieldEditorPreferencePage implements IWorkbe
         c.setToolTipText("When this option is turned on, the debugger will be able to debug GEvent programs.");
         addField(editor);
 
+        ComboFieldEditor comboEditor = new ComboFieldEditor(PydevEditorPrefs.QT_THREADS_DEBUG_MODE, "Qt Threads:",
+                PydevEditorPrefs.ENTRIES_VALUES_QT_THREADS_DEBUG_MODE, p);
+        Label labelControl = comboEditor.getLabelControl(p);
+        labelControl.setToolTipText("Specify whether the debugger should patch Qt to debug inside QThreads.");
+        addField(comboEditor);
     }
 
     public static boolean getReloadModuleOnChange() {
@@ -121,6 +128,10 @@ public class DebugPrefsPage extends FieldEditorPreferencePage implements IWorkbe
 
     public static boolean getGeventDebugging() {
         return PydevPrefs.getPreferences().getBoolean(PydevEditorPrefs.GEVENT_DEBUGGING);
+    }
+
+    public static String getQtThreadsDebugMode() {
+        return PydevPrefs.getPreferences().getString(PydevEditorPrefs.QT_THREADS_DEBUG_MODE);
     }
 
     /**

@@ -968,6 +968,19 @@ public class PythonRunnerConfig {
             }
 
             cmdArgs.add("--print-in-debugger-startup");
+
+            String qtThreadsDebugMode = DebugPrefsPage.getQtThreadsDebugMode();
+            if (qtThreadsDebugMode != null && qtThreadsDebugMode.length() > 0 && !qtThreadsDebugMode.equals("none")) {
+                switch (qtThreadsDebugMode) {
+                    case "auto":
+                    case "pyqt5":
+                    case "pyqt4":
+                    case "pyside":
+                        cmdArgs.add("--qt-support=" + qtThreadsDebugMode);
+                        break;
+                }
+            }
+
             cmdArgs.add("--vm_type");
             cmdArgs.add(vmType);
             cmdArgs.add("--client");

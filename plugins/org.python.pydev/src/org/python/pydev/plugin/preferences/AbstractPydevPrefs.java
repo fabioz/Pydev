@@ -169,6 +169,16 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     public static final String KILL_SUBPROCESSES_WHEN_TERMINATING_PROCESS = "KILL_SUBPROCESSES_WHEN_TERMINATING_PROCESS";
     public static final boolean DEFAULT_KILL_SUBPROCESSES_WHEN_TERMINATING_PROCESS = true;
 
+    public static final String QT_THREADS_DEBUG_MODE = "QT_THREADS_DEBUG_MODE";
+    public static final String DEFAULT_QT_THREADS_DEBUG_MODE = "none";
+    public static final String[][] ENTRIES_VALUES_QT_THREADS_DEBUG_MODE = new String[][] {
+            { "No QThread debugging", "none" },
+            { "Auto-discover Qt version (may fail if multiple Qt versions are installed)", "auto" },
+            { "PyQt5", "pyqt5" },
+            { "PyQt4", "pyqt4" },
+            { "PySide", "pyside" },
+    };
+
     public static final String MAKE_LAUNCHES_WITH_M_FLAG = "MAKE_LAUNCHES_WITH_M_FLAG";
     public static final boolean DEFAULT_MAKE_LAUNCHES_WITH_M_FLAG = false;
 
