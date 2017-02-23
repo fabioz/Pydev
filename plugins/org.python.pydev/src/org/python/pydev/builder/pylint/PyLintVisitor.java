@@ -38,6 +38,8 @@ import org.python.pydev.consoles.MessageConsoles;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
+import org.python.pydev.core.concurrency.IRunnableWithMonitor;
+import org.python.pydev.core.concurrency.RunnableAsJobsPoolThread;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -64,8 +66,6 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
      */
     public static final String PYLINT_PROBLEM_MARKER = "org.python.pydev.pylintproblemmarker";
 
-    public static final List<PyLintThread> pyLintThreads = new ArrayList<PyLintThread>();
-
     private static Object lock = new Object();
 
     /**
@@ -73,30 +73,19 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
      * 
      * @author Fabio Zadrozny
      */
-    public static class PyLintThread extends Thread {
+    public static class PyLintRunnable implements IRunnableWithMonitor {
 
         IResource resource;
         ICallback0<IDocument> document;
         IPath location;
 
         List<Object[]> markers = new ArrayList<Object[]>();
+        private IProgressMonitor monitor;
 
-        public PyLintThread(IResource resource, ICallback0<IDocument> document, IPath location) {
-            setName("PyLint thread");
+        public PyLintRunnable(IResource resource, ICallback0<IDocument> document, IPath location) {
             this.resource = resource;
             this.document = document;
             this.location = location;
-        }
-
-        /**
-         * @return
-         */
-        private boolean canPassPyLint() {
-            if (pyLintThreads.size() < PyLintPrefPage.getMaxPyLintDelta()) {
-                pyLintThreads.add(this);
-                return true;
-            }
-            return false;
         }
 
         /**
@@ -105,38 +94,26 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
         @Override
         public void run() {
             try {
-                if (canPassPyLint()) {
+                IOConsoleOutputStream out = getConsoleOutputStream();
 
-                    IOConsoleOutputStream out = getConsoleOutputStream();
+                final IDocument doc = document.call();
+                passPyLint(resource, out, doc);
 
-                    final IDocument doc = document.call();
-                    passPyLint(resource, out, doc);
+                ArrayList<MarkerInfo> lst = new ArrayList<PyMarkerUtils.MarkerInfo>();
 
-                    new Job("Adding markers") {
+                for (Iterator<Object[]> iter = markers.iterator(); iter.hasNext();) {
+                    Object[] el = iter.next();
 
-                        @Override
-                        protected IStatus run(IProgressMonitor monitor) {
+                    String tok = (String) el[0];
+                    int priority = ((Integer) el[1]).intValue();
+                    String id = (String) el[2];
+                    int line = ((Integer) el[3]).intValue();
 
-                            ArrayList<MarkerInfo> lst = new ArrayList<PyMarkerUtils.MarkerInfo>();
-
-                            for (Iterator<Object[]> iter = markers.iterator(); iter.hasNext();) {
-                                Object[] el = iter.next();
-
-                                String tok = (String) el[0];
-                                int priority = ((Integer) el[1]).intValue();
-                                String id = (String) el[2];
-                                int line = ((Integer) el[3]).intValue();
-
-                                lst.add(new PyMarkerUtils.MarkerInfo(doc, "ID:" + id + " " + tok,
-                                        PYLINT_PROBLEM_MARKER, priority, false, false, line, 0, line, 0, null));
-                            }
-
-                            PyMarkerUtils.replaceMarkers(lst, resource, PYLINT_PROBLEM_MARKER, true, monitor);
-
-                            return PydevPlugin.makeStatus(Status.OK, "", null);
-                        }
-                    }.schedule();
+                    lst.add(new PyMarkerUtils.MarkerInfo(doc, "ID:" + id + " " + tok,
+                            PYLINT_PROBLEM_MARKER, priority, false, false, line, 0, line, 0, null));
                 }
+
+                PyMarkerUtils.replaceMarkers(lst, resource, PYLINT_PROBLEM_MARKER, true, monitor);
 
             } catch (final Exception e) {
                 new Job("Error reporting") {
@@ -146,12 +123,6 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                         return PydevPlugin.makeStatus(Status.OK, "", null);
                     }
                 }.schedule();
-            } finally {
-                try {
-                    pyLintThreads.remove(this);
-                } catch (Exception e) {
-                    Log.log(e);
-                }
             }
         }
 
@@ -375,6 +346,11 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
         private static Pattern PYLINT_MATCH_PATTERN = Pattern
                 .compile("\\A[CRWEF]:\\s*(\\d+)(,\\s*\\d+)?:(.*)\\((.*)\\)\\s*\\Z");
 
+        @Override
+        public void setMonitor(IProgressMonitor monitor) {
+            this.monitor = monitor;
+        }
+
     }
 
     @Override
@@ -411,8 +387,8 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
             IFile file = (IFile) resource;
             IPath location = file.getRawLocation();
             if (location != null) {
-                PyLintThread thread = new PyLintThread(resource, document, location);
-                thread.start();
+                PyLintRunnable runnable = new PyLintRunnable(resource, document, location);
+                RunnableAsJobsPoolThread.getSingleton().scheduleToRun(runnable, "PyLint: " + resource);
             }
         }
     }
@@ -445,15 +421,4 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
     public void visitRemovedResource(IResource resource, ICallback0<IDocument> document, IProgressMonitor monitor) {
     }
 
-    /**
-     * @see org.python.pydev.builder.PyDevBuilderVisitor#maxResourcesToVisit()
-     */
-    @Override
-    public int maxResourcesToVisit() {
-        int i = PyLintPrefPage.getMaxPyLintDelta();
-        if (i < 0) {
-            i = 0;
-        }
-        return i;
-    }
 }

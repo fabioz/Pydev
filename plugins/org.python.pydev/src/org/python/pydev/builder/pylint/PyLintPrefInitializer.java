@@ -31,7 +31,6 @@ public class PyLintPrefInitializer extends AbstractPreferenceInitializer {
 
         node.putBoolean(PyLintPrefPage.USE_CONSOLE, PyLintPrefPage.DEFAULT_USE_CONSOLE);
         node.put(PyLintPrefPage.PYLINT_ARGS, PyLintPrefPage.DEFAULT_PYLINT_ARGS);
-        node.putInt(PyLintPrefPage.MAX_PYLINT_DELTA, PyLintPrefPage.DEFAULT_MAX_PYLINT_DELTA);
 
     }
 

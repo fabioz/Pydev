@@ -19,7 +19,6 @@ import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.FileFieldEditor;
-import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.jface.preference.RadioGroupFieldEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -90,11 +89,6 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
 
     public static final String DEFAULT_PYLINT_ARGS = "";
 
-    //delta
-    public static final String MAX_PYLINT_DELTA = "MAX_PYLINT_DELTA";
-
-    public static final int DEFAULT_MAX_PYLINT_DELTA = 4;
-
     public PyLintPrefPage() {
         super(FLAT);
         setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
@@ -112,7 +106,6 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
 
         addField(new BooleanFieldEditor(USE_PYLINT, "Use PyLint?", p));
         addField(new BooleanFieldEditor(USE_CONSOLE, "Redirect PyLint output to console?", p));
-        addField(new IntegerFieldEditor(MAX_PYLINT_DELTA, "Max simultaneous processes for PyLint?", p));
         FileFieldEditor fileField = new FileFieldEditor(PYLINT_FILE_LOCATION, "Location of the pylint executable:",
                 true, p);
         addField(fileField);
@@ -130,7 +123,8 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
 
         CustomizableFieldEditor stringFieldEditor = new CustomizableFieldEditor(PYLINT_ARGS,
                 "Arguments to pass to the pylint command (customize its output):\n"
-                        + "Add --rcfile=.pylintrc to use an rcfile relative to the project directory.", p);
+                        + "Add --rcfile=.pylintrc to use an rcfile relative to the project directory.",
+                p);
         addField(stringFieldEditor);
 
         String w = "";
@@ -245,10 +239,6 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
 
     public static String getPyLintArgs() {
         return PydevPrefs.getPreferences().getString(PYLINT_ARGS);
-    }
-
-    public static int getMaxPyLintDelta() {
-        return PydevPrefs.getPreferences().getInt(MAX_PYLINT_DELTA);
     }
 
     public static int wSeverity() {
