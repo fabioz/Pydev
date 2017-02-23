@@ -13,6 +13,7 @@ package org.python.pydev.shared_core.partitioner;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
@@ -24,7 +25,6 @@ import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.TypedPosition;
 import org.eclipse.jface.text.rules.ICharacterScanner;
 import org.python.pydev.shared_core.log.Log;
-import org.python.pydev.shared_core.utils.ArrayUtils;
 
 /**
  * A reader that'll only read based on a given partition type.
@@ -141,10 +141,10 @@ public class PartitionCodeReader implements ICharacterScanner, IMarkScanner {
             }
         }
 
-        Position[] ret = list.toArray(new Position[list.size()]);
         if (!fForward) {
-            ArrayUtils.reverse(ret);
+            Collections.reverse(list);
         }
+        Position[] ret = list.toArray(new Position[list.size()]);
         return ret;
     }
 
