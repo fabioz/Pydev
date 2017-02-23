@@ -69,6 +69,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.utils.ArrayUtils;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 /**
@@ -529,16 +530,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
             threads = newThreads;
 
         } else {
-            PyThread[] combined = new PyThread[threads.length + newThreads.length];
-            int i = 0;
-            for (i = 0; i < threads.length; i++) {
-                combined[i] = threads[i];
-            }
-
-            for (int j = 0; j < newThreads.length; i++, j++) {
-                combined[i] = newThreads[j];
-            }
-            threads = combined;
+            threads = ArrayUtils.concatArrays(threads, newThreads);
         }
         // Now notify debugger that new threads were added
         for (int i = 0; i < newThreads.length; i++) {

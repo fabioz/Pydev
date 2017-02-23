@@ -6,6 +6,8 @@
  */
 package org.python.pydev.ui.dialogs;
 
+import java.util.Arrays;
+
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -94,10 +96,8 @@ public class PyDialogHelpers {
                     + " interpreter is not currently configured.\n\nHow do you want to proceed?";
             Shell shell = EditorUtils.getShell();
 
-            String[] dialogButtonLabels = new String[InterpreterConfigHelpers.NUM_CONFIG_TYPES + 1];
-            for (int i = 0; i < InterpreterConfigHelpers.CONFIG_NAMES.length; i++) {
-                dialogButtonLabels[i] = InterpreterConfigHelpers.CONFIG_NAMES[i];
-            }
+            String[] dialogButtonLabels = Arrays.copyOf(InterpreterConfigHelpers.CONFIG_NAMES,
+                    InterpreterConfigHelpers.NUM_CONFIG_TYPES + 1);
             dialogButtonLabels[dialogButtonLabels.length - 1] = "Don't ask again";
 
             dialog = new MessageDialog(shell, title, null, message, MessageDialog.QUESTION,

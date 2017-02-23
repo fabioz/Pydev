@@ -10,6 +10,8 @@
  */
 package org.python.pydev.debug.model;
 
+import java.util.Arrays;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.core.DebugException;
@@ -108,11 +110,7 @@ public class PyWatchExpressionDelegate implements IWatchExpressionDelegate, IWat
     }
 
     public void addError(String error_string) {
-        String resized_errors[] = new String[errors.length + 1];
-        for (int i = 0; i < errors.length; i++) {
-            resized_errors[i] = errors[i];
-        }
-        errors = resized_errors;
+        errors = Arrays.copyOf(errors, errors.length + 1);
         errors[errors.length - 1] = error_string;
     }
 

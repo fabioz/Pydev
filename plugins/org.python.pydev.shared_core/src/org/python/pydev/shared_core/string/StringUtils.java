@@ -24,6 +24,7 @@ import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -253,10 +254,7 @@ public final class StringUtils {
      * but start at the passed initial location in the splitted array.
      */
     public static String join(String delimiter, String[] splitted, int startAtSegment, int endAtSegment) {
-        String[] s = new String[endAtSegment - startAtSegment];
-        for (int i = startAtSegment, j = 0; i < splitted.length && i < endAtSegment; i++, j++) {
-            s[j] = splitted[i];
-        }
+        String[] s = Arrays.copyOfRange(splitted, startAtSegment, Math.min(splitted.length, endAtSegment));
         return StringUtils.join(delimiter, s);
     }
 
