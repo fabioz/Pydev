@@ -63,11 +63,12 @@ public interface IPyDevCompletionParticipant {
      * @param interfaceForLocal a list of tokens that were called in the local scope for the passed activation token.
      * 
      * @return a list of proposals or tokens
+     * @throws CompletionRecursionException 
      * @see org.eclipse.jface.text.contentassist.ICompletionProposal
      * @see org.python.pydev.core.IToken
      */
     Collection<IToken> getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope,
-            Collection<IToken> interfaceForLocal);
+            Collection<IToken> interfaceForLocal) throws CompletionRecursionException;
 
     /**
      * Called when a completion is requested for some token whose type we don't know about
@@ -83,11 +84,12 @@ public interface IPyDevCompletionParticipant {
      * @param interfaceForLocal a list of tokens that were called in the local scope for the passed activation token.
      * 
      * @return a list of proposals or tokens
+     * @throws CompletionRecursionException 
      * @see org.eclipse.jface.text.contentassist.ICompletionProposal
      * @see org.python.pydev.core.IToken
      */
     Collection<IToken> getCompletionsForTokenWithUndefinedType(ICompletionState state, ILocalScope localScope,
-            Collection<IToken> interfaceForLocal);
+            Collection<IToken> interfaceForLocal) throws CompletionRecursionException;
 
     /**
      * getCompletionsForMethodParameter is used instead (the name of the method was misleading)

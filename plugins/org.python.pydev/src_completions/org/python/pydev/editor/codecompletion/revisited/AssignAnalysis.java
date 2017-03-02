@@ -6,7 +6,6 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -15,24 +14,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.runtime.CoreException;
-import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.ITokenCompletionRequest;
 import org.python.pydev.core.ITypeInfo;
-import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.UnpackInfo;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
-import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
-import org.python.pydev.editor.codecompletion.PyCodeCompletion;
-import org.python.pydev.editor.codecompletion.TokenCompletionRequest;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
@@ -45,15 +36,12 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Index;
 import org.python.pydev.parser.jython.ast.Num;
-import org.python.pydev.parser.jython.ast.Return;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.UnaryOp;
 import org.python.pydev.parser.jython.ast.exprType;
-import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.TypeInfo;
-import org.python.pydev.parser.visitors.scope.ReturnVisitor;
 import org.python.pydev.shared_core.string.StringUtils;
 
 /**
@@ -118,7 +106,8 @@ public class AssignAnalysis {
                             }
 
                             if (definition.ast instanceof FunctionDef) {
-                                List<IToken> found = addFunctionDefCompletionsFromReturn(manager, state, s, definition);
+                                List<IToken> found = manager.getCompletionFromFuncDefReturn(state, s, definition,
+                                        false);
                                 ret.addAll(found);
                             } else {
                                 List<IToken> found = getNonFunctionDefCompletionsFromAssign(manager, state, s,
@@ -155,75 +144,6 @@ public class AssignAnalysis {
         } finally {
             state.popAssign();
         }
-    }
-
-    private List<IToken> addFunctionDefCompletionsFromReturn(ICodeCompletionASTManager manager, ICompletionState state,
-            SourceModule s, Definition definition) throws CompletionRecursionException {
-        ArrayList<IToken> ret = new ArrayList<IToken>();
-        FunctionDef functionDef = (FunctionDef) definition.ast;
-
-        ITypeInfo type = NodeUtils.getReturnTypeFromFuncDefAST(functionDef);
-        if (type != null) {
-            ICompletionState copy = state.getCopy();
-            copy.setActivationToken(type.getActTok());
-            stmtType[] body = functionDef.body;
-            if (body.length > 0) {
-                copy.setLine(body[0].beginLine - 1);
-                copy.setCol(body[0].beginColumn - 1);
-            }
-            IModule module = definition.module;
-
-            state.checkDefinitionMemory(module, definition);
-            IToken[] tks = manager.getCompletionsForModule(module, copy);
-            if (tks.length > 0) {
-                // TODO: This is not ideal... ideally, we'd return this info along instead of setting
-                // it in the token, but this may be hard as we have to touch LOTS of places for
-                // this information to get to the needed place.
-                for (int i = 0; i < tks.length; i++) {
-                    tks[i].setGeneratorType(type);
-                }
-                ret.addAll(Arrays.asList(tks));
-                return ret; //Ok, resolved rtype!
-            } else {
-                //Try to deal with some token that's not imported
-                List<IPyDevCompletionParticipant> participants = ExtensionHelper
-                        .getParticipants(ExtensionHelper.PYDEV_COMPLETION);
-                for (IPyDevCompletionParticipant participant : participants) {
-                    Collection<IToken> collection = participant.getCompletionsForType(copy);
-                    if (collection != null && collection.size() > 0) {
-                        ret.addAll(collection);
-                        return ret; //Ok, resolved rtype!
-                    }
-                }
-            }
-        }
-
-        for (Return return1 : ReturnVisitor.findReturns(functionDef)) {
-            String act = NodeUtils.getFullRepresentationString(return1.value);
-            if (act == null) {
-                continue; //may happen if the return we're seeing is a return without anything (keep on going to check other returns)
-            }
-            ITokenCompletionRequest request = new TokenCompletionRequest(act, definition.module, state.getNature(), "",
-                    definition.line - 1, definition.col - 1);
-            List<Object> tokensList = new ArrayList<Object>();
-            ICompletionState copy = state.getCopy();
-            copy.setActivationToken(act);
-            copy.setLine(return1.value.beginLine - 1);
-            copy.setCol(return1.value.beginColumn - 1);
-            IModule module = definition.module;
-
-            state.checkDefinitionMemory(module, definition);
-            try {
-                PyCodeCompletion.doTokenCompletion(request, manager, tokensList, act, copy);
-            } catch (MisconfigurationException | IOException | CoreException
-                    | PythonNatureWithoutProjectException e) {
-                throw new RuntimeException(e);
-            }
-            List returnUncast = ret;
-            List tokensListUncast = tokensList;
-            returnUncast.addAll(tokensList);
-        }
-        return ret;
     }
 
     /**

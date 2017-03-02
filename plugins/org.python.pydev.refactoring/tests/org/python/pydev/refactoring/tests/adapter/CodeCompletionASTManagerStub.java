@@ -28,6 +28,7 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionRequest;
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
@@ -188,6 +189,12 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
     @Override
     public boolean getCompletionsForWildImport(ICompletionState state, IModule current, List<IToken> completions,
             IToken wildImport) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public List<IToken> getCompletionFromFuncDefReturn(ICompletionState state, IModule s, IDefinition definition,
+            boolean considerYieldTheReturnType) {
         throw new RuntimeException("Not implemented");
     }
 

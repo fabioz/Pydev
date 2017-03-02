@@ -6,7 +6,6 @@
  */
 package org.python.pydev.parser.visitors.scope;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.python.pydev.parser.jython.SimpleNode;
@@ -15,6 +14,7 @@ import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.VisitorBase;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.shared_core.structure.LowMemoryArrayList;
 
 public class YieldVisitor extends VisitorBase {
 
@@ -42,7 +42,7 @@ public class YieldVisitor extends VisitorBase {
         return visitor.ret;
     }
 
-    private ArrayList<Yield> ret = new ArrayList<Yield>(3); //Start considering 3 yields.
+    private List<Yield> ret = new LowMemoryArrayList();
 
     @Override
     public Object visitYield(Yield node) throws Exception {

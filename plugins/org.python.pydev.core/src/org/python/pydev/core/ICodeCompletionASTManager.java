@@ -330,4 +330,11 @@ public interface ICodeCompletionASTManager {
             boolean searchSameLevelMods, boolean lookForArgumentCompletion, ILocalScope localScope)
             throws CompletionRecursionException;
 
+    /**
+     * @param considerYieldTheReturnType if true, any yield call will be considered the return type, otherwise a yield
+     * should return as being a generator of the given type.
+     */
+    public abstract List<IToken> getCompletionFromFuncDefReturn(ICompletionState state, IModule s,
+            IDefinition definition, boolean considerYieldTheReturnType) throws CompletionRecursionException;
+
 }

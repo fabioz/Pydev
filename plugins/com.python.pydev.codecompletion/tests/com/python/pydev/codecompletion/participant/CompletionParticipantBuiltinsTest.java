@@ -257,4 +257,26 @@ public class CompletionParticipantBuiltinsTest extends AdditionalInfoTestsBase {
         assertTrue(comps.length > 30);
     }
 
+    public void testUsePyTestFixture() throws Exception {
+        this.useOriginalRequestCompl = true;
+        String s;
+        s = "" +
+                "def test_it(my_fixture_b)\n" +
+                "    my_fixture_b.";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "method1()", "method2()" });
+        // Only B completions (method1, method2, __repr__, __str__, etc.)
+        assertTrue(comps.length < 20);
+    }
+
+    public void testUsePyTestYieldFixture() throws Exception {
+        this.useOriginalRequestCompl = true;
+        String s;
+        s = "" +
+                "def test_it(my_fixture_c)\n" +
+                "    my_fixture_c.";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "method3()", "method4()" });
+        // Only C completions (method3, method4, __repr__, __str__, etc.)
+        assertTrue(comps.length < 20);
+    }
+
 }

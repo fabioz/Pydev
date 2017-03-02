@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContextInformation;
@@ -37,8 +38,14 @@ import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils.IFilter;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.editor.model.ItemPointer;
+import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.decoratorsType;
+import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.FastStack;
+import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
@@ -277,16 +284,80 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
         return getThem(request, state, AutoImportsPreferencesPage.doAutoImport());
     }
 
+    private final static Pattern FIXTURE_PATTERN = Pattern.compile("\\bfixture\\b");
+    private final static Pattern YIELD_FIXTURE_PATTERN = Pattern.compile("\\byield_fixture\\b");
+
     /**
      * IPyDevCompletionParticipant
+     * @throws CompletionRecursionException 
      */
     @Override
     public Collection<IToken> getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope,
-            Collection<IToken> interfaceForLocal) {
+            Collection<IToken> interfaceForLocal) throws CompletionRecursionException {
         ArrayList<IToken> ret = new ArrayList<IToken>();
         String qual = state.getQualifier();
+        String activationToken = state.getActivationToken();
+
+        FastStack scopeStack = localScope.getScopeStack();
+        if (!scopeStack.empty()) {
+            Object peek = scopeStack.peek();
+            if (peek instanceof FunctionDef) {
+                FunctionDef testFuncDef = (FunctionDef) peek;
+                String representationString = NodeUtils.getRepresentationString(testFuncDef);
+                if (representationString != null && representationString.startsWith("test")) {
+                    try {
+                        ICodeCompletionASTManager astManager = state.getNature().getAstManager();
+                        if (astManager != null) {
+                            List<IInfo> tokensEqualTo = AdditionalProjectInterpreterInfo.getTokensEqualTo(
+                                    activationToken, state.getNature(), AdditionalProjectInterpreterInfo.TOP_LEVEL);
+                            for (IInfo iInfo : tokensEqualTo) {
+                                List<ItemPointer> pointers = new LinkedListWarningOnSlowOperations<>();
+                                AnalysisPlugin.getDefinitionFromIInfo(pointers, astManager, state.getNature(), iInfo,
+                                        state);
+                                for (ItemPointer itemPointer : pointers) {
+                                    if (itemPointer.definition.ast instanceof FunctionDef) {
+                                        FunctionDef functionDef = (FunctionDef) itemPointer.definition.ast;
+                                        if (functionDef.decs != null) {
+                                            for (decoratorsType dec : functionDef.decs) {
+                                                String decoratorFuncName = NodeUtils.getRepresentationString(dec.func);
+                                                if (decoratorFuncName != null) {
+                                                    if (FIXTURE_PATTERN.matcher(decoratorFuncName).find()
+                                                            || YIELD_FIXTURE_PATTERN.matcher(decoratorFuncName)
+                                                                    .find()) {
+                                                        int initialLookingFor = state.getLookingFor();
+                                                        try {
+                                                            state.setLookingFor(
+                                                                    ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
+                                                            List<IToken> completionFromFuncDefReturn = astManager
+                                                                    .getCompletionFromFuncDefReturn(state,
+                                                                            itemPointer.definition.module,
+                                                                            itemPointer.definition, true);
+                                                            if (completionFromFuncDefReturn != null
+                                                                    && completionFromFuncDefReturn.size() > 0) {
+                                                                return completionFromFuncDefReturn;
+                                                            }
+                                                        } finally {
+                                                            state.setLookingFor(initialLookingFor, true);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } catch (MisconfigurationException e1) {
+                        Log.log(e1);
+                    }
+                }
+            }
+        }
+
         if (qual.length() >= CodeCompletionPreferencesPage.getCharsForContextInsensitiveGlobalTokensCompletion()) { //at least n characters
 
+            // if we have a parameter, do code-completion with all available tokens, since we don't know what's the type which
+            // may actually be received
             boolean useSubstringMatchInCodeCompletion = PyCodeCompletionPreferencesPage
                     .getUseSubstringMatchInCodeCompletion();
             List<IInfo> tokensStartingWith;
@@ -342,7 +413,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
 
     @Override
     public Collection<IToken> getCompletionsForTokenWithUndefinedType(ICompletionState state, ILocalScope localScope,
-            Collection<IToken> interfaceForLocal) {
+            Collection<IToken> interfaceForLocal) throws CompletionRecursionException {
         return getCompletionsForMethodParameter(state, localScope, interfaceForLocal);
     }
 
