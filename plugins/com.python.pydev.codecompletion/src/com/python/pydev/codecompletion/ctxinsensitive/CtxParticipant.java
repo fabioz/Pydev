@@ -21,7 +21,9 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
@@ -33,13 +35,16 @@ import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant2;
+import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant3;
 import org.python.pydev.editor.codecompletion.ProposalsComparator.CompareContext;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils.IFilter;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.nature.SystemPythonNature;
@@ -63,7 +68,8 @@ import com.python.pydev.codecompletion.ui.CodeCompletionPreferencesPage;
  *
  * @author Fabio
  */
-public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevCompletionParticipant2 {
+public class CtxParticipant
+        implements IPyDevCompletionParticipant, IPyDevCompletionParticipant2, IPyDevCompletionParticipant3 {
 
     // Console completions ---------------------------------------------------------------------------------------------
 
@@ -284,6 +290,65 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
         return getThem(request, state, AutoImportsPreferencesPage.doAutoImport());
     }
 
+    @Override
+    public IDefinition findDefinitionForMethodParameter(Definition d, IPythonNature nature,
+            ICompletionCache completionCache) {
+        if (d.ast instanceof Name) {
+            Name name = (Name) d.ast;
+            if (name.ctx == Name.Param) {
+                if (d.scope != null && !d.scope.getScopeStack().empty()) {
+                    Object peek = d.scope.getScopeStack().peek();
+                    if (peek instanceof FunctionDef) {
+                        FunctionDef functionDef = (FunctionDef) peek;
+                        String representationString = NodeUtils.getRepresentationString(functionDef);
+                        if (representationString != null && representationString.startsWith("test")) {
+                            ItemPointer itemPointer = findItemPointerFromPyTestFixture(nature, completionCache,
+                                    name.id);
+                            return itemPointer.definition;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private ItemPointer findItemPointerFromPyTestFixture(IPythonNature nature, ICompletionCache completionCache,
+            String fixtureName) {
+        try {
+            ICodeCompletionASTManager astManager = nature.getAstManager();
+            if (astManager != null) {
+                List<IInfo> tokensEqualTo = AdditionalProjectInterpreterInfo.getTokensEqualTo(
+                        fixtureName, nature, AdditionalProjectInterpreterInfo.TOP_LEVEL);
+                for (IInfo iInfo : tokensEqualTo) {
+                    List<ItemPointer> pointers = new LinkedListWarningOnSlowOperations<>();
+                    AnalysisPlugin.getDefinitionFromIInfo(pointers, astManager, nature, iInfo,
+                            completionCache);
+                    for (ItemPointer itemPointer : pointers) {
+                        if (itemPointer.definition.ast instanceof FunctionDef) {
+                            FunctionDef functionDef = (FunctionDef) itemPointer.definition.ast;
+                            if (functionDef.decs != null) {
+                                for (decoratorsType dec : functionDef.decs) {
+                                    String decoratorFuncName = NodeUtils.getRepresentationString(dec.func);
+                                    if (decoratorFuncName != null) {
+                                        if (FIXTURE_PATTERN.matcher(decoratorFuncName).find()
+                                                || YIELD_FIXTURE_PATTERN.matcher(decoratorFuncName)
+                                                        .find()) {
+                                            return itemPointer;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (MisconfigurationException e1) {
+            Log.log(e1);
+        }
+        return null;
+    }
+
     private final static Pattern FIXTURE_PATTERN = Pattern.compile("\\bfixture\\b");
     private final static Pattern YIELD_FIXTURE_PATTERN = Pattern.compile("\\byield_fixture\\b");
 
@@ -305,50 +370,17 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
                 FunctionDef testFuncDef = (FunctionDef) peek;
                 String representationString = NodeUtils.getRepresentationString(testFuncDef);
                 if (representationString != null && representationString.startsWith("test")) {
-                    try {
-                        ICodeCompletionASTManager astManager = state.getNature().getAstManager();
-                        if (astManager != null) {
-                            List<IInfo> tokensEqualTo = AdditionalProjectInterpreterInfo.getTokensEqualTo(
-                                    activationToken, state.getNature(), AdditionalProjectInterpreterInfo.TOP_LEVEL);
-                            for (IInfo iInfo : tokensEqualTo) {
-                                List<ItemPointer> pointers = new LinkedListWarningOnSlowOperations<>();
-                                AnalysisPlugin.getDefinitionFromIInfo(pointers, astManager, state.getNature(), iInfo,
-                                        state);
-                                for (ItemPointer itemPointer : pointers) {
-                                    if (itemPointer.definition.ast instanceof FunctionDef) {
-                                        FunctionDef functionDef = (FunctionDef) itemPointer.definition.ast;
-                                        if (functionDef.decs != null) {
-                                            for (decoratorsType dec : functionDef.decs) {
-                                                String decoratorFuncName = NodeUtils.getRepresentationString(dec.func);
-                                                if (decoratorFuncName != null) {
-                                                    if (FIXTURE_PATTERN.matcher(decoratorFuncName).find()
-                                                            || YIELD_FIXTURE_PATTERN.matcher(decoratorFuncName)
-                                                                    .find()) {
-                                                        int initialLookingFor = state.getLookingFor();
-                                                        try {
-                                                            state.setLookingFor(
-                                                                    ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
-                                                            List<IToken> completionFromFuncDefReturn = astManager
-                                                                    .getCompletionFromFuncDefReturn(state,
-                                                                            itemPointer.definition.module,
-                                                                            itemPointer.definition, true);
-                                                            if (completionFromFuncDefReturn != null
-                                                                    && completionFromFuncDefReturn.size() > 0) {
-                                                                return completionFromFuncDefReturn;
-                                                            }
-                                                        } finally {
-                                                            state.setLookingFor(initialLookingFor, true);
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
+                    ICodeCompletionASTManager astManager = state.getNature().getAstManager();
+                    if (astManager != null) {
+                        ItemPointer itemPointer = findItemPointerFromPyTestFixture(state.getNature(), state,
+                                activationToken);
+                        if (itemPointer != null) {
+                            List<IToken> completionsFromItemPointer = getCompletionsFromItemPointer(state, astManager,
+                                    itemPointer);
+                            if (completionsFromItemPointer != null && completionsFromItemPointer.size() > 0) {
+                                return completionsFromItemPointer;
                             }
                         }
-                    } catch (MisconfigurationException e1) {
-                        Log.log(e1);
                     }
                 }
             }
@@ -392,6 +424,26 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
 
         }
         return ret;
+    }
+
+    private List<IToken> getCompletionsFromItemPointer(ICompletionState state, ICodeCompletionASTManager astManager,
+            ItemPointer itemPointer) throws CompletionRecursionException {
+        int initialLookingFor = state.getLookingFor();
+        try {
+            state.setLookingFor(
+                    ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
+            List<IToken> completionFromFuncDefReturn = astManager
+                    .getCompletionFromFuncDefReturn(state,
+                            itemPointer.definition.module,
+                            itemPointer.definition, true);
+            if (completionFromFuncDefReturn != null
+                    && completionFromFuncDefReturn.size() > 0) {
+                return completionFromFuncDefReturn;
+            }
+        } finally {
+            state.setLookingFor(initialLookingFor, true);
+        }
+        return null;
     }
 
     /**

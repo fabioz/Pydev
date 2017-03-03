@@ -25,11 +25,14 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
+import org.python.pydev.editor.codecompletion.revisited.CompletionParticipantsHelper;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.model.ItemPointer;
+import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Location;
@@ -225,6 +228,24 @@ public class PyRefactoringFindDefinition {
         Set<Tuple3<String, Integer, Integer>> whereWePassed = new HashSet<Tuple3<String, Integer, Integer>>();
 
         tok = FullRepIterable.getLastPart(tok); //in an import..from, the last part will always be the token imported 
+
+        if (d.ast instanceof Name) {
+            Name name = (Name) d.ast;
+            if (name.ctx == Name.Param) {
+                if (d.scope != null && !d.scope.getScopeStack().empty()) {
+                    Object peek = d.scope.getScopeStack().peek();
+                    if (peek instanceof FunctionDef) {
+                        IDefinition found = CompletionParticipantsHelper
+                                .findDefinitionForMethodParameterFromParticipants(d, nature,
+                                        completionCache);
+                        if (found != null) {
+                            selected.add(found);
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
 
         while (d.ast instanceof ImportFrom) {
             Tuple3<String, Integer, Integer> t1 = getTupFromDefinition(d);

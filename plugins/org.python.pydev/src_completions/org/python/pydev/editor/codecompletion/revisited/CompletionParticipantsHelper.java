@@ -13,11 +13,16 @@ import java.util.List;
 
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.ILocalScope;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
+import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant3;
+import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 
 public class CompletionParticipantsHelper {
 
@@ -103,6 +108,23 @@ public class CompletionParticipantsHelper {
             ret.addAll(participant.getCompletionsForMethodParameter(state, localScope, interfaceForLocal));
         }
         return ret;
+    }
+
+    public static IDefinition findDefinitionForMethodParameterFromParticipants(Definition d, IPythonNature nature,
+            ICompletionCache completionCache) {
+        List<?> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_COMPLETION);
+        for (Iterator<?> iter = participants.iterator(); iter.hasNext();) {
+            IPyDevCompletionParticipant participant = (IPyDevCompletionParticipant) iter.next();
+            if (participant instanceof IPyDevCompletionParticipant3) {
+                IPyDevCompletionParticipant3 iPyDevCompletionParticipant3 = (IPyDevCompletionParticipant3) participant;
+                IDefinition ret = iPyDevCompletionParticipant3.findDefinitionForMethodParameter(d, nature,
+                        completionCache);
+                if (ret != null) {
+                    return ret;
+                }
+            }
+        }
+        return null;
     }
 
 }
