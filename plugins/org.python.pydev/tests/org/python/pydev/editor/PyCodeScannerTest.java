@@ -11,8 +11,6 @@
  */
 package org.python.pydev.editor;
 
-import junit.framework.TestCase;
-
 import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.jface.resource.StringConverter;
 import org.eclipse.jface.text.Document;
@@ -22,6 +20,8 @@ import org.eclipse.swt.graphics.RGB;
 import org.python.pydev.editor.PyCodeScanner.NumberDetector;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.ui.ColorAndStyleCache;
+
+import junit.framework.TestCase;
 
 /**
  * @author Fabio Zadrozny
@@ -167,6 +167,27 @@ public class PyCodeScannerTest extends TestCase {
         assertToken(scanner, 5, 1, colorCache.getCodeTextAttribute()); // 
         assertToken(scanner, 6, 1, colorCache.getCodeTextAttribute()); //b
         assertToken(scanner, 7, 0, colorCache.getCodeTextAttribute()); //EOF
+    }
+
+    public void testScanner6() throws Exception {
+        PyCodeScanner scanner = createCodeScanner();
+        String str = "a=b@c"; // matmul operator in this case, not decorator
+        scanner.setRange(new Document(str), 0, str.length());
+        assertToken(scanner, 0, 1, colorCache.getCodeTextAttribute());//a
+        assertToken(scanner, 1, 1, colorCache.getOperatorsTextAttribute()); //=
+        assertToken(scanner, 2, 1, colorCache.getCodeTextAttribute()); //b
+        assertToken(scanner, 3, 1, colorCache.getOperatorsTextAttribute()); //@
+        assertToken(scanner, 4, 1, colorCache.getCodeTextAttribute()); //c
+        assertToken(scanner, 5, 0, colorCache.getCodeTextAttribute()); //EOF
+    }
+
+    public void testScanner7() throws Exception {
+        PyCodeScanner scanner = createCodeScanner();
+        String str = "  @foo"; // decorator in this case
+        scanner.setRange(new Document(str), 0, str.length());
+        assertToken(scanner, 0, 2, colorCache.getCodeTextAttribute());// 2 spaces
+        assertToken(scanner, 2, 4, colorCache.getDecoratorTextAttribute()); //@foo
+        assertToken(scanner, 6, 0, colorCache.getCodeTextAttribute()); //EOF
     }
 
     private void assertToken(PyCodeScanner scanner, int offset, int len, TextAttribute data) {

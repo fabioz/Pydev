@@ -104,8 +104,9 @@ public class PyWordRule implements IRule {
      * @param column the column in which the pattern starts
      */
     public void setColumnConstraint(int column) {
-        if (column < 0)
+        if (column < 0) {
             column = UNDEFINED;
+        }
         fColumn = column;
     }
 
@@ -140,6 +141,7 @@ public class PyWordRule implements IRule {
             case '~':
             case '^':
             case ',':
+            case '@': // matmul (unless previously matched by PyDecoratorRule, so, this must come afterwards).
                 found = this.operatorsToken;
                 break;
         }
@@ -160,14 +162,15 @@ public class PyWordRule implements IRule {
                 scanner.unread();
 
                 String str = fBuffer.toString();
-                IToken token = (IToken) fWords.get(str);
+                IToken token = fWords.get(str);
                 if (token != null) {
                     lastFound = str;
                     return token;
                 }
 
-                if (fDefaultToken.isUndefined())
+                if (fDefaultToken.isUndefined()) {
                     unreadBuffer(scanner);
+                }
 
                 if (lastFound.equals("def")) {
                     lastFound = str;
@@ -191,7 +194,8 @@ public class PyWordRule implements IRule {
      * @param scanner the scanner to be used
      */
     protected void unreadBuffer(ICharacterScanner scanner) {
-        for (int i = fBuffer.length() - 1; i >= 0; i--)
+        for (int i = fBuffer.length() - 1; i >= 0; i--) {
             scanner.unread();
+        }
     }
 }
