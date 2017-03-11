@@ -5,13 +5,6 @@ except:
 import traceback
 from os.path import basename
 
-try:
-    __setFalse = False
-except:
-    import __builtin__
-    setattr(__builtin__, 'True', 1)
-    setattr(__builtin__, 'False', 0)
-
 from _pydevd_bundle import pydevd_constants
 from _pydevd_bundle.pydevd_constants import dict_iter_items, dict_keys, xrange
 
@@ -453,7 +446,7 @@ class NdArrayResolver:
         return None
 
     def get_dictionary(self, obj):
-        ret = dict()
+        ret = {}
         ret['__internals__'] = defaultResolver.get_dictionary(obj)
         if obj.size > 1024 * 1024:
             ret['min'] = 'ndarray too big, calculating min would slow down debugging'
@@ -558,7 +551,7 @@ class FrameResolver:
 
 
     def get_dictionary(self, obj):
-        ret = dict()
+        ret = {}
         ret['__internals__'] = defaultResolver.get_dictionary(obj)
         ret['stack'] = self.get_frame_stack(obj)
         ret['f_locals'] = obj.f_locals

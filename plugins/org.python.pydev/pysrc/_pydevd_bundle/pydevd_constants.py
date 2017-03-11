@@ -10,13 +10,6 @@ PYTHON_SUSPEND = 1
 DJANGO_SUSPEND = 2
 JINJA2_SUSPEND = 3
 
-try:
-    __setFalse = False
-except:
-    import __builtin__
-
-    setattr(__builtin__, 'True', 1)
-    setattr(__builtin__, 'False', 0)
 
 class DebugInfoHolder:
     #we have to put it here because it can be set through the command line (so, the
@@ -139,22 +132,6 @@ if USE_LIB_COPY:
 from _pydev_imps._pydev_saved_modules import thread
 _nextThreadIdLock = thread.allocate_lock()
 
-#=======================================================================================================================
-# Jython?
-#=======================================================================================================================
-try:
-    dict_contains = dict.has_key
-except:
-    try:
-        #Py3k does not have has_key anymore, and older versions don't have __contains__
-        dict_contains = dict.__contains__
-    except:
-        try:
-            dict_contains = dict.has_key
-        except NameError:
-            def dict_contains(d, key):
-                return d.has_key(key)
-
 if IS_PY3K:
     def dict_keys(d):
         return list(d.keys())
@@ -218,27 +195,6 @@ try:
 except:
     izip = zip
 
-try:
-    object
-except NameError:
-    class object:
-        pass
-
-    import __builtin__
-
-    setattr(__builtin__, 'object', object)
-
-
-try:
-    enumerate
-except:
-    def enumerate(lst):
-        ret = []
-        i = 0
-        for element in lst:
-            ret.append((i, element))
-            i += 1
-        return ret
 
 #=======================================================================================================================
 # StringIO

@@ -1,4 +1,3 @@
-from _pydevd_bundle.pydevd_constants import dict_contains
 import sys
 from _pydevd_bundle import pydevd_xml
 from os.path import basename
@@ -132,7 +131,7 @@ def get_referrer_info(searched_obj):
 
             for r in referrers:
                 try:
-                    if dict_contains(ignore_frames, r):
+                    if r in ignore_frames:
                         continue  #Skip the references we may add ourselves
                 except:
                     pass  #Ok: unhashable type checked...
@@ -187,15 +186,12 @@ def get_referrer_info(searched_obj):
                     if DEBUG:
                         sys.stderr.write('Found tuple referrer: %r\n' % (r,))
 
-                    #Don't use enumerate() because not all Python versions have it.
-                    i = 0
-                    for x in r:
+                    for i, x in enumerate(r):
                         if x is searched_obj:
                             found_as = '%s[%s]' % (r_type.__name__, i)
                             if DEBUG:
                                 sys.stderr.write('    Found as %s in tuple: \n' % (found_as,))
                             break
-                        i += 1
 
                 if found_as:
                     if not isinstance(found_as, str):
