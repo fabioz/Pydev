@@ -1,7 +1,7 @@
 from string import Template
 import os
 import sys
-grammar_common_dir = os.path.split(__file__)[0]
+grammar_common_dir = os.path.split(os.path.abspath(__file__))[0]
 parent_dir = os.path.split(grammar_common_dir)[0]
 
 
