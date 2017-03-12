@@ -452,7 +452,7 @@ public abstract class AbstractShell {
                 while (true) {
 
                     int len = this.socket.getInputStream().read(b);
-                    if (len == 0) {
+                    if (len <= 0) {
                         break;
                     }
 
