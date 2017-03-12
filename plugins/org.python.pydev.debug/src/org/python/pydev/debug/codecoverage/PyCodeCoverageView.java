@@ -21,10 +21,13 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -94,6 +97,7 @@ import org.python.pydev.shared_ui.tooltips.presenter.StyleRangeWithCustomData;
 import org.python.pydev.shared_ui.tree.PyFilteredTree;
 import org.python.pydev.shared_ui.utils.IViewWithControls;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
+import org.python.pydev.shared_ui.utils.UIUtils;
 import org.python.pydev.tree.AllowValidPathsFilter;
 import org.python.pydev.tree.FileTreeLabelProvider;
 import org.python.pydev.tree.FileTreePyFilesProvider;
@@ -243,7 +247,14 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
         if (lastChosenDir == null) {
             return;
         }
-        PyCoverage.getPyCoverage().refreshCoverageInfo(lastChosenDir, monitor);
+        try {
+            PyCoverage.getPyCoverage().refreshCoverageInfo(lastChosenDir, monitor);
+        } catch (CoverageException e) {
+            ErrorDialog.openError(UIUtils.getActiveShell(), "Error refreshing coverage information.", e.getMessage(),
+                    new Status(IStatus.ERROR,
+                            PydevPlugin.getPluginID(), "Error refreshing coverage information.", e));
+            return;
+        }
 
         File input = lastChosenDir.getLocation().toFile();
         viewer.refresh();
@@ -360,7 +371,8 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
         public void run() {
             InputDialog d = new InputDialog(EditorUtils.getShell(), "Enter number of columns",
                     "Enter the number of columns to be used for the name.", ""
-                            + PyCoveragePreferences.getNameNumberOfColumns(), new IInputValidator() {
+                            + PyCoveragePreferences.getNameNumberOfColumns(),
+                    new IInputValidator() {
 
                         @Override
                         public String isValid(String newText) {
