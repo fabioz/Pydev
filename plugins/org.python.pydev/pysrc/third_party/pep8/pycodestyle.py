@@ -1342,9 +1342,7 @@ else:
                 return f.readlines()
     isidentifier = str.isidentifier
 
-    def stdin_get_value():
-        """Read the value from stdin."""
-        return TextIOWrapper(sys.stdin.buffer, errors='ignore').read()
+    stdin_get_value = sys.stdin.read
 
 noqa = re.compile(r'# no(?:qa|pep8)\b', re.I).search
 
