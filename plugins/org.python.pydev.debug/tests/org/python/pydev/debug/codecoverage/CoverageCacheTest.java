@@ -13,6 +13,7 @@ package org.python.pydev.debug.codecoverage;
 
 import java.io.File;
 import java.util.List;
+import java.util.TreeSet;
 
 import junit.framework.TestCase;
 
@@ -94,6 +95,34 @@ public class CoverageCacheTest extends TestCase {
         if (!expected.equals(statistics) && !expected.replace(',', '.').equals(statistics)) {
             assertEquals(expected, statistics);
         }
+    }
+
+    public void testXmlCoverage() throws Exception {
+        TreeSet<Integer> missedLines = new TreeSet<>();
+        missedLines.add(1);
+        missedLines.add(5);
+        missedLines.add(6);
+        missedLines.add(8);
+        assertEquals("1, 5-6, 8", CoverageXmlInfo.FillCacheFromXmlHandler.calculateMissingBuf(missedLines));
+
+        missedLines = new TreeSet<>();
+        missedLines.add(1);
+        assertEquals("1", CoverageXmlInfo.FillCacheFromXmlHandler.calculateMissingBuf(missedLines));
+
+        missedLines = new TreeSet<>();
+        assertEquals("", CoverageXmlInfo.FillCacheFromXmlHandler.calculateMissingBuf(missedLines));
+
+        missedLines = new TreeSet<>();
+        missedLines.add(1);
+        missedLines.add(2);
+        missedLines.add(3);
+        assertEquals("1-3", CoverageXmlInfo.FillCacheFromXmlHandler.calculateMissingBuf(missedLines));
+
+        missedLines = new TreeSet<>();
+        missedLines.add(1);
+        missedLines.add(2);
+        missedLines.add(22);
+        assertEquals("1-2, 22", CoverageXmlInfo.FillCacheFromXmlHandler.calculateMissingBuf(missedLines));
 
     }
 }

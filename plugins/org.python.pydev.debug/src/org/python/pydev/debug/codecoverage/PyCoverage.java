@@ -124,15 +124,18 @@ public class PyCoverage {
             //python coverage.py -r -m files....
 
             monitor.setTaskName("Starting shell to get info...");
+            File coverageDirLocation = getCoverageDirLocation();
+            File coverageXmlLocation = new File(coverageDirLocation, "coverage.xml");
+            if (coverageXmlLocation.exists()) {
+                coverageXmlLocation.delete();
+            }
             monitor.worked(1);
             Process p = null;
 
             try {
-                //                Tuple<Process, String> tup = runner.createProcess(
-                //                        PythonRunnerConfig.getCoverageScript(), new String[]{
-                //                            "-r", "-m", "--include", ".*"}, getCoverageDirLocation(), monitor);
+                // Will create the coverage.xml file for us to process later on.
                 Tuple<Process, String> tup = runner.createProcess(PythonRunnerConfig.getCoverageScript(),
-                        new String[] { "--pydev-analyze" }, getCoverageDirLocation(), monitor);
+                        new String[] { "--pydev-analyze" }, coverageDirLocation, monitor);
                 p = tup.o1;
                 try {
                     p.exitValue();
@@ -161,17 +164,6 @@ public class PyCoverage {
                 outputStream.write(files.getBytes());
                 outputStream.close();
 
-                //We'll read something in the format below:
-                //Name                                                                      Stmts   Miss  Cover   Missing
-                //-------------------------------------------------------------------------------------------------------
-                //D:\workspaces\temp\test_workspace\pytesting1\src\mod1\__init__                0      0   100%   
-                //D:\workspaces\temp\test_workspace\pytesting1\src\mod1\a                      10      3    70%   4-6
-                //D:\workspaces\temp\test_workspace\pytesting1\src\mod1\hello                   3      3     0%   1-4
-                //D:\workspaces\temp\test_workspace\pytesting1\src\mod1\mod2\__init__           5      5     0%   2-8
-                //D:\workspaces\temp\test_workspace\pytesting1\src\mod1\mod2\hello2            33     33     0%   1-43
-                //-------------------------------------------------------------------------------------------------------
-                //TOTAL                                                                        57     50    12% 
-
                 monitor.setTaskName("Waiting for process to finish...");
                 monitor.worked(1);
 
@@ -198,17 +190,22 @@ public class PyCoverage {
                     }
                 }
 
-                String stdOut = inputStream.getAndClearContents();
+                String stdOut = inputStream.getAndClearContents().trim();
                 String stdErr = errorStream.getAndClearContents().trim();
+                if (stdOut.length() > 0) {
+                    Log.log(stdOut);
+                }
                 if (stdErr.length() > 0) {
                     Log.log(stdErr);
                 }
 
                 monitor.setTaskName("Getting coverage info...(please wait, this could take a while)");
                 monitor.worked(1);
-                FastStringBuffer tempBuf = new FastStringBuffer();
-                for (String str : StringUtils.splitInLines(stdOut)) {
-                    analyzeReadLine(monitor, str.trim(), tempBuf);
+
+                if (!coverageXmlLocation.exists()) {
+                    Log.log("Expected file: " + coverageXmlLocation + " to be written to analyze coverage info.");
+                } else {
+                    CoverageXmlInfo.analyze(cache, coverageXmlLocation);
                 }
 
                 monitor.setTaskName("Finished");

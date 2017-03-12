@@ -48,8 +48,7 @@ def execute():
     from coverage.cmdline import main #@UnresolvedImport
 
     if files is not None:
-        sys.argv.append('-r')
-        sys.argv.append('-m')
+        sys.argv.append('xml')
         sys.argv += files
 
     main()
