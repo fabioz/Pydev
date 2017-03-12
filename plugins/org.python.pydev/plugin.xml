@@ -281,7 +281,7 @@
 	    <keyword id="org.python.pydev.preferences.save"  label="formatter"/>
 	</extension>
 	<extension point="org.eclipse.ui.keywords" name="Code formatter">
-	    <keyword id="org.python.pydev.preferences.formatter"  label="autopep8 pep8"/>
+	    <keyword id="org.python.pydev.preferences.formatter"  label="autopep8 pep8 pycodestyle"/>
 	</extension>
 	<extension point="org.eclipse.ui.keywords" name="Typing">
 	    <keyword id="org.python.pydev.typing"  label="indentation new line parentheses"/>

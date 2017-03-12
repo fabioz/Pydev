@@ -132,21 +132,22 @@ public class AnalysisPreferencesPage extends ScopedFieldEditorPreferencePage imp
         //TODO: Add ARGUMENTS_MISMATCH again later on
         //addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_ARGUMENTS_MISMATCH, "Arguments mismatch", 3,values,p, true));
 
-        p = createTab(tabFolder, "pep8.py");
+        p = createTab(tabFolder, "pycodestyle.py (pep8)");
 
         String[][] pep8values = new String[][] { { "Error", String.valueOf(IMarker.SEVERITY_ERROR) },
                 { "Warning", String.valueOf(IMarker.SEVERITY_WARNING) },
                 { "Don't run", String.valueOf(IMarker.SEVERITY_INFO) } };
 
-        addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_PEP8, "Pep8", 3, pep8values, p, true) {
-            @Override
-            protected void doFillIntoGrid(Composite parent, int numColumns) {
-                super.doFillIntoGrid(parent, 3);
-                adjustForNumColumns(3);
-            }
-        });
+        addField(
+                new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_PEP8, "Pep8", 3, pep8values, p, true) {
+                    @Override
+                    protected void doFillIntoGrid(Composite parent, int numColumns) {
+                        super.doFillIntoGrid(parent, 3);
+                        adjustForNumColumns(3);
+                    }
+                });
         if (SHOW_IN_PEP8_FEATURE_ENABLED) {
-            addField(new BooleanFieldEditor(USE_PEP8_CONSOLE, "Redirect pep8 output to console?", p) {
+            addField(new BooleanFieldEditor(USE_PEP8_CONSOLE, "Redirect pycodestyle output to console?", p) {
                 @Override
                 protected void doFillIntoGrid(Composite parent, int numColumns) {
                     super.doFillIntoGrid(parent, 3);
@@ -154,7 +155,8 @@ public class AnalysisPreferencesPage extends ScopedFieldEditorPreferencePage imp
                 }
             });
         }
-        addField(new BooleanFieldEditor(PEP8_USE_SYSTEM, "Use system interpreter", p) {
+        addField(new BooleanFieldEditor(PEP8_USE_SYSTEM, "Use system interpreter (may be faster than internal Jython)",
+                p) {
             @Override
             protected void doFillIntoGrid(Composite parent, int numColumns) {
                 super.doFillIntoGrid(parent, 3);
@@ -163,12 +165,13 @@ public class AnalysisPreferencesPage extends ScopedFieldEditorPreferencePage imp
         });
 
         addField(new LinkFieldEditor(PEP8_COMMAND_LINE,
-                "Additional command line arguments (i.e.: --ignore=E5,W391). See <a>pep8 docs</a> for details.", p,
+                "Additional command line arguments (i.e.: --ignore=E5,W391). See <a>pycodestyle docs</a> for details.",
+                p,
                 new SelectionListener() {
 
                     @Override
                     public void widgetSelected(SelectionEvent e) {
-                        Program.launch("http://pypi.python.org/pypi/pep8");
+                        Program.launch("https://pycodestyle.readthedocs.io/");
                     }
 
                     @Override

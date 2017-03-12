@@ -194,7 +194,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
     public void applyFormatAction(IPyFormatStdProvider pyEdit, PySelection ps, int[] regionsToFormat,
             boolean throwSyntaxError,
             ISelectionProvider selectionProvider)
-                    throws BadLocationException, SyntaxErrorException {
+            throws BadLocationException, SyntaxErrorException {
         final IFormatter participant = getFormatter();
         final IDocument doc = ps.getDoc();
         final SelectionKeeper selectionKeeper = new SelectionKeeper(ps);
@@ -335,7 +335,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
     @Override
     public void formatAll(IDocument doc, IPyFormatStdProvider edit, IFile f, boolean isOpenedFile,
             boolean throwSyntaxError)
-                    throws SyntaxErrorException {
+            throws SyntaxErrorException {
         //        Formatter formatter = new Formatter();
         //        formatter.formatAll(doc, edit);
 
@@ -429,7 +429,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
     /**
      * @param fileContents the contents to be passed in the stdin.
      * @param parameters the parameters to pass. Note that a '-' is always added to the parameters to signal we'll pass the file as the input in stdin.
-     * @param script i.e.: pep8.py, autopep8.py
+     * @param script i.e.: pycodestyle.py, autopep8.py
      * @return
      */
     public static String runWithPep8BaseScript(String fileContents, String parameters, String script,
@@ -978,7 +978,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
      */
     private int formatForPar(final ParsingUtils parsingUtils, final char[] cs, final int i, final FormatStd std,
             final FastStringBuffer buf, final int parensLevel, final String delimiter, boolean throwSyntaxError)
-                    throws SyntaxErrorException {
+            throws SyntaxErrorException {
         char c = ' ';
         FastStringBuffer locBuf = new FastStringBuffer();
 

@@ -16,18 +16,18 @@ public class JythonModules {
 
     public static PyObject getPep8Module(IPythonInterpreter interpreter) {
         if (pep8Module == null) {
-            pep8Module = getPepJythonModule(interpreter, "pep8");
+            pep8Module = getPepJythonModule(interpreter, "pycodestyle");
         }
         return pep8Module;
     }
 
     public static File getPep8Location() {
-        return getPepModuleLocation("pep8.py");
+        return getPepModuleLocation("pycodestyle.py");
     }
 
     /**
-     * @param module: The name of the module (i.e.: pep8, autopep8)
-     * @return null if it was not able to get the pep8 module.
+     * @param module: The name of the module (i.e.: pycodestyle, autopep8)
+     * @return null if it was not able to get the pycodestyle module.
      */
     private static PyObject getPepJythonModule(IPythonInterpreter interpreter, String module) {
         synchronized (loadJythonLock) {
@@ -37,7 +37,7 @@ public class JythonModules {
                     + "if add_to_pythonpath not in sys.path:\n"
                     + "    sys.path.append(add_to_pythonpath)\n"
                     + "import " + module + "\n";
-            //put the parent dir of pep8.py in the pythonpath.
+            //put the parent dir of pycodestyle.py in the pythonpath.
             File pepModuleLoc = getPepModuleLocation(module + ".py");
             if (pepModuleLoc == null) {
                 return null;
@@ -49,7 +49,7 @@ public class JythonModules {
     }
 
     /**
-     * @param moduleFilename: i.e.: pep8.py, autopep8.py
+     * @param moduleFilename: i.e.: pycodestyle.py, autopep8.py
      * @return
      */
     private static File getPepModuleLocation(String moduleFilename) {
