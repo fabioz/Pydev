@@ -60,6 +60,7 @@ import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.cache.Cache;
 import org.python.pydev.shared_core.cache.LRUCache;
@@ -729,6 +730,53 @@ public class SourceModule extends AbstractModule implements ISourceModule {
 
         //first thing is finding its scope
         FindScopeVisitor scopeVisitor = getScopeVisitor(line, col);
+
+        if (actTok.equals("super")) {
+            Object objClassDef = scopeVisitor.scope.getClassDef();
+            if (objClassDef instanceof ClassDef) {
+                ClassDef classDef = (ClassDef) objClassDef;
+                if (classDef.bases != null) {
+                    List<Definition> lst = new ArrayList<>(classDef.bases.length);
+                    for (exprType expr : classDef.bases) {
+                        String repr = NodeUtils.getRepresentationString(expr);
+                        if (repr != null) {
+                            state = state.getCopyWithActTok(repr);
+                            Definition[] defs = findDefinition(state, line, col, nature);
+                            if (defs != null && defs.length > 0) {
+                                lst.addAll(Arrays.asList(defs));
+                            }
+                        }
+                    }
+                    if (lst.size() > 0) {
+                        return lst.toArray(new Definition[lst.size()]);
+                    }
+                }
+            }
+            // Didn't find anything for super
+            return new Definition[0];
+        } else if (actTok.startsWith("super()")) {
+            Object objClassDef = scopeVisitor.scope.getClassDef();
+            if (objClassDef instanceof ClassDef) {
+                ClassDef classDef = (ClassDef) objClassDef;
+                if (classDef.bases != null) {
+                    List<Definition> lst = new ArrayList<>(classDef.bases.length);
+                    for (exprType expr : classDef.bases) {
+                        String repr = NodeUtils.getRepresentationString(expr);
+                        if (repr != null) {
+                            state = state.getCopyWithActTok(actTok.replace("super()", repr));
+                            Definition[] defs = findDefinition(state, line, col, nature);
+                            if (defs != null && defs.length > 0) {
+                                lst.addAll(Arrays.asList(defs));
+                            }
+                        }
+                    }
+                    if (lst.size() > 0) {
+                        return lst.toArray(new Definition[lst.size()]);
+                    }
+                }
+            }
+            // Just keep going (may get completions globally).
+        }
 
         //this visitor checks for assigns for the token
         FindDefinitionModelVisitor visitor = getFindDefinitionsScopeVisitor(actTok, line, col, nature);

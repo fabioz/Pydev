@@ -273,12 +273,12 @@ public class FindDefinitionModelVisitorTest extends CodeCompletionTestsBase {
                 "";
 
         Document doc = new Document(d);
-        SourceModule module = (SourceModule) AbstractModule.createModuleFromDoc("", null, doc, nature, true);
+        SourceModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, true);
         Module ast = (Module) module.getAst();
         assertEquals(1, ast.body.length);
         ICompletionState emptyCompletionState = CompletionStateFactory.getEmptyCompletionState("args", nature,
                 new CompletionCache());
-        Definition[] defs = (Definition[]) module.findDefinition(emptyCompletionState, 2, 7, nature);
+        Definition[] defs = module.findDefinition(emptyCompletionState, 2, 7, nature);
 
         assertEquals(1, defs.length);
         assertEquals(1, defs[0].line);
@@ -293,12 +293,12 @@ public class FindDefinitionModelVisitorTest extends CodeCompletionTestsBase {
                 "";
 
         Document doc = new Document(d);
-        SourceModule module = (SourceModule) AbstractModule.createModuleFromDoc("", null, doc, nature, true);
+        SourceModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, true);
         Module ast = (Module) module.getAst();
         assertEquals(1, ast.body.length);
         ICompletionState emptyCompletionState = CompletionStateFactory.getEmptyCompletionState("args", nature,
                 new CompletionCache());
-        Definition[] defs = (Definition[]) module.findDefinition(emptyCompletionState, 2, 7, nature);
+        Definition[] defs = module.findDefinition(emptyCompletionState, 2, 7, nature);
 
         assertEquals(1, defs.length);
         assertEquals(1, defs[0].line);
@@ -316,12 +316,12 @@ public class FindDefinitionModelVisitorTest extends CodeCompletionTestsBase {
                     "";
 
             Document doc = new Document(d);
-            SourceModule module = (SourceModule) AbstractModule.createModuleFromDoc("", null, doc, nature, true);
+            SourceModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, true);
             Module ast = (Module) module.getAst();
             assertEquals(1, ast.body.length);
             ICompletionState emptyCompletionState = CompletionStateFactory.getEmptyCompletionState("arg2", nature,
                     new CompletionCache());
-            Definition[] defs = (Definition[]) module.findDefinition(emptyCompletionState, 2, 7, nature);
+            Definition[] defs = module.findDefinition(emptyCompletionState, 2, 7, nature);
 
             assertEquals(1, defs.length);
             assertEquals(1, defs[0].line);
@@ -330,5 +330,56 @@ public class FindDefinitionModelVisitorTest extends CodeCompletionTestsBase {
         } finally {
             GRAMMAR_TO_USE_FOR_PARSING = initial;
         }
+    }
+
+    public void testSuper() throws Exception {
+        String d = "" +
+                "class A(object):\n" +
+                "    def m1(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "class B(A):\n" +
+                "    def m1(self):\n" +
+                "        super" + // <- search for A
+                "";
+
+        Document doc = new Document(d);
+        SourceModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, true);
+        ICompletionState emptyCompletionState = CompletionStateFactory.getEmptyCompletionState("super", nature,
+                new CompletionCache());
+        Definition[] defs = module.findDefinition(emptyCompletionState, 7, 11, nature);
+
+        assertEquals(1, defs.length);
+        assertEquals(1, defs[0].line);
+        assertEquals(7, defs[0].col);
+        assertSame(module, defs[0].module);
+    }
+
+    public void testSuper2() throws Exception {
+        String d = "" +
+                "class A(object):\n" +
+                "    def method1(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "class Dummy(object):\n" +
+                "    def method2(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "class B(Dummy, A):\n" +
+                "    def method1(self):\n" +
+                "        super(B, self).method1()" + // <- search for A.method1
+                "";
+
+        Document doc = new Document(d);
+        SourceModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, true);
+        ICompletionState emptyCompletionState = CompletionStateFactory.getEmptyCompletionState("super().method1",
+                nature,
+                new CompletionCache());
+        Definition[] defs = module.findDefinition(emptyCompletionState, 11, 27, nature);
+
+        assertEquals(1, defs.length);
+        assertEquals(2, defs[0].line);
+        assertEquals(9, defs[0].col);
+        assertSame(module, defs[0].module);
     }
 }
