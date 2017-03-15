@@ -71,8 +71,8 @@ Requirements
 
 At least one of:
 
--  `Python <http://www.python.org/>`_ **(2.5 or newer)**
--  `Jython <http://www.jython.org/>`_ **(2.5 or newer)**
+-  `Python <http://www.python.org/>`_ **(2.6 or newer)**
+-  `Jython <http://www.jython.org/>`_ **(2.6 or newer)**
 -  `IronPython <http://www.codeplex.com/Wiki/View.aspx?ProjectName=IronPython>`_
    **(2.6 or newer)**
 
@@ -122,6 +122,8 @@ If you need to use an older version of Eclipse/Java, below is the latest PyDev v
 - Eclipse 4.5, Java 8: PyDev 5.2.0
 - Eclipse 3.8, Java 7: PyDev 4.5.5
 - Eclipse 3.x, Java 6: PyDev 2.8.2
+
+- Note: PyDev 5.6.0 only supports Python 2.6 onwards.
 
 
 URLs for PyDev as Eclipse plugin

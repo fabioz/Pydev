@@ -5,6 +5,55 @@ History For PyDev
 .. _`update sites page`: update_sites/index.html
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
+Release 5.6.0
+==========================
+
+* **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
+
+    * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
+
+* **Debugger**
+   
+    * **Performance** enhancements on the **debugger** (which should be **60%-100%** faster now). 
+    
+    * The **debugger** now only supports **Python 2.6 onwards** (keep on PyDev 5.5.0 for Python 2.5 or below).
+    
+    * Properly displaying variables when the **interactive console** is connected to a **debug session**. **#PyDev-776**
+    
+    * Providing a way for the debugger to support a user-specified version of Qt for debugging QThreads (**preferences > PyDev > Debug > Qt Threads**).
+    
+    * Fixed issue where a **native Qt signal is not callable** message was raised when connecting a signal to QThread.started.
+    
+    * Fixed issue in displaying variable (with **Ctrl+Shift+D**) when debugging.
+    
+    * Debug view toolbar icons no longer appearing stretched due to Set Next Statement icon having a different size.
+    
+* **Code completion**
+
+    * **super** is now properly recognized (code completion and find definition).
+    
+    * **pytest fixtures** are now properly recognized (code completion and find definition).
+
+    * Suppress invalid completions on literals numbers (patch by Jonah Graham)
+    
+* **Others**
+
+    * It's now possible to save the PyUnit preferences to the project or user settings.
+    
+    * Upgraded **pep8** to the latest **pycodestyle**.
+    
+    * Upgraded to latest **autopep8**.
+    
+    * Fixed issue in Django shell if version >= 1.10 **#PyDev-752**.
+    
+    * Add support for **coverage 4.x** (minimum supported version is now 4.3). **#PyDev-691**
+    
+    * Syntax highlighting for **matmul operator** (was being considered a decorator). **#PyDev-771**
+    
+    * Making **PyLint** use the same thread pool used for code analysis.
+    
+    * String index out of range while reading buffer in AbstractShell. **#PyDev-768**
+
 
 Release 5.5.0
 ==========================

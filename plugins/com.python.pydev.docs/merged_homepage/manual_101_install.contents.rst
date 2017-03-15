@@ -25,6 +25,8 @@ If you need to use an older version of Eclipse/Java, below is the latest PyDev v
 - Eclipse 3.8, Java 7: PyDev 4.5.5
 - Eclipse 3.x, Java 6: PyDev 2.8.2
 
+- Note: PyDev 5.6.0 only supports Python 2.6 onwards.
+
 
 Before starting the install
 ===========================
