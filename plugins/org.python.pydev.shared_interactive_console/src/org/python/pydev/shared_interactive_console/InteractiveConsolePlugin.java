@@ -119,6 +119,7 @@ public class InteractiveConsolePlugin extends AbstractUIPlugin {
      * Holds the console launches that should be terminated.
      */
     private List<ILaunch> consoleLaunches = new ArrayList<ILaunch>();
+    private final Object consoleLaunchesLock = new Object();
 
     /**
      * Adds launch to the list of launches managed by pydev. Added launches will be shutdown
@@ -127,16 +128,22 @@ public class InteractiveConsolePlugin extends AbstractUIPlugin {
      * @param launch launch to be added
      */
     public void addConsoleLaunch(ILaunch launch) {
-        consoleLaunches.add(launch);
+        synchronized (consoleLaunchesLock) {
+            consoleLaunches.add(launch);
+        }
     }
 
     /**
-     * Removes a launch from a pydev console and stops the related process.
+     * Removes a launch from a pydev console and stops the related process (may be called from a thread).
      *
      * @param launch the launch to be removed
      */
     public void removeConsoleLaunch(ILaunch launch) {
-        if (consoleLaunches.remove(launch)) {
+        boolean removed;
+        synchronized (consoleLaunchesLock) {
+            removed = consoleLaunches.remove(launch);
+        }
+        if (removed) {
             IProcess[] processes = launch.getProcesses();
             if (processes != null) {
                 for (IProcess p : processes) {
