@@ -865,12 +865,29 @@
          </command>
       </menuContribution>
       <menuContribution
-  		locationURI="toolbar:org.eclipse.debug.ui.DebugView?after=emptyStepGroup">
+  		locationURI="toolbar:org.eclipse.debug.ui.DebugView?after=stepReturnGroup">
   		<command
            commandId="org.python.pydev.debug.setnext"
            disabledIcon="icons/setnext_co_dis.gif"
            icon="icons/setnext_co.gif"
            id="org.python.pydev.debug.toolbar.view.setnext">
+           <!--
+           Note: putting the visibleWhen below *should* work to hide the set next, but it doesn't really work
+           (and I don't really know why).
+           See: https://github.com/eclipse/cdt/blob/bfea9deb90ae1e5c8b419386050eb48a455b60dd/dsf-gdb/org.eclipse.cdt.examples.dsf.gdb/plugin.xml#L107
+           
+            <visibleWhen checkEnabled="false">
+               <and>
+                  <systemTest property="org.eclipse.debug.ui.debugViewToolbarVisible" value="true"/>
+                  <with variable="org.eclipse.core.runtime.Platform">
+                     <test property="org.eclipse.core.runtime.bundleState"
+                        args="org.python.pydev.debug"
+                        value="ACTIVE">
+                     </test>
+                  </with>
+               </and>
+            </visibleWhen>
+           -->
          </command>
       </menuContribution>
       <menuContribution
