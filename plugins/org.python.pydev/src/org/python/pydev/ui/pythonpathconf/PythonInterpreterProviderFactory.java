@@ -35,35 +35,48 @@ public class PythonInterpreterProviderFactory extends AbstractInterpreterProvide
         if (type != IInterpreterProviderFactory.InterpreterType.PYTHON) {
             return null;
         }
+        List<String> foundVersions = new ArrayList<String>();
 
-        if (!PlatformUtils.isWindowsPlatform()) {
-            Set<String> pathsToSearch = new LinkedHashSet<String>();
-            try {
-                Map<String, String> env = SimpleRunner.getDefaultSystemEnv(null);
-                if (env.containsKey("PYTHON_HOME")) {
-                    pathsToSearch.add(env.get("PYTHON_HOME"));
-                }
-                if (env.containsKey("PYTHONHOME")) {
-                    pathsToSearch.add(env.get("PYTHONHOME"));
-                }
-                if (env.containsKey("PATH")) {
-                    String path = env.get("PATH");
-                    String separator = SimpleRunner.getPythonPathSeparator();
-                    final List<String> split = StringUtils.split(path, separator);
-                    pathsToSearch.addAll(split);
-                }
-            } catch (CoreException e) {
-                Log.log(e);
+        Set<String> pathsToSearch = new LinkedHashSet<String>();
+        try {
+            Map<String, String> env = SimpleRunner.getDefaultSystemEnv(null);
+            if (env.containsKey("PYTHON_HOME")) {
+                pathsToSearch.add(env.get("PYTHON_HOME"));
             }
+            if (env.containsKey("PYTHONHOME")) {
+                pathsToSearch.add(env.get("PYTHONHOME"));
+            }
+            if (env.containsKey("PATH")) {
+                String path = env.get("PATH");
+                String separator = SimpleRunner.getPythonPathSeparator();
+                final List<String> split = StringUtils.split(path, separator);
+                pathsToSearch.addAll(split);
+            }
+        } catch (CoreException e) {
+            Log.log(e);
+        }
+        if (!PlatformUtils.isWindowsPlatform()) {
+            // Paths to search on linux/mac
             pathsToSearch.add("/usr/bin");
             pathsToSearch.add("/usr/local/bin");
-            final String[] ret = searchPaths(pathsToSearch, Arrays.asList("python", "python\\d(\\.\\d)*|pypy"), false);
-            if (ret.length > 0) {
-                return AlreadyInstalledInterpreterProvider.create("python", ret);
-            }
+        }
+        if (PlatformUtils.isMacOsPlatform()) {
+            // Path to search on mac
+            pathsToSearch.add("/Library/Frameworks/Python.framework/Versions/Current/bin");
+        }
+        // Do this first (i.e.: give priority to the one found first in the path).
+        List<String> searchPatterns;
+        if (PlatformUtils.isWindowsPlatform()) {
+            searchPatterns = Arrays.asList("python.exe", "pypy.exe");
+
         } else {
-            // On windows we can try to see the installed versions...
-            List<String> foundVersions = new ArrayList<String>();
+            searchPatterns = Arrays.asList("python", "python\\d(\\.\\d)*|pypy");
+        }
+        final String[] ret = searchPaths(pathsToSearch, searchPatterns, false);
+        foundVersions.addAll(Arrays.asList(ret));
+
+        if (PlatformUtils.isWindowsPlatform()) {
+            // On windows we can also try to see the installed versions...
             try {
                 Regor regor = new Regor();
 
@@ -104,10 +117,14 @@ public class PythonInterpreterProviderFactory extends AbstractInterpreterProvide
             } catch (Throwable e) {
                 Log.log(e);
             }
-            if (foundVersions.size() > 0) {
-                return AlreadyInstalledInterpreterProvider.create("python",
-                        foundVersions.toArray(new String[foundVersions.size()]));
-            }
+        }
+
+        if (foundVersions.size() > 0) {
+            // Remove duplicates
+            foundVersions = new ArrayList<String>(new LinkedHashSet<String>(foundVersions));
+
+            return AlreadyInstalledInterpreterProvider.create("python",
+                    foundVersions.toArray(new String[foundVersions.size()]));
         }
 
         // This should be enough to find it from the PATH or any other way it's
