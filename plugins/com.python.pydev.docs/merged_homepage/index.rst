@@ -271,45 +271,6 @@ Release 5.5.0
     
     * Fixed issue grouping imports when an import has a continuation char inside the module part. **#PyDev 712**
 
-Release 5.4.0
-==========================
-
-* **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
-
-    * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
-    
-* If you enjoy **PyDev**, please show your appreciation through its **Patreon crowdfunding**: https://www.patreon.com/fabioz.
-    
-* **Initial support for Python 3.6**
-
-    * Code analysis for expressions on f-strings.
-    * Syntax highlighting on f-strings.
-    * Handling of underscores in numeric literals.
-    * Parsing (but still not using) variable annotations.
-    * Parsing asynchronous generators and comprehensions.
-    
-* **Launching**
-
-    * Improved console description of the launch.
-    * Support launching files with **python -m module.name** (instead of python module/name.py). **Note**: Has to be enabled at **Preferences > PyDev > Run**.
-        
-    
-* **Debugger** 
-
-    * Shows return values (may be disabled on preferences > PyDev > Debug).
-    * When the user is waiting for some input, it'll no longer try to evaluate the entered contents.
-    * Fix for multiprocess debugging when the debugger is started with a programmatic breakpoint (pydevd.settrace).
-
-* **Unittest integration**
-    
-    * Bugfixes in the pytest integration related to unicode errors.
-    * unittest subtests are now properly handled in the PyDev unittest runner.
-    * The currently selected tests are persisted. 
-
-* **Others**
-
-    * In Linux, when applying a completion which would automatically add an import, if the user focuses the completion pop-up (with Tab) and applies the completion with Shift+Enter, a local import is properly made.    
-
     
     
 `View release notes for previous releases`_

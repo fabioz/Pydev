@@ -8,8 +8,8 @@
     <li><a href='#PyDevFAQ-IhavesomedoubtIcouldn%27tfindintheFAQ%2CwhatdoIdo%3F'>I have some doubt I couldn't find in the FAQ, what do I do?</a></li>
     <li><a href='#PyDevFAQ-HowdoIgetstartedwithPyDev%3F'>How do I get started with PyDev?</a></li>
     <li><a href='#PyDevFAQ-CanIhaveEclipseinstalledanywheretousePyDev%3F'>Can I have Eclipse installed anywhere to use PyDev?</a></li>
-    <li><a href='#PyDevFAQ-HowdoIimportexistingprojects%2FsourcesintoPyDev%3F'>How do I import existing projects/sources into PyDev?</a></li>
-    <li><a href='#PyDevFAQ-HowdoIimportexistingprojects%2FsourcesforaDjangoprojectintoPyDev%3F'>How do I import existing projects/sources for a Django project into PyDev?</a></li>
+    <li><a href='#ImportExistingSources'>How do I import existing projects/sources into PyDev?</a></li>
+    <li><a href='#ImportExistingDjangoSources'>How do I import existing projects/sources for a Django project into PyDev?</a></li>
     <li><a href='#PyDevFAQ-HowdoIconfiguremyPYTHONPATH%3F'>How do I configure my PYTHONPATH?</a></li>
     <li><a href='#PyDevFAQ-WhenIdoacodecompletion%2CPyDevhangs%2CwhatcanIdo%3F'>When I do a code-completion, PyDev hangs, what can I do?</a></li>
     <li><a href='#PyDevFAQ-Whyrawinput%28%29%2Finput%28%29doesnotworkcorrectlyinPyDev%3F'>Why raw_input() / input() does not work correctly in PyDev?</a></li>
@@ -94,19 +94,42 @@
 
 
 
-<h2><a name="PyDevFAQ-HowdoIimportexistingprojects%2FsourcesintoPyDev%3F"></a>How do I import existing projects/sources into PyDev?</h2>
+<h2><a name="PyDevFAQ-HowdoIimportexistingprojects%2FsourcesintoPyDev%3F"></a><a name="ImportExistingSources"></a>How do I import existing projects/sources into PyDev?</h2>
 
-<p>If the project was already in Eclipse (i.e.: has the .project and .pydevproject files), use File &gt; Import &gt; Existing Projects into Workspace.</p>
+<p>If the project was already in Eclipse (i.e.: has the <strong>.project</strong> and <strong>.pydevproject</strong> files), use <b>File &gt; Import &gt; Existing Projects into Workspace</b>.</p>
 
-<p>Now, if the project never had the .project nor .pydevproject files, there are 2 choices:</p>
+<p>Now, if the project never had the <strong>.project</strong> nor <strong>.pydevproject</strong> files, there are 2 choices:</p>
 
-<p> <b>Option 1</b>:</p>
+<h3>Option 1</h3>
 
-<p>Just go through the File &gt; New &gt; PyDev Project wizard and select as the directory the directory with your sources.</p>
+<p>Just go through the <b>File &gt; New &gt; PyDev Project</b> wizard and select as the directory the directory with your sources 
+(properly configuring the source folders in the process -- see: <a href="manual_101_project_conf">Creating a Project</a> for more information).</p>
 
-<p> <b>Option 2</b>:</p>
+<br/>
+<br/>
+<p>     <b>Note on source folders</b>: If the file structure you have is:</p>
 
-<p>Create the .project and .pydevproject files from the template below and  use File &gt; Import &gt; Existing Projects into Workspace to import it.   Note that this option is more a reference for people that want to  automate creating multiple projects at once.</p>
+<blockquote>
+<p>myproject<br/>
+.../  _<em>init</em>_.py<br/>
+.../  module.py</p></blockquote>
+<p>         and you want to make the import:</p>
+<blockquote>
+<p><b>from myproject import module</b></p></blockquote>
+<p>         you have to set as the source folder the <b>folder above myproject</b> (as that same folder, above myproject,
+        will be added to the <b>PYTHONPATH</b> -- i.e.: source folders are the folders added to the <b>PYTHONPATH</b>).</p>
+
+<br/>
+<br/>
+<p>     <b>Note on links</b>: <b>links</b> can be used <b>above the source folder</b> or <b>as the source folder</b>, but 
+     <b>never inside a source folder</b>, as it's not supported by PyDev)</p>
+
+
+<br/>
+<br/>
+<h3>Option 2</h3>
+
+<p>Create the <b>.project</b> and <b>.pydevproject</b> files from the template below and  use <b>File &gt; Import &gt; Existing Projects into Workspace</b> to import it.   Note that this option is more a reference for people that want to  automate creating multiple projects at once.</p>
 
 <p> <b>.project</b> contents (must replace the <b>MyProject</b> with the project name)</p>
 
@@ -144,9 +167,7 @@
 &lt;/pydev_project&gt;</p>
 
 
-
-
-<h2><a name="PyDevFAQ-HowdoIimportexistingprojects%2FsourcesforaDjangoprojectintoPyDev%3F"></a>How do I import existing projects/sources for a Django project into PyDev?</h2>
+<h2><a name="ImportExistingDjangoSources"></a><a name="PyDevFAQ-HowdoIimportexistingprojects%2FsourcesforaDjangoprojectintoPyDev%3F"></a>How do I import existing projects/sources for a Django project into PyDev?</h2>
 
 <p>Follow the same steps in the FAQ above to import a PyDev project, then  right click the project &gt; PyDev &gt; Set as Django project and  add 2 String substitution variables (on right click project &gt;  properties &gt; PyDev PYTHONPATH)</p>
 

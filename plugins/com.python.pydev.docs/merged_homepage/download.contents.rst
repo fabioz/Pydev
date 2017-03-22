@@ -139,7 +139,7 @@ Nightly builds:
 
 -  `http://www.pydev.org/nightly <http://www.pydev.org/nightly>`_
 
-Browse other versions (open in browser):
+Browse other versions **(open in browser to select URL for Eclipse)**:
 
 -  `http://www.pydev.org/update_sites <http://www.pydev.org/update_sites>`_
 

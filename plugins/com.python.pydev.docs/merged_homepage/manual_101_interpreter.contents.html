@@ -7,30 +7,31 @@
 To configure the interpreter:</p>
 
 
-<p>1. Go to: <b>window &gt; preferences &gt; PyDev &gt; Interpreter - (Python/Jython/IronPython)</b>.</p>
+<p><strong>1</strong>. Go to: <b>window &gt; preferences &gt; PyDev &gt; Interpreter - (Python/Jython/IronPython)</b>.</p>
 
-<p>2. Choose the interpreter you have installed in your computer (such as python.exe, jython.jar or ipy.exe).</p>
+<p><strong>2.</strong> Choose the interpreter you have installed in your computer (such as python.exe, jython.jar or ipy.exe).</p>
 
-<p>   Note that the <b>Auto Config</b> will try to find it in your PATH, but it can fail if it's not there (or if you<br/>
+<p>   Note that the <b>Auto Config</b> will try to find it in your PATH, but it can fail if it's not there (or if you
    want to configure a different interpreter).</p>
 
-<p>   On <b>Windows</b> it'll also search the registry and provide a choice based on the multiple interpreters available<br/>
+<p>   On <b>Windows</b> it'll also search the registry and provide a choice based on the multiple interpreters available
    in your computer (searching in the registry).</p>
 
 <p>   On <b>Linux/Mac</b>, usually you can do a 'which python' to know where the python executable is located.</p>
 
-<p>   On <b>Mac</b> it's usually at some place resembling the image below (so, if you want to configure a different version<br/>
+<p>   On <b>Mac</b> it's usually at some place resembling the image below (so, if you want to configure a different version
    of the interpreter manually, that's where you'd want to search):</p>
 
 <p><span class="image-wrap" style=""><img src="images/interpreter_mac.png" style="border: 1px solid black" /></span><br/>
-3. Select the paths that will be in your <b>SYSTEM PYTHONPATH</b>. </p>
+<strong>3.</strong> Select the paths that will be in your <b>SYSTEM PYTHONPATH</b>. </p>
 
-<p><b>IMPORTANT</b>: Select only folders that will <b>NOT be used as source folders for any project</b> of yours <br/>
+<p><b>IMPORTANT</b>: Select only folders that will <b>NOT be used as source folders for any project</b> of yours 
 (those should be later configured as source folders in the project).</p>
 
-<p><b>IMPORTANT for Mac users</b>: The Python version that usually ships with Mac doesn't seem to have the .py source files <br/>
+<p><b>IMPORTANT for Mac users</b>: The Python version that usually ships with Mac doesn't seem to have the .py source files
 available, which are required for PyDev, so, using a different interpreter is recommended (i.e.: Download it from
-<a href="http://python.org" class="external-link" rel="nofollow">http://python.org</a>). If you don't want to use a different interpreter, get the source files for the Python '/Lib' folder<br/>
+<a href="http://python.org" class="external-link" rel="nofollow">http://python.org</a>). If you don't want to use a different 
+interpreter, get the source files for the Python <strong>/Lib</strong> folder
 and add those to the system installation. </p>
 
 <p>After those steps, you should have a screen as presented below:</p>
@@ -43,47 +44,51 @@ and add those to the system installation. </p>
 <p>    The <b>Forced builtin libs</b> must contain the modules built into the interpreter (and others whose<br/>
     analysis should be done dynamically. See: <a href="#PyDevInterpreterConfiguration-ForcedBuiltins">Forced Builtins</a>).</p>
 
+<h1>How to work with virtual environments (virtualenv, conda, etc)</h1>
+
+<p>For <strong>PyDev</strong>, a virtual environment works as any other <strong>regular Python executable</strong>, so, just click the <strong>New...</strong>
+button and select the Python executable in the virtual environment -- just take care to <strong>double check the folders</strong> which are selected
+when the virtual environment executable is used to make sure that you leave checked the <strong>/Lib</strong> folder from the base interpreter <strong>if</strong> the virtual environment
+inherits the <strong>PYTHONPATH</strong> from a base installation).</p> 
+
 
 <h1><a name="PyDevInterpreterConfiguration-Whatifitisnotcorrect%3F"></a>What if it is not correct?</h1>
 
-<p>    The most common error is having a problem in the environment variables used from the shell that spawned Eclipse,<br/>
-    in a way that for some reason when getting the variables of one interpreter, it gathers the info from another<br/>
+<p>    The most common error is having a problem in the environment variables used from the shell that spawned Eclipse,
+    in a way that for some reason when getting the variables of one interpreter, it gathers the info from another
     interpreter (thus mixing the interpreter and the actual libraries).</p>
 
-<p>    Usually running (from the command prompt) the file that gives that info for PyDev can help you discovering the<br/>
+<p>    Usually running (from the command prompt) the file that gives that info for PyDev can help you discovering the
     problem in your configuration (interpreterInfo.py):</p>
 
-<p>        That file is usually located at: eclipse\plugins\org.python.pydev_$version$\pysrc\interpreterInfo.py,<br/>
+<p>        That file is usually located at: eclipse\plugins\org.python.pydev_$version$\pysrc\interpreterInfo.py,
         but it can be at other location depending on how you installed it )</p>
 
-<p>        python.exe interpreterInfo.py</p>
+<p> <strong>In Python</strong>:        python.exe interpreterInfo.py</p>
 
-<p>        java.exe -cp c:\path\to\jython.jar org.python.util.jython interpreterInfo.py </p>
+<p> <strong>In Jython</strong>:       java.exe -cp c:\path\to\jython.jar org.python.util.jython interpreterInfo.py </p>
 
-<p>        ipy.exe interpreterInfo.py</p>
+<p> <strong>In IronPython</strong>:       ipy.exe interpreterInfo.py</p>
 
-<p>    If you're unable to find out what's going on, please ask in the users forum (giving the output obtained from<br/>
+<p>    If you're unable to find out what's going on, please open an issue in the tracker (<a href="https://www.brainwy.com/tracker/PyDev">https://www.brainwy.com/tracker/PyDev</a> (giving the output obtained from
     executing interpreterInfo.py in your machine).</p>
 
 
 <h1><a name="PyDevInterpreterConfiguration-WhatifIaddsomethingnewinmySystemPYTHONPATHafterconfiguringit%3F"></a>What if I add something new in my System PYTHONPATH after configuring it?</h1>
 
-<p>    If you add something to your python installation, you need to either<br/>
-    add it manually as a 'new folder' in the System PYTHONPATH (if it's still not under a folder in the PYTHONPATH)<br/>
-    or <b>(recommended) remove your interpreter and add it again</b>, then, press apply.</p>
-
-<p>    Note that if you added a library that's already under a folder in the PYTHONPATH, you have to at least go to<br/>
-    the interpreter preferences and press apply so that it clears its internal caches (after the configuration<br/>
-    is done, things are set in stone for PyDev) </p>
+<p>    Since PyDev 3.0, such modifications should be automatically detected by PyDev and require no further steps (so,
+  if you <strong>pip</strong>-installed something or manually added it to a folder which is already in the <strong>PYTHONPATH</strong> 
+  -- such as <strong>Lib/site-packages</strong> -- just wait a bit and PyDev should start considering it in code-analysis
+   and code-completion). </p>
 
 
 <h1><a name="PyDevInterpreterConfiguration-Libraries"></a>Libraries</h1>
 
 <p>    The <b>System libs</b> are the libraries that will be added to the PYTHONPATH of any project that is using this interpreter.</p>
 
-<p>    For <b>Python and IronPython</b>, it's composed of <b>folders, zip files and egg files</b>. Note that if dlls should be added to<br/>
-    the PYTHONPATH, the folders actually containing those dlls should be added, and they must have the same name to be<br/>
-    imported in the code (the case is important). I.e.: if you want to import iTextDll, it <b>must</b> be called iTextDll.dll<br/>
+<p>    For <b>Python and IronPython</b>, it's composed of <b>folders, zip files and egg files</b>. Note that if dlls should be added to
+    the PYTHONPATH, the folders actually containing those dlls should be added, and they must have the same name to be
+    imported in the code (the case is important). I.e.: if you want to import <strong>myDllModule</strong>, it <b>must</b> be called myDllModule.dll
     (note that .pyd and .so extensions are also accepted).</p>
 
 <p>    For <b>Jython</b>, it's composed of <b>folders and jars</b>.</p>
@@ -91,34 +96,34 @@ and add those to the system installation. </p>
 
 <h1><a name="PyDevInterpreterConfiguration-ForcedBuiltins"></a><a name="PyDevInterpreterConfiguration-ForcedBuiltins"></a>Forced Builtins</h1>
 
-<p>    The Forced builtin libs are the libraries that are built-in the interpreter, such as <b>_<em>builtin</em>_, sha, etc</b> or<br/>
-    libraries that should forcefully analyzed through a shell (i.e.: to analyze modules in this list, PyDev will spawn<br/>
-    a shell and do a dir() on the module to get the available tokens for completions and code-analysis) &#8211; still, <br/>
-    sometimes even that is not always possible, in which case, <a href="#PyDevInterpreterConfiguration-PredefinedCompletions">Predefined Completions</a> may be used to let PyDev know <br/>
+<p>    The Forced builtin libs are the libraries that are built-in the interpreter, such as <b>_<em>builtin</em>_, sha, etc</b> or
+    libraries that should forcefully analyzed through a shell (i.e.: to analyze modules in this list, PyDev will spawn
+    a shell and do a dir() on the module to get the available tokens for completions and code-analysis) &#8211; still,
+    sometimes even that is not always possible, in which case, <a href="#PyDevInterpreterConfiguration-PredefinedCompletions">Predefined Completions</a> may be used to let PyDev know 
     about the structure of the code.</p>
 
 <p>    For <b>Python</b>, you should have around <b>50</b> entries </p>
 
 <p>    For <b>Jython</b> around <b>30</b> entries.</p>
 
-<p>    For <b>IronPython</b> more than <b>100</b> entries. All the packages built into .NET should be included here &#8211; e.g.:<br/>
+<p>    For <b>IronPython</b> more than <b>100</b> entries. All the packages built into .NET should be included here &#8211; e.g.:
     Microsoft, Microsoft.Windows.Themes, System, System.IO, etc. </p>
 
-<p>    Additionally, you may add other libraries that you want to treat as <br/>
-    builtins, such as <b>os, wxPython, OpenGL, etc</b>. This is very important, because PyDev works <br/>
-    on the java side only with static information, but some modules don't have much information when analyzed <br/>
-    statically, so, PyDev creates a shell to get information on those. Another important<br/>
-    thing is that they <b>must</b> be on your system pythonpath (otherwise, the shell will be unable to get that information). </p>
+<p>    Additionally, you may add other libraries that you want to treat as
+    builtins, such as <b>os, wxPython, OpenGL, etc</b>. This is very important, because PyDev works 
+    on the java side only with static information, but some modules don't have much information when analyzed
+    statically, so, PyDev must create a shell to get information on those. Another important
+    thing is that they <b>must</b> be on your System PYTHONPATH (otherwise, the shell will be unable to get that information). </p>
 
 
 <p><span class="image-wrap" style=""><img src="images/interpreter_forced_builtins.png" style="border: 1px solid black" /></span></p>
 <h1><a name="PyDevInterpreterConfiguration-PredefinedCompletions"></a><a name="PyDevInterpreterConfiguration-PredefinedCompletions"></a>Predefined Completions</h1>
 
-<p>    Predefined completions are completions acquired from sources that provide only the interfaces for<br/>
+<p>    Predefined completions are completions acquired from sources that provide only the interfaces for
     a given Python module (with Python 3.0 syntax).</p>
 
-<p>    A predefined completion module may be created by having a module with the extension ".pypredef"<br/>
-    with regular Python 3.0 contents, but with attributes having assigns to its type and methods having<br/>
+<p>    A predefined completion module may be created by having a module with the extension <strong>.pypredef</strong>
+    with regular Python 3.0 contents, but with attributes having assigns to its type and methods having
     as the body a sole return statement &#8211; and the docstring may have anything.</p>
 
 <p>    Example for a <b>my.source.module</b> (must be declared in a <b>my.source.module.pypredef</b> file):</p>
@@ -151,18 +156,18 @@ MyConstantB <span style="color: #666666">=</span> <span style="color: #008000">i
 
 <p>    <b>Note 2</b>: .pypredef files are not searched in subfolders</p>
 
-<p>    <b>Optionally a QScintilla .api file may be added</b>. When this is done, PyDev will try to create <br/>
-    .pypredef files from that .api file and will add the folder containing those to the PYTHONPATH.<br/>
-    Note that this conversion is still in beta and the file may not be correctly generated, so,<br/>
-    keep an eye for errors logged when a code-completion that would use those modules (while it<br/>
-    will not fail, those completions won't be shown using the .pypredef files).<br/>
+<p>    <b>Optionally a QScintilla .api file may be added</b>. When this is done, PyDev will try to create 
+    .pypredef files from that .api file and will add the folder containing those to the PYTHONPATH.
+    Note that this conversion is still in beta and the file may not be correctly generated, so,
+    keep an eye for errors logged when a code-completion that would use those modules (while it
+    will not fail, those completions won't be shown using the .pypredef files).
     In those situations, please create a bug-report with the .api file that generated incorrect code.</p>
 
 
 <p><span class="image-wrap" style=""><img src="images/interpreter_predefined.png" style="border: 1px solid black" /></span></p>
 <h1><a name="PyDevInterpreterConfiguration-Environment"></a>Environment</h1>
 
-<p>    The variables defined at the environment will be set as environment variables when running a script that uses the <br/>
+<p>    The variables defined at the environment will be set as environment variables when running a script that uses the 
     given interpreter (note    that it can still be overridden in the run configuration)</p>
 
 
@@ -181,7 +186,7 @@ MyConstantB <span style="color: #666666">=</span> <span style="color: #008000">i
 
 <h1><a name="PyDevInterpreterConfiguration-Cygwinusers"></a>Cygwin users</h1>
 
-<p>    PyDev currently has no support for cygwin. Currently you'll be able to configure the interpreter <br/>
+<p>    PyDev currently has no support for cygwin. Currently you'll be able to configure the interpreter 
     with cygwin, but there are still other related problems (mostly on converting between windows and cygwin paths as needed).</p>
 
 
