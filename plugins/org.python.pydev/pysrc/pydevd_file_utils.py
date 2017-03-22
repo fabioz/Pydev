@@ -20,6 +20,9 @@
         the PATHS_FROM_ECLIPSE_TO_PYTHON would have to be:
             PATHS_FROM_ECLIPSE_TO_PYTHON = [(r'c:\my_project\src', r'/user/projects/my_project/src')]
 
+        alternatively, this can be set with an environment variable from the command line:
+           set PATHS_FROM_ECLIPSE_TO_PYTHON=[['c:\my_project\src','/user/projects/my_project/src']]
+
     @note: DEBUG_CLIENT_SERVER_TRANSLATION can be set to True to debug the result of those translations
 
     @note: the case of the paths is important! Note that this can be tricky to get right when one machine
@@ -43,6 +46,8 @@
 
 from _pydevd_bundle.pydevd_constants import IS_PY2, IS_PY3K
 from _pydev_bundle._pydev_filesystem_encoding import getfilesystemencoding
+import json
+import os
 import os.path
 import sys
 import traceback
@@ -62,7 +67,20 @@ except:
 #defined as a list of tuples where the 1st element of the tuple is the path in the client machine
 #and the 2nd element is the path in the server machine.
 #see module docstring for more details.
-PATHS_FROM_ECLIPSE_TO_PYTHON = []
+try:
+    PATHS_FROM_ECLIPSE_TO_PYTHON = json.loads(os.environ.get('PATHS_FROM_ECLIPSE_TO_PYTHON', '[]'))
+except Exception:
+    sys.stderr.write('Error loading PATHS_FROM_ECLIPSE_TO_PYTHON from environment variable.\n')
+    traceback.print_exc()
+    PATHS_FROM_ECLIPSE_TO_PYTHON = []
+else:
+    if not isinstance(PATHS_FROM_ECLIPSE_TO_PYTHON, list):
+        sys.stderr.write('Expected PATHS_FROM_ECLIPSE_TO_PYTHON loaded from environment variable to be a list.\n')
+        PATHS_FROM_ECLIPSE_TO_PYTHON = []
+    else:
+        # Converting json lists to tuple
+        PATHS_FROM_ECLIPSE_TO_PYTHON = [tuple(x) for x in PATHS_FROM_ECLIPSE_TO_PYTHON]
+        
 
 #example:
 #PATHS_FROM_ECLIPSE_TO_PYTHON = [
