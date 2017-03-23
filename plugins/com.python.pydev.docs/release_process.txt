@@ -103,7 +103,7 @@ p:\FileZilla\filezilla.exe sftp://fabioz,pydev@frs.sourceforge.net/home/project-
 
 		** Add to reddit: http://www.reddit.com/r/Python/submit
 
-		** Send e-mail
+		** Send e-mail (use contents from sf e-mail -- change title sizes)
 
 		** Twitter
 
