@@ -24,7 +24,7 @@ Also, the debugger provides hooks for clients that may want to act during or aft
 Note that it may not work properly on a number of situations as the problem itself is undecidable on a number of situations.
 
 The file: org.python.pydev/pysrc/pydevd_reload.py in your local Eclipse install 
-(which may be found online at: https://github.com/fabioz/Pydev/blob/development/plugins/org.python.pydev/pysrc/pydevd_reload.py)
+(which may be found online at: https://github.com/fabioz/Pydev/blob/master/plugins/org.python.pydev/pysrc/_pydevd_bundle/pydevd_reload.py)
 contains more details on the hooks and limitations of the current reload approach.
 
 Is it useful?

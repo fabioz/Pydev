@@ -7,19 +7,26 @@
 
 <p>The steps to debug an external program are:</p>
 
-<ul class="alternate" type="square">
-	<li>Start the remote debugger server</li>
-	<li>Go to the debug perspective</li>
-	<li>Start the external program with the file 'pydevd.py' in its pythonpath</li>
-	<li>Call pydevd.settrace()</li>
+<ul class="alternate" style="list-style-type:none">
+	<li>1. Start the remote debugger server</li>
+	<li>2. Go to the debug perspective</li>
+	<li>3. Start the external program with the file pydevd.py in its PYTHONPATH</li>
+	<li>4. Call pydevd.settrace()</li>
+	<ul>
+    	<li><strong>Note:</strong> if the program is being edited inside of PyDev (and launched externally), you can write only <b>pydevd</b> and request
+    	a code-completion which will add pydevd.py to sys.path and do the settrace (i.e.: steps 3 and 4).</li>
+	</ul>
 </ul>
 
 
-<p>Let's see a simple 'step-by-step' example on how this works:</p>
+<p>Let's see a simple step-by-step example on how this works:</p>
 
-<p><b>1. Start the remote debugger server</b>: To start the remote debugger server, you have to click the green button pointed by '1' in the image below. After doing that, it will show a message in the console (indicated by '2') to confirm that the server is listening for incoming connections.</p>
+<p><b>1. Start the remote debugger server</b>: To start the remote debugger server, 
+go to the menu: <b>PyDev &gt; Start Debug Server</b>. When running, a Debug Server
+entry should appear in the Debug Stack view.</p>
 
-<p><b>Note</b>: Those buttons should be present at the debug perspective and they can be enabled in other perspectives through Window &gt; Customize perspective &gt; Command groups availability &gt; PyDev debug.</p>
+<p><b>Note</b>: That menu item should be present at the debug perspective and it can be 
+enabled in other perspectives through Window &gt; Perspective &gt; Customize perspective &gt; Tool Bar Visibility &gt; PyDev debug.</p>
 
 
 
@@ -29,53 +36,28 @@
 
 
 
-<p><b>2. Go to the debug perspective</b>: This is needed because it has no actual 'signal' that it reached a breakpoint when doing remote debugging. So, if you already have it open, just cycle to it with <b>Ctrl+F8</b>. Otherwise, go to the menu: window &gt; Open Perspective &gt; Other &gt; Debug.</p>
+<p><b>2. Go to the debug perspective</b>: This is needed because it has no actual 'signal' that it 
+reached a breakpoint when doing remote debugging. So, if you already have it open, just cycle to it
+ with <b>Ctrl+F8</b>. Otherwise, go to the menu: window &gt; Open Perspective &gt; Other &gt; Debug.</p>
 
-<p>Note that there should appear a process named 'Debug Server' in the debug view (see '1' in the image below).</p>
+<p><b>3. Call pydevd.settrace()</b>. If the program is being edited inside of PyDev 
+(and launched externally), you can write only <b>pydevd</b> and request a code-completion 
+which will add pydevd.py to sys.path and do the pydevd.settrace().</p>
 
+<p>Now, if you're launching from a different computer, you should copy the contents of PyDev.Debugger to the
+target computer. If you're in the latest version, it  may be installed with <strong>pip install pydevd</strong>. Otherwise,
+you have to copy the <b>pysrc</b> contents of <b>org.python.pydev</b> plugin from your Eclipse installation. 
+</p>
 
-<p><span class="image-wrap" style=""><img src="images/debugger/remotedebugger2.png" style="border: 1px solid black" /></span></p>
+<p><strong>Note</strong>: if the target machine does not have the same paths as the client machine, the file <b>pydevd_file_utils.py</b> 
+must be edited to properly translate the paths from one machine to the other - see comments on that file.</p>
 
-<p><b>Image:</b> Debug perspective</p>
-
-
-<p><b>3. Make sure pydevd.py is in your pythonpath</b>: This file is included in the org.python.pydev plugin. So, you'll have to add it to the pythonpath. It's exact location will depend upon the eclipse location and the plugin version, being something like:</p>
-
-<p>eclipse/plugins/org.python.pydev&#95;x.x.x/pysrc/pydevd.py </p>
-
-<p>(so, the container folder must be in your pythonpath). If you choose to execute it from another machine, you need to copy all the files within that folder to the target machine in order to be able to debug it (if the target machine does not have the same paths as the client machine, the file <b>pydevd&#95;file&#95;utils.py</b> must be edited to properly translate the paths from one machine to the other - see comments on that file).</p>
-
-<p><b>4. Call pydevd.settrace()</b>: Now that the pydevd.py module is already on your pythonpath, you can use the template provided: 'pydevd' to make the call: import pydevd;pydevd.settrace(). When that call is reached, it will automatically suspend the execution and show the debugger.</p>
+<p><b>4. Launch the program and wait for it to reach the pydevd.settrace() call</b>: 
+When that call is reached, it will automatically suspend the execution and show the debugger.</p>
 
 <p><span class="image-wrap" style=""><img src="images/debugger/remotedebugger3.png" style="border: 1px solid black" /></span></p>
 
 <p><b>Image:</b> pydevd.settrace called</p>
-
-<h1><a name="PyDevRemoteDebugger-Djangoremotedebuggingwithautoreload"></a>Django remote debugging with auto-reload</h1>
-
-<p>By default, PyDev will add a --noreload flag when creating a Django run configuration, so that it works with the default debugger, but it's also possible to debug an application with auto-reload provided that some steps are followed to enable PyDev support in that case.</p>
-
-<p>To do that, edit the launch that PyDev created (run &gt; run configurations &gt; PyDev Django) and remove the noreload flag and edit your manage.py so that the lines:</p>
-
-<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
-<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span style="color: #408080; font-style: italic">#Add pydevd to the PYTHONPATH (may be skipped if that path is already added in the PyDev configurations)</span>
-<span style="color: #008000; font-weight: bold">import</span> <span style="color: #0000FF; font-weight: bold">sys</span>;sys<span style="color: #666666">.</span>path<span style="color: #666666">.</span>append(<span style="color: #BA2121">r&#39;path_to\pydev\plugins\org.python.pydev\pysrc&#39;</span>)
-
-<span style="color: #008000; font-weight: bold">import</span> <span style="color: #0000FF; font-weight: bold">pydevd</span>
-pydevd<span style="color: #666666">.</span>patch_django_autoreload(patch_remote_debugger<span style="color: #666666">=</span><span style="color: #008000">True</span>, patch_show_console<span style="color: #666666">=</span><span style="color: #008000">True</span>)
-</pre></div>
-
-</div></div>
-
-<p>are added <b>BEFORE</b> the <b>if _<em>name</em>_ == "_<em>main</em>_"</b>.</p>
-
-<p>With that change, the breakpoints should be gotten whenever a run is done (note that from now on, launches should only be done in <b>'regular' mode</b> from now on and the debug server must be already started in the Eclipse side).</p>
-
-<p>To disable the debugging, those lines must be removed from manage.py. </p>
-
-<p>An interesting thing to note is that when you kill the 'parent django' process from Eclipse, the subprocesses it created won't be terminated at the same time, but they should be terminated when a code-change is done (in which case the parent process would create a new 'reload process', if it was still alive). </p>
-
-<p>Note that the <b>patch_show_console=True</b> will make a separate window be shown for each process (and not be shown in Eclipse itself) &#8211; it has a benefit that you'll be able to stop the process with Ctrl+C in that window and the downside that you won't have the output in the Eclipse console.</p>
 
 <h1><a name="PyDevRemoteDebugger-ImportantNotes"></a>Important Notes</h1>
 

@@ -77,6 +77,11 @@ img.link {
 	font-weight:bold;
 }
 
+.image-wrap > img{
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
 .white_text {
 	font: 11px/1.0em Verdana;
 	font-size: small;
