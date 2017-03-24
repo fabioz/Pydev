@@ -10,22 +10,21 @@ updated as a whole).
 Requisites
 ===========
 
-PyDev requires **java 8** and **Eclipse 4.6 (Neon)** in order to run. 
+PyDev requires **Java 8** and **Eclipse 4.6 (Neon)** in order to run and only supports **Python 2.6** onwards. 
 
-If you don't have java 8, the update process may appear to succeed, but PyDev
-will simply not show in the target installation. Please double-check if you're using a java 8 vm in **about > installation
+If you don't have Java 8, the update process may appear to succeed, but PyDev
+will simply not show in the target installation. Please double-check if you're using a Java 8 vm in **about > installation
 details > configuration** before trying to install PyDev.
 
-Need to use older Eclipse/Java
-================================
+Need to use older Eclipse/Java/Python
+======================================
 
-If you need to use an older version of Eclipse/Java, below is the latest PyDev version to be used based on your requisites.
+If you need to use an older version of Eclipse/Java/Python, below is the latest PyDev version to be used based on your requisites.
 
 - Eclipse 4.5, Java 8: PyDev 5.2.0
 - Eclipse 3.8, Java 7: PyDev 4.5.5
 - Eclipse 3.x, Java 6: PyDev 2.8.2
-
-- Note: PyDev 5.6.0 only supports Python 2.6 onwards.
+- Python 2.5 or older: PyDev 5.5.0
 
 
 Before starting the install
@@ -48,7 +47,7 @@ from the command line because of a bug in the Eclipse p2 director).
 The first step for that is downloading the `PyDev
 certificate <pydev_certificate.cer>`_.
 
-The second step is discovering the java being used in Eclipse: go to
+The second step is discovering the Java being used in Eclipse: go to
 **Help > About > Installation details and look for 'java.home'**
 
 Then to actually import it, in the command line, go to the Eclipse
@@ -109,42 +108,6 @@ At that point, Eclipse should automatically download the plugin
 contents and present you to a dialog asking
 if you want to restart (to which you should say **yes**).
 
-Troubleshooting installation problems
-======================================
-
-Unable to load repository
-==========================
-
-While most times things work as explained, some users may have messages such as:
-
-Unable to load the repository http://pydev.org/updates 
-
-Unknown Host: http://pydev.org/updates/content.xml 
-
-This means there's some issue accessing the update site in your current connection.
-
-In that case, you can try using a direct URL for the download (all the http://pydev.org/updates/
-URLs are actually redirects to the final location). Currently, those redirects
-point to links on http://bintray.com, so, you can visit the related update
-site page (such as http://pydev.org/updates) in a browser and see to 
-where it's being redirected (you may want to try that direct link with 
-**http** or **https** to see if it makes a difference in your use case).
-
-Possible issue on download
-==========================
-
-If you have any problem at this point with a message such as:
-
-    An error occurred while collecting items to be installed
-     No repository found containing:
-      org.python.pydev/osgi.bundle/1.4.7.2843
-     No repository found containing:
-      org.python.pydev.ast/osgi.bundle/1.4.7.2843
-
-that might indicate that the mirror you selected is having some network
-problem at that time, so, please retry it later on (possibly with a direct
-URL such as in the **Unable to load repository** tip above).
-
 Installing with the zip file
 ============================
 
@@ -162,7 +125,7 @@ If it doesn't work, try restarting Eclipse with the **-clean** flag (if
 you're a regular user and installing with admin, make sure you call
 **-clean** logged in as admin, so that Eclipse finds out about it).
 
-If it's still not found, double check the requisites (such as the java
+If it's still not found, double check the requisites (such as the Java
 vm version).
 
 Checking the installation
@@ -171,47 +134,65 @@ Checking the installation
 You can verify if it is correctly installed going to the menu **'window
 > preferences'** and checking if there is a **PyDev** item under that.
 
-PyDev does not appear after install!
+Troubleshooting installation problems
 ======================================
+
+Unable to load repository
+----------------------------
+
+While most times things work as explained, some users may have messages such as:
+
+Unable to load the repository http://pydev.org/updates 
+
+Unknown Host: http://pydev.org/updates/content.xml 
+
+This means there's some issue accessing the update site in your current connection.
+
+In that case, you can try using a direct URL for the download (all the http://pydev.org/updates/
+URLs are actually redirects to the final location). Currently, those redirects
+point to links on http://bintray.com, so, you can visit the related update
+site page (such as http://pydev.org/updates) in a browser and see to 
+where it's being redirected (you may want to try that direct link with 
+**http** or **https** to see if it makes a difference in your use case).
+
+Possible issue on download
+----------------------------
+
+If you have any problem at this point with a message such as:
+
+    An error occurred while collecting items to be installed
+     No repository found containing:
+      org.python.pydev/osgi.bundle/1.4.7.2843
+     No repository found containing:
+      org.python.pydev.ast/osgi.bundle/1.4.7.2843
+
+that might indicate that the mirror you selected is having some network
+problem at that time, so, please retry it later on (possibly with a direct
+URL such as in the **Unable to load repository** tip above).
+
+PyDev does not appear after install!
+---------------------------------------
 
 Well, the main issue at this time is that PyDev requires Java 8 in order to run.
  
 **Tip**: LiClipse (which is mostly a PyDev standalone plus some goodies) is pre-configured 
 so that none of the hassle of installing PyDev into Eclipse nor any pre-requisite is needed ;)
 
-All OSes
----------
-If you don't have java 8, make sure you download/install the latest Java 8 JRE or JDK, try restarting to see if it got it automatically.
+Java 8 requisite
+~~~~~~~~~~~~~~~~~~~~
+If you don't have Java 8, make sure you download/install the latest Java 8 JRE or JDK, try restarting to see if it got it automatically.
 
-I.e.: in **help > about > installation details > configuration** check if it's actually using the java 8 version you pointed at.
+I.e.: in **help > about > installation details > configuration** check if it's actually using the Java 8 version you pointed at.
 
 If it didn't get it automatically, follow the instructions from:
 
-http://wiki.eclipse.org/Eclipse.ini to add the -vm argument to eclipse.ini on "Specifying the JVM" to specify the java 8 vm.
+http://wiki.eclipse.org/Eclipse.ini to add the -vm argument to eclipse.ini on "Specifying the JVM" to specify the Java 8 vm.
 
 **Note on Mac OS**: You can use the command "/usr/libexec/java_home -v 1.8" to get the base path for the JVM (though you also need to append "/bin/java" to the output of said command to the -vm arg in eclipse.ini).
 
 
-Uninstalling
-============
-
-Follow the instructons below if at any time you wish to stop using the
-PyDev plugin (or any other Eclipse plugin):
-
-**Eclipse 3.5 onwards**
-
-If you installed with the update site, go to the menu **help > about >
-installation details** then on the **Installed Software** tab, select the plugins you want to uninstall
-and click **Uninstall**.
-
-If you installed with the zip file, just remove the com.python.pydev and
-org.python.pydev features and plugins from the dropins folder.
-
-Common Install Problems
-=======================
-
 Corrupted install
-=================
+----------------------------
 
 Eclipse sometimes is not able to correctly get the plugin, from the
 update site but will do no checking on whether it is really correct (no md5 checking), and when this
@@ -247,6 +228,22 @@ the editor's class name was mistyped in plugin.xml.
      at
     org.eclipse.osgi.framework.internal.core.BundleLoader.loadClass(BundleLoader.java:275)
      ...
+
+
+Uninstalling
+==============
+
+Follow the instructons below if at any time you wish to stop using the
+PyDev plugin (or any other Eclipse plugin):
+
+**Eclipse 3.5 onwards**
+
+If you installed with the update site, go to the menu **help > about >
+installation details** then on the **Installed Software** tab, select the plugins you want to uninstall
+and click **Uninstall**.
+
+If you installed with the zip file, just remove the com.python.pydev and
+org.python.pydev features and plugins from the dropins folder.
 
 
 .. |image0| image:: images/install_menu.png

@@ -1,6 +1,6 @@
 ..
     <right_area>
-    <h3>'Quick Install':</h3>
+    <h3>Quick Install</h3>
 
     <p><strong>LiClipse</strong> </p>
 
@@ -31,13 +31,7 @@
 
     <p><strong>Zip File</strong></p>
 
-    <p>An alternative is just getting the zip file and extracting it yourself in eclipse.</p>
-
-    <p>For <strong>Eclipse 3.4 onwards</strong>, you can extract it in the '<strong>dropins</strong>' folder (and restart Eclipse).</p>
-
-    <p>For <strong>Eclipse 3.2 and 3.3</strong>, you have to make sure the plugins folder
-    is extracted on top of the Eclipse plugins folder and <strong>restart with '-clean'</strong>.</p>
-
+    <p>An alternative is just getting the zip file and extracting it yourself in the eclipse <strong>dropins</strong> (and restart Eclipse).</p>
 
     </right_area>
     <image_area>download.png</image_area>
@@ -64,10 +58,18 @@ it provides support for those languages (among others such as C++, CoffeScript, 
 with theming support -- which is especially nice for dark themes -- if you're into it :)
 
 
-Requirements
-============
+Install as Plugin
+=====================
 
--  `Java <http://www.javasoft.com/>`_ 8: **Important**: If you don't have java 8, the update process may appear to succeed, but PyDev will simply not show in the target installation. See `PyDev does not appear after install!`_ below for details on how to fix that.
+If you wish to install PyDev as a plugin in an existing Eclipse installation, make
+sure you meet the requirements below and follow the **Quick Install** from the right-bar
+(or follow the step-by-step from `Getting Started Guide > Install <manual_101_install.html>`_).
+
+Requirements
+-----------------
+
+- `Java <http://www.javasoft.com/>`_ 8: **Important**: If you don't have java 8, the update process may appear to succeed, 
+  but PyDev will simply not show in the target installation. See `Getting Started Guide > Install <manual_101_install.html>`_ for troubleshooting.
 
 At least one of:
 
@@ -90,44 +92,29 @@ around 45-50 MB), and `Jython <http://www.jython.org/>`_ also requires
 
 
 Requirements for Profiling
-===========================
+---------------------------
 
 To profile your programs, `PyVmMonitor <http://www.pyvmmonitor.com/>`_ is required and integrated through the
 profile view inside PyDev (window > show view > other > PyDev > profile).
 
-PyDev does not appear after install!
-======================================
+Troubleshooting install problems
+--------------------------------------
 
-Well, the main issue at this time is that PyDev requires Java 8 in order to run. So, if you don't want to support PyDev by
-going the LiClipse route (which is mostly a PyDev standalone plus some goodies), you may have to go through some loops to
-make sure that you're actually using Java 8 to run Eclipse/PyDev (as explained below).
+To troubleshoot install problems, please visit the `Getting Started Guide > Install <manual_101_install.html>`_ page.
 
-All OSes
----------
-Make sure you download/install the latest Java 8 JRE or JDK, try restarting to see if it got it automatically.
+Need to use older Eclipse/Java/Python
+--------------------------------------
 
-I.e.: in **help > about > installation details > configuration** check if it's actually using the java 8 version you pointed at.
-
-If it didn't get it automatically, follow the instructions from:
-
-http://wiki.eclipse.org/Eclipse.ini to add the -vm argument to eclipse.ini on "Specifying the JVM" to specify the java 8 vm (this should also be used in case you just extracted java and didn't override the default system installation).
-
-**Note on Mac OS**: You can use the command "/usr/libexec/java_home -v 1.8" to get the base path for the JVM (though you also need to append "/bin/java" to the output of said command to the -vm arg in eclipse.ini).
-
-Need to use older Eclipse/Java
-================================
-
-If you need to use an older version of Eclipse/Java, below is the latest PyDev version to be used based on your requisites.
+If you need to use an older version of Eclipse/Java/Python, below is the latest PyDev version to be used based on your requisites.
 
 - Eclipse 4.5, Java 8: PyDev 5.2.0
 - Eclipse 3.8, Java 7: PyDev 4.5.5
 - Eclipse 3.x, Java 6: PyDev 2.8.2
-
-- Note: PyDev 5.6.0 only supports Python 2.6 onwards.
+- Python 2.5 or older: PyDev 5.5.0
 
 
 URLs for PyDev as Eclipse plugin
-================================
+----------------------------------
 
 Urls to use when updating with the Eclipse update manager:
 
@@ -144,7 +131,7 @@ Browse other versions **(open in browser to select URL for Eclipse)**:
 -  `http://www.pydev.org/update_sites <http://www.pydev.org/update_sites>`_
 
 Get zip releases
-================
+------------------
 
 -  `SourceForge
    download <http://sourceforge.net/projects/pydev/files/>`_
