@@ -16,15 +16,15 @@ features available. For more details check the `Features Matrix`_.
 
 
 
-Code Analysis
-----------------
+Code Analysis (Eclipse classic theme)
+---------------------------------------
 
 .. image:: images/screenshot/screenshot_code_analysis.png
    :class: snap
    
    
-Create through TDD actions (ctrl+1)
-------------------------------------
+Create through TDD actions (ctrl+1) -- with LiClipse dark theme
+---------------------------------------------------------------
 
 .. image:: images/screenshot/screenshot_create_robot.png
    :class: snap

@@ -3,15 +3,15 @@
 <div id="Content" style="padding: 5px;">
 <div>
 <ul>
-    <li><a href='#PyDevFAQ-HowdoIReportaBUG%3F'>How do I Report a BUG?</a></li>
-    <li><a href='#PyDevFAQ-HowdoIReportaFeatureRequest%3F'>How do I Report a Feature Request?</a></li>
+    <li><a href='#HowdoIReportaBUG'>How do I Report a BUG?</a></li>
+    <li><a href='#HowdoIReportaFeatureRequest'>How do I Report a Feature Request?</a></li>
     <li><a href='#PyDevFAQ-IhavesomedoubtIcouldn%27tfindintheFAQ%2CwhatdoIdo%3F'>I have some doubt I couldn't find in the FAQ, what do I do?</a></li>
     <li><a href='#PyDevFAQ-HowdoIgetstartedwithPyDev%3F'>How do I get started with PyDev?</a></li>
     <li><a href='#PyDevFAQ-CanIhaveEclipseinstalledanywheretousePyDev%3F'>Can I have Eclipse installed anywhere to use PyDev?</a></li>
     <li><a href='#ImportExistingSources'>How do I import existing projects/sources into PyDev?</a></li>
     <li><a href='#ImportExistingDjangoSources'>How do I import existing projects/sources for a Django project into PyDev?</a></li>
     <li><a href='#PyDevFAQ-HowdoIconfiguremyPYTHONPATH%3F'>How do I configure my PYTHONPATH?</a></li>
-    <li><a href='#PyDevFAQ-WhenIdoacodecompletion%2CPyDevhangs%2CwhatcanIdo%3F'>When I do a code-completion, PyDev hangs, what can I do?</a></li>
+    <li><a href='#HowToFixCodeCompletion'>The code completion doesn't seem to be working properly. What do I do?</a></li>
     <li><a href='#PyDevFAQ-Whyrawinput%28%29%2Finput%28%29doesnotworkcorrectlyinPyDev%3F'>Why raw_input() / input() does not work correctly in PyDev?</a></li>
     <li><a href='#PyDevFAQ-Mytodotasksarenotshowing%2Cistheresomethingwrong%3F'>My todo-tasks are not showing, is there something wrong?</a></li>
     <li><a href='#PyDevFAQ-SomekeybindingsCtrl%5C09%5Cdon%27tworkunderUbuntu.WhatcanIdoaboutit%3F'>Some keybindings Ctrl+[0-9] don't work under Ubuntu. What can I do about it?</a></li>
@@ -33,16 +33,16 @@
     <li><a href='#PyDevFAQ-HowdoIuninstallPyDev'>How do I uninstall PyDev</a></li>
 </ul></div>
 
-<h2><a name="PyDevFAQ-HowdoIReportaBUG%3F"></a>How do I Report a BUG?</h2>
+<h2><a name="PyDevFAQ-HowdoIReportaBUG%3F"></a><a name="HowdoIReportaBUG"></a>How do I Report a BUG?</h2>
 
 <p>The place to search and report BUGS is at <a href="https://www.brainwy.com/" class="external-link">https://www.brainwy.com/</a></p>
 
 <p>When reporting a bug, the following information must be given:</p>
 
 <p>&#45; System (e.g windows XP)<br/>
-&#45; Eclipse version (e.g. 3.5)<br/>
-&#45; PyDev version (e.g. 1.5.1)<br/>
-&#45; PyDev <b>error log</b> (if any): go to <b>window &gt; show view &gt; other &gt; PDE Runtime &gt; Error log</b>. (if you have the SDK installed, otherwise, you have to find the log file at <b>your_workspace/.metadata/.log</b>)<br/>
+&#45; Eclipse version (e.g. 4.6)<br/>
+&#45; PyDev version (e.g. 5.6.0)<br/>
+&#45; PyDev <b>error log</b> (if any): go to <b>Window &gt; Show view &gt; Other &gt; General &gt; Error Log</b>. (if you have the SDK installed, otherwise, you have to find the log file at <b>your_workspace/.metadata/.log</b>)<br/>
 &#45; Eclipse install location (e.g. D:\eclipse_3\352\eclipse)<br/>
 &#45; Project location where the bug appears (e.g. D:\eclipse\workspace\my project)<br/>
 &#45; What were you doing when the bug appeared</p>
@@ -68,7 +68,7 @@
 
 
 
-<h2><a name="PyDevFAQ-HowdoIReportaFeatureRequest%3F"></a>How do I Report a Feature Request?</h2>
+<h2><a name="HowdoIReportaFeatureRequest"><a name="PyDevFAQ-HowdoIReportaFeatureRequest%3F"></a>How do I Report a Feature Request?</h2>
 
 <p>Do it <a href="https://www.brainwy.com/" class="external-link">here (it's the same tracker used for bugs)</a> </p>
 
@@ -122,7 +122,7 @@
 <br/>
 <br/>
 <p>     <b>Note on links</b>: <b>links</b> can be used <b>above the source folder</b> or <b>as the source folder</b>, but 
-     <b>never inside a source folder</b>, as it's not supported by PyDev)</p>
+     <b>never inside a source folder</b>, as it's not supported by PyDev.</p>
 
 
 <br/>
@@ -195,23 +195,26 @@
 
 
 
-<h2><a name="PyDevFAQ-WhenIdoacodecompletion%2CPyDevhangs%2CwhatcanIdo%3F"></a>When I do a code-completion, PyDev hangs, what can I do?</h2>
+<h2><a name="HowToFixCodeCompletion"></a><a name="PyDevFAQ-WhenIdoacodecompletion%2CPyDevhangs%2CwhatcanIdo%3F"></a>The code completion doesn't seem to be working properly. What do I do?</h2>
 
-<p>PyDev does most of its things in the java side, but some information can only be gotten from the python side (mainly builtins), so, in order to get that info, PyDev creates a shell and communicates with it through sockets.</p>
+<p>PyDev does most of its things in the Java side, but some information can only be gotten from the python side (mainly builtins), so, in order to get that info, PyDev creates a shell and communicates with it through sockets.</p>
 
-<p>The main problems when that happens are:</p>
+<p>So, if the code-completion for a library isn't working, it's possible to ask it to be analyzed through that shell too (See the <a href="manual_101_interpreter.html#PyDevInterpreterConfiguration-ForcedBuiltins">Forced builtins</a> for details on configuring a library to be analyzed through the shell).</p>
 
-<p>1. There's a firewall blocking the communication to the shell</p>
+<p>Now, it's possible that there's some issue in creating/communicating to such a shell. The main problems when that happens are:</p>
 
-<p>2. In Linux, some kernels do not allow ipv4 utilization, which may make PyDev fail.</p>
+<p><b>1.</b> There's a firewall blocking the communication to the shell.</p>
+
+<p><b>2.</b> In Linux, some kernels do not allow ipv4 utilization, which may make PyDev fail.</p>
 
 <p>To enable it, do: echo 0 &gt; /proc/sys/net/ipv6/bindv6only</p>
 
-<p>3. The timeout to connect is too smal.</p>
+<p><b>3.</b> The timeout to connect is too smal.</p>
 
-<p>It depends upon the "Timeout to connect to shell" in the code-completion preferences  (window &gt; preferences &gt; PyDev &gt; Code completion)</p>
+<p>It depends upon the "Timeout to connect to shell" in the code-completion preferences  (Window &gt; Preferences &gt; PyDev &gt; Editor &gt; Code completion)</p>
 
-<p>If nothing works, please report a bug (also, check if there is anything on the error log (window &gt; show view &gt; PDE Runtime &gt; Error log) and on the eclipse '.log', which is located at the .metadata folder of the workspace location.</p>
+<p>If nothing works, please report a bug (also, check if there is anything on the error log (Window &gt; Show view &gt; &gt; Error log) and on the eclipse '.log',
+ which is located at the .metadata folder of the workspace location.</p>
 
 
 
@@ -219,7 +222,10 @@
 
 <h2><a name="PyDevFAQ-Whyrawinput%28%29%2Finput%28%29doesnotworkcorrectlyinPyDev%3F"></a>Why raw_input() / input() does not work correctly in PyDev?</h2>
 
-<p>The eclipse console is not an exact copy of a shell... one of  the changes is that when you press &lt;ENTER&gt; in a shell, it may give you a <b>\r, \n</b> or <b>\r\n</b> as an end-line char, depending on your platform.  Python does not expect this &#45;&#45; from the docs it says that it will remove the last <b>\n</b> (checked in version 2.4),  but, in some platforms that will leave a <b>\r</b> there.  This means that the <b>raw_input()</b> should usually be used as <b>raw_input().replace('\r', '')</b>,  and <b>input()</b> should be changed for: <b>eval(raw_input().replace('\r', ''))</b>. </p>
+<p>The eclipse console is not an exact copy of a shell... one of  the changes is that when you press &lt;ENTER&gt; in a shell, it may give you a <b>\r, \n</b> or <b>\r\n</b> as an end-line char, 
+depending on your platform.  Python does not expect this &#45;&#45; from the docs it says that it will remove the last <b>\n</b> (checked in version 2.4),  
+but, in some platforms that will leave a <b>\r</b> there.  This means that the <b>raw_input()</b> should usually be used as <b>raw_input().replace('\r', '')</b>,  and <b>input()</b> 
+should be changed for: <b>eval(raw_input().replace('\r', ''))</b>. </p>
 
 
 
@@ -276,7 +282,7 @@
 <h2><a name="PyDevFAQ-ThePyDevbuilderistakingtoomuchofmytime%2CwhatcanIdoaboutit%3F"></a>The PyDev builder is taking too much of my time, what can I do about it?</h2>
 
 <p>Well, if you have PyLint active, you can disable it, as it is the process that takes most time when building.<br/>
-Another alternative is disabling the builder altogether. To do it you can go to window &gt; preferences &gt; PyDev &gt; builder  and disable it.<br/>
+Another alternative is disabling the builder altogether. To do it you can go to Window &gt; Preferences &gt; PyDev &gt; builder  and disable it.<br/>
 NOTE: Disabling the builders may have many side-effects, such as code completion not working, pylint, tasks, etc. So, if you really want it, you can disable it, but do it with care.</p>
 
 
@@ -317,7 +323,7 @@ Also note that you have to open a python file with PyDev in the project before i
 <p>Well, you basically have to do a simple project and use create simple file / folder to create python modules.</p>
 
 <p>You may also have to associate the &#42;.py with the PyDev editor (even though that is probably automatic).<br/>
-Anyway, if you need it, go to window &gt; preferences &gt; workbench &gt; file associations and associate &#42;.py with PyDev.</p>
+Anyway, if you need it, go to Window &gt; Preferences &gt; workbench &gt; file associations and associate &#42;.py with PyDev.</p>
 
 <p>p.s. Don't forget to put it into both of your PYTHONPATHs (enviroment and in the project properties).</p>
 

@@ -4,10 +4,6 @@ Configuring Eclipse to suit your needs
 Well, Eclipse has lots of things you can configure, and below are some
 things that really make a difference...
 
-Actually, there is only 1 tip currently, but I intend to make it grow
-with the questions I receive about it, now that I have a good place to
-put those :)
-
 Configuring auto-refresh
 ========================
 
@@ -24,9 +20,14 @@ workspace** and check the **refresh using native hooks or polling** and **refres
 being deleted, as PyDev will only acknowledge that the .pyc file exists
 on a refresh.
 
+Note: This is automatically done in LiClipse
+
 Set workspace to be utf-8 
 ==========================
 
 The default encoding is possibly not utf-8 (depending on your OS, it can be cp1252, ascii, etc),
 so, the suggestion is setting the default encoding to utf-8 in **window > preferences > general > workspace > text file encoding** 
 (and you may also want to change the new line delimiter to be unix style on Mac and Windows in that same page).
+
+Note: This is automatically done in LiClipse
+
