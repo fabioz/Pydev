@@ -19,6 +19,7 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.TextSelection;
 import org.python.pydev.core.docutils.PyDocIterator;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.PySelection.DocstringInfo;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.docutils.PySelection.TddPossibleMatches;
 import org.python.pydev.core.docutils.PythonPairMatcher;
@@ -897,5 +898,34 @@ public class PySelectionTest extends TestCase {
 
         // Python 3.6 numbers allow _ (underscore) for readability
         assertTrue(PySelection.isCompletionForLiteralNumber("1_1."));
+    }
+
+    public void testGetDocstringFromLine() throws BadLocationException {
+        doc = new Document("def m1():\n    'docstring'");
+        ps = new PySelection(doc);
+        DocstringInfo docstringFromLine = ps.getDocstringFromLine(1);
+        assertEquals("DocstringInfo [startLiteralOffset=14, endLiteralOffset=25, string='docstring']",
+                docstringFromLine.toString());
+        assertEquals(11, docstringFromLine.getLength());
+        assertEquals("'docstring'",
+                doc.get(docstringFromLine.startLiteralOffset, docstringFromLine.getLength()));
+    }
+
+    public void testGetDocstringFromLine2() throws BadLocationException {
+        doc = new Document("def m1():\n    '''docstring\n    '''");
+        ps = new PySelection(doc);
+        DocstringInfo docstringFromLine = ps.getDocstringFromLine(1);
+        assertEquals("DocstringInfo [startLiteralOffset=14, endLiteralOffset=34, string='''docstring\n" +
+                "    ''']",
+                docstringFromLine.toString());
+        assertEquals("'''docstring\n    '''",
+                doc.get(docstringFromLine.startLiteralOffset, docstringFromLine.getLength()));
+    }
+
+    public void testGetDocstringFromLineInvalid() {
+        doc = new Document("def m1():\n    '''docstring\n    ''");
+        ps = new PySelection(doc);
+        DocstringInfo docstringFromLine = ps.getDocstringFromLine(1);
+        assertNull(docstringFromLine);
     }
 }

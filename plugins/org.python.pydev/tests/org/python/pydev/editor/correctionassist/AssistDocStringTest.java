@@ -6,9 +6,8 @@
  */
 package org.python.pydev.editor.correctionassist;
 
+import java.util.Arrays;
 import java.util.List;
-
-import junit.framework.TestCase;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
@@ -18,6 +17,8 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.correctionassist.docstrings.AssistDocString;
 import org.python.pydev.shared_core.string.StringUtils;
+
+import junit.framework.TestCase;
 
 public class AssistDocStringTest extends TestCase {
 
@@ -191,6 +192,25 @@ public class AssistDocStringTest extends TestCase {
 
     }
 
+    public void testApplyOnExisting() throws Exception {
+        String expected, initial;
+        initial = "def foo(a, b): #comment\r\n" +
+                "    '''\r\n" +
+                "    \r\n" +
+                "    @param a: var a\r\n" +
+                "    @type a:\r\n" +
+                "    '''";
+        expected = "def foo(a, b): #comment\r\n" +
+                "    '''\r\n" +
+                "    \r\n" +
+                "    @param a: var a\r\n" +
+                "    @type a:\r\n" +
+                "    @param b:\r\n" +
+                "    @type b:\r\n" +
+                "    '''";
+        check(expected, initial);
+    }
+
     private void check(String expected, String initial) throws BadLocationException {
         check(expected, initial, 1);
     }
@@ -215,4 +235,143 @@ public class AssistDocStringTest extends TestCase {
         }
     }
 
+    public void testUpdateDocstring() {
+        assertEquals("'''\n"
+                + "    test\n"
+                + "    :param a:\n"
+                + "    :type a:\n"
+                + "    '''", AssistDocString.updatedDocstring("'''test'''", Arrays.asList("a"), "\n", "    ", ":"));
+    }
+
+    public void testUpdateDocstring2() {
+        assertEquals("'''\n"
+                + "    :param a:\n"
+                + "    :type a:\n"
+                + "    :param test:\n"
+                + "    '''",
+                AssistDocString.updatedDocstring("''':param test:'''", Arrays.asList("a"), "\n", "    ", ":"));
+    }
+
+    public void testUpdateDocstring3() {
+        assertEquals("'''\n"
+                + "    :param a:\n"
+                + "    :type a:\n"
+                + "    :param test:\n"
+                + "    '''",
+                AssistDocString.updatedDocstring("'''\n"
+                        + "    :param test:\n"
+                        + "'''", Arrays.asList("a"), "\n", "    ", ":"));
+    }
+
+    public void testUpdateDocstring3a() {
+        assertEquals("'''\n"
+                + "    :param a:\n"
+                + "    :type a:\n"
+                + "    :param b:\n"
+                + "    :type b:\n"
+                + "    :param test:\n"
+                + "    '''",
+                AssistDocString.updatedDocstring("'''\n"
+                        + "    :param test:\n"
+                        + "'''", Arrays.asList("a", "b"), "\n", "    ", ":"));
+    }
+
+    public void testUpdateDocstring3b() {
+        assertEquals("'''\n"
+                + "    :param a:\n"
+                + "    :type a:\n"
+                + "    :param b:\n"
+                + "    :type b:\n"
+                + "    :param c:\n"
+                + "    :type c:\n"
+                + "    :param test:\n"
+                + "    '''",
+                AssistDocString.updatedDocstring("'''\n"
+                        + "    :param test:\n"
+                        + "'''", Arrays.asList("a", "b", "c"), "\n", "    ", ":"));
+    }
+
+    public void testUpdateDocstring3c() {
+        assertEquals("'''\n"
+                + "    :param a:\n"
+                + "    :type a:\n"
+                + "    :param b:\n"
+                + "    :type b:\n"
+                + "    :param c:\n"
+                + "    :type c:\n"
+                + "    :param test:\n"
+                + "    '''",
+                AssistDocString.updatedDocstring("'''\n"
+                        + "    :param b:\n"
+                        + "    :param test:\n"
+                        + "'''", Arrays.asList("a", "b", "c"), "\n", "    ", ":"));
+    }
+
+    public void testUpdateDocstring4() {
+        assertEquals("'''\n"
+                + "    :param test:\n"
+                + "    :param a:\n"
+                + "    :type a:\n"
+                + "    '''",
+                AssistDocString.updatedDocstring("'''\n"
+                        + "    :param test:\n"
+                        + "    :param a:\n"
+                        + "'''", Arrays.asList("a"), "\n", "    ", ":"));
+    }
+
+    public void testUpdateDocstring5() {
+        assertEquals("'''\n"
+                + "    :param a:\n"
+                + "    :type a:\n"
+                + "    :param test:\n"
+                + "    '''",
+                AssistDocString.updatedDocstring("'''\n"
+                        + "    :param a:\n"
+                        + "    :param test:\n"
+                        + "'''", Arrays.asList("a"), "\n", "    ", ":"));
+    }
+
+    public void testUpdateDocstring6() {
+        assertEquals("'''\n"
+                + "    :param a: var a\n"
+                + "    :type a:\n"
+                + "    :param b: var b\n"
+                + "    :type b:\n"
+                + "    :param test:\n"
+                + "    '''",
+                AssistDocString.updatedDocstring("'''\n"
+                        + "    :param a: var a\n"
+                        + "    :param b: var b\n"
+                        + "    :param test:\n"
+                        + "'''", Arrays.asList("a", "b"), "\n", "    ", ":"));
+    }
+
+    public void testUpdateDocstring7() {
+        assertEquals("'''\n"
+                + "    :param a:\n"
+                + "    :type a:\n"
+                + "    :param b:\n"
+                + "    :type b:\n"
+                + "    :param test:\n"
+                + "    '''",
+                AssistDocString.updatedDocstring("'''\n"
+                        + "    :param b:\n"
+                        + "    :param test:\n"
+                        + "'''", Arrays.asList("a", "b"), "\n", "    ", ":"));
+    }
+
+    public void testUpdateDocstring8() {
+        assertEquals("'''\n"
+                + "    :param a:\n"
+                + "    :type a:\n"
+                + "    :param b:\n"
+                + "    :type b:\n"
+                + "    :param test:\n"
+                + "    '''",
+                AssistDocString.updatedDocstring("'''\n"
+                        + "    :type a:\n"
+                        + "    :type b:\n"
+                        + "    :param test:\n"
+                        + "'''", Arrays.asList("a", "b"), "\n", "    ", ":"));
+    }
 }

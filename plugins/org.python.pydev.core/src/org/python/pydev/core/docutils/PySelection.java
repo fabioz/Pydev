@@ -1496,4 +1496,52 @@ public final class PySelection extends TextSelectionUtils {
         return true;
     }
 
+    public static final class DocstringInfo {
+
+        public final int startLiteralOffset;
+        public final int endLiteralOffset;
+        public final String string;
+
+        public DocstringInfo(int startLiteralOffset, int endLiteralOffset, String string) {
+            this.startLiteralOffset = startLiteralOffset;
+            this.endLiteralOffset = endLiteralOffset;
+            this.string = string;
+        }
+
+        @Override
+        public String toString() {
+            return "DocstringInfo [startLiteralOffset=" + startLiteralOffset + ", endLiteralOffset=" + endLiteralOffset
+                    + ", string=" + string + "]";
+        }
+
+        public int getLength() {
+            return endLiteralOffset - startLiteralOffset;
+        }
+    }
+
+    public DocstringInfo getDocstringFromLine(int line) {
+        try {
+            String lineText = this.getLine(line);
+            String trimmed = lineText.trim();
+            char c = '\0';
+            if (trimmed.startsWith("\"")) {
+                c = '"';
+            } else if (trimmed.startsWith("'")) {
+                c = '\'';
+            } else {
+                return null;
+            }
+
+            ParsingUtils parsingUtils = ParsingUtils.create(getDoc(), true);
+            int offset = getDoc().getLineInformation(line).getOffset();
+            int startLiteralOffset = parsingUtils.findNextChar(offset, c);
+            FastStringBuffer buf = new FastStringBuffer();
+            int endLiteralOffset = parsingUtils.eatLiterals(buf, startLiteralOffset) + 1;
+            return new DocstringInfo(startLiteralOffset, endLiteralOffset, buf.toString());
+        } catch (BadLocationException | SyntaxErrorException e) {
+            return null;
+        }
+
+    }
+
 }

@@ -9,9 +9,9 @@ package org.python.pydev.core.structure;
 import java.util.HashSet;
 import java.util.Set;
 
-import junit.framework.TestCase;
-
 import org.python.pydev.shared_core.string.FastStringBuffer;
+
+import junit.framework.TestCase;
 
 public class FastStringBufferTest extends TestCase {
 
@@ -218,20 +218,55 @@ public class FastStringBufferTest extends TestCase {
         FastStringBuffer buf = new FastStringBuffer("", 0);
         buf.rightTrim();
         assertEquals("", buf.toString());
+
         buf = new FastStringBuffer("   ", 0);
         buf.rightTrim();
         assertEquals("", buf.toString());
+
         buf = new FastStringBuffer("foo", 0);
         buf.rightTrim();
         assertEquals("foo", buf.toString());
+
         buf = new FastStringBuffer("foo   ", 0);
         buf.rightTrim();
         assertEquals("foo", buf.toString());
+
         buf = new FastStringBuffer("foo bar", 0);
         buf.rightTrim();
         assertEquals("foo bar", buf.toString());
+
         buf = new FastStringBuffer("foo bar   ", 0);
         buf.rightTrim();
+        assertEquals("foo bar", buf.toString());
+    }
+
+    public void testLeftTrim() throws Exception {
+        FastStringBuffer buf = new FastStringBuffer("", 0);
+        buf.leftTrim();
+        assertEquals("", buf.toString());
+
+        buf = new FastStringBuffer(" ", 0);
+        buf.leftTrim();
+        assertEquals("", buf.toString());
+
+        buf = new FastStringBuffer("foo", 0);
+        buf.leftTrim();
+        assertEquals("foo", buf.toString());
+
+        buf = new FastStringBuffer("foo   ", 0);
+        buf.leftTrim();
+        assertEquals("foo   ", buf.toString());
+
+        buf = new FastStringBuffer("   foo", 0);
+        buf.leftTrim();
+        assertEquals("foo", buf.toString());
+
+        buf = new FastStringBuffer("foo bar", 0);
+        buf.leftTrim();
+        assertEquals("foo bar", buf.toString());
+
+        buf = new FastStringBuffer("  \t foo bar", 0);
+        buf.leftTrim();
         assertEquals("foo bar", buf.toString());
     }
 
