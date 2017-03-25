@@ -20,8 +20,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.TestCase;
-
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.log.Log;
@@ -31,6 +29,8 @@ import org.python.pydev.runners.SimpleJythonRunner;
 import org.python.pydev.runners.SimpleRunner;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
+
+import junit.framework.TestCase;
 
 public class JythonTest extends TestCase {
 
@@ -88,12 +88,15 @@ public class JythonTest extends TestCase {
             interpreter.setErr(stdErr);
             interpreter.setOut(stdOut);
 
-            List<Throwable> errors = JythonPlugin.execAll(locals, "test", interpreter,
-                    foldersWithTestContentsOnSameProcess, additionalPythonpathFolders);
+            for (File f : foldersWithTestContentsOnSameProcess) {
+                System.out.println("\n\nRunning tests from dir: " + f);
+                List<Throwable> errors = JythonPlugin.execAll(locals, "test", interpreter,
+                        new File[] { f }, additionalPythonpathFolders);
 
-            System.out.println(stdOut);
-            System.out.println(stdErr);
-            failIfErrorsRaised(errors, stdErr);
+                System.out.println(stdOut);
+                System.out.println(stdErr);
+                failIfErrorsRaised(errors, stdErr);
+            }
         }
     }
 
