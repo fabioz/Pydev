@@ -66,6 +66,7 @@ import org.python.pydev.parser.jython.ast.For;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Return;
 import org.python.pydev.parser.jython.ast.Yield;
@@ -80,6 +81,7 @@ import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.structure.FastStack;
 import org.python.pydev.shared_core.structure.ImmutableTuple;
 import org.python.pydev.shared_core.structure.LowMemoryArrayList;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -1221,8 +1223,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                 if (!(iDefinition instanceof AssignDefinition) && iDefinition instanceof Definition) {
                     Definition definition = (Definition) iDefinition;
                     if (definition.ast != null) {
-                        IToken[] ret = getCompletionsUnpackingAST(definition.ast,
-                                definition.module, state, unpackPos);
+                        IToken[] ret = getCompletionsUnpackingAST(definition, state, unpackPos);
                         if (ret != null && ret.length > 0) {
                             return ret;
                         }
@@ -1324,14 +1325,54 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                         //x = SomeClass()
                         //for a in x:
                         //    a.
-                        IToken[] ret = getCompletionsUnpackingAST(definition.ast, definition.module, state,
-                                unpackPos);
+                        IToken[] ret = getCompletionsUnpackingAST(definition, state, unpackPos);
                         if (ret != null && ret.length > 0) {
                             return ret;
                         }
                     }
                 }
             }
+        }
+        return null;
+    }
+
+    private IToken[] getCompletionsUnpackingAST(IDefinition definition, ICompletionState state, UnpackInfo unpackPos)
+            throws CompletionRecursionException {
+        if (definition instanceof Definition) {
+            Definition definition2 = (Definition) definition;
+            SimpleNode ast = definition2.ast;
+            if (ast instanceof Name) {
+                Name name = (Name) ast;
+                // Found it as a parameter.
+                if (name.ctx == Name.Param) {
+                    if (definition2.scope != null) {
+                        FastStack scopeStack = definition2.scope.getScopeStack();
+                        if (scopeStack.size() > 0) {
+                            Object peek = scopeStack.peek();
+                            if (peek instanceof FunctionDef) {
+                                String typeForParameterFromDocstring = NodeUtils
+                                        .getTypeForParameterFromDocstring(name.id, (FunctionDef) peek);
+                                if (typeForParameterFromDocstring != null) {
+                                    String unpackedTypeFromDocstring = NodeUtils
+                                            .getUnpackedTypeFromTypeDocstring(typeForParameterFromDocstring, unpackPos);
+                                    if (unpackedTypeFromDocstring != null) {
+                                        ICompletionState copyWithActTok = state
+                                                .getCopyWithActTok(unpackedTypeFromDocstring);
+                                        copyWithActTok.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
+                                        IToken[] completionsForModule = getCompletionsForModule(
+                                                ((Definition) definition).module,
+                                                copyWithActTok);
+                                        if (completionsForModule.length > 0) {
+                                            return completionsForModule;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return getCompletionsUnpackingAST(definition2.ast, definition2.module, state, unpackPos);
         }
         return null;
     }

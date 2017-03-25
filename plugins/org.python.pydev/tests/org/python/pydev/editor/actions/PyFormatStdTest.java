@@ -11,14 +11,14 @@
  */
 package org.python.pydev.editor.actions;
 
-import junit.framework.TestCase;
-
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.string.StringUtils;
+
+import junit.framework.TestCase;
 
 /**
  * @author Fabio Zadrozny
@@ -1275,33 +1275,27 @@ public class PyFormatStdTest extends TestCase {
         String input = "" +
                 "class Foo:\n" +
                 "    '''Class docstring   '''\n" +
-                "    def __init__(self):\n"
-                +
+                "    def __init__(self):\n" +
                 "        '''   \n" +
                 "        Method docstring   \n" +
-                "        \n"
-                +
+                "        \n" +
                 "        with multiple lines   \n" +
                 "        '''\n" +
-                "        print 'Some information   '\n"
-                +
+                "        print 'Some information   '\n" +
                 "        print '''More\n" +
                 "              information   \n" +
                 "              '''\n";
         String expected = "" +
                 "class Foo:\n" +
                 "    '''Class docstring   '''\n" +
-                "    def __init__(self):\n"
-                +
+                "    def __init__(self):\n" +
                 "        '''\n" +
                 "        Method docstring\n" +
                 "\n" +
-                "        with multiple lines\n"
-                +
+                "        with multiple lines\n" +
                 "        '''\n" +
                 "        print 'Some information   '\n" +
-                "        print '''More\n"
-                +
+                "        print '''More\n" +
                 "              information\n" +
                 "              '''\n";
 

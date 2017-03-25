@@ -495,7 +495,7 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
             for (int i = startPos; i <= lastPos; i++) {
                 char ch = charAt(i);
                 if (rightTrim && (ch == '\r' || ch == '\n')) {
-                    buf.rightTrim();
+                    buf.rightTrimWhitespacesAndTabs();
                 }
                 buf.append(ch);
             }

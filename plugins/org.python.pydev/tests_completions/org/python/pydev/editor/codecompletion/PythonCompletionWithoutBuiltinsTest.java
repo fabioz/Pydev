@@ -3121,4 +3121,23 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 
     }
 
+    public void testUnpackSelfAttr() throws Exception {
+        String s;
+        s = "class Toto(object):\n" +
+                "    def dummy(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "class Titi(object): \n" +
+                "    def __init__(self, l):\n" +
+                "        \"\"\"\n" +
+                "        :param list(Toto) l:\n" +
+                "        \"\"\"\n" +
+                "        self._l = l\n" +
+                "        \n" +
+                "        for p2 in self._l:\n" +
+                "            p2.";
+        requestCompl(s, s.length(), -1, new String[] { "dummy()" });
+
+    }
+
 }

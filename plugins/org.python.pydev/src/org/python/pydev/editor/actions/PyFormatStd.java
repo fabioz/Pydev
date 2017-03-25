@@ -635,7 +635,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
                             }
                         }
                         if (isExponential) {
-                            buf.rightTrim();
+                            buf.rightTrimWhitespacesAndTabs();
                             buf.append(c);
                             //skip the next whitespaces from the buffer
                             int initial = i;
@@ -704,7 +704,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
                             buf.deleteLast();
                         }
                         if (std.trimLines) {
-                            buf.rightTrim();
+                            buf.rightTrimWhitespacesAndTabs();
                         }
                     }
                     buf.append(c);
@@ -714,7 +714,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
 
         }
         if (parensLevel == 0 && std.trimLines) {
-            buf.rightTrim();
+            buf.rightTrimWhitespacesAndTabs();
         }
         return buf.toString();
     }
@@ -733,7 +733,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
                 //Ok, found a non-whitespace -- if it's not a new line, we're after some
                 //code, in which case we have to put the configured amount of spaces.
                 if (cj != '\r' && cj != '\n') {
-                    buf.rightTrim();
+                    buf.rightTrimWhitespacesAndTabs();
                     buf.appendN(' ', std.spacesBeforeComment);
                 }
                 break;
@@ -751,7 +751,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
                 endLine += tempBuf.lastChar();
                 tempBuf.deleteLast();
             }
-            tempBuf.rightTrim();
+            tempBuf.rightTrimWhitespacesAndTabs();
             tempBuf.append(endLine);
         }
 
