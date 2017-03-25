@@ -104,16 +104,23 @@ class AssignToAttribsOfSelf:
         return False
 
 
-    def _assignmentLines(self, endLineDelimiter, params, indent):
+    def _assignmentLines(self, endLineDelimiter, params, indent, contentsWithExistingAssigns):
         '''Assemble the python code lines for the assignments.
         
         @param params: The method parameters as a list of str, must 
                        start with 'self'.
         @param indent: The indentation of the assignment lines as a str.
         '''
-        sTempl = indent + "self.%(name)s = %(name)s"
-        ls = [sTempl % {'name':s.split('*')[-1]} for s in params[1:]]
-        return endLineDelimiter.join(ls)
+        sTempl = "self.%(name)s = %(name)s"
+        ls = []
+        found_assignments = []
+        for s in params[1:]:
+            assign = sTempl % {'name':s.split('*')[-1]}
+            if assign not in contentsWithExistingAssigns:
+                ls.append(indent + assign)
+            else:
+                found_assignments.append(assign)
+        return endLineDelimiter.join(ls), found_assignments
 
 
     def run(self):
@@ -169,11 +176,39 @@ class AssignToAttribsOfSelf:
         line = ps.getLine(iInsertAfterLine + 1)
         if line.strip() == 'pass':
             ps.deleteLine(iInsertAfterLine + 1)
+            
+        next_starting_scope = ps.getNextLineThatStartsScope(
+            ps.CLASS_AND_FUNC_TOKENS, iInsertAfterLine + 1, 99999)
+        if next_starting_scope is None:
+            search_until = iLastLine
+        else:
+            search_until = next_starting_scope.iLineStartingScope
+
+        contents = ps.getContentsFromLineRange(iInsertAfterLine + 1, search_until)        
 
         # Assemble assignment lines and insert them into the document:
-        sAssignments = self._assignmentLines(endLineDelimiter, lsParams, sIndent)
-        ps.addLine(sAssignments, iInsertAfterLine)
-
-        # Leave cursor at the last char of the new lines.
-        iNewOffset = ps.getLineOffset(iInsertAfterLine + 1) + len(sAssignments)
-        self.editor.setSelection(iNewOffset, 0)
+        sAssignments, found_assignments = self._assignmentLines(endLineDelimiter, lsParams, sIndent, contents)
+        if sAssignments:
+            line_to_skip = 0
+            if found_assignments:
+                for i, line in enumerate(contents.splitlines()):
+                    line = line.strip()
+                    if not line:
+                        continue
+                    
+                    found = False
+                    for f in found_assignments:
+                        if f in line:
+                            found = True
+                            line_to_skip = i + 1
+                            break
+                    
+                    if not found:
+                        break
+                    
+            iInsertAfterLine += line_to_skip
+            ps.addLine(sAssignments, iInsertAfterLine)
+    
+            # Leave cursor at the last char of the new lines.
+            iNewOffset = ps.getLineOffset(iInsertAfterLine + 1) + len(sAssignments)
+            self.editor.setSelection(iNewOffset, 0)
