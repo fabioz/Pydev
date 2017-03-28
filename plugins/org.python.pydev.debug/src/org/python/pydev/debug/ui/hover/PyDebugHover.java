@@ -34,11 +34,28 @@ public class PyDebugHover extends AbstractPyEditorTextHover {
 
     public static String ID = "org.python.pydev.debug.ui.hover.PyDebugHover";
 
+    @Override
+    public String getHoverInfo(ITextViewer textViewer, IRegion hoverRegion) {
+        Object hoverInfo = getHoverInfo2(textViewer, hoverRegion);
+        if (hoverInfo instanceof String) {
+            return hoverInfo.toString();
+        }
+        if (hoverInfo instanceof IValue) {
+            IValue iValue = (IValue) hoverInfo;
+            try {
+                return iValue.getValueString();
+            } catch (DebugException e) {
+                Log.log(e);
+            }
+        }
+        return null;
+    }
+
     /**
      * Gets the value from the debugger for the currently hovered string.
      */
     @Override
-    public String getHoverInfo(final ITextViewer textViewer, IRegion hoverRegion) {
+    public Object getHoverInfo2(final ITextViewer textViewer, IRegion hoverRegion) {
         if (!PyHoverPreferencesPage.getShowValuesWhileDebuggingOnHover()) {
             return null;
         }
@@ -108,7 +125,7 @@ public class PyDebugHover extends AbstractPyEditorTextHover {
                                 return null;
                             }
                         }
-                        return valueString + "\n";
+                        return value;
                     }
                 } catch (DebugException e) {
                     Log.log(e);

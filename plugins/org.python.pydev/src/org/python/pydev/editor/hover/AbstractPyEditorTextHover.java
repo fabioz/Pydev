@@ -135,9 +135,9 @@ public abstract class AbstractPyEditorTextHover implements ITextHover, ITextHove
      * @since 3.4
      */
     @Override
-    @SuppressWarnings("deprecation")
     public Object getHoverInfo2(ITextViewer textViewer, IRegion hoverRegion) {
-        return getHoverInfo(textViewer, hoverRegion);
+        Log.log("Error. getHoverInfo should no longer be called (getHoverInfo2) should be called instead).");
+        return null;
     }
 
     /**

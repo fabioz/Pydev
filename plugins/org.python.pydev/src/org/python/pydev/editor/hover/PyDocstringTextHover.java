@@ -50,6 +50,11 @@ public class PyDocstringTextHover extends AbstractPyEditorTextHover {
 
     @Override
     public String getHoverInfo(final ITextViewer textViewer, IRegion hoverRegion) {
+        return getHoverInfo2(textViewer, hoverRegion).toString();
+    }
+
+    @Override
+    public Object getHoverInfo2(ITextViewer textViewer, IRegion hoverRegion) {
         FastStringBuffer buf = new FastStringBuffer();
 
         if (textViewer instanceof PySourceViewer) {

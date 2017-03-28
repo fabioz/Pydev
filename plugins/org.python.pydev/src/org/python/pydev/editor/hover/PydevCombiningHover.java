@@ -30,6 +30,7 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.widgets.Display;
 import org.python.pydev.editor.PyInformationPresenter;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
 public class PydevCombiningHover extends AbstractPyEditorTextHover {
@@ -148,37 +149,41 @@ public class PydevCombiningHover extends AbstractPyEditorTextHover {
                     currentPriority = descr.getPriority();
                 }
                 if (descr.getPriority().equals(currentPriority) || !preempt) {
-                    @SuppressWarnings("deprecation")
-                    final String hoverText = hover.getHoverInfo(textViewer, hoverRegion);
-                    if (hoverText != null && hoverText.trim().length() > 0) {
-                        if (!firstHoverInfo && PyHoverPreferencesPage.getUseHoverDelimiters()) {
-                            buf.append(PyInformationPresenter.LINE_DELIM);
-                            viewer.getTextWidget().getDisplay().syncExec(new Runnable() {
+                    final Object hoverObj = hover.getHoverInfo2(textViewer, hoverRegion);
+                    if (hoverObj instanceof String) {
+                        String hoverText = (String) hoverObj;
+                        if (hoverText != null && hoverText.trim().length() > 0) {
+                            if (!firstHoverInfo && PyHoverPreferencesPage.getUseHoverDelimiters()) {
+                                buf.append(PyInformationPresenter.LINE_DELIM);
+                                viewer.getTextWidget().getDisplay().syncExec(new Runnable() {
+
+                                    @Override
+                                    public void run() {
+                                        if (hoverControlWidth != null) {
+                                            buf.append(createDivider(hoverControlWidth));
+                                        } else {
+                                            buf.append(createDivider(getMaxExtent(hoverText)));
+                                        }
+                                    }
+
+                                });
+                                buf.append(PyInformationPresenter.LINE_DELIM);
+                            } else if (buf.length() > 0) {
+                                buf.append(PyInformationPresenter.LINE_DELIM);
+                            }
+                            buf.append(hoverText);
+                            firstHoverInfo = false;
+                            viewer.getTextWidget().getDisplay().asyncExec(new Runnable() {
 
                                 @Override
                                 public void run() {
-                                    if (hoverControlWidth != null) {
-                                        buf.append(createDivider(hoverControlWidth));
-                                    } else {
-                                        buf.append(createDivider(getMaxExtent(hoverText)));
-                                    }
+                                    checkHoverControlWidth(hover);
                                 }
 
                             });
-                            buf.append(PyInformationPresenter.LINE_DELIM);
-                        } else if (buf.length() > 0) {
-                            buf.append(PyInformationPresenter.LINE_DELIM);
                         }
-                        buf.append(hoverText);
-                        firstHoverInfo = false;
-                        viewer.getTextWidget().getDisplay().asyncExec(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                checkHoverControlWidth(hover);
-                            }
-
-                        });
+                    } else {
+                        Log.log("TODO: Deal with hoverObj:" + hoverObj);
                     }
                 }
                 currentPriority = descr.getPriority();

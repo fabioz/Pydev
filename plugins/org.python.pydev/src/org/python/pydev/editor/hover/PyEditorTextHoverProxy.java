@@ -15,12 +15,13 @@ import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.ITextHoverExtension;
+import org.eclipse.jface.text.ITextHoverExtension2;
 import org.eclipse.jface.text.ITextViewer;
 
 /**
  * Proxy for PyDev editor Text Hovers.
  */
-public class PyEditorTextHoverProxy implements ITextHover, ITextHoverExtension {
+public class PyEditorTextHoverProxy implements ITextHover, ITextHoverExtension, ITextHoverExtension2 {
 
     private PyEditorTextHoverDescriptor fHoverDescriptor;
 
@@ -49,16 +50,23 @@ public class PyEditorTextHoverProxy implements ITextHover, ITextHoverExtension {
         return null;
     }
 
+    @Override
+    public Object getHoverInfo2(ITextViewer textViewer, IRegion hoverRegion) {
+        if (ensureHoverCreated() && fHover.isContentTypeSupported(this.contentType)) {
+            return fHover.getHoverInfo2(textViewer, hoverRegion);
+        }
+        return null;
+    }
+
     /*
      * @see ITextHover#getHoverInfo(ITextViewer, IRegion)
      */
-    @SuppressWarnings("deprecation")
     @Override
     public String getHoverInfo(ITextViewer textViewer, IRegion hoverRegion) {
-        if (ensureHoverCreated() && fHover.isContentTypeSupported(this.contentType)) {
-            return fHover.getHoverInfo(textViewer, hoverRegion);
+        Object ret = getHoverInfo2(textViewer, hoverRegion);
+        if (ret != null) {
+            return ret.toString();
         }
-
         return null;
     }
 
