@@ -86,6 +86,15 @@ public class ForceCodeAnalysisOnTree extends PyResourceAction implements IObject
         }
 
         PythonNature nature = PythonNature.getPythonNature(next);
+        forceCodeAnalysisOnFiles(nature, monitor, filesToVisit, filesVisited);
+        return 1;
+    }
+
+    public static void forceCodeAnalysisOnFiles(PythonNature nature, IProgressMonitor monitor, List<IFile> filesToVisit,
+            Set<IFile> filesVisited) {
+        if (nature == null) {
+            return;
+        }
         AnalysisBuilderVisitor visitor = new AnalysisBuilderVisitor();
         visitor.visitingWillStart(new NullProgressMonitor(), false, null);
         FastStringBuffer buf = new FastStringBuffer();
@@ -123,7 +132,6 @@ public class ForceCodeAnalysisOnTree extends PyResourceAction implements IObject
                     AnalysisBuilderRunnable.ANALYSIS_CAUSE_PARSER, documentTime, false);
         }
         visitor.visitingEnded(new NullProgressMonitor());
-        return 1;
     }
 
     /* (non-Javadoc)

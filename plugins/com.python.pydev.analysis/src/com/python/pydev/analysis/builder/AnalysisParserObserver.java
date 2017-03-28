@@ -36,12 +36,9 @@ import org.python.pydev.shared_core.parsing.IParserObserver;
 import org.python.pydev.shared_core.parsing.IParserObserver3;
 import org.python.pydev.shared_core.structure.Tuple;
 
-import com.python.pydev.analysis.AnalysisPreferences;
-import com.python.pydev.analysis.IAnalysisPreferences;
-
 /**
  * Observes changes to the parser and when OK, it'll ask for the analysis of the module reparsed.
- * 
+ *
  * @author Fabio
  */
 public class AnalysisParserObserver implements IParserObserver, IParserObserver3 {
@@ -126,27 +123,25 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver3
             }
         }
 
-        int whenAnalyze = new AnalysisPreferences(fileAdapter).getWhenAnalyze();
-        if (whenAnalyze == IAnalysisPreferences.ANALYZE_ON_SUCCESFUL_PARSE || force) {
+        // Note: whenever there's a successful reparse, analyze the files.
 
-            //create the module
-            final IPythonNature nature = PythonNature.getPythonNature(fileAdapter);
-            if (nature == null) {
-                return;
-            }
-
-            //don't analyze it if we're still not 'all set'
-            if (!nature.isOkToUse()) {
-                Job job = new AnalyzeLaterJob("Analyze later", info, root, fileAdapter, force, nature);
-                job.schedule(100);
-                return;
-            }
-
-            analyze(info, root, fileAdapter, force, nature, forceAnalyzeInThisThread);
+        // create the module
+        final IPythonNature nature = PythonNature.getPythonNature(fileAdapter);
+        if (nature == null) {
+            return;
         }
+
+        // don't analyze it if we're still not 'all set'
+        if (!nature.isOkToUse()) {
+            Job job = new AnalyzeLaterJob("Analyze later", info, root, fileAdapter, force, nature);
+            job.schedule(100);
+            return;
+        }
+
+        analyze(info, root, fileAdapter, force, nature, forceAnalyzeInThisThread);
     }
 
-    private void analyze(ChangedParserInfoForObservers info, SimpleNode root, IFile fileAdapter, boolean force,
+    private static void analyze(ChangedParserInfoForObservers info, SimpleNode root, IFile fileAdapter, boolean force,
             IPythonNature nature, boolean forceAnalyzeInThisThread) {
         if (!nature.startRequests()) {
             return;

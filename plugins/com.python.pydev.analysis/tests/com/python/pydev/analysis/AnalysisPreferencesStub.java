@@ -135,11 +135,6 @@ public final class AnalysisPreferencesStub extends AbstractAnalysisPreferences {
     }
 
     @Override
-    public int getWhenAnalyze() {
-        return IAnalysisPreferences.ANALYZE_ON_SUCCESFUL_PARSE;
-    }
-
-    @Override
     public IAdaptable getProjectAdaptable() {
         return null;
     }

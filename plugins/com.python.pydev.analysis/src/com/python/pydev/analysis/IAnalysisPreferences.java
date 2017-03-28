@@ -51,28 +51,10 @@ public interface IAnalysisPreferences {
     public static final String MSG_TO_IGNORE_TYPE_ARGUMENTS_MISATCH = "@ArgumentMismatch";
 
     /**
-     * Used to define if the analysis should happen only on save
-     */
-    public static final int ANALYZE_ON_SAVE = 1;
-
-    /**
-     * Used to define if the analysis should happen on any successful parse
-     */
-    public static final int ANALYZE_ON_SUCCESFUL_PARSE = 2;
-
-    /**
-     * @see #ANALYZE_ON_SAVE
-     * @see #ANALYZE_ON_SUCCESFUL_PARSE
-     * 
-     * @return the even that should trigger the analysis 
-     */
-    int getWhenAnalyze();
-
-    /**
      * @see org.eclipse.core.resources.IMarker#SEVERITY_ERROR
      * @see org.eclipse.core.resources.IMarker#SEVERITY_WARNING
      * @see org.eclipse.core.resources.IMarker#SEVERITY_INFO
-     * 
+     *
      * @return this message severity.
      */
     int getSeverityForType(int type);
@@ -85,7 +67,7 @@ public interface IAnalysisPreferences {
     /**
      * @return a set with the names that should be ignored when reporting unused variables
      * (this are names 'starting with' that should be ignored)
-     * 
+     *
      * e.g.: if dummy is in the set, ignore names starting with 'dummy' that will be reported as unused variables
      */
     Set<String> getNamesIgnoredByUnusedVariable();
@@ -101,7 +83,7 @@ public interface IAnalysisPreferences {
     Set<String> getTokensAlwaysInGlobals();
 
     /**
-     * @return the message that should be in a line so that a warning of a given type is ignored. 
+     * @return the message that should be in a line so that a warning of a given type is ignored.
      * I.e.: @UnusedImport
      */
     String getRequiredMessageToIgnore(int type);

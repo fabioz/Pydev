@@ -107,7 +107,7 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences {
 
     /**
      * return the severity based on the user-set values
-     *  
+     *
      * @see com.python.pydev.analysis.IAnalysisPreferences#getSeverityForType(int)
      */
     @Override
@@ -122,7 +122,7 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences {
 
     /**
      * yeah, we always do code analysis...
-     *  
+     *
      * @see com.python.pydev.analysis.IAnalysisPreferences#makeCodeAnalysis()
      */
     @Override
@@ -177,15 +177,6 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences {
             ret.add(string.replaceAll("\\*", ".*"));
         }
         return ret;
-    }
-
-    /**
-     * @see com.python.pydev.analysis.IAnalysisPreferences#getWhenAnalyze()
-     */
-    @Override
-    public int getWhenAnalyze() {
-        return PyAnalysisScopedPreferences.getInt(AnalysisPreferenceInitializer.WHEN_ANALYZE,
-                projectAdaptable, 0);
     }
 
 }

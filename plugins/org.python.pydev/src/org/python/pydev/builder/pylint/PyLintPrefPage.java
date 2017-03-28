@@ -97,7 +97,7 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.jface.preference.FieldEditorPreferencePage#createFieldEditors()
      */
     @Override
@@ -164,7 +164,7 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
      */
     @Override
@@ -183,7 +183,7 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
 
     /**
      * should we use py lint?
-     * 
+     *
      * @return
      */
     public static boolean usePyLint() {
@@ -211,26 +211,6 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
             return false;
         }
         return true;
-    }
-
-    public static boolean useErrors() {
-        return eSeverity() != SEVERITY_IGNORE;
-    }
-
-    public static boolean useWarnings() {
-        return wSeverity() != SEVERITY_IGNORE;
-    }
-
-    public static boolean useFatal() {
-        return fSeverity() != SEVERITY_IGNORE;
-    }
-
-    public static boolean useCodingStandard() {
-        return cSeverity() != SEVERITY_IGNORE;
-    }
-
-    public static boolean useRefactorTips() {
-        return rSeverity() != SEVERITY_IGNORE;
     }
 
     public static boolean useConsole() {

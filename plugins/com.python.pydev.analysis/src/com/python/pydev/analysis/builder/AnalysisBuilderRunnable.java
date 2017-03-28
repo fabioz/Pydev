@@ -18,6 +18,8 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.builder.PyDevBuilderVisitor;
+import org.python.pydev.builder.pylint.IPyLintVisitor;
+import org.python.pydev.builder.pylint.PyLintVisitorFactory;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
@@ -54,6 +56,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
     private IResource resource;
     private ICallback<IModule, Integer> module;
     private int moduleRequest;
+    private IPyLintVisitor pyLintVisitor;
 
     private boolean onlyRecreateCtxInsensitiveInfo;
 
@@ -108,6 +111,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
         this.document = document;
         this.resource = resource;
         this.module = module;
+        this.pyLintVisitor = PyLintVisitorFactory.create(resource, document, module, internalCancelMonitor);
 
         // Important: we can only update the index if it was a builder... if it was the parser,
         // we can't update it otherwise we could end up with data that's not saved in the index.
@@ -200,6 +204,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
             if (!makeAnalysis) {
                 //let's see if we should do code analysis
                 AnalysisRunner.deleteMarkers(r);
+                pyLintVisitor.deleteMarkers();
                 if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
                     Log.toLogFile(this, "Skipping: !makeAnalysis -- " + moduleName);
                 }
@@ -240,11 +245,19 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
                 //might be already there)
                 if (r != null) {
                     runner.setMarkers(r, document, new IMessage[0], this.internalCancelMonitor);
+                    pyLintVisitor.deleteMarkers();
                 }
                 return;
             }
 
-            //ok, let's do it
+            // Currently, the PyLint visitor can only analyze the contents saved, so, if the contents on the doc
+            // changed in the meanwhile, skip doing this visit for PyLint.
+            // Maybe we can improve that when https://github.com/PyCQA/pylint/pull/1189 is done.
+            if (!MarkEditorOnSave.hasDocumentChanged(resource, document)) {
+                pyLintVisitor.startVisit();
+            } else {
+                pyLintVisitor.deleteMarkers();
+            }
             OccurrencesAnalyzer analyzer = new OccurrencesAnalyzer();
             checkStop();
             SourceModule module = (SourceModule) this.module.call(moduleRequest);
@@ -287,6 +300,8 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
                     Log.log(e);
                 }
             }
+
+            pyLintVisitor.join();
 
         } catch (OperationCanceledException e) {
             //ok, ignore it

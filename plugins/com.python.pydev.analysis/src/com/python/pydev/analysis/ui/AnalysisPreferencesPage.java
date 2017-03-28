@@ -34,7 +34,6 @@ import org.python.pydev.shared_ui.field_editors.ScopedPreferencesFieldEditor;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.AnalysisPreferenceInitializer;
-import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.PyAnalysisScopedPreferences;
 
 public class AnalysisPreferencesPage extends ScopedFieldEditorPreferencePage implements IWorkbenchPreferencePage {
@@ -66,20 +65,16 @@ public class AnalysisPreferencesPage extends ScopedFieldEditorPreferencePage imp
 
         addField(new LabelFieldEditor(
                 "Analysis_pref_note",
-                "NOTE: Any file with the comment below will not be analyzed.\n\n#@PydevCodeAnalysisIgnore\n\nOptions:\n\n",
+                "NOTE: Any file with the comment below will not be analyzed.\n\n#@PydevCodeAnalysisIgnore\n\n",
                 p));
+
+        BooleanFieldEditor field = new BooleanFieldEditor(AnalysisPreferenceInitializer.DO_CODE_ANALYSIS,
+                "Do code analysis?",
+                BooleanFieldEditor.DEFAULT, p);
+        addField(field);
 
         TabFolder tabFolder = new TabFolder(p, SWT.NONE);
         tabFolder.setLayoutData(new GridData(GridData.FILL_BOTH));
-
-        p = createTab(tabFolder, "Options");
-        String[][] whenAnalyze = new String[][] {
-                { "Only on save", String.valueOf(IAnalysisPreferences.ANALYZE_ON_SAVE) },
-                { "On any successful parse", String.valueOf(IAnalysisPreferences.ANALYZE_ON_SUCCESFUL_PARSE) } };
-        addField(new BooleanFieldEditor(AnalysisPreferenceInitializer.DO_CODE_ANALYSIS, "Do code analysis?",
-                BooleanFieldEditor.DEFAULT, p));
-        addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.WHEN_ANALYZE, "When do we analyze?", 2,
-                whenAnalyze, p, true));
 
         String[][] values = new String[][] { { "Error", String.valueOf(IMarker.SEVERITY_ERROR) },
                 { "Warning", String.valueOf(IMarker.SEVERITY_WARNING) },
