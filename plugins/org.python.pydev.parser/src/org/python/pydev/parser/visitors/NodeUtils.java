@@ -1802,7 +1802,11 @@ public class NodeUtils {
         }
         if (ast instanceof org.python.pydev.parser.jython.ast.Dict) {
             org.python.pydev.parser.jython.ast.Dict dict = (org.python.pydev.parser.jython.ast.Dict) ast;
-            return new exprType[] { dict.keys[0], dict.values[0] };
+            if (dict.keys != null && dict.keys.length > 0 && dict.values != null && dict.values.length > 0) {
+                return new exprType[] { dict.keys[0], dict.values[0] };
+            } else {
+                return null;
+            }
         }
         if (ast instanceof org.python.pydev.parser.jython.ast.DictComp) {
             org.python.pydev.parser.jython.ast.DictComp dict = (org.python.pydev.parser.jython.ast.DictComp) ast;
