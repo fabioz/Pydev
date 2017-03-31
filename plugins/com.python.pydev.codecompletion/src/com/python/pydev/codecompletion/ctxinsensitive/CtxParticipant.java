@@ -304,7 +304,9 @@ public class CtxParticipant
                         if (representationString != null && representationString.startsWith("test")) {
                             ItemPointer itemPointer = findItemPointerFromPyTestFixture(nature, completionCache,
                                     name.id);
-                            return itemPointer.definition;
+                            if (itemPointer != null) {
+                                return itemPointer.definition;
+                            }
                         }
                     }
                 }
