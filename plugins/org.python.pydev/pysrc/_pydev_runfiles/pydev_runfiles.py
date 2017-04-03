@@ -500,6 +500,10 @@ class PydevTestRunner(object):
         sys_path = [os.path.normpath(path) for path in sys.path]
         self.remove_duplicates_keeping_order(sys_path)
 
+        # remove duplicated sys.paths
+        sys_path = [os.path.normpath(path) for path in sys.path]
+        sys_path = list(set(sys_path))
+        
         system_paths = []
         for s in sys_path:
             system_paths.append(self.__importify(s, True))
