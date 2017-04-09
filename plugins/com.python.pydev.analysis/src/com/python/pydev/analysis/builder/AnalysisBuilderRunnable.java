@@ -204,7 +204,6 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
             if (!makeAnalysis) {
                 //let's see if we should do code analysis
                 AnalysisRunner.deleteMarkers(r);
-                pyLintVisitor.deleteMarkers();
                 if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
                     Log.toLogFile(this, "Skipping: !makeAnalysis -- " + moduleName);
                 }

@@ -8,11 +8,12 @@ package org.python.pydev.builder.pylint;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.python.pydev.core.IMiscConstants;
 import org.python.pydev.core.log.Log;
 
 public class OnlyRemoveMarkersPyLintVisitor implements IPyLintVisitor {
 
-    public static final String PYLINT_PROBLEM_MARKER = "org.python.pydev.pylintproblemmarker";
+    public static final String PYLINT_PROBLEM_MARKER = IMiscConstants.PYLINT_PROBLEM_MARKER;
 
     public static final String PYLINT_MESSAGE_ID = "pylint_message_id";
 

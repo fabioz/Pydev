@@ -32,7 +32,7 @@
 
         <!--Added 2016-09-09-->
         <a href="http://www.binaryoptionrobotinfo.com/brokers/" border=0><img class="sponsors" src="images/sponsors/binary_option_robot_info_150_60.png" style="width:150px;height:60px;" alt="Binary Option Robot Info" title="http://www.binaryoptionrobotinfo.com/brokers/" /></a>
-        
+
         <!--Added 2016-12-24-->
         <a href="http://www.givemedeals.com/?utm_source=PYD&utm_medium=donate&utm_campaign=PyDev" border=0><img class="sponsors" src="images/sponsors/give_me_deals.png" style="width:150px;height:60px;" alt="Give Me Deals" title="http://www.givemedeals.com/?utm_source=PYD&utm_medium=donate&utm_campaign=PyDev" /></a>
 		</div>
@@ -46,15 +46,15 @@
         <a href="http://www.promovouchers.co.uk" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/promovouchers_uk_50_50.png" alt="Promo Vouchers" title="http://www.promovouchers.co.uk" /></a>
         <!-- Added 2016-12-21 -->
         <a href="https://www.vpsserver.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/vpsserver50-50.png" alt="vpsserver" title="https://www.vpsserver.com" /></a>
-        
+
         <!-- Added 2016-12-22 -->
         <a href="https://ultimatewebtraffic.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/ultimatewebtraffic.png" alt="ultimawebtraffic" title="https://ultimatewebtraffic.com" /></a>
         <a href="https://buywebtrafficexperts.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/buywebtrafficexperts.png" alt="buywebtrafficexperts" title="https://buywebtrafficexperts.com" /></a>
         <a href="https://webtrafficgeeks.org" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/webtrafficgeeks.png" alt="webtrafficgeeks" title="https://webtrafficgeeks.org" /></a>
         </div>
-        
 
-        
+
+
     <br/>
     <strong>Acknowledgements</strong>
     <br/>
@@ -103,6 +103,7 @@ PyDev is a **Python IDE** for **Eclipse**, which may be used in **Python**, **Jy
 .. _Syntax highlighting: manual_adv_editor_prefs.html
 .. _Unittest integration: manual_adv_pyunit.html
 .. _Code coverage: manual_adv_coverage.html
+.. _PyLint integration: manual_adv_pylint.html
 .. _video: video_pydev_20.html
 .. _Find Referrers in Debugger: manual_adv_debugger_find_referrers.html
 
@@ -123,6 +124,7 @@ It comes with many goodies such as:
 | * `Interactive console`_                                                                                                                                                                                                                                 |                                                                                                                                                  |
 | * `Unittest integration`_                                                                                                                                                                                                                                |                                                                                                                                                  |
 | * `Code coverage`_                                                                                                                                                                                                                                       |                                                                                                                                                  |
+| * `PyLint integration`_                                                                                                                                                                                                                                  |                                                                                                                                                  |
 | * Find References (Ctrl+Shift+G)                                                                                                                                                                                                                         |                                                                                                                                                  |
 | * **and many others**:                                                                                                                                                                                                                                   |                                                                                                                                                  |
 +----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------+
@@ -173,7 +175,7 @@ Supporting PyDev
 Thank you to all PyDev supporters: https://www.brainwy.com/supporters/PyDev.
 
 
-To show your appreciation for PyDev and to keep it going strong, help to crowdfund through https://www.patreon.com/fabioz. 
+To show your appreciation for PyDev and to keep it going strong, help to crowdfund through https://www.patreon.com/fabioz.
 
 
 .. _`Getting started guide`: manual_101_root.html
@@ -189,45 +191,45 @@ Release 5.6.0
     * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
 
 * **Debugger**
-   
-    * **Performance** enhancements on the **debugger** (which should be **60%-100%** faster now). 
-    
+
+    * **Performance** enhancements on the **debugger** (which should be **60%-100%** faster now).
+
     * The **debugger** now only supports **Python 2.6 onwards** (keep on PyDev 5.5.0 for Python 2.5 or below).
-    
+
     * Properly displaying variables when the **interactive console** is connected to a **debug session**. **#PyDev-776**
-    
+
     * Providing a way for the debugger to support a user-specified version of Qt for debugging QThreads (**preferences > PyDev > Debug > Qt Threads**).
-    
+
     * Fixed issue where a **native Qt signal is not callable** message was raised when connecting a signal to QThread.started.
-    
+
     * Fixed issue in displaying variable (with **Ctrl+Shift+D**) when debugging.
-    
+
     * Debug view toolbar icons no longer appearing stretched due to Set Next Statement icon having a different size.
-    
+
 * **Code completion**
 
     * **super** is now properly recognized (code completion and find definition).
-    
+
     * **pytest fixtures** are now properly recognized (code completion and find definition).
 
     * Suppress invalid completions on literals numbers (patch by Jonah Graham)
-    
+
 * **Others**
 
     * It's now possible to save the PyUnit preferences to the project or user settings.
-    
+
     * Upgraded **pep8** to the latest **pycodestyle**.
-    
+
     * Upgraded to latest **autopep8**.
-    
+
     * Fixed issue in Django shell if version >= 1.10 **#PyDev-752**.
-    
+
     * Add support for **coverage 4.x** (minimum supported version is now 4.3). **#PyDev-691**
-    
+
     * Syntax highlighting for **matmul operator** (was being considered a decorator). **#PyDev-771**
-    
+
     * Making **PyLint** use the same thread pool used for code analysis.
-    
+
     * String index out of range while reading buffer in AbstractShell. **#PyDev-768**
 
 Release 5.5.0
@@ -242,25 +244,25 @@ Release 5.5.0
     * Fixed refactoring error when dealing with imports which have a continuation char inside the module name part. **#PyDev-712**
 
     * When extracting a method, decorators are properly considered for the new method position. **#PyDev-321**
-    
+
 * **Code completion**
 
     * When accessing enums, 'value' and 'name' are properly found. **#PyDev-591**
-    
+
     * Code completion improved on method chaining. **#PyDev-636** and **#PyDev-583**
 
     * It's now possible to choose whether when a code-completion which adds a local import should add the import to the beginning of the function or the line above where it was requested.
-    
+
         * It may be configured in the preferences (Preferences > PyDev > Editor > Code Completion > Put local imports on top of method?).
-        
+
         * Default was changed to add it to the top of the method.
-    
+
 * **New actions**
 
     * **Ctrl+Shift+Alt+O** can be used to open the last hyperlink in the console that's currently open (it's now possible to jump directly to the error in some exception). **#PyDev-755**
 
     * **Ctrl+2,sw** switches the target and value in assign statements (may not work properly if more than one '=' is found in the line).
-    
+
 * **Debugger**
 
     * Fixed error when hovering over variable when debugging. **#PyDev-580**
@@ -268,10 +270,10 @@ Release 5.5.0
 * **Others**
 
     * Fixed issue in grammar parsing on nested async calls. **#PyDev-753**
-    
+
     * Fixed issue grouping imports when an import has a continuation char inside the module part. **#PyDev 712**
 
-    
-    
+
+
 `View release notes for previous releases`_
 

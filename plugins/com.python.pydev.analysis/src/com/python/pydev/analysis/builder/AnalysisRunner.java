@@ -30,7 +30,7 @@ public class AnalysisRunner {
     public static final String PYDEV_CODE_ANALYSIS_IGNORE = "@PydevCodeAnalysisIgnore";
 
     /**
-     * Indicates the type of the message given the constants in com.python.pydev.analysis.IAnalysisPreferences (unused import, 
+     * Indicates the type of the message given the constants in com.python.pydev.analysis.IAnalysisPreferences (unused import,
      * undefined variable...)
      */
     public static final String PYDEV_ANALYSIS_TYPE = IMiscConstants.PYDEV_ANALYSIS_TYPE;
@@ -44,6 +44,8 @@ public class AnalysisRunner {
      * this is the type of the marker
      */
     public static final String PYDEV_ANALYSIS_PROBLEM_MARKER = IMiscConstants.PYDEV_ANALYSIS_PROBLEM_MARKER;
+
+    public static final String PYLINT_PROBLEM_MARKER = IMiscConstants.PYLINT_PROBLEM_MARKER;
 
     /**
      * do we want to debug this class?
@@ -90,11 +92,20 @@ public class AnalysisRunner {
             Log.log(e);
         }
 
+        // Also delete PyLint markers (as they're computed along problem markers now).
+        try {
+            if (resource != null) {
+                resource.deleteMarkers(PYLINT_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
+            }
+        } catch (CoreException e3) {
+            Log.log(e3);
+        }
+
     }
 
     /**
      * Sets the analysis markers in the resource (removes current markers and adds the new ones)
-     * 
+     *
      * @param resource the resource where we want to add the markers
      * @param document the document
      * @param messages the messages to add

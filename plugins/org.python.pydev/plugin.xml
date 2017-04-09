@@ -440,7 +440,7 @@
             id="org.python.pydev.prefs.template"/>
       <page
             class="org.python.pydev.builder.pylint.PyLintPrefPage"
-            category="org.python.pydev.prefs"
+            category="org.python.pydev.prefs.extensions.analysis"
             name="PyLint"
             id="org.python.pydev.prefs.pylint"/>
       <page
