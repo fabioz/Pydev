@@ -71,6 +71,10 @@
    </extension>
 
    <extension point="org.python.pydev.pydev_ctrl_1">
+		<ctrl_1_participant class="com.python.pydev.analysis.ctrl_1.pylint.PyLintAnalysisMarkersParticipants"/>
+   </extension>
+
+   <extension point="org.python.pydev.pydev_ctrl_1">
 		<ctrl_1_participant class="com.python.pydev.analysis.ctrl_1.DontAnalyzeFileMarkerParticipant"/>
    </extension>
    <extension point="org.python.pydev.pydev_globals_browser">

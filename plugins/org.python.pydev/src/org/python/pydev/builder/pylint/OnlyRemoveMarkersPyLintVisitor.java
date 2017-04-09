@@ -6,16 +6,19 @@
  */
 package org.python.pydev.builder.pylint;
 
+import java.util.List;
+
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.python.pydev.core.IMiscConstants;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
 
 public class OnlyRemoveMarkersPyLintVisitor implements IPyLintVisitor {
 
     public static final String PYLINT_PROBLEM_MARKER = IMiscConstants.PYLINT_PROBLEM_MARKER;
 
-    public static final String PYLINT_MESSAGE_ID = "pylint_message_id";
+    public static final String PYLINT_MESSAGE_ID = IMiscConstants.PYLINT_MESSAGE_ID;
 
     protected IResource resource;
 
@@ -43,6 +46,11 @@ public class OnlyRemoveMarkersPyLintVisitor implements IPyLintVisitor {
     @Override
     public void join() {
         //no-op
+    }
+
+    @Override
+    public List<MarkerInfo> getMarkers() {
+        return null;
     }
 
 }

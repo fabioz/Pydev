@@ -38,6 +38,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.editor.correctionassist.CheckAnalysisErrors;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.runners.SimpleRunner;
@@ -48,6 +49,7 @@ import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.utils.PyMarkerUtils;
+import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
 
 /**
  * Check lint.py for options.
@@ -274,12 +276,12 @@ import org.python.pydev.shared_ui.utils.PyMarkerUtils;
                         try {
                             int line = -1;
                             int column = -1;
-                            String id = "";
+                            String messageId = "";
                             Matcher m = PYLINT_MATCH_PATTERN.matcher(tok);
                             if (m.matches()) {
                                 line = Integer.parseInt(tok.substring(m.start(1), m.end(1)));
                                 column = Integer.parseInt(tok.substring(m.start(2), m.end(2)));
-                                id = tok.substring(m.start(4), m.end(4)).trim();
+                                messageId = tok.substring(m.start(4), m.end(4)).trim();
                                 tok = tok.substring(m.start(3), m.end(3)).trim();
                             } else {
                                 continue;
@@ -292,14 +294,11 @@ import org.python.pydev.shared_ui.utils.PyMarkerUtils;
                             }
                             String lineContents = document.get(region.getOffset(), region.getLength());
 
-                            int pos = -1;
-                            if ((pos = lineContents.indexOf("IGNORE:")) != -1) {
-                                String lintW = lineContents.substring(pos + "IGNORE:".length());
-                                if (lintW.startsWith(id)) {
-                                    continue;
-                                }
+                            if (CheckAnalysisErrors.isPyLintErrorHandledAtLine(lineContents, messageId)) {
+                                continue;
                             }
-                            addToMarkers(tok, priority, id, line - 1, column, lineContents);
+
+                            addToMarkers(tok, priority, messageId, line - 1, column, lineContents);
                         } catch (RuntimeException e2) {
                             Log.log(e2);
                         }
@@ -308,12 +307,6 @@ import org.python.pydev.shared_ui.utils.PyMarkerUtils;
                     Log.log(e1);
                 }
             }
-
-            if (monitor.isCanceled()) {
-                return;
-            }
-
-            PyMarkerUtils.replaceMarkers(markers, resource, PYLINT_PROBLEM_MARKER, true, monitor);
         }
 
         private static Pattern PYLINT_MATCH_PATTERN = Pattern
@@ -321,10 +314,10 @@ import org.python.pydev.shared_ui.utils.PyMarkerUtils;
 
         private void addToMarkers(String tok, int priority, String id, int line, int column, String lineContents) {
             Map<String, Object> additionalInfo = new HashMap<>();
-            additionalInfo.put(PYLINT_MESSAGE_ID, additionalInfo);
+            additionalInfo.put(PYLINT_MESSAGE_ID, id);
             markers.add(new PyMarkerUtils.MarkerInfo(document, "PyLint: " + tok,
                     PYLINT_PROBLEM_MARKER, priority, false, false, line, column, line, lineContents.length(),
-                    null));
+                    additionalInfo));
         }
 
         /**
@@ -431,6 +424,11 @@ import org.python.pydev.shared_ui.utils.PyMarkerUtils;
         if (pyLintRunnable != null) {
             pyLintRunnable.join();
         }
+    }
+
+    @Override
+    public List<MarkerInfo> getMarkers() {
+        return pyLintRunnable.markers;
     }
 
     private static IOConsoleOutputStream getConsoleOutputStream() throws MalformedURLException {

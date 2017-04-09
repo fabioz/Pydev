@@ -1,3 +1,7 @@
+package com.python.pydev.analysis.ctrl_1;
+
+import com.python.pydev.analysis.builder.AnalysisRunner;
+
 /**
  * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
@@ -7,7 +11,6 @@
 /*
  * Created on 24/09/2005
  */
-package com.python.pydev.analysis.ctrl_1;
 
 public class AnalysisMarkersParticipants extends AbstractAnalysisMarkersParticipants {
 
@@ -17,4 +20,8 @@ public class AnalysisMarkersParticipants extends AbstractAnalysisMarkersParticip
         participants.add(new UndefinedVariableFixParticipant());
     }
 
+    @Override
+    protected String getMarkerType() {
+        return AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER;
+    }
 }

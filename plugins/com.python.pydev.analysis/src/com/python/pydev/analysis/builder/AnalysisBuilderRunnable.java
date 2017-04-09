@@ -10,7 +10,10 @@
 package com.python.pydev.analysis.builder;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -20,6 +23,7 @@ import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.builder.pylint.IPyLintVisitor;
 import org.python.pydev.builder.pylint.PyLintVisitorFactory;
+import org.python.pydev.core.IMiscConstants;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
@@ -27,8 +31,11 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.editor.correctionassist.CheckAnalysisErrors;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_ui.utils.PyMarkerUtils;
+import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
 
 import com.python.pydev.analysis.AnalysisPreferences;
 import com.python.pydev.analysis.IAnalysisPreferences;
@@ -274,6 +281,8 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
             //last chance to stop...
             checkStop();
 
+            List<MarkerInfo> markersFromCodeAnalysis = null;
+
             //don't stop after setting to add / remove the markers
             if (r != null) {
                 boolean analyzeOnlyActiveEditor = PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor();
@@ -282,7 +291,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
                         || (analyzeOnlyActiveEditor
                                 && (!PyDevBuilderPrefPage.getRemoveErrorsWhenEditorIsClosed() || PyEdit
                                         .isEditorOpenForResource(r)))) {
-                    runner.setMarkers(r, document, messages, this.internalCancelMonitor);
+                    markersFromCodeAnalysis = runner.setMarkers(r, document, messages, this.internalCancelMonitor);
                 } else {
                     if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
                         Log.toLogFile(this, "Skipped adding markers for module: " + moduleName
@@ -300,7 +309,55 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
                 }
             }
 
+            checkStop();
             pyLintVisitor.join();
+
+            checkStop();
+            if (r != null) {
+                List<MarkerInfo> markersFromPyLint = pyLintVisitor.getMarkers();
+                if (markersFromPyLint != null && markersFromPyLint.size() > 0) {
+
+                    Map<Integer, List<MarkerInfo>> lineToMarkerInfo = new HashMap<>();
+                    if (markersFromCodeAnalysis != null) {
+                        for (MarkerInfo codeAnalysisMarkerInfo : markersFromCodeAnalysis) {
+                            List<MarkerInfo> list = lineToMarkerInfo.get(codeAnalysisMarkerInfo.lineStart);
+                            if (list == null) {
+                                list = new ArrayList<>(2);
+                                lineToMarkerInfo.put(codeAnalysisMarkerInfo.lineStart, list);
+                            }
+                            list.add(codeAnalysisMarkerInfo);
+                        }
+                    }
+
+                    // I.e.: if the error is already generated in the PyDev code-analysis, skip the same error on PyLint
+                    // (there's no real point in putting an error twice).
+                    for (Iterator<MarkerInfo> pyLintMarkerInfoIterator = markersFromPyLint
+                            .iterator(); pyLintMarkerInfoIterator
+                                    .hasNext();) {
+                        MarkerInfo pyLintMarkerInfo = pyLintMarkerInfoIterator.next();
+                        List<MarkerInfo> codeAnalysisMarkers = lineToMarkerInfo.get(pyLintMarkerInfo.lineStart);
+                        if (codeAnalysisMarkers != null && codeAnalysisMarkers.size() > 0) {
+                            for (MarkerInfo codeAnalysisMarker : codeAnalysisMarkers) {
+                                Map<String, Object> additionalInfo = codeAnalysisMarker.additionalInfo;
+                                if (additionalInfo != null) {
+                                    Object analysisType = additionalInfo.get(AnalysisRunner.PYDEV_ANALYSIS_TYPE);
+                                    if (analysisType != null && analysisType instanceof Integer) {
+                                        String pyLintMessageId = CheckAnalysisErrors
+                                                .getPyLintMessageIdForPyDevAnalysisType((int) analysisType);
+                                        if (pyLintMessageId != null
+                                                && pyLintMessageId.equals(pyLintMarkerInfo.additionalInfo
+                                                        .get(IMiscConstants.PYLINT_MESSAGE_ID))) {
+                                            pyLintMarkerInfoIterator.remove();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    PyMarkerUtils.replaceMarkers(markersFromPyLint, resource, IMiscConstants.PYLINT_PROBLEM_MARKER,
+                            true, this.internalCancelMonitor);
+                }
+            }
 
         } catch (OperationCanceledException e) {
             //ok, ignore it

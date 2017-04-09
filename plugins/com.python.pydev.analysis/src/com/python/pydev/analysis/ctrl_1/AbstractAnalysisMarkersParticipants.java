@@ -24,7 +24,6 @@ import org.python.pydev.shared_ui.ImageCache;
 
 import com.python.pydev.analysis.AnalysisPreferences;
 import com.python.pydev.analysis.IAnalysisPreferences;
-import com.python.pydev.analysis.builder.AnalysisRunner;
 
 public abstract class AbstractAnalysisMarkersParticipants implements IAssistProps {
 
@@ -33,6 +32,8 @@ public abstract class AbstractAnalysisMarkersParticipants implements IAssistProp
     public AbstractAnalysisMarkersParticipants() {
         participants = new ArrayList<IAnalysisMarkersParticipant>();
     }
+
+    protected abstract String getMarkerType();
 
     protected abstract void fillParticipants();
 
@@ -53,8 +54,7 @@ public abstract class AbstractAnalysisMarkersParticipants implements IAssistProp
         //Note that it'll check equality by the marker type and text (not by position), so, if a given error
         //appears twice in the same line being correct, we'll only show the options once here (which is what
         //we want).
-        List<MarkerAnnotationAndPosition> markersAtLine2 = s.getMarkersAtLine(line,
-                AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER);
+        List<MarkerAnnotationAndPosition> markersAtLine2 = s.getMarkersAtLine(line, getMarkerType());
         markersAtLine.addAll(markersAtLine2);
 
         ArrayList<ICompletionProposal> props = new ArrayList<ICompletionProposal>();
@@ -77,7 +77,7 @@ public abstract class AbstractAnalysisMarkersParticipants implements IAssistProp
 
     /**
      * It is valid if any marker generated from the analysis is found
-     *  
+     *
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#isValid(org.python.pydev.core.docutils.PySelection, java.lang.String, org.python.pydev.editor.PyEdit, int)
      */
     @Override

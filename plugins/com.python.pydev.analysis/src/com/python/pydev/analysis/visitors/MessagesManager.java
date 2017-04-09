@@ -27,6 +27,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor.ImportPartSourceToken;
+import org.python.pydev.editor.correctionassist.CheckAnalysisErrors;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.Expr;
@@ -142,7 +143,7 @@ public final class MessagesManager {
         if (messageToIgnore != null) {
             int startLine = messageToAdd.getStartLine(document) - 1;
             String line = PySelection.getLine(document, startLine);
-            if (line.indexOf(messageToIgnore) != -1) {
+            if (CheckAnalysisErrors.isCodeAnalysisErrorHandled(line, messageToIgnore)) {
                 //keep going... nothing to see here...
                 return;
             }
@@ -223,7 +224,7 @@ public final class MessagesManager {
         if (tokenRepresentation != null) {
             String firstPart = FullRepIterable.getFirstPart(tokenRepresentation);
             if (this.prefs.getTokensAlwaysInGlobals().contains(firstPart)) {
-                return new Tuple<Boolean, String>(false, firstPart); //ok firstPart in not really undefined... 
+                return new Tuple<Boolean, String>(false, firstPart); //ok firstPart in not really undefined...
             }
         }
 
@@ -260,7 +261,7 @@ public final class MessagesManager {
             if (openParensPos != -1) {
                 int closeParensPos = parsingUtils.eatPar(openParensPos, null);
                 if (closeParensPos != -1) {
-                    int startLine = PySelection.getLineOfOffset(document, openParensPos) + 1; //+1: from document to ast 
+                    int startLine = PySelection.getLineOfOffset(document, openParensPos) + 1; //+1: from document to ast
                     int endLine = PySelection.getLineOfOffset(document, closeParensPos) + 1;
                     int startCol = openParensPos - document.getLineInformationOfOffset(openParensPos).getOffset() + 1;
 
@@ -285,7 +286,7 @@ public final class MessagesManager {
 
     /**
      * adds a message for something that was not used
-     * 
+     *
      * @param node the node representing the scope being closed when adding the
      *             unused message
      */
@@ -531,7 +532,7 @@ public final class MessagesManager {
 
     /**
      * @return a map with the messages separated by type (keys are the type)
-     * 
+     *
      * the values are guaranteed to have size at least equal to 1
      */
     private Map<Integer, List<IMessage>> getMessagesByType(List<IMessage> l) {

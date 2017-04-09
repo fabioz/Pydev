@@ -48,6 +48,7 @@ import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
+import com.python.pydev.analysis.builder.AnalysisRunner;
 import com.python.pydev.analysis.ctrl_1.AbstractAnalysisMarkersParticipants;
 
 public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarkersParticipants {
@@ -58,6 +59,11 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
     protected void fillParticipants() {
         tddQuickFixParticipant = new TddQuickFixParticipant();
         participants.add(tddQuickFixParticipant);
+    }
+
+    @Override
+    protected String getMarkerType() {
+        return AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER;
     }
 
     @Override
@@ -118,7 +124,8 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
                             Log.log("Did not expect index < 0.");
                             continue CONTINUE_FOR;
                         }
-                        callPs = new PySelection(ps.getDoc(), ps.getLineOffset() + indexOf + callWithoutParens.length());
+                        callPs = new PySelection(ps.getDoc(),
+                                ps.getLineOffset() + indexOf + callWithoutParens.length());
 
                         RefactoringRequest request = new RefactoringRequest(f, callPs, null, nature, edit);
                         //Don't look in additional info.
@@ -126,7 +133,8 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
                                 RefactoringRequest.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
                         pointers = pyRefactoring.findDefinition(request);
 
-                        if (((pointers != null && pointers.length > 0) || StringUtils.count(possibleMatch.full, '.') <= 1)) {
+                        if (((pointers != null && pointers.length > 0)
+                                || StringUtils.count(possibleMatch.full, '.') <= 1)) {
                             break;
                         }
                     }

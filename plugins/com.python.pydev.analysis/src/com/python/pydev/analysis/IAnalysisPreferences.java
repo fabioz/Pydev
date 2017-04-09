@@ -17,22 +17,22 @@ import org.python.pydev.core.IMiscConstants;
 public interface IAnalysisPreferences {
 
     public static final int TYPE_UNUSED_IMPORT = IMiscConstants.TYPE_UNUSED_IMPORT;
-    public static final int TYPE_UNUSED_VARIABLE = 2;
-    public static final int TYPE_UNDEFINED_VARIABLE = 3;
-    public static final int TYPE_DUPLICATED_SIGNATURE = 4;
-    public static final int TYPE_REIMPORT = 5;
-    public static final int TYPE_UNRESOLVED_IMPORT = 6;
-    public static final int TYPE_NO_SELF = 7;
-    public static final int TYPE_UNUSED_WILD_IMPORT = 8;
-    public static final int TYPE_UNDEFINED_IMPORT_VARIABLE = 9;
-    public static final int TYPE_UNUSED_PARAMETER = 10;
-    public static final int TYPE_NO_EFFECT_STMT = 11;
-    public static final int TYPE_INDENTATION_PROBLEM = 12;
-    public static final int TYPE_UNDEFINED_VARIABLE_IN_SELF = 13; //Generated on demand by the tdd actions
-    public static final int TYPE_ASSIGNMENT_TO_BUILT_IN_SYMBOL = 14;
-    public static final int TYPE_PEP8 = 15;
-    public static final int TYPE_ARGUMENTS_MISATCH = 16;
-    public static final int TYPE_FSTRING_SYNTAX_ERROR = 17;
+    public static final int TYPE_UNUSED_VARIABLE = IMiscConstants.TYPE_UNUSED_VARIABLE;
+    public static final int TYPE_UNDEFINED_VARIABLE = IMiscConstants.TYPE_UNDEFINED_VARIABLE;
+    public static final int TYPE_DUPLICATED_SIGNATURE = IMiscConstants.TYPE_DUPLICATED_SIGNATURE;
+    public static final int TYPE_REIMPORT = IMiscConstants.TYPE_REIMPORT;
+    public static final int TYPE_UNRESOLVED_IMPORT = IMiscConstants.TYPE_UNRESOLVED_IMPORT;
+    public static final int TYPE_NO_SELF = IMiscConstants.TYPE_NO_SELF;
+    public static final int TYPE_UNUSED_WILD_IMPORT = IMiscConstants.TYPE_UNUSED_WILD_IMPORT;
+    public static final int TYPE_UNDEFINED_IMPORT_VARIABLE = IMiscConstants.TYPE_UNDEFINED_IMPORT_VARIABLE;
+    public static final int TYPE_UNUSED_PARAMETER = IMiscConstants.TYPE_UNUSED_PARAMETER;
+    public static final int TYPE_NO_EFFECT_STMT = IMiscConstants.TYPE_NO_EFFECT_STMT;
+    public static final int TYPE_INDENTATION_PROBLEM = IMiscConstants.TYPE_INDENTATION_PROBLEM;
+    public static final int TYPE_UNDEFINED_VARIABLE_IN_SELF = IMiscConstants.TYPE_UNDEFINED_VARIABLE_IN_SELF;
+    public static final int TYPE_ASSIGNMENT_TO_BUILT_IN_SYMBOL = IMiscConstants.TYPE_ASSIGNMENT_TO_BUILT_IN_SYMBOL;
+    public static final int TYPE_PEP8 = IMiscConstants.TYPE_PEP8;
+    public static final int TYPE_ARGUMENTS_MISATCH = IMiscConstants.TYPE_ARGUMENTS_MISATCH;
+    public static final int TYPE_FSTRING_SYNTAX_ERROR = IMiscConstants.TYPE_FSTRING_SYNTAX_ERROR;
 
     public static final String MSG_TO_IGNORE_TYPE_UNUSED_IMPORT = "@UnusedImport";
     public static final String MSG_TO_IGNORE_TYPE_UNUSED_WILD_IMPORT = "@UnusedWildImport";

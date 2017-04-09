@@ -37,12 +37,16 @@ public class IgnoreCompletionProposal extends PyCompletionProposal {
             document.replace(fReplacementOffset, fReplacementLength, fReplacementString);
 
             //ok, after doing it, let's call for a reparse
-            if (edit != null) {
+            if (edit != null && getForceReparse()) {
                 edit.getParser().forceReparse();
             }
         } catch (BadLocationException x) {
             Log.log(x);
         }
+    }
+
+    protected boolean getForceReparse() {
+        return true;
     }
 
     @Override

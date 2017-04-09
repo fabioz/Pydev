@@ -6,6 +6,10 @@
  */
 package org.python.pydev.builder.pylint;
 
+import java.util.List;
+
+import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
+
 /**
  * See: org.python.pydev.builder.pylint.PyLintVisitorFactory to create PyLint visitors.
  */
@@ -27,5 +31,7 @@ public interface IPyLintVisitor {
      * done by canceling the monitor which was passed to it).
      */
     void join();
+
+    List<MarkerInfo> getMarkers();
 
 }

@@ -112,10 +112,12 @@ public class AnalysisRunner {
      * @param monitor monitor to check if we should stop the process.
      * @param existing these are the existing markers. After this method, the list will contain only the ones that
      * should be removed.
+     * @return
      */
-    public void setMarkers(IResource resource, IDocument document, IMessage[] messages, IProgressMonitor monitor) {
+    public List<MarkerInfo> setMarkers(IResource resource, IDocument document, IMessage[] messages,
+            IProgressMonitor monitor) {
         if (resource == null) {
-            return;
+            return null;
         }
         try {
             //Timer timer = new Timer();
@@ -123,14 +125,16 @@ public class AnalysisRunner {
             ArrayList<MarkerInfo> lst = generateMarkers(document, messages, monitor);
 
             if (monitor.isCanceled()) {
-                return;
+                return null;
             }
 
             PyMarkerUtils.replaceMarkers(lst, resource, AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, true, monitor);
             //timer.printDiff("Time to put markers: "+lst.size());
+            return lst;
         } catch (Exception e) {
             Log.log("Error when setting markers on: " + resource, e);
         }
+        return null;
     }
 
     public ArrayList<MarkerInfo> generateMarkers(IDocument document, IMessage[] messages, IProgressMonitor monitor) {

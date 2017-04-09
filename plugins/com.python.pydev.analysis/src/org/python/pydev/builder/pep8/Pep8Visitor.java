@@ -21,6 +21,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyFormatStd;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.editor.correctionassist.CheckAnalysisErrors;
 import org.python.pydev.jython.IPythonInterpreter;
 import org.python.pydev.jython.JythonPlugin;
 import org.python.pydev.plugin.JythonModules;
@@ -178,7 +179,7 @@ public class Pep8Visitor {
         if (messageToIgnore != null) {
             int startLine = lineNumber - 1;
             String line = PySelection.getLine(document, startLine);
-            if (line.indexOf(messageToIgnore) != -1) {
+            if (CheckAnalysisErrors.isCodeAnalysisErrorHandled(line, messageToIgnore)) {
                 //keep going... nothing to see here...
                 return;
             }
