@@ -428,6 +428,9 @@ import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
 
     @Override
     public List<MarkerInfo> getMarkers() {
+        if (pyLintRunnable == null) {
+            return null;
+        }
         return pyLintRunnable.markers;
     }
 
