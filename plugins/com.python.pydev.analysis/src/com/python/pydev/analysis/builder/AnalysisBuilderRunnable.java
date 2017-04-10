@@ -356,6 +356,8 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
                     }
                     PyMarkerUtils.replaceMarkers(markersFromPyLint, resource, IMiscConstants.PYLINT_PROBLEM_MARKER,
                             true, this.internalCancelMonitor);
+                } else {
+                    pyLintVisitor.deleteMarkers();
                 }
             }
 

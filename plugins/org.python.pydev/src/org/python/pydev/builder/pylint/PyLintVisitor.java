@@ -272,7 +272,7 @@ import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
                             break;
                     }
 
-                    if (priority > 0) {
+                    if (priority > -1) { // priority == -1: ignore, 0=info, 1=warning, 2=error.
                         try {
                             int line = -1;
                             int column = -1;

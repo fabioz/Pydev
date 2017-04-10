@@ -32,6 +32,10 @@ public interface IPyLintVisitor {
      */
     void join();
 
+    /**
+     * The list of markers that the visitor generated (must be gotten only after {@link #join()}).
+     * @return the list of markers or null if no markers were generated.
+     */
     List<MarkerInfo> getMarkers();
 
 }
