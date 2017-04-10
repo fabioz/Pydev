@@ -1388,4 +1388,11 @@ public class PyFormatStdTest extends TestCase {
         checkFormatResults(input, expected);
     }
 
+    public void testSelfAndPlus() throws Exception {
+        String input = ""
+                + "y = self + x\n";
+        String expected = input;
+        checkFormatResults(input, expected);
+    }
+
 }

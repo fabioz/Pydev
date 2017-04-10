@@ -18,7 +18,9 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Assert;
@@ -817,6 +819,43 @@ public class PyFormatStd extends PyAction implements IFormatter {
         }
     }
 
+    private static Set<String> unaryWords = new HashSet<>();
+    static {
+        unaryWords.add("and");
+        unaryWords.add("as");
+        unaryWords.add("assert");
+        unaryWords.add("break");
+        unaryWords.add("class");
+        unaryWords.add("continue");
+        unaryWords.add("def");
+        unaryWords.add("del");
+        unaryWords.add("elif");
+        unaryWords.add("else");
+        unaryWords.add("except");
+        unaryWords.add("exec");
+        unaryWords.add("finally");
+        unaryWords.add("for");
+        unaryWords.add("from");
+        unaryWords.add("global");
+        unaryWords.add("if");
+        unaryWords.add("import");
+        unaryWords.add("in");
+        unaryWords.add("is");
+        unaryWords.add("lambda");
+        unaryWords.add("nonlocal");
+        unaryWords.add("not");
+        unaryWords.add("or");
+        unaryWords.add("pass");
+        unaryWords.add("print");
+        unaryWords.add("raise");
+        unaryWords.add("return");
+        unaryWords.add("try");
+        unaryWords.add("while");
+        unaryWords.add("with");
+        unaryWords.add("yield");
+
+    }
+
     /**
      * Handles having an operator
      *
@@ -838,7 +877,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
         if (c == '~' || c == '+' || c == '-') {
             //could be an unary operator...
             String trimmedLastWord = buf.getLastWord().trim();
-            isUnary = trimmedLastWord.length() == 0 || PySelection.ALL_KEYWORD_TOKENS.contains(trimmedLastWord);
+            isUnary = trimmedLastWord.length() == 0 || unaryWords.contains(trimmedLastWord);
 
             if (!isUnary) {
                 for (char itChar : buf.reverseIterator()) {
