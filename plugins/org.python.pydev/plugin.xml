@@ -2866,7 +2866,7 @@ if __name__ == "__main__":
             id="org.python.pydev.editor.hover.pyMarkerTextHover"
             label="PyDev Marker Hover"
             preempt="false"
-            priority="150">
+            priority="10"> <!-- Marker hover should appear first -->
       </pyTextHover>
    </extension>
  </plugin>

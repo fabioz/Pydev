@@ -19,15 +19,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
-import org.eclipse.swt.custom.StyleRange;
-import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.widgets.Display;
 import org.python.pydev.editor.PyInformationPresenter;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -49,8 +44,6 @@ public class PydevCombiningHover extends AbstractPyEditorTextHover {
 
     boolean contentTypeSupported = false;
 
-    private int lastDividerLen;
-
     protected ITextViewer viewer;
 
     private static final String DIVIDER_CHAR = Character.toString((char) 0xfeff2015);
@@ -69,10 +62,6 @@ public class PydevCombiningHover extends AbstractPyEditorTextHover {
                     informationControl.setSize(hoverControlPreferredWidth, informationControl.getBounds().height);
                 }
                 hoverControlWidth = informationControl.getBounds().width;
-                StyledText text = (StyledText) e.getSource();
-                if (PyHoverPreferencesPage.getUseHoverDelimiters()) {
-                    resizeDividerText(text, hoverControlWidth);
-                }
             }
 
         });
@@ -153,18 +142,7 @@ public class PydevCombiningHover extends AbstractPyEditorTextHover {
                     if (hoverText != null && hoverText.trim().length() > 0) {
                         if (!firstHoverInfo && PyHoverPreferencesPage.getUseHoverDelimiters()) {
                             buf.append(PyInformationPresenter.LINE_DELIM);
-                            viewer.getTextWidget().getDisplay().syncExec(new Runnable() {
-
-                                @Override
-                                public void run() {
-                                    if (hoverControlWidth != null) {
-                                        buf.append(createDivider(hoverControlWidth));
-                                    } else {
-                                        buf.append(createDivider(getMaxExtent(hoverText)));
-                                    }
-                                }
-
-                            });
+                            buf.appendN(DIVIDER_CHAR, 20);
                             buf.append(PyInformationPresenter.LINE_DELIM);
                         } else if (buf.length() > 0) {
                             buf.append(PyInformationPresenter.LINE_DELIM);
@@ -215,71 +193,6 @@ public class PydevCombiningHover extends AbstractPyEditorTextHover {
                 }
             }
         }
-    }
-
-    /**
-     * Resizes the divider between Hovers when the control is resized, to
-     * fit exactly in the control's client area.
-     * @param text the <code>StyledText</code> containing the hover info
-     * @param width the desired width of the divider in pixels
-     */
-    protected void resizeDividerText(StyledText text, final int width) {
-        if (width != lastDividerLen) {
-            final String[] newDivider = new String[1];
-            int oldLen = lastDividerLen;
-            text.getDisplay().syncExec(new Runnable() {
-
-                @Override
-                public void run() {
-                    newDivider[0] = createDivider(width);
-                }
-
-            });
-            String regex = "\\" + DIVIDER_CHAR + "{" + oldLen + "}\\n\\s\\" + DIVIDER_CHAR + "{" +
-                    Math.abs(oldLen - lastDividerLen) + "}";
-            StyleRange[] ranges = text.getStyleRanges();
-            text.setText(text.getText().replaceAll(regex, newDivider[0]));
-            text.setStyleRanges(ranges);
-        }
-    }
-
-    /**
-     * Creates divider text of a specified width
-     * Must be called from the event dispatch thread
-     *
-     * @param width the desired width of the divider in pixels
-     * @return the divider text
-     */
-    private String createDivider(final int width) {
-        Assert.isTrue(Display.getCurrent().getThread() == Thread.currentThread(),
-                "This method must be called from the UI thread");
-        final StringBuilder divider = new StringBuilder();
-        getHoverControlCreator();
-        GC gc = new GC(viewer.getTextWidget().getDisplay());
-        while (gc.stringExtent(divider.toString()).x < width) {
-            divider.append(DIVIDER_CHAR);
-        }
-        divider.deleteCharAt(divider.length() - 1);
-        gc.dispose();
-        lastDividerLen = divider.length();
-        return divider.toString();
-    }
-
-    private int getMaxExtent(String hoverText) {
-        GC gc = new GC(viewer.getTextWidget().getDisplay());
-        int max = 0;
-        for (String line : hoverText.split("\\n")) {
-            /*TODO we need a way to skip lines that will be formatted by the InformationPresenter
-              For now, we hard-code it to skip file paths embedded in the hover info*/
-            if (!line.startsWith("FILE_PATH=")) {
-                int extent = gc.stringExtent(line).x;
-                if (extent > max) {
-                    max = extent;
-                }
-            }
-        }
-        gc.dispose();
-        return max;
     }
 
     /*
