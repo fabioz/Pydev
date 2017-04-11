@@ -187,7 +187,7 @@ To show your appreciation for PyDev and to keep it going strong, help to crowdfu
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
-Release 5.7.0
+Release 5.7.0 (2017-04-11)
 ==========================
 
 * **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
@@ -219,8 +219,8 @@ Release 5.7.0
 	* In Windows, when searching executables, priority is given to a python executable found in the PATH (as in Mac/Linux).
 	* Fixed issue were space was wrongly removed in code formatter. **#PyDev-784**
 
-Release 5.6.0
-==========================
+Release 5.6.0 (2017-03-22)
+===========================
 
 * **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
 

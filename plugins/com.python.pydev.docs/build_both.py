@@ -10,11 +10,12 @@ args = sys.argv[1:]
 this_script_path = sys.argv[0]
 this_script_dir = os.path.split(this_script_path)[0]
 
-    
+
 CURRENT_DATE = datetime.datetime.now()
 # CURRENT_DATE = datetime.datetime(2016, 12, 4)
 
 update_site_versions = [
+    '5.7.0',
     '5.6.0',
     '5.5.0',
     '5.4.0',
@@ -153,7 +154,7 @@ if __name__ == '__main__':
     # Copy the update site redirections
     shutil.rmtree(os.path.join('final', 'updates'), ignore_errors=True)
     shutil.copytree('updates', os.path.join('final', 'updates'))
-    
+
     shutil.rmtree(os.path.join('final', 'supporters'), ignore_errors=True)
     shutil.copytree('supporters', os.path.join('final', 'supporters'))
 
