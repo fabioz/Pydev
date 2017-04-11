@@ -67,7 +67,7 @@ Per-project settings
 
 It's possible to specify PyLint settings per project by creating a **.pylintrc** file in the project
 root and passing **--rcfile=.pylintrc**, in the preferences (PyLint inside PyDev is always run
-relative to the project directory).
+relative to the project directory, so, **.pylintrc** in this case must be alongside **.project** and **.pydevproject**).
 
 
 PyLint Configuration vs Severity Configuration in PyDev
