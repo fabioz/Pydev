@@ -49,8 +49,12 @@
 
         <!-- Added 2016-12-22 -->
         <a href="https://ultimatewebtraffic.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/ultimatewebtraffic.png" alt="ultimawebtraffic" title="https://ultimatewebtraffic.com" /></a>
+		<br/>
         <a href="https://buywebtrafficexperts.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/buywebtrafficexperts.png" alt="buywebtrafficexperts" title="https://buywebtrafficexperts.com" /></a>
         <a href="https://webtrafficgeeks.org" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/webtrafficgeeks.png" alt="webtrafficgeeks" title="https://webtrafficgeeks.org" /></a>
+
+        <!-- Added 2017-04-11 -->
+        <a href="http://www.ukwebhostreview.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/ukwebhostreview.png" alt="ukwebhostreview" title="http://www.ukwebhostreview.com" /></a>
         </div>
 
 
@@ -183,6 +187,38 @@ To show your appreciation for PyDev and to keep it going strong, help to crowdfu
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
+Release 5.7.0
+==========================
+
+* **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
+
+    * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
+
+* **PyLint**
+
+	* The PyLint integration is much improved.
+	* Working along with the PyDev code-analysis.
+	* If there's an equivalent code analysis error in PyLint and PyDev, the PyLint one is hidden.
+	* **Ctrl+1** on PyLint error line shows option to silent error in that line.
+	* See: http://pydev.org/manual_adv_pylint.html for details.
+
+* **Debugger**
+
+	* Fixed issue when sorting which could lead to error comparing a value with None.
+	* Fixed issue which prevented debugger from working with Jython due to the lack of sys._current_frames.
+	* Testing Jython on CI.
+
+* **Code Completion**
+
+	* Properly unpacking assigns from a parameter to an instance with type documented in docstring. **#PyDev-778**
+
+* **Others**
+
+	* When assigning parameters to attributes (**Ctrl+1** on function **def**), skip adding duplicate assignments.
+	* When adding parameters to docstrings  (**Ctrl+1** on function **def**), it will now properly update an existing docstring, not only create one from scratch.
+	* In Windows, when searching executables, priority is given to a python executable found in the PATH (as in Mac/Linux).
+	* Fixed issue were space was wrongly removed in code formatter. **#PyDev-784**
+
 Release 5.6.0
 ==========================
 
@@ -231,48 +267,6 @@ Release 5.6.0
     * Making **PyLint** use the same thread pool used for code analysis.
 
     * String index out of range while reading buffer in AbstractShell. **#PyDev-768**
-
-Release 5.5.0
-==========================
-
-* **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
-
-    * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
-
-* **Refactoring**
-
-    * Fixed refactoring error when dealing with imports which have a continuation char inside the module name part. **#PyDev-712**
-
-    * When extracting a method, decorators are properly considered for the new method position. **#PyDev-321**
-
-* **Code completion**
-
-    * When accessing enums, 'value' and 'name' are properly found. **#PyDev-591**
-
-    * Code completion improved on method chaining. **#PyDev-636** and **#PyDev-583**
-
-    * It's now possible to choose whether when a code-completion which adds a local import should add the import to the beginning of the function or the line above where it was requested.
-
-        * It may be configured in the preferences (Preferences > PyDev > Editor > Code Completion > Put local imports on top of method?).
-
-        * Default was changed to add it to the top of the method.
-
-* **New actions**
-
-    * **Ctrl+Shift+Alt+O** can be used to open the last hyperlink in the console that's currently open (it's now possible to jump directly to the error in some exception). **#PyDev-755**
-
-    * **Ctrl+2,sw** switches the target and value in assign statements (may not work properly if more than one '=' is found in the line).
-
-* **Debugger**
-
-    * Fixed error when hovering over variable when debugging. **#PyDev-580**
-
-* **Others**
-
-    * Fixed issue in grammar parsing on nested async calls. **#PyDev-753**
-
-    * Fixed issue grouping imports when an import has a continuation char inside the module part. **#PyDev 712**
-
 
 
 `View release notes for previous releases`_
