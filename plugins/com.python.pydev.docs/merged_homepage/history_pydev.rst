@@ -5,58 +5,91 @@ History For PyDev
 .. _`update sites page`: update_sites/index.html
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
-Release 5.6.0
-==========================
+Release 5.7.0 (2017-04-11)
+===========================
+
+* **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
+
+    * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
+
+* **PyLint**
+
+	* The PyLint integration is much improved.
+	* Working along with the PyDev code-analysis.
+	* If there's an equivalent code analysis error in PyLint and PyDev, the PyLint one is hidden.
+	* **Ctrl+1** on PyLint error line shows option to silent error in that line.
+	* See: http://pydev.org/manual_adv_pylint.html for details.
+
+* **Debugger**
+
+	* Fixed issue when sorting which could lead to error comparing a value with None.
+	* Fixed issue which prevented debugger from working with Jython due to the lack of sys._current_frames.
+	* Testing Jython on CI.
+
+* **Code Completion**
+
+	* Properly unpacking assigns from a parameter to an instance with type documented in docstring. **#PyDev-778**
+
+* **Others**
+
+	* When assigning parameters to attributes (**Ctrl+1** on function **def**), skip adding duplicate assignments.
+	* When adding parameters to docstrings  (**Ctrl+1** on function **def**), it will now properly update an existing docstring, not only create one from scratch.
+	* In Windows, when searching executables, priority is given to a python executable found in the PATH (as in Mac/Linux).
+	* Fixed issue were space was wrongly removed in code formatter. **#PyDev-784**
+
+
+Release 5.6.0 (2017-03-22)
+===========================
 
 * **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
 
     * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
 
 * **Debugger**
-   
-    * **Performance** enhancements on the **debugger** (which should be **60%-100%** faster now). 
-    
+
+    * **Performance** enhancements on the **debugger** (which should be **60%-100%** faster now).
+
     * The **debugger** now only supports **Python 2.6 onwards** (keep on PyDev 5.5.0 for Python 2.5 or below).
-    
+
     * Properly displaying variables when the **interactive console** is connected to a **debug session**. **#PyDev-776**
-    
+
     * Providing a way for the debugger to support a user-specified version of Qt for debugging QThreads (**preferences > PyDev > Debug > Qt Threads**).
-    
+
     * Fixed issue where a **native Qt signal is not callable** message was raised when connecting a signal to QThread.started.
-    
+
     * Fixed issue in displaying variable (with **Ctrl+Shift+D**) when debugging.
-    
+
     * Debug view toolbar icons no longer appearing stretched due to Set Next Statement icon having a different size.
-    
+
 * **Code completion**
 
     * **super** is now properly recognized (code completion and find definition).
-    
+
     * **pytest fixtures** are now properly recognized (code completion and find definition).
 
     * Suppress invalid completions on literals numbers (patch by Jonah Graham)
-    
+
 * **Others**
 
     * It's now possible to save the PyUnit preferences to the project or user settings.
-    
+
     * Upgraded **pep8** to the latest **pycodestyle**.
-    
+
     * Upgraded to latest **autopep8**.
-    
+
     * Fixed issue in Django shell if version >= 1.10 **#PyDev-752**.
-    
+
     * Add support for **coverage 4.x** (minimum supported version is now 4.3). **#PyDev-691**
-    
+
     * Syntax highlighting for **matmul operator** (was being considered a decorator). **#PyDev-771**
-    
+
     * Making **PyLint** use the same thread pool used for code analysis.
-    
+
     * String index out of range while reading buffer in AbstractShell. **#PyDev-768**
 
 
-Release 5.5.0
-==========================
+Release 5.5.0 (2017-01-19)
+===========================
 
 * **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
 
@@ -67,25 +100,25 @@ Release 5.5.0
     * Fixed refactoring error when dealing with imports which have a continuation char inside the module name part. **#PyDev-712**
 
     * When extracting a method, decorators are properly considered for the new method position. **#PyDev-321**
-    
+
 * **Code completion**
 
     * When accessing enums, 'value' and 'name' are properly found. **#PyDev-591**
-    
+
     * Code completion improved on method chaining. **#PyDev-636** and **#PyDev-583**
 
     * It's now possible to choose whether when a code-completion which adds a local import should add the import to the beginning of the function or the line above where it was requested.
-    
+
         * It may be configured in the preferences (Preferences > PyDev > Editor > Code Completion > Put local imports on top of method?).
-        
+
         * Default was changed to add it to the top of the method.
-    
+
 * **New actions**
 
     * **Ctrl+Shift+Alt+O** can be used to open the last hyperlink in the console that's currently open (it's now possible to jump directly to the error in some exception). **#PyDev-755**
 
     * **Ctrl+2,sw** switches the target and value in assign statements (may not work properly if more than one '=' is found in the line).
-    
+
 * **Debugger**
 
     * Fixed error when hovering over variable when debugging. **#PyDev-580**
@@ -93,19 +126,19 @@ Release 5.5.0
 * **Others**
 
     * Fixed issue in grammar parsing on nested async calls. **#PyDev-753**
-    
+
     * Fixed issue grouping imports when an import has a continuation char inside the module part. **#PyDev 712**
 
 
-Release 5.4.0
+Release 5.4.0 (2016-11-28)
 ==========================
 
 * **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
 
     * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
-    
+
 * If you enjoy **PyDev**, please show your appreciation through its **Patreon crowdfunding**: https://www.patreon.com/fabioz
-    
+
 * **Initial support for Python 3.6**
 
     * Code analysis for expressions on f-strings.
@@ -113,66 +146,66 @@ Release 5.4.0
     * Handling of underscores in numeric literals.
     * Parsing (but still not using) variable annotations.
     * Parsing asynchronous generators and comprehensions.
-    
+
 * **Launching**
 
     * Improved console description of the launch.
     * Support launching files with **python -m module.name** (instead of python module/name.py). **Note**: Has to be enabled at **Preferences > PyDev > Run**.
-        
-    
-* **Debugger** 
+
+
+* **Debugger**
 
     * Shows return values (may be disabled on preferences > PyDev > Debug).
     * When the user is waiting for some input, it'll no longer try to evaluate the entered contents.
     * Fix for multiprocess debugging when the debugger is started with a programmatic breakpoint (pydevd.settrace).
 
 * **Unittest integration**
-    
+
     * Bugfixes in the pytest integration related to unicode errors.
     * unittest subtests are now properly handled in the PyDev unittest runner.
-    * The currently selected tests are persisted. 
+    * The currently selected tests are persisted.
 
 * **Others**
 
-    * In Linux, when applying a completion which would automatically add an import, if the user focuses the completion pop-up (with Tab) and applies the completion with Shift+Enter, a local import is properly made.    
+    * In Linux, when applying a completion which would automatically add an import, if the user focuses the completion pop-up (with Tab) and applies the completion with Shift+Enter, a local import is properly made.
 
 
 
-Release 5.3.1
-==========================
+Release 5.3.1 (2016-10-31)
+============================
 
 * **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
 
     * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
 
 * **Code Completion**
- 
+
     * Substring completions are **on by default** (may be turned off in the code-completion preferences).
     * Fixed issue with code-completion using from..import..as aliases.
-    
+
 * **Others**
-    
+
     * Auto-fix imports with Ctrl+Shift+O properly sorts items based on the same sorting improvements for code-completion.
     * When fixing unresolved import (with Ctrl+1) it properly resolves dependent projects (bugfix for regression in 5.3.0).
     * **async** and **await** keywords are properly highlighted.
     * **async** blocks properly auto-indented.
     * In PEP 448 list unpack variable was not being marked as a "Load" variable (which made the code analysis yield false positives).
-    
 
-Release 5.3.0
-==========================
+
+Release 5.3.0 (2016-10-12)
+============================
 
 * **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
 
     * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
     * See: `update sites page`_ for the update site of older versions of PyDev.
     * See: the **PyDev does not appear after install** section on `the download page`_ for help on using a Java 8 vm in Eclipse.
-    
+
 * **Syntax validation for multiple grammars**
 
     * Helps to make code which is **Python 2 and 3 compatible**.
     * To customize, go to `Project Properties > PyDev - Interpreter/Grammar, and select`  **grammars for "additional syntax validation"**.
-    
+
 * **Code completion**
 
     * The code-completion can now do substring based matches (i.e.: the proposals will be shown if any part of the completion matches the requested name).
@@ -181,26 +214,26 @@ Release 5.3.0
     * Qualifiers of the completion (i.e.: package name) are styled differently (color may be customized in **General > Appearance > Colors and Fonts > Basic Qualifier Information Color**).
     * Completions are re-sorted when the name used to request a code completion changes.
     * **Sorting** is based on:
-    
+
         * The current name typed (so that matches that are exact or start with the requested token appear first).
-        * The type of the completion (parameter, local, context insensitive with auto-import, etc). 
+        * The type of the completion (parameter, local, context insensitive with auto-import, etc).
         * Where the completion was found (so, matches from the same project go first, referenced projects second and standard library last).
-        
+
     * **Ctrl and Shift Behavior when applying code-completion proposal**
-    
+
         * Ctrl is always **"replace the current name with the completion"** for all completions.
         * Pressing Ctrl to override the next name in code completion no longer looses the highlight in the editor.
-        * On code completion with auto-import, for doing local imports, the pop-up must be focused and Shift must be kept pressed while the completion is applied. 
-        
+        * On code completion with auto-import, for doing local imports, the pop-up must be focused and Shift must be kept pressed while the completion is applied.
+
 * **PyQt5 support in Interactive Console**
 
     * PyQt5 may now be used as a backend in the interactive console so that widgets/plots can be inspected interactively while using the console.
     * May be activated with **%matplotlib qt5** (when using IPython) or in **"Preferences > PyDev > Interactive Console > Enable GUI event loop integration > PyQt5"**.
-    
 
 
-Release 5.2.0
-==========================
+
+Release 5.2.0 (2016-08-17)
+============================
 
 * **Important** PyDev now requires Java 8 and Eclipse 4.5 onwards.
 
@@ -220,10 +253,10 @@ Release 5.2.0
 * **Indentation**
 
     * The default indent mode now changed to better follow PEP 8 guidelines:
-    
+
         * Indenting directly after {, [, ( will add one indent level.
         * Indenting after another token in a line with a {, [, ( will indent to the {, [, ( level.
-        
+
     * It's possible to restore previous indent modes (which either always indented to the parenthesis level or always indented a single level) in the preferences > PyDev > Editor > Typing.
 
 * **Interactive console**
@@ -232,14 +265,14 @@ Release 5.2.0
     * Fixed issue executing single line with multiple statements in console.
     * Fixed issue executing a multiple line statement in Jython.
 
-* **Others**    
+* **Others**
 
     * The (fast) parser which detects the outline of a Python module now handles mixed indentation (and additional fixes which could result in log entries such as "Did not expect to find item below node: Assign...").
     * Support for unpacking generalizations (PEP 448) which could still result in a syntax error for the Python 3 grammar (#PyDev-701).
     * Fixed error in code analysis when the code is connected to an RTC source control (#PyDev-184, patch by Wesley Barroso Lopes)
 
-Release 5.1.2
-==========================
+Release 5.1.2 (2016-06-23)
+===========================
 
 * **Important** PyDev now requires Java 8 and Eclipse 4.5.x.
 
@@ -248,7 +281,7 @@ Release 5.1.2
 	* See: the **PyDev does not appear after install** section on `the download page`_ for help on using a Java 8 vm in Eclipse.
 
 * The pytest integration was redone and should now work properly with the latest pytest.
-	
+
 	* Properly showing output of tests in PyUnit view.
 	* Improved dealing with items filtered through Ctrl+F9.
 	* Better support for xdist (no longer reporting that the session finished when only a slave finished).
@@ -262,8 +295,8 @@ Release 5.1.2
 * The hover in PyDev has a brand new implementation which is now more flexible and easier to extend in plugins (patch by Mark A. Leone).
 
 
-Release 5.0.0
-==========================
+Release 5.0.0 (2016-05-05)
+===========================
 
 * **Important** PyDev now requires Java 8 and Eclipse 4.5.x.
 
@@ -282,8 +315,8 @@ Release 5.0.0
 * Fixed pyedit_wrap_expression to avoid halt of the IDE on Ctrl+1 -> Wrap expression.
 
 
-Release 4.5.5
-==========================
+Release 4.5.5 (2016-03-22)
+============================
 
 * Code Completion
 
@@ -291,28 +324,28 @@ Release 4.5.5
 	* Code completion now available for super() (#PyDev-592).
 
 * PyTest integration
-	
+
 	* Files in tracebacks now clickable in latest pytest.
 	* Skips not marked as errors in the latest pytest.
-	
+
 * Parser:
- 
+
 	* async and await should also be valid as names in Python 3 grammar (#PyDev-593).
 	* Additional Unpacking Generalizations from PEP 448 recognized (#PyDev-667).
 	* Made clearer in the UI that Python 3 grammar should support Python 3.0 to Python 3.5.
-	
+
 * Debugger:
 
-	* tests package should no longer pollute name space (Removed tests directories from build: #PyDev-663). 
+	* tests package should no longer pollute name space (Removed tests directories from build: #PyDev-663).
 	* Multiprocessing working properly under debugger (Celery Cannot Run in Debug Mode: #PyDev-662).
-	
-* Others: 
+
+* Others:
 
 	* Introduce source features/plugins (patch by Andreas Pakulat).
 	* Default test runner now works with Django >= 1.8 (#PyDev 614, patch by Ville Skyttä).
 
-Release 4.5.4
-==========================
+Release 4.5.4 (2016-01-29)
+===========================
 
 * Debugger
 
@@ -321,8 +354,8 @@ Release 4.5.4
 	* Fixed issue which broke the action to get the referrers of some object in the debugger (right-click variable in debugger > get referrers).
 
 
-Release 4.5.3
-==========================
+Release 4.5.3 (2016-01-21)
+===========================
 
 * Debugger
 
@@ -3962,8 +3995,8 @@ New on 0.8:
 -  `PyLint integrated <pylint.html>`_
 -  `TODO tasks <tasks.html>`_ supported
 
-New on 0.7.1:
-~~~~~~~~~~~~~
+New on 0.7.1 (2004-10-20)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  `Code Coverage <codecoverage.html>`_
 -  `Run subset from dir <run.html>`_ (this is not unit-test, but it can
@@ -3977,3 +4010,8 @@ New on 0.7.1:
 .. |images/index/override\_methods.png| image:: images/index/override_methods.png
 .. |images/index/rerun\_on\_change.png| image:: images/index/rerun_on_change.png
 
+
+0.1 (2003-08-05)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+First PyDev released!
