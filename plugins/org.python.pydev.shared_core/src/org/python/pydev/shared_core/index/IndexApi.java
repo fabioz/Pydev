@@ -70,6 +70,8 @@ public class IndexApi {
 
     public static final boolean DEBUG = false;
 
+    private static final String lucene6dot1Suffix = "L6dot1";
+
     private final Directory indexDir;
     private IndexWriter writer;
     private SearcherManager searchManager;
@@ -79,7 +81,17 @@ public class IndexApi {
     private final Object lock = new Object();
 
     public IndexApi(Directory indexDir, boolean applyAllDeletes) throws IOException {
-        this.indexDir = indexDir;
+    	Directory resultDir=indexDir;
+        if (indexDir instanceof FSDirectory) {
+            FSDirectory dir = (FSDirectory) indexDir;
+            java.nio.file.Path indexPath = dir.getDirectory();
+            File indexFile = indexPath.toFile();
+            if (!indexFile.getAbsolutePath().endsWith(lucene6dot1Suffix)){
+                File newIndexFile = new File(indexFile.getAbsolutePath() + lucene6dot1Suffix);
+                resultDir = FSDirectory.open(newIndexFile.toPath());
+            }
+        }
+        this.indexDir = resultDir;
         init(applyAllDeletes);
     }
 
