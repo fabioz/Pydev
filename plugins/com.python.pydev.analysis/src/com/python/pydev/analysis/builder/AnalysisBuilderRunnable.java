@@ -348,6 +348,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
                                                 && pyLintMessageId.equals(pyLintMarkerInfo.additionalInfo
                                                         .get(IMiscConstants.PYLINT_MESSAGE_ID))) {
                                             pyLintMarkerInfoIterator.remove();
+                                            break; // Stop the for (we've already removed it).
                                         }
                                     }
                                 }
