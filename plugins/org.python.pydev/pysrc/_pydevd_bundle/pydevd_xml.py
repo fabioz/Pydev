@@ -1,12 +1,12 @@
 from _pydev_bundle import pydev_log
 import traceback
+from _pydevd_bundle import pydevd_extension_utils
 from _pydevd_bundle import pydevd_resolver
 import sys
 from _pydevd_bundle.pydevd_constants import dict_iter_items, dict_keys, IS_PY3K, \
     MAXIMUM_VARIABLE_REPRESENTATION_SIZE, RETURN_VALUES_DICT
-
 from _pydev_bundle.pydev_imports import quote
-
+from _pydevd_bundle.pydevd_extension_api import TypeResolveProvider, StrPresentationProvider
 try:
     import types
     frame_type = types.FrameType
@@ -27,132 +27,186 @@ class ExceptionOnEvaluate:
     def __init__(self, result):
         self.result = result
 
-#------------------------------------------------------------------------------------------------------ resolvers in map
+_IS_JYTHON = sys.platform.startswith("java")
+if not _IS_JYTHON:
+    _default_type_map = [
+        # None means that it should not be treated as a compound variable
 
-_TYPE_MAP = None
+        # isintance does not accept a tuple on some versions of python, so, we must declare it expanded
+        (type(None), None,),
+        (int, None),
+        (float, None),
+        (complex, None),
+        (str, None),
+        (tuple, pydevd_resolver.tupleResolver),
+        (list, pydevd_resolver.tupleResolver),
+        (dict, pydevd_resolver.dictResolver),
+    ]
+    try:
+        _default_type_map.append((long, None))  # @UndefinedVariable
+    except:
+        pass #not available on all python versions
 
+    try:
+        _default_type_map.append((unicode, None))  # @UndefinedVariable
+    except:
+        pass #not available on all python versions
 
-def _update_type_map():
-    global _TYPE_MAP
-    if not sys.platform.startswith("java"):
-        _TYPE_MAP = [
-                #None means that it should not be treated as a compound variable
+    try:
+        _default_type_map.append((set, pydevd_resolver.setResolver))
+    except:
+        pass #not available on all python versions
 
-                #isintance does not accept a tuple on some versions of python, so, we must declare it expanded
-                (type(None), None,),
-                (int, None),
-                (float, None),
-                (complex, None),
-                (str, None),
-                (tuple, pydevd_resolver.tupleResolver),
-                (list, pydevd_resolver.tupleResolver),
-                (dict, pydevd_resolver.dictResolver),
-        ]
+    try:
+        _default_type_map.append((frozenset, pydevd_resolver.setResolver))
+    except:
+        pass #not available on all python versions
 
+    try:
+        from django.utils.datastructures import MultiValueDict
+        _default_type_map.insert(0, (MultiValueDict, pydevd_resolver.multiValueDictResolver))
+        #we should put it before dict
+    except:
+        pass  #django may not be installed
+
+    try:
+        from django.forms import BaseForm
+        _default_type_map.insert(0, (BaseForm, pydevd_resolver.djangoFormResolver))
+        #we should put it before instance resolver
+    except:
+        pass  #django may not be installed
+
+    try:
+        from collections import deque
+        _default_type_map.append((deque, pydevd_resolver.dequeResolver))
+    except:
+        pass
+
+    if frame_type is not None:
+        _default_type_map.append((frame_type, pydevd_resolver.frameResolver))
+
+else:
+    from org.python import core  # @UnresolvedImport
+    _default_type_map = [
+        (core.PyNone, None),
+        (core.PyInteger, None),
+        (core.PyLong, None),
+        (core.PyFloat, None),
+        (core.PyComplex, None),
+        (core.PyString, None),
+        (core.PyTuple, pydevd_resolver.tupleResolver),
+        (core.PyList, pydevd_resolver.tupleResolver),
+        (core.PyDictionary, pydevd_resolver.dictResolver),
+        (core.PyStringMap, pydevd_resolver.dictResolver),
+    ]
+    if hasattr(core, 'PyJavaInstance'):
+        # Jython 2.5b3 removed it.
+        _default_type_map.append((core.PyJavaInstance, pydevd_resolver.instanceResolver))
+
+class TypeResolveHandler(object):
+    
+    __instance = None
+
+    NO_PROVIDER = [] # Sentinel value (any mutable object to be used as a constant would be valid).
+
+    def __init__(self):
+        self.default_type_map = _default_type_map
+        self.resolve_providers = pydevd_extension_utils.extensions_of_type(TypeResolveProvider)
+        self.str_providers = pydevd_extension_utils.extensions_of_type(StrPresentationProvider)
+        
+        # Note: don't initialize with the types we already know about so that the extensions can override
+        # the default resolvers that are already available if they want.
+        self._type_to_resolver_cache = {}
+        self._type_to_str_provider_cache = {}
+
+    def get_type(self,o):
         try:
-            _TYPE_MAP.append((long, None))
+            try:
+                # Faster than type(o) as we don't need the function call.
+                type_object = o.__class__
+            except:
+                # Not all objects have __class__ (i.e.: there are bad bindings around).
+                type_object = type(o)
+                
+            type_name = type_object.__name__
         except:
-            pass #not available on all python versions
+            # This happens for org.python.core.InitModule
+            return 'Unable to get Type', 'Unable to get Type', None
+        
+        return self._get_type(o, type_object, type_name)
 
+    def _get_type(self, o, type_object, type_name):
+        resolver = self._type_to_resolver_cache.get(type_object)
+        if resolver is not None:
+            return type_object, type_name, resolver
+        
         try:
-            _TYPE_MAP.append((unicode, None))
+            for resolver in self.resolve_providers:
+                if resolver.can_provide(type_object, type_name):
+                    # Cache it
+                    self._type_to_resolver_cache[type_object] = resolver
+                    return type_object, type_name, resolver
+
+            for t in self.default_type_map:
+                if isinstance(o, t[0]):
+                    # Cache it
+                    resolver = t[1]
+                    self._type_to_resolver_cache[type_object] = resolver
+                    return (type_object, type_name, resolver)
         except:
-            pass #not available on all python versions
+            traceback.print_exc()
 
-        try:
-            _TYPE_MAP.append((set, pydevd_resolver.setResolver))
-        except:
-            pass #not available on all python versions
+        # No match return default (and cache it).
+        resolver = pydevd_resolver.defaultResolver
+        self._type_to_resolver_cache[type_object] = resolver
+        return type_object, type_name, resolver
+    
+    if _IS_JYTHON:
+        _base_get_type = _get_type
+        
+        def _get_type(self, o, type_object, type_name):
+            if type_name == 'org.python.core.PyJavaInstance':
+                return type_object, type_name, pydevd_resolver.instanceResolver
 
-        try:
-            _TYPE_MAP.append((frozenset, pydevd_resolver.setResolver))
-        except:
-            pass #not available on all python versions
-
-        try:
-            import numpy
-            _TYPE_MAP.append((numpy.ndarray, pydevd_resolver.ndarrayResolver))
-        except:
-            pass  #numpy may not be installed
-
-        try:
-            from django.utils.datastructures import MultiValueDict
-            _TYPE_MAP.insert(0, (MultiValueDict, pydevd_resolver.multiValueDictResolver))
-            #we should put it before dict
-        except:
-            pass  #django may not be installed
-
-        try:
-            from django.forms import BaseForm
-            _TYPE_MAP.insert(0, (BaseForm, pydevd_resolver.djangoFormResolver))
-            #we should put it before instance resolver
-        except:
-            pass  #django may not be installed
-
-        try:
-            from collections import deque
-            _TYPE_MAP.append((deque, pydevd_resolver.dequeResolver))
-        except:
-            pass
-
-        if frame_type is not None:
-            _TYPE_MAP.append((frame_type, pydevd_resolver.frameResolver))
+            if type_name == 'org.python.core.PyArray':
+                return type_object, type_name, pydevd_resolver.jyArrayResolver
+            
+            return self._base_get_type(o, type_name, type_name)
 
 
-    else: #platform is java
-        from org.python import core #@UnresolvedImport
-        _TYPE_MAP = [
-                (core.PyNone, None),
-                (core.PyInteger, None),
-                (core.PyLong, None),
-                (core.PyFloat, None),
-                (core.PyComplex, None),
-                (core.PyString, None),
-                (core.PyTuple, pydevd_resolver.tupleResolver),
-                (core.PyList, pydevd_resolver.tupleResolver),
-                (core.PyDictionary, pydevd_resolver.dictResolver),
-                (core.PyStringMap, pydevd_resolver.dictResolver),
-        ]
-
-        if hasattr(core, 'PyJavaInstance'):
-            #Jython 2.5b3 removed it.
-            _TYPE_MAP.append((core.PyJavaInstance, pydevd_resolver.instanceResolver))
+    def str_from_providers(self,  o, type_object, type_name):
+        provider = self._type_to_str_provider_cache.get(type_object)
+        
+        if provider is self.NO_PROVIDER:
+            return None
+        
+        if provider is not None:
+            return provider
+        
+        for provider in self.str_providers:
+            if provider.can_provide(type_object, type_name):
+                self._type_to_str_provider_cache[type_object] = provider
+                return provider.get_str(o)
+            
+        self._type_to_str_provider_cache[type_object] = self.NO_PROVIDER
+        return None
 
 
+_TYPE_RESOLVE_HANDLER = TypeResolveHandler()
+
+""" 
 def get_type(o):
-    """ returns a triple (typeObject, typeString, resolver
-        resolver != None means that variable is a container,
-        and should be displayed as a hierarchy.
-        Use the resolver to get its attributes.
+    Receives object and returns a triple (typeObject, typeString, resolver).
+    
+    resolver != None means that variable is a container, and should be displayed as a hierarchy.
+    
+    Use the resolver to get its attributes.
+    
+    All container objects should have a resolver.
+"""
+get_type = _TYPE_RESOLVE_HANDLER.get_type
 
-        All container objects should have a resolver.
-    """
-
-    try:
-        type_object = type(o)
-        type_name = type_object.__name__
-    except:
-        #This happens for org.python.core.InitModule
-        return 'Unable to get Type', 'Unable to get Type', None
-
-    try:
-
-        if type_name == 'org.python.core.PyJavaInstance':
-            return (type_object, type_name, pydevd_resolver.instanceResolver)
-
-        if type_name == 'org.python.core.PyArray':
-            return (type_object, type_name, pydevd_resolver.jyArrayResolver)
-
-        if _TYPE_MAP is None:
-            _update_type_map()
-        for t in _TYPE_MAP:
-            if isinstance(o, t[0]):
-                return (type_object, type_name, t[1])
-    except:
-        traceback.print_exc()
-
-    #no match return default
-    return (type_object, type_name, pydevd_resolver.defaultResolver)
+_str_from_providers = _TYPE_RESOLVE_HANDLER.str_from_providers
 
 
 def return_values_from_dict_to_xml(return_dict):
@@ -215,7 +269,10 @@ def var_to_xml(val, name, doTrim=True, additional_in_xml=''):
     do_not_call_value_str = resolver is not None and resolver.use_value_repr_instead_of_str
 
     try:
-        if hasattr(v, '__class__'):
+        str_from_provider = _str_from_providers(v, _type, typeName)
+        if str_from_provider is not None:
+            value = str_from_provider
+        elif hasattr(v, '__class__'):
             if v.__class__ == frame_type:
                 value = pydevd_resolver.frameResolver.get_frame_name(v)
 
@@ -271,10 +328,10 @@ def var_to_xml(val, name, doTrim=True, additional_in_xml=''):
         #fix to work with unicode values
         try:
             if not IS_PY3K:
-                if isinstance(value, unicode):
+                if value.__class__ == unicode:  # @UndefinedVariable
                     value = value.encode('utf-8')
             else:
-                if isinstance(value, bytes):
+                if value.__class__ == bytes:
                     value = value.encode('utf-8')
         except TypeError: #in java, unicode is a function
             pass
