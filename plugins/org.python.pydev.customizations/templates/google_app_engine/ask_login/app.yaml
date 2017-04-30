@@ -1,8 +1,14 @@
+# Notice: This template has only been tested 
+# under Python27 + GAE standard environment
 application: ${app_id}
 version: 1
-runtime: python
+runtime: python27
+# threadsafe is required but can be either true or 
+# false. For some package, it should be true e.g. Flask
+threadsafe: true 
 api_version: 1
+
 
 handlers:
 - url: /.*
-  script: asklogin.py
+  script: asklogin.app
