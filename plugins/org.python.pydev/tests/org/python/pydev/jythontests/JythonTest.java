@@ -50,7 +50,6 @@ public class JythonTest extends TestCase {
             JythonTest builtins = new JythonTest();
             builtins.setUp();
             builtins.testJythonTests();
-            builtins.testJythonTestsOnSeparateProcess();
             builtins.tearDown();
 
             junit.textui.TestRunner.run(JythonTest.class);
