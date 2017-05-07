@@ -86,10 +86,9 @@ class WriterThreadCaseSetNextStatement(debugger_unittest.AbstractWriterThread):
         self.finished_ok = True
 
 #=======================================================================================================================
-# WriterThreadCaseDjango
+# AbstractWriterThreadCaseDjango
 #======================================================================================================================
-class WriterThreadCaseDjango(debugger_unittest.AbstractWriterThread):
-
+class AbstractWriterThreadCaseDjango(debugger_unittest.AbstractWriterThread):
     FORCE_KILL_PROCESS_WHEN_FINISHED_OK = True
 
     def get_command_line_args(self):
@@ -101,24 +100,18 @@ class WriterThreadCaseDjango(debugger_unittest.AbstractWriterThread):
             '--noreload',
             str(free_port),
         ]
-
-    def write_add_breakpoint(self, line, func):
+    def write_add_breakpoint_django(self, line, func, template):
         '''
             @param line: starts at 1
         '''
         breakpoint_id = self.next_breakpoint_id()
-        template_file = debugger_unittest._get_debugger_test_file(os.path.join('my_django_proj_17', 'my_app', 'templates', 'my_app', 'index.html'))
+        template_file = debugger_unittest._get_debugger_test_file(os.path.join('my_django_proj_17', 'my_app', 'templates', 'my_app', template))
         self.write("111\t%s\t%s\t%s\t%s\t%s\t%s\tNone\tNone" % (self.next_seq(), breakpoint_id, 'django-line', template_file, line, func))
         self.log.append('write_add_django_breakpoint: %s line: %s func: %s' % (breakpoint_id, line, func))
         return breakpoint_id
 
-
-    def run(self):
-        self.start_socket()
-        self.write_add_breakpoint(5, None)
-        self.write_make_initial_run()
-        django_port = self.django_port
-
+    def create_request_thread(self, uri):
+        outer= self
         class T(threading.Thread):
             def run(self):
                 try:
@@ -127,13 +120,24 @@ class WriterThreadCaseDjango(debugger_unittest.AbstractWriterThread):
                     from urllib import urlopen
                 for _ in xrange(10):
                     try:
-                        stream = urlopen('http://127.0.0.1:%s/my_app' % django_port)
+                        stream = urlopen('http://127.0.0.1:%s/%s' % (outer.django_port,uri))
                         self.contents = stream.read()
                         break
                     except IOError:
                         continue
+        return T()
 
-        t = T()
+#=======================================================================================================================
+# WriterThreadCaseDjango
+#======================================================================================================================
+class WriterThreadCaseDjango(AbstractWriterThreadCaseDjango):
+
+    def run(self):
+        self.start_socket()
+        self.write_add_breakpoint_django(5, None, 'index.html')
+        self.write_make_initial_run()
+
+        t = self.create_request_thread('my_app')
         time.sleep(2) # Give django some time to get to startup before requesting the page
         t.start()
 
@@ -168,6 +172,28 @@ class WriterThreadCaseDjango(debugger_unittest.AbstractWriterThread):
         if contents != '<ul><li>v1:v1</li><li>v2:v2</li></ul>':
             raise AssertionError('%s != <ul><li>v1:v1</li><li>v2:v2</li></ul>' % (contents,))
 
+        self.finished_ok = True
+
+#=======================================================================================================================
+# WriterThreadCaseDjango2
+#======================================================================================================================
+class WriterThreadCaseDjango2(AbstractWriterThreadCaseDjango):
+
+    def run(self):
+        self.start_socket()
+        self.write_add_breakpoint_django(4, None, 'name.html')
+        self.write_make_initial_run()
+
+        t = self.create_request_thread('my_app/name')
+        time.sleep(2) # Give django some time to get to startup before requesting the page
+        t.start()
+
+        thread_id, frame_id, line = self.wait_for_breakpoint_hit('111', True)
+        assert line == 4, 'Expected return to be in line 4, was: %s' % line
+
+        self.write_get_frame(thread_id, frame_id)
+        self.wait_for_var('<var name="form" type="NameForm" qualifier="my_app.forms" value="NameForm%253A %253Cmy_app.forms.NameForm object')
+        self.write_run_thread(thread_id)
         self.finished_ok = True
 
 #=======================================================================================================================
@@ -1309,6 +1335,10 @@ class Test(unittest.TestCase, debugger_unittest.DebuggerRunner):
     if TEST_DJANGO:
         def test_case_django(self):
             self.check_case(WriterThreadCaseDjango)
+
+        def test_case_django2(self):
+            self.check_case(WriterThreadCaseDjango2)
+
 
     if TEST_CYTHON:
         def test_cython(self):
