@@ -16,9 +16,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.core.TestDependent;
@@ -96,35 +94,6 @@ public class JythonTest extends TestCase {
                 System.out.println(stdOut);
                 System.out.println(stdErr);
                 failIfErrorsRaised(errors, stdErr);
-            }
-        }
-    }
-
-    public void testJythonTestsOnSeparateProcess() throws Exception {
-        if (RUN_TESTS_ON_SEPARATE_PROCESS) {
-            final Set<String> skip = new HashSet<>();
-            skip.add("test_pydev_ipython_010.py");
-            skip.add("test_pydev_ipython_011.py");
-            FileFilter filter = new FileFilter() {
-
-                @Override
-                public boolean accept(File pathname) {
-                    if (skip.contains(pathname.getName())) {
-                        return false;
-                    }
-                    return true;
-                }
-            };
-            //has to be run on a separate process because it'll call exit()
-            List<Throwable> errors = JythonTest.execAll("test", new File[] { new File(
-                    TestDependent.TEST_PYDEV_PLUGIN_LOC + "pysrc/tests"), }, filter);
-            if (errors.size() > 0) {
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-                out.write("There have been errors while executing the test scripts in jython.\n\n".getBytes());
-                for (Throwable throwable : errors) {
-                    throwable.printStackTrace(new PrintStream(out));
-                }
-                fail(new String(out.toByteArray()));
             }
         }
     }

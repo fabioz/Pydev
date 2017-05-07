@@ -80,13 +80,17 @@ public class IndexApi {
     private CodeAnalyzer analyzer;
     private final Object lock = new Object();
 
-    public IndexApi(Directory indexDir, boolean applyAllDeletes) throws IOException {
-    	Directory resultDir=indexDir;
+    protected IndexApi(Object /*Directory*/ indexDirObj, boolean applyAllDeletes) throws IOException {
+        // Note; indexDirOjb must actually be a org.apache.lucene.store.Directory (but we don't export it
+        // in the API so that it's not in the public API -- that way clients don't need to depend on it
+        // as they'll usually use the other constructor which receive as File anyways).
+        Directory indexDir = (Directory) indexDirObj;
+        Directory resultDir = indexDir;
         if (indexDir instanceof FSDirectory) {
             FSDirectory dir = (FSDirectory) indexDir;
             java.nio.file.Path indexPath = dir.getDirectory();
             File indexFile = indexPath.toFile();
-            if (!indexFile.getAbsolutePath().endsWith(lucene6dot1Suffix)){
+            if (!indexFile.getAbsolutePath().endsWith(lucene6dot1Suffix)) {
                 File newIndexFile = new File(indexFile.getAbsolutePath() + lucene6dot1Suffix);
                 resultDir = FSDirectory.open(newIndexFile.toPath());
             }
