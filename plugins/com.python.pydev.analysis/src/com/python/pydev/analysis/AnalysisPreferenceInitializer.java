@@ -72,7 +72,7 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
     public static final int DEFAULT_SEVERITY_ASSIGNMENT_TO_BUILT_IN_SYMBOL = IMarker.SEVERITY_WARNING;
 
     public static final String SEVERITY_PEP8 = "SEVERITY_PEP8";
-    public static final int DEFAULT_SEVERITY_PEP8 = IMarker.SEVERITY_INFO;
+    public static final int DEFAULT_SEVERITY_PEP8 = -1;
 
     public static final String DO_AUTO_IMPORT = "DO_AUTO_IMPORT";
     public static final boolean DEFAULT_DO_AUT_IMPORT = true;
@@ -84,7 +84,7 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
     public static final boolean DEFAULT_DO_IGNORE_FIELDS_WITH_UNDER = false;
 
     public static final String SEVERITY_ARGUMENTS_MISMATCH = "SEVERITY_ARGUMENTS_MISMATCH";
-    public static final int DEFAULT_SEVERITY_ARGUMENTS_MISMATCH = IMarker.SEVERITY_INFO; //Currently does not run by default!
+    public static final int DEFAULT_SEVERITY_ARGUMENTS_MISMATCH = -1; //Currently does not run by default!
 
     public static final String SEVERITY_FSTRING_ERROR = "SEVERITY_FSTRING_ERROR";
     public static final int DEFAULT_SEVERITY_FSTRING_ERROR = IMarker.SEVERITY_ERROR;

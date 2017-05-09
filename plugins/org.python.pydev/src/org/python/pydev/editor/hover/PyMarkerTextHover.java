@@ -3,7 +3,7 @@
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
- * 
+ *
  * A re-factor of <code>PyTextHover</code> to use the extension point <code>org.python.pydev.pyTextHover</code>
  */
 package org.python.pydev.editor.hover;
@@ -19,6 +19,7 @@ import org.python.pydev.editor.PyInformationPresenter;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_ui.utils.PyMarkerUtils;
 
 public class PyMarkerTextHover extends AbstractPyEditorTextHover {
 
@@ -67,10 +68,12 @@ public class PyMarkerTextHover extends AbstractPyEditorTextHover {
                     if (buf.length() > 0) {
                         buf.append(PyInformationPresenter.LINE_DELIM);
                     }
-                    Object msg = marker.markerAnnotation.getMarker().getAttribute(IMarker.MESSAGE);
-                    if (!"PyDev breakpoint".equals(msg)) {
-                        buf.appendObject(msg);
+                    IMarker m = marker.markerAnnotation.getMarker();
+                    if (!PyMarkerUtils.showToUser(m)) {
+                        continue;
                     }
+                    Object msg = m.getAttribute(IMarker.MESSAGE);
+                    buf.appendObject(msg);
                 }
             } catch (CoreException e) {
                 //ignore marker does not exist anymore

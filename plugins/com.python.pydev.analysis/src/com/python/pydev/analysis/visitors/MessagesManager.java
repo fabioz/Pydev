@@ -428,7 +428,7 @@ public final class MessagesManager {
                 IMessage message = l.get(0);
 
                 //messages are grouped by type, and the severity is set by type, so, this is ok...
-                if (message.getSeverity() == IMarker.SEVERITY_INFO) {
+                if (message.getSeverity() < IMarker.SEVERITY_INFO) {
                     if (doIgnoreMessageIfJustInformational(message.getType())) {
                         //ok, let's ignore it for real (and don't add it) as those are not likely to be
                         //used anyways for other actions)
@@ -468,7 +468,7 @@ public final class MessagesManager {
         }
 
         for (IMessage message : independentMessages) {
-            if (message.getSeverity() == IMarker.SEVERITY_INFO) {
+            if (message.getSeverity() < IMarker.SEVERITY_INFO) {
                 if (doIgnoreMessageIfJustInformational(message.getType())) {
                     //ok, let's ignore it for real (and don't add it) as those are not likely to be
                     //used anyways for other actions)

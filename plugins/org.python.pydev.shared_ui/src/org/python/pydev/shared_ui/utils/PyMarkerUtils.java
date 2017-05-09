@@ -353,13 +353,44 @@ public class PyMarkerUtils {
      */
     public static IResource getResourceForTextEditor(ITextEditor textEditor) {
         IEditorInput input = textEditor.getEditorInput();
-        IResource resource = (IResource) input.getAdapter(IFile.class);
+        IResource resource = input.getAdapter(IFile.class);
         if (resource == null) {
-            resource = (IResource) input.getAdapter(IResource.class);
+            resource = input.getAdapter(IResource.class);
         }
         if (resource == null) {
             resource = ResourcesPlugin.getWorkspace().getRoot();
         }
         return resource;
+    }
+
+    public static boolean showToUser(IMarker m) {
+        if (m == null) {
+            return false;
+        }
+        Object msg;
+        try {
+            msg = m.getAttribute(IMarker.MESSAGE);
+        } catch (CoreException e) {
+            Log.log(e);
+            return false;
+        }
+        if (msg == null) {
+            return false;
+        }
+        Object severity;
+        try {
+            severity = m.getAttribute(IMarker.SEVERITY);
+        } catch (CoreException e) {
+            Log.log(e);
+            return false;
+        }
+        if (severity == null || !(severity instanceof Integer) | ((int) severity) < 0) {
+            return false;
+        }
+
+        if ("PyDev breakpoint".equals(msg)) {
+            return false;
+        }
+        return true;
     }
 }

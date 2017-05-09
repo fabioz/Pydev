@@ -14,7 +14,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.python.pydev.shared_core.preferences.IScopedPreferences;
@@ -97,7 +96,7 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences {
                     }
 
                     //TODO: Add ARGUMENTS_MISMATCH again later on
-                    temp.put(IAnalysisPreferences.TYPE_ARGUMENTS_MISATCH, IMarker.SEVERITY_INFO); //Force it to be disabled for now!
+                    temp.put(IAnalysisPreferences.TYPE_ARGUMENTS_MISATCH, -1); //Force it to be disabled for now!
                     severityTypeMapCache = temp;
                 }
             }

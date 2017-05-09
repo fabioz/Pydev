@@ -27,15 +27,15 @@ import com.python.pydev.analysis.messages.Message;
 
 /**
  * Name was gotten from the python library... but the implementation is very different ;-)
- * 
+ *
  * @author Fabio
  */
 public class TabNanny {
 
     /**
      * Analyze the doc for mixed tabs and indents with the wrong number of chars.
-     * @param monitor 
-     * 
+     * @param monitor
+     *
      * @return a list with the error messages to be shown to the user.
      */
     public static List<IMessage> analyzeDoc(IDocument doc, IAnalysisPreferences analysisPrefs, String moduleName,
@@ -43,7 +43,7 @@ public class TabNanny {
         ArrayList<IMessage> ret = new ArrayList<IMessage>();
 
         //don't even try to gather indentation errors if they should be ignored.
-        if (analysisPrefs.getSeverityForType(IAnalysisPreferences.TYPE_INDENTATION_PROBLEM) == IMarker.SEVERITY_INFO) {
+        if (analysisPrefs.getSeverityForType(IAnalysisPreferences.TYPE_INDENTATION_PROBLEM) < IMarker.SEVERITY_INFO) {
             return ret;
         }
 
@@ -125,7 +125,7 @@ public class TabNanny {
 
     /**
      * Creates the errors that are related to a bad indentation (number of space chars is not ok).
-     * @param monitor 
+     * @param monitor
      */
     private static void createBadIndentForSpacesMessages(IDocument doc, IAnalysisPreferences analysisPrefs,
             IIndentPrefs indentPrefs, ArrayList<IMessage> ret, List<Tuple3<String, Integer, Boolean>> validsAre,
@@ -170,7 +170,7 @@ public class TabNanny {
 
     /**
      * Creates the errors that are related to the mixed indentation.
-     * @param monitor 
+     * @param monitor
      */
     private static void createMixedErrorMessages(IDocument doc, IAnalysisPreferences analysisPrefs,
             ArrayList<IMessage> ret, List<Tuple3<String, Integer, Boolean>> errorsAre, String errorMsg, char errorChar,

@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -338,6 +339,10 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
                         List<MarkerInfo> codeAnalysisMarkers = lineToMarkerInfo.get(pyLintMarkerInfo.lineStart);
                         if (codeAnalysisMarkers != null && codeAnalysisMarkers.size() > 0) {
                             for (MarkerInfo codeAnalysisMarker : codeAnalysisMarkers) {
+                                if (codeAnalysisMarker.severity < IMarker.SEVERITY_INFO) {
+                                    // Don't consider if it shouldn't be shown.
+                                    continue;
+                                }
                                 Map<String, Object> additionalInfo = codeAnalysisMarker.additionalInfo;
                                 if (additionalInfo != null) {
                                     Object analysisType = additionalInfo.get(AnalysisRunner.PYDEV_ANALYSIS_TYPE);
