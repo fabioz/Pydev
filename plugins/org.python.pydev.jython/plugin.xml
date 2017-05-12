@@ -16,4 +16,24 @@
       <initializer class="org.python.pydev.jython.ScriptingExtensionInitializer"/>
    </extension>
 
+<!-- Custom marker types that can be used in Jython scripts -->
+   <extension
+         id="problemmarker"
+         point="org.eclipse.core.resources.markers">
+         <super type="org.eclipse.core.resources.problemmarker"/>
+         <persistent value="true"/>
+   </extension>
+   <extension
+         id="taskmarker"
+         point="org.eclipse.core.resources.markers">
+         <super type="org.eclipse.core.resources.taskmarker"/>
+         <persistent value="true"/>
+   </extension>
+   <extension
+         id="bookmark"
+         point="org.eclipse.core.resources.markers">
+         <super type="org.eclipse.core.resources.bookmark"/>
+         <persistent value="true"/>
+   </extension>   
+  
 </plugin>
