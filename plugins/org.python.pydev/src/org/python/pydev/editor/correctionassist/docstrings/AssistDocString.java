@@ -219,10 +219,21 @@ public class AssistDocString implements IAssistProps {
                 baseDocstring.length() - docStringStartEnd.length());
 
         // Parse the existing string to find existing param and type declarations.
+
+        // param xxx:
         Pattern paramPattern = Pattern
                 .compile("\\s*(" + Pattern.quote(docstringStyle) + "param(\\s)+)(\\w+)(\\s)*" + Pattern.quote(":"));
+
+        // param dict(foo->`bar`) xxx:
+        Pattern paramPatternWithTypeOnSphinx = Pattern
+                .compile("\\s*(" + Pattern.quote(docstringStyle) + "param(\\s)+.*\\s+)(\\w+)(\\s)*"
+                        + Pattern.quote(":"));
+        // type xxx:
         Pattern typePattern = Pattern
                 .compile("\\s*(" + Pattern.quote(docstringStyle) + "type(\\s)+)(\\w+)(\\s)*" + Pattern.quote(":"));
+
+        // @test
+        // :test
         Pattern otherPattern = Pattern
                 .compile("\\s*" + Pattern.quote(docstringStyle) + "(\\w)+(\\b)");
 
@@ -236,6 +247,8 @@ public class AssistDocString implements IAssistProps {
             splitted.set(1, indent + splitted.get(1));
         }
 
+        Set<String> paramsWithTypeInline = new HashSet<>();
+
         // Any :xxx tag that is not param nor type.
         Set<Integer> otherMatches = new HashSet<>();
         int size = splitted.size();
@@ -248,15 +261,23 @@ public class AssistDocString implements IAssistProps {
                 String paramName = paramMatcher.group(3);
                 getParamInfo(paramInfos, paramName).paramLine = i;
             } else {
-                Matcher typeMatcher = typePattern.matcher(s);
-                if (typeMatcher.lookingAt()) {
-                    // Ok, we found some existing parameter type docstring.
-                    String paramName = typeMatcher.group(3);
-                    getParamInfo(paramInfos, paramName).typeLine = i;
+                Matcher matcher = paramPatternWithTypeOnSphinx.matcher(s);
+                if (matcher.lookingAt()) {
+                    // Ok, we found some existing parameter docstring.
+                    String paramName = matcher.group(3);
+                    getParamInfo(paramInfos, paramName).paramLine = i;
+                    paramsWithTypeInline.add(paramName);
                 } else {
-                    Matcher otherMatcher = otherPattern.matcher(s);
-                    if (otherMatcher.lookingAt()) {
-                        otherMatches.add(i);
+                    Matcher typeMatcher = typePattern.matcher(s);
+                    if (typeMatcher.lookingAt()) {
+                        // Ok, we found some existing parameter type docstring.
+                        String paramName = typeMatcher.group(3);
+                        getParamInfo(paramInfos, paramName).typeLine = i;
+                    } else {
+                        Matcher otherMatcher = otherPattern.matcher(s);
+                        if (otherMatcher.lookingAt()) {
+                            otherMatches.add(i);
+                        }
                     }
                 }
             }
@@ -274,6 +295,11 @@ public class AssistDocString implements IAssistProps {
             ParamInfo existingInfo = paramInfos.get(paramName);
             boolean hasParam = existingInfo != null && existingInfo.paramLine != -1;
             boolean addTypeForParam = DocstringsPrefPage.getTypeTagShouldBeGenerated(paramName);
+            if (addTypeForParam) {
+                if (paramsWithTypeInline.contains(paramName)) {
+                    addTypeForParam = false;
+                }
+            }
             boolean hasType = existingInfo != null && existingInfo.typeLine != -1;
 
             if (hasParam && hasType) {

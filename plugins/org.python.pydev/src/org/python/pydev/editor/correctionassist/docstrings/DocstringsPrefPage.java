@@ -66,7 +66,7 @@ public class DocstringsPrefPage extends FieldEditorPreferencePage implements IWo
 
     /**
      * Getter for the preferred docstring character. Only a shortcut.
-     * 
+     *
      * @return
      */
     public static String getPreferredDocstringCharacter() {
@@ -94,7 +94,7 @@ public class DocstringsPrefPage extends FieldEditorPreferencePage implements IWo
     }
 
     /**
-     * 
+     *
      * @return The string that should be used to mark the beginning or end of a
      *         docstring. (""") or (''')
      */
@@ -108,16 +108,18 @@ public class DocstringsPrefPage extends FieldEditorPreferencePage implements IWo
         return ret;
     }
 
+    public static boolean GENERATE_TYPE_DOCSTRING_ON_TESTS = true;
+
     /**
      * Determines, from the preferences, whether a type tag should be generated
      * for a function / method parameter.
-     * 
+     *
      * @param parameterName The name of the parameter.
      * @return true if it should be generated and false otherwise
      */
     public static boolean getTypeTagShouldBeGenerated(String parameterName) {
         if (SharedCorePlugin.inTestMode()) {
-            return true;
+            return GENERATE_TYPE_DOCSTRING_ON_TESTS;
         }
         String preference = PydevPrefs.getPreferences().getString(P_TYPETAGGENERATION);
         if (preference.equals(TYPETAG_GENERATION_NEVER)) {
@@ -157,7 +159,8 @@ public class DocstringsPrefPage extends FieldEditorPreferencePage implements IWo
 
         RadioGroupFieldEditor docstringStyleEditor = new RadioGroupFieldEditor(P_DOCSTRINGSTYLE, "Docstring style", 1,
                 new String[][] { { "Sphinx (:tag name:)", DOCSTRINGSTYLE_SPHINX },
-                        { "EpyDoc (@tag name:)", DOCSTRINGSTYLE_EPYDOC } }, p2, true);
+                        { "EpyDoc (@tag name:)", DOCSTRINGSTYLE_EPYDOC } },
+                p2, true);
         addField(docstringStyleEditor);
 
         Group typeDoctagGroup = new Group(p2, 0);
@@ -173,7 +176,7 @@ public class DocstringsPrefPage extends FieldEditorPreferencePage implements IWo
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
      */
     @Override

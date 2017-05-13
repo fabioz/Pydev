@@ -16,6 +16,7 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.correctionassist.docstrings.AssistDocString;
+import org.python.pydev.editor.correctionassist.docstrings.DocstringsPrefPage;
 import org.python.pydev.shared_core.string.StringUtils;
 
 import junit.framework.TestCase;
@@ -371,6 +372,41 @@ public class AssistDocStringTest extends TestCase {
                 AssistDocString.updatedDocstring("'''\n"
                         + "    :type a:\n"
                         + "    :type b:\n"
+                        + "    :param test:\n"
+                        + "'''", Arrays.asList("a", "b"), "\n", "    ", ":"));
+    }
+
+    public void testUpdateDocstringSphinx() {
+
+        boolean curr = DocstringsPrefPage.GENERATE_TYPE_DOCSTRING_ON_TESTS;
+        try {
+            DocstringsPrefPage.GENERATE_TYPE_DOCSTRING_ON_TESTS = false;
+            assertEquals("'''\n"
+                    + "    :param str a: var a\n"
+                    + "    :param b: var b\n"
+                    + "    :param test:\n"
+                    + "    '''",
+                    AssistDocString.updatedDocstring("'''\n"
+                            + "    :param str a: var a\n"
+                            + "    :param b: var b\n"
+                            + "    :param test:\n"
+                            + "'''", Arrays.asList("a", "b"), "\n", "    ", ":"));
+        } finally {
+            DocstringsPrefPage.GENERATE_TYPE_DOCSTRING_ON_TESTS = curr;
+        }
+    }
+
+    public void testUpdateDocstringSphinx2() {
+
+        assertEquals("'''\n"
+                + "    :param str a: var a\n"
+                + "    :param b: var b\n"
+                + "    :type b:\n"
+                + "    :param test:\n"
+                + "    '''",
+                AssistDocString.updatedDocstring("'''\n"
+                        + "    :param str a: var a\n"
+                        + "    :param b: var b\n"
                         + "    :param test:\n"
                         + "'''", Arrays.asList("a", "b"), "\n", "    ", ":"));
     }
