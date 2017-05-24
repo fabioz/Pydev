@@ -655,9 +655,25 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
             }
         });
         layoutData = new GridData();
-        layoutData.horizontalSpan = 2;
+        layoutData.horizontalSpan = 1;
         layoutData.grabExcessHorizontalSpace = false;
         allRunsGoThroughCoverage.setLayoutData(layoutData);
+
+        Button button = new Button(parent, SWT.PUSH);
+        button.setText("Open cov dir");
+        button.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                FileUtils.openDirectory(PyCoverage.getCoverageDirLocation());
+            }
+        });
+
+        int BUTTON_WIDTH = 80;
+        layoutData = new GridData();
+        layoutData.grabExcessHorizontalSpace = false;
+        layoutData.widthHint = BUTTON_WIDTH;
+        layoutData.horizontalAlignment = GridData.END;
+        button.setLayoutData(layoutData);
         //end all runs go through coverage
 
         //Clear the coverage info on each launch?
@@ -683,7 +699,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
         layoutData.horizontalAlignment = GridData.FILL;
         clearCoverageInfoOnNextLaunch.setLayoutData(layoutData);
 
-        Button button = new Button(parent, SWT.PUSH);
+        button = new Button(parent, SWT.PUSH);
         button.setText("Clear");
         button.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -693,7 +709,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
         });
         layoutData = new GridData();
         layoutData.grabExcessHorizontalSpace = false;
-        layoutData.widthHint = 50;
+        layoutData.widthHint = BUTTON_WIDTH;
         layoutData.horizontalAlignment = GridData.END;
         button.setLayoutData(layoutData);
         //end all runs go through coverage
@@ -730,7 +746,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
             }
         });
         layoutData = new GridData();
-        layoutData.widthHint = 50;
+        layoutData.widthHint = BUTTON_WIDTH;
         layoutData.grabExcessHorizontalSpace = true;
         layoutData.horizontalAlignment = GridData.END;
         button.setLayoutData(layoutData);

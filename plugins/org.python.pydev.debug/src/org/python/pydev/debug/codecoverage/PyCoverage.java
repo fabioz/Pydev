@@ -33,14 +33,14 @@ import org.python.pydev.utils.PyFileListing.PyFileInfo;
 
 /**
  * This class is used to make the code coverage.
- * 
+ *
  * It works in this way: when the user requests the coverage for the execution of a module, we create a python process and execute the
  * module using the code coverage module that is packed with pydev.
- * 
- * Other options are: 
- * - Erasing the results obtained; 
+ *
+ * Other options are:
+ * - Erasing the results obtained;
  * - Getting the results when requested (cached in this class).
- * 
+ *
  * @author Fabio Zadrozny
  */
 public class PyCoverage {
@@ -50,7 +50,7 @@ public class PyCoverage {
     /**
      * This method contacts the python server so that we get the information on the files that are below the directory passed as a parameter
      * and stores the information needed on the cache.
-     * 
+     *
      * @param file
      *            should be the root folder from where we want cache info.
      */
@@ -100,7 +100,7 @@ public class PyCoverage {
 
             //First, combine the results of the many runs we may have.
             Tuple<String, String> output = runner.runScriptAndGetOutput(PythonRunnerConfig.getCoverageScript(),
-                    new String[] { "combine" }, getCoverageDirLocation(), monitor);
+                    new String[] { "combine", "--append" }, getCoverageDirLocation(), monitor);
 
             if (output.o1 != null && output.o1.length() > 0) {
                 Log.logInfo(output.o1);
@@ -230,7 +230,7 @@ public class PyCoverage {
     }
 
     /**
-     *  
+     *
      */
     public void clearInfo() {
         cache.clear();
