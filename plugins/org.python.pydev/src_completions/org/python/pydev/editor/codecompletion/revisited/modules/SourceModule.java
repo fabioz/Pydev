@@ -591,49 +591,55 @@ public class SourceModule extends AbstractModule implements ISourceModule {
 
         try {
             //COMPLETION: get the completions for the whole hierarchy if this is a class!!
-            ICompletionState state;
             if (ast instanceof ClassDef) {
                 ClassDef c = (ClassDef) ast;
                 for (int j = 0; j < c.bases.length; j++) {
-                    if (c.bases[j] instanceof Name) {
-                        Name n = (Name) c.bases[j];
-                        String base = n.id;
-                        //An error in the programming might result in an error.
-                        //
-                        //e.g. The case below results in a loop.
-                        //
-                        //class A(B):
-                        //
-                        //    def a(self):
-                        //        pass
-                        //
-                        //class B(A):
-                        //
-                        //    def b(self):
-                        //        pass
-                        state = initialState.getCopy();
-                        state.setActivationToken(base);
-
-                        state.checkMemory(this, base);
-
-                        final IToken[] comps = manager.getCompletionsForModule(this, state);
-                        modToks.addAll(Arrays.asList(comps));
-                    } else if (c.bases[j] instanceof Attribute) {
-                        Attribute attr = (Attribute) c.bases[j];
-                        String s = NodeUtils.getFullRepresentationString(attr);
-
-                        state = initialState.getCopy();
-                        state.setActivationToken(s);
-                        final IToken[] comps = manager.getCompletionsForModule(this, state);
-                        modToks.addAll(Arrays.asList(comps));
+                    IToken[] completions = getCompletionsForBase(initialState, manager, c, j);
+                    if (completions != null && completions.length > 0) {
+                        modToks.addAll(Arrays.asList(completions));
                     }
                 }
-
             }
         } catch (CompletionRecursionException e) {
             // let's return what we have so far...
         }
         return modToks;
+    }
+
+    public IToken[] getCompletionsForBase(ICompletionState initialState, ICodeCompletionASTManager manager,
+            ClassDef classDef, int baseIndex) throws CompletionRecursionException {
+        ICompletionState state;
+        if (classDef.bases[baseIndex] instanceof Name) {
+            Name n = (Name) classDef.bases[baseIndex];
+            String base = n.id;
+            //An error in the programming might result in an error.
+            //
+            //e.g. The case below results in a loop.
+            //
+            //class A(B):
+            //
+            //    def a(self):
+            //        pass
+            //
+            //class B(A):
+            //
+            //    def b(self):
+            //        pass
+            state = initialState.getCopy();
+            state.setActivationToken(base);
+
+            state.checkMemory(this, base);
+
+            return manager.getCompletionsForModule(this, state);
+        } else if (classDef.bases[baseIndex] instanceof Attribute) {
+            Attribute attr = (Attribute) classDef.bases[baseIndex];
+            String s = NodeUtils.getFullRepresentationString(attr);
+
+            state = initialState.getCopy();
+            state.setActivationToken(s);
+            return manager.getCompletionsForModule(this, state);
+        }
+        return null;
     }
 
     /**

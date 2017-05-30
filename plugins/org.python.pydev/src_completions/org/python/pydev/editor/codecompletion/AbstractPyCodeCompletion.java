@@ -84,10 +84,11 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
                 //GET the ARGS
                 int l = name.length();
 
+                boolean nameIsFullQualifier = name.equals(request.fullQualifier);
                 String args = "";
                 if (!importsTip) {
                     boolean getIt = true;
-                    if (AbstractToken.isClassDef(element)) {
+                    if (AbstractToken.isClassDef(element) && !nameIsFullQualifier) {
                         if (!request.isInCalltip) {
                             getIt = false;
                         }
@@ -103,7 +104,7 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
                 }
                 //END
 
-                if (name.equals(request.fullQualifier) && args.trim().length() == 0) {
+                if (nameIsFullQualifier && args.trim().length() == 0) {
                     //we don't want to get the tokens that are equal to the current 'full' qualifier
                     //...unless it adds the parameters to a call...
                     continue;

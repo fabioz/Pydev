@@ -3140,4 +3140,51 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 
     }
 
+    public void testSubClassConstructorParams() throws Exception {
+        String s;
+        String original = "" +
+                "class Foo:\n" +
+                "    def __init__(self, a, b):pass\n\n" +
+                "    def m1(self):pass\n\n" +
+                "class Bar(Foo):\n" +
+                "    pass\n\n"
+                +
+                "Bar(%s)" + //completion inside the empty parenthesis should: add the parameters in link mode (a, b) and let the calltip there.
+                "";
+        s = StringUtils.format(original, "");
+
+        ICompletionProposal[] proposals = requestCompl(s, s.length() - 1, -1, new String[] {});
+        assertEquals(1, proposals.length);
+        ICompletionProposal prop = proposals[0];
+        assertEquals("Bar(a, b)", prop.getDisplayString());
+
+        IPyCalltipsContextInformation contextInformation = (IPyCalltipsContextInformation) prop.getContextInformation();
+        assertEquals("a, b", contextInformation.getContextDisplayString());
+        assertEquals("a, b", contextInformation.getInformationDisplayString());
+
+        Document doc = new Document(s);
+        prop.apply(doc);
+        String expected = StringUtils.format(original, "a, b");
+        assertEquals(expected, doc.get());
+    }
+
+    public void testSubClassConstructorParams2() throws Exception {
+        String s;
+        String original = "" +
+                "class Foo:\n" +
+                "    def __init__(self, a, b):pass\n\n" +
+                "    def m1(self):pass\n\n" +
+                "class Bar(Foo):\n" +
+                "    pass\n\n"
+                +
+                "Bar" +
+                "";
+        s = StringUtils.format(original, "");
+
+        ICompletionProposal[] proposals = requestCompl(s, s.length() - 1, -1, new String[] {});
+        assertEquals(1, proposals.length);
+        ICompletionProposal prop = proposals[0];
+        assertEquals("Bar(a, b)", prop.getDisplayString());
+
+    }
 }

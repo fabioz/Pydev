@@ -269,6 +269,69 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                                 }
                             }
 
+                            // If we found a ClassDef which doesn't have a declared __init__, get the __init__ from
+                            // one of the parents (if it's available).
+                            //
+                            // i.e.:
+                            // class A:
+                            //   def __init__(self, a):
+                            //     pass
+                            // class B(A):
+                            //     pass
+                            //
+                            // Completions of B should have B with the 'a' argument.
+                            if (token instanceof SourceToken) {
+                                SourceToken sourceToken = (SourceToken) token;
+                                if (sourceToken.getAst() instanceof ClassDef && token.getArgs().length() == 0) {
+                                    ClassDef classDef = (ClassDef) sourceToken.getAst();
+                                    if (classDef.bases != null && classDef.bases.length > 0) {
+                                        String parentPackage = sourceToken.getParentPackage();
+                                        if (parentPackage != null) {
+                                            IModule module;
+                                            if (parentPackage.equals(current.getName())) {
+                                                module = current;
+                                            } else {
+                                                module = astManager.getModule(parentPackage, nature, true);
+                                            }
+                                            if (module != null) {
+                                                if (module instanceof SourceModule) {
+                                                    SourceModule sourceModule = (SourceModule) module;
+
+                                                    OUT: for (int j = 0; j < classDef.bases.length; j++) {
+                                                        try {
+                                                            int lookingFor = state.getLookingFor();
+                                                            IToken[] completions;
+                                                            try {
+                                                                completions = sourceModule.getCompletionsForBase(
+                                                                        state,
+                                                                        astManager, classDef, j);
+                                                            } finally {
+                                                                // Completions at this point shouldn't change the state of what we were looking for.
+                                                                state.setLookingFor(lookingFor, true);
+                                                            }
+                                                            int completionsLen = completions.length;
+                                                            if (completions != null && completionsLen > 0) {
+                                                                for (int k = 0; k < completionsLen; k++) {
+                                                                    IToken comp = completions[k];
+                                                                    if ("__init__".equals(comp.getRepresentation())) {
+                                                                        if (comp.getArgs().length() > 0) {
+                                                                            initialToken.setArgs(comp.getArgs());
+                                                                        }
+                                                                        break OUT;
+                                                                    }
+                                                                }
+                                                            }
+                                                        } catch (CompletionRecursionException e) {
+                                                            // Ignore (just don't get the args).
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
                             alreadyChecked.put(strRep, initialToken);
                         }
                     }
