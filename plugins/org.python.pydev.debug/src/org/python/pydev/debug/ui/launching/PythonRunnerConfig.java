@@ -828,7 +828,7 @@ public class PythonRunnerConfig {
     }
 
     private void addIronPythonDebugVmArgs(List<String> cmdArgs) {
-        if (cmdArgs.contains("-X:Frames") || cmdArgs.contains("-X:FullFrames")) {
+        if (cmdArgs.contains("-X:FullFrames")) {
             return;
         }
         //The iron python debugger must have frames (preferably FullFrames), otherwise it won't work.

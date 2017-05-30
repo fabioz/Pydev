@@ -49,7 +49,7 @@ public interface IInterpreterManager {
     /**
      * Constant for the default values
      */
-    public String IRONPYTHON_DEFAULT_INTERNAL_SHELL_VM_ARGS = "-X:Frames";
+    public String IRONPYTHON_DEFAULT_INTERNAL_SHELL_VM_ARGS = "-X:Frames -X:ExceptionDetail -X:ShowClrExceptions";
 
     public int INTERPRETER_TYPE_PYTHON = IPythonNature.INTERPRETER_TYPE_PYTHON;
     public int INTERPRETER_TYPE_JYTHON = IPythonNature.INTERPRETER_TYPE_JYTHON;

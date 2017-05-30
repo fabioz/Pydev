@@ -43,7 +43,7 @@ public class IronpythonInterpreterPreferencesPage extends AbstractInterpreterPre
     protected void createFieldEditors() {
         super.createFieldEditors();
         addField(new StringFieldEditor(IInterpreterManager.IRONPYTHON_INTERNAL_SHELL_VM_ARGS,
-                "Vm arguments for internal shell", getFieldEditorParent()) {
+                "Vm arguments for IronPython", getFieldEditorParent()) {
             @Override
             protected void adjustForNumColumns(int numColumns) {
                 GridData gd = (GridData) getTextControl().getLayoutData();
