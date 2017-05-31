@@ -46,6 +46,9 @@ public class PySearchIndexPage extends AbstractSearchIndexPage {
             IProject project = resource.getProject();
             projectNames.add(project.getName());
             PythonNature nature = PythonNature.getPythonNature(project);
+            if (nature == null) {
+                return;
+            }
             String moduleName;
             try {
                 moduleName = nature.resolveModule(resource);
