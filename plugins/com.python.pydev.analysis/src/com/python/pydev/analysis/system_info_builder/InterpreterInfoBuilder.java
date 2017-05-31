@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
@@ -44,7 +45,12 @@ import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;
 public class InterpreterInfoBuilder implements IInterpreterInfoBuilder {
 
     public BuilderResult syncInfoToPythonPath(IProgressMonitor monitor, IPythonNature nature) {
-        PythonPathHelper pythonPathHelper = (PythonPathHelper) nature.getAstManager().getModulesManager()
+        ICodeCompletionASTManager astManager = nature.getAstManager();
+        if (astManager == null) {
+            return BuilderResult.MUST_SYNCH_LATER;
+        }
+
+        PythonPathHelper pythonPathHelper = (PythonPathHelper) astManager.getModulesManager()
                 .getPythonPathHelper();
         if (pythonPathHelper == null) {
             return BuilderResult.OK;
@@ -52,7 +58,7 @@ public class InterpreterInfoBuilder implements IInterpreterInfoBuilder {
         AbstractAdditionalDependencyInfo additionalInfo;
         try {
             additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
-            IModulesManager modulesManager = nature.getAstManager().getModulesManager();
+            IModulesManager modulesManager = astManager.getModulesManager();
             return this.syncInfoToPythonPath(monitor, pythonPathHelper, additionalInfo, modulesManager, null);
         } catch (MisconfigurationException e) {
             Log.log(e);
