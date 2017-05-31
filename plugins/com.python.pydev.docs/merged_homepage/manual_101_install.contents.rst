@@ -45,7 +45,8 @@ the certificate before starting the installation process (this is actually a req
 from the command line because of a bug in the Eclipse p2 director).
 
 The first step for that is downloading the `PyDev
-certificate <pydev_certificate.cer>`_.
+certificate <pydev_certificate.cer>`_ (note that you may want to access **pydev.org** using **https** to make
+sure that the connection is encrypted).
 
 The second step is discovering the Java being used in Eclipse: go to
 **Help > About > Installation details and look for 'java.home'**
