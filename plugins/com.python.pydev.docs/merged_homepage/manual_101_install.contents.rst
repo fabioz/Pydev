@@ -10,7 +10,11 @@ updated as a whole).
 Requisites
 ===========
 
-PyDev requires **Java 8** and **Eclipse 4.6 (Neon)** in order to run and only supports **Python 2.6** onwards. 
+PyDev requires **Java 8** and **Eclipse 4.6 (Neon)** in order to run and only supports **Python 2.6** onwards. I.e.:
+
+-  `Python <http://www.python.org/>`_ **(2.6 or newer)**
+-  `Jython <http://www.jython.org/>`_ **(2.6 or newer)**
+-  `IronPython <http://www.codeplex.com/Wiki/View.aspx?ProjectName=IronPython>`_ **(2.6 or newer)** - excluding 2.7.6 and 2.7.7 have a `bug <https://github.com/IronLanguages/main/issues/1663>`_ which makes them unusable in PyDev.
 
 If you don't have Java 8, the update process may appear to succeed, but PyDev
 will simply not show in the target installation. Please double-check if you're using a Java 8 vm in **about > installation
@@ -90,7 +94,7 @@ Browse other versions **(open in browser to select URL for Eclipse)**:
 and press **<Enter>** so that Eclipse will query the update site you just entered
 for contents.
 
-Before proceeding, it's recommended that you **UNCHECK** the 
+Before proceeding, it's recommended that you **UNCHECK** the
 **'Contact all update sites during install to find required software'**
 (it will still work if you don't do that, but it'll query all the update
 sites available, which is much slower than querying only the PyDev update
@@ -98,7 +102,7 @@ site, which should be all that's needed to install PyDev).
 
 |image_update_sites|
 
-Now, select **PyDev for Eclipse** to install PyDev (and optionally the 
+Now, select **PyDev for Eclipse** to install PyDev (and optionally the
 PyDev Mylyn integration or the developer resources, which provide the
 PyDev source code) and click **Next**.
 
@@ -143,17 +147,17 @@ Unable to load repository
 
 While most times things work as explained, some users may have messages such as:
 
-Unable to load the repository http://pydev.org/updates 
+Unable to load the repository http://pydev.org/updates
 
-Unknown Host: http://pydev.org/updates/content.xml 
+Unknown Host: http://pydev.org/updates/content.xml
 
 This means there's some issue accessing the update site in your current connection.
 
 In that case, you can try using a direct URL for the download (all the http://pydev.org/updates/
 URLs are actually redirects to the final location). Currently, those redirects
 point to links on http://bintray.com, so, you can visit the related update
-site page (such as http://pydev.org/updates) in a browser and see to 
-where it's being redirected (you may want to try that direct link with 
+site page (such as http://pydev.org/updates) in a browser and see to
+where it's being redirected (you may want to try that direct link with
 **http** or **https** to see if it makes a difference in your use case).
 
 Possible issue on download
@@ -175,8 +179,8 @@ PyDev does not appear after install!
 ---------------------------------------
 
 Well, the main issue at this time is that PyDev requires Java 8 in order to run.
- 
-**Tip**: LiClipse (which is mostly a PyDev standalone plus some goodies) is pre-configured 
+
+**Tip**: LiClipse (which is mostly a PyDev standalone plus some goodies) is pre-configured
 so that none of the hassle of installing PyDev into Eclipse nor any pre-requisite is needed ;)
 
 Java 8 requisite
@@ -205,7 +209,7 @@ least give you a warning when it is corrupt.
 
 Note that the chance of the files being corrupt in the server is pretty
 low, as that's something that's always checked in a new release, but if you're
-suspicious about it, please report it at https://www.brainwy.com/tracker/PyDev 
+suspicious about it, please report it at https://www.brainwy.com/tracker/PyDev
 so that it can be double-checked.
 
 Also, there have been reports with that error where the only solution

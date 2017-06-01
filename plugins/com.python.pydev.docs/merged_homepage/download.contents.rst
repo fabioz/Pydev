@@ -68,15 +68,14 @@ sure you meet the requirements below and follow the **Quick Install** from the r
 Requirements
 -----------------
 
-- `Java <http://www.javasoft.com/>`_ 8: **Important**: If you don't have java 8, the update process may appear to succeed, 
+- `Java <http://www.javasoft.com/>`_ 8: **Important**: If you don't have java 8, the update process may appear to succeed,
   but PyDev will simply not show in the target installation. See `Getting Started Guide > Install <manual_101_install.html>`_ for troubleshooting.
 
 At least one of:
 
 -  `Python <http://www.python.org/>`_ **(2.6 or newer)**
 -  `Jython <http://www.jython.org/>`_ **(2.6 or newer)**
--  `IronPython <http://www.codeplex.com/Wiki/View.aspx?ProjectName=IronPython>`_
-   **(2.6 or newer)**
+-  `IronPython <http://www.codeplex.com/Wiki/View.aspx?ProjectName=IronPython>`_ **(2.6 or newer)** - excluding 2.7.6 and 2.7.7 have a `bug <https://github.com/IronLanguages/main/issues/1663>`_ which makes them unusable in PyDev.
 
 and
 
