@@ -1100,10 +1100,20 @@ public final class PySelection extends TextSelectionUtils {
     public static int getBeforeParentesisCall(Object doc, int calltipOffset) {
         ParsingUtils parsingUtils = ParsingUtils.create(doc);
         char c = parsingUtils.charAt(calltipOffset);
+        int parensBefore = 0;
 
-        while (calltipOffset > 0 && c != '(') {
+        while (calltipOffset > 0) {
             calltipOffset--;
             c = parsingUtils.charAt(calltipOffset);
+            if (c == ')') {
+                parensBefore += 1;
+            } else if (c == '(') {
+                if (parensBefore <= 0) {
+                    break;
+                } else {
+                    parensBefore -= 1;
+                }
+            }
         }
         if (c == '(') {
             while (calltipOffset > 0 && Character.isWhitespace(c)) {
@@ -1471,7 +1481,7 @@ public final class PySelection extends TextSelectionUtils {
     /**
      * Return true if the completion is at the dot after a literal number.
      * Literal numbers have no valid completions as they can be the first part of floats.
-     * 
+     *
      * @param activationToken this comes from either the console's ActivationTokenAndQual
      *      or editor's CompletionRequest
      * @return true if this completion is for a number
