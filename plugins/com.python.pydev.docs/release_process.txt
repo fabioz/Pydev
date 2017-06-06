@@ -19,8 +19,8 @@ C:\bin\Python27\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pyde
 		Update the version of all plugins to the new version.
 
 		Run:
-		    - Update version at W:\pydev\plugins\com.python.pydev.docs\build_both.py
-		    - W:\pydev\plugins\com.python.pydev.docs\build_both.py
+		    - Update version at W:\pydev\plugins\com.python.pydev.docs\build_homepage.py
+		    - W:\pydev\plugins\com.python.pydev.docs\build_homepage.py
 
 		Commit everything
         Merge with master
