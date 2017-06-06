@@ -5,12 +5,12 @@
    <extension point="org.python.pydev.pydev_quick_outline">
    		<quick_outline_participant class="com.python.pydev.actions.PyShowOutline"/>
    </extension>
-   
+
 <!-- Have an instance observing all the PyEdit editors -->
    <extension point="org.python.pydev.pydev_pyedit_listener">
   		<pyedit_listener_participant class="com.python.pydev.interactiveconsole.EvaluateActionSetter"/>
    </extension>
-   
+
 
 <!-- Initialize our preferences -->
    <extension
@@ -32,7 +32,7 @@
       <key
             sequence="M1+M3+Enter"
             contextId="org.python.pydev.ui.editor.scope"
-            commandId="org.python.pydev.interactiveconsole.evaluateActionSetter"	
+            commandId="org.python.pydev.interactiveconsole.evaluateActionSetter"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
    </extension>
@@ -50,7 +50,7 @@
       <key
             sequence="F4"
             contextId="org.python.pydev.ui.editor.scope"
-            commandId="com.python.pydev.actions.pyShowHierarchy"	
+            commandId="com.python.pydev.actions.pyShowHierarchy"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
    </extension>
@@ -110,6 +110,19 @@
 	        isGoToPreviousNavigationTarget="true">
 	  </specification>
 </extension>
+<!--
+This was removed because of a bug where multiple interactive consoles were appearing in the toolbar
+(and apparently, it's impossible to remove them, even if this action is removed and the additional
+entries appear to live forever in all perspectives).
+
+This definitely seems an Eclipse bug... I (Fabio) do have some workspaces where the toolbar becomes
+trashed because of it and apparently there's no way to recover and the only solution is creating a new
+workspace.
+
+There's also a bug report with it: https://www.brainwy.com/tracker/PyDev/708
+
+The related image showing the error is at: http://i.stack.imgur.com/IfNFY.png
+
 <extension
       point="org.eclipse.ui.menus">
    <menuContribution
@@ -129,5 +142,6 @@
       </toolbar>
    </menuContribution>
 </extension>
+-->
 
 </plugin>
