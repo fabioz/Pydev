@@ -1,0 +1,34 @@
+<doc>
+<contents_area>
+<h1 class="title">Debugger Find Referrers</h1>
+
+<p>During a debug session it's possible to find referrers to a given instance and
+see them in a view (and then in that view it's possible to iteratively go
+deeper by seeing referrers of referrers).</p>
+<p>This is especially useful when trying to debug leaks to a variable in a program.</p>
+<p>To get the referrers of a given object, it's possible to go to the variables view,
+right-click the variable for which you want the referrers and then select <strong>Get Referrers</strong>
+as in the image below:</p>
+<div class="figure align-center">
+<img alt="images/referrers/referrers.png" src="images/referrers/referrers.png" />
+</div>
+<p>Afterwards, it's possible to right-click a variable in the referrers view and
+get the referrers of that instance.</p>
+<p>Note that the process of getting referrers can sometimes be slow depending on the
+number of live instances in your program and how many referrers are found.</p>
+</contents_area>
+
+
+<right_area>
+</right_area>
+
+
+<image_area>manual.png</image_area>
+
+
+<quote_area></quote_area>
+
+
+
+</doc>
+

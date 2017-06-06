@@ -1,0 +1,81 @@
+<doc>
+<contents_area>
+
+
+<div class="section" id="code-completion">
+<h1>Code Completion</h1>
+</div>
+<div class="section" id="requesting-code-completion">
+<h1>Requesting Code Completion</h1>
+<p>Code completion provides context-sensitive completions and is enabled
+with <strong>Ctrl+Space</strong>. (Note that eclipse has simple emacs-style
+text-completion with <strong>Alt+/</strong>).</p>
+<p>It's important to note that your interpreter must be properly configured
+for the code-completion to work, and for getting the <strong>builtins</strong>, PyDev
+spawns a shell, so, having a <strong>firewall can prevent the code-completion
+from working</strong> if it's blocking the communication from eclipse to that
+shell.</p>
+</div>
+<div class="section" id="preferences">
+<h1>Preferences</h1>
+<p>If you want to configure something, you have to go to <strong>window &gt;
+preferences &gt; PyDev &gt; Editor &gt; Code Completion</strong>.</p>
+<div class="figure align-center">
+<img alt="images/codecompletion/codecompletionpreferences.png" src="images/codecompletion/codecompletionpreferences.png" />
+</div>
+</div>
+<div class="section" id="snapshots">
+<h1>Snapshots</h1>
+</div>
+<div class="section" id="completing-on-a-variable-on-the-class-also-works-for-locals-that-are-defined-in-the-same-scope-we-are">
+<h1>Completing on a variable on the class (also works for locals) that are defined in the same scope we are.</h1>
+<div class="figure align-center">
+<img alt="images/codecompletion/codecompletionattr1.png" src="images/codecompletion/codecompletionattr1.png" />
+</div>
+</div>
+<div class="section" id="getting-the-builtins">
+<h1>Getting the builtins.</h1>
+<div class="figure align-center">
+<img alt="images/codecompletion/codecompletionbuiltins.png" src="images/codecompletion/codecompletionbuiltins.png" />
+</div>
+</div>
+<div class="section" id="completing-on-a-class-note-that-we-get-the-hierarchy-even-from-builtins">
+<h1>Completing on a class (note that we get the hierarchy even from builtins).</h1>
+<div class="figure align-center">
+<img alt="images/codecompletion/codecompletionhierarchy1.png" src="images/codecompletion/codecompletionhierarchy1.png" />
+</div>
+</div>
+<div class="section" id="completing-for-making-an-import-goes-for-pythonpath">
+<h1>Completing for making an import (goes for PYTHONPATH)</h1>
+<div class="figure align-center">
+<img alt="images/codecompletion/compl2.png" src="images/codecompletion/compl2.png" />
+</div>
+</div>
+<div class="section" id="completing-on-an-import">
+<h1>Completing on an import</h1>
+<div class="figure align-center">
+<img alt="images/codecompletion/compl3.png" src="images/codecompletion/compl3.png" />
+</div>
+</div>
+<div class="section" id="completing-for-global-tokens-handles-wild-imports-local-imports-local-variables-etc">
+<h1>Completing for global tokens (handles wild-imports, local imports, local variables, etc.)</h1>
+<div class="figure align-center">
+<img alt="images/codecompletion/compl4.png" src="images/codecompletion/compl4.png" />
+</div>
+</div>
+</contents_area>
+
+
+<right_area>
+</right_area>
+
+
+<image_area>manual.png</image_area>
+
+
+<quote_area></quote_area>
+
+
+
+</doc>
+

@@ -1,0 +1,122 @@
+<doc>
+<contents_area>
+
+
+<!-- <right_area>
+</right_area>
+<image_area></image_area>
+<quote_area></quote_area> -->
+<div class="section" id="getting-the-code">
+<h1>Getting the code</h1>
+<p>The first thing you probably want to do in order to code in PyDev is
+<strong>getting its code</strong>.</p>
+<p><strong>Pre-requisites:</strong> Eclipse SDK 4.6.0 (Neon), Git and Java 8.0 (note that other
+versions of those may work too but details may differ a bit and there may be
+compilation errors that need to be manually fixed).</p>
+<p>Before getting the code, there's an important step you need to make:
+Change your java 'compiler compliance-level' to 8.0. To do this, go to
+<strong>window &gt; preferences &gt; Java &gt; compiler</strong> and change that setting
+<strong>to 1.8</strong>.</p>
+<div class="section" id="repository">
+<h2>Repository</h2>
+<p>Get the code with Git from
+<a class="reference external" href="https://github.com/fabioz/Pydev">https://github.com/fabioz/Pydev</a>
+(ideally, fork it at github, create your own branch at the forked
+repository -- usually based in the <strong>master</strong> branch -- and later send
+a pull request on github so that the code can be merged back). Later, if
+you want to provide some other feature/bugfix, a new branch should be
+created again.</p>
+<p>Then, in Eclipse, go to: <strong>File &gt; Import &gt; Existing projects into
+workspace</strong> and point it to the root of the repository you just
+downloaded (after importing, you may want to close the 2 mylyn-related
+projects if you don't have Mylyn locally).</p>
+</div>
+</div>
+<div class="section" id="configuring-the-environment-after-getting-the-code">
+<h1>Configuring the environment after getting the code</h1>
+<p>Important: Before doing any changes to the code it's important to note
+that you should create a new branch (usually based on the master
+branch) for doing code changes. See:
+<a class="reference external" href="https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging">https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging</a>
+for details on creating and using branches.</p>
+<p><strong>Note</strong>: for running the tests the file:
+<strong>org.python.pydev.core/tests/org.python.pydev.core/TestDependent.OS.properties</strong>
+must have the values set regarding to the computer that'll execute the
+tests.</p>
+<p>Note that to make sure that PyDev keeps working on the long run,
+usually tests are required for pull requests (unless it's a really trivial change).
+Those reside in the project/tests source folder.</p>
+<p>Note that if the head does not compile in git, send an e-mail to the pydev-code
+list at sourceforge to know what's happening.</p>
+</div>
+<div class="section" id="running-it-with-your-changes">
+<h1>Running it with your changes</h1>
+<p>After you download the contents and do changes to the code, you can do a Run As &gt; Eclipse Application and
+a new Eclipse instance will be run with the changes you did.</p>
+</div>
+<div class="section" id="where-to-start">
+<h1>Where to start?</h1>
+<p>Ok, this may be the most difficult thing... especially because answers
+may change a lot depending on what you want to do, so, below are
+outlined 2 different approaches:</p>
+<ul class="simple">
+<li>Extending PyDev <strong>with Jython</strong>: recommended if you want to add some
+editor-related action or something that does not need implementing
+some Eclipse extension-point.</li>
+<li>Extending PyDev <strong>in Java</strong>: if you want something that won't map to
+an action, this might be the better way to go.</li>
+</ul>
+<p>To start in any of those approaches it might be worth taking a look at
+some Eclipse documentation, to try to grasp some of its concepts. One of
+the finest documentations for that is the <a class="reference external" href="http://wiki.eclipse.org/index.php/Eclipse_FAQs">Eclipse
+FAQ</a>.</p>
+<p>If you want to take the Jython approach, check out this article on how
+to do <a class="reference external" href="manual_articles_scripting.html">jython scripting in PyDev</a></p>
+<p>For supporting a new Python based language, the first step would be
+creating a grammar that can parse it while providing a Python like AST.
+See: <a class="reference external" href="developers_grammar.html">PyDev Grammar</a> for instructions on
+that.</p>
+<p>And that's it. If you have further questions about how to code in PyDev,
+direct your questions to the <a class="reference external" href="http://lists.sourceforge.net/lists/listinfo/pydev-code">pydev-code
+list</a> at
+sourceforge.</p>
+</div>
+<div class="section" id="creating-a-distribution-locally">
+<h1>Creating a distribution locally</h1>
+<p>Provided that the steps were followed, PyDev should have the following
+structure:</p>
+<blockquote>
+<table class="docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group">
+<kbd><span class="option">/builders</span></kbd></td>
+<td>/org.python.pydev.build</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">/features</span></kbd></td>
+<td>/org.python.pydev.feature</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">/plugins</span></kbd></td>
+<td>/org.python.pydev
+... (other plugins)</td></tr>
+</tbody>
+</table>
+</blockquote>
+<p>Now, on to the build: PyDev uses maven to do the build, so, it should be a matter of
+using &quot;mvn install&quot;.</p>
+<p>There's a bat file at: builders/org.python.pydev.build/build_cmd.bat
+which can be used as a base to know which environment variables are needed to do a build
+and /pom.xml (in the root) has more details on getting pre-requisites.</p>
+</div>
+<div class="section" id="contributing-back">
+<h1>Contributing back</h1>
+<p>Create a pull request in github:
+<a class="reference external" href="http://help.github.com/send-pull-requests/">http://help.github.com/send-pull-requests/</a></p>
+</div>
+</contents_area>
+
+
+
+</doc>
+

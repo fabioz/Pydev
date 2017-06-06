@@ -1,0 +1,56 @@
+<doc>
+<contents_area>
+<h1 class="title">Screenshots</h1>
+
+<!-- <right_area>
+</right_area>
+<image_area></image_area>
+<quote_area></quote_area> -->
+<p>Note that these screenshots cover only a bit of the
+features available. For more details check the <a class="reference external" href="manual_adv_features.html">Features Matrix</a>.</p>
+<div class="section" id="code-analysis-eclipse-classic-theme">
+<h1>Code Analysis (Eclipse classic theme)</h1>
+<img alt="images/screenshot/screenshot_code_analysis.png" class="snap" src="images/screenshot/screenshot_code_analysis.png" />
+</div>
+<div class="section" id="create-through-tdd-actions-ctrl-1-with-liclipse-dark-theme">
+<h1>Create through TDD actions (ctrl+1) -- with LiClipse dark theme</h1>
+<img alt="images/screenshot/screenshot_create_robot.png" class="snap" src="images/screenshot/screenshot_create_robot.png" />
+</div>
+<div class="section" id="interactive-console-code-completion">
+<h1>Interactive console code completion</h1>
+<img alt="images/screenshot/screenshot_shell.png" class="snap" src="images/screenshot/screenshot_shell.png" />
+</div>
+<div class="section" id="code-completion-auto-import">
+<h1>Code completion (auto-import)</h1>
+<img alt="images/screenshot/screenshot_code_completion.png" class="snap" src="images/screenshot/screenshot_code_completion.png" />
+</div>
+<div class="section" id="code-completion-on-self">
+<h1>Code completion on self</h1>
+<img alt="images/screenshot/screenshot_code_completion_self.png" class="snap" src="images/screenshot/screenshot_code_completion_self.png" />
+</div>
+<div class="section" id="code-coverage">
+<h1>Code coverage</h1>
+<img alt="images/screenshot/screenshot_coverage.png" class="snap" src="images/screenshot/screenshot_coverage.png" />
+</div>
+<div class="section" id="debugger">
+<h1>Debugger</h1>
+<img alt="images/screenshot/screenshot_debug.png" class="snap" src="images/screenshot/screenshot_debug.png" />
+</div>
+<div class="section" id="code-completion-override-method">
+<h1>Code completion: Override method</h1>
+<img alt="images/screenshot/screenshot_override_method.png" class="snap" src="images/screenshot/screenshot_override_method.png" />
+</div>
+<div class="section" id="pyunit-view">
+<h1>PyUnit view</h1>
+<img alt="images/screenshot/screenshot_py_unit.png" class="snap" src="images/screenshot/screenshot_py_unit.png" />
+</div>
+<div class="section" id="globals-browser-ctrl-shift-t">
+<h1>Globals Browser (ctrl+shift+T)</h1>
+<img alt="images/screenshot/screenshot_globals_browser.png" class="snap" src="images/screenshot/screenshot_globals_browser.png" />
+</div>
+</contents_area>
+
+
+
+</doc>
+

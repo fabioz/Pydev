@@ -148,8 +148,8 @@ if __name__ == '__main__':
     this_script_dir = os.path.realpath(os.path.abspath(this_script_dir))
     print 'Directory with this script:', this_script_dir
 
-    print 'Generating rst for merged_homepage'
-    os.chdir(os.path.join(this_script_dir, 'merged_homepage'))
+    print 'Generating rst for homepage'
+    os.chdir(os.path.join(this_script_dir, 'homepage'))
 
     # Copy the update site redirections
     shutil.rmtree(os.path.join('final', 'updates'), ignore_errors=True)
@@ -185,15 +185,15 @@ if __name__ == '__main__':
 
     GenerateRstInDir('.', True)
 
-    sys.path.insert(0, os.path.join(this_script_dir, 'merged_homepage', 'scripts'))
+    sys.path.insert(0, os.path.join(this_script_dir, 'homepage', 'scripts'))
     sys.path.insert(0, '.')
 #    print 'PYTHONPATH changed. Using:'
 #    for p in sys.path:
 #        print '    - ', p
 
-    os.chdir(os.path.join(this_script_dir, 'merged_homepage', 'scripts'))
+    os.chdir(os.path.join(this_script_dir, 'homepage', 'scripts'))
     import build_merged  # @UnresolvedImport
-    os.chdir(os.path.join(this_script_dir, 'merged_homepage'))
+    os.chdir(os.path.join(this_script_dir, 'homepage'))
 
     build_merged.LAST_VERSION_TAG = LAST_VERSION_TAG
     build_merged.CURRENT_DATE = CURRENT_DATE

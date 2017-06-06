@@ -1,0 +1,68 @@
+<doc>
+<contents_area>
+
+
+<p>This manual assumes that you have already have <strong>Python and/or Jython
+and/or IronPython</strong> installed in your machine, as well as <strong>Eclipse</strong>.</p>
+<p><strong>Manual topics:</strong></p>
+<p><a class="reference external" href="manual_101_install.html">Installing</a></p>
+<ul class="simple">
+<li>from update site and zips</li>
+<li>uninstalling</li>
+</ul>
+<p><a class="reference external" href="manual_101_interpreter.html">Configuring the interpreter</a></p>
+<ul class="simple">
+<li>specify the python interpreter and system PYTHONPATH</li>
+<li>choose the modules to be dynamically analyzed (forced builtins)</li>
+</ul>
+<p><a class="reference external" href="manual_101_project_conf.html">Creating a project</a></p>
+<ul class="simple">
+<li>Create the project</li>
+<li>Specify referenced projects</li>
+</ul>
+<p><a class="reference external" href="manual_101_project_conf2.html">Further configuring your project</a></p>
+<ul class="simple">
+<li>specify folders containing the sources (added to the project
+PYTHONPATH)</li>
+<li>specify additional external folders to be added to the project
+PYTHONPATH</li>
+</ul>
+<p><a class="reference external" href="manual_101_first_module.html">Creating your first python module</a></p>
+<ul class="simple">
+<li>Checking code-completion</li>
+</ul>
+<p><a class="reference external" href="manual_101_run.html">Running/Debugging your program</a></p>
+<p><a class="reference external" href="manual_101_eclipse.html">Configuring Eclipse Essentials</a></p>
+<ul class="simple">
+<li>Auto-refresh</li>
+</ul>
+<p><a class="reference external" href="manual_101_navigate_code.html">Navigating your code with PyDev</a></p>
+<p><a class="reference external" href="manual_101_tips.html">Tips for programming with PyDev</a></p>
+<p><strong>Further info on:</strong></p>
+<ul class="simple">
+<li>Working with Turbogears:
+<a class="reference external" href="http://pydev.blogspot.com/2006/07/configuring-pydev-to-work-with.html">http://pydev.blogspot.com/2006/07/configuring-pydev-to-work-with.html</a></li>
+<li>Working with Django: <a class="reference external" href="manual_adv_django.html">PyDev Django</a></li>
+<li>Editing Django Templates:
+<a class="reference external" href="http://pydev.blogspot.com/2010/08/django-templates-editor.html">http://pydev.blogspot.com/2010/08/django-templates-editor.html</a></li>
+<li>Google App Engine:
+<a class="reference external" href="http://pydev.blogspot.com/2009/05/pydev-146-released-google-app-engine-on.html">http://pydev.blogspot.com/2009/05/pydev-146-released-google-app-engine-on.html</a></li>
+<li>Working with Blender:
+<a class="reference external" href="http://airplanes3d.net/pydev-000_e.xml">http://airplanes3d.net/pydev-000_e.xml</a></li>
+</ul>
+</contents_area>
+
+
+<right_area>
+</right_area>
+
+
+<image_area>manual.png</image_area>
+
+
+<quote_area></quote_area>
+
+
+
+</doc>
+
