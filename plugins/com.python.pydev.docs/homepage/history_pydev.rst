@@ -5,6 +5,40 @@ History For PyDev
 .. _`update sites page`: update_sites/index.html
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
+
+Release 5.8.0 (2017-06-06)
+==========================
+
+* **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
+
+    * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
+
+* **Code Analysis**
+
+	* Fixed issue getting existing PyLint markers.
+	* There's now an Info and an Ignore level.
+
+* **Debugger**
+
+	* The debugger now provides hooks for clients and provides ways to extend the handling of custom types. See: https://github.com/fabioz/PyDev.Debugger/tree/master/pydevd_plugins/extensions (patch by **Yuli Fiterman**).
+	* Fixed issue where the debugger could end up removing quotes on args. **#PyDev-797**
+	* The debugger now works with IronPython again -- although note that versions 2.7.6 and 2.7.7 have a critical bug which prevents IronPython from working in PyDev: https://github.com/IronLanguages/main/issues/1663
+
+* **Code Coverage**
+
+	* Fixed issue getting code-coverage version. **#PyDev-791**
+	* Properly works when running with pytest (provided that pytest-cov is installed).
+
+* **Others**
+
+	* Update .yaml file for google app engine project templates (patch by **JunjieW**).
+	* Upgraded Lucene to 6.1.0 (patch by **Sopot Cela**).
+	* Update docstring parameters (Ctrl+1 on method) properly considers sphinx with types. **#PyDev-787**
+	* Code Completion: Properly finding **__init__** from superclass in inherited classes. **#PyDev-802**
+	* No longer showing icon to start interactive console in toolbar because Eclipse could end up creating multiple entries which were shown forever. **#PyDev-708**
+	* Other minor bugfixes.
+
+
 Release 5.7.0 (2017-04-11)
 ===========================
 

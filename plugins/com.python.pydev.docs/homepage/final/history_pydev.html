@@ -273,6 +273,55 @@
 
 <div class="section" id="history-for-pydev">
 <h1>History For PyDev</h1>
+<div class="section" id="release-5-8-0-2017-06-06">
+<h2>Release 5.8.0 (2017-06-06)</h2>
+<ul>
+<li><p class="first"><strong>Important</strong> PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.</p>
+<blockquote>
+<ul class="simple">
+<li>PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Code Analysis</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Fixed issue getting existing PyLint markers.</li>
+<li>There's now an Info and an Ignore level.</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Debugger</strong></p>
+<blockquote>
+<ul class="simple">
+<li>The debugger now provides hooks for clients and provides ways to extend the handling of custom types. See: <a class="reference external" href="https://github.com/fabioz/PyDev.Debugger/tree/master/pydevd_plugins/extensions">https://github.com/fabioz/PyDev.Debugger/tree/master/pydevd_plugins/extensions</a> (patch by <strong>Yuli Fiterman</strong>).</li>
+<li>Fixed issue where the debugger could end up removing quotes on args. <strong>#PyDev-797</strong></li>
+<li>The debugger now works with IronPython again -- although note that versions 2.7.6 and 2.7.7 have a critical bug which prevents IronPython from working in PyDev: <a class="reference external" href="https://github.com/IronLanguages/main/issues/1663">https://github.com/IronLanguages/main/issues/1663</a></li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Code Coverage</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Fixed issue getting code-coverage version. <strong>#PyDev-791</strong></li>
+<li>Properly works when running with pytest (provided that pytest-cov is installed).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Others</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Update .yaml file for google app engine project templates (patch by <strong>JunjieW</strong>).</li>
+<li>Upgraded Lucene to 6.1.0 (patch by <strong>Sopot Cela</strong>).</li>
+<li>Update docstring parameters (Ctrl+1 on method) properly considers sphinx with types. <strong>#PyDev-787</strong></li>
+<li>Code Completion: Properly finding <strong>__init__</strong> from superclass in inherited classes. <strong>#PyDev-802</strong></li>
+<li>No longer showing icon to start interactive console in toolbar because Eclipse could end up creating multiple entries which were shown forever. <strong>#PyDev-708</strong></li>
+<li>Other minor bugfixes.</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</div>
 <div class="section" id="release-5-7-0-2017-04-11">
 <h2>Release 5.7.0 (2017-04-11)</h2>
 <ul>
