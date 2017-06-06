@@ -11,6 +11,7 @@
     <li><a href='#ImportExistingSources'>How do I import existing projects/sources into PyDev?</a></li>
     <li><a href='#ImportExistingDjangoSources'>How do I import existing projects/sources for a Django project into PyDev?</a></li>
     <li><a href='#PyDevFAQ-HowdoIconfiguremyPYTHONPATH%3F'>How do I configure my PYTHONPATH?</a></li>
+    <li><a href='#MyProgramDoesNotWorkInPyDev'>My program is not running inside PyDev. What do I do?</a></li>
     <li><a href='#HowToFixCodeCompletion'>The code completion doesn't seem to be working properly. What do I do?</a></li>
     <li><a href='#PyDevFAQ-Whyrawinput%28%29%2Finput%28%29doesnotworkcorrectlyinPyDev%3F'>Why raw_input() / input() does not work correctly in PyDev?</a></li>
     <li><a href='#PyDevFAQ-Mytodotasksarenotshowing%2Cistheresomethingwrong%3F'>My todo-tasks are not showing, is there something wrong?</a></li>
@@ -102,7 +103,7 @@
 
 <h3>Option 1</h3>
 
-<p>Just go through the <b>File &gt; New &gt; PyDev Project</b> wizard and select as the directory the directory with your sources 
+<p>Just go through the <b>File &gt; New &gt; PyDev Project</b> wizard and select as the directory the directory with your sources
 (properly configuring the source folders in the process -- see: <a href="manual_101_project_conf">Creating a Project</a> for more information).</p>
 
 <br/>
@@ -121,7 +122,7 @@
 
 <br/>
 <br/>
-<p>     <b>Note on links</b>: <b>links</b> can be used <b>above the source folder</b> or <b>as the source folder</b>, but 
+<p>     <b>Note on links</b>: <b>links</b> can be used <b>above the source folder</b> or <b>as the source folder</b>, but
      <b>never inside a source folder</b>, as it's not supported by PyDev.</p>
 
 
@@ -192,8 +193,41 @@
 <p>Please refer to the Getting Started Guide at <a href="manual_101_root.html" title="PyDev Getting Started">PyDev Getting Started</a> for up-to-date information on how to correctly install and configure your PYTHONPATH.</p>
 
 
+<h2><a name="MyProgramDoesNotWorkInPyDev"></a>My program is not running inside PyDev. What do I do?</h2>
 
+<p>Ok, the first step in diagnosing this is actually taking <strong>PyDev</strong> out of the equation and making sure it runs on the command line.</p>
 
+<p> -- if it also doesn't initially work in the command line, check if your environment variables -- such as
+<strong>PYTHONPATH, PATH, LD_LIBRARY_PATH, DYLD_LIBRARY_PATH</strong>, etc. are set correctly.</p>
+
+<p>Now that you know it works properly in the command line, it's time to make it work on <strong>PyDev</strong> too.</p>
+
+<p>As you already have it working in the command line, try to close Eclipse and run it from that same shell
+you have opened, where you know it's working (so that it'll inherit all the environment variables you have setup from there).</p>
+
+<p>If it still didn't work, the usual culprit is the <strong>PYTHONPATH</strong> environment variable
+(because this specific variable is managed in PyDev based on the interpreter configuration and
+source folders for a given project and dependent projects), so, try to create a script with the following contents:</p>
+
+<pre style="font-family: Andale Mono, Lucida Console, Monaco, fixed, monospace; color: #000000; background-color: #eee; font-size: 12px; border: 1px dashed #999999; line-height: 14px; padding: 5px; overflow: auto; width: 100%">
+<code style="color:#000000;word-wrap:normal;">import sys
+print('Python: %s' % (sys.executable,))
+print('PYTHONPATH')
+print('\n'.join(sorted(sys.path)))
+</code></pre>
+
+<p>And run this script from the command line and from within PyDev to check if it's the same in both cases,
+if it's not, configure the project or interpreter until it matches.</p>
+
+<p>If at this point you got it to work, you may want to go to the <strong>interpreter configuration > environment tab</strong> and select the environment variables that are important so that they're always
+the same when launching for your setup (so that you don't always need to run Ecipse from that command line shell).</p>
+
+<p>Now, if after this point, you still haven't been able to make it work, it may be time to ask on <a href="https://stackoverflow.com/">stackoverflow.com</a> (with a <strong>PyDev</strong> tag),
+showing the stacktrace you have and a screenshot with your interpreter configuration and a screenshot of the PyDev Package Explorer (with the source folders showing and expanded 1 level).</p>
+
+<p><strong>p.s.:</strong> You may also want to check that you're not shadowing a name from the standard library or some library you use (for instance, the standard library has an <strong>email</strong> module,
+so, you shouldn't have a top-level <strong>email</strong> module in your own project -- likewise for other top-level modules or packages in the standard library or libraries you use,
+such as <strong>django</strong>, <strong>requests</strong>, etc).</p>
 
 <h2><a name="HowToFixCodeCompletion"></a><a name="PyDevFAQ-WhenIdoacodecompletion%2CPyDevhangs%2CwhatcanIdo%3F"></a>The code completion doesn't seem to be working properly. What do I do?</h2>
 
@@ -222,9 +256,9 @@
 
 <h2><a name="PyDevFAQ-Whyrawinput%28%29%2Finput%28%29doesnotworkcorrectlyinPyDev%3F"></a>Why raw_input() / input() does not work correctly in PyDev?</h2>
 
-<p>The eclipse console is not an exact copy of a shell... one of  the changes is that when you press &lt;ENTER&gt; in a shell, it may give you a <b>\r, \n</b> or <b>\r\n</b> as an end-line char, 
-depending on your platform.  Python does not expect this &#45;&#45; from the docs it says that it will remove the last <b>\n</b> (checked in version 2.4),  
-but, in some platforms that will leave a <b>\r</b> there.  This means that the <b>raw_input()</b> should usually be used as <b>raw_input().replace('\r', '')</b>,  and <b>input()</b> 
+<p>The eclipse console is not an exact copy of a shell... one of  the changes is that when you press &lt;ENTER&gt; in a shell, it may give you a <b>\r, \n</b> or <b>\r\n</b> as an end-line char,
+depending on your platform.  Python does not expect this &#45;&#45; from the docs it says that it will remove the last <b>\n</b> (checked in version 2.4),
+but, in some platforms that will leave a <b>\r</b> there.  This means that the <b>raw_input()</b> should usually be used as <b>raw_input().replace('\r', '')</b>,  and <b>input()</b>
 should be changed for: <b>eval(raw_input().replace('\r', ''))</b>. </p>
 
 
