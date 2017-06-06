@@ -1,3 +1,0 @@
-Refactorings implemented in smalltalk:
-
-http://st-www.cs.uiuc.edu/users/brant/Refactory/Refactorings.html

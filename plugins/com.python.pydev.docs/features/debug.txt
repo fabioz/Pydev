@@ -1,5 +1,0 @@
-Debug
-=====
-
-The debug feature should be able to debug modules that are not run from within pydev (works as a debug server) - OK
-

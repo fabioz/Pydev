@@ -1,9 +1,0 @@
-Search
-=============
-
-Search should be activated with Ctrl+H
-
-
-Cases
---------
-
