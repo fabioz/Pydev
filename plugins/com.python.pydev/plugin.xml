@@ -117,7 +117,8 @@ entries appear to live forever in all perspectives).
 
 This definitely seems an Eclipse bug... I (Fabio) do have some workspaces where the toolbar becomes
 trashed because of it and apparently there's no way to recover and the only solution is creating a new
-workspace.
+workspace or manually removing the com.python.pydev.toolbars.evaluateActionSetterToolbar
+from .metadata/.plugins/org.eclipse.e4.workbench/workbench.xmi.
 
 There's also a bug report with it: https://www.brainwy.com/tracker/PyDev/708
 
