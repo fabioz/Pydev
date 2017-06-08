@@ -3187,4 +3187,31 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals("Bar(a, b)", prop.getDisplayString());
 
     }
+
+    public void testInsideMethodParams() throws Exception {
+        String s;
+        String original = "" +
+                "def foo(a, b):\n" +
+                "    pass\n" +
+                "def bar(c, d):\n" +
+                "    pass\n" +
+                "foo(bar(1, 2), ";
+
+        s = StringUtils.format(original, "");
+
+        ICompletionProposal[] proposals = requestCompl(s, s.length() - 1, -1, new String[] {});
+        assertEquals(1, proposals.length);
+        ICompletionProposal prop = proposals[0];
+        assertEquals("foo(a, b)", prop.getDisplayString());
+
+        IPyCalltipsContextInformation contextInformation = (IPyCalltipsContextInformation) prop.getContextInformation();
+        assertEquals("a, b", contextInformation.getContextDisplayString());
+        assertEquals("a, b", contextInformation.getInformationDisplayString());
+
+        Document doc = new Document(s);
+        prop.apply(doc);
+        String expected = StringUtils.format(original, "c, d");
+        assertEquals(expected, doc.get());
+    }
+
 }
