@@ -1,53 +1,38 @@
-PyDev 5.6.0 Released
+PyDev 5.8.0 Released
 
-PyDev 5.6.0 Release Highlights
+PyDev 5.8.0 Release Highlights
 -------------------------------
 
 * **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
 
     * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
 
+
+* **Code Analysis**
+
+	* Fixed issue getting existing PyLint markers.
+	* There's now an Info and an Ignore level.
+
 * **Debugger**
-   
-    * **Performance** enhancements on the **debugger** (which should be **60%-100%** faster now). 
-    
-    * The **debugger** now only supports **Python 2.6 onwards** (keep on PyDev 5.5.0 for Python 2.5 or below).
-    
-    * Properly displaying variables when the **interactive console** is connected to a **debug session**. **#PyDev-776**
-    
-    * Providing a way for the debugger to support a user-specified version of Qt for debugging QThreads (**preferences > PyDev > Debug > Qt Threads**).
-    
-    * Fixed issue where a **native Qt signal is not callable** message was raised when connecting a signal to QThread.started.
-    
-    * Fixed issue in displaying variable (with **Ctrl+Shift+D**) when debugging.
-    
-    * Debug view toolbar icons no longer appearing stretched due to Set Next Statement icon having a different size.
-    
-* **Code completion**
 
-    * **super** is now properly recognized (code completion and find definition).
-    
-    * **pytest fixtures** are now properly recognized (code completion and find definition).
+	* The debugger now provides hooks for clients and provides ways to extend the handling of custom types. See: https://github.com/fabioz/PyDev.Debugger/tree/master/pydevd_plugins/extensions (patch by **Yuli Fiterman**).
+	* Fixed issue where the debugger could end up removing quotes on args. **#PyDev-797**
+	* The debugger now works with IronPython again -- although note that **IronPython** **2.7.6** and **2.7.7** have a critical bug which prevents IronPython from working in PyDev: https://github.com/IronLanguages/main/issues/1663
 
-    * Suppress invalid completions on literals numbers (patch by Jonah Graham)
-    
+* **Code Coverage**
+
+	* Fixed issue getting code-coverage version. **#PyDev-791**
+	* Properly works when running with pytest (provided that pytest-cov is installed).
+
 * **Others**
 
-    * It's now possible to save the PyUnit preferences to the project or user settings.
-    
-    * Upgraded **pep8** to the latest **pycodestyle**.
-    
-    * Upgraded to latest **autopep8**.
-    
-    * Fixed issue in Django shell if version >= 1.10 **#PyDev-752**.
-    
-    * Add support for **coverage 4.x** (minimum supported version is now 4.3). **#PyDev-691**
-    
-    * Syntax highlighting for **matmul operator** (was being considered a decorator). **#PyDev-771**
-    
-    * Making **PyLint** use the same thread pool used for code analysis.
-    
-    * String index out of range while reading buffer in AbstractShell. **#PyDev-768**
+	* Update .yaml file for google app engine project templates (patch by **JunjieW**).
+	* Upgraded Lucene to 6.1.0 (patch by **Sopot Cela**).
+	* Update docstring from parameters (Ctrl+1 on **def**) properly considers sphinx with types. **#PyDev-787**
+	* Code Completion: Properly finding **__init__** from superclass in inherited classes. **#PyDev-802**
+	* No longer showing icon to start interactive console in toolbar because Eclipse could end up creating multiple entries which were shown forever. **#PyDev-708**
+	* Other minor bugfixes.
+
 
 
 What is PyDev?
