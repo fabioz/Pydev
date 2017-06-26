@@ -471,7 +471,7 @@
         class="org.python.pydev.debug.profile.ProfileView"
         icon="icons/python_profile.png"
         category="org.python.pydev"
-        name="Profile"
+        name="Profile (PyVmMonitor)"
         id="org.python.pydev.debug.profile.ProfileView"/>
    <view
          class="org.python.pydev.debug.referrers.ReferrersView"
