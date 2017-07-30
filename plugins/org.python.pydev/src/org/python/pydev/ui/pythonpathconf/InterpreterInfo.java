@@ -904,6 +904,7 @@ public class InterpreterInfo implements IInterpreterInfo {
                 forcedLibs.add("scipy");
                 forcedLibs.add("mock"); // mock.patch.object is not gotten if mock is not there for the mock library.
                 forcedLibs.add("Image"); //for PIL
+                forcedLibs.add("cv2"); //for OpenCV
 
                 //these are the builtins -- apparently sys.builtin_module_names is not ok in linux.
                 forcedLibs.add("_ast");
