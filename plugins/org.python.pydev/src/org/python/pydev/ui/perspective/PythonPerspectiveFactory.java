@@ -21,7 +21,7 @@ import org.python.pydev.ui.wizards.project.PythonProjectWizard;
 
 /**
  * Python perspective constructor
- * 
+ *
  * @author Mikko Ohtamaa
  */
 public class PythonPerspectiveFactory implements IPerspectiveFactory {
@@ -30,7 +30,7 @@ public class PythonPerspectiveFactory implements IPerspectiveFactory {
 
     /**
      * Creates Python perspective layout
-     * 
+     *
      * Copied from org.eclipse.jdt.internal.ui.JavaPerspectiveFactory
      */
     @Override
@@ -65,19 +65,20 @@ public class PythonPerspectiveFactory implements IPerspectiveFactory {
      * @param layout
      */
     public void defineActions(IPageLayout layout) {
-        layout.addNewWizardShortcut(PythonProjectWizard.WIZARD_ID); //$NON-NLS-1$        
-        layout.addNewWizardShortcut(PythonSourceFolderWizard.WIZARD_ID); //$NON-NLS-1$        
-        layout.addNewWizardShortcut(PythonPackageWizard.WIZARD_ID); //$NON-NLS-1$        
-        layout.addNewWizardShortcut(PythonModuleWizard.WIZARD_ID); //$NON-NLS-1$        
+        layout.addNewWizardShortcut(PythonProjectWizard.WIZARD_ID);
+        layout.addNewWizardShortcut(PythonSourceFolderWizard.WIZARD_ID);
+        layout.addNewWizardShortcut(PythonPackageWizard.WIZARD_ID);
+        layout.addNewWizardShortcut(PythonModuleWizard.WIZARD_ID);
         layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.folder");//$NON-NLS-1$
         layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.file");//$NON-NLS-1$
         layout.addNewWizardShortcut("org.eclipse.ui.editors.wizards.UntitledTextFileWizard");//$NON-NLS-1$
 
-        layout.addShowViewShortcut("org.python.pydev.views.PyCodeCoverageView");
         layout.addShowViewShortcut("org.python.pydev.navigator.view");
-        layout.addShowViewShortcut("org.python.pydev.debug.pyunit.pyUnitView");
-        layout.addShowViewShortcut(NewSearchUI.SEARCH_VIEW_ID);
         layout.addShowViewShortcut(IConsoleConstants.ID_CONSOLE_VIEW);
+        layout.addShowViewShortcut("org.python.pydev.debug.pyunit.pyUnitView");
+        layout.addShowViewShortcut("org.python.pydev.debug.profile.ProfileView");
+        layout.addShowViewShortcut("org.python.pydev.views.PyCodeCoverageView");
+        layout.addShowViewShortcut(NewSearchUI.SEARCH_VIEW_ID);
         layout.addShowViewShortcut(IPageLayout.ID_OUTLINE);
         layout.addShowViewShortcut(IPageLayout.ID_PROBLEM_VIEW);
         //layout.addShowViewShortcut(IPageLayout.ID_RES_NAV);-- Navigator no longer supported

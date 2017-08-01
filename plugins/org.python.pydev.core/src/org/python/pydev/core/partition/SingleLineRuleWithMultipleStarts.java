@@ -15,8 +15,8 @@ public class SingleLineRuleWithMultipleStarts implements IPredicateRule, IChange
     protected IToken fToken;
     private final char escapeCharacter;
     private final boolean escapeContinuesLine;
-    private ArrayList<char[]> fStartSequences;
-    private char[] fEndSequence;
+    private final ArrayList<char[]> fStartSequences;
+    private final char[] fEndSequence;
 
     @Override
     public void setToken(IToken token) {

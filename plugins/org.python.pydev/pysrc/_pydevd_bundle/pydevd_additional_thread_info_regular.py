@@ -6,7 +6,7 @@ from _pydevd_bundle.pydevd_frame import PyDBFrame
 # ENDIF
 
 if not hasattr(sys, '_current_frames'):
-    
+
     # Some versions of Jython don't have it (but we can provide a replacement)
     if IS_JYTHON:
         from java.lang import NoSuchFieldException
@@ -28,17 +28,17 @@ if not hasattr(sys, '_current_frames'):
                 thread_state = thread_to_state.getValue()
                 if thread_state is None:
                     continue
-                
+
                 frame = thread_state.frame
                 if frame is None:
                     continue
-                
+
                 ret[thread.getId()] = frame
             return ret
-        
-    if IS_IRONPYTHON: 
+
+    elif IS_IRONPYTHON:
         _tid_to_last_frame = {}
-        
+
         # IronPython doesn't have it. Let's use our workaround...
         def _current_frames():
             return _tid_to_last_frame
