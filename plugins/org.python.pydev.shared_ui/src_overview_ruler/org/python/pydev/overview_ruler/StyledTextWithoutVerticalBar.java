@@ -60,9 +60,22 @@ public final class StyledTextWithoutVerticalBar extends StyledText {
         int charCount = this.getCharCount();
 
         int[] newRanges = new int[styles.length << 1];
+        int endOffset = -1;
         for (int i = 0, j = 0; i < styles.length; i++) {
             StyleRange newStyle = styles[i];
-            int endOffset = newStyle.start + newStyle.length;
+            if (endOffset > newStyle.start) {
+                String msg = "Error endOffset (" + endOffset + ") > next style start (" + newStyle.start + ")";
+                Log.log(msg);
+                int diff = endOffset - newStyle.start;
+                newStyle.start = endOffset;
+                newStyle.length -= diff;
+                if (newStyle.length < 0) {
+                    // Unable to fix it
+                    throw new AssertionError(msg);
+                }
+            }
+
+            endOffset = newStyle.start + newStyle.length;
             if (endOffset > charCount) {
                 String msg = "Error endOffset (" + endOffset + ") > charCount (" + charCount + ")";
                 Log.log(msg);
