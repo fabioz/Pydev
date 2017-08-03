@@ -5,9 +5,9 @@ version: 1
 runtime: python27
 # threadsafe is required but can be either true or 
 # false. For some package, it should be true e.g. Flask
-threadsafe: true
+threadsafe: false
 api_version: 1
 
 handlers:
 - url: /.*
-  script: helloworld.app
+  script: helloworld.py
