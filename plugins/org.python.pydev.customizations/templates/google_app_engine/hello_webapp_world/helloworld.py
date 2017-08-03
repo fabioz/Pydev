@@ -10,11 +10,11 @@ class MainPage(webapp.RequestHandler):
         self.response.out.write('Hello, webapp World!')
 
 
-application = webapp.WSGIApplication([('/', MainPage)], debug=True)
+app = webapp.WSGIApplication([('/', MainPage)], debug=True)
 
 
 def main():
-    run_wsgi_app(application)
+    run_wsgi_app(app)
 
 if __name__ == "__main__":
     main()

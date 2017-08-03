@@ -18,11 +18,11 @@ class MainPage(webapp.RequestHandler):
             self.redirect(users.create_login_url(self.request.uri))
 
 
-application = webapp.WSGIApplication([('/', MainPage)], debug=True)
+app = webapp.WSGIApplication([('/', MainPage)], debug=True)
 
 
 def main():
-    run_wsgi_app(application)
+    run_wsgi_app(app)
 
 
 if __name__ == "__main__":
