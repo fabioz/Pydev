@@ -4,7 +4,7 @@ Bundle-Name: Fastparser Plug-in
 Bundle-SymbolicName: com.python.pydev.fastparser; singleton:=true
 Bundle-Version: 5.9.0.qualifier
 Bundle-Activator: com.python.pydev.fastparser.FastparserPlugin
-Bundle-Vendor: Aptana
+Bundle-Vendor: Brainwy Software Ltda
 Bundle-Localization: plugin
 Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.ui,

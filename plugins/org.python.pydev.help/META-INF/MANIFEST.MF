@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Pydev Online Help
 Bundle-SymbolicName: org.python.pydev.help; singleton:=true
 Bundle-Version: 5.9.0.qualifier
-Bundle-Vendor: Aptana
+Bundle-Vendor: Brainwy Software Ltda
 Bundle-Localization: plugin
 Bundle-ActivationPolicy: lazy
 Eclipse-BundleShape: dir

@@ -4,7 +4,7 @@ Bundle-Name: Codecompletion Plug-in
 Bundle-SymbolicName: com.python.pydev.codecompletion; singleton:=true
 Bundle-Version: 5.9.0.qualifier
 Bundle-Activator: com.python.pydev.codecompletion.CodecompletionPlugin
-Bundle-Vendor: Aptana
+Bundle-Vendor: Brainwy Software Ltda
 Bundle-Localization: plugin
 Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.ui,

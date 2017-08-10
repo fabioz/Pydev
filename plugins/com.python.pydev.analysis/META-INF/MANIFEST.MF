@@ -4,7 +4,7 @@ Bundle-Name: Analysis Plug-in
 Bundle-SymbolicName: com.python.pydev.analysis; singleton:=true
 Bundle-Version: 5.9.0.qualifier
 Bundle-Activator: com.python.pydev.analysis.AnalysisPlugin
-Bundle-Vendor: Aptana
+Bundle-Vendor: Brainwy Software Ltda
 Bundle-Localization: plugin
 Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.ui,

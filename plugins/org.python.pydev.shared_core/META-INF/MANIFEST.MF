@@ -134,5 +134,5 @@ Export-Package: org.apache.lucene,
  org.yaml.snakeyaml.reader,
  org.yaml.snakeyaml.scanner,
  org.yaml.snakeyaml.tokens
-Bundle-Vendor: Appcelerator
+Bundle-Vendor: Brainwy Software Ltda
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

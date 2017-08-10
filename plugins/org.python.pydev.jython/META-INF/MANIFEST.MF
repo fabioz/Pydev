@@ -6,7 +6,7 @@ Bundle-Version: 5.9.0.qualifier
 Bundle-ClassPath: pydev-jython.jar,
  jython.jar
 Bundle-Activator: org.python.pydev.jython.JythonPlugin
-Bundle-Vendor: Aptana
+Bundle-Vendor: Brainwy Software Ltda
 Bundle-Localization: plugin
 Eclipse-BundleShape: dir
 Eclipse-BuddyPolicy: global

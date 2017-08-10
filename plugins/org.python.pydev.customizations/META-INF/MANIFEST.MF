@@ -24,5 +24,5 @@ Export-Package: org.python.pydev.customizations,org.python.pydev.custo
  ne.launching,org.python.pydev.customizations.app_engine.util,org.pyth
  on.pydev.customizations.app_engine.wizards,org.python.pydev.customiza
  tions.common
-Bundle-Vendor: Aptana
+Bundle-Vendor: Brainwy Software Ltda
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

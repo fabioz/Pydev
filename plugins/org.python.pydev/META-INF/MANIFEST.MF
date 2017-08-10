@@ -6,7 +6,7 @@ Bundle-Version: 5.9.0.qualifier
 Bundle-ClassPath: pydev.jar,
  libs/WinRegistry-4.5.jar
 Bundle-Activator: org.python.pydev.plugin.PydevPlugin
-Bundle-Vendor: PyDev
+Bundle-Vendor: Brainwy Software Ltda
 Bundle-Localization: plugin
 Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.ui,

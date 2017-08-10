@@ -36,5 +36,5 @@ Export-Package: org.apache.commons.logging,org.apache.commons.logging.
  python.pydev.shared_interactive_console.console.ui.internal.actions,o
  rg.python.pydev.shared_interactive_console.console.ui.internal.fromec
  lipse
-Bundle-Vendor: Appcelerator
+Bundle-Vendor: Brainwy Software Ltda
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Pydev Django
 Bundle-SymbolicName: org.python.pydev.django;singleton:=true
 Bundle-Version: 5.9.0.qualifier
-Bundle-Vendor: Aptana
+Bundle-Vendor: Brainwy Software Ltda
 Bundle-Activator: org.python.pydev.django.DjangoPlugin
 Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.ui,
