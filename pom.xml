@@ -280,11 +280,14 @@
             <artifactId>maven-jarsigner-plugin</artifactId>
             <version>1.4</version>
             <configuration>
+              <!-- Note: to sign with a .pfx the alias can be seen with keytool -list -v -storetype pkcs12 -keystore code_sign.pfx -->
               <keystore>${env.SIGN_KEYSTORE}</keystore>
               <storepass>${env.SIGN_STOREPASS}</storepass>
               <alias>${env.SIGN_ALIAS}</alias>
               <keypass>${env.SIGN_KEYPASS}</keypass>
               <storetype>${env.SIGN_STORETYPE}</storetype>
+              <tsa>${env.SIGN_TSA}</tsa>
+              <verbose>true</verbose>
             </configuration>
             <executions>
               <execution>
