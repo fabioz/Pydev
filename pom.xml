@@ -87,24 +87,24 @@
           SIGN_STOREPASS=<store password entered above>
           SIGN_KEYPASS=<key password entered above>
        3) Run the build
-       
+
      - Update all poms/manifests/feature with a new version number
        When -SNAPSHOT is used, in the manifests it is replaced with
        .qualifier
        1) Apply the test_with_tycho.patch
             git apply test_with_tycho.patch
-            
+
        2) Run the new version command
             mvn -o tycho-versions:set-version -Dtycho.localArtifacts=ignore -DnewVersion=3.0.0-SNAPSHOT
                (-o can be used if all the dependencies are already in .m2 directory,
                 if not you need to run without the -o on the first run)
                 Then, manually change version on com.python.pydev.runalltests on pom.xml and MANIFEST.MF as they're not updated there
-                
+
        3) Reverse the test_with_tycho.patch
             git apply -R test_with_tycho.patch
                (if this fails it means you need to manually recreate the patch
                 because it is no longer valid)
-                
+
      - Sync pom and feature.xml version numbers to manifest ones.
           "mvn -o tycho-versions:update-pom -Dtycho.localArtifacts=ignore"
           (See the notes about setting versions above, e.g. you need to do this
@@ -284,6 +284,7 @@
               <storepass>${env.SIGN_STOREPASS}</storepass>
               <alias>${env.SIGN_ALIAS}</alias>
               <keypass>${env.SIGN_KEYPASS}</keypass>
+              <storetype>${env.SIGN_STORETYPE}</storetype>
             </configuration>
             <executions>
               <execution>

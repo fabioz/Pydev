@@ -153,6 +153,35 @@ LiClipse you directly support the development of PyDev).</p>
 <p>Thank you to all PyDev supporters: <a class="reference external" href="https://www.brainwy.com/supporters/PyDev">https://www.brainwy.com/supporters/PyDev</a>.</p>
 <p>To show your appreciation for PyDev and to keep it going strong, help to crowdfund through <a class="reference external" href="https://www.patreon.com/fabioz">https://www.patreon.com/fabioz</a>.</p>
 </div>
+<div class="section" id="release-5-9-0-2017-08-10">
+<h1>Release 5.9.0 (2017-08-10)</h1>
+<ul>
+<li><p class="first"><strong>Important</strong> PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.</p>
+<blockquote>
+<ul class="simple">
+<li>PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Debugger</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Integrated speedups for Python 3.6 which use the new Python hook which allows the debugger to add breakpoints through bytecode manipulation.</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first">Fixed issue on text search with <strong>Lucene</strong> when the user had another plugin which also used lucene (<strong>#PyDev-826</strong>).</p>
+</li>
+<li><p class="first">Google App Engine templates now working out of the box (patch by <strong>Mat Booth</strong>).</p>
+</li>
+<li><p class="first">Optimization in editor highlighting when dealing with huge files.</p>
+</li>
+<li><p class="first">Some bugfixes in pytest integration.</p>
+</li>
+<li><p class="first"><strong>cv2</strong> added to forced builtins by default for working with OpenCV.</p>
+</li>
+</ul>
+</div>
 <div class="section" id="release-5-8-0-2017-06-06">
 <h1>Release 5.8.0 (2017-06-06)</h1>
 <ul>

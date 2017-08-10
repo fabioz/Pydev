@@ -4,6 +4,35 @@
 
 <div class="section" id="history-for-pydev">
 <h1>History For PyDev</h1>
+<div class="section" id="release-5-9-0-2017-08-10">
+<h2>Release 5.9.0 (2017-08-10)</h2>
+<ul>
+<li><p class="first"><strong>Important</strong> PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.</p>
+<blockquote>
+<ul class="simple">
+<li>PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Debugger</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Integrated speedups for Python 3.6 which use the new Python hook which allows the debugger to add breakpoints through bytecode manipulation.</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first">Fixed issue on text search with <strong>Lucene</strong> when the user had another plugin which also used lucene (<strong>#PyDev-826</strong>).</p>
+</li>
+<li><p class="first">Google App Engine templates now working out of the box (patch by <strong>Mat Booth</strong>).</p>
+</li>
+<li><p class="first">Optimization in editor highlighting when dealing with huge files.</p>
+</li>
+<li><p class="first">Some bugfixes in pytest integration.</p>
+</li>
+<li><p class="first"><strong>cv2</strong> added to forced builtins by default for working with OpenCV.</p>
+</li>
+</ul>
+</div>
 <div class="section" id="release-5-8-0-2017-06-06">
 <h2>Release 5.8.0 (2017-06-06)</h2>
 <ul>
@@ -3868,27 +3897,23 @@ import *&quot;</p>
 running the jython shell (errors can arise in unix-based machines if
 jython is not able to write its cache)</p>
 <p><strong>Contributions</strong></p>
-<ul>
-<li><p class="first"><strong>Darrell Maples</strong>:</p>
 <ul class="simple">
+<li><strong>Darrell Maples</strong>:<ul>
 <li>Unit-test refactoring</li>
 <li>Run as jython unit-test</li>
 <li>Filter test methods to run</li>
 </ul>
 </li>
-<li><p class="first"><strong>Joel Hedlund</strong></p>
-<ul>
-<li><p class="first">Added a support to ease adding options to Ctrl+1 in the
-scripting engine</p>
-</li>
+<li><strong>Joel Hedlund</strong><ul>
+<li>Added a support to ease adding options to Ctrl+1 in the
+scripting engine</li>
 <li><dl class="first docutils">
 <dt>Added a ctrl+1 for the case:</dt>
-<dd><p class="first last">def m1(self, arg=None):
+<dd>def m1(self, arg=None):
 arg |&lt;-- Ctrl+1 shows option to do:
 def m1(self, arg=None):
 if arg is None:
-arg = []</p>
-</dd>
+arg = []</dd>
 </dl>
 </li>
 </ul>

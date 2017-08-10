@@ -16,7 +16,7 @@
 <h2>List type with Sphinx (PyDev 4.0 onwards)</h2>
 <p>Note: It works with brackets or parenthesis:</p>
 <blockquote>
-<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyClass</span>:
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span></span><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyClass</span>:
 
     <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">method</span>(<span style="color: #008000">self</span>, param):
         <span style="color: #BA2121">&#39;:type param: list(str)&#39;</span>
@@ -28,7 +28,7 @@
 <h2>Dict type with Sphinx (PyDev 4.0 onwards)</h2>
 <p>Note: It works with brackets or parenthesis:</p>
 <blockquote>
-<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyClass</span>:
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span></span><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyClass</span>:
 
     <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">method</span>(<span style="color: #008000">self</span>, param):
         <span style="color: #BA2121">&#39;:type param: dict(str, MyClass)&#39;</span>
@@ -39,7 +39,7 @@
 <div class="section" id="return-type-with-sphinx">
 <h2>Return type with Sphinx</h2>
 <blockquote>
-<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyClass</span>:
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span></span><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyClass</span>:
 
     <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">method</span>(<span style="color: #008000">self</span>):
         <span style="color: #BA2121">&#39;:rtype unittest.TestCase&#39;</span>
@@ -49,7 +49,7 @@
 <div class="section" id="parameter-type-with-sphinx">
 <h2>Parameter type with Sphinx</h2>
 <blockquote>
-<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyClass</span>:
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span></span><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyClass</span>:
 
     <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">method</span>(<span style="color: #008000">self</span>, a):
         <span style="color: #BA2121">&#39;:type a: TestCase&#39;</span>
@@ -61,7 +61,7 @@
 <div class="section" id="parameter-type-with-sphinx-inline">
 <h2>Parameter type with Sphinx inline</h2>
 <blockquote>
-<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyClass</span>:
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span></span><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyClass</span>:
 
     <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">method</span>(<span style="color: #008000">self</span>, a):
         <span style="color: #BA2121">&#39;:param TestCase a:&#39;</span>
@@ -71,7 +71,7 @@
 <div class="section" id="local-variable-with-sphinx">
 <h2>Local variable with Sphinx</h2>
 <blockquote>
-<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyClass</span>:
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span></span><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyClass</span>:
 
     <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">method</span>(<span style="color: #008000">self</span>, lst):
         <span style="color: #408080; font-style: italic">#Can be on the same line</span>
@@ -83,7 +83,7 @@
 <div class="section" id="id1">
 <h2>Local variable with Sphinx</h2>
 <blockquote>
-<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyClass</span>:
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span></span><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyClass</span>:
 
     <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">method</span>(<span style="color: #008000">self</span>, lst):
         <span style="color: #408080; font-style: italic">#Or on the line before</span>
@@ -96,7 +96,7 @@
 <div class="section" id="id2">
 <h2>Local variable with Sphinx</h2>
 <blockquote>
-<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyClass</span>:
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span></span><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyClass</span>:
 
     <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">method</span>(<span style="color: #008000">self</span>, lst):
         <span style="color: #408080; font-style: italic">#If commented as a docstring must be on the</span>
@@ -110,7 +110,7 @@
 <div class="section" id="return-type-with-epydoc">
 <h2>Return type with Epydoc</h2>
 <blockquote>
-<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyClass</span>:
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span></span><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyClass</span>:
 
     <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">method</span>(<span style="color: #008000">self</span>):
         <span style="color: #BA2121">&#39;@rtype unittest.TestCase&#39;</span>
@@ -120,7 +120,7 @@
 <div class="section" id="parameter-type-with-epydoc">
 <h2>Parameter type with Epydoc</h2>
 <blockquote>
-<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyClass</span>:
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span></span><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyClass</span>:
 
     <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">method</span>(<span style="color: #008000">self</span>, a):
         <span style="color: #BA2121">&#39;@type a: TestCase&#39;</span>

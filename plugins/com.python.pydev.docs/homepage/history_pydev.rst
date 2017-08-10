@@ -6,6 +6,24 @@ History For PyDev
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
+Release 5.9.0 (2017-08-10)
+==========================
+
+* **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
+
+    * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
+
+* **Debugger**
+
+	* Integrated speedups for Python 3.6 which use the new Python hook which allows the debugger to add breakpoints through bytecode manipulation.
+
+* Fixed issue on text search with **Lucene** when the user had another plugin which also used lucene (**#PyDev-826**).
+* Google App Engine templates now working out of the box (patch by **Mat Booth**).
+* Optimization in editor highlighting when dealing with huge files.
+* Some bugfixes in pytest integration.
+* **cv2** added to forced builtins by default for working with OpenCV.
+
+
 Release 5.8.0 (2017-06-06)
 ==========================
 
