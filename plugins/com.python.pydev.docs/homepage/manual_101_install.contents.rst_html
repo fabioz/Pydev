@@ -39,24 +39,8 @@ run as an Administrator whenever any plugin needs to be updated).</p>
 </div>
 <div class="section" id="pydev-certificate">
 <h1>PyDev Certificate</h1>
-<p>PyDev is built with a self-signed certificate, which means that when
-installed a dialog will be opened to ask if you trust the certificate (which should be OK for most users).</p>
-<p>Now, if you don't want that dialog to appear, it's possible to import
-the certificate before starting the installation process (this is actually a requirement for those that want to install PyDev
-from the command line because of a bug in the Eclipse p2 director).</p>
-<p>The first step for that is downloading the <a class="reference external" href="pydev_certificate.cer">PyDev
-certificate</a> (note that you may want to access <strong>pydev.org</strong> using <strong>https</strong> to make
-sure that the connection is encrypted).</p>
-<p>The second step is discovering the Java being used in Eclipse: go to
-<strong>Help &gt; About &gt; Installation details and look for 'java.home'</strong></p>
-<p>Then to actually import it, in the command line, go to the Eclipse
-'java.home' directory and execute</p>
-<p><strong>bin/keytool.exe -import -file pydev_certificate.cer -keystore
-lib/security/cacerts</strong></p>
-<p>Note that if you never did anything here, your <strong>password</strong> when
-requested should be <strong>changeit</strong></p>
-<p>Reference:
-<a class="reference external" href="http://download.oracle.com/javase/1.4.2/docs/tooldocs/solaris/keytool.html#cacerts">http://download.oracle.com/javase/1.4.2/docs/tooldocs/solaris/keytool.html#cacerts</a></p>
+<p>From version 5.9.0 onwards, PyDev is built with a certificate in the name of &quot;Brainwy Software Ltda&quot;
+(previously it used a self-signed certificate).</p>
 </div>
 <div class="section" id="installing-with-the-update-site">
 <h1>Installing with the update site</h1>

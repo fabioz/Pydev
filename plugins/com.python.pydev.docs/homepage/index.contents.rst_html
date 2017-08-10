@@ -172,6 +172,8 @@ LiClipse you directly support the development of PyDev).</p>
 </li>
 <li><p class="first">Fixed issue on text search with <strong>Lucene</strong> when the user had another plugin which also used lucene (<strong>#PyDev-826</strong>).</p>
 </li>
+<li><p class="first">From this version onwards, PyDev is built with a proper certificate (previous versions used a self-signed certificate).</p>
+</li>
 <li><p class="first">Google App Engine templates now working out of the box (patch by <strong>Mat Booth</strong>).</p>
 </li>
 <li><p class="first">Optimization in editor highlighting when dealing with huge files.</p>

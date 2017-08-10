@@ -199,6 +199,7 @@ Release 5.9.0 (2017-08-10)
 	* Integrated speedups for Python 3.6 which use the new Python hook which allows the debugger to add breakpoints through bytecode manipulation.
 
 * Fixed issue on text search with **Lucene** when the user had another plugin which also used lucene (**#PyDev-826**).
+* From this version onwards, PyDev is built with a proper certificate (previous versions used a self-signed certificate).
 * Google App Engine templates now working out of the box (patch by **Mat Booth**).
 * Optimization in editor highlighting when dealing with huge files.
 * Some bugfixes in pytest integration.
