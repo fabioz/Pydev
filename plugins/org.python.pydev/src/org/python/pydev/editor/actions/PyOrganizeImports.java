@@ -31,7 +31,9 @@ import org.python.pydev.editor.actions.organize_imports.ImportArranger;
 import org.python.pydev.editor.actions.organize_imports.Pep8ImportArranger;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.parser.prettyprinterv2.IFormatter;
+import org.python.pydev.plugin.JythonModules;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
+import org.python.pydev.shared_core.utils.DocUtils;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 
 /**
@@ -114,18 +116,31 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
                 }
             }
 
-            boolean pep8 = ImportsPreferencesPage.getPep8Imports(projectAdaptable);
+            String importEngine = ImportsPreferencesPage.getImportEngine(projectAdaptable);
+            switch (importEngine) {
+                case ImportsPreferencesPage.IMPORT_ENGINE_ISORT:
+                    String fileContents = doc.get();
+                    if (fileContents.length() > 0) {
+                        String isortResult = JythonModules.makeISort(fileContents,
+                                edit != null ? edit.getEditorFile() : (f != null ? f.getRawLocation().toFile() : null));
+                        if (isortResult != null) {
+                            DocUtils.updateDocRangeWithContents(doc, fileContents, isortResult.toString(),
+                                    endLineDelim);
+                        }
+                    }
+                    break;
 
-            if (pep8) {
-                if (f == null) {
-                    f = edit.getIFile();
-                }
-                IProject p = f != null ? f.getProject() : null;
-                pep8PerformArrangeImports(doc, removeUnusedImports, endLineDelim, p, indentStr, automatic, edit);
+                case ImportsPreferencesPage.IMPORT_ENGINE_REGULAR_SORT:
+                    performArrangeImports(doc, removeUnusedImports, endLineDelim, indentStr, automatic, edit);
+                    break;
 
-            } else {
-                performArrangeImports(doc, removeUnusedImports, endLineDelim, indentStr, automatic, edit);
-
+                default: //case ImportsPreferencesPage.IMPORT_ENGINE_PEP_8:
+                    if (f == null) {
+                        f = edit.getIFile();
+                    }
+                    IProject p = f != null ? f.getProject() : null;
+                    pep8PerformArrangeImports(doc, removeUnusedImports, endLineDelim, p, indentStr, automatic, edit);
+                    break;
             }
 
             if (participants != null) {
@@ -140,9 +155,9 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
 
     /**
      * Actually does the action in the document. Public for testing.
-     * 
+     *
      * @param doc
-     * @param removeUnusedImports 
+     * @param removeUnusedImports
      * @param endLineDelim
      */
     public static void performArrangeImports(IDocument doc, boolean removeUnusedImports, String endLineDelim,
@@ -152,9 +167,9 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
 
     /**
      * Pep8 compliant version. Actually does the action in the document.
-     * 
+     *
      * @param doc
-     * @param removeUnusedImports 
+     * @param removeUnusedImports
      * @param endLineDelim
      */
     public static void pep8PerformArrangeImports(IDocument doc, boolean removeUnusedImports, String endLineDelim,
@@ -182,7 +197,7 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
     @Override
     public void formatAll(IDocument doc, IPyFormatStdProvider edit, IFile f, boolean isOpenedFile,
             boolean throwSyntaxError)
-                    throws SyntaxErrorException {
+            throws SyntaxErrorException {
         organizeImports((PyEdit) edit, doc, f, new PySelection(doc));
     }
 

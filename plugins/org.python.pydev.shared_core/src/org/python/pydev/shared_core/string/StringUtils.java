@@ -549,12 +549,12 @@ public final class StringUtils {
 
     /**
      * Splits keeping empty partitions.
-     * 
+     *
      * Notes:
      * If ending with the char to split, adds an empty partition to the end.
-     * 
+     *
      * I.e.:
-     * aaa|   will give "aaa", "" 
+     * aaa|   will give "aaa", ""
      */
     public static List<String> splitKeepEmpty(String string, char toSplit) {
         int len = string.length();
