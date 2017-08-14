@@ -4,6 +4,29 @@
 
 <div class="section" id="history-for-pydev">
 <h1>History For PyDev</h1>
+<div class="section" id="release-5-9-1-2017-08-14">
+<h2>Release 5.9.1 (2017-08-14)</h2>
+<ul>
+<li><p class="first"><strong>Important</strong> PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.</p>
+<blockquote>
+<ul class="simple">
+<li>PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Debugger</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Some critical fixes related to issues in the latest debugger (#PyDev-837, #PyDev-817).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first">Added support for having isort as the engine for import sorting.</p>
+</li>
+<li><p class="first">Fixed issue when parsing empty f-string.</p>
+</li>
+</ul>
+</div>
 <div class="section" id="release-5-9-0-2017-08-10">
 <h2>Release 5.9.0 (2017-08-10)</h2>
 <ul>
