@@ -67,7 +67,7 @@ import com.python.pydev.analysis.scopeanalysis.AbstractScopeAnalyzerVisitor;
 
 /**
  * This visitor marks the used/ unused tokens and generates the messages related
- * 
+ *
  * @author Fabio
  */
 public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
@@ -93,7 +93,7 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
     private final ArgumentsChecker argumentsChecker;
 
     /**
-     * Determines whether we should check if function call arguments actually match the signature of the object being 
+     * Determines whether we should check if function call arguments actually match the signature of the object being
      * called.
      */
     private final boolean analyzeArgumentsMismatch;
@@ -229,7 +229,7 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
         if (node.fstring) {
             String s = node.s;
             @SuppressWarnings("rawtypes")
-            List parseErrors;
+            List parseErrors = null;
             int startInternalStrColOffset = 2; // +1 for 'f' and +1 for the quote.
             if (node.raw) {
                 startInternalStrColOffset += 1;
@@ -241,14 +241,16 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
                 startInternalStrColOffset += 2;
             }
             FStringsAST ast = null;
-            try {
-                FastCharStream in = new FastCharStream(s.toCharArray());
-                FStringsGrammar fStringsGrammar = new FStringsGrammar(in);
-                ast = fStringsGrammar.f_string();
-                //Note: we always try to generate a valid AST and get any errors in getParseErrors().
-                parseErrors = fStringsGrammar.getParseErrors();
-            } catch (Throwable e) {
-                parseErrors = Arrays.asList(e);
+            if (s.trim().length() > 0) {
+                try {
+                    FastCharStream in = new FastCharStream(s.toCharArray());
+                    FStringsGrammar fStringsGrammar = new FStringsGrammar(in);
+                    ast = fStringsGrammar.f_string();
+                    //Note: we always try to generate a valid AST and get any errors in getParseErrors().
+                    parseErrors = fStringsGrammar.getParseErrors();
+                } catch (Throwable e) {
+                    parseErrors = Arrays.asList(e);
+                }
             }
 
             IDocument doc = new Document(s);
@@ -466,7 +468,7 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
                     Found f = list.get(i);
                     if (!f.isUsed()) {
                         // we don't get unused at the global scope or class definition scope unless it's an import
-                        if ((scopeType & Scope.ACCEPTED_METHOD_AND_LAMBDA) != 0 || f.isImport()) { //only within methods do we put things as unused 
+                        if ((scopeType & Scope.ACCEPTED_METHOD_AND_LAMBDA) != 0 || f.isImport()) { //only within methods do we put things as unused
                             messagesManager.addUnusedMessage(node, f);
                         }
                     }
@@ -476,7 +478,7 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
     }
 
     /**
-     * A method is virtual if it contains only raise and string statements 
+     * A method is virtual if it contains only raise and string statements
      */
     protected boolean isVirtual(FunctionDef node) {
         if (node.body != null) {

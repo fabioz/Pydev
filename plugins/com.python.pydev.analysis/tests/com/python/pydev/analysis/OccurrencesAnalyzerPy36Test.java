@@ -137,4 +137,13 @@ public class OccurrencesAnalyzerPy36Test extends AnalysisTestsBase {
         assertEquals(5, messages[0].getEndCol(doc));
     }
 
+    public void testEmptyFString() throws Exception {
+        doc = new Document("def fn():\n" +
+                "    if True:\n" +
+                "        return f\"\"\n" +
+                "" +
+                "");
+        checkNoError();
+    }
+
 }

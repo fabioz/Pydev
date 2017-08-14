@@ -120,4 +120,14 @@ public class PyParser36Test extends PyParserTestBase {
         parseLegalDocStr(s);
     }
 
+    public void testFString1() {
+        String s = "" +
+                "def fn():\n" +
+                "    if True:\n" +
+                "        return f\"\"\n" +
+                "" +
+                "";
+        parseLegalDocStr(s);
+    }
+
 }

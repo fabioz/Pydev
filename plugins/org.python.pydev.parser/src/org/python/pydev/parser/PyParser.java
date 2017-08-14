@@ -697,7 +697,7 @@ public class PyParser extends BaseParser implements IPyParser {
 
     /**
      * Creates the error description for a given error in the parse.
-     * 
+     *
      * Must return an error!
      */
     public static ErrorDescription createErrorDesc(Throwable error, IDocument doc) {
@@ -757,7 +757,7 @@ public class PyParser extends BaseParser implements IPyParser {
                     //ignore (can have changed in the meanwhile)
                 }
             } else {
-                Log.log("Error, expecting ParseException or TokenMgrError. Received: " + error);
+                Log.log("Error, expecting ParseException or TokenMgrError. Received: " + error, error);
                 return new ErrorDescription("Internal PyDev Error", 0, 0, 0);
             }
             try {
