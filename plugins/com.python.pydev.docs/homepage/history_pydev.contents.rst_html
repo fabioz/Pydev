@@ -4,8 +4,8 @@
 
 <div class="section" id="history-for-pydev">
 <h1>History For PyDev</h1>
-<div class="section" id="release-5-9-1-2017-08-14">
-<h2>Release 5.9.1 (2017-08-14)</h2>
+<div class="section" id="release-5-9-2-2017-08-15">
+<h2>Release 5.9.2 (2017-08-15)</h2>
 <ul>
 <li><p class="first"><strong>Important</strong> PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.</p>
 <blockquote>
@@ -17,7 +17,7 @@
 <li><p class="first"><strong>Debugger</strong></p>
 <blockquote>
 <ul class="simple">
-<li>Some critical fixes related to issues in the latest debugger (#PyDev-837, #PyDev-817).</li>
+<li>Some critical fixes related to issues in the latest debugger (#PyDev-837, #PyDev-838, #PyDev-817).</li>
 </ul>
 </blockquote>
 </li>

@@ -6,7 +6,7 @@ History For PyDev
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
-Release 5.9.1 (2017-08-14)
+Release 5.9.2 (2017-08-15)
 ==========================
 
 * **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
@@ -15,7 +15,7 @@ Release 5.9.1 (2017-08-14)
 
 * **Debugger**
 
-	* Some critical fixes related to issues in the latest debugger (#PyDev-837, #PyDev-817).
+	* Some critical fixes related to issues in the latest debugger (#PyDev-837, #PyDev-838, #PyDev-817).
 
 * Added support for having isort as the engine for import sorting.
 * Fixed issue when parsing empty f-string.

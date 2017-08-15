@@ -153,8 +153,8 @@ LiClipse you directly support the development of PyDev).</p>
 <p>Thank you to all PyDev supporters: <a class="reference external" href="https://www.brainwy.com/supporters/PyDev">https://www.brainwy.com/supporters/PyDev</a>.</p>
 <p>To show your appreciation for PyDev and to keep it going strong, help to crowdfund through <a class="reference external" href="https://www.patreon.com/fabioz">https://www.patreon.com/fabioz</a>.</p>
 </div>
-<div class="section" id="release-5-9-1-2017-08-14">
-<h1>Release 5.9.1 (2017-08-14)</h1>
+<div class="section" id="release-5-9-2-2017-08-15">
+<h1>Release 5.9.2 (2017-08-15)</h1>
 <ul>
 <li><p class="first"><strong>Important</strong> PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.</p>
 <blockquote>
@@ -166,7 +166,7 @@ LiClipse you directly support the development of PyDev).</p>
 <li><p class="first"><strong>Debugger</strong></p>
 <blockquote>
 <ul class="simple">
-<li>Some critical fixes related to issues in the latest debugger (#PyDev-837, #PyDev-817).</li>
+<li>Some critical fixes related to issues in the latest debugger (#PyDev-837, #PyDev-838, #PyDev-817).</li>
 </ul>
 </blockquote>
 </li>
