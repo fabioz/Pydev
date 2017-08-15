@@ -1,38 +1,25 @@
-PyDev 5.8.0 Released
+PyDev 5.9.2 Released
 
-PyDev 5.8.0 Release Highlights
+PyDev 5.9.2 Release Highlights
 -------------------------------
 
 * **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
 
     * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
 
-
-* **Code Analysis**
-
-	* Fixed issue getting existing PyLint markers.
-	* There's now an Info and an Ignore level.
-
 * **Debugger**
 
-	* The debugger now provides hooks for clients and provides ways to extend the handling of custom types. See: https://github.com/fabioz/PyDev.Debugger/tree/master/pydevd_plugins/extensions (patch by **Yuli Fiterman**).
-	* Fixed issue where the debugger could end up removing quotes on args. **#PyDev-797**
-	* The debugger now works with IronPython again -- although note that **IronPython** **2.7.6** and **2.7.7** have a critical bug which prevents IronPython from working in PyDev: https://github.com/IronLanguages/main/issues/1663
+	* Integrated speedups for Python 3.6 which use the new Python hook which allows the debugger to add breakpoints through bytecode manipulation.
+	* Some critical fixes related to issues in the latest debugger (#PyDev-837, #PyDev-838, #PyDev-817).
 
-* **Code Coverage**
-
-	* Fixed issue getting code-coverage version. **#PyDev-791**
-	* Properly works when running with pytest (provided that pytest-cov is installed).
-
-* **Others**
-
-	* Update .yaml file for google app engine project templates (patch by **JunjieW**).
-	* Upgraded Lucene to 6.1.0 (patch by **Sopot Cela**).
-	* Update docstring from parameters (Ctrl+1 on **def**) properly considers sphinx with types. **#PyDev-787**
-	* Code Completion: Properly finding **__init__** from superclass in inherited classes. **#PyDev-802**
-	* No longer showing icon to start interactive console in toolbar because Eclipse could end up creating multiple entries which were shown forever. **#PyDev-708**
-	* Other minor bugfixes.
-
+* Added support for having isort as the engine for import sorting.
+* Fixed issue on text search with **Lucene** when the user had another plugin which also used lucene (**#PyDev-826**).
+* From this version onwards, PyDev is built with a proper certificate (previous versions used a self-signed certificate).
+* Google App Engine templates now working out of the box (patch by **Mat Booth**).
+* Optimization in editor highlighting when dealing with huge files.
+* Some bugfixes in pytest integration.
+* **cv2** added to forced builtins by default for working with OpenCV.
+* Fixed issue when parsing empty f-string.
 
 
 What is PyDev?
