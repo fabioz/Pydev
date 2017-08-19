@@ -295,6 +295,9 @@
 	<extension point="org.eclipse.ui.keywords" name="PyUnit">
 	    <keyword id="org.python.pydev.pyunit"  label="py.test pytest unittest nose pyunit"/>
 	</extension>
+	<extension point="org.eclipse.ui.keywords" name="Imports">
+	    <keyword id="org.python.pydev.imports"  label="isort imports sort pep8"/>
+	</extension>
 
 <!-- Preference page -->
    <extension point="org.eclipse.ui.preferencePages">
@@ -421,7 +424,9 @@
       		name="Imports"
             category="org.python.pydev.plugin.pyCodeStylePreferencesPage"
             class="org.python.pydev.ui.importsconf.ImportsPreferencesPage"
-            id="org.python.pydev.ui.importsconf.ImportsPreferencesPage"/>
+            id="org.python.pydev.ui.importsconf.ImportsPreferencesPage">
+            <keywordReference id="org.python.pydev.imports"/>
+      </page>
 
       <page
             name="Code Completion"

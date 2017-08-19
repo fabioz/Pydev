@@ -32,6 +32,7 @@ import org.python.pydev.editor.actions.organize_imports.Pep8ImportArranger;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.parser.prettyprinterv2.IFormatter;
 import org.python.pydev.plugin.JythonModules;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.utils.DocUtils;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
@@ -124,8 +125,15 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
                         String isortResult = JythonModules.makeISort(fileContents,
                                 edit != null ? edit.getEditorFile() : (f != null ? f.getRawLocation().toFile() : null));
                         if (isortResult != null) {
-                            DocUtils.updateDocRangeWithContents(doc, fileContents, isortResult.toString(),
-                                    endLineDelim);
+                            try {
+                                DocUtils.updateDocRangeWithContents(doc, fileContents, isortResult.toString(),
+                                        endLineDelim);
+                            } catch (Exception e) {
+                                Log.log(
+                                        StringUtils.format(
+                                                "Error trying to apply isort result. Curr doc:\n>>>%s\n<<<.\nNew doc:\\n>>>%s\\n<<<.",
+                                                fileContents, isortResult.toString()));
+                            }
                         }
                     }
                     break;

@@ -121,8 +121,13 @@ public class JythonModules {
             } else {
                 interpreter.set("settingsPath", "");
             }
+            // Note that we have to clear the global caches that isort has for it to reload the settings (otherwise,
+            // eclipse needs to be restarted just to get the updated caches).
             interpreter
-                    .exec("output = isort.SortImports(file_contents=fileContents, settings_path=settingsPath).output");
+                    .exec(""
+                            + "isort.settings._get_config_data.cache_clear()\n"
+                            + "isort.settings.from_path.cache_clear()\n"
+                            + "output = isort.SortImports(file_contents=fileContents, settings_path=settingsPath).output");
         }
 
         PyObject pyObject = interpreter.get("output");
