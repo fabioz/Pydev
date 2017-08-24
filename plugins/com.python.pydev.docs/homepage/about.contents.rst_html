@@ -3,54 +3,87 @@
 
 
 <!-- <right_area>
-
 </right_area>
 <image_area>about.png</image_area>
 <quote_area>So, what about it?</quote_area> -->
-<p>PyDev enables Eclipse to support Python (and is among the leading tools for Python coding).</p>
-<p>It's also an open source project created by Aleks Totic in 2003 and kept going
-by Fabio Zadrozny since 2005.</p>
     <br/>
-    <p><strong>Become corporate sponsor:</strong><br/>
-    &nbsp;&nbsp;&nbsp;&nbsp;To keep on being developed, PyDev relies on financial contributions<br/>
-    &nbsp;&nbsp;&nbsp;&nbsp;from its user community and corporate sponsors (which also allows for<br/>
-    &nbsp;&nbsp;&nbsp;&nbsp;a logo with a link which will run for a year in the main PyDev homepage).<br/>
+    PyDev enables Eclipse to support Python (and is among the leading tools for Python coding).
+
+    It's also an open source project created by Aleks Totic in 2003 and kept going
+    by Fabio Zadrozny since 2005.
     <br/>
-    &nbsp;&nbsp;&nbsp;&nbsp;It's possible to become a corporate sponsor by using the payment links below:<br/>
     <br/>
-    &nbsp;&nbsp;&nbsp;&nbsp;<strong>Gold Sponsor</strong>: <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=DMGTE6TFFZT6N">USD 1000 (PayPal)</a><br/>
-    &nbsp;&nbsp;&nbsp;&nbsp;<strong>Silver Sponsor</strong>: <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=LVCTS496Q88VL">USD 500 (PayPal)</a><br/>
-    &nbsp;&nbsp;&nbsp;&nbsp;<strong>Bronze Sponsor</strong>: <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=HY9KCJS3KNJ3S">USD 300 (PayPal)</a><br/>
+
+    <div><strong>Become corporate sponsor:</strong><br/>
     <br/>
-    &nbsp;&nbsp;&nbsp;&nbsp;Note: after the payment, the logo and link must be sent to<br/>
-    &nbsp;&nbsp;&nbsp;&nbsp;fabioz at brainwy.com<br/>
-    &nbsp;&nbsp;&nbsp;&nbsp;and will be added to the homepage in 2 working days.
+    <p style="padding-left:10px;">To keep on being developed, PyDev relies on financial contributions
+    from its user community and corporate sponsors (which also allows for
+    a logo with a link which will run for a year in the main PyDev homepage).
+    <br/>
+    <br/>
+    It's possible to become a corporate sponsor by using the payment links below:<br/>
+    <br/>
+    <strong>Gold Sponsor</strong>: <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=DMGTE6TFFZT6N">USD 1000 (PayPal)</a><br/>
+    <strong>Silver Sponsor</strong>: <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=LVCTS496Q88VL">USD 500 (PayPal)</a><br/>
+    <strong>Bronze Sponsor</strong>: <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=HY9KCJS3KNJ3S">USD 300 (PayPal)</a><br/>
+    <br/>
+    Note: corporate sponsorship enables adding a logo with a link to the main <a href=http://pydev.org>pydev.org</a> homepage
+    (the difference is the size and placement), so, after the payment, the logo and link must be sent to: <br/>
+    <br/>
+    fabioz at brainwy.com<br/>
+    <br/>
+    and will be added to the homepage in 2 working days.
     </p>
     <br/>
 
-    <p><strong>General questions:</strong><br/>
-    &nbsp;&nbsp;&nbsp;&nbsp;<a href="http://stackoverflow.com/questions/tagged/pydev">StackOverflow (with the PyDev tag)</a></p><br/>
+    <strong>Benefits of other PyDev contributions:</strong><br/>
+    <p style="padding-left:10px;">
+    <br/>
+    <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=XXGMKP7XVZ3CW">$7</a> &nbsp;&nbsp;&nbsp;<strong>PyDev Supporter</strong>&nbsp;&nbsp; name in <a href="https://www.brainwy.com/supporters/PyDev/">supporters page</a><br/>
+    <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=PPABWM3KRSDKE">$20</a> &nbsp;&nbsp;<strong>PyDev Friend</strong>&nbsp;&nbsp; name &amp; link in <a href="https://www.brainwy.com/supporters/PyDev/">supporters page</a><br/>
+    <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=ZJEEDKWNU9XRG">$45</a> &nbsp;&nbsp;<strong>PyDev Knight</strong>&nbsp;&nbsp; name &amp; link in <a href="https://www.brainwy.com/supporters/PyDev/">supporters page</a> and 1 vote in <a href="https://www.brainwy.com/">tracker</a><br/>
+    <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=FHNGPJDGDQLPC">$100</a> &nbsp;<strong>PyDev Mage</strong>&nbsp;&nbsp; name &amp; link &amp; logo in <a href="https://www.brainwy.com/supporters/PyDev/">supporters page</a> and 2 votes in <a href="https://www.brainwy.com/">tracker</a><br/>
+    <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=66NCSKDGNAWCC">$200</a> &nbsp;<strong>PyDev Oracle</strong>&nbsp;&nbsp; name &amp; link &amp; logo in <a href="https://www.brainwy.com/supporters/PyDev/">supporters page</a> and 5 votes in <a href="https://www.brainwy.com/">tracker</a><br/>
+    </p><br/>
 
-    <p><strong>Report issues/features: </strong><br/>
-    &nbsp;&nbsp;&nbsp;&nbsp;<a href="https://www.brainwy.com">Brainwy Tracker</a><br/><br/>
+    <strong>General questions:</strong><br/>
+    <p style="padding-left:10px;">
+    <br/>
+    <a href="http://stackoverflow.com/questions/tagged/pydev">StackOverflow (with the PyDev tag)</a></p><br/>
+
+    <strong>Report issues/features: </strong><br/>
+    <p style="padding-left:10px;">
+    <br/>
+    <a href="https://www.brainwy.com">Brainwy Tracker</a><br/><br/>
     </p>
 
-    <p><strong>Code questions:</strong><br/>
-    &nbsp;&nbsp;&nbsp;&nbsp;<a href="http://lists.sourceforge.net/lists/listinfo/pydev-code">pydev-code list</a><br/><br/></p>
+    <strong>Code questions:</strong><br/>
+    <p style="padding-left:10px;">
+    <br/>
+    <a href="http://lists.sourceforge.net/lists/listinfo/pydev-code">pydev-code list</a><br/><br/></p>
 
-    <p><strong>Source Code:</strong><br/>
-    &nbsp;&nbsp;&nbsp;&nbsp;<a href="https://github.com/fabioz/Pydev">github.com/fabioz/Pydev</a></p><br/>
+    <strong>Source Code:</strong><br/>
+    <p style="padding-left:10px;">
+    <br/>
+    <a href="https://github.com/fabioz/Pydev">github.com/fabioz/Pydev</a></p><br/>
 
-    <p><strong>Blog:</strong><br/>
-    &nbsp;&nbsp;&nbsp;&nbsp;<a href="http://pydev.blogspot.com">pydev.blogspot.com</a></p><br/>
+    <strong>Blog:</strong><br/>
+    <p style="padding-left:10px;">
+    <br/>
+    <a href="http://pydev.blogspot.com">pydev.blogspot.com</a></p><br/>
 
-    <p><strong>License: EPL (Eclipse Public License)</strong><br/>
-    &nbsp;&nbsp;&nbsp;&nbsp;<a href="http://www.eclipse.org/legal/epl-v10.html">www.eclipse.org/legal/epl-v10.html</a></p><br/>
+    <strong>License: EPL (Eclipse Public License)</strong><br/>
+    <p style="padding-left:10px;">
+    <br/>
+    <a href="http://www.eclipse.org/legal/epl-v10.html">www.eclipse.org/legal/epl-v10.html</a></p><br/>
 
-<p><strong>E-mail:</strong><br/>
-&nbsp;&nbsp;&nbsp;&nbsp;Please use this only if you <strong>really</strong> can't make your comments public: fabioz at brainwy.com</p>
+<strong>E-mail:</strong><br/>
+    <p style="padding-left:10px;">
+    <br/>
+Please use this only if you <strong>really</strong> can't make your comments public: fabioz at brainwy.com</p>
 
-<br/><br/>
+<br/>
+</div><br/>
 <br/>
 <br/>
 <br/>

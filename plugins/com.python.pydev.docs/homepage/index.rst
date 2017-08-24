@@ -21,9 +21,10 @@
 
 		<div class="section" id="silver-sponsors">
 		<h1>Silver Sponsors</h1>
-        <!--Added 2016-04-02-->
-        <a href="http://www.chameleonjohn.com" border=0><img class="sponsors" src="images/sponsors/logo_chameleon_john_150_60.png" style="width:150px;height:60px;" alt="ChameleonJohn Coupons" title="http://www.chameleonjohn.com" /></a>
 
+        <!--Added 2017-08-24-->
+        <a href=https://protoolzone.com/" border=0><img class="sponsors" src="images/sponsors/protoolzone.png" style="width:150px;height:60px;" alt="Best tool reviews" title="https://protoolzone.com" /></a>
+        
         <!--Added 2016-07-13-->
         <a href="http://www.o365cloudexperts.com/" border=0><img class="sponsors" src="images/sponsors/cloudexperts_150_60.png" style="width:150px;height:60px;" alt="Apps4Rent" title="http://www.o365cloudexperts.com/" /></a>
 
@@ -35,6 +36,9 @@
 
         <!--Added 2016-12-24-->
         <a href="http://www.givemedeals.com/?utm_source=PYD&utm_medium=donate&utm_campaign=PyDev" border=0><img class="sponsors" src="images/sponsors/give_me_deals.png" style="width:150px;height:60px;" alt="Give Me Deals" title="http://www.givemedeals.com/?utm_source=PYD&utm_medium=donate&utm_campaign=PyDev" /></a>
+
+        <!--Added 2016-04-02-->
+        <a href="http://www.chameleonjohn.com" border=0><img class="sponsors" src="images/sponsors/logo_chameleon_john_150_60.png" style="width:150px;height:60px;" alt="ChameleonJohn Coupons" title="http://www.chameleonjohn.com" /></a>
 		</div>
 
 
@@ -178,9 +182,7 @@ Supporting PyDev
 
 Thank you to all PyDev supporters: https://www.brainwy.com/supporters/PyDev.
 
-
 To show your appreciation for PyDev and to keep it going strong, help to crowdfund through https://www.patreon.com/fabioz.
-
 
 .. _`Getting started guide`: manual_101_root.html
 .. _`update sites page`: update_sites/index.html
@@ -250,39 +252,6 @@ Release 5.8.0 (2017-06-06)
 	* Code Completion: Properly finding **__init__** from superclass in inherited classes. **#PyDev-802**
 	* No longer showing icon to start interactive console in toolbar because Eclipse could end up creating multiple entries which were shown forever. **#PyDev-708**
 	* Other minor bugfixes.
-
-
-Release 5.7.0 (2017-04-11)
-==========================
-
-* **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
-
-    * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
-
-* **PyLint**
-
-	* The PyLint integration is much improved.
-	* Working along with the PyDev code-analysis.
-	* If there's an equivalent code analysis error in PyLint and PyDev, the PyLint one is hidden.
-	* **Ctrl+1** on PyLint error line shows option to silent error in that line.
-	* See: http://pydev.org/manual_adv_pylint.html for details.
-
-* **Debugger**
-
-	* Fixed issue when sorting which could lead to error comparing a value with None.
-	* Fixed issue which prevented debugger from working with Jython due to the lack of sys._current_frames.
-	* Testing Jython on CI.
-
-* **Code Completion**
-
-	* Properly unpacking assigns from a parameter to an instance with type documented in docstring. **#PyDev-778**
-
-* **Others**
-
-	* When assigning parameters to attributes (**Ctrl+1** on function **def**), skip adding duplicate assignments.
-	* When adding parameters to docstrings  (**Ctrl+1** on function **def**), it will now properly update an existing docstring, not only create one from scratch.
-	* In Windows, when searching executables, priority is given to a python executable found in the PATH (as in Mac/Linux).
-	* Fixed issue were space was wrongly removed in code formatter. **#PyDev-784**
 
 
 `View release notes for previous releases`_

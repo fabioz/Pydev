@@ -259,8 +259,9 @@
 
             <div class="section" id="silver-sponsors">
             <h1>Silver Sponsors</h1>
-    <!- -Added 2016-04-02- ->
-    <a href="http://www.chameleonjohn.com" border=0><img class="sponsors" src="images/sponsors/logo_chameleon_john_150_60.png" style="width:150px;height:60px;" alt="ChameleonJohn Coupons" title="http://www.chameleonjohn.com" /></a>
+
+    <!- -Added 2017-08-24- ->
+    <a href=https://protoolzone.com/" border=0><img class="sponsors" src="images/sponsors/protoolzone.png" style="width:150px;height:60px;" alt="Best tool reviews" title="https://protoolzone.com" /></a>
 
     <!- -Added 2016-07-13- ->
     <a href="http://www.o365cloudexperts.com/" border=0><img class="sponsors" src="images/sponsors/cloudexperts_150_60.png" style="width:150px;height:60px;" alt="Apps4Rent" title="http://www.o365cloudexperts.com/" /></a>
@@ -273,6 +274,9 @@
 
     <!- -Added 2016-12-24- ->
     <a href="http://www.givemedeals.com/?utm_source=PYD&utm_medium=donate&utm_campaign=PyDev" border=0><img class="sponsors" src="images/sponsors/give_me_deals.png" style="width:150px;height:60px;" alt="Give Me Deals" title="http://www.givemedeals.com/?utm_source=PYD&utm_medium=donate&utm_campaign=PyDev" /></a>
+
+    <!- -Added 2016-04-02- ->
+    <a href="http://www.chameleonjohn.com" border=0><img class="sponsors" src="images/sponsors/logo_chameleon_john_150_60.png" style="width:150px;height:60px;" alt="ChameleonJohn Coupons" title="http://www.chameleonjohn.com" /></a>
             </div>
 
 
@@ -366,8 +370,9 @@ Java and .NET applications. Take a look at YourKit's leading software products:
 
             <div class="section" id="silver-sponsors">
             <h1>Silver Sponsors</h1>
-    <!- -Added 2016-04-02- ->
-    <a href="http://www.chameleonjohn.com" border=0><img class="sponsors" src="images/sponsors/logo_chameleon_john_150_60.png" style="width:150px;height:60px;" alt="ChameleonJohn Coupons" title="http://www.chameleonjohn.com" /></a>
+
+    <!- -Added 2017-08-24- ->
+    <a href=https://protoolzone.com/" border=0><img class="sponsors" src="images/sponsors/protoolzone.png" style="width:150px;height:60px;" alt="Best tool reviews" title="https://protoolzone.com" /></a>
 
     <!- -Added 2016-07-13- ->
     <a href="http://www.o365cloudexperts.com/" border=0><img class="sponsors" src="images/sponsors/cloudexperts_150_60.png" style="width:150px;height:60px;" alt="Apps4Rent" title="http://www.o365cloudexperts.com/" /></a>
@@ -380,6 +385,9 @@ Java and .NET applications. Take a look at YourKit's leading software products:
 
     <!- -Added 2016-12-24- ->
     <a href="http://www.givemedeals.com/?utm_source=PYD&utm_medium=donate&utm_campaign=PyDev" border=0><img class="sponsors" src="images/sponsors/give_me_deals.png" style="width:150px;height:60px;" alt="Give Me Deals" title="http://www.givemedeals.com/?utm_source=PYD&utm_medium=donate&utm_campaign=PyDev" /></a>
+
+    <!- -Added 2016-04-02- ->
+    <a href="http://www.chameleonjohn.com" border=0><img class="sponsors" src="images/sponsors/logo_chameleon_john_150_60.png" style="width:150px;height:60px;" alt="ChameleonJohn Coupons" title="http://www.chameleonjohn.com" /></a>
             </div>
 
 
@@ -593,55 +601,6 @@ LiClipse you directly support the development of PyDev).</p>
 <li>Code Completion: Properly finding <strong>__init__</strong> from superclass in inherited classes. <strong>#PyDev-802</strong></li>
 <li>No longer showing icon to start interactive console in toolbar because Eclipse could end up creating multiple entries which were shown forever. <strong>#PyDev-708</strong></li>
 <li>Other minor bugfixes.</li>
-</ul>
-</blockquote>
-</li>
-</ul>
-</div>
-<div class="section" id="release-5-7-0-2017-04-11">
-<h1>Release 5.7.0 (2017-04-11)</h1>
-<ul>
-<li><p class="first"><strong>Important</strong> PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.</p>
-<blockquote>
-<ul class="simple">
-<li>PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).</li>
-</ul>
-</blockquote>
-</li>
-<li><p class="first"><strong>PyLint</strong></p>
-<blockquote>
-<ul class="simple">
-<li>The PyLint integration is much improved.</li>
-<li>Working along with the PyDev code-analysis.</li>
-<li>If there's an equivalent code analysis error in PyLint and PyDev, the PyLint one is hidden.</li>
-<li><strong>Ctrl+1</strong> on PyLint error line shows option to silent error in that line.</li>
-<li>See: <a class="reference external" href="http://pydev.org/manual_adv_pylint.html">http://pydev.org/manual_adv_pylint.html</a> for details.</li>
-</ul>
-</blockquote>
-</li>
-<li><p class="first"><strong>Debugger</strong></p>
-<blockquote>
-<ul class="simple">
-<li>Fixed issue when sorting which could lead to error comparing a value with None.</li>
-<li>Fixed issue which prevented debugger from working with Jython due to the lack of sys._current_frames.</li>
-<li>Testing Jython on CI.</li>
-</ul>
-</blockquote>
-</li>
-<li><p class="first"><strong>Code Completion</strong></p>
-<blockquote>
-<ul class="simple">
-<li>Properly unpacking assigns from a parameter to an instance with type documented in docstring. <strong>#PyDev-778</strong></li>
-</ul>
-</blockquote>
-</li>
-<li><p class="first"><strong>Others</strong></p>
-<blockquote>
-<ul class="simple">
-<li>When assigning parameters to attributes (<strong>Ctrl+1</strong> on function <strong>def</strong>), skip adding duplicate assignments.</li>
-<li>When adding parameters to docstrings  (<strong>Ctrl+1</strong> on function <strong>def</strong>), it will now properly update an existing docstring, not only create one from scratch.</li>
-<li>In Windows, when searching executables, priority is given to a python executable found in the PATH (as in Mac/Linux).</li>
-<li>Fixed issue were space was wrongly removed in code formatter. <strong>#PyDev-784</strong></li>
 </ul>
 </blockquote>
 </li>
