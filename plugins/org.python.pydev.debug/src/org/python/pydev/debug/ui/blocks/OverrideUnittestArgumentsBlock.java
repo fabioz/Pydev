@@ -24,17 +24,19 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.debug.core.Constants;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.pyunit.preferences.PyUnitPrefsPage2;
-
 
 public class OverrideUnittestArgumentsBlock extends AbstractLaunchConfigurationTab {
 
     private Button buttonAskOverride;
     private Combo comboSelectRunner;
     private Text textRunnerParameters;
+    private Text testsToRun; // test names (class + optionally methods)
 
     @Override
     public void createControl(Composite parent) {
@@ -96,6 +98,11 @@ public class OverrideUnittestArgumentsBlock extends AbstractLaunchConfigurationT
             }
         });
 
+        Label testsToRunLabel = new Label(group, SWT.LEFT);
+        testsToRunLabel.setText("Tests to run");
+        testsToRun = new Text(group, SWT.BORDER);
+        testsToRun.setLayoutData(gd);
+        testsToRun.setFont(font);
     }
 
     @Override
@@ -147,6 +154,15 @@ public class OverrideUnittestArgumentsBlock extends AbstractLaunchConfigurationT
         } catch (CoreException e) {
             Log.log(e);
         }
+
+        // Test cases - arguments to test runner
+        try {
+            String testCases = configuration.getAttribute(Constants.ATTR_UNITTEST_TESTS, "");
+            testsToRun.setText(testCases);
+        } catch (CoreException e) {
+            Log.log(e);
+        }
+
         updateOverrideState();
     }
 
@@ -158,6 +174,7 @@ public class OverrideUnittestArgumentsBlock extends AbstractLaunchConfigurationT
         configuration.setAttribute(PyUnitPrefsPage2.LAUNCH_CONFIG_OVERRIDE_TEST_RUNNER, data);
         configuration.setAttribute(PyUnitPrefsPage2.LAUNCH_CONFIG_OVERRIDE_PYUNIT_RUN_PARAMS,
                 textRunnerParameters.getText());
+        configuration.setAttribute(Constants.ATTR_UNITTEST_TESTS, testsToRun.getText());
     }
 
     @Override
