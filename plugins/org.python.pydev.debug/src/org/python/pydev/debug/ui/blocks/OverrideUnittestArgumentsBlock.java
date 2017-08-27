@@ -98,11 +98,18 @@ public class OverrideUnittestArgumentsBlock extends AbstractLaunchConfigurationT
             }
         });
 
-        Label testsToRunLabel = new Label(group, SWT.LEFT);
-        testsToRunLabel.setText("Tests to run");
-        testsToRun = new Text(group, SWT.BORDER);
+        GridLayout testsLayout = new GridLayout(2, false);
+        Group testsGroup = new Group(group, SWT.NONE);
+        testsGroup.setLayout(testsLayout);
+        gd = new GridData(GridData.FILL_HORIZONTAL);
+        testsGroup.setLayoutData(gd);
+        Label testsToRunLabel = new Label(testsGroup, SWT.LEFT);
+        testsToRunLabel.setText("Tests to run: ");
+        testsToRun = new Text(testsGroup, SWT.LEFT | SWT.FILL | SWT.BORDER);
         testsToRun.setLayoutData(gd);
         testsToRun.setFont(font);
+        // read only property
+        testsToRun.setEnabled(false);
     }
 
     @Override
@@ -174,7 +181,6 @@ public class OverrideUnittestArgumentsBlock extends AbstractLaunchConfigurationT
         configuration.setAttribute(PyUnitPrefsPage2.LAUNCH_CONFIG_OVERRIDE_TEST_RUNNER, data);
         configuration.setAttribute(PyUnitPrefsPage2.LAUNCH_CONFIG_OVERRIDE_PYUNIT_RUN_PARAMS,
                 textRunnerParameters.getText());
-        configuration.setAttribute(Constants.ATTR_UNITTEST_TESTS, testsToRun.getText());
     }
 
     @Override
