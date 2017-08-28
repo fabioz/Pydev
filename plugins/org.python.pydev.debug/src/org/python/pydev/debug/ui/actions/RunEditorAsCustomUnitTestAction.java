@@ -16,6 +16,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
+import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -311,11 +312,30 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction {
                     if (arguments.length() > 0) {
                         // first remember the arguments to be used internally and for matching
                         workingCopy.setAttribute(Constants.ATTR_UNITTEST_TESTS, arguments);
-                        // then rename it (copy + delete as the easiest way)
-                        String argsWithTests = workingCopy.getName() + " ( " + arguments + " ) ";
-                        ILaunchConfigurationWorkingCopy workingCopyArgs = workingCopy.copy(argsWithTests);
-                        workingCopy.delete();
-                        return workingCopyArgs;
+                        // then determine the tests to be displayed to user
+                        String[] argumentsSplit = arguments.split(",");
+                        String argsWithTests;
+                        if (argumentsSplit.length < 3) {
+                            // for 1 or 2 tests, show them
+                            argsWithTests = workingCopy.getName() + " ( " + arguments + " ) ";
+                        } else {
+                            // if there are more, show first two, then number of remaining
+                            argsWithTests = workingCopy.getName() + " ( " +
+                                    argumentsSplit[0] + "," +
+                                    argumentsSplit[1] +
+                                    " and " + (argumentsSplit.length - 2) + " more ) ";
+                        }
+                        if (argsWithTests.length() > 200) {
+                            // when resulting string is really long, indicate just the tests presence
+                            // they might be still seen on separate arguments tab
+                            argsWithTests = workingCopy.getName() + " (...) ";
+                        }
+                        // then rename it to include the tests in the name
+                        // but first make sure the name is unique, as otherwise
+                        // configurations could get overwritten
+                        ILaunchManager manager = org.eclipse.debug.core.DebugPlugin.getDefault().getLaunchManager();
+                        workingCopy.rename(manager.generateLaunchConfigurationName(argsWithTests));
+                        return workingCopy;
                     }
                     return workingCopy;
                 }
