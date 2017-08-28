@@ -83,7 +83,7 @@ public class JythonModules {
                     + "if add_to_pythonpath not in sys.path:\n"
                     + "    sys.path.append(add_to_pythonpath)\n"
                     + "import isort\n"
-                    + "output = isort.SortImports(file_contents=fileContents, settings_path=settingsPath).output\n";
+                    + "output = getattr(isort.SortImports(file_contents=fileContents, settings_path=settingsPath), 'output', None)\n";
 
             boolean useConsole = false;
 
@@ -127,11 +127,11 @@ public class JythonModules {
                     .exec(""
                             + "isort.settings._get_config_data.cache_clear()\n"
                             + "isort.settings.from_path.cache_clear()\n"
-                            + "output = isort.SortImports(file_contents=fileContents, settings_path=settingsPath).output");
+                            + "output = getattr(isort.SortImports(file_contents=fileContents, settings_path=settingsPath), 'output', None)\n");
         }
 
         PyObject pyObject = interpreter.get("output");
-        if (pyObject != null) {
+        if (pyObject != null && pyObject.__nonzero__()) {
             return pyObject.toString();
         }
         return null;

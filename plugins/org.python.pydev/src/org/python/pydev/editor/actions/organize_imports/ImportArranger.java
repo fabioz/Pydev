@@ -277,7 +277,7 @@ public class ImportArranger {
         String finalStr = createImportsStr(groupFromImports, list);
 
         if (executeOnlyIfChanged) {
-            //If going automatic, let's check the contents before actually doing the organize 
+            //If going automatic, let's check the contents before actually doing the organize
             //(and skip if the order is ok).
             ArrayList<String> list2 = new ArrayList<String>();
             for (Tuple<Integer, String> tup : linesToDelete) {
@@ -310,7 +310,7 @@ public class ImportArranger {
             std.applyFormatAction(edit, ps, regionsToFormat, throwSyntaxError, selectionProvider);
             finalStr = psDoc.get();
             if (addNewLinesToImports) {
-                // Leave 2 empty new lines separating imports from code 
+                // Leave 2 empty new lines separating imports from code
                 String expectedEnd = endLineDelim + endLineDelim + endLineDelim;
                 while (!finalStr.endsWith(expectedEnd)) {
                     finalStr += endLineDelim;
@@ -518,7 +518,7 @@ public class ImportArranger {
         //Gather imports in a structure we can work on.
         PyImportsHandling pyImportsHandling = new PyImportsHandling(doc, true, this.removeUnusedImports);
         for (ImportHandle imp : pyImportsHandling) {
-            if (imp.importFound.contains("@NoMove")) {
+            if (imp.importFound.contains("@NoMove") || imp.importFound.contains("isort:skip")) {
                 continue;
             }
             list.add(new Tuple3<Integer, String, ImportHandle>(imp.startFoundLine, imp.importFound, imp));

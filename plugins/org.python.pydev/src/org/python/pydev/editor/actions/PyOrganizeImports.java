@@ -98,7 +98,10 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
                 }
             }
         }
-
+        String fileContents = doc.get();
+        if (fileContents.contains("isort:skip_file") || fileContents.length() == 0) {
+            return;
+        }
         IAdaptable projectAdaptable = edit != null ? edit : f;
         String indentStr = edit != null ? edit.getIndentPrefs().getIndentationString()
                 : DefaultIndentPrefs.get(f).getIndentationString();
@@ -120,7 +123,6 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
             String importEngine = ImportsPreferencesPage.getImportEngine(projectAdaptable);
             switch (importEngine) {
                 case ImportsPreferencesPage.IMPORT_ENGINE_ISORT:
-                    String fileContents = doc.get();
                     if (fileContents.length() > 0) {
                         String isortResult = JythonModules.makeISort(fileContents,
                                 edit != null ? edit.getEditorFile() : (f != null ? f.getRawLocation().toFile() : null));

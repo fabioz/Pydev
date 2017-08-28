@@ -27,6 +27,7 @@ import org.python.pydev.editor.correctionassist.IgnoreCompletionProposalInSameLi
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
+import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 
 /**
  * @author Fabio Zadrozny
@@ -58,7 +59,8 @@ public class AssistImport implements IAssistProps {
             if (i >= 0) {
                 l.add(new FixCompletionProposal(sel + delimiter, lineToMoveOffset, 0, ps.getStartLine().getOffset(),
                         imageCache
-                                .get(UIConstants.ASSIST_MOVE_IMPORT), "Move import to global scope", null, null, ps
+                                .get(UIConstants.ASSIST_MOVE_IMPORT),
+                        "Move import to global scope", null, null, ps
                                 .getStartLineIndex() + 1));
             }
         } catch (BadLocationException e) {
@@ -67,12 +69,17 @@ public class AssistImport implements IAssistProps {
 
         if (i >= 0) {
             String cursorLineContents = ps.getCursorLineContents();
+            String importEngine = ImportsPreferencesPage.getImportEngine(edit);
             String messageToIgnore = "@NoMove";
+            String caption = messageToIgnore.substring(1);
+            if (ImportsPreferencesPage.IMPORT_ENGINE_ISORT.equals(importEngine)) {
+                caption = messageToIgnore = "isort:skip";
+            }
             if (!cursorLineContents.contains(messageToIgnore)) {
                 IgnoreCompletionProposal proposal = new IgnoreCompletionProposalInSameLine(messageToIgnore,
                         ps.getEndLineOffset(), 0,
                         offset, //note: the cursor position is unchanged!
-                        imageCache.get(UIConstants.ASSIST_ANNOTATION), messageToIgnore.substring(1), null, null,
+                        imageCache.get(UIConstants.ASSIST_ANNOTATION), caption, null, null,
                         PyCompletionProposal.PRIORITY_DEFAULT, edit, cursorLineContents, ps, null);
 
                 l.add(proposal);
