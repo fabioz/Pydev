@@ -109,7 +109,7 @@ public class OverrideUnittestArgumentsBlock extends AbstractLaunchConfigurationT
         testsToRun.setLayoutData(gd);
         testsToRun.setFont(font);
         // read only property
-        testsToRun.setEnabled(false);
+        testsToRun.setEditable(false);
     }
 
     @Override
