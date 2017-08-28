@@ -1028,6 +1028,15 @@ public class PythonRunnerConfig {
         String[] args;
         try {
             args = getCommandLine(false);
+            // append test names to command line to show
+            String testArgs = configuration.getAttribute(Constants.ATTR_UNITTEST_TESTS, "");
+            if (testArgs != "") {
+                // only in case any tests were selected
+                String[] argsWithTests = new String[args.length + 1];
+                System.arraycopy(args, 0, argsWithTests, 0, args.length);
+                argsWithTests[args.length] = testArgs;
+                args = argsWithTests;
+            }
             return SimpleRunner.getArgumentsAsStr(args);
         } catch (CoreException e) {
             throw new RuntimeException(e);

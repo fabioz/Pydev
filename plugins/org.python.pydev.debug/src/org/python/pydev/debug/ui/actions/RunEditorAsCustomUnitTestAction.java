@@ -215,7 +215,7 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction {
                         TreeItem[] items = tree.getItems();
                         list = new ArrayList<Object>();
                         //Now, if he didn't select anything, let's create tests with all that is currently filtered
-                        //in the interface 
+                        //in the interface
                         createListWithLeafs(items, list);
                         setResult(list);
                     }
@@ -309,7 +309,13 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction {
                     ILaunchConfigurationWorkingCopy workingCopy = super.createDefaultLaunchConfigurationWithoutSaving(
                             resource);
                     if (arguments.length() > 0) {
+                        // first remember the arguments to be used internally and for matching
                         workingCopy.setAttribute(Constants.ATTR_UNITTEST_TESTS, arguments);
+                        // then rename it (copy + delete as the easiest way)
+                        String argsWithTests = workingCopy.getName() + " ( " + arguments + " ) ";
+                        ILaunchConfigurationWorkingCopy workingCopyArgs = workingCopy.copy(argsWithTests);
+                        workingCopy.delete();
+                        return workingCopyArgs;
                     }
                     return workingCopy;
                 }
