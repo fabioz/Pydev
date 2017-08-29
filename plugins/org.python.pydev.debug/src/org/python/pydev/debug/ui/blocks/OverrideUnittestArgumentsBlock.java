@@ -99,7 +99,7 @@ public class OverrideUnittestArgumentsBlock extends AbstractLaunchConfigurationT
         });
 
         GridLayout testsLayout = new GridLayout(2, false);
-        Group testsGroup = new Group(group, SWT.NONE);
+        Composite testsGroup = new Composite(group, SWT.NONE);
         testsGroup.setLayout(testsLayout);
         gd = new GridData(GridData.FILL_HORIZONTAL);
         testsGroup.setLayoutData(gd);
