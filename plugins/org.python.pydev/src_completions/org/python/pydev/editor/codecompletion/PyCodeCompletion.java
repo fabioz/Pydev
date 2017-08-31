@@ -309,8 +309,8 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                                                                 // Completions at this point shouldn't change the state of what we were looking for.
                                                                 state.setLookingFor(lookingFor, true);
                                                             }
-                                                            int completionsLen = completions.length;
-                                                            if (completions != null && completionsLen > 0) {
+                                                            if (completions != null && completions.length > 0) {
+                                                                int completionsLen = completions.length;
                                                                 for (int k = 0; k < completionsLen; k++) {
                                                                     IToken comp = completions[k];
                                                                     if ("__init__".equals(comp.getRepresentation())) {
