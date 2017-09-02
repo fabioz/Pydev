@@ -20,6 +20,7 @@ C:\tools\Miniconda\envs\tests_py27\python.exe X:\release_tools\pydev_uploader_bi
 
 		Run:
 		    - Update version at W:\pydev\plugins\com.python.pydev.docs\build_homepage.py
+		    - Add version to update sites (at update_sites/index.contents.rst_html)
 		    - W:\pydev\plugins\com.python.pydev.docs\build_homepage.py
 
 		Commit everything
