@@ -1,9 +1,11 @@
 package org.python.pydev.plugin;
 
 import java.io.File;
+import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
+import org.python.core.PyList;
 import org.python.core.PyObject;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.jython.IPythonInterpreter;
@@ -71,9 +73,10 @@ public class JythonModules {
 
     private static ThreadLocal<IPythonInterpreter> iSortThreadLocalInterpreter = new ThreadLocal<>();
 
-    public static String makeISort(String fileContents, File f) {
+    public static String makeISort(String fileContents, File f, Set<String> knownThirdParty) {
         IPythonInterpreter iPythonInterpreter = iSortThreadLocalInterpreter.get();
         IPythonInterpreter interpreter;
+        String outputLine = "output = getattr(isort.SortImports(file_contents=fileContents, settings_path=settingsPath, known_third_party=knowhThirdParty), 'output', None)\n";
         if (iPythonInterpreter == null) {
             // The first call may be slow because doing the imports is slow, but subsequent calls should be
             // fast as we'll be reusing the same interpreter.
@@ -83,7 +86,7 @@ public class JythonModules {
                     + "if add_to_pythonpath not in sys.path:\n"
                     + "    sys.path.append(add_to_pythonpath)\n"
                     + "import isort\n"
-                    + "output = getattr(isort.SortImports(file_contents=fileContents, settings_path=settingsPath), 'output', None)\n";
+                    + outputLine;
 
             boolean useConsole = false;
 
@@ -109,6 +112,7 @@ public class JythonModules {
             } else {
                 interpreter.set("settingsPath", "");
             }
+            interpreter.set("knowhThirdParty", new PyList(knownThirdParty));
             s = StringUtils.format(s, StringUtils.replaceAllSlashes(isortContainerLocation));
             interpreter.exec(s);
             iSortThreadLocalInterpreter.set(interpreter);
@@ -121,13 +125,14 @@ public class JythonModules {
             } else {
                 interpreter.set("settingsPath", "");
             }
+            interpreter.set("knowhThirdParty", new PyList(knownThirdParty));
             // Note that we have to clear the global caches that isort has for it to reload the settings (otherwise,
             // eclipse needs to be restarted just to get the updated caches).
             interpreter
                     .exec(""
                             + "isort.settings._get_config_data.cache_clear()\n"
                             + "isort.settings.from_path.cache_clear()\n"
-                            + "output = getattr(isort.SortImports(file_contents=fileContents, settings_path=settingsPath), 'output', None)\n");
+                            + outputLine);
         }
 
         PyObject pyObject = interpreter.get("output");

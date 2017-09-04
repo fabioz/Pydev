@@ -246,7 +246,7 @@ public class DocUtilsTest extends TestCase {
         assertEquals(newDocContents, doc.get());
     }
 
-    public void testRemoveContentsInMiddle() throws Exception {
+    public void testRemoveContentsInMiddle4() throws Exception {
         String docContents = "from snippet7 import Foo\n" +
                 "\n" +
                 "\n" +
@@ -331,6 +331,106 @@ public class DocUtilsTest extends TestCase {
                 "a\n" +
                 "class TestIt(object):\n" +
                 "class TestIt(object):\n" +
+                "";
+        String endLineDelimiter = "\n";
+        IDocument doc = new Document(docContents);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        assertEquals(newDocContents, doc.get());
+    }
+
+    public void testRemoveContentsInMiddle5() throws Exception {
+        String docContents = "a\n" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "f\n" +
+                "";
+        String newDocContents = "a\n" +
+                "\n" +
+                "\n" +
+                "f\n" +
+                "";
+        String endLineDelimiter = "\n";
+        IDocument doc = new Document(docContents);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        assertEquals(newDocContents, doc.get());
+    }
+
+    public void testRemoveContentsInMiddle6() throws Exception {
+        String docContents = "a\n" +
+                "b\n" +
+                "c\n" +
+                "c\n" +
+                "f\n" +
+                "";
+        String newDocContents = "a\n" +
+                "b\n" +
+                "c\n" +
+                "f\n" +
+                "";
+        String endLineDelimiter = "\n";
+        IDocument doc = new Document(docContents);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        assertEquals(newDocContents, doc.get());
+    }
+
+    public void testRemoveContentsInMiddle7() throws Exception {
+        String docContents = "a\n" +
+                "b\n" +
+                "b\n" +
+                "b\n" +
+                "c\n" +
+                "b\n" +
+                "f\n" +
+                "";
+        String newDocContents = "a\n" +
+                "b\n" +
+                "b\n" +
+                "c\n" +
+                "b\n" +
+                "f\n" +
+                "";
+        String endLineDelimiter = "\n";
+        IDocument doc = new Document(docContents);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        assertEquals(newDocContents, doc.get());
+    }
+
+    public void testRemoveContentsInMiddle8() throws Exception {
+        String docContents = "a\n" +
+                "b\n" +
+                "b\n" +
+                "b\n" +
+                "b\n" +
+                "f\n" +
+                "";
+        String newDocContents = "a\n" +
+                "b\n" +
+                "b\n" +
+                "b\n" +
+                "f\n" +
+                "";
+        String endLineDelimiter = "\n";
+        IDocument doc = new Document(docContents);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        assertEquals(newDocContents, doc.get());
+    }
+
+    public void testRemoveContentsInMiddle9() throws Exception {
+        String docContents = "\n" +
+                "b\n" +
+                "b\n" +
+                "b\n" +
+                "b\n" +
+                "c\n" +
+                "f\n" +
+                "";
+        String newDocContents = "\n" +
+                "b\n" +
+                "b\n" +
+                "b\n" +
+                "c\n" +
+                "f\n" +
                 "";
         String endLineDelimiter = "\n";
         IDocument doc = new Document(docContents);

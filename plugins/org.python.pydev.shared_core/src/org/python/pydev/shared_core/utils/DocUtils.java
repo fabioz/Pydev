@@ -162,14 +162,33 @@ public class DocUtils {
                             }
                             if (prevLastIndex < prevFirstIndex) {
                                 // Reached the start, so, just insert the needed gap
-                                IRegion lineInformation = doc.getLineInformation(prevFirstIndex);
 
+                                int start = iSortFirstIndex;
+                                int end = iSortLastIndex + (prevFirstIndex - prevLastIndex);
+
+                                if (start > end) {
+                                    // This means that some lines which match were removed
+                                    IRegion lineInformation1 = doc.getLineInformation(prevFirstIndex - (start - end));
+                                    IRegion lineInformation2 = doc.getLineInformation(prevFirstIndex);
+                                    int offset1 = lineInformation1.getOffset();
+                                    int offset2 = lineInformation2.getOffset();
+
+                                    try {
+                                        doc.replace(offset1, offset2 - offset1, "");
+                                    } catch (BadLocationException e) {
+                                        throw new BadLocationException(
+                                                StringUtils.format(
+                                                        "Error trying to access offset: %s, len: %s max doc len: %s",
+                                                        offset1, offset2 - offset1, doc.getLength()));
+                                    }
+                                    return;
+                                }
+
+                                List<String> lst = iSortSplitInLines.subList(start, end);
+                                IRegion lineInformation = doc.getLineInformation(prevFirstIndex);
                                 int offset = lineInformation.getOffset();
                                 try {
-                                    doc.replace(offset, 0, StringUtils.join(endLineDelimiter,
-                                            iSortSplitInLines.subList(iSortFirstIndex,
-                                                    iSortLastIndex + (prevFirstIndex - prevLastIndex)))
-                                            + endLineDelimiter);
+                                    doc.replace(offset, 0, StringUtils.join(endLineDelimiter, lst) + endLineDelimiter);
                                 } catch (BadLocationException e) {
                                     throw new BadLocationException(
                                             StringUtils.format(

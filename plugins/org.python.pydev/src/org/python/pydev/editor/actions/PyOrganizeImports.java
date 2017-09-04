@@ -12,7 +12,9 @@
  */
 package org.python.pydev.editor.actions;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -22,7 +24,13 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentRewriteSession;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IPyFormatStdProvider;
+import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.ISystemModulesManager;
+import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
@@ -83,7 +91,8 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
     }
 
     @SuppressWarnings("unchecked")
-    private void organizeImports(PyEdit edit, final IDocument doc, IFile f, PySelection ps) {
+    private void organizeImports(PyEdit edit, final IDocument doc, IFile f, PySelection ps)
+            throws MisconfigurationException, PythonNatureWithoutProjectException {
         DocumentRewriteSession session = null;
         String endLineDelim = ps.getEndLineDelim();
         List<IOrganizeImports> participants = null;
@@ -120,12 +129,56 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
                 }
             }
 
+            Set<String> knownThirdParty = new HashSet<String>();
+            // isort itself already has a reasonable stdLib, so, don't do our own.
+
             String importEngine = ImportsPreferencesPage.getImportEngine(projectAdaptable);
+            if (edit != null) {
+                IPythonNature pythonNature = edit.getPythonNature();
+                if (pythonNature != null) {
+                    IInterpreterInfo projectInterpreter = pythonNature.getProjectInterpreter();
+                    ISystemModulesManager modulesManager = projectInterpreter.getModulesManager();
+                    ModulesKey[] onlyDirectModules = modulesManager.getOnlyDirectModules();
+
+                    Set<String> stdLib = new HashSet<>();
+
+                    for (ModulesKey modulesKey : onlyDirectModules) {
+                        if (modulesKey.file == null) {
+                            int i = modulesKey.name.indexOf('.');
+                            String name;
+                            if (i < 0) {
+                                name = modulesKey.name;
+                            } else {
+                                name = modulesKey.name.substring(0, i);
+                            }
+                            // Add all names to std lib
+                            stdLib.add(name);
+                        }
+                    }
+                    for (ModulesKey modulesKey : onlyDirectModules) {
+                        int i = modulesKey.name.indexOf('.');
+                        String name;
+                        if (i < 0) {
+                            name = modulesKey.name;
+                        } else {
+                            name = modulesKey.name.substring(0, i);
+                        }
+
+                        // Consider all in site-packages to be third party.
+                        if (modulesKey.file != null && modulesKey.file.toString().contains("site-packages")) {
+                            stdLib.remove(name);
+                            knownThirdParty.add(name);
+                        }
+                    }
+                }
+            }
+
             switch (importEngine) {
                 case ImportsPreferencesPage.IMPORT_ENGINE_ISORT:
                     if (fileContents.length() > 0) {
                         String isortResult = JythonModules.makeISort(fileContents,
-                                edit != null ? edit.getEditorFile() : (f != null ? f.getRawLocation().toFile() : null));
+                                edit != null ? edit.getEditorFile() : (f != null ? f.getRawLocation().toFile() : null),
+                                knownThirdParty);
                         if (isortResult != null) {
                             try {
                                 DocUtils.updateDocRangeWithContents(doc, fileContents, isortResult.toString(),
@@ -134,7 +187,8 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
                                 Log.log(
                                         StringUtils.format(
                                                 "Error trying to apply isort result. Curr doc:\n>>>%s\n<<<.\nNew doc:\\n>>>%s\\n<<<.",
-                                                fileContents, isortResult.toString()));
+                                                fileContents, isortResult.toString()),
+                                        e);
                             }
                         }
                     }
@@ -208,7 +262,11 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
     public void formatAll(IDocument doc, IPyFormatStdProvider edit, IFile f, boolean isOpenedFile,
             boolean throwSyntaxError)
             throws SyntaxErrorException {
-        organizeImports((PyEdit) edit, doc, f, new PySelection(doc));
+        try {
+            organizeImports((PyEdit) edit, doc, f, new PySelection(doc));
+        } catch (MisconfigurationException | PythonNatureWithoutProjectException e) {
+            Log.log(e); // Can't do it without a configured nature/interpreter.
+        }
     }
 
     @Override
