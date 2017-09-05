@@ -49,7 +49,7 @@ public class EnabledTreeDragReorder {
     /**
      * Based on SWT Snippet91.
      */
-    public static void enableDrag(final Tree tree, final boolean acceptDropInTree,
+    public static void enableDrag(final Tree tree, final boolean acceptDropInTree, final boolean canChangeParent,
             final ICallback<Object, Object> onDNDFinished) {
 
         Transfer[] types = new Transfer[] { TreeItemDragDataTransfer.getInstance() };
@@ -134,7 +134,6 @@ public class EnabledTreeDragReorder {
 
             @Override
             public void drop(DropTargetEvent event) {
-                System.out.println("dropDone");
                 if (event.data == null) {
                     event.detail = DND.DROP_NONE;
                     return;
@@ -167,8 +166,14 @@ public class EnabledTreeDragReorder {
                                     index + 1);
                             data.update(newItem);
                         } else {
-                            TreeItem newItem = new TreeItem(item, SWT.NONE);
-                            data.update(newItem);
+                            if (canChangeParent) {
+                                TreeItem newItem = new TreeItem(item, SWT.NONE);
+                                data.update(newItem);
+                            } else {
+                                TreeItem newItem = new TreeItem(parent, SWT.NONE,
+                                        index + 1);
+                                data.update(newItem);
+                            }
                         }
 
                     } else {

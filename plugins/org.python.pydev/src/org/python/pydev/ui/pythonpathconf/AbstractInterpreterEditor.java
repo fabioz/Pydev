@@ -319,7 +319,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
                     treeWithLibs = null;
                 }
             });
-            EnabledTreeDragReorder.enableDrag(treeWithLibs, false, new ICallback<Object, Object>() {
+            EnabledTreeDragReorder.enableDrag(treeWithLibs, false, false, new ICallback<Object, Object>() {
 
                 @Override
                 public Object call(Object arg) {
@@ -547,7 +547,8 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
                                 "Please specify the number of tokens to consider a module from the .api file\n\n"
                                         + "i.e.: if there's a PyQt4.QtCore.QObject and PyQt4.QtCore is a module and QtObject "
                                         + "is the first class, the number of tokens to consider a module would be 2 (one for "
-                                        + "PyQt4 and another for QtCore).", "", validator);
+                                        + "PyQt4 and another for QtCore).",
+                                "", validator);
 
                         int retCode = d.open();
                         final ByteArrayOutputStream output = new ByteArrayOutputStream();
