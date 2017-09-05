@@ -16,6 +16,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
+import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -215,7 +216,7 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction {
                         TreeItem[] items = tree.getItems();
                         list = new ArrayList<Object>();
                         //Now, if he didn't select anything, let's create tests with all that is currently filtered
-                        //in the interface 
+                        //in the interface
                         createListWithLeafs(items, list);
                         setResult(list);
                     }
@@ -308,8 +309,40 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction {
                         FileOrResource[] resource) throws CoreException {
                     ILaunchConfigurationWorkingCopy workingCopy = super.createDefaultLaunchConfigurationWithoutSaving(
                             resource);
-                    if (arguments.length() > 0) {
+                    if (arguments.trim().length() > 0) {
+                        // first remember the arguments to be used internally and for matching
                         workingCopy.setAttribute(Constants.ATTR_UNITTEST_TESTS, arguments);
+                        // then determine the tests to be displayed to user
+                        String[] argumentsSplit = arguments.split(",");
+                        FastStringBuffer argsWithTests = new FastStringBuffer(workingCopy.getName(),
+                                arguments.length() + 10);
+                        argsWithTests.append(" ( ");
+                        for (int i = 0; i < argumentsSplit.length; i++) {
+                            if (i != 0) {
+                                argsWithTests.append(", ");
+                            }
+                            // Note that there are no fixed limits below, but in the worst case it should be close to 150 chars -- i.e.: (100 + 35 + len(" and xxx more") 13 + 2)
+                            String str = argumentsSplit[i];
+                            if (str.length() > 35) {
+                                argsWithTests.append(str.substring(0, 30));
+                                argsWithTests.append(" ... ");
+                            } else {
+                                argsWithTests.append(str);
+                            }
+                            if (argsWithTests.length() > 100) {
+                                argsWithTests.append(" and " + (argumentsSplit.length - (i + 1)) + " more");
+                                break;
+                            }
+                        }
+                        argsWithTests.append(" )");
+
+                        // then rename it to include the tests in the name
+                        // but first make sure the name is unique, as otherwise
+                        // configurations could get overwritten
+
+                        ILaunchManager manager = org.eclipse.debug.core.DebugPlugin.getDefault().getLaunchManager();
+                        workingCopy.rename(manager.generateLaunchConfigurationName(argsWithTests.toString()));
+                        return workingCopy;
                     }
                     return workingCopy;
                 }
