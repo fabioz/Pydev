@@ -82,13 +82,15 @@ import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
         private IProgressMonitor monitor;
         private Process process;
         private Thread processWatchDoc;
+        private File pyLintLocation;
 
         public PyLintAnalysis(IResource resource, IDocument document, IPath location,
-                IProgressMonitor monitor) {
+                IProgressMonitor monitor, File pyLintLocation) {
             this.resource = resource;
             this.document = document;
             this.location = location;
             this.monitor = monitor;
+            this.pyLintLocation = pyLintLocation;
         }
 
         /**
@@ -97,7 +99,7 @@ import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
         private void createPyLintProcess(IOConsoleOutputStream out)
                 throws CoreException,
                 MisconfigurationException, PythonNatureWithoutProjectException {
-            String script = FileUtils.getFileAbsolutePath(new File(PyLintPrefPage.getPyLintLocation()));
+            String script = FileUtils.getFileAbsolutePath(pyLintLocation);
             String target = FileUtils.getFileAbsolutePath(new File(location.toOSString()));
 
             // check whether lint.py module or pylint executable has been specified
@@ -392,6 +394,17 @@ import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
 
         IProject project = resource.getProject();
         PythonNature pythonNature = PythonNature.getPythonNature(project);
+        if (pythonNature == null) {
+            deleteMarkers();
+            return;
+        }
+
+        File pyLintLocation = PyLintPrefPage.getPyLintLocation(pythonNature);
+        if (pyLintLocation == null || !pyLintLocation.exists()) {
+            deleteMarkers();
+            return;
+        }
+
         try {
             // PyLint can only be used for python projects
             if (pythonNature.getInterpreterType() != IInterpreterManager.INTERPRETER_TYPE_PYTHON) {
@@ -407,7 +420,7 @@ import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
             IPath location = file.getRawLocation();
             if (location != null) {
                 pyLintRunnable = new PyLintAnalysis(resource, document, location,
-                        new NullProgressMonitorWrapper(monitor));
+                        new NullProgressMonitorWrapper(monitor), pyLintLocation);
 
                 try {
                     IOConsoleOutputStream out = getConsoleOutputStream();

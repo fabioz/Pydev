@@ -1828,4 +1828,50 @@ public class InterpreterInfo implements IInterpreterInfo {
         final File workspaceMetadataFile = PydevPlugin.getWorkspaceMetadataFile(this.getExeAsFileSystemValidPath());
         return workspaceMetadataFile;
     }
+
+    @Override
+    public File searchExecutableForInterpreter(String executable) throws UnableToFindExecutableException {
+        File file = new File(executableOrJar);
+        File pythonContainerDir = file.getParentFile();
+        List<File> searchedDirectories = new ArrayList<>(2);
+        searchedDirectories.add(pythonContainerDir);
+        File ret = search(pythonContainerDir, executable); // Linux
+        if (ret != null) {
+            return ret;
+        }
+
+        File scriptsDir = new File(pythonContainerDir, "Scripts"); // Windows
+        if (scriptsDir.exists()) {
+            searchedDirectories.add(scriptsDir);
+            ret = search(scriptsDir, executable);
+            if (ret != null) {
+                return ret;
+            }
+        }
+
+        File bin = new File(pythonContainerDir, "bin"); // Jython
+        if (bin.exists()) {
+            searchedDirectories.add(bin);
+            ret = search(bin, executable);
+            if (ret != null) {
+                return ret;
+            }
+        }
+        throw new UnableToFindExecutableException(
+                "Unable to find " + executable + " executable. Searched in:\n"
+                        + StringUtils.join(", ", searchedDirectories));
+    }
+
+    private File search(File pythonContainerDir, String executable) {
+        File target1 = new File(pythonContainerDir, executable);
+        if (target1.exists()) {
+            return target1;
+        }
+
+        File target2 = new File(pythonContainerDir, executable + ".exe");
+        if (target2.exists()) {
+            return target2;
+        }
+        return null;
+    }
 }

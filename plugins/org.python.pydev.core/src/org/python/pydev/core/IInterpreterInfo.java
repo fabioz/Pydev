@@ -9,6 +9,7 @@
  */
 package org.python.pydev.core;
 
+import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -118,5 +119,21 @@ public interface IInterpreterInfo {
      * @return the current modification stamp for the info.
      */
     public int getModificationStamp();
+
+    public static class UnableToFindExecutableException extends Exception {
+
+        public UnableToFindExecutableException(String msg) {
+            super(msg);
+        }
+
+        private static final long serialVersionUID = 1L;
+
+    }
+
+    /**
+     * The executable which should be installed next to the interpreter (i.e.: pylint, pip, etc).
+     * @return
+     */
+    File searchExecutableForInterpreter(String executable) throws UnableToFindExecutableException;
 
 }

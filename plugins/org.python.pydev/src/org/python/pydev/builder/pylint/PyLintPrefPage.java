@@ -17,17 +17,21 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.FileFieldEditor;
-import org.eclipse.jface.preference.RadioGroupFieldEditor;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.program.Program;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_ui.field_editors.LinkFieldEditor;
+import org.python.pydev.shared_ui.field_editors.RadioGroupFieldEditor;
 import org.python.pydev.utils.CustomizableFieldEditor;
 
 /**
@@ -77,13 +81,25 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
 
     //console
     public static final String USE_CONSOLE = "USE_CONSOLE";
-
     public static final boolean DEFAULT_USE_CONSOLE = false;
+
+    public static final String SEARCH_PYLINT_LOCATION = "SEARCH_PYLINT_LOCATION";
+    private static final String LOCATION_SEARCH = "SEARCH";
+    private static final String LOCATION_SPECIFY = "SPECIFY";
+
+    public static final String[][] SEARCH_PYLINT_LOCATION_OPTIONS = new String[][] {
+            { "Search in interpreter", LOCATION_SEARCH },
+            { "Specify Location", LOCATION_SPECIFY },
+    };
 
     //args
     public static final String PYLINT_ARGS = "PYLINT_ARGS";
 
     public static final String DEFAULT_PYLINT_ARGS = "";
+
+    private FileFieldEditor fileField;
+
+    private RadioGroupFieldEditor searchPyLintLocation;
 
     public PyLintPrefPage() {
         super(FLAT);
@@ -102,7 +118,20 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
 
         addField(new BooleanFieldEditor(USE_PYLINT, "Use PyLint?", p));
         addField(new BooleanFieldEditor(USE_CONSOLE, "Redirect PyLint output to console?", p));
-        FileFieldEditor fileField = new FileFieldEditor(PYLINT_FILE_LOCATION, "Location of the pylint executable:",
+        searchPyLintLocation = new RadioGroupFieldEditor(SEARCH_PYLINT_LOCATION,
+                "PyLint to use", 2, SEARCH_PYLINT_LOCATION_OPTIONS, p);
+
+        for (Button b : searchPyLintLocation.getRadioButtons()) {
+            b.addSelectionListener(new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    updateSelectFileEnablement(p);
+                }
+            });
+        }
+
+        addField(searchPyLintLocation);
+        fileField = new FileFieldEditor(PYLINT_FILE_LOCATION, "Location of the pylint executable:",
                 true, p);
         addField(fileField);
 
@@ -136,6 +165,12 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
                     public void widgetDefaultSelected(SelectionEvent e) {
                     }
                 }));
+
+        updateSelectFileEnablement(p);
+    }
+
+    protected void updateSelectFileEnablement(Composite p) {
+        fileField.setEnabled(LOCATION_SPECIFY.equals(searchPyLintLocation.getRadioValue()), p);
     }
 
     /*
@@ -148,14 +183,18 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
 
     }
 
-    /**
-     * @return
-     */
-    public static String getPyLintLocation() {
-        return PydevPrefs.getPreferences().getString(PYLINT_FILE_LOCATION);
+    public static File getPyLintLocation(IPythonNature pythonNature) {
+        IPreferenceStore preferences = PydevPrefs.getPreferences();
+        if (LOCATION_SPECIFY.equals(preferences.getString(SEARCH_PYLINT_LOCATION))) {
+            return new File(preferences.getString(PYLINT_FILE_LOCATION));
+        }
+        try {
+            return pythonNature.getProjectInterpreter().searchExecutableForInterpreter("pylint");
+        } catch (Exception e) {
+            Log.log(e);
+            return null;
+        }
     }
-
-    private static boolean communicatedOnce = false;
 
     /**
      * should we use py lint?
@@ -163,30 +202,7 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
      * @return
      */
     public static boolean usePyLint() {
-        boolean b = PydevPrefs.getPreferences().getBoolean(USE_PYLINT);
-
-        if (!isPyLintConfigured(PyLintPrefPage.getPyLintLocation())) {
-            if (b && !communicatedOnce) {
-                communicatedOnce = true;
-                Log.log("Unable to use pylint because it is not properly configured.");
-            }
-            return false;
-        }
-
-        return b;
-    }
-
-    /**
-     * Checks if location of pylint is properly configured.
-     */
-    public static boolean isPyLintConfigured(String pylintLocation) {
-
-        File pylint = new File(pylintLocation);
-
-        if (!pylint.exists() && pylint.isFile()) {
-            return false;
-        }
-        return true;
+        return PydevPrefs.getPreferences().getBoolean(USE_PYLINT);
     }
 
     public static boolean useConsole() {
