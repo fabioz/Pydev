@@ -20,14 +20,14 @@ import org.python.pydev.shared_core.structure.Tuple;
 /**
  * This class provides a factory for creating a suitable runner for any project and running
  * some code or script.
- * 
+ *
  * @author Leo Soto
  */
 public class UniversalRunner {
 
     /**
      * This is the interface users will be using.
-     * 
+     *
      * @return the appropriate runner based on the nature type.
      */
     public static AbstractRunner getRunner(IPythonNature nature) {
@@ -66,7 +66,7 @@ public class UniversalRunner {
 
         /**
          * Runs the code and returns its output.
-         * 
+         *
          * @return a tuple with stdout and stderr
          */
         public Tuple<String, String> runCodeAndGetOutput(String code, String[] args, File workingDir,
@@ -88,7 +88,7 @@ public class UniversalRunner {
 
         /**
          * Runs the script and returns its output.
-         * 
+         *
          * @return a tuple with stdout and stderr
          */
         public Tuple<String, String> runScriptAndGetOutput(String script, String[] args, File workingDir,
@@ -122,7 +122,6 @@ public class UniversalRunner {
             cmd.addAll(Arrays.asList(args));
 
             return new SimpleRunner().run(getCommandLine(cmd), workingDir, nature, monitor);
-
         }
     }
 

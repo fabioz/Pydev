@@ -189,7 +189,7 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
             return new File(preferences.getString(PYLINT_FILE_LOCATION));
         }
         try {
-            return pythonNature.getProjectInterpreter().searchExecutableForInterpreter("pylint");
+            return pythonNature.getProjectInterpreter().searchExecutableForInterpreter("pylint", false);
         } catch (Exception e) {
             Log.log(e);
             return null;

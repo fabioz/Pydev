@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.customizations.common;
+package org.python.pydev.process_window;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,10 +36,10 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.python.pydev.runners.UniversalRunner;
 import org.python.pydev.runners.UniversalRunner.AbstractRunner;
 import org.python.pydev.shared_core.io.ThreadStreamReader;
+import org.python.pydev.shared_core.process.ProcessUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -65,8 +65,8 @@ public abstract class ProcessWindow extends Dialog {
     protected Text output;
     protected IContainer container;
     protected IPythonPathNature pythonPathNature;
-    protected File appcfg;
-    protected File appEngineLocation;
+    protected File targetExecutable;
+    protected File workingDir;
 
     //If not null, this command should be run when the interface is opened.
     protected String initialCommand;
@@ -91,7 +91,7 @@ public abstract class ProcessWindow extends Dialog {
     private Combo commandToExecute;
     private Text sendToText;
 
-    private final int NUMBER_OF_COLUMNS = 6;
+    private final int NUMBER_OF_COLUMNS = 10;
     private Label commandToExecuteLabel;
 
     /**
@@ -196,9 +196,9 @@ public abstract class ProcessWindow extends Dialog {
         /**
          * This function is called synchronously, but adds the contents to the output window the user
          * is seeing asynchronously.
-         * 
+         *
          * It also sets the echo char by analyzing the available contents.
-         * 
+         *
          * Nothing is done if the contents is an empty string.
          */
         private void append(final String contents) {
@@ -268,11 +268,11 @@ public abstract class ProcessWindow extends Dialog {
         composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         composite.setLayout(new GridLayout(NUMBER_OF_COLUMNS, false));
 
-        createLabel(composite, "Arguments to pass to: " + appcfg.getAbsolutePath());
+        createLabel(composite, "Arguments to pass to: " + targetExecutable.getAbsolutePath());
         createLabel(composite, "The command line can be changed as needed.");
 
         Link link = new Link(composite, SWT.None);
-        link.setText("See <a>http://code.google.com/appengine/docs/python/tools/uploadinganapp.html</a>");
+        link.setText("See <a>" + getSeeURL() + "</a>");
         link.addSelectionListener(new SelectionListener() {
 
             @Override
@@ -281,7 +281,7 @@ public abstract class ProcessWindow extends Dialog {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
-                Program.launch("http://code.google.com/appengine/docs/python/tools/uploadinganapp.html");
+                Program.launch(getSeeURL());
             }
         });
         GridData gridData = new GridData(GridData.FILL_HORIZONTAL);
@@ -297,7 +297,9 @@ public abstract class ProcessWindow extends Dialog {
         commandToExecute.setLayoutData(gridData);
         String[] availableCommands = getAvailableCommands();
         commandToExecute.setItems(availableCommands);
-        commandToExecute.setText(availableCommands[0]);
+        if (availableCommands.length > 0) {
+            commandToExecute.setText(availableCommands[0]);
+        }
 
         okButton = createButton(composite, RUN_LABEL, 1, SWT.PUSH);
         okButton.addSelectionListener(new SelectionAdapter() {
@@ -343,6 +345,8 @@ public abstract class ProcessWindow extends Dialog {
         return top;
     }
 
+    protected abstract String getSeeURL();
+
     /**
      * Subclasses should override to provide the commands available to be executed.
      */
@@ -355,7 +359,7 @@ public abstract class ProcessWindow extends Dialog {
     private Label createLabel(Composite composite, String message, int horizontalSpan) {
         Label label = new Label(composite, SWT.None);
         label.setText(message);
-        GridData gridData = new GridData(GridData.FILL_HORIZONTAL);
+        GridData gridData = new GridData();
         gridData.horizontalSpan = horizontalSpan;
         label.setLayoutData(gridData);
         return label;
@@ -422,6 +426,8 @@ public abstract class ProcessWindow extends Dialog {
         ProcessHandler handler = this.processHandler;
         if (handler != null) {
             handler.forceQuit = true;
+        } else {
+            onEndRun();
         }
     }
 
@@ -461,12 +467,12 @@ public abstract class ProcessWindow extends Dialog {
         }
     }
 
-    public void setParameters(IContainer container, IPythonPathNature pythonPathNature, File appcfg,
-            File appEngineLocation) {
+    public void setParameters(IContainer container, IPythonPathNature pythonPathNature, File targetExecutable,
+            File workingDir) {
         this.container = container;
         this.pythonPathNature = pythonPathNature;
-        this.appcfg = appcfg;
-        this.appEngineLocation = appEngineLocation;
+        this.targetExecutable = targetExecutable;
+        this.workingDir = workingDir;
     }
 
     private void run() {
@@ -477,12 +483,10 @@ public abstract class ProcessWindow extends Dialog {
             String cmdLineArguments = commandToExecute.getText().trim();
             String[] arguments = new String[0];
             if (cmdLineArguments.length() > 0) {
-                arguments = PythonRunnerConfig.parseStringIntoList(cmdLineArguments);
+                arguments = ProcessUtils.parseArguments(cmdLineArguments);
             }
 
-            AbstractRunner universalRunner = UniversalRunner.getRunner(pythonPathNature.getNature());
-            Tuple<Process, String> run = universalRunner.createProcess(appcfg.getAbsolutePath(), arguments,
-                    appEngineLocation, new NullProgressMonitor());
+            Tuple<Process, String> run = createProcess(arguments);
 
             process = run.o1;
             if (process != null) {
@@ -503,6 +507,16 @@ public abstract class ProcessWindow extends Dialog {
         }
     }
 
+    /**
+     * @return the created process and a string representation of the command line.
+     */
+    public Tuple<Process, String> createProcess(String[] arguments) {
+        AbstractRunner universalRunner = UniversalRunner.getRunner(pythonPathNature.getNature());
+        Tuple<Process, String> run = universalRunner.createProcess(targetExecutable.getAbsolutePath(), arguments,
+                workingDir, new NullProgressMonitor());
+        return run;
+    }
+
     private Button createButton(Composite composite, String label, int colSpan, int style) {
         Button button = new Button(composite, style);
         button.setText(label);
@@ -512,9 +526,10 @@ public abstract class ProcessWindow extends Dialog {
 
     private void setButtonLayout(Button button, int colSpan) {
         GridData gridData;
-        gridData = new GridData(GridData.FILL_HORIZONTAL);
+        gridData = new GridData();
         gridData.horizontalSpan = colSpan;
-        gridData.grabExcessHorizontalSpace = true;
+        gridData.grabExcessHorizontalSpace = false;
+        gridData.widthHint = 80;
         button.setLayoutData(gridData);
     }
 

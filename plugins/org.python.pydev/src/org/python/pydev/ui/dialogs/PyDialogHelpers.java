@@ -8,13 +8,18 @@ package org.python.pydev.ui.dialogs;
 
 import java.util.Arrays;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Shell;
+import org.python.pydev.core.IInterpreterInfo.UnableToFindExecutableException;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.dialogs.DialogHelpers;
+import org.python.pydev.shared_ui.utils.UIUtils;
 import org.python.pydev.ui.interpreters.AbstractInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterConfigHelpers;
 import org.python.pydev.ui.pythonpathconf.InterpreterGeneralPreferencesPage;
@@ -127,5 +132,11 @@ public class PyDialogHelpers {
         }
         IPreferenceStore store = PydevPlugin.getDefault().getPreferenceStore();
         return store.getBoolean(InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER + m.getInterpreterType());
+    }
+
+    public static void openException(String title, UnableToFindExecutableException e) {
+        ErrorDialog.openError(UIUtils.getActiveShell(), title, e.getMessage(),
+                new Status(IStatus.ERROR,
+                        PydevPlugin.getPluginID(), e.getMessage(), e));
     }
 }

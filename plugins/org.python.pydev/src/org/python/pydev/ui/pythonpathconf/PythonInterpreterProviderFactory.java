@@ -37,33 +37,7 @@ public class PythonInterpreterProviderFactory extends AbstractInterpreterProvide
         }
         List<String> foundVersions = new ArrayList<String>();
 
-        Set<String> pathsToSearch = new LinkedHashSet<String>();
-        try {
-            Map<String, String> env = SimpleRunner.getDefaultSystemEnv(null);
-            if (env.containsKey("PYTHON_HOME")) {
-                pathsToSearch.add(env.get("PYTHON_HOME"));
-            }
-            if (env.containsKey("PYTHONHOME")) {
-                pathsToSearch.add(env.get("PYTHONHOME"));
-            }
-            if (env.containsKey("PATH")) {
-                String path = env.get("PATH");
-                String separator = SimpleRunner.getPythonPathSeparator();
-                final List<String> split = StringUtils.split(path, separator);
-                pathsToSearch.addAll(split);
-            }
-        } catch (CoreException e) {
-            Log.log(e);
-        }
-        if (!PlatformUtils.isWindowsPlatform()) {
-            // Paths to search on linux/mac
-            pathsToSearch.add("/usr/bin");
-            pathsToSearch.add("/usr/local/bin");
-        }
-        if (PlatformUtils.isMacOsPlatform()) {
-            // Path to search on mac
-            pathsToSearch.add("/Library/Frameworks/Python.framework/Versions/Current/bin");
-        }
+        Set<String> pathsToSearch = getPathsToSearch();
         // Do this first (i.e.: give priority to the one found first in the path).
         List<String> searchPatterns;
         if (PlatformUtils.isWindowsPlatform()) {
@@ -130,6 +104,37 @@ public class PythonInterpreterProviderFactory extends AbstractInterpreterProvide
         // This should be enough to find it from the PATH or any other way it's
         // defined.
         return AlreadyInstalledInterpreterProvider.create("python", "python");
+    }
+
+    public static Set<String> getPathsToSearch() {
+        Set<String> pathsToSearch = new LinkedHashSet<String>();
+        try {
+            Map<String, String> env = SimpleRunner.getDefaultSystemEnv(null);
+            if (env.containsKey("PYTHON_HOME")) {
+                pathsToSearch.add(env.get("PYTHON_HOME"));
+            }
+            if (env.containsKey("PYTHONHOME")) {
+                pathsToSearch.add(env.get("PYTHONHOME"));
+            }
+            if (env.containsKey("PATH")) {
+                String path = env.get("PATH");
+                String separator = SimpleRunner.getPythonPathSeparator();
+                final List<String> split = StringUtils.split(path, separator);
+                pathsToSearch.addAll(split);
+            }
+        } catch (CoreException e) {
+            Log.log(e);
+        }
+        if (!PlatformUtils.isWindowsPlatform()) {
+            // Paths to search on linux/mac
+            pathsToSearch.add("/usr/bin");
+            pathsToSearch.add("/usr/local/bin");
+        }
+        if (PlatformUtils.isMacOsPlatform()) {
+            // Path to search on mac
+            pathsToSearch.add("/Library/Frameworks/Python.framework/Versions/Current/bin");
+        }
+        return pathsToSearch;
     }
 
 }

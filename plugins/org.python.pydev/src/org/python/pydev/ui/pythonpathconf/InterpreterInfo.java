@@ -1830,39 +1830,57 @@ public class InterpreterInfo implements IInterpreterInfo {
     }
 
     @Override
-    public File searchExecutableForInterpreter(String executable) throws UnableToFindExecutableException {
-        File file = new File(executableOrJar);
-        File pythonContainerDir = file.getParentFile();
+    public File searchExecutableForInterpreter(String executable, boolean recursive)
+            throws UnableToFindExecutableException {
+        File file = new File(executableOrJar).getParentFile();
         List<File> searchedDirectories = new ArrayList<>(2);
-        searchedDirectories.add(pythonContainerDir);
-        File ret = search(pythonContainerDir, executable); // Linux
-        if (ret != null) {
-            return ret;
-        }
-
-        File scriptsDir = new File(pythonContainerDir, "Scripts"); // Windows
-        if (scriptsDir.exists()) {
-            searchedDirectories.add(scriptsDir);
-            ret = search(scriptsDir, executable);
-            if (ret != null) {
-                return ret;
+        while (true) {
+            File foundExecutable = searchExecutableInContainer(executable, file, searchedDirectories);
+            if (foundExecutable != null) {
+                return foundExecutable;
+            }
+            if (!recursive) {
+                break;
+            }
+            file = file.getParentFile();
+            if (file == null) {
+                break;
             }
         }
 
-        File bin = new File(pythonContainerDir, "bin"); // Jython
-        if (bin.exists()) {
-            searchedDirectories.add(bin);
-            ret = search(bin, executable);
-            if (ret != null) {
-                return ret;
-            }
-        }
         throw new UnableToFindExecutableException(
                 "Unable to find " + executable + " executable. Searched in:\n"
                         + StringUtils.join(", ", searchedDirectories));
     }
 
-    private File search(File pythonContainerDir, String executable) {
+    public static File searchExecutableInContainer(String executable, File dir, List<File> searchedDirectories) {
+        searchedDirectories.add(dir);
+        File ret = searchExecutable(dir, executable); // Linux
+        if (ret != null) {
+            return ret;
+        }
+
+        File scriptsDir = new File(dir, "Scripts"); // Windows
+        if (scriptsDir.exists()) {
+            searchedDirectories.add(scriptsDir);
+            ret = searchExecutable(scriptsDir, executable);
+            if (ret != null) {
+                return ret;
+            }
+        }
+
+        File bin = new File(dir, "bin"); // Jython
+        if (bin.exists()) {
+            searchedDirectories.add(bin);
+            ret = searchExecutable(bin, executable);
+            if (ret != null) {
+                return ret;
+            }
+        }
+        return null;
+    }
+
+    public static File searchExecutable(File pythonContainerDir, String executable) {
         File target1 = new File(pythonContainerDir, executable);
         if (target1.exists()) {
             return target1;

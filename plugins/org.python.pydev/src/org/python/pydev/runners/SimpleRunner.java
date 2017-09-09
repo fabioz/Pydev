@@ -168,11 +168,13 @@ public class SimpleRunner {
             String value = entry.getValue();
             // translate any string substitution variables
             String translated = value;
-            try {
-                StringSubstitution stringSubstitution = new StringSubstitution(nature);
-                translated = stringSubstitution.performStringSubstitution(value, false);
-            } catch (Exception e) {
-                Log.log(e);
+            if (nature != null) {
+                try {
+                    StringSubstitution stringSubstitution = new StringSubstitution(nature);
+                    translated = stringSubstitution.performStringSubstitution(value, false);
+                } catch (Exception e) {
+                    Log.log(e);
+                }
             }
             env.put(key, translated);
         }

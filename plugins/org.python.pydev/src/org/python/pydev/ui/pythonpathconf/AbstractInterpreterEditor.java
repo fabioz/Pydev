@@ -45,11 +45,13 @@ import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
@@ -127,6 +129,8 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
     private SelectionListener selectionListenerSystem;
 
     private Map<String, IInterpreterInfo> nameToInfo = new HashMap<String, IInterpreterInfo>();
+
+    private PackageTab packageTab = new PackageTab();
 
     public Map<String, IInterpreterInfo> getNameToInfo() {
         return nameToInfo;
@@ -386,6 +390,8 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
         gd.grabExcessVerticalSpace = true;
         gd.horizontalSpan = numColumns;
         tabFolder.setLayoutData(gd);
+
+        packageTab.createPackageControlTab(tabFolder);
 
         createTreeLibsControlTab();
 
@@ -823,17 +829,29 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
      * @param listenerToAdd
      * @return Button
      */
-    /*default*/Button createBt(Composite parent, String key, SelectionListener listenerToAdd) {
+    /*default*/public static Button createBt(Composite parent, String key, SelectionListener listenerToAdd) {
         Button button = new Button(parent, SWT.PUSH);
         button.setText(JFaceResources.getString(key));
         button.setFont(parent.getFont());
         GridData data = new GridData(GridData.FILL_HORIZONTAL);
         //        data.heightHint = convertVerticalDLUsToPixels(button, IDialogConstants.BUTTON_HEIGHT);
-        int widthHint = convertHorizontalDLUsToPixels(button, IDialogConstants.BUTTON_WIDTH);
+        int widthHint = convertHorizontalDLUsToPixelsStatic(button, IDialogConstants.BUTTON_WIDTH);
         data.widthHint = Math.max(widthHint, button.computeSize(SWT.DEFAULT, SWT.DEFAULT, true).x);
         button.setLayoutData(data);
         button.addSelectionListener(listenerToAdd);
         return button;
+    }
+
+    private static int convertHorizontalDLUsToPixelsStatic(Control control, int dlus) {
+        // Copy of super.convertHorizontalDLUsToPixels (but made static).
+        GC gc = new GC(control);
+        gc.setFont(control.getFont());
+        int averageWidth = gc.getFontMetrics().getAverageCharWidth();
+        gc.dispose();
+
+        double horizontalDialogUnitSize = averageWidth * 0.25;
+
+        return (int) Math.round(dlus * horizontalDialogUnitSize);
     }
 
     /**
@@ -911,6 +929,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
                 this.predefinedCompletions.update(info);
                 workingCopy.setInfo(info);
             }
+            packageTab.setInfo(info);
 
             environmentTab.initializeFrom(workingCopy);
             Properties stringSubstitutionVariables = info.getStringSubstitutionVariables();

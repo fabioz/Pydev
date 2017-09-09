@@ -132,8 +132,8 @@ public interface IInterpreterInfo {
 
     /**
      * The executable which should be installed next to the interpreter (i.e.: pylint, pip, etc).
-     * @return
+     * @param recursive: if true, recursively iterates parents to search for the executable (useful for conda searching).
      */
-    File searchExecutableForInterpreter(String executable) throws UnableToFindExecutableException;
+    File searchExecutableForInterpreter(String executable, boolean recursive) throws UnableToFindExecutableException;
 
 }
