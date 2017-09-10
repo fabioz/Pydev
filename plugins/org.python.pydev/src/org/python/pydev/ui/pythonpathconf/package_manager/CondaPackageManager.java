@@ -3,7 +3,6 @@ package org.python.pydev.ui.pythonpathconf.package_manager;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.core.IInterpreterInfo.UnableToFindExecutableException;
@@ -11,8 +10,10 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.process_window.ProcessWindow;
 import org.python.pydev.runners.SimpleRunner;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.structure.OrderedSet;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.ArrayUtils;
+import org.python.pydev.shared_core.utils.PlatformUtils;
 import org.python.pydev.shared_ui.utils.UIUtils;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
@@ -66,7 +67,24 @@ public class CondaPackageManager extends AbstractPackageManager {
             condaExecutable = interpreterInfo.searchExecutableForInterpreter("conda", true);
         } catch (UnableToFindExecutableException e) {
             // Unable to find, let's see if it's in the path
-            Set<String> pathsToSearch = PythonInterpreterProviderFactory.getPathsToSearch();
+            OrderedSet<String> pathsToSearch = new OrderedSet<>(PythonInterpreterProviderFactory.getPathsToSearch());
+            // use ordered set: we want to search the PATH before hard-coded paths.
+            String userHomeDir = System.getProperty("user.home");
+            if (PlatformUtils.isWindowsPlatform()) {
+                pathsToSearch.add("c:/tools/miniconda");
+                pathsToSearch.add("c:/tools/miniconda2");
+                pathsToSearch.add("c:/tools/miniconda3");
+                pathsToSearch.add("c:/tools/conda");
+                pathsToSearch.add("c:/tools/conda2");
+                pathsToSearch.add("c:/tools/conda3");
+            }
+            pathsToSearch.add(new File(userHomeDir, "miniconda").toString());
+            pathsToSearch.add(new File(userHomeDir, "miniconda2").toString());
+            pathsToSearch.add(new File(userHomeDir, "miniconda3").toString());
+            pathsToSearch.add(new File(userHomeDir, "conda").toString());
+            pathsToSearch.add(new File(userHomeDir, "conda2").toString());
+            pathsToSearch.add(new File(userHomeDir, "conda3").toString());
+
             List<File> searchedDirectories = new ArrayList<>();
             for (String string : pathsToSearch) {
                 File file = InterpreterInfo.searchExecutableInContainer("conda", new File(string),
@@ -108,7 +126,7 @@ public class CondaPackageManager extends AbstractPackageManager {
             @Override
             protected String[] getAvailableCommands() {
                 return new String[] {
-                        "install -p " + new File(interpreterInfo.getExecutableOrJar()).getParent()
+                        "install -p " + new File(interpreterInfo.getExecutableOrJar()).getParent() + " <package>"
                 };
             }
 
@@ -119,7 +137,7 @@ public class CondaPackageManager extends AbstractPackageManager {
 
             @Override
             public Tuple<Process, String> createProcess(String[] arguments) {
-                output.setText("");
+                clearOutput();
                 String[] cmdLine = ArrayUtils.concatArrays(new String[] { condaExecutable.toString() }, arguments);
                 return new SimpleRunner().run(cmdLine, workingDir, null, null);
             }

@@ -17,11 +17,14 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.program.Program;
@@ -43,6 +46,7 @@ import org.python.pydev.shared_core.process.ProcessUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 /**
  * This is the window used to handle a process. Currently specific to google app engine (could be more customizable
@@ -62,7 +66,12 @@ public abstract class ProcessWindow extends Dialog {
     private static final String RUN_LABEL = "&Run";
 
     //Input
-    protected Text output;
+    private SimpleTerminalEmulator terminal;
+
+    protected void clearOutput() {
+        terminal.clearOutput();
+    }
+
     protected IContainer container;
     protected IPythonPathNature pythonPathNature;
     protected File targetExecutable;
@@ -227,8 +236,7 @@ public abstract class ProcessWindow extends Dialog {
                             ProcessWindow.this.sendToText.setEchoChar('\0');
                         }
                     }
-
-                    output.append(contents);
+                    terminal.processText(contents);
                 }
             });
         }
@@ -301,6 +309,46 @@ public abstract class ProcessWindow extends Dialog {
             commandToExecute.setText(availableCommands[0]);
         }
 
+        commandToExecute.addKeyListener(new KeyListener() {
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.keyCode == SWT.CR || e.keyCode == SWT.LF || e.keyCode == SWT.KEYPAD_CR) {
+                    okPressed();
+                }
+            }
+        });
+
+        commandToExecute.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetDefaultSelected(SelectionEvent e) {
+                onSelected(null);
+            }
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                onSelected(null);
+            }
+
+        });
+
+        commandToExecute.addFocusListener(new FocusListener() {
+
+            @Override
+            public void focusLost(FocusEvent e) {
+            }
+
+            @Override
+            public void focusGained(FocusEvent e) {
+                onSelected(null);
+            }
+        });
+
         okButton = createButton(composite, RUN_LABEL, 1, SWT.PUSH);
         okButton.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -311,12 +359,13 @@ public abstract class ProcessWindow extends Dialog {
         okButton.setData(IDialogConstants.OK_ID);
 
         //--- main output
-        output = new Text(composite, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.WRAP | SWT.READ_ONLY);
+        terminal = new SimpleTerminalEmulator(composite,
+                SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.WRAP | SWT.READ_ONLY);
         gridData = new GridData(GridData.FILL_BOTH);
         gridData.horizontalSpan = NUMBER_OF_COLUMNS;
         gridData.grabExcessHorizontalSpace = true;
         gridData.grabExcessVerticalSpace = true;
-        output.setLayoutData(gridData);
+        terminal.getControl().setLayoutData(gridData);
 
         //--- Send any command to the shell
         createLabel(composite, SEND_TO_PROMPT_LABEL, 1);
@@ -343,6 +392,14 @@ public abstract class ProcessWindow extends Dialog {
         });
 
         return top;
+    }
+
+    private void onSelected(SelectionEvent unused) {
+        String text = commandToExecute.getText();
+        int i = text.indexOf("<package>");
+        if (i >= 0) {
+            commandToExecute.setSelection(new Point(i, i + "<package>".length()));
+        }
     }
 
     protected abstract String getSeeURL();
@@ -383,10 +440,12 @@ public abstract class ProcessWindow extends Dialog {
     public void create() {
         super.create();
         //After creating things, execute the initial command if it was set.
-        this.okButton.setFocus();
+        this.commandToExecute.setFocus();
         if (this.initialCommand != null) {
             commandToExecute.setText(this.initialCommand);
             this.okPressed();
+        } else {
+            RunInUiThread.async(() -> onSelected(null), false);
         }
     }
 
@@ -442,6 +501,8 @@ public abstract class ProcessWindow extends Dialog {
             public void run() {
                 commandToExecuteLabel.setText(COMMAND_TO_EXECUTE_LABEL);
                 commandToExecute.setEnabled(true);
+                commandToExecute.setFocus();
+                onSelected(null);
                 cancelButton.setEnabled(true);
                 okButton.setText(RUN_LABEL);
             }

@@ -88,7 +88,8 @@ public class PipPackageManager extends AbstractPackageManager {
             @Override
             protected String[] getAvailableCommands() {
                 return new String[] {
-                        "install"
+                        "install <package>",
+                        "uninstall <package>",
                 };
             }
 
@@ -99,7 +100,7 @@ public class PipPackageManager extends AbstractPackageManager {
 
             @Override
             public Tuple<Process, String> createProcess(String[] arguments) {
-                output.setText("");
+                clearOutput();
                 String[] cmdLine = ArrayUtils.concatArrays(new String[] { pipExecutable.toString() }, arguments);
                 return new SimpleRunner().run(cmdLine, workingDir, null, null);
             }
