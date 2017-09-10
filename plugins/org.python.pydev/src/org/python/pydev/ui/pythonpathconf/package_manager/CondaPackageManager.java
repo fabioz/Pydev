@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.core.IInterpreterInfo.UnableToFindExecutableException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.process_window.ProcessWindow;
@@ -88,7 +89,7 @@ public class CondaPackageManager extends AbstractPackageManager {
 
     @Override
     public void manage() {
-        File condaExecutable;
+        final File condaExecutable;
         try {
             condaExecutable = findCondaExecutable();
         } catch (UnableToFindExecutableException e) {
@@ -99,9 +100,16 @@ public class CondaPackageManager extends AbstractPackageManager {
         ProcessWindow processWindow = new ProcessWindow(UIUtils.getActiveShell()) {
 
             @Override
+            protected void configureShell(Shell shell) {
+                super.configureShell(shell);
+                shell.setText("Manage conda");
+            }
+
+            @Override
             protected String[] getAvailableCommands() {
                 return new String[] {
-                        "install -p " + new File(interpreterInfo.getExecutableOrJar()).getParent() };
+                        "install -p " + new File(interpreterInfo.getExecutableOrJar()).getParent()
+                };
             }
 
             @Override

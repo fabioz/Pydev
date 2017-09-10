@@ -4,10 +4,16 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.core.IInterpreterInfo.UnableToFindExecutableException;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.process_window.ProcessWindow;
 import org.python.pydev.runners.SimpleRunner;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.utils.ArrayUtils;
+import org.python.pydev.shared_ui.utils.UIUtils;
+import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 public class PipPackageManager extends AbstractPackageManager {
@@ -63,8 +69,43 @@ public class PipPackageManager extends AbstractPackageManager {
 
     @Override
     public void manage() {
-        // TODO Auto-generated method stub
+        final File pipExecutable;
+        try {
+            pipExecutable = interpreterInfo.searchExecutableForInterpreter("pip", false);
+        } catch (UnableToFindExecutableException e) {
+            Log.log(e);
+            PyDialogHelpers.openException("Unable to find conda", e);
+            return;
+        }
+        ProcessWindow processWindow = new ProcessWindow(UIUtils.getActiveShell()) {
+
+            @Override
+            protected void configureShell(Shell shell) {
+                super.configureShell(shell);
+                shell.setText("Manage pip");
+            }
+
+            @Override
+            protected String[] getAvailableCommands() {
+                return new String[] {
+                        "install"
+                };
+            }
+
+            @Override
+            protected String getSeeURL() {
+                return "https://pip.pypa.io/en/stable";
+            }
+
+            @Override
+            public Tuple<Process, String> createProcess(String[] arguments) {
+                output.setText("");
+                String[] cmdLine = ArrayUtils.concatArrays(new String[] { pipExecutable.toString() }, arguments);
+                return new SimpleRunner().run(cmdLine, workingDir, null, null);
+            }
+        };
+        processWindow.setParameters(null, null, pipExecutable, pipExecutable.getParentFile());
+        processWindow.open();
 
     }
-
 }
