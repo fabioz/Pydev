@@ -322,6 +322,7 @@ public class InterpreterInfo implements IInterpreterInfo {
                     String infoExecutable = null;
                     String infoName = null;
                     String infoVersion = null;
+                    boolean activateCondaEnv = false;
                     List<String> selection = new ArrayList<String>();
                     List<String> toAsk = new ArrayList<String>();
                     List<String> forcedLibs = new ArrayList<String>();
@@ -343,6 +344,9 @@ public class InterpreterInfo implements IInterpreterInfo {
 
                         } else if ("executable".equals(name)) {
                             infoExecutable = data;
+
+                        } else if ("activate_conda".equals(name)) {
+                            activateCondaEnv = data.equals("true");
 
                         } else if ("lib".equals(name)) {
                             NamedNodeMap attributes = xmlChild.getAttributes();
@@ -388,11 +392,11 @@ public class InterpreterInfo implements IInterpreterInfo {
 
                         } else if ("#text".equals(name)) {
                             if (data.length() > 0) {
-                                throw new RuntimeException("Unexpected text content: " + xmlChild.getTextContent());
+                                Log.log("Unexpected text content: " + xmlChild.getTextContent());
                             }
 
                         } else {
-                            throw new RuntimeException("Unexpected node: " + name + " Text content: "
+                            Log.log("Unexpected node: " + name + " Text content: "
                                     + xmlChild.getTextContent());
                         }
                     }
@@ -449,6 +453,7 @@ public class InterpreterInfo implements IInterpreterInfo {
                     InterpreterInfo info = new InterpreterInfo(infoVersion, infoExecutable, selection,
                             new ArrayList<String>(), forcedLibs, envVars, stringSubstitutionVars);
                     info.setName(infoName);
+                    info.setActivateCondaEnv(activateCondaEnv);
                     for (String s : predefinedPaths) {
                         info.addPredefinedCompletionsPath(s);
                     }
@@ -745,6 +750,12 @@ public class InterpreterInfo implements IInterpreterInfo {
         buffer.append("<executable>");
         buffer.append(escape(executableOrJar));
         buffer.append("</executable>\n");
+
+        if (activateCondaEnv) {
+            // Only add tag if actually true (otherwise, just omit it so that backward compatibility
+            // is preserved).
+            buffer.append("<activate_conda>true</activate_conda>\n");
+        }
 
         for (Iterator<String> iter = libs.iterator(); iter.hasNext();) {
             buffer.append("<lib>");
@@ -1816,6 +1827,8 @@ public class InterpreterInfo implements IInterpreterInfo {
 
     private volatile boolean loadFinished = true;
 
+    private boolean activateCondaEnv;
+
     public void setLoadFinished(boolean b) {
         this.loadFinished = b;
     }
@@ -1881,15 +1894,32 @@ public class InterpreterInfo implements IInterpreterInfo {
     }
 
     public static File searchExecutable(File pythonContainerDir, String executable) {
-        File target1 = new File(pythonContainerDir, executable);
-        if (target1.exists()) {
-            return target1;
+        if (PlatformUtils.isWindowsPlatform()) {
+            File target2 = new File(pythonContainerDir, executable + ".exe");
+            if (target2.exists()) {
+                return target2;
+            }
+            target2 = new File(pythonContainerDir, executable + ".bat");
+            if (target2.exists()) {
+                return target2;
+            }
+        } else {
+            File target1 = new File(pythonContainerDir, executable);
+            if (target1.exists()) {
+                return target1;
+            }
         }
 
-        File target2 = new File(pythonContainerDir, executable + ".exe");
-        if (target2.exists()) {
-            return target2;
-        }
         return null;
+    }
+
+    @Override
+    public boolean getActivateCondaEnv() {
+        return this.activateCondaEnv;
+    }
+
+    @Override
+    public void setActivateCondaEnv(boolean b) {
+        this.activateCondaEnv = b;
     }
 }

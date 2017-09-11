@@ -19,6 +19,10 @@ import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.python.pydev.ui.pythonpathconf.PythonInterpreterProviderFactory;
 
+import com.eclipsesource.json.JsonArray;
+import com.eclipsesource.json.JsonObject;
+import com.eclipsesource.json.JsonValue;
+
 public class CondaPackageManager extends AbstractPackageManager {
 
     public CondaPackageManager(InterpreterInfo interpreterInfo) {
@@ -40,23 +44,20 @@ public class CondaPackageManager extends AbstractPackageManager {
 
         String encoding = null; // use system encoding
         Tuple<String, String> output = new SimpleRunner().runAndGetOutput(
-                new String[] { condaExecutable.toString(), "list", "-p", prefix.toString() }, null, null, null,
+                new String[] { condaExecutable.toString(), "list", "-p", prefix.toString(), "--json" }, null, null,
+                null,
                 encoding);
 
-        List<String> splitInLines = StringUtils.splitInLines(output.o1, false);
-        for (String line : splitInLines) {
-            line = line.trim();
-            if (line.startsWith("#")) {
-                continue;
-            }
-            List<String> split = StringUtils.split(line, ' ');
-            if (split.size() == 3) {
-                String p0 = split.get(0).trim();
-                String p1 = split.get(1).trim();
-                String p2 = split.get(2).trim();
-
-                listed.add(new String[] { p0.trim(), p1.trim(), p2.trim() });
-            }
+        JsonValue readFrom = JsonValue.readFrom(output.o1);
+        JsonArray asArray = readFrom.asArray();
+        for (JsonValue value : asArray) {
+            JsonObject asObject = value.asObject();
+            JsonValue name = asObject.get("name");
+            JsonValue version = asObject.get("version");
+            JsonValue channel = asObject.get("channel");
+            JsonValue buildString = asObject.get("build_string");
+            listed.add(new String[] { name.asString(), version.asString(),
+                    StringUtils.join("", buildString.asString(), " (", channel.asString(), ")") });
         }
         return listed;
     }
@@ -126,7 +127,8 @@ public class CondaPackageManager extends AbstractPackageManager {
             @Override
             protected String[] getAvailableCommands() {
                 return new String[] {
-                        "install -p " + new File(interpreterInfo.getExecutableOrJar()).getParent() + " <package>"
+                        "install -p " + new File(interpreterInfo.getExecutableOrJar()).getParent() + " <package>",
+                        "uninstall -p " + new File(interpreterInfo.getExecutableOrJar()).getParent() + " <package>"
                 };
             }
 

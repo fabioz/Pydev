@@ -1,6 +1,7 @@
 package org.python.pydev.ui.pythonpathconf;
 
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -38,8 +39,12 @@ public class PackageTab {
     AbstractPackageManager packageManager;
     private Button btConda;
     private Button btPip;
+    // private Button checkUseConda;
 
-    public void createPackageControlTab(TabFolder tabFolder) {
+    /**
+     * @param exeOrJarOfInterpretersToRestore if the info is changed, the executable should be added to exeOrJarOfInterpretersToRestore.
+     */
+    public void createPackageControlTab(TabFolder tabFolder, Set<String> exeOrJarOfInterpretersToRestore) {
         Composite parent;
         GridData gd;
         TabItem tabItem = new TabItem(tabFolder, SWT.None);
@@ -93,6 +98,20 @@ public class PackageTab {
                     packageManager.manage();
                 }
             });
+            // Commented out for now (needs more time to properly integrate).
+            // In this case we'd do wrappers and launch using them instead of launching Python itself -- see:
+            // https://github.com/gqmelo/exec-wrappers/blob/master/exec_wrappers/templates/conda/run-in.bat
+            // https://github.com/gqmelo/exec-wrappers/blob/master/exec_wrappers/templates/conda/run-in
+            //
+            // checkUseConda = new Button(boxPackage, SWT.CHECK);
+            // checkUseConda.setSelection(interpreterInfo.getActivateCondaEnv());
+            // checkUseConda.setText("Activate conda env before run?");
+            // checkUseConda.addSelectionListener(new SelectionAdapter() {
+            //     @Override
+            //     public void widgetSelected(SelectionEvent e) {
+            //         interpreterInfo.setActivateCondaEnv(checkUseConda.getSelection());
+            //     }
+            // });
         } else {
             checkParent(boxPackage, parent);
         }
@@ -149,6 +168,7 @@ public class PackageTab {
         tree.setItemCount(0);
         btConda.setEnabled(false);
         btPip.setEnabled(false);
+        // checkUseConda.setEnabled(false);
     }
 
     private class ListJob extends Job {
@@ -179,6 +199,7 @@ public class PackageTab {
                 btPip.setEnabled(true);
                 if (packageManager instanceof CondaPackageManager) {
                     btConda.setEnabled(true);
+                    // checkUseConda.setEnabled(true);
                 }
             });
             return Status.OK_STATUS;

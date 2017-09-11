@@ -136,4 +136,7 @@ public interface IInterpreterInfo {
      */
     File searchExecutableForInterpreter(String executable, boolean recursive) throws UnableToFindExecutableException;
 
+    public boolean getActivateCondaEnv();
+
+    void setActivateCondaEnv(boolean b);
 }

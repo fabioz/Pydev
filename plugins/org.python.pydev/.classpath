@@ -4,6 +4,7 @@
 	<classpathentry kind="src" path="tests"/>
 	<classpathentry kind="src" path="tests_navigator"/>
 	<classpathentry kind="src" path="src_navigator"/>
+	<classpathentry kind="src" path="src_json"/>
 	<classpathentry kind="src" path="src_completions"/>
 	<classpathentry kind="src" path="tests_completions"/>
 	<classpathentry kind="src" path="tests_dltk_console"/>

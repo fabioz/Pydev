@@ -136,10 +136,10 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
         return nameToInfo;
     }
 
-    private Set<String> exeOrJarOfInterpretersToRestore = new HashSet<String>();
-    private Set<String> exeOrJarOfInterpretersWithBuiltinsChanged = new HashSet<String>();
-    private Set<String> exeOrJarOfInterpretersWithPredefinedChanged = new HashSet<String>();
-    private Set<String> exeOrJarOfInterpretersWithStringSubstitutionChanged = new HashSet<String>();
+    private final Set<String> exeOrJarOfInterpretersToRestore = new HashSet<String>();
+    private final Set<String> exeOrJarOfInterpretersWithBuiltinsChanged = new HashSet<String>();
+    private final Set<String> exeOrJarOfInterpretersWithPredefinedChanged = new HashSet<String>();
+    private final Set<String> exeOrJarOfInterpretersWithStringSubstitutionChanged = new HashSet<String>();
 
     private void clearInfos() {
         nameToInfo.clear();
@@ -391,7 +391,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
         gd.horizontalSpan = numColumns;
         tabFolder.setLayoutData(gd);
 
-        packageTab.createPackageControlTab(tabFolder);
+        packageTab.createPackageControlTab(tabFolder, exeOrJarOfInterpretersToRestore);
 
         createTreeLibsControlTab();
 
