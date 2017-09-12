@@ -837,21 +837,21 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * @throws CoreException
      */
     @Override
-    public String getVersion() throws CoreException {
-        return getVersionAndError().o1;
+    public String getVersion(boolean translateIfInterpreter) throws CoreException {
+        return getVersionAndError(translateIfInterpreter).o1;
     }
 
-    private Tuple<String, String> getVersionAndError() throws CoreException {
+    private Tuple<String, String> getVersionAndError(boolean translateIfInterpreter) throws CoreException {
         if (project != null) {
             if (versionPropertyCache == null) {
                 String storeVersion = getStore().getPropertyFromXml(getPythonProjectVersionQualifiedName());
                 if (storeVersion == null) { //there is no such property set (let's set it to the default)
-                    setVersion(getDefaultVersion(), null); //will set the versionPropertyCache too
+                    setVersion(getDefaultVersion(false), null); //will set the versionPropertyCache too
                 } else {
                     //now, before returning and setting in the cache, let's make sure it's a valid version.
                     if (!IPythonNature.Versions.ALL_VERSIONS_ANY_FLAVOR.contains(storeVersion)) {
                         Log.log("The stored version is invalid (" + storeVersion + "). Setting default.");
-                        setVersion(getDefaultVersion(), null); //will set the versionPropertyCache too
+                        setVersion(getDefaultVersion(false), null); //will set the versionPropertyCache too
                     } else {
                         //Ok, it's correct.
                         versionPropertyCache = storeVersion;
@@ -861,18 +861,40 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         } else {
             String msg = "Trying to get version without project set. Returning default.";
             Log.log(msg);
-            return new Tuple<String, String>(getDefaultVersion(), msg);
+            return new Tuple<String, String>(getDefaultVersion(translateIfInterpreter), msg);
         }
 
         if (versionPropertyCache == null) {
             String msg = "The cached version is null. Returning default.";
             Log.log(msg);
-            return new Tuple<String, String>(getDefaultVersion(), msg);
+            return new Tuple<String, String>(getDefaultVersion(translateIfInterpreter), msg);
 
         } else if (!IPythonNature.Versions.ALL_VERSIONS_ANY_FLAVOR.contains(versionPropertyCache)) {
             String msg = "The cached version (" + versionPropertyCache + ") is invalid. Returning default.";
             Log.log(msg);
-            return new Tuple<String, String>(getDefaultVersion(), msg);
+            return new Tuple<String, String>(getDefaultVersion(translateIfInterpreter), msg);
+        }
+        if (translateIfInterpreter && versionPropertyCache.endsWith(IPythonNature.Versions.INTERPRETER_VERSION)) {
+            Tuple<String, String> split = StringUtils.splitOnFirst(versionPropertyCache, ' ');
+            String errorMessage;
+            try {
+                IInterpreterInfo info = this.getProjectInterpreter();
+                String version = info.getVersion();
+                if (version != null) {
+                    return new Tuple<String, String>(IPythonNature.Versions
+                            .convertToInternalVersion(new FastStringBuffer(split.o1, 6).append(' '), version),
+                            null);
+                } else {
+                    errorMessage = "Unable to get version from interpreter info: " + info.getNameForUI() + " - "
+                            + info.getExecutableOrJar();
+                    Log.log(errorMessage);
+                }
+            } catch (MisconfigurationException | PythonNatureWithoutProjectException e) {
+                Log.log(e);
+                errorMessage = e.getMessage();
+            }
+            return new Tuple<String, String>(split.o1 + " " + "2.7",
+                    errorMessage + " (in project: " + getProject() + ")");
         }
         return new Tuple<String, String>(versionPropertyCache, null);
     }
@@ -982,9 +1004,15 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         }
     }
 
-    @Override
-    public String getDefaultVersion() {
-        return PYTHON_VERSION_LATEST;
+    private String getDefaultVersion(boolean translateIfInterpreter) {
+        // Note: can't get type (it'd recurse).
+        if (translateIfInterpreter) {
+            return IPythonNature.Versions.PYTHON_VERSION_LATEST;
+
+        } else {
+            return IPythonNature.PYTHON_VERSION_INTERPRETER;
+
+        }
     }
 
     @Override
@@ -1009,7 +1037,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     @Override
     public int getInterpreterType() throws CoreException {
         if (interpreterType == null) {
-            String version = getVersion();
+            String version = getVersion(false);
             interpreterType = getInterpreterTypeFromVersion(version);
         }
 
@@ -1018,19 +1046,19 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     }
 
     public static int getInterpreterTypeFromVersion(String version) throws CoreException {
-        int interpreterType;
-        if (IPythonNature.Versions.ALL_JYTHON_VERSIONS.contains(version)) {
-            interpreterType = INTERPRETER_TYPE_JYTHON;
-
-        } else if (IPythonNature.Versions.ALL_IRONPYTHON_VERSIONS.contains(version)) {
-            interpreterType = INTERPRETER_TYPE_IRONPYTHON;
-
-        } else {
-            //if others fail, consider it python
-            interpreterType = INTERPRETER_TYPE_PYTHON;
+        if (version.startsWith(IPythonNature.Versions.PYTHON_PREFIX)) {
+            return INTERPRETER_TYPE_PYTHON;
         }
 
-        return interpreterType;
+        if (version.startsWith(IPythonNature.Versions.JYTHON_PREFIX)) {
+            return INTERPRETER_TYPE_JYTHON;
+        }
+
+        if (version.startsWith(IPythonNature.Versions.IRONYTHON_PREFIX)) {
+            return INTERPRETER_TYPE_IRONPYTHON;
+        }
+        //if others fail, consider it python
+        return INTERPRETER_TYPE_PYTHON;
     }
 
     /**
@@ -1173,7 +1201,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     @Override
     public int getGrammarVersion() {
         try {
-            String version = getVersion();
+            String version = getVersion(true);
             if (version == null) {
                 Log.log("Found null version. Returning default.");
                 return LATEST_GRAMMAR_VERSION;
@@ -1401,7 +1429,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 }
             }
 
-            Tuple<String, String> versionAndError = getVersionAndError();
+            Tuple<String, String> versionAndError = getVersionAndError(true);
             if (versionAndError.o2 != null) {
                 lst.add(new ProjectConfigError(relatedToProject, org.python.pydev.shared_core.string.StringUtils
                         .replaceNewLines(versionAndError.o2, " ")));

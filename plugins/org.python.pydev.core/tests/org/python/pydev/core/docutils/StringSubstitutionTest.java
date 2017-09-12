@@ -122,11 +122,6 @@ public class StringSubstitutionTest extends TestCase {
             }
 
             @Override
-            public String getDefaultVersion() {
-                throw new RuntimeException("Not implemented");
-            }
-
-            @Override
             public boolean isOkToUse() {
                 throw new RuntimeException("Not implemented");
             }
@@ -243,7 +238,7 @@ public class StringSubstitutionTest extends TestCase {
             }
 
             @Override
-            public String getVersion() throws CoreException {
+            public String getVersion(boolean translateIfInterpreter) throws CoreException {
                 throw new RuntimeException("Not implemented");
             }
 

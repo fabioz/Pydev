@@ -55,11 +55,6 @@ public class PythonNatureStub implements IPythonNature, IAdaptable {
     }
 
     @Override
-    public String getDefaultVersion() {
-        throw new RuntimeException("Not implemented");
-    }
-
-    @Override
     public IPythonPathNature getPythonPathNature() {
         throw new RuntimeException("Not implemented");
     }
@@ -75,7 +70,7 @@ public class PythonNatureStub implements IPythonNature, IAdaptable {
     }
 
     @Override
-    public String getVersion() throws CoreException {
+    public String getVersion(boolean translateIfInterpreter) throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 

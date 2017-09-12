@@ -21,8 +21,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
-import junit.framework.TestCase;
-
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;
@@ -43,6 +41,8 @@ import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.net.SocketUtil;
 import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
+
+import junit.framework.TestCase;
 
 /**
  * The purpose of this test is to verify the pydevconsole + pydevd works. This
@@ -78,14 +78,10 @@ public class PydevConsoleDebugCommsTest extends TestCase {
         String[] cmdarray = new String[] { TestDependent.PYTHON_EXE, consoleFile, String.valueOf(port),
                 String.valueOf(clientPort) };
 
-        Map<String, String> env = new TreeMap<String, String>();
+        Map<String, String> env = new TreeMap<String, String>(System.getenv()); //SystemRoot/PATH Needed on windows boxes (so, start from default env).
         env.put("HOME", homeDir.toString());
         env.put("PYTHONPATH", pydevdDir);
         env.put("PYTHONIOENCODING", "utf-8");
-        String sysRoot = System.getenv("SystemRoot");
-        if (sysRoot != null) {
-            env.put("SystemRoot", sysRoot); //Needed on windows boxes (random/socket. module needs it to work).
-        }
 
         String[] envp = new String[env.size()];
         int i = 0;

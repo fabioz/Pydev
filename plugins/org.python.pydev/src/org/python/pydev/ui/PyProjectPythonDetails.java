@@ -73,6 +73,7 @@ public class PyProjectPythonDetails extends PropertyPage {
      * correct interpreter and grammar.
      */
     public static class ProjectInterpreterAndGrammarConfig {
+        private static final String DEFAULT_PREFIX = IPythonNature.DEFAULT_INTERPRETER + "  --  currently: ";
         private static final String INTERPRETER_NOT_CONFIGURED_MSG = "<a>Please configure an interpreter before proceeding.</a>";
         public Button radioPy;
         public Button radioJy;
@@ -186,7 +187,8 @@ public class PyProjectPythonDetails extends PropertyPage {
                     IInterpreterInfo[] interpretersInfo = interpreterManager.getInterpreterInfos();
                     if (interpretersInfo.length > 0) {
                         ArrayList<String> interpretersWithDefault = new ArrayList<String>();
-                        interpretersWithDefault.add(IPythonNature.DEFAULT_INTERPRETER);
+                        String defaultEntry = DEFAULT_PREFIX + interpretersInfo[0].getName();
+                        interpretersWithDefault.add(defaultEntry);
                         for (IInterpreterInfo info : interpretersInfo) {
                             interpretersWithDefault.add(info.getName());
                         }
@@ -194,7 +196,7 @@ public class PyProjectPythonDetails extends PropertyPage {
 
                         interpretersChoice.setVisible(true);
                         interpreterNoteText.setText("<a>Click here to configure an interpreter not listed.</a>");
-                        interpretersChoice.setText(IPythonNature.DEFAULT_INTERPRETER);
+                        interpretersChoice.setText(defaultEntry);
 
                     } else {
                         interpretersChoice.setVisible(false);
@@ -381,12 +383,16 @@ public class PyProjectPythonDetails extends PropertyPage {
             if (INTERPRETER_NOT_CONFIGURED_MSG.equals(interpreterNoteText.getText())) {
                 return null;
             }
-            return interpretersChoice.getText();
+            String ret = interpretersChoice.getText();
+            if (ret.startsWith(DEFAULT_PREFIX)) {
+                return IPythonNature.DEFAULT_INTERPRETER;
+            }
+            return ret;
         }
 
         public void setDefaultSelection() {
             radioPy.setSelection(true);
-            comboGrammarVersion.setText(numberToUi(IPythonNature.Versions.LAST_VERSION_NUMBER));
+            comboGrammarVersion.setText(numberToUi(IPythonNature.Versions.INTERPRETER_VERSION));
             //Just to update things
             this.selectionListener.widgetSelected(null);
         }
@@ -402,6 +408,9 @@ public class PyProjectPythonDetails extends PropertyPage {
     }
 
     static String numberFromUi(String s) {
+        if ("Same as interpreter".equals(s)) {
+            return IPythonNature.Versions.INTERPRETER_VERSION;
+        }
         if ("3.0 - 3.5".equals(s)) {
             s = "3.0";
         }
@@ -409,6 +418,9 @@ public class PyProjectPythonDetails extends PropertyPage {
     }
 
     static String numberToUi(String s) {
+        if (IPythonNature.Versions.INTERPRETER_VERSION.equals(s)) {
+            return "Same as interpreter";
+        }
         if ("3.0".equals(s)) {
             s = "3.0 - 3.5";
         }
@@ -455,18 +467,20 @@ public class PyProjectPythonDetails extends PropertyPage {
         PythonNature pythonNature = PythonNature.getPythonNature(getProject());
         try {
             //Set whether it's Python/Jython
-            String version = pythonNature.getVersion();
-            if (IPythonNature.Versions.ALL_PYTHON_VERSIONS.contains(version)) {
+            String version = pythonNature.getVersion(false);
+            if (version.startsWith(IPythonNature.Versions.PYTHON_PREFIX)) {
                 projectConfig.radioPy.setSelection(true);
 
-            } else if (IPythonNature.Versions.ALL_IRONPYTHON_VERSIONS.contains(version)) {
-                projectConfig.radioIron.setSelection(true);
-
-            } else if (IPythonNature.Versions.ALL_JYTHON_VERSIONS.contains(version)) {
+            } else if (version.startsWith(IPythonNature.Versions.JYTHON_PREFIX)) {
                 projectConfig.radioJy.setSelection(true);
+
+            } else if (version.startsWith(IPythonNature.Versions.IRONYTHON_PREFIX)) {
+                projectConfig.radioIron.setSelection(true);
+            } else {
+                Log.log("Could not recognize version: " + version + " for project: " + getProject());
             }
 
-            //We must set the grammar version too (that's from a string in the format "Python 2.4" and we only want
+            //We must set the grammar version too (that's from a string in the format "Python 2.4" or "Python interpreter" and we only want
             //the version).
             String v = StringUtils.split(version, ' ').get(1);
             projectConfig.comboGrammarVersion.setText(numberToUi(v));

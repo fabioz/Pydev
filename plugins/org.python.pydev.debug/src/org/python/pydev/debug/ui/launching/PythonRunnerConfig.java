@@ -286,7 +286,8 @@ public class PythonRunnerConfig {
                                 + "<< is not configured in the pydev preferences as a valid interpreter (null nature).");
                     } else {
                         throw new InvalidRunException("Error. The interpreter: >>" + location
-                                + "<< is not configured in the pydev preferences as a valid '" + nature.getVersion()
+                                + "<< is not configured in the pydev preferences as a valid '"
+                                + nature.getVersion(false)
                                 + "' interpreter.");
                     }
                 }

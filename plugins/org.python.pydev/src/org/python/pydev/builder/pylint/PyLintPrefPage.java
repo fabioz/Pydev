@@ -101,6 +101,8 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
 
     private RadioGroupFieldEditor searchPyLintLocation;
 
+    private Composite parent;
+
     public PyLintPrefPage() {
         super(FLAT);
         setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
@@ -114,46 +116,49 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
      */
     @Override
     protected void createFieldEditors() {
-        final Composite p = getFieldEditorParent();
+        parent = getFieldEditorParent();
 
-        addField(new BooleanFieldEditor(USE_PYLINT, "Use PyLint?", p));
-        addField(new BooleanFieldEditor(USE_CONSOLE, "Redirect PyLint output to console?", p));
+        addField(new BooleanFieldEditor(USE_PYLINT, "Use PyLint?", parent));
+        addField(new BooleanFieldEditor(USE_CONSOLE, "Redirect PyLint output to console?", parent));
         searchPyLintLocation = new RadioGroupFieldEditor(SEARCH_PYLINT_LOCATION,
-                "PyLint to use", 2, SEARCH_PYLINT_LOCATION_OPTIONS, p);
+                "PyLint to use", 2, SEARCH_PYLINT_LOCATION_OPTIONS, parent);
 
         for (Button b : searchPyLintLocation.getRadioButtons()) {
             b.addSelectionListener(new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent e) {
-                    updateSelectFileEnablement(p);
+                    updateSelectFileEnablement(parent);
                 }
             });
         }
 
         addField(searchPyLintLocation);
         fileField = new FileFieldEditor(PYLINT_FILE_LOCATION, "Location of the pylint executable:",
-                true, p);
+                true, parent);
         addField(fileField);
 
-        addField(new RadioGroupFieldEditor(SEVERITY_FATAL, "FATAL Severity", COLS, LABEL_AND_VALUE, p, true));
+        addField(new RadioGroupFieldEditor(SEVERITY_FATAL, "FATAL Severity", COLS, LABEL_AND_VALUE, parent, true));
 
-        addField(new RadioGroupFieldEditor(SEVERITY_ERRORS, "ERRORS Severity", COLS, LABEL_AND_VALUE, p, true));
+        addField(new RadioGroupFieldEditor(SEVERITY_ERRORS, "ERRORS Severity", COLS, LABEL_AND_VALUE, parent, true));
 
-        addField(new RadioGroupFieldEditor(SEVERITY_WARNINGS, "WARNINGS Severity", COLS, LABEL_AND_VALUE, p, true));
+        addField(
+                new RadioGroupFieldEditor(SEVERITY_WARNINGS, "WARNINGS Severity", COLS, LABEL_AND_VALUE, parent, true));
 
-        addField(new RadioGroupFieldEditor(SEVERITY_CODING_STANDARD, "CONVENTIONS Severity", COLS, LABEL_AND_VALUE, p,
+        addField(new RadioGroupFieldEditor(SEVERITY_CODING_STANDARD, "CONVENTIONS Severity", COLS, LABEL_AND_VALUE,
+                parent,
                 true));
 
-        addField(new RadioGroupFieldEditor(SEVERITY_REFACTOR, "REFACTOR Severity", COLS, LABEL_AND_VALUE, p, true));
+        addField(
+                new RadioGroupFieldEditor(SEVERITY_REFACTOR, "REFACTOR Severity", COLS, LABEL_AND_VALUE, parent, true));
 
         CustomizableFieldEditor stringFieldEditor = new CustomizableFieldEditor(PYLINT_ARGS,
                 "Arguments to pass to the pylint command (customize its output):\n"
                         + "Add --rcfile=.pylintrc to use an rcfile relative to the project directory.",
-                p);
+                parent);
         addField(stringFieldEditor);
         addField(new LinkFieldEditor("PYLINT_HELP",
                 "View <a>http://www.pydev.org/manual_adv_pylint.html</a> for help.",
-                p,
+                parent,
                 new SelectionListener() {
 
                     @Override
@@ -166,7 +171,12 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
                     }
                 }));
 
-        updateSelectFileEnablement(p);
+    }
+
+    @Override
+    protected void initialize() {
+        super.initialize();
+        updateSelectFileEnablement(parent);
     }
 
     protected void updateSelectFileEnablement(Composite p) {

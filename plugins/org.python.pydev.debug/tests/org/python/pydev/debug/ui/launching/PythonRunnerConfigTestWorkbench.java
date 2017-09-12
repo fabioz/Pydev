@@ -12,9 +12,6 @@ package org.python.pydev.debug.ui.launching;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
@@ -33,6 +30,9 @@ import org.python.pydev.editor.codecompletion.revisited.javaintegration.Abstract
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 /**
  * Tests for {@link PythonRunnerConfig}
@@ -118,7 +118,7 @@ public class PythonRunnerConfigTestWorkbench extends AbstractWorkbenchTestCase {
             assertFalse(arrayContains(argv, PythonRunnerConfig.getRunFilesScript()));
             assertTrue(arrayContains(argv, mod1.getLocation().toOSString()));
 
-            nature.setVersion(IPythonNature.PYTHON_VERSION_LATEST, IPythonNature.DEFAULT_INTERPRETER);
+            nature.setVersion(IPythonNature.Versions.PYTHON_VERSION_LATEST, IPythonNature.DEFAULT_INTERPRETER);
             assertEquals(manager.getDefaultInterpreterInfo(false).getExecutableOrJar(), nature.getProjectInterpreter()
                     .getExecutableOrJar());
             runnerConfig = createConfig();
@@ -131,12 +131,12 @@ public class PythonRunnerConfigTestWorkbench extends AbstractWorkbenchTestCase {
                     new ArrayList<String>());
             interpreterManager.setInfos(new IInterpreterInfo[] { info, info2 }, null, null);
 
-            nature.setVersion(IPythonNature.PYTHON_VERSION_LATEST, "c:\\interpreter\\py25.exe");
+            nature.setVersion(IPythonNature.Versions.PYTHON_VERSION_LATEST, "c:\\interpreter\\py25.exe");
             assertEquals("c:\\interpreter\\py25.exe", nature.getProjectInterpreter().getExecutableOrJar());
             runnerConfig = createConfig();
             argv = runnerConfig.getCommandLine(false);
             assertEquals("c:\\interpreter\\py25.exe", argv[0]);
-            nature.setVersion(IPythonNature.PYTHON_VERSION_LATEST, IPythonNature.DEFAULT_INTERPRETER);
+            nature.setVersion(IPythonNature.Versions.PYTHON_VERSION_LATEST, IPythonNature.DEFAULT_INTERPRETER);
 
             ILaunchConfiguration config;
             config = new LaunchShortcut().createDefaultLaunchConfiguration(FileOrResource
@@ -158,7 +158,7 @@ public class PythonRunnerConfigTestWorkbench extends AbstractWorkbenchTestCase {
             throw new RuntimeException(e);
         } finally {
             //restore the default!
-            nature.setVersion(IPythonNature.PYTHON_VERSION_LATEST, IPythonNature.DEFAULT_INTERPRETER);
+            nature.setVersion(IPythonNature.Versions.PYTHON_VERSION_LATEST, IPythonNature.DEFAULT_INTERPRETER);
             variableManager.removeVariables(new IValueVariable[] { myCustomVariable });
         }
     }

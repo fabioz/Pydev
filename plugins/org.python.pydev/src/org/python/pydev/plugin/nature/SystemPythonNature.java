@@ -27,6 +27,7 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PropertiesHelper;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.SystemASTManager;
 import org.python.pydev.shared_core.structure.OrderedMap;
 
@@ -173,36 +174,43 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
     }
 
     @Override
-    public String getVersion() throws CoreException {
-        if (this.info != null) {
-            String version = this.info.getVersion();
-            if (version != null && version.startsWith("3")) {
-                switch (this.manager.getInterpreterType()) {
+    public String getVersion(boolean translateIfInterpreter) throws CoreException {
+        if (!translateIfInterpreter) {
+            switch (this.manager.getInterpreterType()) {
+                case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
+                    return IPythonNature.PYTHON_VERSION_INTERPRETER;
 
-                    case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
-                        return IPythonNature.PYTHON_VERSION_3_0;
+                case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
+                    return IPythonNature.JYTHON_VERSION_INTERPRETER;
 
-                    case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
-                        return IPythonNature.JYTHON_VERSION_3_0;
+                case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
+                    return IPythonNature.IRONPYTHON_VERSION_INTERPRETER;
 
-                    case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
-                        return IPythonNature.PYTHON_VERSION_3_0;
-
-                    default:
-                        throw new RuntimeException("Not Python nor Jython nor IronPython?");
-                }
+                default:
+                    throw new RuntimeException("Not Python nor Jython nor IronPython?");
             }
         }
-        switch (this.manager.getInterpreterType()) {
+        if (this.info != null) {
+            String version = this.info.getVersion();
+            if (version != null) {
+                return IPythonNature.Versions.convertToInternalVersion(this.manager.getInterpreterType(), version);
+            } else {
+                Log.log("Unable to get version from interpreter info: " + this.info.getNameForUI() + " - "
+                        + this.info.getExecutableOrJar());
+            }
+        }
 
+        // Last fallback (we should almost never get here).
+
+        switch (this.manager.getInterpreterType()) {
             case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
-                return IPythonNature.PYTHON_VERSION_LATEST;
+                return IPythonNature.Versions.PYTHON_VERSION_LATEST;
 
             case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
-                return IPythonNature.JYTHON_VERSION_LATEST;
+                return IPythonNature.Versions.JYTHON_VERSION_LATEST;
 
             case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
-                return IPythonNature.PYTHON_VERSION_LATEST;
+                return IPythonNature.Versions.IRONPYTHON_VERSION_LATEST;
 
             default:
                 throw new RuntimeException("Not Python nor Jython nor IronPython?");
@@ -212,15 +220,6 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
     @Override
     public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException {
         return null;
-    }
-
-    @Override
-    public String getDefaultVersion() {
-        try {
-            return getVersion();
-        } catch (CoreException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Override
