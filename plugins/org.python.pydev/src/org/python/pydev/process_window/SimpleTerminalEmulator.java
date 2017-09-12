@@ -2,11 +2,13 @@ package org.python.pydev.process_window;
 
 import java.util.List;
 
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Text;
-import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_ui.FontUtils;
+import org.python.pydev.shared_ui.IFontUsage;
 
 /**
  * This class is a helper to emulate a terminal in a Text component (right now only deals with \r and \n).
@@ -21,7 +23,13 @@ public class SimpleTerminalEmulator {
     }
 
     public SimpleTerminalEmulator(Composite composite, int flags) {
-        this(createTextWrapper(new Text(composite, flags)));
+        this(createTextWrapper(createText(composite, flags)));
+    }
+
+    private static Text createText(Composite composite, int flags) {
+        Text text = new Text(composite, flags);
+        text.setFont(new Font(composite.getDisplay(), FontUtils.getFontData(IFontUsage.STYLED, true)));
+        return text;
     }
 
     private static ITextWrapper createTextWrapper(final Text text) {
@@ -64,8 +72,10 @@ public class SimpleTerminalEmulator {
     }
 
     public void processText(String contents) {
-        List<String> splitInLines = StringUtils.splitInLines(contents, true);
+        List<String> splitInLines = StringUtils.splitInLines(contents, false);
         for (String line : splitInLines) {
+            output.append(line);
+            output.append("\n");
             // System.out.println("start line ---");
             // char[] charArray = line.toCharArray();
             // for (char c : charArray) {
@@ -83,30 +93,30 @@ public class SimpleTerminalEmulator {
             //     }
             // }
             // System.out.println("end line ---");
-            if (line.endsWith("\r")) {
-                // Work as a terminal emulator and go to the start of the line
-                char[] textChars = output.getTextChars();
-                FastStringBuffer buf = new FastStringBuffer(textChars);
-                while (buf.length() > 0 && !buf.endsWith('\n')) {
-                    buf.deleteLast();
-                }
-                cursor = buf.length();
-                output.append(line.substring(0, line.length() - 1));
-            } else {
-                String text = output.getText();
-                if (text.length() == cursor) {
-                    output.append(line);
-                    cursor += line.length();
-                } else if (line.equals("\r\n") || line.equals("\n")) {
-                    cursor = text.length() + line.length();
-                    output.append(line);
-                } else {
-                    text = text.substring(0, cursor);
-                    text += line;
-                    output.setText(text);
-                    cursor = text.length();
-                }
-            }
+            // if (line.endsWith("\r")) {
+            //     // Work as a terminal emulator and go to the start of the line
+            //     char[] textChars = output.getTextChars();
+            //     FastStringBuffer buf = new FastStringBuffer(textChars);
+            //     while (buf.length() > 0 && !buf.endsWith('\n')) {
+            //         buf.deleteLast();
+            //     }
+            //     cursor = buf.length();
+            //     output.append(line.substring(0, line.length() - 1));
+            // } else {
+            //     String text = output.getText();
+            //     if (text.length() == cursor) {
+            //         output.append(line);
+            //         cursor += line.length();
+            //     } else if (line.equals("\r\n") || line.equals("\n")) {
+            //         cursor = text.length() + line.length();
+            //         output.append(line);
+            //     } else {
+            //         text = text.substring(0, cursor);
+            //         text += line;
+            //         output.setText(text);
+            //         cursor = text.length();
+            //     }
+            // }
         }
     }
 }

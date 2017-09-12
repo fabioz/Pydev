@@ -6,7 +6,7 @@
  */
 /*
  * Created on 04/08/2005
- * 
+ *
  * @author Fabio Zadrozny
  */
 package org.python.pydev.ui.pythonpathconf;
@@ -35,6 +35,11 @@ public class JythonInterpreterEditor extends AbstractInterpreterEditor {
     @Override
     public InterpreterType getInterpreterType() {
         return InterpreterType.JYTHON;
+    }
+
+    @Override
+    protected boolean getShowPackageTab() {
+        return false;
     }
 
 }

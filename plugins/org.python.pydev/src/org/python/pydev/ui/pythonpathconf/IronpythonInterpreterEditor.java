@@ -36,4 +36,9 @@ public class IronpythonInterpreterEditor extends AbstractInterpreterEditor {
         return InterpreterType.IRONPYTHON;
     }
 
+    @Override
+    protected boolean getShowPackageTab() {
+        return false;
+    }
+
 }

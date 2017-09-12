@@ -38,4 +38,9 @@ public class PythonInterpreterEditor extends AbstractInterpreterEditor {
         this.autoConfigButton.setToolTipText("Will try to find Python on the PATH (will fail if not available)");
     }
 
+    @Override
+    protected boolean getShowPackageTab() {
+        return true;
+    }
+
 }

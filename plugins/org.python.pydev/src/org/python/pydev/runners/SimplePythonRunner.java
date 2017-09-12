@@ -50,7 +50,7 @@ public class SimplePythonRunner extends SimpleRunner {
      */
     public Tuple<String, String> runAndGetOutputFromPythonScript(String interpreter, String script, String[] args,
             File workingDir, IProject project) {
-        String[] parameters = addInterpreterToArgs(interpreter, script, args);
+        String[] parameters = preparePythonCallParameters(interpreter, script, args);
         return runAndGetOutput(parameters, workingDir, PythonNature.getPythonNature(project),
                 new NullProgressMonitor(), null);
     }
@@ -61,16 +61,12 @@ public class SimplePythonRunner extends SimpleRunner {
      * @return the string with the command to run the passed script with jython
      */
     public static String[] makeExecutableCommandStr(String interpreter, String script, String[] args) {
-        String[] s = addInterpreterToArgs(interpreter, script, args);
+        String[] s = preparePythonCallParameters(interpreter, script, args);
 
         List<String> asList = new ArrayList<String>(Arrays.asList(s));
         asList.addAll(Arrays.asList(args));
 
         return asList.toArray(new String[0]);
-    }
-
-    private static String[] addInterpreterToArgs(String interpreter, String script, String[] args) {
-        return preparePythonCallParameters(interpreter, script, args);
     }
 
     /**

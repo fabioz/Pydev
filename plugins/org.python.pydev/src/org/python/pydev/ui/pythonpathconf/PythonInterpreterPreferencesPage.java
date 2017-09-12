@@ -6,7 +6,7 @@
  */
 /*
  * Created on 08/08/2005
- * 
+ *
  * @author Fabio Zadrozny
  */
 package org.python.pydev.ui.pythonpathconf;
@@ -26,7 +26,7 @@ public class PythonInterpreterPreferencesPage extends AbstractInterpreterPrefere
      * @return the title that should be used above the interpreters editor.
      */
     protected String getInterpretersTitle() {
-        return "Python interpreters (e.g.: python.exe).   Double-click to rename.";
+        return "Python interpreters (e.g.: python.exe, pypy.exe).   Double-click to rename.";
     }
 
     /**

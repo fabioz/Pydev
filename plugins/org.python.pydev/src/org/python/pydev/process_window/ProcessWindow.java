@@ -424,7 +424,7 @@ public abstract class ProcessWindow extends Dialog {
 
     @Override
     protected void constrainShellSize() {
-        getShell().setSize(640, 480);
+        getShell().setSize(800, 600);
         super.constrainShellSize();
     }
 
@@ -470,6 +470,7 @@ public abstract class ProcessWindow extends Dialog {
             commandToExecute.setEnabled(false);
             cancelButton.setEnabled(false);
             okButton.setText(CANCEL_LABEL);
+            sendToText.setFocus();
         } else {
             //We're running... this means it meant a cancel.
             cancelRun();

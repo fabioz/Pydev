@@ -35,6 +35,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
@@ -52,8 +53,10 @@ import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.runners.SimpleRunner;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.process.ProcessUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -438,6 +441,9 @@ public class InterpreterInfo implements IInterpreterInfo {
                             if (!stringSubstitutionVars.containsKey(entry.getKey())) {
                                 stringSubstitutionVars.setProperty(entry.getKey(), entry.getValue());
                             }
+                        }
+                        if (infoVersion != null && !stringSubstitutionVars.containsKey("PY")) {
+                            stringSubstitutionVars.setProperty("PY", StringUtils.replaceAll(infoVersion, ".", ""));
                         }
                     }
 
@@ -1595,19 +1601,69 @@ public class InterpreterInfo implements IInterpreterInfo {
 
     @Override
     public String[] updateEnv(String[] env, Set<String> keysThatShouldNotBeUpdated) {
-        if (this.envVariables == null || this.envVariables.length == 0) {
+        boolean hasEnvVarsToUpdate = this.envVariables != null && this.envVariables.length >= 0;
+        if (!hasEnvVarsToUpdate && !this.activateCondaEnv) {
             return env; //nothing to change
         }
+
         //Ok, it's not null...
         //let's merge them (env may be null/zero-length but we need to apply variable resolver to envVariables anyway)
-        HashMap<String, String> hashMap = new HashMap<String, String>();
+        Map<String, String> computedMap = new HashMap<String, String>();
 
-        fillMapWithEnv(env, hashMap, null, null);
-        fillMapWithEnv(envVariables, hashMap, keysThatShouldNotBeUpdated, getStringVariableManager()); //will override the keys already there unless they're in keysThatShouldNotBeUpdated
+        fillMapWithEnv(env, computedMap, null, null);
+        if (this.activateCondaEnv) {
+            File condaPrefix = new File(this.getExecutableOrJar()).getParentFile();
+            if (new File(condaPrefix, "/etc/conda/activate.d").exists()) {
+                try {
+                    String[] cmdLine;
+                    File relativePath;
+                    Path loadVarsPath;
 
-        String[] ret = createEnvWithMap(hashMap);
+                    if (PlatformUtils.isWindowsPlatform()) {
+                        loadVarsPath = new Path("helpers/load-conda-vars.bat");
+                        relativePath = PydevPlugin.getBundleInfo().getRelativePath(loadVarsPath);
+                        cmdLine = new String[] { "cmd", "/c", relativePath.toString() };
+                    } else {
+                        loadVarsPath = new Path("helpers/load-conda-vars");
+                        relativePath = PydevPlugin.getBundleInfo().getRelativePath(loadVarsPath);
+                        cmdLine = new String[] { relativePath.toString() };
+                    }
+                    Map<String, String> initialEnv = new HashMap<>(computedMap);
+                    initialEnv.put("__PYDEV_CONDA_PREFIX__", condaPrefix.toString());
+                    initialEnv.put("__PYDEV_CONDA_DEFAULT_ENV__", condaPrefix.getName());
+                    Process process = SimpleRunner.createProcess(cmdLine, createEnvWithMap(initialEnv),
+                            relativePath.getParentFile());
+                    Tuple<String, String> output = SimpleRunner.getProcessOutput(process,
+                            ProcessUtils.getArgumentsAsStr(cmdLine), null, null);
+                    for (String line : StringUtils.splitInLines(output.o1)) {
+                        if (!line.trim().isEmpty()) {
+                            Tuple<String, String> split = StringUtils.splitOnFirst(line, '=');
+                            if (split.o1.equals("__PYDEV_CONDA_PREFIX__")
+                                    || split.o1.equals("__PYDEV_CONDA_DEFAULT_ENV__")
+                                    || split.o1.equals("_")) {
+                                continue;
+                            }
+                            computedMap.put(split.o1, split.o2);
+                        }
+                    }
+                } catch (Exception e) {
+                    Log.log(e);
+                }
+            }
+        }
+        if (hasEnvVarsToUpdate) {
+            fillMapWithEnv(envVariables, computedMap, keysThatShouldNotBeUpdated, getStringVariableManager()); //will override the keys already there unless they're in keysThatShouldNotBeUpdated
+        }
+
+        String[] ret = createEnvWithMap(computedMap);
 
         return ret;
+    }
+
+    public static Map<String, String> createMapFromEnv(String[] env) {
+        Map<String, String> map = new HashMap<>();
+        fillMapWithEnv(env, map, null, null);
+        return map;
     }
 
     public static String[] createEnvWithMap(Map<String, String> hashMap) {
@@ -1621,7 +1677,7 @@ public class InterpreterInfo implements IInterpreterInfo {
         return ret;
     }
 
-    public static void fillMapWithEnv(String[] env, HashMap<String, String> hashMap,
+    public static void fillMapWithEnv(String[] env, Map<String, String> hashMap,
             Set<String> keysThatShouldNotBeUpdated, IStringVariableManager manager) {
         if (env == null || env.length == 0) {
             // nothing to do

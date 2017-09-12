@@ -1,0 +1,18 @@
+#!/bin/bash
+
+run_activate_scripts() {
+    ACTIVATE_D="$1"
+    if [[ -d "$ACTIVATE_D" ]]; then
+        for f in $(find "$ACTIVATE_D" -name "*.sh"); do source "$f"; done
+    fi
+}
+
+export CONDA_PREFIX="__PYDEV_CONDA_PREFIX__"
+export CONDA_DEFAULT_ENV="__PYDEV_CONDA_DEFAULT_ENV__"
+export CONDA_ENV_PATH="$CONDA_PREFIX"
+export CONDA_PATH_BACKUP="$PATH"
+export CONDA_PS1_BACKUP="$PS1"
+
+export PATH="$CONDA_PREFIX/bin:$PATH"
+run_activate_scripts "$CONDA_PREFIX/etc/conda/activate.d" &&
+printenv

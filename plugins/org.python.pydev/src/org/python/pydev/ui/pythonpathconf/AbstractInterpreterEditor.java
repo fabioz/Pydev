@@ -391,7 +391,13 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
         gd.horizontalSpan = numColumns;
         tabFolder.setLayoutData(gd);
 
-        packageTab.createPackageControlTab(tabFolder, exeOrJarOfInterpretersToRestore);
+        try {
+            if (this.getShowPackageTab()) {
+                packageTab.createPackageControlTab(tabFolder, exeOrJarOfInterpretersToRestore);
+            }
+        } catch (Exception e1) {
+            Log.log(e1); // Not really expected, just new code, so, let's protect until it matures.
+        }
 
         createTreeLibsControlTab();
 
@@ -620,6 +626,8 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
         createStringSubstitutionTab();
 
     }
+
+    protected abstract boolean getShowPackageTab();
 
     /**
      * Creates tab to show the string substitution variables.
@@ -929,7 +937,9 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
                 this.predefinedCompletions.update(info);
                 workingCopy.setInfo(info);
             }
-            packageTab.setInfo(info);
+            if (this.getShowPackageTab()) {
+                packageTab.setInfo(info);
+            }
 
             environmentTab.initializeFrom(workingCopy);
             Properties stringSubstitutionVariables = info.getStringSubstitutionVariables();

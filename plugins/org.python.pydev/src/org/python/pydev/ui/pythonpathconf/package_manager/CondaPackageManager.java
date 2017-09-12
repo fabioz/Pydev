@@ -48,16 +48,39 @@ public class CondaPackageManager extends AbstractPackageManager {
                 null,
                 encoding);
 
-        JsonValue readFrom = JsonValue.readFrom(output.o1);
-        JsonArray asArray = readFrom.asArray();
-        for (JsonValue value : asArray) {
-            JsonObject asObject = value.asObject();
-            JsonValue name = asObject.get("name");
-            JsonValue version = asObject.get("version");
-            JsonValue channel = asObject.get("channel");
-            JsonValue buildString = asObject.get("build_string");
-            listed.add(new String[] { name.asString(), version.asString(),
-                    StringUtils.join("", buildString.asString(), " (", channel.asString(), ")") });
+        try {
+            JsonValue readFrom = JsonValue.readFrom(output.o1);
+            JsonArray asArray = readFrom.asArray();
+            for (JsonValue value : asArray) {
+                JsonObject asObject = value.asObject();
+                JsonValue name = asObject.get("name");
+                JsonValue version = asObject.get("version");
+                JsonValue channel = asObject.get("channel");
+                JsonValue buildString = asObject.get("build_string");
+                listed.add(new String[] { name.asString(), version.asString(),
+                        StringUtils.join("", buildString.asString(), " (", channel.asString(), ")") });
+            }
+        } catch (Exception e) {
+            // Older version of Conda had a different json format and "list --json" wouldn't show pip info, so,
+            // fallback to an implementation which just did a conda list without --json and parse its output
+            output = new SimpleRunner().runAndGetOutput(
+                    new String[] { condaExecutable.toString(), "list", "-p", prefix.toString() }, null, null,
+                    null,
+                    encoding);
+            List<String> splitInLines = StringUtils.splitInLines(output.o1, false);
+            for (String line : splitInLines) {
+                line = line.trim();
+                if (line.startsWith("#")) {
+                    continue;
+                }
+                List<String> split = StringUtils.split(line, ' ');
+                if (split.size() >= 3) {
+                    listed.add(new String[] { split.get(0), split.get(1),
+                            StringUtils.join(" - ", split.subList(2, split.size() - 1)) });
+                } else if (split.size() == 2) {
+                    listed.add(new String[] { split.get(0), split.get(1), "" });
+                }
+            }
         }
         return listed;
     }

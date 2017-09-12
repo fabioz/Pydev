@@ -39,7 +39,7 @@ public class PackageTab {
     AbstractPackageManager packageManager;
     private Button btConda;
     private Button btPip;
-    // private Button checkUseConda;
+    private Button checkUseConda; // may be null
 
     /**
      * @param exeOrJarOfInterpretersToRestore if the info is changed, the executable should be added to exeOrJarOfInterpretersToRestore.
@@ -84,34 +84,37 @@ public class PackageTab {
             GridLayout layout = new GridLayout();
             layout.marginWidth = 0;
             boxPackage.setLayout(layout);
-            btPip = AbstractInterpreterEditor.createBt(boxPackage, "Manage pip", new SelectionAdapter() {
-                @Override
-                public void widgetSelected(SelectionEvent e) {
-                    AbstractPackageManager packageManager = new PipPackageManager(interpreterInfo);
-                    packageManager.manage();
-                }
-            });
-            btConda = AbstractInterpreterEditor.createBt(boxPackage, "Manage conda", new SelectionAdapter() {
-                @Override
-                public void widgetSelected(SelectionEvent e) {
-                    AbstractPackageManager packageManager = new CondaPackageManager(interpreterInfo);
-                    packageManager.manage();
-                }
-            });
+            btPip = AbstractInterpreterEditor.createBt(boxPackage, "Install/Uninstall with pip",
+                    new SelectionAdapter() {
+                        @Override
+                        public void widgetSelected(SelectionEvent e) {
+                            AbstractPackageManager packageManager = new PipPackageManager(interpreterInfo);
+                            packageManager.manage();
+                            update();
+                        }
+                    });
+            btConda = AbstractInterpreterEditor.createBt(boxPackage, "Install/Uninstall with conda",
+                    new SelectionAdapter() {
+                        @Override
+                        public void widgetSelected(SelectionEvent e) {
+                            AbstractPackageManager packageManager = new CondaPackageManager(interpreterInfo);
+                            packageManager.manage();
+                            update();
+                        }
+                    });
             // Commented out for now (needs more time to properly integrate).
             // In this case we'd do wrappers and launch using them instead of launching Python itself -- see:
             // https://github.com/gqmelo/exec-wrappers/blob/master/exec_wrappers/templates/conda/run-in.bat
             // https://github.com/gqmelo/exec-wrappers/blob/master/exec_wrappers/templates/conda/run-in
-            //
-            // checkUseConda = new Button(boxPackage, SWT.CHECK);
-            // checkUseConda.setSelection(interpreterInfo.getActivateCondaEnv());
-            // checkUseConda.setText("Activate conda env before run?");
-            // checkUseConda.addSelectionListener(new SelectionAdapter() {
-            //     @Override
-            //     public void widgetSelected(SelectionEvent e) {
-            //         interpreterInfo.setActivateCondaEnv(checkUseConda.getSelection());
-            //     }
-            // });
+
+            checkUseConda = new Button(boxPackage, SWT.CHECK);
+            checkUseConda.setText("Load conda env vars before run?");
+            checkUseConda.addSelectionListener(new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    interpreterInfo.setActivateCondaEnv(checkUseConda.getSelection());
+                }
+            });
         } else {
             checkParent(boxPackage, parent);
         }
@@ -146,6 +149,7 @@ public class PackageTab {
         if (interpreterInfo == null) {
             return;
         }
+        checkUseConda.setSelection(interpreterInfo.getActivateCondaEnv());
 
         final TreeItem loadingItem = new TreeItem(tree, SWT.None);
         loadingItem.setText(new String[] { "Loading info...", "" });
@@ -168,7 +172,9 @@ public class PackageTab {
         tree.setItemCount(0);
         btConda.setEnabled(false);
         btPip.setEnabled(false);
-        // checkUseConda.setEnabled(false);
+        if (checkUseConda != null) {
+            checkUseConda.setEnabled(false);
+        }
     }
 
     private class ListJob extends Job {
@@ -199,7 +205,9 @@ public class PackageTab {
                 btPip.setEnabled(true);
                 if (packageManager instanceof CondaPackageManager) {
                     btConda.setEnabled(true);
-                    // checkUseConda.setEnabled(true);
+                    if (checkUseConda != null) {
+                        checkUseConda.setEnabled(true);
+                    }
                 }
             });
             return Status.OK_STATUS;
