@@ -40,6 +40,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.DeviceResourceException;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -58,6 +59,8 @@ import org.eclipse.jface.text.source.LineNumberRulerColumn;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
@@ -111,6 +114,8 @@ import org.python.pydev.editor.actions.PyMoveLineUpAction;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.actions.PyOrganizeImports;
 import org.python.pydev.editor.actions.PyPeerLinker;
+import org.python.pydev.editor.actions.word_boundaries.SubWordActions;
+import org.python.pydev.editor.actions.word_boundaries.SubWordActions.ISubWordEditorWrapper;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
@@ -1167,6 +1172,73 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     }
 
     @Override
+    protected void createNavigationActions() {
+        super.createNavigationActions();
+        IAction action;
+
+        final StyledText textWidget = getSourceViewer().getTextWidget();
+
+        SubWordActions subWordActions = new SubWordActions(new ISubWordEditorWrapper() {
+
+            @Override
+            public int widgetOffset2ModelOffset(ISourceViewer viewer, int caretOffset) {
+                return PyEdit.widgetOffset2ModelOffset(viewer, caretOffset);
+            }
+
+            @Override
+            public boolean validateEditorInputState() {
+                return PyEdit.this.validateEditorInputState();
+            }
+
+            @Override
+            public boolean isBlockSelectionModeEnabled() {
+                return PyEdit.this.isBlockSelectionModeEnabled();
+            }
+
+            @Override
+            public IPreferenceStore getPreferenceStore() {
+                return PyEdit.this.getPreferenceStore();
+            }
+
+            @Override
+            public boolean isEditorInputModifiable() {
+                return PyEdit.this.isEditorInputModifiable();
+            }
+
+            @Override
+            public int modelOffset2WidgetOffset(ISourceViewer viewer, int position) {
+                return PyEdit.modelOffset2WidgetOffset(viewer, position);
+            }
+
+            @Override
+            public ISourceViewer getSourceViewer() {
+                return PyEdit.this.getSourceViewer();
+            }
+        });
+
+        action = subWordActions.new NavigatePreviousSubWordAction();
+        action.setActionDefinitionId(ITextEditorActionDefinitionIds.WORD_PREVIOUS);
+        setAction(ITextEditorActionDefinitionIds.WORD_PREVIOUS, action);
+        textWidget.setKeyBinding(SWT.CTRL | SWT.ARROW_LEFT, SWT.NULL);
+
+        action = subWordActions.new NavigateNextSubWordAction();
+        action.setActionDefinitionId(ITextEditorActionDefinitionIds.WORD_NEXT);
+        setAction(ITextEditorActionDefinitionIds.WORD_NEXT, action);
+        textWidget.setKeyBinding(SWT.CTRL | SWT.ARROW_RIGHT, SWT.NULL);
+
+        action = subWordActions.new SelectPreviousSubWordAction();
+        action.setActionDefinitionId(ITextEditorActionDefinitionIds.SELECT_WORD_PREVIOUS);
+        setAction(ITextEditorActionDefinitionIds.SELECT_WORD_PREVIOUS, action);
+        textWidget.setKeyBinding(SWT.CTRL | SWT.SHIFT | SWT.ARROW_LEFT, SWT.NULL);
+
+        action = subWordActions.new SelectNextSubWordAction();
+        action.setActionDefinitionId(ITextEditorActionDefinitionIds.SELECT_WORD_NEXT);
+        setAction(ITextEditorActionDefinitionIds.SELECT_WORD_NEXT, action);
+        textWidget.setKeyBinding(SWT.CTRL | SWT.SHIFT | SWT.ARROW_RIGHT, SWT.NULL);
+
+    }
+
+    @Override
     protected void initializeKeyBindingScopes() {
         setKeyBindingScopes(new String[] { PYDEV_EDITOR_KEYBINDINGS_CONTEXT_ID });
     }
@@ -1207,8 +1279,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             if (fOfflineActionTarget == null) {
                 IStatusLineManager manager = getStatusLineManager();
                 if (manager != null) {
-                    fOfflineActionTarget = (getSourceViewer() == null ? null : new OfflineActionTarget(
-                            getSourceViewer(), manager, this));
+                    fOfflineActionTarget = (getSourceViewer() == null ? null
+                            : new OfflineActionTarget(
+                                    getSourceViewer(), manager, this));
                 }
             }
             return fOfflineActionTarget;
