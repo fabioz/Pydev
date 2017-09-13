@@ -3,7 +3,6 @@ package org.python.pydev.editor.actions.word_boundaries;
 import java.text.BreakIterator;
 import java.text.CharacterIterator;
 
-import org.eclipse.jdt.ui.PreferenceConstants;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -15,6 +14,7 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.texteditor.IUpdate;
 import org.eclipse.ui.texteditor.TextNavigationAction;
+import org.python.pydev.plugin.preferences.AbstractPydevPrefs;
 
 public class SubWordActions {
 
@@ -43,7 +43,8 @@ public class SubWordActions {
         public void run() {
             // Check whether we are in a java code partition and the preference is enabled
             final IPreferenceStore store = getPreferenceStore();
-            if (!store.getBoolean(PreferenceConstants.EDITOR_SUB_WORD_NAVIGATION)) {
+            if (store.getString(AbstractPydevPrefs.WORD_NAVIGATION_STYLE)
+                    .equals(AbstractPydevPrefs.WORD_NAVIGATION_STYLE_NATIVE)) {
                 super.run();
                 return;
             }
@@ -133,9 +134,6 @@ public class SubWordActions {
             super(ST.WORD_NEXT);
         }
 
-        /*
-         * @see org.eclipse.jdt.internal.ui.javaeditor.JavaEditor.NextSubWordAction#setCaretPosition(int)
-         */
         @Override
         protected void setCaretPosition(final int position) {
             getTextWidget().setCaretOffset(modelOffset2WidgetOffset(getSourceViewer(), position));
@@ -156,9 +154,6 @@ public class SubWordActions {
             super(ST.DELETE_WORD_NEXT);
         }
 
-        /*
-         * @see org.eclipse.jdt.internal.ui.javaeditor.JavaEditor.NextSubWordAction#setCaretPosition(int)
-         */
         @Override
         protected void setCaretPosition(final int position) {
             if (!validateEditorInputState()) {
@@ -220,9 +215,6 @@ public class SubWordActions {
             super(ST.SELECT_WORD_NEXT);
         }
 
-        /*
-         * @see org.eclipse.jdt.internal.ui.javaeditor.JavaEditor.NextSubWordAction#setCaretPosition(int)
-         */
         @Override
         protected void setCaretPosition(final int position) {
             final ISourceViewer viewer = getSourceViewer();
@@ -268,7 +260,8 @@ public class SubWordActions {
         public void run() {
             // Check whether we are in a java code partition and the preference is enabled
             final IPreferenceStore store = getPreferenceStore();
-            if (!store.getBoolean(PreferenceConstants.EDITOR_SUB_WORD_NAVIGATION)) {
+            if (store.getString(AbstractPydevPrefs.WORD_NAVIGATION_STYLE)
+                    .equals(AbstractPydevPrefs.WORD_NAVIGATION_STYLE_NATIVE)) {
                 super.run();
                 return;
             }
@@ -361,9 +354,6 @@ public class SubWordActions {
             super(ST.WORD_PREVIOUS);
         }
 
-        /*
-         * @see org.eclipse.jdt.internal.ui.javaeditor.JavaEditor.PreviousSubWordAction#setCaretPosition(int)
-         */
         @Override
         protected void setCaretPosition(final int position) {
             getTextWidget().setCaretOffset(modelOffset2WidgetOffset(getSourceViewer(), position));
@@ -384,9 +374,6 @@ public class SubWordActions {
             super(ST.DELETE_WORD_PREVIOUS);
         }
 
-        /*
-         * @see org.eclipse.jdt.internal.ui.javaeditor.JavaEditor.PreviousSubWordAction#setCaretPosition(int)
-         */
         @Override
         protected void setCaretPosition(int position) {
             if (!validateEditorInputState()) {
@@ -447,9 +434,6 @@ public class SubWordActions {
             super(ST.SELECT_WORD_PREVIOUS);
         }
 
-        /*
-         * @see org.eclipse.jdt.internal.ui.javaeditor.JavaEditor.PreviousSubWordAction#setCaretPosition(int)
-         */
         @Override
         protected void setCaretPosition(final int position) {
             final ISourceViewer viewer = getSourceViewer();

@@ -94,6 +94,12 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     public static final boolean DEFAULT_EDITOR_USE_CUSTOM_CARETS = false;
     public static final boolean DEFAULT_EDITOR_WIDE_CARET = false;
 
+    public static final String WORD_NAVIGATION_STYLE = "WORD_NAVIGATION_STYLE";
+
+    public static final String WORD_NAVIGATION_STYLE_SUBWORD = "SUBWORD";
+    public static final String WORD_NAVIGATION_STYLE_NATIVE = "NATIVE";
+    public static final String DEFAULT_WORD_NAVIGATION_STYLE = WORD_NAVIGATION_STYLE_SUBWORD;
+
     //matching
     public static final String USE_MATCHING_BRACKETS = "USE_MATCHING_BRACKETS";
     public static final boolean DEFAULT_USE_MATCHING_BRACKETS = true;
@@ -326,6 +332,9 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     protected OverlayPreferenceStore createOverlayStore() {
 
         java.util.List<OverlayPreferenceStore.OverlayKey> overlayKeys = new ArrayList<OverlayPreferenceStore.OverlayKey>();
+
+        overlayKeys
+                .add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, WORD_NAVIGATION_STYLE));
 
         //matching
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, USE_MATCHING_BRACKETS));

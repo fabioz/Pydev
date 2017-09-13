@@ -83,18 +83,12 @@ public class JavaBreakIterator extends BreakIterator {
         private static final char INIT = '\0';
         private static final char EXIT = '\1';
 
-        /*
-         * @see org.eclipse.jdt.internal.ui.text.JavaBreakIterator.Run#init()
-         */
         @Override
         protected void init() {
             super.init();
             fState = INIT;
         }
 
-        /*
-         * @see org.eclipse.jdt.internal.ui.text.JavaBreakIterator.Run#consume(char)
-         */
         @Override
         protected boolean consume(char ch) {
             if (!isValid(ch) || fState == EXIT) {
@@ -121,9 +115,6 @@ public class JavaBreakIterator extends BreakIterator {
     }
 
     static final class Identifier extends Run {
-        /*
-         * @see org.eclipse.jdt.internal.ui.text.JavaBreakIterator.Run#isValid(char)
-         */
         @Override
         protected boolean isValid(char ch) {
             return Character.isJavaIdentifierPart(ch);
@@ -155,18 +146,12 @@ public class JavaBreakIterator extends BreakIterator {
                 { S_EXIT, S_EXIT_MINUS_ONE, S_ALL_CAPS, S_LOWER }, // S_ALL_CAPS
         };
 
-        /*
-         * @see org.eclipse.jdt.internal.ui.text.JavaBreakIterator.Run#init()
-         */
         @Override
         protected void init() {
             super.init();
             fState = S_INIT;
         }
 
-        /*
-         * @see org.eclipse.jdt.internal.ui.text.JavaBreakIterator.Run#consumes(char)
-         */
         @Override
         protected boolean consume(char ch) {
             int kind = getKind(ch);
@@ -206,9 +191,6 @@ public class JavaBreakIterator extends BreakIterator {
             return K_INVALID;
         }
 
-        /*
-         * @see org.eclipse.jdt.internal.ui.text.JavaBreakIterator.Run#isValid(char)
-         */
         @Override
         protected boolean isValid(char ch) {
             return Character.isJavaIdentifierPart(ch);
@@ -216,9 +198,6 @@ public class JavaBreakIterator extends BreakIterator {
     }
 
     static final class Other extends Run {
-        /*
-         * @see org.eclipse.jdt.internal.ui.text.JavaBreakIterator.Run#isValid(char)
-         */
         @Override
         protected boolean isValid(char ch) {
             return !Character.isWhitespace(ch) && !Character.isJavaIdentifierPart(ch);

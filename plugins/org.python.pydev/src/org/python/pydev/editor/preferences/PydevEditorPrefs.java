@@ -21,11 +21,13 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -50,6 +52,10 @@ import org.python.pydev.shared_ui.utils.RunInUiThread;
  */
 public class PydevEditorPrefs extends AbstractPydevPrefs {
 
+    private static final String WORD_NAVIGATION_NATIVE_CAPTION = "Native";
+
+    private static final String WORD_NAVIGATION_SUBWORD_CAPTION = "Subword navigation";
+
     /**
      * Shows sample code with the new preferences.
      */
@@ -67,8 +73,10 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
 
     private IPropertyChangeListener updateLabelExampleOnPrefsChanges;
 
+    private Combo comboNavigation;
+
     public PydevEditorPrefs() {
-        setDescription("PyDev editor appearance settings:\n\nNote: PyDev ignores the 'Insert spaces for tabs' in the general settings.");
+        setDescription("PyDev editor appearance settings");
         setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
 
         fOverlayStore = createOverlayStore();
@@ -76,14 +84,76 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
     }
 
     @Override
+    protected void initialize() {
+        super.initialize();
+        String caption = WORD_NAVIGATION_SUBWORD_CAPTION;
+        if (fOverlayStore.getString(AbstractPydevPrefs.WORD_NAVIGATION_STYLE)
+                .equals(AbstractPydevPrefs.WORD_NAVIGATION_STYLE_NATIVE)) {
+            caption = WORD_NAVIGATION_NATIVE_CAPTION;
+        }
+        comboNavigation.setText(caption);
+    }
+
+    @Override
     protected Control createAppearancePage(Composite parent) {
+        GridData gridData;
         Composite appearanceComposite = new Composite(parent, SWT.NONE);
-        GridLayout layout = new GridLayout();
-        layout.numColumns = 1;
-        appearanceComposite.setLayout(layout);
+        Composite wordNavigationComposite = new Composite(appearanceComposite, SWT.NONE);
+
+        gridData = new GridData(GridData.FILL_HORIZONTAL);
+        gridData.grabExcessHorizontalSpace = true;
+        wordNavigationComposite.setLayoutData(gridData);
+
+        GridLayout wordNavigationLayout = new GridLayout();
+        wordNavigationLayout.marginWidth = 0;
+        wordNavigationLayout.marginRight = 5;
+        wordNavigationLayout.numColumns = 2;
+        wordNavigationComposite.setLayout(wordNavigationLayout);
+
+        Label label = new Label(wordNavigationComposite, SWT.NONE);
+        label.setText("Word navigation");
+        gridData = new GridData();
+        gridData.grabExcessHorizontalSpace = false;
+        label.setLayoutData(gridData);
+
+        comboNavigation = new Combo(wordNavigationComposite, SWT.CHECK);
+        comboNavigation.add(WORD_NAVIGATION_SUBWORD_CAPTION);
+        comboNavigation.add(WORD_NAVIGATION_NATIVE_CAPTION);
+        comboNavigation.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                String text = comboNavigation.getText();
+                String style = AbstractPydevPrefs.WORD_NAVIGATION_STYLE_SUBWORD;
+                if (WORD_NAVIGATION_NATIVE_CAPTION.equals(text)) {
+                    style = AbstractPydevPrefs.WORD_NAVIGATION_STYLE_SUBWORD;
+                }
+                fOverlayStore.setValue(AbstractPydevPrefs.WORD_NAVIGATION_STYLE, style);
+            }
+        });
+        gridData = new GridData(GridData.FILL_HORIZONTAL);
+        gridData.grabExcessHorizontalSpace = true;
+        comboNavigation.setLayoutData(gridData);
+
+        createColorOptions(appearanceComposite);
+
+        Composite exampleComposite = new Composite(appearanceComposite, SWT.NONE);
+        gridData = new GridData(GridData.FILL_HORIZONTAL);
+        gridData.grabExcessHorizontalSpace = true;
+        exampleComposite.setLayoutData(gridData);
+        GridLayout exampleGridLayout = new GridLayout();
+        exampleGridLayout.marginWidth = 0;
+        exampleGridLayout.marginRight = 5;
+        exampleComposite.setLayout(exampleGridLayout);
+        formatAndStyleRangeHelper = new StyledTextForShowingCodeFactory();
+        labelExample = formatAndStyleRangeHelper.createStyledTextForCodePresentation(exampleComposite);
+        gridData = new GridData(GridData.FILL_HORIZONTAL);
+        gridData.grabExcessHorizontalSpace = true;
+        labelExample.setLayoutData(gridData);
+        updateLabelExample(PyFormatStd.getFormat(null), PydevPrefs.getChainedPrefStore());
 
         LinkFieldEditor tabsFieldEditor = new LinkFieldEditor("UNUSED",
-                "Tab settings for PyDev may be configured at: " + "<a>Tabs</a>", appearanceComposite,
+                "Other settings:\n\n<a>Tabs</a>: tab preferences for PyDev ...\n(note: 'Insert spaces for tabs' in the general settings is ignored).",
+                appearanceComposite,
                 new SelectionListener() {
 
                     @Override
@@ -99,14 +169,8 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
                 });
         tabsFieldEditor.getLinkControl(appearanceComposite);
 
-        createColorOptions(appearanceComposite);
-
-        formatAndStyleRangeHelper = new StyledTextForShowingCodeFactory();
-        labelExample = formatAndStyleRangeHelper.createStyledTextForCodePresentation(appearanceComposite);
-        updateLabelExample(PyFormatStd.getFormat(null), PydevPrefs.getChainedPrefStore());
-
         LinkFieldEditor colorsAndFontsLinkFieldEditor = new LinkFieldEditor("UNUSED",
-                "Other settings:\n\n<a>Text Editors</a>: print margin, line numbers ...", appearanceComposite,
+                "<a>Text Editors</a>: print margin, line numbers ...", appearanceComposite,
                 new SelectionListener() {
 
                     @Override
@@ -178,13 +242,14 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
         layout.marginHeight = 2;
         layout.marginWidth = 0;
         editorComposite.setLayout(layout);
-        gd = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
-        gd.horizontalSpan = 2;
+        gd = new GridData(GridData.FILL_HORIZONTAL);
+        gd.grabExcessHorizontalSpace = true;
         editorComposite.setLayoutData(gd);
 
         fAppearanceColorList = new List(editorComposite, SWT.SINGLE | SWT.V_SCROLL | SWT.BORDER);
-        gd = new GridData(GridData.VERTICAL_ALIGN_BEGINNING | GridData.FILL_HORIZONTAL);
+        gd = new GridData(GridData.FILL_HORIZONTAL);
         gd.heightHint = convertHeightInCharsToPixels(8);
+        gd.grabExcessHorizontalSpace = true;
         fAppearanceColorList.setLayoutData(gd);
 
         Composite stylesComposite = new Composite(editorComposite, SWT.NONE);
@@ -193,7 +258,6 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
         layout.marginWidth = 0;
         layout.numColumns = 2;
         stylesComposite.setLayout(layout);
-        stylesComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
 
         l = new Label(stylesComposite, SWT.LEFT);
         l.setText("Color:");
