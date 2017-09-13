@@ -82,6 +82,8 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.putInt(PydevEditorPrefs.VERTICAL_INDENT_TRANSPARENCY,
                 PydevEditorPrefs.DEFAULT_VERTICAL_INDENT_TRANSPARENCY);
 
+        node.put(PydevEditorPrefs.WORD_NAVIGATION_STYLE, PydevEditorPrefs.DEFAULT_WORD_NAVIGATION_STYLE);
+
         //matching
         node.putBoolean(PydevEditorPrefs.USE_MATCHING_BRACKETS, PydevEditorPrefs.DEFAULT_USE_MATCHING_BRACKETS);
         node.put(PydevEditorPrefs.MATCHING_BRACKETS_COLOR,
