@@ -1635,7 +1635,7 @@ public class InterpreterInfo implements IInterpreterInfo {
                             relativePath.getParentFile());
                     Tuple<String, String> output = SimpleRunner.getProcessOutput(process,
                             ProcessUtils.getArgumentsAsStr(cmdLine), null, null);
-                    for (String line : StringUtils.splitInLines(output.o1)) {
+                    for (String line : StringUtils.splitInLines(output.o1, false)) {
                         if (!line.trim().isEmpty()) {
                             Tuple<String, String> split = StringUtils.splitOnFirst(line, '=');
                             if (split.o1.equals("__PYDEV_CONDA_PREFIX__")
