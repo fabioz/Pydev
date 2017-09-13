@@ -25,7 +25,7 @@ public class SubWordActions {
      */
     protected abstract class NextSubWordAction extends TextNavigationAction {
 
-        protected JavaWordIterator fIterator = new JavaWordIterator();
+        protected PyWordIterator fIterator = new PyWordIterator();
 
         /**
          * Creates a new next sub-word action.
@@ -242,7 +242,7 @@ public class SubWordActions {
      */
     protected abstract class PreviousSubWordAction extends TextNavigationAction {
 
-        protected JavaWordIterator fIterator = new JavaWordIterator();
+        protected PyWordIterator fIterator = new PyWordIterator();
 
         /**
          * Creates a new previous sub-word action.

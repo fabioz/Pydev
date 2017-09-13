@@ -11,21 +11,21 @@ import org.eclipse.core.runtime.Assert;
  *
  * @since 3.0
  */
-public class JavaWordIterator extends BreakIterator {
+public class PyWordIterator extends BreakIterator {
 
     /**
      * The underlying java break iterator. It returns all breaks, including
      * before and after every whitespace.
      */
-    private JavaBreakIterator fIterator;
+    private PyBreakIterator fIterator;
     /** The current index for the stateful operations. */
     private int fIndex;
 
     /**
      * Creates a new word iterator.
      */
-    public JavaWordIterator() {
-        fIterator = new JavaBreakIterator();
+    public PyWordIterator() {
+        fIterator = new PyBreakIterator();
         first();
     }
 

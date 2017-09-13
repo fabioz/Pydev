@@ -24,7 +24,7 @@ import org.eclipse.core.runtime.Assert;
  *
  * @since 3.0
  */
-public class JavaBreakIterator extends BreakIterator {
+public class PyBreakIterator extends BreakIterator {
 
     /**
      * A run of common characters.
@@ -127,24 +127,31 @@ public class JavaBreakIterator extends BreakIterator {
         private static final int S_LOWER = 1;
         private static final int S_ONE_CAP = 2;
         private static final int S_ALL_CAPS = 3;
-        private static final int S_EXIT = 4;
-        private static final int S_EXIT_MINUS_ONE = 5;
+        private static final int S_UNDERLINE = 4; // New
+        private static final int S_EXIT = 5;
+        private static final int S_EXIT_MINUS_ONE = 6;
 
         /* character types */
         private static final int K_INVALID = 0;
         private static final int K_LOWER = 1;
         private static final int K_UPPER = 2;
         private static final int K_OTHER = 3;
+        private static final int K_UNDERLINE = 4; //New
 
         private int fState;
 
-        private final static int[][] MATRIX = new int[][] {
-                // K_INVALID, K_LOWER,           K_UPPER,    K_OTHER
-                { S_EXIT, S_LOWER, S_ONE_CAP, S_LOWER }, // S_INIT
-                { S_EXIT, S_LOWER, S_EXIT, S_LOWER }, // S_LOWER
-                { S_EXIT, S_LOWER, S_ALL_CAPS, S_LOWER }, // S_ONE_CAP
-                { S_EXIT, S_EXIT_MINUS_ONE, S_ALL_CAPS, S_LOWER }, // S_ALL_CAPS
+        // MATRIX is used to map the current state to a new state after receiving some char (kind).
+
+        // @formatter:off
+        private static final int[][] MATRIX = new int[][] {
+                // K_INVALID, K_LOWER,           K_UPPER,      K_OTHER,  K_UNDERLINE
+                { S_EXIT,     S_LOWER,           S_ONE_CAP,    S_LOWER,   S_UNDERLINE }, // S_INIT
+                { S_EXIT,     S_LOWER,           S_EXIT,       S_LOWER,   S_EXIT }, // S_LOWER
+                { S_EXIT,     S_LOWER,           S_ALL_CAPS,   S_LOWER,   S_EXIT }, // S_ONE_CAP
+                { S_EXIT,     S_EXIT_MINUS_ONE,  S_ALL_CAPS,   S_LOWER,   S_EXIT }, // S_ALL_CAPS
+                { S_EXIT,     S_EXIT,            S_EXIT,       S_EXIT,    S_UNDERLINE }, // S_UNDERLINE -- on underline, exit on everything which is not an underline
         };
+        // @formatter:on
 
         @Override
         protected void init() {
@@ -160,6 +167,7 @@ public class JavaBreakIterator extends BreakIterator {
                 case S_LOWER:
                 case S_ONE_CAP:
                 case S_ALL_CAPS:
+                case S_UNDERLINE:
                     length++;
                     return true;
                 case S_EXIT:
@@ -179,6 +187,9 @@ public class JavaBreakIterator extends BreakIterator {
          * @param ch the character to test
          */
         private int getKind(char ch) {
+            if (ch == '_') {
+                return K_UNDERLINE;
+            }
             if (Character.isUpperCase(ch)) {
                 return K_UPPER;
             }
@@ -219,7 +230,7 @@ public class JavaBreakIterator extends BreakIterator {
     /**
      * Creates a new break iterator.
      */
-    public JavaBreakIterator() {
+    public PyBreakIterator() {
         fIterator = BreakIterator.getWordInstance();
         fIndex = fIterator.current();
     }
