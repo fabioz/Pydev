@@ -55,7 +55,7 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
 
     private static final String WORD_NAVIGATION_NATIVE_CAPTION = "Native";
 
-    private static final String WORD_NAVIGATION_SUBWORD_CAPTION = "Subword navigation";
+    private static final String WORD_NAVIGATION_SUBWORD_CAPTION = "Subword";
 
     /**
      * Shows sample code with the new preferences.
