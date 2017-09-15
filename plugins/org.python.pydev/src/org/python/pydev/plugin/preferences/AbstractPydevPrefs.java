@@ -38,6 +38,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.StatusInfo;
+import org.python.pydev.shared_ui.word_boundaries.SubWordPreferences;
 
 public abstract class AbstractPydevPrefs extends PreferencePage implements IWorkbenchPreferencePage {
 
@@ -93,12 +94,6 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
 
     public static final boolean DEFAULT_EDITOR_USE_CUSTOM_CARETS = false;
     public static final boolean DEFAULT_EDITOR_WIDE_CARET = false;
-
-    public static final String WORD_NAVIGATION_STYLE = "WORD_NAVIGATION_STYLE";
-
-    public static final String WORD_NAVIGATION_STYLE_SUBWORD = "SUBWORD";
-    public static final String WORD_NAVIGATION_STYLE_NATIVE = "NATIVE";
-    public static final String DEFAULT_WORD_NAVIGATION_STYLE = WORD_NAVIGATION_STYLE_SUBWORD;
 
     //matching
     public static final String USE_MATCHING_BRACKETS = "USE_MATCHING_BRACKETS";
@@ -334,7 +329,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
         java.util.List<OverlayPreferenceStore.OverlayKey> overlayKeys = new ArrayList<OverlayPreferenceStore.OverlayKey>();
 
         overlayKeys
-                .add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, WORD_NAVIGATION_STYLE));
+                .add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, SubWordPreferences.WORD_NAVIGATION_STYLE));
 
         //matching
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, USE_MATCHING_BRACKETS));

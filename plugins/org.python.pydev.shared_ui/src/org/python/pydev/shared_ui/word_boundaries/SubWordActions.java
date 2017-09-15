@@ -1,4 +1,4 @@
-package org.python.pydev.editor.actions.word_boundaries;
+package org.python.pydev.shared_ui.word_boundaries;
 
 import java.text.BreakIterator;
 import java.text.CharacterIterator;
@@ -14,7 +14,6 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.texteditor.IUpdate;
 import org.eclipse.ui.texteditor.TextNavigationAction;
-import org.python.pydev.plugin.preferences.AbstractPydevPrefs;
 
 public class SubWordActions {
 
@@ -25,7 +24,7 @@ public class SubWordActions {
      */
     protected abstract class NextSubWordAction extends TextNavigationAction {
 
-        protected PyWordIterator fIterator = new PyWordIterator();
+        protected CustomWordIterator fIterator = new CustomWordIterator();
 
         /**
          * Creates a new next sub-word action.
@@ -43,8 +42,8 @@ public class SubWordActions {
         public void run() {
             // Check whether we are in a java code partition and the preference is enabled
             final IPreferenceStore store = getPreferenceStore();
-            if (store.getString(AbstractPydevPrefs.WORD_NAVIGATION_STYLE)
-                    .equals(AbstractPydevPrefs.WORD_NAVIGATION_STYLE_NATIVE)) {
+            if (store.getString(SubWordPreferences.WORD_NAVIGATION_STYLE)
+                    .equals(SubWordPreferences.WORD_NAVIGATION_STYLE_NATIVE)) {
                 super.run();
                 return;
             }
@@ -242,7 +241,7 @@ public class SubWordActions {
      */
     protected abstract class PreviousSubWordAction extends TextNavigationAction {
 
-        protected PyWordIterator fIterator = new PyWordIterator();
+        protected CustomWordIterator fIterator = new CustomWordIterator();
 
         /**
          * Creates a new previous sub-word action.
@@ -260,8 +259,8 @@ public class SubWordActions {
         public void run() {
             // Check whether we are in a java code partition and the preference is enabled
             final IPreferenceStore store = getPreferenceStore();
-            if (store.getString(AbstractPydevPrefs.WORD_NAVIGATION_STYLE)
-                    .equals(AbstractPydevPrefs.WORD_NAVIGATION_STYLE_NATIVE)) {
+            if (store.getString(SubWordPreferences.WORD_NAVIGATION_STYLE)
+                    .equals(SubWordPreferences.WORD_NAVIGATION_STYLE_NATIVE)) {
                 super.run();
                 return;
             }

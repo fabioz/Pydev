@@ -27,6 +27,7 @@ import org.python.pydev.editorinput.PySourceLocatorPrefs;
 import org.python.pydev.parser.PyParserManager;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.pyunit.preferences.PyUnitPrefsPage2;
+import org.python.pydev.shared_ui.word_boundaries.SubWordPreferences;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 import org.python.pydev.ui.pythonpathconf.InterpreterGeneralPreferencesPage;
@@ -82,7 +83,7 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.putInt(PydevEditorPrefs.VERTICAL_INDENT_TRANSPARENCY,
                 PydevEditorPrefs.DEFAULT_VERTICAL_INDENT_TRANSPARENCY);
 
-        node.put(PydevEditorPrefs.WORD_NAVIGATION_STYLE, PydevEditorPrefs.DEFAULT_WORD_NAVIGATION_STYLE);
+        node.put(SubWordPreferences.WORD_NAVIGATION_STYLE, SubWordPreferences.DEFAULT_WORD_NAVIGATION_STYLE);
 
         //matching
         node.putBoolean(PydevEditorPrefs.USE_MATCHING_BRACKETS, PydevEditorPrefs.DEFAULT_USE_MATCHING_BRACKETS);

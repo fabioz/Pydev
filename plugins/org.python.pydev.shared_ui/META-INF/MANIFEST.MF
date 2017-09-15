@@ -50,6 +50,7 @@ Export-Package: org.python.pydev.overview_ruler,
  org.python.pydev.shared_ui.tooltips,
  org.python.pydev.shared_ui.tooltips.presenter,
  org.python.pydev.shared_ui.tree,
- org.python.pydev.shared_ui.utils
+ org.python.pydev.shared_ui.utils,
+ org.python.pydev.shared_ui.word_boundaries
 Bundle-Vendor: Brainwy Software Ltda
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

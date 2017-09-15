@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.python.pydev.editor.actions.word_boundaries;
+package org.python.pydev.shared_ui.word_boundaries;
 
 import java.text.BreakIterator;
 import java.text.CharacterIterator;
@@ -24,7 +24,7 @@ import org.eclipse.core.runtime.Assert;
  *
  * @since 3.0
  */
-public class PyBreakIterator extends BreakIterator {
+public class CustomBreakIterator extends BreakIterator {
 
     /**
      * A run of common characters.
@@ -230,7 +230,7 @@ public class PyBreakIterator extends BreakIterator {
     /**
      * Creates a new break iterator.
      */
-    public PyBreakIterator() {
+    public CustomBreakIterator() {
         fIterator = BreakIterator.getWordInstance();
         fIndex = fIterator.current();
     }

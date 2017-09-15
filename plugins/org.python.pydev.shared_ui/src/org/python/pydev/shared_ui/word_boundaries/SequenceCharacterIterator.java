@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.python.pydev.editor.actions.word_boundaries;
+package org.python.pydev.shared_ui.word_boundaries;
 
 import java.text.CharacterIterator;
 

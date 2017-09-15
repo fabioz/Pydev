@@ -1,4 +1,4 @@
-package org.python.pydev.editor.actions.word_boundaries;
+package org.python.pydev.shared_ui.word_boundaries;
 
 import java.text.BreakIterator;
 import java.text.CharacterIterator;
@@ -11,21 +11,21 @@ import org.eclipse.core.runtime.Assert;
  *
  * @since 3.0
  */
-public class PyWordIterator extends BreakIterator {
+public class CustomWordIterator extends BreakIterator {
 
     /**
      * The underlying java break iterator. It returns all breaks, including
      * before and after every whitespace.
      */
-    private PyBreakIterator fIterator;
+    private CustomBreakIterator fIterator;
     /** The current index for the stateful operations. */
     private int fIndex;
 
     /**
      * Creates a new word iterator.
      */
-    public PyWordIterator() {
-        fIterator = new PyBreakIterator();
+    public CustomWordIterator() {
+        fIterator = new CustomBreakIterator();
         first();
     }
 

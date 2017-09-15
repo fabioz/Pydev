@@ -44,6 +44,7 @@ import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.field_editors.LinkFieldEditor;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
+import org.python.pydev.shared_ui.word_boundaries.SubWordPreferences;
 
 /**
  * The preference page for setting the editor options.
@@ -87,8 +88,8 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
     protected void initialize() {
         super.initialize();
         String caption = WORD_NAVIGATION_SUBWORD_CAPTION;
-        if (fOverlayStore.getString(AbstractPydevPrefs.WORD_NAVIGATION_STYLE)
-                .equals(AbstractPydevPrefs.WORD_NAVIGATION_STYLE_NATIVE)) {
+        if (fOverlayStore.getString(SubWordPreferences.WORD_NAVIGATION_STYLE)
+                .equals(SubWordPreferences.WORD_NAVIGATION_STYLE_NATIVE)) {
             caption = WORD_NAVIGATION_NATIVE_CAPTION;
         }
         comboNavigation.setText(caption);
@@ -123,11 +124,11 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 String text = comboNavigation.getText();
-                String style = AbstractPydevPrefs.WORD_NAVIGATION_STYLE_SUBWORD;
+                String style = SubWordPreferences.WORD_NAVIGATION_STYLE_SUBWORD;
                 if (WORD_NAVIGATION_NATIVE_CAPTION.equals(text)) {
-                    style = AbstractPydevPrefs.WORD_NAVIGATION_STYLE_SUBWORD;
+                    style = SubWordPreferences.WORD_NAVIGATION_STYLE_SUBWORD;
                 }
-                fOverlayStore.setValue(AbstractPydevPrefs.WORD_NAVIGATION_STYLE, style);
+                fOverlayStore.setValue(SubWordPreferences.WORD_NAVIGATION_STYLE, style);
             }
         });
         gridData = new GridData(GridData.FILL_HORIZONTAL);
