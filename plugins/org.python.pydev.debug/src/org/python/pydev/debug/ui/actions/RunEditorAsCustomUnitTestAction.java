@@ -327,7 +327,7 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction {
                                 }
                             }
                             if (retVal == Window.OK) {
-                                outerDialog.close();
+                                outerDialog.cancel();
                             }
 
                         }
