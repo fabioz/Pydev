@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Interactive Console Plug-in
 Bundle-SymbolicName: org.python.pydev.shared_interactive_console;singleton:=true
-Bundle-Version: 5.9.2.qualifier
+Bundle-Version: 6.0.0.qualifier
 Bundle-ClassPath: interactive_console.jar,
  commons-logging-1.1.1.jar,
  ws-commons-util-1.0.2.jar,
@@ -19,9 +19,9 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.debug.core,
  org.eclipse.debug.ui,
  org.eclipse.ui.workbench.texteditor,
- org.python.pydev.shared_core;bundle-version="[5.9.2,5.9.3)",
+ org.python.pydev.shared_core;bundle-version="[6.0.0,6.0.1)",
  org.eclipse.ui.ide,
- org.python.pydev.shared_ui;bundle-version="[5.9.2,5.9.3)"
+ org.python.pydev.shared_ui;bundle-version="[6.0.0,6.0.1)"
 Bundle-ActivationPolicy: lazy
 Export-Package: org.apache.commons.logging,org.apache.commons.logging.
  impl,org.apache.ws.commons.serialize,org.apache.ws.commons.util,org.a

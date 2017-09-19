@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Codecompletion Plug-in
 Bundle-SymbolicName: com.python.pydev.codecompletion; singleton:=true
-Bundle-Version: 5.9.2.qualifier
+Bundle-Version: 6.0.0.qualifier
 Bundle-Activator: com.python.pydev.codecompletion.CodecompletionPlugin
 Bundle-Vendor: Brainwy Software Ltda
 Bundle-Localization: plugin
@@ -10,19 +10,19 @@ Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.jface.text,
- org.python.pydev.shared_core;bundle-version="[5.9.2,5.9.3)",
- org.python.pydev.shared_ui;bundle-version="[5.9.2,5.9.3)",
- org.python.pydev;bundle-version="[5.9.2,5.9.3)",
- com.python.pydev;bundle-version="[5.9.2,5.9.3)",
- org.python.pydev.core;bundle-version="[5.9.2,5.9.3)",
- org.python.pydev.parser;bundle-version="[5.9.2,5.9.3)",
+ org.python.pydev.shared_core;bundle-version="[6.0.0,6.0.1)",
+ org.python.pydev.shared_ui;bundle-version="[6.0.0,6.0.1)",
+ org.python.pydev;bundle-version="[6.0.0,6.0.1)",
+ com.python.pydev;bundle-version="[6.0.0,6.0.1)",
+ org.python.pydev.core;bundle-version="[6.0.0,6.0.1)",
+ org.python.pydev.parser;bundle-version="[6.0.0,6.0.1)",
  org.junit;bundle-version="4.0";resolution:=optional,
- com.python.pydev.fastparser;bundle-version="[5.9.2,5.9.3)",
+ com.python.pydev.fastparser;bundle-version="[6.0.0,6.0.1)",
  org.eclipse.core.resources,
- com.python.pydev.analysis;bundle-version="[5.9.2,5.9.3)",
+ com.python.pydev.analysis;bundle-version="[6.0.0,6.0.1)",
  org.eclipse.ui.editors,
- com.python.pydev.refactoring;bundle-version="[5.9.2,5.9.3)",
- org.python.pydev.shared_interactive_console;bundle-version="[5.9.2,5.9.3)",
+ com.python.pydev.refactoring;bundle-version="[6.0.0,6.0.1)",
+ org.python.pydev.shared_interactive_console;bundle-version="[6.0.0,6.0.1)",
  org.eclipse.ui.workbench.texteditor
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: codecompletion.jar
