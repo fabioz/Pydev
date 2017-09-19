@@ -12,11 +12,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.debug.ui.DebugUITools;
+import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -39,9 +42,12 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.ui.IEditorInput;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.docutils.PySelection;
@@ -91,6 +97,89 @@ class ShiftListener implements Listener {
 
 public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction {
 
+    class UnittestLaunchShortcut extends AbstractLaunchShortcut {
+        private final Tuple<String, IInterpreterManager> launchConfigurationTypeAndInterpreterManager;
+        private final String arguments;
+
+        UnittestLaunchShortcut(Tuple<String, IInterpreterManager> launchConfigurationTypeAndInterpreterManager,
+                String arguments) {
+            this.launchConfigurationTypeAndInterpreterManager = launchConfigurationTypeAndInterpreterManager;
+            this.arguments = arguments;
+        }
+
+        @Override
+        protected String getLaunchConfigurationType() {
+            return launchConfigurationTypeAndInterpreterManager.o1;
+        }
+
+        @Override
+        protected IInterpreterManager getInterpreterManager(IProject project) {
+            return launchConfigurationTypeAndInterpreterManager.o2;
+        }
+
+        @Override
+        public ILaunchConfigurationWorkingCopy createDefaultLaunchConfigurationWithoutSaving(
+                FileOrResource[] resource) throws CoreException {
+            ILaunchConfigurationWorkingCopy workingCopy = super.createDefaultLaunchConfigurationWithoutSaving(
+                    resource);
+            if (arguments.trim().length() > 0) {
+                // first remember the arguments to be used internally and for matching
+                workingCopy.setAttribute(Constants.ATTR_UNITTEST_TESTS, arguments);
+                // then determine the tests to be displayed to user
+                String[] argumentsSplit = arguments.split(",");
+                FastStringBuffer argsWithTests = new FastStringBuffer(workingCopy.getName(),
+                        arguments.length() + 10);
+                argsWithTests.append(" ( ");
+                for (int i = 0; i < argumentsSplit.length; i++) {
+                    if (i != 0) {
+                        argsWithTests.append(", ");
+                    }
+                    // Note that there are no fixed limits below, but in the worst case it should be close to 150 chars -- i.e.: (100 + 35 + len(" and xxx more") 13 + 2)
+                    String str = argumentsSplit[i];
+                    if (str.length() > 35) {
+                        argsWithTests.append(str.substring(0, 30));
+                        argsWithTests.append(" ... ");
+                    } else {
+                        argsWithTests.append(str);
+                    }
+                    if (argsWithTests.length() > 100) {
+                        argsWithTests.append(" and " + (argumentsSplit.length - (i + 1)) + " more");
+                        break;
+                    }
+                }
+                argsWithTests.append(" )");
+
+                // then rename it to include the tests in the name
+                // but first make sure the name is unique, as otherwise
+                // configurations could get overwritten
+
+                ILaunchManager manager = org.eclipse.debug.core.DebugPlugin.getDefault().getLaunchManager();
+                workingCopy.rename(manager.generateLaunchConfigurationName(argsWithTests.toString()));
+                return workingCopy;
+            }
+            return workingCopy;
+        }
+
+        @Override
+        protected List<ILaunchConfiguration> findExistingLaunchConfigurations(FileOrResource[] file) {
+            List<ILaunchConfiguration> ret = new ArrayList<ILaunchConfiguration>();
+
+            List<ILaunchConfiguration> existing = super.findExistingLaunchConfigurations(file);
+            for (ILaunchConfiguration launch : existing) {
+                boolean matches = false;
+                try {
+                    matches = launch.getAttribute(Constants.ATTR_UNITTEST_TESTS, "").equals(arguments);
+                } catch (CoreException e) {
+                    //ignore
+                }
+                if (matches) {
+                    ret.add(launch);
+                }
+            }
+            return ret;
+        }
+    }
+
     @Override
     public void run(IAction action) {
 
@@ -108,7 +197,8 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction {
         d.addFilter(SWT.KeyUp, shiftListener);
 
         try {
-            TreeSelectionDialog dialog = new TreeSelectionDialog(shell, new SelectTestLabelProvider(),
+            final TreeSelectionDialog dialog = new TreeSelectionDialog(shell,
+                    new SelectTestLabelProvider(),
                     new SelectTestTreeContentProvider(pyEdit)) {
 
                 private Label labelShiftToDebug;
@@ -186,6 +276,66 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction {
                         }
                     });
 
+                    Tree tree = getTreeViewer().getTree();
+                    Menu menu = new Menu(tree.getShell(), SWT.POP_UP);
+                    MenuItem runItem = new MenuItem(menu, SWT.PUSH);
+
+                    final TreeSelectionDialog outerDialog = this;
+                    runItem.addSelectionListener(new SelectionAdapter() {
+                        @Override
+                        public void widgetSelected(SelectionEvent e) {
+                            ILaunchConfiguration conf = null;
+                            IStructuredSelection selection = (IStructuredSelection) getTreeViewer().getSelection();
+
+                            IEditorInput editorInput = pyEdit.getEditorInput();
+                            IFile resource = editorInput != null ? editorInput.getAdapter(IFile.class) : null;
+                            FileOrResource[] fileOrResource;
+                            if (resource != null) {
+                                fileOrResource = new FileOrResource[] { new FileOrResource(resource) };
+
+                            } else {
+                                fileOrResource = new FileOrResource[] { new FileOrResource(pyEdit.getEditorFile()) };
+                            }
+
+                            String testNames = getFullArgumentsRepresentation(selection.toArray());
+                            UnittestLaunchShortcut shortcut = new UnittestLaunchShortcut(
+                                    launchConfigurationTypeAndInterpreterManager,
+                                    testNames);
+                            List<ILaunchConfiguration> configurations = shortcut
+                                    .findExistingLaunchConfigurations(fileOrResource);
+
+                            boolean newConfiguration = false;
+                            if (configurations.isEmpty()) {
+                                conf = shortcut.createDefaultLaunchConfiguration(fileOrResource);
+                                newConfiguration = true;
+                            } else {
+                                // assume that there's only one matching configuration
+                                conf = configurations.get(0);
+                            }
+
+                            int retVal = DebugUITools.openLaunchConfigurationDialog(shell, conf,
+                                    shiftListener.shiftPressed ? IDebugUIConstants.ID_DEBUG_LAUNCH_GROUP
+                                            : IDebugUIConstants.ID_RUN_LAUNCH_GROUP,
+                                    null);
+
+                            if (retVal == Window.CANCEL && newConfiguration) {
+                                // user cancelled operation on newly created configuration
+                                try {
+                                    conf.delete();
+                                } catch (CoreException e1) {
+                                    // ignore
+                                }
+                            }
+                            if (retVal == Window.OK) {
+                                outerDialog.close();
+                            }
+
+                        }
+                    });
+                    runItem.setText("Customize run configuration...");
+
+                    tree.setMenu(menu);
+
                     return buttonBar;
                 }
 
@@ -254,118 +404,10 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction {
             }
             Object[] result = dialog.getResult();
 
-            final FastStringBuffer buf = new FastStringBuffer();
-            if (result != null && result.length > 0) {
+            final String arguments = getFullArgumentsRepresentation(result);
 
-                for (Object o : result) {
-                    ASTEntry entry = (ASTEntry) o;
-                    if (entry.node instanceof ClassDef) {
-                        if (buf.length() > 0) {
-                            buf.append(',');
-                        }
-                        buf.append(NodeUtils.getFullRepresentationString(entry.node));
-
-                    } else if (entry.node instanceof FunctionDef && entry.parent == null) {
-                        if (buf.length() > 0) {
-                            buf.append(',');
-                        }
-                        buf.append(NodeUtils.getFullRepresentationString(entry.node));
-
-                    } else if (entry.node instanceof FunctionDef && entry.parent != null
-                            && entry.parent.node instanceof ClassDef) {
-                        if (buf.length() > 0) {
-                            buf.append(',');
-                        }
-                        buf.append(NodeUtils.getFullRepresentationString(entry.parent.node));
-                        buf.append('.');
-                        buf.append(NodeUtils.getFullRepresentationString(entry.node));
-
-                    }
-
-                }
-            }
-
-            final String arguments;
-            if (buf.length() > 0) {
-                arguments = buf.toString();
-            } else {
-                arguments = "";
-            }
-
-            AbstractLaunchShortcut shortcut = new AbstractLaunchShortcut() {
-
-                @Override
-                protected String getLaunchConfigurationType() {
-                    return launchConfigurationTypeAndInterpreterManager.o1;
-                }
-
-                @Override
-                protected IInterpreterManager getInterpreterManager(IProject project) {
-                    return launchConfigurationTypeAndInterpreterManager.o2;
-                }
-
-                @Override
-                public ILaunchConfigurationWorkingCopy createDefaultLaunchConfigurationWithoutSaving(
-                        FileOrResource[] resource) throws CoreException {
-                    ILaunchConfigurationWorkingCopy workingCopy = super.createDefaultLaunchConfigurationWithoutSaving(
-                            resource);
-                    if (arguments.trim().length() > 0) {
-                        // first remember the arguments to be used internally and for matching
-                        workingCopy.setAttribute(Constants.ATTR_UNITTEST_TESTS, arguments);
-                        // then determine the tests to be displayed to user
-                        String[] argumentsSplit = arguments.split(",");
-                        FastStringBuffer argsWithTests = new FastStringBuffer(workingCopy.getName(),
-                                arguments.length() + 10);
-                        argsWithTests.append(" ( ");
-                        for (int i = 0; i < argumentsSplit.length; i++) {
-                            if (i != 0) {
-                                argsWithTests.append(", ");
-                            }
-                            // Note that there are no fixed limits below, but in the worst case it should be close to 150 chars -- i.e.: (100 + 35 + len(" and xxx more") 13 + 2)
-                            String str = argumentsSplit[i];
-                            if (str.length() > 35) {
-                                argsWithTests.append(str.substring(0, 30));
-                                argsWithTests.append(" ... ");
-                            } else {
-                                argsWithTests.append(str);
-                            }
-                            if (argsWithTests.length() > 100) {
-                                argsWithTests.append(" and " + (argumentsSplit.length - (i + 1)) + " more");
-                                break;
-                            }
-                        }
-                        argsWithTests.append(" )");
-
-                        // then rename it to include the tests in the name
-                        // but first make sure the name is unique, as otherwise
-                        // configurations could get overwritten
-
-                        ILaunchManager manager = org.eclipse.debug.core.DebugPlugin.getDefault().getLaunchManager();
-                        workingCopy.rename(manager.generateLaunchConfigurationName(argsWithTests.toString()));
-                        return workingCopy;
-                    }
-                    return workingCopy;
-                }
-
-                @Override
-                protected List<ILaunchConfiguration> findExistingLaunchConfigurations(FileOrResource[] file) {
-                    List<ILaunchConfiguration> ret = new ArrayList<ILaunchConfiguration>();
-
-                    List<ILaunchConfiguration> existing = super.findExistingLaunchConfigurations(file);
-                    for (ILaunchConfiguration launch : existing) {
-                        boolean matches = false;
-                        try {
-                            matches = launch.getAttribute(Constants.ATTR_UNITTEST_TESTS, "").equals(arguments);
-                        } catch (CoreException e) {
-                            //ignore
-                        }
-                        if (matches) {
-                            ret.add(launch);
-                        }
-                    }
-                    return ret;
-                }
-            };
+            AbstractLaunchShortcut shortcut = new UnittestLaunchShortcut(launchConfigurationTypeAndInterpreterManager,
+                    arguments);
 
             if (shiftListener.shiftPressed) {
                 shortcut.launch(pyEdit, "debug");
@@ -376,6 +418,47 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction {
             d.removeFilter(SWT.KeyDown, shiftListener);
             d.removeFilter(SWT.KeyUp, shiftListener);
         }
+    }
+
+    private String getFullArgumentsRepresentation(Object[] result) {
+        final FastStringBuffer buf = new FastStringBuffer();
+        if (result != null && result.length > 0) {
+
+            for (Object o : result) {
+                ASTEntry entry = (ASTEntry) o;
+                if (entry.node instanceof ClassDef) {
+                    if (buf.length() > 0) {
+                        buf.append(',');
+                    }
+                    buf.append(NodeUtils.getFullRepresentationString(entry.node));
+
+                } else if (entry.node instanceof FunctionDef && entry.parent == null) {
+                    if (buf.length() > 0) {
+                        buf.append(',');
+                    }
+                    buf.append(NodeUtils.getFullRepresentationString(entry.node));
+
+                } else if (entry.node instanceof FunctionDef && entry.parent != null
+                        && entry.parent.node instanceof ClassDef) {
+                    if (buf.length() > 0) {
+                        buf.append(',');
+                    }
+                    buf.append(NodeUtils.getFullRepresentationString(entry.parent.node));
+                    buf.append('.');
+                    buf.append(NodeUtils.getFullRepresentationString(entry.node));
+
+                }
+
+            }
+        }
+
+        final String arguments;
+        if (buf.length() > 0) {
+            arguments = buf.toString();
+        } else {
+            arguments = "";
+        }
+        return arguments;
     }
 
 }
