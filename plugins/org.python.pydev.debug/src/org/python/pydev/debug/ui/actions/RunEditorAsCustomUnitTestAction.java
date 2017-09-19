@@ -6,13 +6,13 @@
  */
 package org.python.pydev.debug.ui.actions;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -47,6 +47,7 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.ui.IEditorInput;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.docutils.PySelection;
@@ -196,7 +197,8 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction {
         d.addFilter(SWT.KeyUp, shiftListener);
 
         try {
-            TreeSelectionDialog dialog = new TreeSelectionDialog(shell, new SelectTestLabelProvider(),
+            final TreeSelectionDialog dialog = new TreeSelectionDialog(shell,
+                    new SelectTestLabelProvider(),
                     new SelectTestTreeContentProvider(pyEdit)) {
 
                 private Label labelShiftToDebug;
@@ -278,24 +280,33 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction {
                     Menu menu = new Menu(tree.getShell(), SWT.POP_UP);
                     MenuItem runItem = new MenuItem(menu, SWT.PUSH);
 
+                    final TreeSelectionDialog outerDialog = this;
                     runItem.addSelectionListener(new SelectionAdapter() {
                         @Override
                         public void widgetSelected(SelectionEvent e) {
                             ILaunchConfiguration conf = null;
                             IStructuredSelection selection = (IStructuredSelection) getTreeViewer().getSelection();
 
-                            File resource = pyEdit.getEditorFile();
+                            IEditorInput editorInput = pyEdit.getEditorInput();
+                            IFile resource = editorInput != null ? editorInput.getAdapter(IFile.class) : null;
+                            FileOrResource[] fileOrResource;
+                            if (resource != null) {
+                                fileOrResource = new FileOrResource[] { new FileOrResource(resource) };
+
+                            } else {
+                                fileOrResource = new FileOrResource[] { new FileOrResource(pyEdit.getEditorFile()) };
+                            }
+
                             String testNames = getFullArgumentsRepresentation(selection.toArray());
                             UnittestLaunchShortcut shortcut = new UnittestLaunchShortcut(
                                     launchConfigurationTypeAndInterpreterManager,
                                     testNames);
-                            FileOrResource[] resource2 = new FileOrResource[] { new FileOrResource(resource) };
                             List<ILaunchConfiguration> configurations = shortcut
-                                    .findExistingLaunchConfigurations(resource2);
+                                    .findExistingLaunchConfigurations(fileOrResource);
 
                             boolean newConfiguration = false;
                             if (configurations.isEmpty()) {
-                                conf = shortcut.createDefaultLaunchConfiguration(resource2);
+                                conf = shortcut.createDefaultLaunchConfiguration(fileOrResource);
                                 newConfiguration = true;
                             } else {
                                 // assume that there's only one matching configuration
@@ -303,7 +314,9 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction {
                             }
 
                             int retVal = DebugUITools.openLaunchConfigurationDialog(shell, conf,
-                                    IDebugUIConstants.ID_RUN_LAUNCH_GROUP, null);
+                                    shiftListener.shiftPressed ? IDebugUIConstants.ID_DEBUG_LAUNCH_GROUP
+                                            : IDebugUIConstants.ID_RUN_LAUNCH_GROUP,
+                                    null);
 
                             if (retVal == Window.CANCEL && newConfiguration) {
                                 // user cancelled operation on newly created configuration
@@ -312,6 +325,9 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction {
                                 } catch (CoreException e1) {
                                     // ignore
                                 }
+                            }
+                            if (retVal == Window.OK) {
+                                outerDialog.close();
                             }
 
                         }
