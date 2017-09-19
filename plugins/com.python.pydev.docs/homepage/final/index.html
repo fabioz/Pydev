@@ -20,8 +20,8 @@
 	<tr align="center" bgcolor="#eeeeee" valign="top">
 		<td nowrap="nowrap" class="td_top">
 		<center>
-		<p class="header_text">Last Site Update: September 2nd, 2017 |
-		Latest Version: 5.9.2</p>
+		<p class="header_text">Last Site Update: September 19th, 2017 |
+		Latest Version: 6.0.0</p>
 		</center>
 		</td>
 	</tr>
@@ -499,6 +499,83 @@ LiClipse you directly support the development of PyDev).</p>
 <p>Thank you to all PyDev supporters: <a class="reference external" href="https://www.brainwy.com/supporters/PyDev">https://www.brainwy.com/supporters/PyDev</a>.</p>
 <p>To show your appreciation for PyDev and to keep it going strong, help to crowdfund through <a class="reference external" href="https://www.patreon.com/fabioz">https://www.patreon.com/fabioz</a>.</p>
 </div>
+<div class="section" id="release-6-0-0-2017-09-19">
+<h1>Release 6.0.0 (2017-09-19)</h1>
+<ul>
+<li><p class="first"><strong>Important</strong> PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.</p>
+<blockquote>
+<ul class="simple">
+<li>PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Interpreter configuration</strong></p>
+<blockquote>
+<ul class="simple">
+<li>The <strong>list of packages</strong> installed in the interpreter is shown in the IDE (supports either <strong>pip</strong> or <strong>conda</strong>).</li>
+<li>It's now possible to <strong>install/uninstall</strong> packages using either <strong>pip</strong> or <strong>conda</strong> directly from the IDE.</li>
+<li>Provides a way to <strong>load variables</strong> if interpreter is from a <strong>conda environment</strong> (Load conda env vars before run configuration).</li>
+<li>A default string substitution variable named <strong>PY</strong> is now created with the major and minor version of the created interpreter.</li>
+<li>It's now possible to configure a project to always use a grammar compatible with the interpreter version (default for new projects -- <strong>#PyDev-846</strong>).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Editor</strong></p>
+<blockquote>
+<ul class="simple">
+<li><strong>Subword</strong> navigation is now available (and enabled by default -- can be customized at <strong>PyDev &gt; Editor</strong>).</li>
+<li>Changed default config for minimap (smaller and not showing elements -- can be customized at <strong>PyDev &gt; Editor &gt; Overview Ruler Minimap</strong>).</li>
+<li>Code completion no longer active in comments in last line of editor (<strong>#PyDev-762</strong>).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Debugger</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Fix find_module signature (patch by James Blackburn).</li>
+<li>Fix qt_loader to support <strong>PEP 302</strong> correctly.</li>
+<li>Fix in matplotlib_options from ipython (<strong>#PyDev-779</strong>).</li>
+<li>When show all uppercase references is used as a filter, only digits shouldn't be filtered out in variables view (#PyDev-794).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>PyLint</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Added setting to search <strong>PyLint</strong> installed in interpreter (<strong>#PyDev-811</strong>).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Unittest</strong></p>
+<blockquote>
+<ul class="simple">
+<li>It's possible to edit a run configuration from dialog to select tests to run (Ctrl+F9) (patch by <strong>Robert Gomulka</strong>).</li>
+<li>Test(s) name is shown in the run configuration (patch by <strong>Robert Gomulka</strong> -- <strong>#PyDev-840</strong>).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>isort integration</strong></p>
+<blockquote>
+<ul class="simple">
+<li>The modules that are known to be third party or system modules in the PyDev configuration are passed to <strong>isort</strong>.</li>
+<li>Proper support for <strong>isort:skip</strong> and <strong>isort:skip_file</strong>.</li>
+<li>Internal isort caches properly being cleared between invocations (fix for case where changes to config were not reflected in isort).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Others</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Fix to properly interrupt infinite loop in the Interactive Console (<strong>#PyDev-816</strong>).</li>
+<li>Fix issue where user could do a drag n drop in system libs which could put an entry below another entry, which actually removed it from the config (<strong>#PyDev-821</strong>).</li>
+<li>Fix where <strong>runfile</strong> was not available on <strong>interactive debugger</strong> when python-future is installed (<strong>#PyDev-845</strong>).</li>
+<li>Fix NullPointerException on code-completion.</li>
+<li>mutagen added to forced builtins by default (<strong>#PyDev-819</strong>).</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</div>
 <div class="section" id="release-5-9-2-2017-08-15">
 <h1>Release 5.9.2 (2017-08-15)</h1>
 <ul>
@@ -512,7 +589,7 @@ LiClipse you directly support the development of PyDev).</p>
 <li><p class="first"><strong>Debugger</strong></p>
 <blockquote>
 <ul class="simple">
-<li>Some critical fixes related to issues in the latest debugger (#PyDev-837, #PyDev-838, #PyDev-817).</li>
+<li>Some critical fixes related to issues in the latest debugger (<strong>#PyDev-837</strong>, <strong>#PyDev-838</strong>, <strong>#PyDev-817</strong>).</li>
 </ul>
 </blockquote>
 </li>
@@ -550,55 +627,6 @@ LiClipse you directly support the development of PyDev).</p>
 <li><p class="first">Some bugfixes in pytest integration.</p>
 </li>
 <li><p class="first"><strong>cv2</strong> added to forced builtins by default for working with OpenCV.</p>
-</li>
-</ul>
-</div>
-<div class="section" id="release-5-8-0-2017-06-06">
-<h1>Release 5.8.0 (2017-06-06)</h1>
-<ul>
-<li><p class="first"><strong>Important</strong> PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.</p>
-<blockquote>
-<ul class="simple">
-<li>PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).</li>
-</ul>
-</blockquote>
-</li>
-<li><p class="first"><strong>Code Analysis</strong></p>
-<blockquote>
-<ul class="simple">
-<li>Fixed issue getting existing PyLint markers.</li>
-<li>There's now an Info and an Ignore level.</li>
-</ul>
-</blockquote>
-</li>
-<li><p class="first"><strong>Debugger</strong></p>
-<blockquote>
-<ul class="simple">
-<li>The debugger now provides hooks for clients and provides ways to extend the handling of custom types. See: <a class="reference external" href="https://github.com/fabioz/PyDev.Debugger/tree/master/pydevd_plugins/extensions">https://github.com/fabioz/PyDev.Debugger/tree/master/pydevd_plugins/extensions</a> (patch by <strong>Yuli Fiterman</strong>).</li>
-<li>Fixed issue where the debugger could end up removing quotes on args. <strong>#PyDev-797</strong></li>
-<li>The debugger now works with IronPython again -- although note that <strong>IronPython</strong> <strong>2.7.6</strong> and <strong>2.7.7</strong> have a critical bug which prevents IronPython from working in PyDev: <a class="reference external" href="https://github.com/IronLanguages/main/issues/1663">https://github.com/IronLanguages/main/issues/1663</a></li>
-</ul>
-</blockquote>
-</li>
-<li><p class="first"><strong>Code Coverage</strong></p>
-<blockquote>
-<ul class="simple">
-<li>Fixed issue getting code-coverage version. <strong>#PyDev-791</strong></li>
-<li>Properly works when running with pytest (provided that pytest-cov is installed).</li>
-</ul>
-</blockquote>
-</li>
-<li><p class="first"><strong>Others</strong></p>
-<blockquote>
-<ul class="simple">
-<li>Update .yaml file for google app engine project templates (patch by <strong>JunjieW</strong>).</li>
-<li>Upgraded Lucene to 6.1.0 (patch by <strong>Sopot Cela</strong>).</li>
-<li>Update docstring from parameters (Ctrl+1 on <strong>def</strong>) properly considers sphinx with types. <strong>#PyDev-787</strong></li>
-<li>Code Completion: Properly finding <strong>__init__</strong> from superclass in inherited classes. <strong>#PyDev-802</strong></li>
-<li>No longer showing icon to start interactive console in toolbar because Eclipse could end up creating multiple entries which were shown forever. <strong>#PyDev-708</strong></li>
-<li>Other minor bugfixes.</li>
-</ul>
-</blockquote>
 </li>
 </ul>
 <p><a class="reference external" href="history_pydev.html">View release notes for previous releases</a></p>

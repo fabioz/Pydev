@@ -6,6 +6,58 @@ History For PyDev
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
+Release 6.0.0 (2017-09-19)
+=============================
+
+* **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
+
+    * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
+
+* **Interpreter configuration**
+
+	* The **list of packages** installed in the interpreter is shown in the IDE (supports either **pip** or **conda**).
+	* It's now possible to **install/uninstall** packages using either **pip** or **conda** directly from the IDE.
+	* Provides a way to **load variables** if interpreter is from a **conda environment** (Load conda env vars before run configuration).
+	* A default string substitution variable named **PY** is now created with the major and minor version of the created interpreter.
+	* It's now possible to configure a project to always use a grammar compatible with the interpreter version (default for new projects -- **#PyDev-846**).
+
+* **Editor**
+
+	* **Subword** navigation is now available (and enabled by default -- can be customized at **PyDev > Editor**).
+	* Changed default config for minimap (smaller and not showing elements -- can be customized at **PyDev > Editor > Overview Ruler Minimap**).
+	* Code completion no longer active in comments in last line of editor (**#PyDev-762**).
+
+* **Debugger**
+
+	* Fix find_module signature (patch by James Blackburn).
+	* Fix qt_loader to support **PEP 302** correctly.
+	* Fix in matplotlib_options from ipython (**#PyDev-779**).
+	* When show all uppercase references is used as a filter, only digits shouldn't be filtered out in variables view (#PyDev-794).
+
+* **PyLint**
+
+	* Added setting to search **PyLint** installed in interpreter (**#PyDev-811**).
+
+* **Unittest**
+
+	* It's possible to edit a run configuration from dialog to select tests to run (Ctrl+F9) (patch by **Robert Gomulka**).
+	* Test(s) name is shown in the run configuration (patch by **Robert Gomulka** -- **#PyDev-840**).
+
+* **isort integration**
+
+	* The modules that are known to be third party or system modules in the PyDev configuration are passed to **isort**.
+	* Proper support for **isort:skip** and **isort:skip_file**.
+	* Internal isort caches properly being cleared between invocations (fix for case where changes to config were not reflected in isort).
+
+* **Others**
+
+	* Fix to properly interrupt infinite loop in the Interactive Console (**#PyDev-816**).
+	* Fix issue where user could do a drag n drop in system libs which could put an entry below another entry, which actually removed it from the config (**#PyDev-821**).
+	* Fix where **runfile** was not available on **interactive debugger** when python-future is installed (**#PyDev-845**).
+	* Fix NullPointerException on code-completion.
+	* mutagen added to forced builtins by default (**#PyDev-819**).
+
+
 Release 5.9.2 (2017-08-15)
 ==========================
 

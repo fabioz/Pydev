@@ -20,8 +20,8 @@
 	<tr align="center" bgcolor="#eeeeee" valign="top">
 		<td nowrap="nowrap" class="td_top">
 		<center>
-		<p class="header_text">Last Site Update: September 2nd, 2017 |
-		Latest Version: 5.9.2</p>
+		<p class="header_text">Last Site Update: September 19th, 2017 |
+		Latest Version: 6.0.0</p>
 		</center>
 		</td>
 	</tr>
@@ -273,6 +273,83 @@
 
 <div class="section" id="history-for-pydev">
 <h1>History For PyDev</h1>
+<div class="section" id="release-6-0-0-2017-09-19">
+<h2>Release 6.0.0 (2017-09-19)</h2>
+<ul>
+<li><p class="first"><strong>Important</strong> PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.</p>
+<blockquote>
+<ul class="simple">
+<li>PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Interpreter configuration</strong></p>
+<blockquote>
+<ul class="simple">
+<li>The <strong>list of packages</strong> installed in the interpreter is shown in the IDE (supports either <strong>pip</strong> or <strong>conda</strong>).</li>
+<li>It's now possible to <strong>install/uninstall</strong> packages using either <strong>pip</strong> or <strong>conda</strong> directly from the IDE.</li>
+<li>Provides a way to <strong>load variables</strong> if interpreter is from a <strong>conda environment</strong> (Load conda env vars before run configuration).</li>
+<li>A default string substitution variable named <strong>PY</strong> is now created with the major and minor version of the created interpreter.</li>
+<li>It's now possible to configure a project to always use a grammar compatible with the interpreter version (default for new projects -- <strong>#PyDev-846</strong>).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Editor</strong></p>
+<blockquote>
+<ul class="simple">
+<li><strong>Subword</strong> navigation is now available (and enabled by default -- can be customized at <strong>PyDev &gt; Editor</strong>).</li>
+<li>Changed default config for minimap (smaller and not showing elements -- can be customized at <strong>PyDev &gt; Editor &gt; Overview Ruler Minimap</strong>).</li>
+<li>Code completion no longer active in comments in last line of editor (<strong>#PyDev-762</strong>).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Debugger</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Fix find_module signature (patch by James Blackburn).</li>
+<li>Fix qt_loader to support <strong>PEP 302</strong> correctly.</li>
+<li>Fix in matplotlib_options from ipython (<strong>#PyDev-779</strong>).</li>
+<li>When show all uppercase references is used as a filter, only digits shouldn't be filtered out in variables view (#PyDev-794).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>PyLint</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Added setting to search <strong>PyLint</strong> installed in interpreter (<strong>#PyDev-811</strong>).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Unittest</strong></p>
+<blockquote>
+<ul class="simple">
+<li>It's possible to edit a run configuration from dialog to select tests to run (Ctrl+F9) (patch by <strong>Robert Gomulka</strong>).</li>
+<li>Test(s) name is shown in the run configuration (patch by <strong>Robert Gomulka</strong> -- <strong>#PyDev-840</strong>).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>isort integration</strong></p>
+<blockquote>
+<ul class="simple">
+<li>The modules that are known to be third party or system modules in the PyDev configuration are passed to <strong>isort</strong>.</li>
+<li>Proper support for <strong>isort:skip</strong> and <strong>isort:skip_file</strong>.</li>
+<li>Internal isort caches properly being cleared between invocations (fix for case where changes to config were not reflected in isort).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Others</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Fix to properly interrupt infinite loop in the Interactive Console (<strong>#PyDev-816</strong>).</li>
+<li>Fix issue where user could do a drag n drop in system libs which could put an entry below another entry, which actually removed it from the config (<strong>#PyDev-821</strong>).</li>
+<li>Fix where <strong>runfile</strong> was not available on <strong>interactive debugger</strong> when python-future is installed (<strong>#PyDev-845</strong>).</li>
+<li>Fix NullPointerException on code-completion.</li>
+<li>mutagen added to forced builtins by default (<strong>#PyDev-819</strong>).</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</div>
 <div class="section" id="release-5-9-2-2017-08-15">
 <h2>Release 5.9.2 (2017-08-15)</h2>
 <ul>

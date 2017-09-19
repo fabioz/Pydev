@@ -187,6 +187,58 @@ To show your appreciation for PyDev and to keep it going strong, help to crowdfu
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
+Release 6.0.0 (2017-09-19)
+=============================
+
+* **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
+
+    * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
+
+* **Interpreter configuration**
+
+	* The **list of packages** installed in the interpreter is shown in the IDE (supports either **pip** or **conda**).
+	* It's now possible to **install/uninstall** packages using either **pip** or **conda** directly from the IDE.
+	* Provides a way to **load variables** if interpreter is from a **conda environment** (Load conda env vars before run configuration).
+	* A default string substitution variable named **PY** is now created with the major and minor version of the created interpreter.
+	* It's now possible to configure a project to always use a grammar compatible with the interpreter version (default for new projects -- **#PyDev-846**).
+
+* **Editor**
+
+	* **Subword** navigation is now available (and enabled by default -- can be customized at **PyDev > Editor**).
+	* Changed default config for minimap (smaller and not showing elements -- can be customized at **PyDev > Editor > Overview Ruler Minimap**).
+	* Code completion no longer active in comments in last line of editor (**#PyDev-762**).
+
+* **Debugger**
+
+	* Fix find_module signature (patch by James Blackburn).
+	* Fix qt_loader to support **PEP 302** correctly.
+	* Fix in matplotlib_options from ipython (**#PyDev-779**).
+	* When show all uppercase references is used as a filter, only digits shouldn't be filtered out in variables view (#PyDev-794).
+
+* **PyLint**
+
+	* Added setting to search **PyLint** installed in interpreter (**#PyDev-811**).
+
+* **Unittest**
+
+	* It's possible to edit a run configuration from dialog to select tests to run (Ctrl+F9) (patch by **Robert Gomulka**).
+	* Test(s) name is shown in the run configuration (patch by **Robert Gomulka** -- **#PyDev-840**).
+
+* **isort integration**
+
+	* The modules that are known to be third party or system modules in the PyDev configuration are passed to **isort**.
+	* Proper support for **isort:skip** and **isort:skip_file**.
+	* Internal isort caches properly being cleared between invocations (fix for case where changes to config were not reflected in isort).
+
+* **Others**
+
+	* Fix to properly interrupt infinite loop in the Interactive Console (**#PyDev-816**).
+	* Fix issue where user could do a drag n drop in system libs which could put an entry below another entry, which actually removed it from the config (**#PyDev-821**).
+	* Fix where **runfile** was not available on **interactive debugger** when python-future is installed (**#PyDev-845**).
+	* Fix NullPointerException on code-completion.
+	* mutagen added to forced builtins by default (**#PyDev-819**).
+
+
 Release 5.9.2 (2017-08-15)
 ==========================
 
@@ -196,7 +248,7 @@ Release 5.9.2 (2017-08-15)
 
 * **Debugger**
 
-	* Some critical fixes related to issues in the latest debugger (#PyDev-837, #PyDev-838, #PyDev-817).
+	* Some critical fixes related to issues in the latest debugger (**#PyDev-837**, **#PyDev-838**, **#PyDev-817**).
 
 * Added support for having isort as the engine for import sorting.
 * Fixed issue when parsing empty f-string.
@@ -218,38 +270,6 @@ Release 5.9.0 (2017-08-10)
 * Optimization in editor highlighting when dealing with huge files.
 * Some bugfixes in pytest integration.
 * **cv2** added to forced builtins by default for working with OpenCV.
-
-Release 5.8.0 (2017-06-06)
-==========================
-
-* **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
-
-    * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
-
-* **Code Analysis**
-
-	* Fixed issue getting existing PyLint markers.
-	* There's now an Info and an Ignore level.
-
-* **Debugger**
-
-	* The debugger now provides hooks for clients and provides ways to extend the handling of custom types. See: https://github.com/fabioz/PyDev.Debugger/tree/master/pydevd_plugins/extensions (patch by **Yuli Fiterman**).
-	* Fixed issue where the debugger could end up removing quotes on args. **#PyDev-797**
-	* The debugger now works with IronPython again -- although note that **IronPython** **2.7.6** and **2.7.7** have a critical bug which prevents IronPython from working in PyDev: https://github.com/IronLanguages/main/issues/1663
-
-* **Code Coverage**
-
-	* Fixed issue getting code-coverage version. **#PyDev-791**
-	* Properly works when running with pytest (provided that pytest-cov is installed).
-
-* **Others**
-
-	* Update .yaml file for google app engine project templates (patch by **JunjieW**).
-	* Upgraded Lucene to 6.1.0 (patch by **Sopot Cela**).
-	* Update docstring from parameters (Ctrl+1 on **def**) properly considers sphinx with types. **#PyDev-787**
-	* Code Completion: Properly finding **__init__** from superclass in inherited classes. **#PyDev-802**
-	* No longer showing icon to start interactive console in toolbar because Eclipse could end up creating multiple entries which were shown forever. **#PyDev-708**
-	* Other minor bugfixes.
 
 
 `View release notes for previous releases`_

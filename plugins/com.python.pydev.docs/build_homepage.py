@@ -14,6 +14,7 @@ this_script_dir = os.path.split(this_script_path)[0]
 CURRENT_DATE = datetime.datetime.now()
 
 update_site_versions = [
+    '6.0.0',
     '5.9.2',
     '5.9.1',
     '5.9.0',
@@ -128,15 +129,44 @@ def BuildFromRst(source_filename, is_new_homepage=False):
     f.close()
 
 
-HTACCESS_CONTENTS = '''RewriteEngine On
-RewriteBase /
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ https://dl.bintray.com/fabioz/pydev/{version}/$1 [R]
+COMPOSITE_CONTENT = '''<?xml version='1.0' encoding='UTF-8'?>
+<?compositeMetadataRepository version='1.0.0'?>
+<repository name='&quot;Eclipse Project Test Site&quot;'
+    type='org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository' version='1.0.0'>
+  <properties size='1'>
+    <property name='p2.timestamp' value='{timestamp}'/>
+  </properties>
+ <children size='1'>
+    <child location='https://dl.bintray.com/fabioz/pydev/{version}'/>
+  </children>
+</repository>
 '''
 
-INDEX_CONTENTS = '''Nothing to see here (this is just a dummy link to be redirected to
-<a href="https://dl.bintray.com/fabioz/pydev/{version}">https://dl.bintray.com/fabioz/pydev/{version}</a>)'''
+COMPOSITE_ARTIFACTS = '''<?xml version='1.0' encoding='UTF-8'?>
+<?compositeArtifactRepository version='1.0.0'?>
+<repository name='&quot;Eclipse Project Test Site&quot;'
+    type='org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository' version='1.0.0'>
+  <properties size='1'>
+    <property name='p2.timestamp' value='{timestamp}'/>
+  </properties>
+  <children size='3'>
+    <child location='https://dl.bintray.com/fabioz/pydev/{version}'/>
+  </children>
+</repository>
+'''
+
+INDEX_CONTENTS = '''<!DOCTYPE html>
+<html>
+<head></head>
+<body>PyDev update site aggregator.<br>
+<br>
+Bundles the following PyDev update site(s):<br>
+<br>
+<a href="https://dl.bintray.com/fabioz/pydev/{version}">https://dl.bintray.com/fabioz/pydev/{version}</a><br>
+</body>
+</html>
+
+'''
 
 #=======================================================================================================================
 # GenerateRstInDir
@@ -161,21 +191,27 @@ if __name__ == '__main__':
     shutil.rmtree(os.path.join('final', 'supporters'), ignore_errors=True)
     shutil.copytree('supporters', os.path.join('final', 'supporters'))
 
-    for filename in ('.htaccess', 'index.html'):
-        with open(os.path.join('final', 'updates', filename), 'r') as stream:
-            contents = stream.read()
-        with open(os.path.join('final', 'updates', filename), 'w') as stream:
-            stream.write(contents.replace('{version}', LAST_VERSION_TAG))
+    import time
+    timestamp = str(int(time.time()))
 
-    for update_site_version in update_site_versions:
+    def make_update_site_at_dir(directory, version):
         try:
-            os.mkdir(os.path.join('final', 'update_sites', update_site_version))
+            os.mkdir(directory)
         except:
             pass
-        with open(os.path.join('final', 'update_sites', update_site_version, '.htaccess'), 'w') as stream:
-            stream.write(HTACCESS_CONTENTS.replace('{version}', update_site_version))
-        with open(os.path.join('final', 'update_sites', update_site_version, 'index.html'), 'w') as stream:
-            stream.write(INDEX_CONTENTS.replace('{version}', update_site_version))
+        with open(os.path.join(directory, 'compositeArtifacts.xml'), 'w') as stream:
+            stream.write(COMPOSITE_ARTIFACTS.replace('{version}', version).replace('{timestamp}', timestamp))
+
+        with open(os.path.join(directory, 'compositeContent.xml'), 'w') as stream:
+            stream.write(COMPOSITE_CONTENT.replace('{version}', version).replace('{timestamp}', timestamp))
+
+        with open(os.path.join(directory, 'index.html'), 'w') as stream:
+            stream.write(INDEX_CONTENTS.replace('{version}', version).replace('{timestamp}', timestamp))
+
+    make_update_site_at_dir(os.path.join('final', 'updates'), LAST_VERSION_TAG)
+
+    for update_site_version in update_site_versions:
+        make_update_site_at_dir(os.path.join('final', 'update_sites', update_site_version), update_site_version)
 
     shutil.rmtree(os.path.join('final', 'nightly'), ignore_errors=True)
     shutil.copytree('nightly', os.path.join('final', 'nightly'))
