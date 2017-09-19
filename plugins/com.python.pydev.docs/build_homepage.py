@@ -191,30 +191,38 @@ if __name__ == '__main__':
     shutil.rmtree(os.path.join('final', 'supporters'), ignore_errors=True)
     shutil.copytree('supporters', os.path.join('final', 'supporters'))
 
+    shutil.rmtree(os.path.join('final', 'nightly'), ignore_errors=True)
+    shutil.copytree('nightly', os.path.join('final', 'nightly'))
+
     import time
     timestamp = str(int(time.time()))
 
-    def make_update_site_at_dir(directory, version):
+    def make_update_site_at_dir(directory, version, force):
         try:
             os.mkdir(directory)
         except:
             pass
-        with open(os.path.join(directory, 'compositeArtifacts.xml'), 'w') as stream:
-            stream.write(COMPOSITE_ARTIFACTS.replace('{version}', version).replace('{timestamp}', timestamp))
+        xml1 = os.path.join(directory, 'compositeArtifacts.xml')
+        if force or not os.path.exists(xml1):
+            with open(xml1, 'w') as stream:
+                stream.write(COMPOSITE_ARTIFACTS.replace('{version}', version).replace('{timestamp}', timestamp))
 
-        with open(os.path.join(directory, 'compositeContent.xml'), 'w') as stream:
-            stream.write(COMPOSITE_CONTENT.replace('{version}', version).replace('{timestamp}', timestamp))
+        xml2 = os.path.join(directory, 'compositeContent.xml')
+        if force or not os.path.exists(xml2):
+            with open(xml2, 'w') as stream:
+                stream.write(COMPOSITE_CONTENT.replace('{version}', version).replace('{timestamp}', timestamp))
 
-        with open(os.path.join(directory, 'index.html'), 'w') as stream:
-            stream.write(INDEX_CONTENTS.replace('{version}', version).replace('{timestamp}', timestamp))
+        html = os.path.join(directory, 'index.html')
+        if force or not os.path.exists(html):
+            with open(html, 'w') as stream:
+                stream.write(INDEX_CONTENTS.replace('{version}', version).replace('{timestamp}', timestamp))
 
-    make_update_site_at_dir(os.path.join('final', 'updates'), LAST_VERSION_TAG)
+    make_update_site_at_dir(os.path.join('final', 'updates'), LAST_VERSION_TAG, force=True)
+    make_update_site_at_dir(os.path.join('final', 'nightly'), LAST_VERSION_TAG, force=True)
 
     for update_site_version in update_site_versions:
-        make_update_site_at_dir(os.path.join('final', 'update_sites', update_site_version), update_site_version)
+        make_update_site_at_dir(os.path.join('final', 'update_sites', update_site_version), update_site_version, force=False)
 
-    shutil.rmtree(os.path.join('final', 'nightly'), ignore_errors=True)
-    shutil.copytree('nightly', os.path.join('final', 'nightly'))
 
     shutil.copyfile('stylesheet.css', os.path.join('final', 'stylesheet.css'))
     shutil.copyfile('favicon.ico', os.path.join('final', 'favicon.ico'))
