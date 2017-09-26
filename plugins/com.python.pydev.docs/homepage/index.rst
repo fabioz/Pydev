@@ -22,6 +22,9 @@
 		<div class="section" id="silver-sponsors">
 		<h1>Silver Sponsors</h1>
 
+        <!--Added 2017-09-26 -->
+        <a href="https://makeawebsitehub.com" border=0><img class="sponsors" src="images/sponsors/websitehub.png" style="width:150px;height:60px;" alt="makeawebsitehub.com" title="https://makeawebsitehub.com" /></a>
+
         <!--Added 2017-09-02 -- patreon -->
         <a href="https://www.voucher365.co.uk" border=0><img class="sponsors" src="images/sponsors/voucher_365.png" style="width:150px;height:60px;" alt="Voucher 365" title="https://www.voucher365.co.uk" /></a>
 
@@ -31,14 +34,14 @@
         <!--Added 2016-08-02-->
         <a href="http://www.dealslands.co.uk" border=0><img class="sponsors" src="images/sponsors/dealslandsco_uk_150_60.png" style="width:150px;height:60px;" alt="Dealslands.co.uk" title="http://www.dealslands.co.uk" /></a>
 
-        <!--Added 2016-07-13-->
-        <a href="http://www.o365cloudexperts.com/" border=0><img class="sponsors" src="images/sponsors/cloudexperts_150_60.png" style="width:150px;height:60px;" alt="Apps4Rent" title="http://www.o365cloudexperts.com/" /></a>
+        <!--Added 2016-12-24-->
+        <a href="http://www.givemedeals.com/?utm_source=PYD&utm_medium=donate&utm_campaign=PyDev" border=0><img class="sponsors" src="images/sponsors/give_me_deals.png" style="width:150px;height:60px;" alt="Give Me Deals" title="http://www.givemedeals.com/?utm_source=PYD&utm_medium=donate&utm_campaign=PyDev" /></a>
 
         <!--Added 2016-09-09-->
         <a href="http://www.binaryoptionrobotinfo.com/brokers/" border=0><img class="sponsors" src="images/sponsors/binary_option_robot_info_150_60.png" style="width:150px;height:60px;" alt="Binary Option Robot Info" title="http://www.binaryoptionrobotinfo.com/brokers/" /></a>
 
-        <!--Added 2016-12-24-->
-        <a href="http://www.givemedeals.com/?utm_source=PYD&utm_medium=donate&utm_campaign=PyDev" border=0><img class="sponsors" src="images/sponsors/give_me_deals.png" style="width:150px;height:60px;" alt="Give Me Deals" title="http://www.givemedeals.com/?utm_source=PYD&utm_medium=donate&utm_campaign=PyDev" /></a>
+        <!--Added 2016-07-13-->
+        <a href="http://www.o365cloudexperts.com/" border=0><img class="sponsors" src="images/sponsors/cloudexperts_150_60.png" style="width:150px;height:60px;" alt="Apps4Rent" title="http://www.o365cloudexperts.com/" /></a>
 
         <div class="section" id="bronze-sponsors">
         <h1>Bronze Sponsors</h1>
@@ -168,12 +171,10 @@ Gold Sponsors
    <!--Added 2014-07-16-->
    <a href="http://www.kichwacoders.com/" border=0><img class="sponsors" src="images/sponsors/kichwacoders.png" alt="Kichwacoders" title="http://www.kichwacoders.com/" /></a>
    <br class="hideWhenScreenSmall"/>
-   <!--Added 2014-07-16-->
-   <a href="http://www.dawnsci.org/" border=0><img class="sponsors" src="images/sponsors/dawnsci.png" alt="Dawn science" title="http://www.dawnsci.org/" /></a>
-   <!--Added 2014-07-16-->
-   <a href="http://www.pyvmmonitor.com/" border=0><img class="sponsors" src="images/sponsors/pyvmmonitor.png" alt="PyVmMonitor" title="http://www.pyvmmonitor.com/" /></a>
    <!--Added 2016-04-04-->
    <a href="http://www.squishlist.com/" border=0><img class="sponsors" src="images/sponsors/squishlist.png" alt="Squishlist" title="http://www.squishlist.com/" /></a>
+   <!--Added 2014-07-16-->
+   <a href="http://www.pyvmmonitor.com/" border=0><img class="sponsors" src="images/sponsors/pyvmmonitor.png" alt="PyVmMonitor" title="http://www.pyvmmonitor.com/" /></a>
 
 Supporting PyDev
 =================

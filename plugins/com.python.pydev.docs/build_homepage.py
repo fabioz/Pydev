@@ -189,9 +189,6 @@ if __name__ == '__main__':
     shutil.rmtree(os.path.join('final', 'updates'), ignore_errors=True)
     shutil.copytree('updates', os.path.join('final', 'updates'))
 
-    shutil.rmtree(os.path.join('final', 'supporters'), ignore_errors=True)
-    shutil.copytree('supporters', os.path.join('final', 'supporters'))
-
     shutil.rmtree(os.path.join('final', 'nightly'), ignore_errors=True)
     shutil.copytree('nightly', os.path.join('final', 'nightly'))
 
