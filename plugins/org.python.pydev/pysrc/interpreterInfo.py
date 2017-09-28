@@ -64,7 +64,8 @@ if sys.platform == "cygwin":
         path = fully_normalize_path(path)
         path = tobytes(path)
         CCP_POSIX_TO_WIN_A = 0
-        ctypes.cdll.cygwin1.cygwin_conv_path(CCP_POSIX_TO_WIN_A, path, retval, MAX_PATH)
+        cygwin1dll = ctypes.cdll.LoadLibrary( 'cygwin1.dll' )
+        cygwin1dll.cygwin_conv_path(CCP_POSIX_TO_WIN_A, path, retval, MAX_PATH)
 
         return retval.value
 
