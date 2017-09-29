@@ -126,7 +126,7 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
                 String text = comboNavigation.getText();
                 String style = SubWordPreferences.WORD_NAVIGATION_STYLE_SUBWORD;
                 if (WORD_NAVIGATION_NATIVE_CAPTION.equals(text)) {
-                    style = SubWordPreferences.WORD_NAVIGATION_STYLE_SUBWORD;
+                    style = SubWordPreferences.WORD_NAVIGATION_STYLE_NATIVE;
                 }
                 fOverlayStore.setValue(SubWordPreferences.WORD_NAVIGATION_STYLE, style);
             }
