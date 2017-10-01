@@ -97,6 +97,7 @@ public abstract class AbstractMessage implements IMessage {
             messages.put(IAnalysisPreferences.TYPE_PEP8, "%s");
             messages.put(IAnalysisPreferences.TYPE_ARGUMENTS_MISATCH, "%s");
             messages.put(IAnalysisPreferences.TYPE_FSTRING_SYNTAX_ERROR, "SyntaxError: %s");
+            messages.put(IAnalysisPreferences.TYPE_INVALID_ENCODING, "Unsupported encoding: %s");
         }
         return messages.get(getType());
 

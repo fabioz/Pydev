@@ -39,6 +39,7 @@ public interface IMessage {
      * @see com.python.pydev.analysis.IAnalysisPreferences#TYPE_INDENTATION_PROBLEM
      * @see com.python.pydev.analysis.IAnalysisPreferences#TYPE_PEP8
      * @see com.python.pydev.analysis.IAnalysisPreferences#TYPE_ARGUMENTS_MISATCH
+     * @see com.python.pydev.analysis.IAnalysisPreferences#TYPE_INVALID_ENCODING
      * 
      * @return this message type
      */

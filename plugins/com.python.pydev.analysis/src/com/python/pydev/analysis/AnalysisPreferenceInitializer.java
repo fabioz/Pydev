@@ -89,6 +89,9 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
     public static final String SEVERITY_FSTRING_ERROR = "SEVERITY_FSTRING_ERROR";
     public static final int DEFAULT_SEVERITY_FSTRING_ERROR = IMarker.SEVERITY_ERROR;
 
+    public static final String SEVERITY_INVALID_ENCODING = "SEVERITY_INVALID_ENCODING";
+    public static final int DEFAULT_SEVERITY_INVALID_ENCODING = IMarker.SEVERITY_ERROR;
+
     @Override
     public void initializeDefaultPreferences() {
         Preferences node = DefaultScope.INSTANCE.getNode(DEFAULT_SCOPE);

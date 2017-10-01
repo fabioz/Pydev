@@ -13,8 +13,7 @@ package org.python.pydev.editor.actions;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -466,9 +465,15 @@ public class PyFormatStd extends PyAction implements IFormatter {
                 defaultInterpreterInfo.getExecutableOrJar(), autopep8File.toString(),
                 lst.toArray(new String[0]));
 
-        Reader inputStreamReader = new StringReader(fileContents);
-        String pythonFileEncoding = FileUtils.getPythonFileEncoding(inputStreamReader, null);
-        if (pythonFileEncoding == null) {
+        // Try to find the file's encoding, but if none is given or the specified encoding is
+        // unsupported, then just default to utf-8
+        String pythonFileEncoding = null;
+        try {
+            pythonFileEncoding = FileUtils.getPythonFileEncoding(fileContents, null);
+            if (pythonFileEncoding == null) {
+                pythonFileEncoding = "utf-8";
+            }
+        } catch (UnsupportedEncodingException e) {
             pythonFileEncoding = "utf-8";
         }
         final String encodingUsed = pythonFileEncoding;

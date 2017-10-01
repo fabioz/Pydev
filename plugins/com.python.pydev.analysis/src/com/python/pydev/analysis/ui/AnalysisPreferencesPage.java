@@ -127,6 +127,8 @@ public class AnalysisPreferencesPage extends ScopedFieldEditorPreferencePage imp
                 "Indentation problems and mixing of tabs/spaces", 4, values, p, true));
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_ASSIGNMENT_TO_BUILT_IN_SYMBOL,
                 "Redefinition of builtin symbols", 4, values, p, true));
+        addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_INVALID_ENCODING,
+                "Unsupported encoding", 4, values, p, true));
         //TODO: Add ARGUMENTS_MISMATCH again later on
         //addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_ARGUMENTS_MISMATCH, "Arguments mismatch", 4,values,p, true));
 

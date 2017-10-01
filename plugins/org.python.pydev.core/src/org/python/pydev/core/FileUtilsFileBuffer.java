@@ -15,9 +15,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Reader;
-import java.io.StringReader;
-import java.nio.charset.IllegalCharsetNameException;
 import java.util.zip.ZipFile;
 
 import org.eclipse.core.filebuffers.ITextFileBuffer;
@@ -152,7 +149,13 @@ public class FileUtilsFileBuffer {
         if (doc == null && loadIfNotInWorkspace) {
             FileInputStream stream = new FileInputStream(f);
             try {
-                String encoding = FileUtils.getPythonFileEncoding(f);
+                String encoding;
+                try {
+                    encoding = FileUtils.getPythonFileEncoding(f);
+                } catch (IOException e) {
+                    // The encoding specified in the file is unsupported
+                    encoding = null;
+                }
                 return FileUtils.getStreamContents(stream, encoding, null, returnType);
             } finally {
                 try {
@@ -208,13 +211,4 @@ public class FileUtilsFileBuffer {
     public static IDocument getDocFromResource(IResource resource) {
         return FileUtils.getDocFromResource(resource);
     }
-
-    /**
-     * The encoding declared in the document is returned (according to the PEP: http://www.python.org/doc/peps/pep-0263/)
-     */
-    public static String getPythonFileEncoding(IDocument doc, String fileLocation) throws IllegalCharsetNameException {
-        Reader inputStreamReader = new StringReader(doc.get());
-        return FileUtils.getPythonFileEncoding(inputStreamReader, fileLocation);
-    }
-
 }
