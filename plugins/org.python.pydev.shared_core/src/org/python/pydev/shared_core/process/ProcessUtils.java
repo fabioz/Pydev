@@ -73,13 +73,14 @@ public class ProcessUtils {
             }
 
             try {
-                //just to see if we get something after the process finishes (and let the other threads run).
-                Object sync = new Object();
-                synchronized (sync) {
-                    sync.wait(50);
-                }
-            } catch (Exception e) {
-                //ignore
+                std.join(1000); // An additional full second for the thread to finish getting the output
+            } catch (InterruptedException e1) {
+                Log.log(e1);
+            }
+            try {
+                err.join(1000); // An additional full second for the thread to finish getting the output
+            } catch (InterruptedException e1) {
+                Log.log(e1);
             }
             return new Tuple<String, String>(std.getContents(), err.getContents());
 
@@ -122,7 +123,8 @@ public class ProcessUtils {
     /**
      * @return a tuple with the process created and a string representation of the cmdarray.
      */
-    public static Tuple<Process, String> run(String[] cmdarray, String[] envp, File workingDir, IProgressMonitor monitor) {
+    public static Tuple<Process, String> run(String[] cmdarray, String[] envp, File workingDir,
+            IProgressMonitor monitor) {
         if (monitor == null) {
             monitor = new NullProgressMonitor();
         }
@@ -178,8 +180,7 @@ public class ProcessUtils {
             commandLine = newCommandLine;
         }
 
-        if (commandLine.length < 1)
-        {
+        if (commandLine.length < 1) {
             return ""; //$NON-NLS-1$
         }
         FastStringBuffer buf = new FastStringBuffer();

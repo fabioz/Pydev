@@ -9,8 +9,10 @@
  */
 package org.python.pydev.shared_core.io;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -43,7 +45,7 @@ public final class ThreadStreamReader extends Thread {
     private static int next = 0;
 
     /**
-     * Get a unique identifier for this thread. 
+     * Get a unique identifier for this thread.
      */
     private static synchronized int next() {
         next++;
@@ -76,7 +78,16 @@ public final class ThreadStreamReader extends Thread {
         try {
             InputStreamReader in;
             if (encoding != null) {
-                in = new InputStreamReader(is, encoding);
+                try {
+                    in = new InputStreamReader(is, encoding);
+                } catch (UnsupportedEncodingException e) {
+                    Log.log(e);
+                    try {
+                        in = new InputStreamReader(is, "utf-8");
+                    } catch (UnsupportedEncodingException e1) {
+                        in = new InputStreamReader(is);
+                    }
+                }
 
             } else {
                 in = new InputStreamReader(is);
@@ -98,8 +109,8 @@ public final class ThreadStreamReader extends Thread {
                     contents.append(buf, 0, c);
                 }
             }
-        } catch (Exception e) {
-            //that's ok
+        } catch (IOException e) {
+            //that's ok, finished.
         }
     }
 

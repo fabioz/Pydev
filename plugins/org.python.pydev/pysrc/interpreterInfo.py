@@ -252,13 +252,5 @@ if __name__ == '__main__':
     else:
         sys.stdout.write(inasciixml)
 
-    try:
-        sys.stdout.flush()
-        sys.stderr.flush()
-        # and give some time to let it read things (just in case)
-        import time
-        time.sleep(0.1)
-    except:
-        pass
-
-    raise RuntimeError('Ok, this is so that it shows the output (ugly hack for some platforms, so that it releases the output).')
+    sys.stdout.flush()
+    sys.stderr.flush()
