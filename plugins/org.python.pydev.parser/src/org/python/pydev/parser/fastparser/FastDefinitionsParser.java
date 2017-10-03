@@ -615,51 +615,23 @@ public final class FastDefinitionsParser {
      * @return true if we have a match for 'class' in the current index (the 'c' must be already matched at this point)
      */
     private boolean matchClass() {
-        if (currIndex + 5 >= this.length) {
-            return false;
-        }
-        return (this.cs[currIndex + 1] == 'l' && this.cs[currIndex + 2] == 'a' && this.cs[currIndex + 3] == 's'
-                && this.cs[currIndex + 4] == 's' && Character.isWhitespace(this.cs[currIndex + 5]));
+        return ParsingUtils.matchClass(this.currIndex, this.cs, this.length) != -1;
     }
 
     /**
-     * @return true if we have a match for 'def' in the current index (the 'd' must be already matched at this point)
+     * @return a positive int if we have a match for 'def' in the current index (the 'd' must be already matched at this point)
+     * -1 means it was not matched.
      */
     private int matchFunction() {
-        if (currIndex + 3 >= this.length) {
-            return -1;
-        }
-        if (this.cs[currIndex + 1] == 'e' && this.cs[currIndex + 2] == 'f' && Character
-                .isWhitespace(this.cs[currIndex + 3])) {
-            return currIndex + 3;
-        }
-        return -1;
+        return ParsingUtils.matchFunction(this.currIndex, this.cs, this.length);
     }
 
     /**
-     * @return true if we have a match for 'async def' in the current index (the 'a' must be already matched at this point)
+     * @return a positive int if we have a match for 'async def' in the current index (the 'a' must be already matched at this point)
+     * -1 means it was not matched.
      */
     private int matchAsyncFunction() {
-
-        if (currIndex + 5 >= this.length) {
-            return -1;
-        }
-        if (this.cs[currIndex + 1] == 's' && this.cs[currIndex + 2] == 'y'
-                && this.cs[currIndex + 3] == 'n' && this.cs[currIndex + 4] == 'c' && Character
-                        .isWhitespace(this.cs[currIndex + 5])) {
-            int i = currIndex + 6;
-            while (i < this.length && Character.isWhitespace(this.cs[i])) {
-                i += 1;
-            }
-            if (i + 3 >= this.length) {
-                return -1;
-            }
-            if (this.cs[i] == 'd' && this.cs[i + 1] == 'e' && this.cs[i + 2] == 'f' && Character
-                    .isWhitespace(this.cs[i + 3])) {
-                return i + 3;
-            }
-        }
-        return -1;
+        return ParsingUtils.matchAsyncFunction(this.currIndex, this.cs, this.length);
     }
 
     /**

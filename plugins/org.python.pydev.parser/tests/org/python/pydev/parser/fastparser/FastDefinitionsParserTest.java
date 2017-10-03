@@ -1171,14 +1171,12 @@ public class FastDefinitionsParserTest extends TestCase {
         Module m = (Module) FastDefinitionsParser.parse("class Bar(object):\n" +
                 "    def ra(\n" +
                 "\n" +
-                "\n"
-                +
+                "\n" +
                 "    )\n" +
                 "    a = (\n" +
                 "        a = 10\n" +
                 "    )\n" +
-                "    def m2(self):pass\n"
-                +
+                "    def m2(self):pass\n" +
                 "        #def m3(self):pass\n" +
                 "        'string'\n");
         assertEquals(1, m.body.length);

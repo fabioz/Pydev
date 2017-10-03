@@ -72,6 +72,51 @@ public class ParsingUtilsTest extends TestCase {
         assertEquals('\n', parsingUtils.charAt(i));
     }
 
+    public void testEatComments2() {
+        String str = "" +
+                "#comm1\r\n" +
+                "pass\n" +
+                "";
+        ParsingUtils parsingUtils = ParsingUtils.create(str);
+        int i = parsingUtils.eatComments(null, 0);
+        assertEquals('\n', parsingUtils.charAt(i));
+        FastStringBuffer buf = new FastStringBuffer();
+        int j = parsingUtils.eatComments(buf, 0);
+        assertEquals('\n', parsingUtils.charAt(i));
+        assertEquals("#comm1\r\n", buf.toString());
+        assertEquals(i, j);
+    }
+
+    public void testEatComments3() {
+        String str = "" +
+                "#comm1\r" +
+                "pass\n" +
+                "";
+        ParsingUtils parsingUtils = ParsingUtils.create(str);
+        int i = parsingUtils.eatComments(null, 0);
+        assertEquals('\r', parsingUtils.charAt(i));
+        FastStringBuffer buf = new FastStringBuffer();
+        int j = parsingUtils.eatComments(buf, 0);
+        assertEquals('\r', parsingUtils.charAt(i));
+        assertEquals("#comm1\r", buf.toString());
+        assertEquals(i, j);
+    }
+
+    public void testEatComments4() {
+        String str = "" +
+                "#comm1\r" +
+                "pass\n" +
+                "";
+        ParsingUtils parsingUtils = ParsingUtils.create(str);
+        int i = parsingUtils.eatComments(null, 0, false);
+        assertEquals('1', parsingUtils.charAt(i));
+        FastStringBuffer buf = new FastStringBuffer();
+        int j = parsingUtils.eatComments(buf, 0, false);
+        assertEquals('1', parsingUtils.charAt(i));
+        assertEquals("#comm1", buf.toString());
+        assertEquals(i, j);
+    }
+
     public void testEatLiterals() throws SyntaxErrorException {
         String str = "" +
                 "'''\n" +

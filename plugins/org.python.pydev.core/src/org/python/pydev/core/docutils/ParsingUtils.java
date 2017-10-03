@@ -312,8 +312,16 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
      * @note the new line char (\r or \n) will be added as a part of the comment.
      */
     public int eatComments(FastStringBuffer buf, int i) {
+        return eatComments(buf, i, true);
+    }
+
+    /**
+     * @param addNewLine whether the '\r' or '\n' should be added or not (if false
+     * will return the char right before \r or \n).
+     */
+    public int eatComments(FastStringBuffer buf, int i, boolean addNewLine) {
         int len = len();
-        char c;
+        char c = '\0';
 
         while (i < len && (c = charAt(i)) != '\n' && c != '\r') {
             if (buf != null) {
@@ -322,9 +330,25 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
             i++;
         }
 
+        if (!addNewLine) {
+            if (c == '\r' || c == '\n') {
+                i--;
+                return i;
+            }
+        }
+
         if (i < len) {
+            // c must be '\r' or '\n' at this point
             if (buf != null) {
-                buf.append(charAt(i));
+                buf.append(c);
+            }
+            if (c == '\r') {
+                if (i + 1 < len && charAt(i + 1) == '\n') {
+                    i++;
+                    if (buf != null) {
+                        buf.append('\n');
+                    }
+                }
             }
         }
 
@@ -569,7 +593,7 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
                 i = eatLiterals(null, i - 1) + 1;
 
             } else if (c == '#') {
-                i = eatComments(null, i - 1);
+                i = eatComments(null, i - 1, false) + 1;
                 break;
 
             } else if (c == '(' || c == '[' || c == '{') { //open par.
@@ -1110,6 +1134,50 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
             buf.append(activationToken.substring(i));
         }
         return buf.toString();
+    }
+
+    public static int matchClass(int currIndex, char[] cs, int length) {
+        if (currIndex + 5 >= length) {
+            return -1;
+        }
+        if (cs[currIndex + 1] == 'l' && cs[currIndex + 2] == 'a' && cs[currIndex + 3] == 's'
+                && cs[currIndex + 4] == 's' && Character.isWhitespace(cs[currIndex + 5])) {
+            return currIndex + 5;
+        }
+        return -1;
+    }
+
+    public static int matchFunction(int currIndex, char[] cs, int length) {
+        if (currIndex + 3 >= length) {
+            return -1;
+        }
+        if (cs[currIndex + 1] == 'e' && cs[currIndex + 2] == 'f' && Character
+                .isWhitespace(cs[currIndex + 3])) {
+            return currIndex + 3;
+        }
+        return -1;
+    }
+
+    public static int matchAsyncFunction(int currIndex, char[] cs, int length) {
+        if (currIndex + 5 >= length) {
+            return -1;
+        }
+        if (cs[currIndex + 1] == 's' && cs[currIndex + 2] == 'y'
+                && cs[currIndex + 3] == 'n' && cs[currIndex + 4] == 'c' && Character
+                        .isWhitespace(cs[currIndex + 5])) {
+            int i = currIndex + 6;
+            while (i < length && Character.isWhitespace(cs[i])) {
+                i += 1;
+            }
+            if (i + 3 >= length) {
+                return -1;
+            }
+            if (cs[i] == 'd' && cs[i + 1] == 'e' && cs[i + 2] == 'f' && Character
+                    .isWhitespace(cs[i + 3])) {
+                return i + 3;
+            }
+        }
+        return -1;
     }
 
 }

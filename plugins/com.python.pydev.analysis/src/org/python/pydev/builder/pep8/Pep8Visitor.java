@@ -106,7 +106,10 @@ public class Pep8Visitor {
             IAdaptable projectAdaptable = prefs.getProjectAdaptable();
             if (AnalysisPreferencesPage.useSystemInterpreter(projectAdaptable)) {
                 String parameters = AnalysisPreferencesPage.getPep8CommandLineAsStr(projectAdaptable);
-                String output = PyFormatStd.runWithPep8BaseScript(document.get(), parameters, "pycodestyle.py", "");
+                String output = PyFormatStd.runWithPep8BaseScript(document, parameters, "pycodestyle.py");
+                if (output == null) {
+                    output = "";
+                }
                 List<String> splitInLines = StringUtils.splitInLines(output, false);
 
                 for (String line : splitInLines) {

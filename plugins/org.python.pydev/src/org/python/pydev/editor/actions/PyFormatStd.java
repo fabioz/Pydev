@@ -111,6 +111,14 @@ public class PyFormatStd extends PyAction implements IFormatter {
 
         public boolean trimMultilineLiterals;
 
+        // Only valid if manageBlankLines == true
+        public int spacesBeforeTopLevelClassOrFunc = 2;
+
+        // Only valid if manageBlankLines == true
+        public int spacesBeforeInnerFunc = 1;
+
+        public boolean manageBlankLines = false;
+
         public static final int DONT_HANDLE_SPACES = -1;
         /**
          * -1 = don't handle
@@ -140,6 +148,9 @@ public class PyFormatStd extends PyAction implements IFormatter {
                 trimMultilineLiterals = false;
                 spacesBeforeComment = 2;
                 spacesInStartComment = 1;
+                manageBlankLines = true;
+                spacesBeforeTopLevelClassOrFunc = 2;
+                spacesBeforeInnerFunc = 1;
             }
         }
     }
@@ -279,11 +290,10 @@ public class PyFormatStd extends PyAction implements IFormatter {
         @SuppressWarnings({ "rawtypes", "unchecked" })
         List<Tuple3<Integer, Integer, String>> replaces = new ArrayList();
 
-        String docContents = doc.get();
         String delimiter = PySelection.getDelimiter(doc);
         IDocument formatted;
         try {
-            formatted = new Document(formatAll(formatStd, true, docContents, delimiter));
+            formatted = new Document(formatAll(formatStd, true, doc, delimiter));
         } catch (SyntaxErrorException e) {
             return;
         }
@@ -347,9 +357,8 @@ public class PyFormatStd extends PyAction implements IFormatter {
 
     public void formatAll(IDocument doc, IPyFormatStdProvider edit, boolean isOpenedFile, FormatStd formatStd,
             boolean throwSyntaxError) throws SyntaxErrorException {
-        String d = doc.get();
         String delimiter = PySelection.getDelimiter(doc);
-        String formatted = formatAll(formatStd, throwSyntaxError, d, delimiter);
+        String formatted = formatAll(formatStd, throwSyntaxError, doc, delimiter);
 
         String contents = doc.get();
         if (contents.equals(formatted)) {
@@ -363,10 +372,9 @@ public class PyFormatStd extends PyAction implements IFormatter {
         }
     }
 
-    private String formatAll(FormatStd formatStd, boolean throwSyntaxError, String d, String delimiter)
+    private String formatAll(FormatStd formatStd, boolean throwSyntaxError, IDocument doc, String delimiter)
             throws SyntaxErrorException {
-        String formatted = formatStr(d, formatStd, delimiter, throwSyntaxError);
-
+        String formatted = formatStrAutopep8OrPyDev(doc, formatStd, delimiter, throwSyntaxError);
         //To finish, check the end of line.
         if (formatStd.addNewLineAtEndOfFile) {
             try {
@@ -413,17 +421,25 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @return a new (formatted) string
      * @throws SyntaxErrorException
      */
-    /*default*/String formatStr(String str, FormatStd std, String delimiter, boolean throwSyntaxError)
+    /*default*/String formatStrAutopep8OrPyDev(IDocument doc, FormatStd std, String delimiter, boolean throwSyntaxError)
             throws SyntaxErrorException {
         if (std.formatWithAutopep8) {
             String parameters = std.autopep8Parameters;
-            String formatted = runWithPep8BaseScript(str, parameters, "autopep8.py", str);
+            String formatted = runWithPep8BaseScript(doc, parameters, "autopep8.py");
+            if (formatted == null) {
+                formatted = doc.get();
+            }
 
             formatted = StringUtils.replaceNewLines(formatted, delimiter);
 
             return formatted;
         } else {
-            return formatStr(str, std, 0, delimiter, throwSyntaxError);
+            FastStringBuffer buf = formatStr(doc.get(), std, 0, delimiter, throwSyntaxError);
+            if (std.manageBlankLines) {
+                return fixSpacingAmongMethodsAndClasses(std, doc, buf, delimiter).toString();
+            } else {
+                return buf.toString();
+            }
         }
     }
 
@@ -431,21 +447,20 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @param fileContents the contents to be passed in the stdin.
      * @param parameters the parameters to pass. Note that a '-' is always added to the parameters to signal we'll pass the file as the input in stdin.
      * @param script i.e.: pycodestyle.py, autopep8.py
-     * @return
+     * @return null if there was some error, otherwise returns the process stdout output.
      */
-    public static String runWithPep8BaseScript(String fileContents, String parameters, String script,
-            String defaultReturn) {
+    public static String runWithPep8BaseScript(IDocument doc, String parameters, String script) {
         File autopep8File;
         try {
             autopep8File = PydevPlugin.getScriptWithinPySrc(new Path("third_party").append("pep8")
                     .append(script).toString());
         } catch (CoreException e) {
             Log.log("Unable to get " + script + " location.");
-            return defaultReturn;
+            return null;
         }
         if (!autopep8File.exists()) {
             Log.log("Specified location for " + script + " does not exist (" + autopep8File + ").");
-            return defaultReturn;
+            return null;
         }
 
         SimplePythonRunner simplePythonRunner = new SimplePythonRunner();
@@ -455,7 +470,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
             defaultInterpreterInfo = pythonInterpreterManager.getDefaultInterpreterInfo(false);
         } catch (MisconfigurationException e) {
             Log.log("No default Python interpreter configured to run " + script);
-            return defaultReturn;
+            return null;
         }
         String[] parseArguments = ProcessUtils.parseArguments(parameters);
         List<String> lst = new ArrayList<>(Arrays.asList(parseArguments));
@@ -469,7 +484,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
         // unsupported, then just default to utf-8
         String pythonFileEncoding = null;
         try {
-            pythonFileEncoding = FileUtils.getPythonFileEncoding(fileContents, null);
+            pythonFileEncoding = FileUtils.getPythonFileEncoding(doc, null);
             if (pythonFileEncoding == null) {
                 pythonFileEncoding = "utf-8";
             }
@@ -495,11 +510,11 @@ public class PyFormatStd extends PyAction implements IFormatter {
         Tuple<Process, String> r = simplePythonRunner.run(cmdarray, autopep8File.getParentFile(), nature,
                 new NullProgressMonitor(), updateEnv);
         try {
-            r.o1.getOutputStream().write(fileContents.getBytes(pythonFileEncoding));
+            r.o1.getOutputStream().write(doc.get().getBytes(pythonFileEncoding));
             r.o1.getOutputStream().close();
         } catch (IOException e) {
             Log.log("Error writing contents to " + script);
-            return defaultReturn;
+            return null;
         }
         Tuple<String, String> processOutput = SimplePythonRunner.getProcessOutput(r.o1, r.o2,
                 new NullProgressMonitor(), pythonFileEncoding);
@@ -510,7 +525,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
         if (processOutput.o1.length() > 0) {
             return processOutput.o1;
         }
-        return defaultReturn;
+        return null;
     }
 
     /**
@@ -522,9 +537,10 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @return a new (formatted) string
      * @throws SyntaxErrorException
      */
-    private String formatStr(String str, FormatStd std, int parensLevel, String delimiter, boolean throwSyntaxError)
+    private FastStringBuffer formatStr(String doc, FormatStd std, int parensLevel, String delimiter,
+            boolean throwSyntaxError)
             throws SyntaxErrorException {
-        char[] cs = str.toCharArray();
+        final char[] cs = doc.toCharArray();
         FastStringBuffer buf = new FastStringBuffer();
 
         //Temporary buffer for some operations. Must always be cleared before it's used.
@@ -532,7 +548,8 @@ public class PyFormatStd extends PyAction implements IFormatter {
 
         ParsingUtils parsingUtils = ParsingUtils.create(cs, throwSyntaxError);
         char lastChar = '\0';
-        for (int i = 0; i < cs.length; i++) {
+        final int length = cs.length;
+        for (int i = 0; i < length; i++) {
             char c = cs[i];
 
             switch (c) {
@@ -648,7 +665,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
                             int initial = i;
                             do {
                                 i++;
-                            } while (i < cs.length && (c = cs[i]) == ' ' || c == '\t');
+                            } while (i < length && (c = cs[i]) == ' ' || c == '\t');
                             if (i > initial) {
                                 i--;//backup 1 because we walked 1 too much.
                             }
@@ -673,7 +690,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
 
                 //check for = and == (other cases that have an = as the operator should already be treated)
                 case '=':
-                    if (i < cs.length - 1 && cs[i + 1] == '=') {
+                    if (i < length - 1 && cs[i + 1] == '=') {
                         //if == handle as if a regular operator
                         i = handleOperator(std, cs, buf, parsingUtils, i, c);
                         c = cs[i];
@@ -705,15 +722,18 @@ public class PyFormatStd extends PyAction implements IFormatter {
                     i = parsingUtils.eatWhitespaces(null, i + 1);
                     break;
 
-                default:
-                    if (c == '\r' || c == '\n') {
-                        if (lastChar == ',' && std.spaceAfterComma && buf.lastChar() == ' ') {
-                            buf.deleteLast();
-                        }
-                        if (std.trimLines) {
-                            buf.rightTrimWhitespacesAndTabs();
-                        }
+                case '\r':
+                case '\n':
+                    if (lastChar == ',' && std.spaceAfterComma && buf.lastChar() == ' ') {
+                        buf.deleteLast();
                     }
+                    if (std.trimLines) {
+                        buf.rightTrimWhitespacesAndTabs();
+                    }
+                    buf.append(c);
+                    break;
+
+                default:
                     buf.append(c);
 
             }
@@ -723,7 +743,220 @@ public class PyFormatStd extends PyAction implements IFormatter {
         if (parensLevel == 0 && std.trimLines) {
             buf.rightTrimWhitespacesAndTabs();
         }
-        return buf.toString();
+
+        return buf;
+    }
+
+    private static class LineOffsetAndInfo {
+
+        public int offset;
+        public int offsetInNewBuf;
+        public boolean onlyWhitespacesFound = false;
+        public boolean onlyCommentsFound = false;
+
+        public LineOffsetAndInfo(int offset, int offsetInNewBuf) {
+            this.offset = offset;
+            this.offsetInNewBuf = offsetInNewBuf;
+        }
+
+        @Override
+        public String toString() {
+            return StringUtils.join(" ", "offset: ", offset, "offsetInNew:", offsetInNewBuf, "onlyWhitespacesFound:",
+                    onlyWhitespacesFound, "onlyCommentsFound:", onlyCommentsFound);
+        }
+    }
+
+    /**
+     * Do a second pass so that the following is true:
+     * - when a class is found, make sure we have 2 lines before it (and if we have more remove the excess)
+     * - when a method is found, make sure we have 1 line before it (and if we have more remove the excess)
+     * - inside a method, if more than 2 consecutive empty lines are found, make it only 1 line.
+     *
+     * From pep8:
+     * - Surround top-level function and class definitions with two blank lines.
+     * - Method definitions inside a class are surrounded by a single blank line.
+     *
+     * @param doc the original doc (before any formatting taking place -- as the previous formatting didn't change
+     * lines, it may still be useful to access statements based on lines -- such as imports).
+     */
+    private FastStringBuffer fixSpacingAmongMethodsAndClasses(FormatStd std, IDocument doc,
+            FastStringBuffer initialFormatting,
+            String delimiter)
+            throws SyntaxErrorException {
+        FastStringBuffer newBuf = new FastStringBuffer(initialFormatting.length() + 20);
+        ParsingUtils parsingUtils = ParsingUtils.create(initialFormatting);
+        char[] cs = initialFormatting.getInternalCharsArray(); // Faster access
+
+        int matchI = -1;
+        boolean onlyWhitespacesFound = true;
+        boolean onlyCommentsFound = false;
+        final int length = initialFormatting.length();
+        int decoratorState = 0; // 0 = just found, 1 = first decorator found, 2 = first decorator processed.
+
+        ArrayList<LineOffsetAndInfo> lst = new ArrayList<>();
+        lst.add(new LineOffsetAndInfo(0, 0));
+
+        for (int i = 0; i < length; i++) {
+            char c = cs[i];
+
+            if (c == '\r' || c == '\n') {
+                // Don't let more than 2 consecutive empty lines anywhere
+                // (when we find some class or method we'll add spaces accordingly
+                // if needed).
+                try {
+                    if (onlyWhitespacesFound && lst.size() > 2 && lst.get(lst.size() - 2).onlyWhitespacesFound) {
+                        if (c == '\r' && (i + 1) < length && cs[i + 1] == '\n') {
+                            i++;
+                        }
+                        continue;
+                    }
+                    newBuf.append(c);
+                    if (c == '\r' && (i + 1) < length && cs[i + 1] == '\n') {
+                        i++;
+                        newBuf.append('\n');
+                    }
+                    continue;
+                } finally {
+                    LineOffsetAndInfo currLineOffsetAndInfo = lst.get(lst.size() - 1);
+                    currLineOffsetAndInfo.onlyWhitespacesFound = onlyWhitespacesFound;
+                    currLineOffsetAndInfo.onlyCommentsFound = onlyCommentsFound;
+                    lst.add(new LineOffsetAndInfo(i, newBuf.length()));
+                    onlyWhitespacesFound = true;
+                    onlyCommentsFound = false;
+                }
+            }
+            if (Character.isWhitespace(c)) {
+                newBuf.append(c);
+                continue;
+            }
+            if (c == '#') {
+                if (onlyWhitespacesFound) {
+                    // If until this point we only found whitespaces, there are only comments in this line.
+                    onlyCommentsFound = true;
+                }
+                onlyWhitespacesFound = false;
+                i = parsingUtils.eatComments(newBuf, i, false);
+                continue;
+            }
+            if (c == '@') {
+                // Decorator or matrix multiplier
+                if (onlyWhitespacesFound) {
+                    // Consider it a decorator
+                    decoratorState = 1;
+                }
+            }
+            onlyWhitespacesFound = false;
+            matchI = -1;
+
+            switch (c) {
+                case '\'':
+                case '"':
+                    //ignore literals and multi-line literals, including comments...
+                    i = parsingUtils.eatLiterals(newBuf, i);
+                    break;
+
+                case 'a':
+                case 'c':
+                case 'd':
+                case '@':
+                    int j;
+                    switch (c) {
+                        case 'a':
+                            j = ParsingUtils.matchAsyncFunction(i, cs, length);
+                            if (j > 0) {
+                                if (decoratorState > 0) {
+                                    decoratorState = 0;
+                                    matchI = -1;
+                                } else {
+                                    matchI = j;
+                                }
+                            }
+                        case 'c':
+                            j = ParsingUtils.matchClass(i, cs, length);
+                            if (j > 0) {
+                                if (decoratorState > 0) {
+                                    decoratorState = 0;
+                                    matchI = -1;
+                                } else {
+                                    matchI = j;
+                                }
+                            }
+                            break;
+                        case 'd':
+                            j = ParsingUtils.matchFunction(i, cs, length);
+                            if (j > 0) {
+                                if (decoratorState > 0) {
+                                    decoratorState = 0;
+                                    matchI = -1;
+                                } else {
+                                    matchI = j;
+                                }
+                            }
+                            break;
+                        case '@':
+                            matchI = -1;
+                            if (decoratorState == 2) {
+                                // Don't reset flag if multiple decorators are found.
+                            } else {
+                                if (decoratorState == 1) {
+                                    matchI = i + 1;
+                                    decoratorState = 2;
+                                }
+                            }
+
+                            break;
+                        default:
+                            throw new RuntimeException("Error, should not get here.");
+                    }
+                    if (matchI > 0) {
+                        // When we find a class, we have to make sure that we have
+                        // exactly 2 empty lines before it (keeping comment blocks before it).
+                        if (lst.size() > 1) {
+                            // lst.size() == 1 means first line, so, no point in adding new line
+                            // lst.size() < 1 should never happen.
+                            int reverseI = lst.size() - 2;
+                            // lst.size() -2 is previous line and lst.size() -1 curr line
+                            // so, get a comment block right before the class or def and don't
+                            // split it (split before the block)
+                            LineOffsetAndInfo currLineOffsetAndInfo = lst.get(lst.size() - 1);
+                            while (reverseI >= 0) {
+                                LineOffsetAndInfo prev = lst.get(reverseI);
+                                if (prev.onlyCommentsFound) {
+                                    currLineOffsetAndInfo = prev;
+                                    reverseI--;
+                                } else {
+                                    break;
+                                }
+                            }
+                            if (reverseI >= 0) {
+                                // if reverseI < 0, we got to the top of the document only with comments
+                                // don't add new lines as it's dubious whether this is from the module or from the class.
+                                //
+                                // i.e.:
+                                // # comment
+                                // # comment
+                                // class Foo(object):
+                                if (newBuf.lastChar() == '\n' || newBuf.lastChar() == '\r') {
+                                    // top level
+                                    newBuf.insert(currLineOffsetAndInfo.offsetInNewBuf, delimiter + delimiter);
+
+                                } else {
+                                    newBuf.insert(currLineOffsetAndInfo.offsetInNewBuf, delimiter);
+                                }
+                            }
+                        }
+                        newBuf.append(cs, i, matchI - i);
+                        i = matchI - 1;
+                    } else {
+                        newBuf.append(c);
+                    }
+                    break;
+
+                default:
+                    newBuf.append(c);
+            }
+        }
+        return newBuf;
     }
 
     /**
@@ -1075,8 +1308,9 @@ public class PyFormatStd extends PyAction implements IFormatter {
                 }
             }
 
-            String formatStr = formatStr(trim(locBuf).toString(), std, parensLevel, delimiter, throwSyntaxError);
-            FastStringBuffer formatStrBuf = trim(new FastStringBuffer(formatStr, 10));
+            FastStringBuffer formatStr = formatStr(trim(locBuf).toString(), std, parensLevel, delimiter,
+                    throwSyntaxError);
+            FastStringBuffer formatStrBuf = trim(formatStr);
 
             String closing = ")";
             if (buf1.length() > 0 && PySelection.containsOnlyWhitespaces(buf1.toString())) {
