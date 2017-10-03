@@ -13,18 +13,16 @@ public class PyFormatStdManageBlankLines {
     private static class LineOffsetAndInfo {
 
         public int offset;
-        public int offsetInNewBuf;
         public boolean onlyWhitespacesFound = false;
         public boolean onlyCommentsFound = false;
 
-        public LineOffsetAndInfo(int offset, int offsetInNewBuf) {
+        public LineOffsetAndInfo(int offset) {
             this.offset = offset;
-            this.offsetInNewBuf = offsetInNewBuf;
         }
 
         @Override
         public String toString() {
-            return StringUtils.join(" ", "offset: ", offset, "offsetInNew:", offsetInNewBuf, "onlyWhitespacesFound:",
+            return StringUtils.join(" ", "offset: ", offset, "onlyWhitespacesFound:",
                     onlyWhitespacesFound, "onlyCommentsFound:", onlyCommentsFound);
         }
     }
@@ -44,7 +42,6 @@ public class PyFormatStdManageBlankLines {
      */
     public static FastStringBuffer fixBlankLinesAmongMethodsAndClasses(PyFormatStd.FormatStd std, IDocument doc,
             FastStringBuffer initialFormatting, String delimiter) throws SyntaxErrorException {
-        FastStringBuffer newBuf = new FastStringBuffer(initialFormatting.length() + 20);
         ParsingUtils parsingUtils = ParsingUtils.create(initialFormatting);
         char[] cs = initialFormatting.getInternalCharsArray(); // Faster access
 
@@ -55,7 +52,7 @@ public class PyFormatStdManageBlankLines {
         int decoratorState = 0; // 0 = just found, 1 = first decorator found, 2 = first decorator processed.
 
         ArrayList<PyFormatStdManageBlankLines.LineOffsetAndInfo> lst = new ArrayList<>();
-        lst.add(new PyFormatStdManageBlankLines.LineOffsetAndInfo(0, 0));
+        lst.add(new PyFormatStdManageBlankLines.LineOffsetAndInfo(0));
 
         for (int i = 0; i < length; i++) {
             char c = cs[i];
@@ -71,23 +68,20 @@ public class PyFormatStdManageBlankLines {
                         }
                         continue;
                     }
-                    newBuf.append(c);
                     if (c == '\r' && (i + 1) < length && cs[i + 1] == '\n') {
                         i++;
-                        newBuf.append('\n');
                     }
                     continue;
                 } finally {
                     PyFormatStdManageBlankLines.LineOffsetAndInfo currLineOffsetAndInfo = lst.get(lst.size() - 1);
                     currLineOffsetAndInfo.onlyWhitespacesFound = onlyWhitespacesFound;
                     currLineOffsetAndInfo.onlyCommentsFound = onlyCommentsFound;
-                    lst.add(new PyFormatStdManageBlankLines.LineOffsetAndInfo(i, newBuf.length()));
+                    lst.add(new PyFormatStdManageBlankLines.LineOffsetAndInfo(i));
                     onlyWhitespacesFound = true;
                     onlyCommentsFound = false;
                 }
             }
             if (Character.isWhitespace(c)) {
-                newBuf.append(c);
                 continue;
             }
             if (c == '#') {
@@ -96,7 +90,7 @@ public class PyFormatStdManageBlankLines {
                     onlyCommentsFound = true;
                 }
                 onlyWhitespacesFound = false;
-                i = parsingUtils.eatComments(newBuf, i, false);
+                i = parsingUtils.eatComments(null, i, false);
                 continue;
             }
             if (c == '@') {
@@ -113,7 +107,7 @@ public class PyFormatStdManageBlankLines {
                 case '\'':
                 case '"':
                     //ignore literals and multi-line literals, including comments...
-                    i = parsingUtils.eatLiterals(newBuf, i);
+                    i = parsingUtils.eatLiterals(null, i);
                     break;
 
                 case 'a':
@@ -198,27 +192,22 @@ public class PyFormatStdManageBlankLines {
                                 // # comment
                                 // # comment
                                 // class Foo(object):
-                                if (newBuf.lastChar() == '\n' || newBuf.lastChar() == '\r') {
+                                if (cs[i - 1] == '\n' || cs[i - 1] == '\r') {
                                     // top level
-                                    newBuf.insert(currLineOffsetAndInfo.offsetInNewBuf, delimiter + delimiter);
+                                    currLineOffsetAndInfo.minBlankLines = 2;
 
                                 } else {
-                                    newBuf.insert(currLineOffsetAndInfo.offsetInNewBuf, delimiter);
+                                    currLineOffsetAndInfo.minBlankLines = 1;
                                 }
                             }
                         }
-                        newBuf.append(cs, i, matchI - i);
                         i = matchI - 1;
                     } else {
-                        newBuf.append(c);
                     }
                     break;
 
-                default:
-                    newBuf.append(c);
             }
         }
-        return newBuf;
     }
 
 }
