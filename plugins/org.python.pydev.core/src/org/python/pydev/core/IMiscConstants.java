@@ -45,4 +45,5 @@ public interface IMiscConstants {
     int TYPE_PEP8 = 15;
     int TYPE_ARGUMENTS_MISATCH = 16;
     int TYPE_FSTRING_SYNTAX_ERROR = 17;
+    int TYPE_INVALID_ENCODING = 18;
 }

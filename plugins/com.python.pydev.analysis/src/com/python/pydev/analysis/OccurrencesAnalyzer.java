@@ -22,14 +22,17 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.io.PyUnsupportedEncodingException;
 
 import com.python.pydev.analysis.messages.IMessage;
+import com.python.pydev.analysis.messages.Message;
 import com.python.pydev.analysis.tabnanny.TabNanny;
 import com.python.pydev.analysis.visitors.OccurrencesVisitor;
 
 /**
  * This class is responsible for starting the analysis of a given module.
- * 
+ *
  * @author Fabio
  */
 public class OccurrencesAnalyzer {
@@ -67,7 +70,14 @@ public class OccurrencesAnalyzer {
 
         List<IMessage> messages = new ArrayList<IMessage>();
         if (!monitor.isCanceled()) {
-            messages = visitor.getMessages();
+            messages.addAll(visitor.getMessages());
+            try {
+                FileUtils.getPythonFileEncoding(document, module.getName());
+            } catch (PyUnsupportedEncodingException e) {
+                Message m = new Message(IAnalysisPreferences.TYPE_INVALID_ENCODING, e.getMessage(), e.getLine(),
+                        e.getLine(), e.getColumn(), e.getColumn() + e.getMessage().length(), prefs);
+                messages.add(m);
+            }
             try {
                 messages.addAll(TabNanny.analyzeDoc(document, prefs, module.getName(), indentPrefs, monitor));
             } catch (Exception e) {

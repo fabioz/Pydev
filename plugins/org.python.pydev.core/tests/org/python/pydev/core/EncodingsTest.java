@@ -6,6 +6,7 @@
  */
 package org.python.pydev.core;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
 import org.python.pydev.shared_core.io.FileUtils;
@@ -18,23 +19,21 @@ public class EncodingsTest extends TestCase {
         junit.textui.TestRunner.run(EncodingsTest.class);
     }
 
-    private boolean was_LOG_ENCODING_ERROR;
-
-    @Override
-    protected void setUp() throws Exception {
-        was_LOG_ENCODING_ERROR = FileUtils.LOG_ENCODING_ERROR;
-        FileUtils.LOG_ENCODING_ERROR = false;
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        FileUtils.LOG_ENCODING_ERROR = was_LOG_ENCODING_ERROR;
-    }
-
     public void testRefEncoding() throws Exception {
         String validEncoding = FileUtils.getValidEncoding("latin-1", null);
         assertEquals("latin1", validEncoding);
-        assertNull(FileUtils.getValidEncoding("utf-8-*-", null));
+        try {
+            FileUtils.getValidEncoding("utf-8-", null);
+            fail("Did not throw error for invalid encoding");
+        } catch (UnsupportedEncodingException e) {
+            assertEquals("utf-8-", e.getMessage());
+        }
+        try {
+            FileUtils.getValidEncoding("utf-8-*-", null);
+            fail("Did not throw error for invalid encoding");
+        } catch (UnsupportedEncodingException e) {
+            assertEquals("utf-8-*-", e.getMessage());
+        }
 
         //supported
         assertTrue(Charset.isSupported("latin1"));

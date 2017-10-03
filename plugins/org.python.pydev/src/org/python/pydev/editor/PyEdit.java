@@ -7,6 +7,7 @@
 package org.python.pydev.editor;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -83,7 +84,6 @@ import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.osgi.framework.Version;
 import org.python.pydev.changed_lines.ChangedLinesComputer;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IGrammarVersionProvider;
@@ -148,6 +148,7 @@ import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.model.ErrorDescription;
 import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
@@ -989,35 +990,39 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     private void fixEncoding(final IEditorInput input, IDocument document) {
         if (input instanceof FileEditorInput) {
             final IFile file = ((FileEditorInput) input).getAdapter(IFile.class);
+            String fileEncoding;
             try {
-                final String encoding = FileUtilsFileBuffer.getPythonFileEncoding(document, file.getFullPath()
-                        .toOSString());
-                if (encoding != null) {
-                    try {
-                        if (encoding.equals(file.getCharset()) == false) {
+                fileEncoding = FileUtils.getPythonFileEncoding(document, file.getFullPath().toOSString());
+            } catch (UnsupportedEncodingException e) {
+                fileEncoding = null;
+            }
+            // If the file does not specify an encoding, or the encoding is not supported, we have nothing to do
+            if (fileEncoding == null) {
+                return;
+            }
+            // Proceed with the job if we know the encoding
+            final String encoding = fileEncoding;
+            try {
+                if (encoding.equals(file.getCharset()) == false) {
 
-                            new Job("Change encoding") {
+                    new Job("Change encoding") {
 
-                                @Override
-                                protected IStatus run(IProgressMonitor monitor) {
-                                    try {
-                                        file.setCharset(encoding, monitor);
-                                        ((TextFileDocumentProvider) getDocumentProvider()).setEncoding(input, encoding);
-                                        //refresh it...
-                                        file.refreshLocal(IResource.DEPTH_INFINITE, null);
-                                    } catch (CoreException e) {
-                                        Log.log(e);
-                                    }
-                                    return Status.OK_STATUS;
-                                }
-
-                            }.schedule();
+                        @Override
+                        protected IStatus run(IProgressMonitor monitor) {
+                            try {
+                                file.setCharset(encoding, monitor);
+                                ((TextFileDocumentProvider) getDocumentProvider()).setEncoding(input, encoding);
+                                //refresh it...
+                                file.refreshLocal(IResource.DEPTH_INFINITE, null);
+                            } catch (CoreException e) {
+                                Log.log(e);
+                            }
+                            return Status.OK_STATUS;
                         }
-                    } catch (CoreException e) {
-                        Log.log(e);
-                    }
+
+                    }.schedule();
                 }
-            } catch (Exception e) {
+            } catch (CoreException e) {
                 Log.log(e);
             }
         }

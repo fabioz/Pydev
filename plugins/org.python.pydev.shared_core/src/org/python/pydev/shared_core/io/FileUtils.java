@@ -28,6 +28,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
@@ -64,7 +65,6 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
@@ -72,6 +72,7 @@ import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
 
 /**
  * @author Fabio Zadrozny
@@ -611,83 +612,143 @@ public class FileUtils {
     }
 
     /**
+     * Retrieves the contents of the given file using the default system encoding.
+     *
      * @param file the file we want to read
-     * @return the contents of the file as a string
+     * @return the contents of the given file as a string
      */
     public static String getFileContents(File file) {
         return getFileContentsCustom(file, null, String.class);
     }
 
     /**
-     * To get file contents for a python file, the encoding is required!
+     * Retrieves the contents of the given python file. If present, the encoding declared at the top of the python file
+     * is used to read it. If no encoding is declared, or no encoding is declared, the default system encoding is used.
+     *
+     * @param file the file we want to read
+     * @return the contents of the given file as a string
      */
     public static String getPyFileContents(File file) {
-        return getFileContentsCustom(file, getPythonFileEncoding(file), String.class);
+        String encoding;
+        try {
+            encoding = getPythonFileEncoding(file);
+        } catch (PyUnsupportedEncodingException e) {
+            encoding = null;
+        }
+        return getFileContentsCustom(file, encoding, String.class);
     }
 
     /**
-     * The encoding declared in the reader is returned (according to the PEP: http://www.python.org/doc/peps/pep-0263/)
-     * -- may return null
+     * Retrieves the encoding declared in the given python file, according to the PEP: https://www.python.org/dev/peps/pep-0263/
      *
-     * Will close the reader.
-     * @param fileLocation the file we want to get the encoding from (just passed for giving a better message
-     * if it fails -- may be null).
+     * @param file a file from which to get the encoding
+     * @return the encoding declared in the file, or null if no encoding was declared or could not be retrieved
+     * @throws PyUnsupportedEncodingException if the encoding declared in the file is invalid or not supported
      */
-    public static String getPythonFileEncoding(Reader inputStreamReader, String fileLocation)
-            throws IllegalCharsetNameException {
+    public static String getPythonFileEncoding(File file) throws PyUnsupportedEncodingException {
+        try (Reader inputStreamReader = new InputStreamReader(new BufferedInputStream(new FileInputStream(file)))) {
+            return getPythonFileEncoding(inputStreamReader, file.getAbsolutePath());
+        } catch (PyUnsupportedEncodingException e) {
+            throw e;
+        } catch (IOException e) {
+            Log.log(e);
+            return null;
+        }
+    }
+
+    /**
+     * Retrieves the encoding declared in the given python file, according to the PEP: https://www.python.org/dev/peps/pep-0263/
+     *
+     * @param str the contents of the file from which to get the encoding
+     * @param location the location of the file from which we want to get the encoding, may be null
+     * @return the encoding declared in the file, or null if no encoding was declared
+     * @throws PyUnsupportedEncodingException if the encoding declared in the file is invalid or not supported
+     */
+    public static String getPythonFileEncoding(String str, String location)
+            throws PyUnsupportedEncodingException {
+        Reader inputStreamReader = new StringReader(str);
+        return getPythonFileEncoding(inputStreamReader, location);
+    }
+
+    private static String getPythonFileEncoding(Reader inputStreamReader, String fileLocation)
+            throws PyUnsupportedEncodingException {
+        List<String> first2Lines = readLines(inputStreamReader, 2);
+        return getPythonFileEncoding(first2Lines, fileLocation);
+    }
+
+    public static String getPythonFileEncoding(IDocument document, String fileLocation)
+            throws PyUnsupportedEncodingException {
+        List<String> first2Lines = new ArrayList<String>(2);
+        switch (document.getNumberOfLines()) {
+            case 0:
+                break;
+            case 1:
+                first2Lines.add(TextSelectionUtils.getLine(document, 0));
+                break;
+            default: // 2 or more
+                first2Lines.add(TextSelectionUtils.getLine(document, 0));
+                first2Lines.add(TextSelectionUtils.getLine(document, 1));
+                break;
+        }
+        return getPythonFileEncoding(first2Lines, fileLocation);
+    }
+
+    public static String getPythonFileEncoding(List<String> first2Lines, String fileLocation)
+            throws PyUnsupportedEncodingException {
 
         String ret = null;
-        try {
-            List<String> lines = readLines(inputStreamReader, 2);
-            int readLines = lines.size();
-            String lEnc = null;
+        int readLines = first2Lines.size();
+        String lEnc = null;
+        int lineNum = -1;
+        int charNum = -1;
 
-            //pep defines that coding must be at 1st or second line: http://www.python.org/doc/peps/pep-0263/
-            String l1 = readLines > 0 ? lines.get(0) : null;
-            if (l1 != null) {
-                //Special case -- determined from the python docs:
-                //http://docs.python.org/reference/lexical_analysis.html#encoding-declarations
-                //We can return promptly in this case as utf-8 should be always valid.
-                if (l1.startsWith(BOM_UTF8)) {
-                    return "utf-8";
-                }
-
-                if (l1.indexOf("coding") != -1) {
-                    lEnc = l1;
-                }
+        //pep defines that coding must be at 1st or second line: https://www.python.org/dev/peps/pep-0263/
+        String l1 = readLines > 0 ? first2Lines.get(0) : null;
+        if (l1 != null) {
+            //Special case -- determined from the python docs:
+            //http://docs.python.org/reference/lexical_analysis.html#encoding-declarations
+            //We can return promptly in this case as utf-8 should be always valid.
+            if (l1.startsWith(BOM_UTF8)) {
+                return "utf-8";
             }
 
-            if (lEnc == null) {
-                String l2 = readLines > 1 ? lines.get(1) : null;
-
-                //encoding must be specified in first or second line...
-                if (l2 != null && l2.indexOf("coding") != -1) {
-                    lEnc = l2;
-                } else {
-                    ret = null;
-                }
-            }
-
-            if (lEnc != null) {
-                lEnc = lEnc.trim();
-                if (lEnc.length() == 0) {
-                    ret = null;
-
-                } else if (lEnc.charAt(0) == '#') { //it must be a comment line
-
-                    Matcher matcher = ENCODING_PATTERN.matcher(lEnc);
-                    if (matcher.find()) {
-                        ret = matcher.group(1).trim();
-                    }
-                }
-            }
-        } finally {
-            try {
-                inputStreamReader.close();
-            } catch (IOException e1) {
+            if (l1.indexOf("coding") != -1) {
+                lEnc = l1;
+                lineNum = 1;
             }
         }
-        ret = getValidEncoding(ret, fileLocation);
+
+        if (lEnc == null) {
+            String l2 = readLines > 1 ? first2Lines.get(1) : null;
+
+            //encoding must be specified in first or second line...
+            if (l2 != null && l2.indexOf("coding") != -1) {
+                lEnc = l2;
+                lineNum = 2;
+            } else {
+                ret = null;
+            }
+        }
+
+        if (lEnc != null) {
+            lEnc = lEnc.trim();
+            if (lEnc.length() == 0) {
+                ret = null;
+
+            } else if (lEnc.charAt(0) == '#') { //it must be a comment line
+
+                Matcher matcher = ENCODING_PATTERN.matcher(lEnc);
+                if (matcher.find()) {
+                    ret = matcher.group(1).trim();
+                    charNum = matcher.start(1) + 1;
+                }
+            }
+        }
+        try {
+            ret = getValidEncoding(ret, fileLocation);
+        } catch (UnsupportedEncodingException e) {
+            throw new PyUnsupportedEncodingException(e.getMessage(), lineNum, charNum);
+        }
         return ret;
     }
 
@@ -703,8 +764,9 @@ public class FileUtils {
 
     /**
      * @param fileLocation may be null
+     * @throws UnsupportedEncodingException
      */
-    /*package*/public static String getValidEncoding(String ret, String fileLocation) {
+    public static String getValidEncoding(String ret, String fileLocation) throws UnsupportedEncodingException {
         if (ret == null) {
             return ret;
         }
@@ -719,54 +781,26 @@ public class FileUtils {
         }
         try {
             if (!Charset.isSupported(ret)) {
-                if (LOG_ENCODING_ERROR) {
-                    if (fileLocation != null) {
-                        if ("uft-8".equals(ret) && fileLocation.endsWith("bad_coding.py")) {
-                            return null; //this is an expected error in the python library.
-                        }
-                        if ("string-escape".equals(ret) && fileLocation.endsWith("bad_coding3.py")) {
-                            return null; //this is an expected error in the python library.
-                        }
+                if (fileLocation != null) {
+                    if ("uft-8".equals(ret) && fileLocation.endsWith("bad_coding.py")) {
+                        return null; //this is an expected error in the python library.
                     }
-                    String msg = "The encoding found: >>" + ret + "<< on " + fileLocation + " is not a valid encoding.";
-                    Log.log(IStatus.ERROR, msg, new UnsupportedEncodingException(msg));
+                    if ("string-escape".equals(ret) && fileLocation.endsWith("bad_coding3.py")) {
+                        return null; //this is an expected error in the python library.
+                    }
                 }
-                return null; //ok, we've been unable to make it supported (better return null than an unsupported encoding).
+                throw new UnsupportedEncodingException(ret);
             }
             return ret;
         } catch (IllegalCharsetNameException ex) {
-            if (LOG_ENCODING_ERROR) {
-                String msg = "The encoding found: >>" + ret + "<< on " + fileLocation + " is not a valid encoding.";
-                Log.log(IStatus.ERROR, msg, ex);
-            }
+            throw new UnsupportedEncodingException(ret);
         }
-        return null;
     }
 
-    /**
-     * Useful to silent it on tests
-     */
-    public static boolean LOG_ENCODING_ERROR = true;
     /**
      * Regular expression for finding the encoding in a python file.
      */
     public static final Pattern ENCODING_PATTERN = Pattern.compile("coding[:=][\\s]*([-\\w.]+)");
-
-    /**
-     * The encoding declared in the file is returned (according to the PEP: http://www.python.org/doc/peps/pep-0263/)
-     */
-    public static String getPythonFileEncoding(File f) throws IllegalCharsetNameException {
-        try (FileInputStream fileInputStream = new FileInputStream(f)) {
-            Reader inputStreamReader = new InputStreamReader(new BufferedInputStream(fileInputStream));
-
-            //NOTE: the reader will be closed at 'getPythonFileEncoding'.
-            String pythonFileEncoding = getPythonFileEncoding(inputStreamReader, f.getAbsolutePath());
-            return pythonFileEncoding;
-        } catch (IOException e) {
-            Log.log(e);
-            return null;
-        }
-    }
 
     /**
      * Returns if the given file has a python shebang (i.e.: starts with #!... python)

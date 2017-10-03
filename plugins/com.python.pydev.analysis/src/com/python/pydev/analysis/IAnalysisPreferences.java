@@ -33,6 +33,7 @@ public interface IAnalysisPreferences {
     public static final int TYPE_PEP8 = IMiscConstants.TYPE_PEP8;
     public static final int TYPE_ARGUMENTS_MISATCH = IMiscConstants.TYPE_ARGUMENTS_MISATCH;
     public static final int TYPE_FSTRING_SYNTAX_ERROR = IMiscConstants.TYPE_FSTRING_SYNTAX_ERROR;
+    public static final int TYPE_INVALID_ENCODING = IMiscConstants.TYPE_INVALID_ENCODING;
 
     public static final String MSG_TO_IGNORE_TYPE_UNUSED_IMPORT = "@UnusedImport";
     public static final String MSG_TO_IGNORE_TYPE_UNUSED_WILD_IMPORT = "@UnusedWildImport";

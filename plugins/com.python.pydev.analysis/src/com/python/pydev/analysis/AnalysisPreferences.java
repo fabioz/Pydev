@@ -75,6 +75,8 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences {
                     AnalysisPreferenceInitializer.DEFAULT_SEVERITY_ARGUMENTS_MISMATCH },
             { IAnalysisPreferences.TYPE_FSTRING_SYNTAX_ERROR, AnalysisPreferenceInitializer.SEVERITY_FSTRING_ERROR,
                     AnalysisPreferenceInitializer.DEFAULT_SEVERITY_FSTRING_ERROR },
+            { IAnalysisPreferences.TYPE_INVALID_ENCODING, AnalysisPreferenceInitializer.SEVERITY_INVALID_ENCODING,
+                    AnalysisPreferenceInitializer.DEFAULT_SEVERITY_INVALID_ENCODING },
     };
 
     private HashMap<Integer, Integer> severityTypeMapCache;
