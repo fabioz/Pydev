@@ -834,6 +834,12 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         }
     }
 
+    public void testInvalidEncoding() throws Exception {
+        doc = new Document("# coding: bad-enc-here\n" +
+                "");
+        checkError("Unsupported encoding: bad-enc-here");
+    }
+
     //    public void testNonDefaultAfterDefault() throws IOException{
     //        doc = new Document(
     //                "def m1(a=20, 20):\n"+ //non-default after default

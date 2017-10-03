@@ -101,6 +101,10 @@ public final class AnalysisPreferencesStub extends AbstractAnalysisPreferences {
             case TYPE_FSTRING_SYNTAX_ERROR:
                 // Syntax error is always error!
                 return IMarker.SEVERITY_ERROR;
+
+            case TYPE_INVALID_ENCODING:
+                // Invalid encoding is always error!
+                return IMarker.SEVERITY_ERROR;
         }
         throw new RuntimeException("unable to get severity for type " + type);
     }
