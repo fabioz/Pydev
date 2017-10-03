@@ -1000,7 +1000,7 @@ public class PyFormatStdTest extends TestCase {
         try {
             final PyFormatStd pyFormatStd = new PyFormatStd();
             Document doc = new Document(s);
-            pyFormatStd.formatAll(doc, null, true, std, false);
+            pyFormatStd.formatAll(doc, null, true, std, false, true);
             String formatStr = doc.get();
 
             if (DEBUG) {
@@ -1023,7 +1023,7 @@ public class PyFormatStdTest extends TestCase {
             String expected2 = expected.replace('\n', '\r');
 
             doc = new Document(s);
-            pyFormatStd.formatAll(doc, null, true, std, false);
+            pyFormatStd.formatAll(doc, null, true, std, false, true);
             formatStr = doc.get();
             assertEquals(expected, formatStr);
 
@@ -1032,11 +1032,11 @@ public class PyFormatStdTest extends TestCase {
             expected = StringUtils.replaceAll(expected, "\r", "\r\n");
 
             doc = new Document(s);
-            pyFormatStd.formatAll(doc, null, true, std, false);
+            pyFormatStd.formatAll(doc, null, true, std, false, true);
             formatStr = doc.get();
             assertEquals(expected, formatStr);
 
-            formatStr = pyFormatStd.formatStrAutopep8OrPyDev(new Document(s2), std, "\r", false);
+            formatStr = pyFormatStd.formatStrAutopep8OrPyDev(new Document(s2), std, "\r", false, true);
             if (expected2.endsWith("\r") && !formatStr.endsWith("\r")) {
                 expected2 = expected2.substring(0, expected2.length() - 1);
             }
@@ -1046,7 +1046,7 @@ public class PyFormatStdTest extends TestCase {
             String s3 = StringUtils.replaceAll(s, "\n", "\r\n");
             String expected3 = StringUtils.replaceAll(expected, "\n", "\r\n");
 
-            formatStr = pyFormatStd.formatStrAutopep8OrPyDev(new Document(s3), std, "\r\n", false);
+            formatStr = pyFormatStd.formatStrAutopep8OrPyDev(new Document(s3), std, "\r\n", false, true);
             if (expected3.endsWith("\r\n") && !formatStr.endsWith("\r\n")) {
                 expected3 = expected3.substring(0, expected3.length() - 2);
             }
@@ -1055,7 +1055,7 @@ public class PyFormatStdTest extends TestCase {
             //now, same thing with different API
             doc = new Document();
             doc.set(s);
-            pyFormatStd.formatAll(doc, null, true, std, false);
+            pyFormatStd.formatAll(doc, null, true, std, false, true);
             assertEquals(expected, doc.get());
         } catch (SyntaxErrorException e) {
             throw new RuntimeException(e);
@@ -1257,7 +1257,7 @@ public class PyFormatStdTest extends TestCase {
                 "";
         final PyFormatStd pyFormatStd = new PyFormatStd();
         try {
-            pyFormatStd.formatAll(new Document(s), null, false, std, true);
+            pyFormatStd.formatAll(new Document(s), null, false, std, true, true);
             fail("Expecting exception!");
         } catch (Exception e) {
         }
@@ -1439,6 +1439,41 @@ public class PyFormatStdTest extends TestCase {
         checkFormatResults(input, expected);
     }
 
+    public void testSpacesBeforeClass2() throws Exception {
+        // Already is properly formatted.
+        String input = ""
+                + "a = 10\n"
+                + "\n"
+                + "\n"
+                + "class my:\n"
+                + "    a = 10\n"
+                + "\n"
+                + "    def foo():\n"
+                + "        \n"
+                + "";
+
+        std.manageBlankLines = true;
+        checkFormatResults(input, input);
+    }
+
+    public void testSpacesBeforeClass3() throws Exception {
+        // Already is properly formatted.
+        String input = ""
+                + "a = 10\n"
+                + "  \n"
+                + "  \n"
+                + "class my:\n"
+                + "    a = 10\n"
+                + "    \n"
+                + "    def foo():\n"
+                + "        \n"
+                + "";
+
+        std.manageBlankLines = true;
+        std.trimLines = false;
+        checkFormatResults(input, input);
+    }
+
     public void testSpacesBeforeClassWithComments() throws Exception {
         String input = ""
                 + "#comment\n"
@@ -1529,5 +1564,29 @@ public class PyFormatStdTest extends TestCase {
                 + "";
         std.manageBlankLines = true;
         checkFormatResults(input, expected);
+    }
+
+    public void testFormatSelectionChangingLines() {
+        std.manageBlankLines = true;
+        std.trimLines = true;
+
+        final PyFormatStd pyFormatStd = new PyFormatStd();
+        String s = "" +
+                "a  =  10  \n" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "a  =  10  " +
+                "";
+        String expected = "" +
+                "a = 10\n" +
+                "\n" +
+                "a  =  10  \n" +
+                "";
+        Document doc = new Document(s);
+
+        int[] regionsForSave = new int[] { 0, 1, 2, 3 };
+        pyFormatStd.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
+        assertEquals(expected, doc.get());
     }
 }

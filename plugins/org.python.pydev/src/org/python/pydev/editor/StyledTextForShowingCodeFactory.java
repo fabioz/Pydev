@@ -42,7 +42,7 @@ import org.python.pydev.ui.ColorAndStyleCache;
 
 /**
  * This class can create a styled text and later format a python code string and give style ranges for
- * that string so that it's properly highlighted with the colors in the passed preferences.  
+ * that string so that it's properly highlighted with the colors in the passed preferences.
  */
 public class StyledTextForShowingCodeFactory implements IPropertyChangeListener {
 
@@ -120,7 +120,7 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener 
     /**
      * This method will format the passed string with the passed standard and create style ranges for the returned
      * string, so that the code is properly seen by the user in a StyledText.
-     * 
+     *
      * @param formatStd the coding standard that should be used for the parse.
      * @param str the string that should be formatted and have the colors applied.
      * @param prefs the preferences that contain the colors to be used for each partition.
@@ -130,14 +130,14 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener 
     @SuppressWarnings("unchecked")
     public Tuple<String, StyleRange[]> formatAndGetStyleRanges(FormatStd formatStd, String str, IPreferenceStore prefs,
             boolean showSpacesAndNewLines) {
-        //When new preferences are set, the cache is reset (the background color doesn't need to be 
+        //When new preferences are set, the cache is reset (the background color doesn't need to be
         //cleared because the colors are gotten from the rgb and not from the names).
         this.colorCache.setPreferences(prefs);
 
         PyFormatStd formatter = new PyFormatStd();
         try {
             Document doc = new Document(str);
-            formatter.formatAll(doc, null, false, formatStd, false);
+            formatter.formatAll(doc, null, false, formatStd, false, true);
             str = doc.get();
         } catch (SyntaxErrorException e) {
         }
@@ -262,7 +262,7 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener 
 
     /**
      * Creates the ranges from parsing the code with the PyCodeScanner.
-     * 
+     *
      * @param textPresentation this is the container of the style ranges.
      * @param scanner the scanner used to parse the document.
      * @param doc document to parse.
