@@ -1436,6 +1436,7 @@ public class PyFormatStdTest extends TestCase {
                 + "    a = 10\n"
                 + "";
         std.manageBlankLines = true;
+        std.addNewLineAtEndOfFile = false;
         checkFormatResults(input, expected);
     }
 
@@ -1467,6 +1468,30 @@ public class PyFormatStdTest extends TestCase {
                 + "    \n"
                 + "    def foo():\n"
                 + "        \n"
+                + "";
+
+        std.manageBlankLines = true;
+        std.trimLines = false;
+        checkFormatResults(input, input);
+    }
+
+    public void testSpacesBeforeClassIgnoreLiterals() throws Exception {
+        // Already is properly formatted.
+        String input = ""
+                + "a = 10\n"
+                + "  \n"
+                + "        '''\n"
+                + " tttttt\n"
+                + "\n"
+                + "\n"
+                + "\n"
+                + "        '''\n"
+                + "  \n"
+                + "  \n"
+                + "class my:\n"
+                + "    a = 10\n"
+                + "    \n"
+                + "    def foo():\n"
                 + "";
 
         std.manageBlankLines = true;
