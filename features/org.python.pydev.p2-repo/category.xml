@@ -1,16 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
    <description url="http://pydev.org/">PyDev</description>   
-   
-   <feature url="features/org.python.pydev.feature_0.0.0.qualifier.jar" id="org.python.pydev.feature" version="0.0.0">
-      <category name="PyDev"/>
-  </feature>
 
-   <feature url="features/org.python.pydev.feature.source_0.0.0.qualifier.jar" id="org.python.pydev.feature.source" version="0.0.0">
+   <bundle id="org.apache.lucene.core" version="6.1.0.v20170814-1820">
+      <category name="PyDev"/>
+   </bundle>
+
+   <bundle id="org.apache.lucene.analyzers-common" version="6.1.0.v20161115-1612">
+      <category name="PyDev"/>
+   </bundle>
+
+   <feature id="org.python.pydev.feature" version="0.0.0">
       <category name="PyDev"/>
    </feature>
 
-   <feature url="features/org.python.pydev.mylyn.feature_0.0.0.qualifier.jar" id="org.python.pydev.mylyn.feature" version="0.0.0">
+   <feature id="org.python.pydev.feature.source" version="0.0.0">
+      <category name="PyDev"/>
+   </feature>
+
+   <feature id="org.python.pydev.mylyn.feature" version="0.0.0">
       <category name="PyDev Mylyn Integration"/>
    </feature>   
    

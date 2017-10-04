@@ -129,6 +129,8 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <repository.id>eclipse-neon</repository.id>
     <repository.url>http://download.eclipse.org/releases/neon/</repository.url>
+    <repository.orbit.id>orbit</repository.orbit.id>
+    <repository.orbit.url>http://download.eclipse.org/tools/orbit/downloads/drops/R20170919201930/repository</repository.orbit.url>
   </properties>
   <prerequisites>
     <maven>3.0</maven>
@@ -307,6 +309,11 @@
       <id>${repository.id}</id>
       <layout>p2</layout>
       <url>${repository.url}</url>
+    </repository>
+    <repository>
+      <id>${repository.orbit.id}</id>
+      <layout>p2</layout>
+      <url>${repository.orbit.url}</url>
     </repository>
   </repositories>
 </project>
