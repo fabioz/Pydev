@@ -79,4 +79,20 @@ public class ArrayUtils {
     public static <T> Set<T> asSet(T... objects) {
         return new HashSet<>(Arrays.asList(objects));
     }
+
+    public static int[] reversedCopy(int[] regionsForSave) {
+        int[] copyOf = Arrays.copyOf(regionsForSave, regionsForSave.length);
+        reverse(copyOf);
+        return copyOf;
+    }
+
+    private static void reverse(int[] copyOf) {
+        int length = copyOf.length;
+        int middle = length / 2;
+        for (int i = 0; i < middle; i++) {
+            int temp = copyOf[i];
+            copyOf[i] = copyOf[length - i - 1];
+            copyOf[length - i - 1] = temp;
+        }
+    }
 }

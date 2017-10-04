@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -60,7 +59,7 @@ import org.python.pydev.shared_core.string.SelectionKeeper;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.shared_core.structure.Tuple3;
+import org.python.pydev.shared_core.utils.ArrayUtils;
 
 /**
  * @author Fabio Zadrozny
@@ -288,46 +287,42 @@ public class PyFormatStd extends PyAction implements IFormatter {
             return;
         }
 
-        @SuppressWarnings({ "rawtypes", "unchecked" })
-        List<Tuple3<Integer, Integer, String>> replaces = new ArrayList();
-
         String delimiter = PySelection.getDelimiter(doc);
         IDocument formatted;
+        String formattedAsStr;
         try {
             boolean allowChangingBlankLines = false;
-            formatted = new Document(
-                    formatStrAutopep8OrPyDev(formatStd, true, doc, delimiter, allowChangingBlankLines));
+            formattedAsStr = formatStrAutopep8OrPyDev(formatStd, true, doc, delimiter, allowChangingBlankLines);
+            formatted = new Document(formattedAsStr);
         } catch (SyntaxErrorException e) {
             return;
         }
         try {
-            if (!formatStd.manageBlankLines) {
-                //Actually replace the formatted lines: in this formatting, lines don't change, so, this is OK :)
-                for (int i : regionsForSave) {
-                    IRegion r = doc.getLineInformation(i);
-                    int iStart = r.getOffset();
-                    int iEnd = r.getOffset() + r.getLength();
+            // Actually replace the formatted lines: in this formatting, lines don't change, so, this is OK :)
+            // Apply the formatting from bottom to top (so that the indexes are still valid).
+            int[] regionsReversed = ArrayUtils.reversedCopy(regionsForSave);
 
-                    String line = PySelection.getLine(formatted, i);
-                    replaces.add(new Tuple3<Integer, Integer, String>(iStart, iEnd - iStart, line));
+            for (int i : regionsReversed) {
+                IRegion r = doc.getLineInformation(i);
+                int iStart = r.getOffset();
+                int iEnd = r.getOffset() + r.getLength();
+
+                String line = PySelection.getLine(formatted, i);
+                doc.replace(iStart, iEnd - iStart, line);
+            }
+            if (formatStd.manageBlankLines) {
+                // Now, remove or add blank lines as needed.
+                FastStringBuffer buf = new FastStringBuffer(formattedAsStr, 10);
+                List<LineOffsetAndInfo> computed = PyFormatStdManageBlankLines
+                        .computeBlankLinesAmongMethodsAndClasses(formatStd, formatted, buf, delimiter);
+                for (LineOffsetAndInfo lineOffsetAndInfo : computed) {
+                    throw new AssertionError("Work in progress.");
                 }
-            } else {
-
             }
 
-        } catch (BadLocationException e) {
+        } catch (BadLocationException | SyntaxErrorException e) {
             Log.log(e);
             return;
-        }
-
-        //Apply the formatting from bottom to top (so that the indexes are still valid).
-        Collections.reverse(replaces);
-        for (Tuple3<Integer, Integer, String> tup : replaces) {
-            try {
-                doc.replace(tup.o1, tup.o2, tup.o3);
-            } catch (BadLocationException e) {
-                Log.log(e);
-            }
         }
 
         if (formatStd.addNewLineAtEndOfFile) {
