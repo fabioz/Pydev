@@ -6,7 +6,7 @@
  */
 /*
  * Created on Oct 25, 2004
- * 
+ *
  * @author Fabio Zadrozny
  */
 package org.python.pydev.runners;
@@ -23,29 +23,29 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.structure.Tuple;
 
 /**
- * 
+ *
  * This class has some useful methods for running a python script.
- * 
+ *
  * It is not as complete as the PythonRunner from the debug, as it doesn't register the process in the console, but it can be quite useful
  * for other runs.
- * 
- * 
- * Interesting reading for http://www.javaworld.com/javaworld/jw-12-2000/jw-1229-traps.html  -  
+ *
+ *
+ * Interesting reading for http://www.javaworld.com/javaworld/jw-12-2000/jw-1229-traps.html  -
  * Navigate yourself around pitfalls related to the Runtime.exec() method
- * 
- * 
+ *
+ *
  * @author Fabio Zadrozny
  */
 public class SimplePythonRunner extends SimpleRunner {
 
     /**
-     * Execute the script specified with the interpreter for a given project 
-     * 
+     * Execute the script specified with the interpreter for a given project
+     *
      * @param script the script we will execute
      * @param args the arguments to pass to the script
      * @param workingDir the working directory
      * @param project the project that is associated to this run
-     * 
+     *
      * @return a string with the output of the process (stdout)
      */
     public Tuple<String, String> runAndGetOutputFromPythonScript(String interpreter, String script, String[] args,
@@ -71,14 +71,14 @@ public class SimplePythonRunner extends SimpleRunner {
 
     /**
      * Execute the string and format for windows if we have spaces...
-     * 
+     *
      * The interpreter can be specified.
-     * 
+     *
      * @param interpreter the interpreter we want to use for executing
      * @param script the python script to execute
      * @param args the arguments to the script
      * @param workingDir the directory where the script should be executed
-     * 
+     *
      * @return the stdout of the run (if any)
      */
     public Tuple<String, String> runAndGetOutputWithInterpreter(String interpreter, String script, String[] args,
@@ -93,16 +93,18 @@ public class SimplePythonRunner extends SimpleRunner {
 
     /**
      * Creates array with what should be passed to Runtime.exec to run python.
-     * 
+     *
      * @param interpreter interpreter that should do the run
      * @param script python script to execute
      * @param args additional arguments to pass to python
      * @return the created array
      */
     public static String[] preparePythonCallParameters(String interpreter, String script, String[] args) {
-        File file = new File(script);
-        if (file.exists() == false) {
-            throw new RuntimeException("The script passed for execution (" + script + ") does not exist.");
+        if (!script.equals("-m")) {
+            File file = new File(script);
+            if (file.exists() == false) {
+                throw new RuntimeException("The script passed for execution (" + script + ") does not exist.");
+            }
         }
 
         //Note that we don't check it (interpreter could be just the string 'python')
