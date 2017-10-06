@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -265,6 +266,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
             FormatStd formatStd) {
         //        Formatter formatter = new Formatter();
         //        formatter.formatSelection(doc, startLine, endLineIndex, edit, ps);
+        Assert.isTrue(regionsForSave != null);
 
         if (formatStd.formatWithAutopep8) {
             // get a copy of formatStd to avoid being overwritten by settings
@@ -315,8 +317,33 @@ public class PyFormatStd extends PyAction implements IFormatter {
                 FastStringBuffer buf = new FastStringBuffer(formattedAsStr, 10);
                 List<LineOffsetAndInfo> computed = PyFormatStdManageBlankLines
                         .computeBlankLinesAmongMethodsAndClasses(formatStd, formatted, buf, delimiter);
+                Collections.reverse(computed);
+                String delimTwice = delimiter + delimiter;
+                HashSet<Object> hashSet = new HashSet<>();
+                for (int i : regionsForSave) {
+                    hashSet.add(i);
+                }
+
                 for (LineOffsetAndInfo lineOffsetAndInfo : computed) {
-                    throw new AssertionError("Work in progress.");
+                    if (!hashSet.contains(lineOffsetAndInfo.infoFromLine)) {
+                        continue;
+                    }
+                    // We're going backwards to keep lines valid...
+                    if (lineOffsetAndInfo.delete) {
+                        PySelection.deleteLine(doc, lineOffsetAndInfo.infoFromLine);
+                    }
+                    if (lineOffsetAndInfo.addBlankLines > 0) {
+                        String useDelim;
+                        if (lineOffsetAndInfo.addBlankLines == 1) {
+                            useDelim = delimiter;
+                        } else if (lineOffsetAndInfo.addBlankLines == 2) {
+                            useDelim = delimTwice;
+                        } else {
+                            useDelim = new FastStringBuffer().appendN(delimiter, lineOffsetAndInfo.addBlankLines)
+                                    .toString();
+                        }
+                        doc.replace(doc.getLineInformation(lineOffsetAndInfo.infoFromLine).getOffset(), 0, useDelim);
+                    }
                 }
             }
 

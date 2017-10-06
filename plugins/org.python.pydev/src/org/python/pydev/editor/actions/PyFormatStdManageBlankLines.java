@@ -29,7 +29,8 @@ public class PyFormatStdManageBlankLines {
 
         @Override
         public String toString() {
-            return StringUtils.join(", ", "offset: " + offset, "delete: " + delete, "addBlankLines: " + addBlankLines,
+            return StringUtils.join(", ", "offset: " + offset, "delete: " + delete, "line: " + infoFromLine,
+                    "addBlankLines: " + addBlankLines,
                     "onlyWhitespacesFound: " + onlyWhitespacesFound,
                     "onlyCommentsFound: " + onlyCommentsFound + "\n");
         }
@@ -47,13 +48,18 @@ public class PyFormatStdManageBlankLines {
      *
      * @param doc the original doc (before any formatting taking place -- as the previous formatting didn't change
      * lines, it may still be useful to access statements based on lines -- such as imports).
+     *
+     * @note this method computes the info, but fixBlankLinesAmongMethodsAndClasses actually does the
+     * apply (this is more complicated than it apparently needs because we want to apply only to
+     * changed lines, so, we create a temporary structure which tries to keep existing lines
+     * as much as possible to know what can be actually changed).
      */
     public static List<LineOffsetAndInfo> computeBlankLinesAmongMethodsAndClasses(PyFormatStd.FormatStd std,
-            IDocument doc,
-            FastStringBuffer initialFormatting, String delimiter) throws SyntaxErrorException {
+            IDocument doc, FastStringBuffer initialFormatting, String delimiter) throws SyntaxErrorException {
         ParsingUtils parsingUtils = ParsingUtils.create(initialFormatting);
         char[] cs = initialFormatting.getInternalCharsArray(); // Faster access
 
+        FastStringBuffer tempBuf = new FastStringBuffer();
         int matchI = -1;
         boolean onlyWhitespacesFound = true;
         boolean onlyCommentsFound = false;
@@ -112,7 +118,8 @@ public class PyFormatStdManageBlankLines {
                 case '\'':
                 case '"':
                     //ignore literals and multi-line literals.
-                    i = parsingUtils.eatLiterals(null, i);
+                    i = parsingUtils.eatLiterals(tempBuf.clear(), i);
+                    currLine += tempBuf.countNewLines();
                     break;
 
                 case 'a':
@@ -180,10 +187,16 @@ public class PyFormatStdManageBlankLines {
                             // so, get a comment block right before the class or def and don't
                             // split it (split before the block)
                             int foundAt = lst.size() - 1;
+                            int foundAtLine = currLine;
                             LineOffsetAndInfo currLineOffsetAndInfo = lst
                                     .get(foundAt);
                             while (reverseI >= 0) {
                                 LineOffsetAndInfo prev = lst.get(reverseI);
+                                if (prev.infoFromLine == foundAtLine - 1) {
+                                    foundAtLine--;
+                                } else {
+                                    break;
+                                }
                                 if (prev.onlyCommentsFound) {
                                     currLineOffsetAndInfo = prev;
                                     foundAt = reverseI;
@@ -206,20 +219,41 @@ public class PyFormatStdManageBlankLines {
                                     blankLinesNeeded = std.blankLinesBeforeTopLevelClassOrFunc;
 
                                 }
-                                // Ok, now, let's see if we have the proper space
-                                for (int k = foundAt; k >= 0 && blankLinesNeeded > 0; k--) {
+                                foundAtLine = currLine;
+                                // Ok, now, let's see if we have the proper space (the curr line is empty,
+                                // so, start to check spaces before it).
+                                for (int k = foundAt - 1; k >= 0 && blankLinesNeeded > 0; k--) {
                                     LineOffsetAndInfo info = lst.get(k);
-                                    if (info.onlyWhitespacesFound && !info.delete) {
-                                        blankLinesNeeded--;
+                                    if (info.infoFromLine == foundAtLine - 1) { // checking only subsequent lines
+                                        foundAtLine--;
+                                    } else {
+                                        break;
+                                    }
+                                    if (info.onlyWhitespacesFound) {
+                                        if (!info.delete) {
+                                            blankLinesNeeded--;
+                                        }
+                                    } else {
+                                        break; // Found non-whitespace line
                                     }
                                 }
 
                                 if (blankLinesNeeded > 0) {
-                                    for (int k = foundAt; k >= 0 && blankLinesNeeded > 0; k--) {
+                                    foundAtLine = currLine;
+                                    for (int k = foundAt - 1; k >= 0 && blankLinesNeeded > 0; k--) {
                                         LineOffsetAndInfo info = lst.get(k);
-                                        if (info.onlyWhitespacesFound && info.delete) {
-                                            info.delete = false;
-                                            blankLinesNeeded--;
+                                        if (info.infoFromLine == foundAtLine - 1) { // checking only subsequent lines
+                                            foundAtLine--;
+                                        } else {
+                                            break;
+                                        }
+                                        if (info.onlyWhitespacesFound) {
+                                            if (info.delete) {
+                                                info.delete = false;
+                                                blankLinesNeeded--;
+                                            }
+                                        } else {
+                                            break; // Found non-whitespace line
                                         }
                                     }
                                     if (blankLinesNeeded > 0) {

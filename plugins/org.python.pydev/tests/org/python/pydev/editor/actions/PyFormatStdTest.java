@@ -1499,6 +1499,45 @@ public class PyFormatStdTest extends TestCase {
         checkFormatResults(input, input);
     }
 
+    public void testSpacesBeforeClassIgnoreLiterals2() throws Exception {
+        // Already is properly formatted.
+        String input = ""
+                + "a = 10\n"
+                + "  \n"
+                + "        '''\n"
+                + "        '''\n"
+                + "  \n"
+                + "  \n"
+                + "class my:\n"
+                + "    a = 10\n"
+                + "    \n"
+                + "    def foo():\n"
+                + "";
+
+        std.manageBlankLines = true;
+        std.trimLines = false;
+        checkFormatResults(input, input);
+    }
+
+    public void testSpacesBeforeClassIgnoreLiterals3() throws Exception {
+        // Already is properly formatted.
+        String input = ""
+                + "a = 10\n"
+                + "  \n"
+                + "        ''' check '''\n"
+                + "  \n"
+                + "  \n"
+                + "class my:\n"
+                + "    a = 10\n"
+                + "    \n"
+                + "    def foo():\n"
+                + "";
+
+        std.manageBlankLines = true;
+        std.trimLines = false;
+        checkFormatResults(input, input);
+    }
+
     public void testSpacesBeforeClassWithComments() throws Exception {
         String input = ""
                 + "#comment\n"
@@ -1601,7 +1640,7 @@ public class PyFormatStdTest extends TestCase {
                 "\n" +
                 "\n" +
                 "\n" +
-                "a  =  10  " +
+                "a  =  10  \n" +
                 "";
         String expected = "" +
                 "a = 10\n" +
@@ -1613,5 +1652,40 @@ public class PyFormatStdTest extends TestCase {
         int[] regionsForSave = new int[] { 0, 1, 2, 3 };
         pyFormatStd.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
         assertEquals(expected, doc.get());
+    }
+
+    public void testSpacesBeforeClassIgnoreLiteralsWithSelection() throws Exception {
+        // Already is properly formatted.
+        String input = ""
+                + "a = 10\n"
+                + "  \n"
+                + "        ''' check '''\n"
+                + "  \n"
+                + "class my:\n"
+                + "    a = 10\n"
+                + "    \n"
+                + "    def foo():\n"
+                + "";
+
+        String expected = ""
+                + "a = 10\n"
+                + "  \n"
+                + "        ''' check '''\n"
+                + "  \n"
+                + "\n"
+                + "class my:\n"
+                + "    a = 10\n"
+                + "    \n"
+                + "    def foo():\n"
+                + "";
+
+        final PyFormatStd pyFormatStd = new PyFormatStd();
+        std.manageBlankLines = true;
+        std.trimLines = true;
+        Document doc = new Document(input);
+        int[] regionsForSave = new int[] { 4 };
+        pyFormatStd.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
+        assertEquals(expected, doc.get());
+
     }
 }
