@@ -53,7 +53,20 @@ public final class StyledTextWithoutVerticalBar extends StyledText {
             SWT.error(SWT.ERROR_NULL_ARGUMENT);
         }
         int[] newRanges = createRanges(styles);
-        setStyleRanges(start, length, newRanges, styles);
+        try {
+            setStyleRanges(start, length, newRanges, styles);
+        } catch (Exception e) {
+            Log.log(e);
+        }
+    }
+
+    @Override
+    public void redraw() {
+        try {
+            super.redraw();
+        } catch (Exception e) {
+            Log.log(e);
+        }
     }
 
     private int[] createRanges(StyleRange[] styles) throws AssertionError {

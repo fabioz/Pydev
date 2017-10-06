@@ -113,10 +113,10 @@ public class PyFormatStd extends PyAction implements IFormatter {
         public boolean trimMultilineLiterals;
 
         // Only valid if manageBlankLines == true
-        public int blankLinesBeforeTopLevelClassOrFunc = 2;
+        public int blankLinesBeforeTopLevel = 2;
 
         // Only valid if manageBlankLines == true
-        public int blankLinesBeforeInnerFunc = 1;
+        public int blankLinesBeforeInner = 1;
 
         public boolean manageBlankLines = false;
 
@@ -150,8 +150,8 @@ public class PyFormatStd extends PyAction implements IFormatter {
                 spacesBeforeComment = 2;
                 spacesInStartComment = 1;
                 manageBlankLines = true;
-                blankLinesBeforeTopLevelClassOrFunc = 2;
-                blankLinesBeforeInnerFunc = 1;
+                blankLinesBeforeTopLevel = 2;
+                blankLinesBeforeInner = 1;
             }
         }
     }
@@ -440,6 +440,10 @@ public class PyFormatStd extends PyAction implements IFormatter {
         formatStd.spacesInStartComment = PyCodeFormatterPage.getSpacesInStartComment(projectAdaptable);
         formatStd.formatWithAutopep8 = PyCodeFormatterPage.getFormatWithAutopep8(projectAdaptable);
         formatStd.autopep8Parameters = PyCodeFormatterPage.getAutopep8Parameters(projectAdaptable);
+        formatStd.manageBlankLines = PyCodeFormatterPage.getManageBlankLines(projectAdaptable);
+        formatStd.blankLinesBeforeTopLevel = PyCodeFormatterPage
+                .getBlankLinesBeforeTopLevel(projectAdaptable);
+        formatStd.blankLinesBeforeInner = PyCodeFormatterPage.getBlankLinesBeforeInner(projectAdaptable);
         formatStd.updateAutopep8();
         return formatStd;
     }

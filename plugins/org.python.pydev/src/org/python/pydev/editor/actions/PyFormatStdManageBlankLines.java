@@ -213,10 +213,10 @@ public class PyFormatStdManageBlankLines {
                                 // # comment
                                 // # comment
                                 // class Foo(object):
-                                int blankLinesNeeded = std.blankLinesBeforeInnerFunc;
+                                int blankLinesNeeded = std.blankLinesBeforeInner;
                                 if (cs[i - 1] == '\n' || cs[i - 1] == '\r') {
                                     // top level
-                                    blankLinesNeeded = std.blankLinesBeforeTopLevelClassOrFunc;
+                                    blankLinesNeeded = std.blankLinesBeforeTopLevel;
 
                                 }
                                 foundAtLine = currLine;

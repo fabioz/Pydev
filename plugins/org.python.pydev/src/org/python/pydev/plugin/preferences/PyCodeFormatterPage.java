@@ -13,6 +13,7 @@ package org.python.pydev.plugin.preferences;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.preference.BooleanFieldEditor;
+import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
@@ -21,7 +22,6 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.TabFolder;
@@ -86,6 +86,16 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
     public static final String SPACES_IN_START_COMMENT = "SPACES_IN_START_COMMENT";
     public static final int DEFAULT_SPACES_IN_START_COMMENT = 1; //pep-8 says 1 space after '#'
 
+    // Leave at most 1 blank line by default
+    public static final String MANAGE_BLANK_LINES = "MANAGE_BLANK_LINES";
+    public static final boolean DEFAULT_MANAGE_BLANK_LINES = true;
+
+    public static final String BLANK_LINES_BEFORE_TOP_LEVEL = "BLANK_LINES_BEFORE_TOP_LEVEL";
+    public static final int DEFAULT_BLANK_LINES_BEFORE_TOP_LEVEL = 2;
+
+    public static final String BLANK_LINES_BEFORE_INNER = "BLANK_LINES_BEFORE_INNER";
+    public static final int DEFAULT_BLANK_LINES_BEFORE_INNER = 1;
+
     private StyledText labelExample;
     private BooleanFieldEditorCustom formatWithAutoPep8;
     private BooleanFieldEditorCustom spaceAfterComma;
@@ -132,6 +142,9 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
     private Composite spacingParent;
     private TabItem tabItemComments;
     private Composite commentsParent;
+    private BooleanFieldEditorCustom manageBlankLines;
+    private IntegerFieldEditor blankLinesBeforeTopLevel;
+    private IntegerFieldEditor blankLinesBeforeInner;
 
     /**
      * @see org.eclipse.jface.preference.FieldEditorPreferencePage#createFieldEditors()
@@ -222,9 +235,21 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
                 "Add new line at end of file?", blankLinesParent);
         addField(addNewLineAtEndOfFile);
 
+        manageBlankLines = createBooleanFieldEditorCustom(MANAGE_BLANK_LINES,
+                "Manage blank lines?\n(will convert 2+ subsequent blank lines to 1)", blankLinesParent);
+        addField(manageBlankLines);
+
+        blankLinesBeforeTopLevel = new IntegerFieldEditor(BLANK_LINES_BEFORE_TOP_LEVEL,
+                "Blank lines before top level class/method?", blankLinesParent);
+        addField(blankLinesBeforeTopLevel);
+
+        blankLinesBeforeInner = new IntegerFieldEditor(BLANK_LINES_BEFORE_INNER,
+                "Blank lines before non top level class/method?", blankLinesParent);
+        addField(blankLinesBeforeInner);
+
         formatAndStyleRangeHelper = new StyledTextForShowingCodeFactory();
         labelExample = formatAndStyleRangeHelper.createStyledTextForCodePresentation(p);
-        GridData layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1);
+        GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
         labelExample.setLayoutData(layoutData);
 
         addField(new ScopedPreferencesFieldEditor(p, PydevPlugin.DEFAULT_PYDEV_SCOPE, this));
@@ -234,8 +259,8 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
         tabFolder = new TabFolder(p, SWT.None);
         GridData gd = new GridData();
         gd.horizontalAlignment = SWT.FILL;
-        gd.verticalAlignment = SWT.FILL;
-        gd.grabExcessVerticalSpace = true;
+        gd.verticalAlignment = SWT.BEGINNING;
+        gd.grabExcessVerticalSpace = false;
         gd.grabExcessHorizontalSpace = true;
         gd.horizontalSpan = 2;
         tabFolder.setLayoutData(gd);
@@ -260,9 +285,7 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
     protected void initialize() {
         super.initialize();
 
-        //After initializing, let's check the proper state based on pep8.
-        Button checkBox = formatWithAutoPep8.getCheckBox(fieldParent);
-        checkBox.addSelectionListener(new SelectionListener() {
+        SelectionListener listener = new SelectionListener() {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -272,7 +295,12 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
             @Override
             public void widgetDefaultSelected(SelectionEvent e) {
             }
-        });
+        };
+
+        //After initializing, let's check the proper state based on pep8.
+        formatWithAutoPep8.getCheckBox(fieldParent).addSelectionListener(listener);
+        manageBlankLines.getCheckBox(blankLinesParent).addSelectionListener(listener);
+
         updateState();
 
         // And update the example when it's already there
@@ -289,6 +317,9 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
             rightTrimMultilineLiterals.setEnabled(false, spacingParent);
 
             addNewLineAtEndOfFile.setEnabled(false, blankLinesParent);
+            manageBlankLines.setEnabled(false, blankLinesParent);
+            blankLinesBeforeTopLevel.setEnabled(false, blankLinesParent);
+            blankLinesBeforeInner.setEnabled(false, blankLinesParent);
 
             spacesBeforeComment.setEnabled(false, commentsParent);
             spacesInStartComment.setEnabled(false, commentsParent);
@@ -305,6 +336,15 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
             rightTrimMultilineLiterals.setEnabled(true, spacingParent);
 
             addNewLineAtEndOfFile.setEnabled(true, blankLinesParent);
+            manageBlankLines.setEnabled(true, blankLinesParent);
+            if (manageBlankLines.getBooleanValue()) {
+                blankLinesBeforeTopLevel.setEnabled(true, blankLinesParent);
+                blankLinesBeforeInner.setEnabled(true, blankLinesParent);
+
+            } else {
+                blankLinesBeforeTopLevel.setEnabled(false, blankLinesParent);
+                blankLinesBeforeInner.setEnabled(false, blankLinesParent);
+            }
 
             spacesBeforeComment.setEnabled(true, commentsParent);
             spacesInStartComment.setEnabled(true, commentsParent);
@@ -349,11 +389,18 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
 
     private void updateLabelExampleNow(FormatStd formatStd) {
 
-        String str = "class Example(object):             \n" +
+        String str = "" +
+                "                                   \n" +
+                "                                   \n" +
+                "                                   \n" +
+                "                                   \n" +
+                "class Example(object):             \n" +
                 "                                   \n" +
                 "    def Call(self, param1=None):   \n" +
                 "        '''docstring'''            \n" +
                 "        return param1 + 10 * 10    \n" +
+                "                                   \n" +
+                "                                   \n" +
                 "                                   \n" +
                 "    def Call2(self): #Comment      \n" +
                 "        #Comment                   \n" +
@@ -385,6 +432,17 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
         formatStd.parametersWithSpace = spaceForParentesis.getBooleanValue();
         formatStd.spaceAfterComma = spaceAfterComma.getBooleanValue();
         formatStd.addNewLineAtEndOfFile = addNewLineAtEndOfFile.getBooleanValue();
+        formatStd.manageBlankLines = manageBlankLines.getBooleanValue();
+        try {
+            formatStd.blankLinesBeforeTopLevel = blankLinesBeforeTopLevel.getIntValue();
+        } catch (NumberFormatException e1) {
+            formatStd.blankLinesBeforeTopLevel = 2;
+        }
+        try {
+            formatStd.blankLinesBeforeInner = blankLinesBeforeInner.getIntValue();
+        } catch (NumberFormatException e) {
+            formatStd.blankLinesBeforeInner = 1;
+        }
         formatStd.trimLines = rightTrimLines.getBooleanValue();
         formatStd.trimMultilineLiterals = rightTrimMultilineLiterals.getBooleanValue();
         formatStd.spacesBeforeComment = Integer.parseInt(spacesBeforeComment.getComboValue());
@@ -459,6 +517,18 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
 
     public static int getSpacesInStartComment(IAdaptable projectAdaptable) {
         return PyScopedPreferences.getInt(SPACES_IN_START_COMMENT, projectAdaptable, FormatStd.DONT_HANDLE_SPACES);
+    }
+
+    public static boolean getManageBlankLines(IAdaptable projectAdaptable) {
+        return PyScopedPreferences.getBoolean(MANAGE_BLANK_LINES, projectAdaptable);
+    }
+
+    public static int getBlankLinesBeforeTopLevel(IAdaptable projectAdaptable) {
+        return PyScopedPreferences.getInt(BLANK_LINES_BEFORE_TOP_LEVEL, projectAdaptable, 0);
+    }
+
+    public static int getBlankLinesBeforeInner(IAdaptable projectAdaptable) {
+        return PyScopedPreferences.getInt(BLANK_LINES_BEFORE_INNER, projectAdaptable, 0);
     }
 
     @Override
