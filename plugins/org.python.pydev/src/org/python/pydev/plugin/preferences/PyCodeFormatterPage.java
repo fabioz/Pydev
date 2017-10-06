@@ -24,6 +24,8 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
@@ -101,6 +103,7 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
     private StringFieldEditor autopep8Parameters;
     private LinkFieldEditor autopep8Link;
     private boolean disposed = false;
+    private TabFolder tabFolder;
 
     public PyCodeFormatterPage() {
         super(GRID);
@@ -123,6 +126,12 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
             { "At least 3 spaces", "3" },
             { "At least 4 spaces", "4" },
     };
+    private TabItem tabItemSpacing;
+    private TabItem tabItemBlankLines;
+    private Composite blankLinesParent;
+    private Composite spacingParent;
+    private TabItem tabItemComments;
+    private Composite commentsParent;
 
     /**
      * @see org.eclipse.jface.preference.FieldEditorPreferencePage#createFieldEditors()
@@ -176,39 +185,42 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
                 "On save, only apply formatting in changed lines?", p);
         addField(onlyChangedLines);
 
-        spaceAfterComma = createBooleanFieldEditorCustom(USE_SPACE_AFTER_COMMA, "Use space after commas?", p);
+        createTabs(p);
+
+        spaceAfterComma = createBooleanFieldEditorCustom(USE_SPACE_AFTER_COMMA, "Use space after commas?",
+                spacingParent);
         addField(spaceAfterComma);
 
         spaceForParentesis = createBooleanFieldEditorCustom(USE_SPACE_FOR_PARENTESIS,
-                "Use space before and after parenthesis?", p);
+                "Use space before and after parenthesis?", spacingParent);
         addField(spaceForParentesis);
 
         assignWithSpaceInsideParentesis = createBooleanFieldEditorCustom(USE_ASSIGN_WITH_PACES_INSIDER_PARENTESIS,
-                "Use space before and after assign for keyword arguments?", p);
+                "Use space before and after assign for keyword arguments?", spacingParent);
         addField(assignWithSpaceInsideParentesis);
 
         operatorsWithSpace = createBooleanFieldEditorCustom(USE_OPERATORS_WITH_SPACE,
-                "Use space before and after operators? (+, -, /, *, //, **, etc.)", p);
+                "Use space before and after operators? (+, -, /, *, //, **, etc.)", spacingParent);
         addField(operatorsWithSpace);
 
-        rightTrimLines = createBooleanFieldEditorCustom(TRIM_LINES, "Right trim lines?", p);
+        rightTrimLines = createBooleanFieldEditorCustom(TRIM_LINES, "Right trim lines?", spacingParent);
         addField(rightTrimLines);
 
         rightTrimMultilineLiterals = createBooleanFieldEditorCustom(TRIM_MULTILINE_LITERALS,
-                "Right trim multi-line string literals?", p);
+                "Right trim multi-line string literals?", spacingParent);
         addField(rightTrimMultilineLiterals);
 
-        addNewLineAtEndOfFile = createBooleanFieldEditorCustom(ADD_NEW_LINE_AT_END_OF_FILE,
-                "Add new line at end of file?", p);
-        addField(addNewLineAtEndOfFile);
-
         spacesBeforeComment = new ComboFieldEditor(SPACES_BEFORE_COMMENT, "Spaces before a comment?",
-                ENTRIES_AND_VALUES_FOR_SPACES, p);
+                ENTRIES_AND_VALUES_FOR_SPACES, commentsParent);
         addField(spacesBeforeComment);
 
         spacesInStartComment = new ComboFieldEditor(SPACES_IN_START_COMMENT, "Spaces in comment start?",
-                ENTRIES_AND_VALUES_FOR_SPACES2, p);
+                ENTRIES_AND_VALUES_FOR_SPACES2, commentsParent);
         addField(spacesInStartComment);
+
+        addNewLineAtEndOfFile = createBooleanFieldEditorCustom(ADD_NEW_LINE_AT_END_OF_FILE,
+                "Add new line at end of file?", blankLinesParent);
+        addField(addNewLineAtEndOfFile);
 
         formatAndStyleRangeHelper = new StyledTextForShowingCodeFactory();
         labelExample = formatAndStyleRangeHelper.createStyledTextForCodePresentation(p);
@@ -216,6 +228,32 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
         labelExample.setLayoutData(layoutData);
 
         addField(new ScopedPreferencesFieldEditor(p, PydevPlugin.DEFAULT_PYDEV_SCOPE, this));
+    }
+
+    private void createTabs(Composite p) {
+        tabFolder = new TabFolder(p, SWT.None);
+        GridData gd = new GridData();
+        gd.horizontalAlignment = SWT.FILL;
+        gd.verticalAlignment = SWT.FILL;
+        gd.grabExcessVerticalSpace = true;
+        gd.grabExcessHorizontalSpace = true;
+        gd.horizontalSpan = 2;
+        tabFolder.setLayoutData(gd);
+
+        tabItemSpacing = new TabItem(tabFolder, SWT.NONE);
+        tabItemSpacing.setText("Spacing");
+        spacingParent = new Composite(tabFolder, SWT.NONE);
+        tabItemSpacing.setControl(spacingParent);
+
+        tabItemBlankLines = new TabItem(tabFolder, SWT.NONE);
+        tabItemBlankLines.setText("Blank lines");
+        blankLinesParent = new Composite(tabFolder, SWT.NONE);
+        tabItemBlankLines.setControl(blankLinesParent);
+
+        tabItemComments = new TabItem(tabFolder, SWT.NONE);
+        tabItemComments.setText("Comments");
+        commentsParent = new Composite(tabFolder, SWT.NONE);
+        tabItemComments.setControl(commentsParent);
     }
 
     @Override
@@ -243,28 +281,34 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
 
     private void updateState() {
         if (formatWithAutoPep8.getBooleanValue()) {
-            assignWithSpaceInsideParentesis.setEnabled(false, fieldParent);
-            operatorsWithSpace.setEnabled(false, fieldParent);
-            spaceForParentesis.setEnabled(false, fieldParent);
-            spaceAfterComma.setEnabled(false, fieldParent);
-            addNewLineAtEndOfFile.setEnabled(false, fieldParent);
-            rightTrimLines.setEnabled(false, fieldParent);
-            rightTrimMultilineLiterals.setEnabled(false, fieldParent);
-            spacesBeforeComment.setEnabled(false, fieldParent);
-            spacesInStartComment.setEnabled(false, fieldParent);
+            assignWithSpaceInsideParentesis.setEnabled(false, spacingParent);
+            operatorsWithSpace.setEnabled(false, spacingParent);
+            spaceForParentesis.setEnabled(false, spacingParent);
+            spaceAfterComma.setEnabled(false, spacingParent);
+            rightTrimLines.setEnabled(false, spacingParent);
+            rightTrimMultilineLiterals.setEnabled(false, spacingParent);
+
+            addNewLineAtEndOfFile.setEnabled(false, blankLinesParent);
+
+            spacesBeforeComment.setEnabled(false, commentsParent);
+            spacesInStartComment.setEnabled(false, commentsParent);
+
             onlyChangedLines.setEnabled(false, fieldParent);
             autopep8Parameters.setEnabled(true, fieldParent);
             autopep8Link.setEnabled(true, fieldParent);
         } else {
-            assignWithSpaceInsideParentesis.setEnabled(true, fieldParent);
-            operatorsWithSpace.setEnabled(true, fieldParent);
-            spaceForParentesis.setEnabled(true, fieldParent);
-            spaceAfterComma.setEnabled(true, fieldParent);
-            addNewLineAtEndOfFile.setEnabled(true, fieldParent);
-            rightTrimLines.setEnabled(true, fieldParent);
-            rightTrimMultilineLiterals.setEnabled(true, fieldParent);
-            spacesBeforeComment.setEnabled(true, fieldParent);
-            spacesInStartComment.setEnabled(true, fieldParent);
+            assignWithSpaceInsideParentesis.setEnabled(true, spacingParent);
+            operatorsWithSpace.setEnabled(true, spacingParent);
+            spaceForParentesis.setEnabled(true, spacingParent);
+            spaceAfterComma.setEnabled(true, spacingParent);
+            rightTrimLines.setEnabled(true, spacingParent);
+            rightTrimMultilineLiterals.setEnabled(true, spacingParent);
+
+            addNewLineAtEndOfFile.setEnabled(true, blankLinesParent);
+
+            spacesBeforeComment.setEnabled(true, commentsParent);
+            spacesInStartComment.setEnabled(true, commentsParent);
+
             onlyChangedLines.setEnabled(true, fieldParent);
             autopep8Parameters.setEnabled(false, fieldParent);
             autopep8Link.setEnabled(false, fieldParent);
