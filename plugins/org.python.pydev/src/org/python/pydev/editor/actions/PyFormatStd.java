@@ -325,12 +325,16 @@ public class PyFormatStd extends PyAction implements IFormatter {
                 }
 
                 for (LineOffsetAndInfo lineOffsetAndInfo : computed) {
-                    if (!hashSet.contains(lineOffsetAndInfo.infoFromLogicalLine)) {
+                    if (!hashSet.contains(lineOffsetAndInfo.infoFromRealLine)) {
                         continue;
                     }
                     // We're going backwards to keep lines valid...
                     if (lineOffsetAndInfo.delete) {
-                        PySelection.deleteLine(doc, lineOffsetAndInfo.infoFromLogicalLine);
+                        String line = PySelection.getLine(doc, lineOffsetAndInfo.infoFromRealLine);
+                        if (line.trim().length() == 0) {
+                            // Make sure that we only delete whitespaces.
+                            PySelection.deleteLine(doc, lineOffsetAndInfo.infoFromRealLine);
+                        }
                     }
                     if (lineOffsetAndInfo.addBlankLines > 0) {
                         String useDelim;
@@ -342,7 +346,8 @@ public class PyFormatStd extends PyAction implements IFormatter {
                             useDelim = new FastStringBuffer().appendN(delimiter, lineOffsetAndInfo.addBlankLines)
                                     .toString();
                         }
-                        doc.replace(doc.getLineInformation(lineOffsetAndInfo.infoFromLogicalLine).getOffset(), 0, useDelim);
+                        doc.replace(doc.getLineInformation(lineOffsetAndInfo.infoFromRealLine).getOffset(), 0,
+                                useDelim);
                     }
                 }
             }

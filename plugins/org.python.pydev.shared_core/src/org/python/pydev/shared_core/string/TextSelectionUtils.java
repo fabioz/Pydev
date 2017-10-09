@@ -1060,6 +1060,7 @@ public class TextSelectionUtils {
      * @param docContents should be == doc.get() (just optimizing if the user already did that before).
      */
     public static void setOnlyDifferentCode(IDocument doc, String docContents, String newContents) {
+        // Could be: DocUtils.updateDocRangeWithContents(doc, docContents, newContents, TextSelectionUtils.getDelimiter(doc));
         String contents = docContents;
         if (contents == null) {
             contents = doc.get();
@@ -1164,7 +1165,7 @@ public class TextSelectionUtils {
     /**
      * Performs a simple sort without taking into account the actual contents of the selection (aside from lines
      * ending with '\' which are considered as a single line).
-     * 
+     *
      * @param doc the document to be sorted
      * @param startLine the first line where the sort should happen
      * @param endLine the last line where the sort should happen

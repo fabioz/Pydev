@@ -23,16 +23,20 @@ public class PyFormatStdManageBlankLines {
         public boolean onlyWhitespacesFound = false;
         public boolean onlyCommentsFound = false;
         public int addBlankLines;
+        public final int infoFromRealLine; // Starts at 0
         public final int infoFromLogicalLine; // Starts at 0
 
-        public LineOffsetAndInfo(int offset, int currLine) {
+        public LineOffsetAndInfo(int offset, int currLogicalLine, int currRealLine) {
             this.offset = offset;
-            this.infoFromLogicalLine = currLine;
+            this.infoFromLogicalLine = currLogicalLine;
+            this.infoFromRealLine = currRealLine;
         }
 
         @Override
         public String toString() {
-            return StringUtils.join(", ", "offset: " + offset, "delete: " + delete, "line: " + infoFromLogicalLine,
+            return StringUtils.join(", ", "offset: " + offset, "delete: " + delete,
+                    "logic line: " + infoFromLogicalLine,
+                    "real line: " + infoFromRealLine,
                     "addBlankLines: " + addBlankLines,
                     "onlyWhitespacesFound: " + onlyWhitespacesFound,
                     "onlyCommentsFound: " + onlyCommentsFound + "\n");
@@ -70,8 +74,9 @@ public class PyFormatStdManageBlankLines {
         int decoratorState = 0; // 0 = just found, 1 = first decorator found, 2 = first decorator processed.
 
         List<PyFormatStdManageBlankLines.LineOffsetAndInfo> lst = new ArrayList<>();
-        lst.add(new PyFormatStdManageBlankLines.LineOffsetAndInfo(0, 0));
-        int currLine = 0;
+        lst.add(new PyFormatStdManageBlankLines.LineOffsetAndInfo(0, 0, 0));
+        int currLogicLine = 0;
+        int currRealLine = 0;
         int nextScopeStartLine = -1;
 
         for (int i = 0; i < length; i++) {
@@ -85,16 +90,20 @@ public class PyFormatStdManageBlankLines {
                 if (c == '\r' && (i + 1) < length && cs[i + 1] == '\n') {
                     i++;
                 }
+                currRealLine++;
                 if (!sameLogicLine) {
                     // Only raise line if we didn't end with a '\\' (we're still in the same logic line).
-                    currLine++;
+                    currLogicLine++;
                     if (onlyWhitespacesFound && lst.size() > 2 && lst.get(lst.size() - 2).onlyWhitespacesFound) {
                         lst.get(lst.size() - 2).delete = true;
                     }
                     PyFormatStdManageBlankLines.LineOffsetAndInfo currLineOffsetAndInfo = lst.get(lst.size() - 1);
                     currLineOffsetAndInfo.onlyWhitespacesFound = onlyWhitespacesFound;
                     currLineOffsetAndInfo.onlyCommentsFound = onlyCommentsFound;
-                    lst.add(new PyFormatStdManageBlankLines.LineOffsetAndInfo(i + 1, currLine)); // offset == first char of the next line (could be EOF)
+
+                    // offset == first char of the next line (could be EOF)
+                    lst.add(new PyFormatStdManageBlankLines.LineOffsetAndInfo(i + 1, currLogicLine, currRealLine));
+
                     onlyWhitespacesFound = true;
                     onlyCommentsFound = false;
                 }
@@ -129,7 +138,7 @@ public class PyFormatStdManageBlankLines {
                 case '"':
                     //ignore literals and multi-line literals.
                     i = parsingUtils.eatLiterals(tempBuf.clear(), i);
-                    currLine += tempBuf.countNewLines();
+                    currLogicLine += tempBuf.countNewLines();
                     break;
 
                 case 'a':
@@ -221,7 +230,7 @@ public class PyFormatStdManageBlankLines {
 
                             // When we find a class, we have to make sure that we have
                             // exactly 2 empty lines before it (keeping comment blocks before it).
-                            markBlankLinesNeededAt(lst, currLine, blankLinesNeeded);
+                            markBlankLinesNeededAt(lst, currLogicLine, blankLinesNeeded);
                             i = matchI - 1;
                         }
                         break;
@@ -230,8 +239,8 @@ public class PyFormatStdManageBlankLines {
             }
 
             if (!handledTopLevel) {
-                if (nextScopeStartLine != -1 && currLine >= nextScopeStartLine) {
-                    markBlankLinesNeededAt(lst, currLine, std.blankLinesTopLevel);
+                if (nextScopeStartLine != -1 && currLogicLine >= nextScopeStartLine) {
+                    markBlankLinesNeededAt(lst, currLogicLine, std.blankLinesTopLevel);
                     nextScopeStartLine = -1;
                 }
             }
