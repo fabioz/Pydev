@@ -928,4 +928,59 @@ public class PySelectionTest extends TestCase {
         DocstringInfo docstringFromLine = ps.getDocstringFromLine(1);
         assertNull(docstringFromLine);
     }
+
+    public void testGetEndOfCurrentDeclaration() throws Exception {
+        doc = new Document(""
+                + "def m1():\n"
+                + "  a = 10"
+                + "");
+        assertEquals(1, PySelection.getEndLineOfCurrentDeclaration(doc, 0));
+    }
+
+    public void testGetEndOfCurrentDeclaration2() throws Exception {
+        doc = new Document(""
+                + "def m1():\n"
+                + "  a = 10\n"
+                + "");
+        assertEquals(2, PySelection.getEndLineOfCurrentDeclaration(doc, 0));
+    }
+
+    public void testGetEndOfCurrentDeclaration3() throws Exception {
+        doc = new Document(""
+                + "def m1():\n"
+                + "  a = 10\n"
+                + "\n"
+                + "  b = 30\n"
+                + "  def foo():\n"
+                + "    pass\n"
+                + "  \n"
+                + "  c = 30\n"
+                + "a = 10");
+        assertEquals(7, PySelection.getEndLineOfCurrentDeclaration(doc, 0));
+    }
+
+    public void testGetEndOfCurrentDeclaration4() throws Exception {
+        doc = new Document(""
+                + "def m1():\n"
+                + "  a = 10\n"
+                + "  \n"
+                + "\n"
+                + "  \n"
+                + "b = 30\n");
+        assertEquals(1, PySelection.getEndLineOfCurrentDeclaration(doc, 0));
+    }
+
+    public void testGetEndOfCurrentDeclaration5() throws Exception {
+        doc = new Document(""
+                + "def m1():\n"
+                + "  a = 10\n"
+                + "  \n"
+                + "\n"
+                + "  a = '''\n"
+                + "b = 30\n"
+                + "b = 30\n"
+                + "'''\n"
+                + "");
+        assertEquals(8, PySelection.getEndLineOfCurrentDeclaration(doc, 0));
+    }
 }

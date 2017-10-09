@@ -113,10 +113,10 @@ public class PyFormatStd extends PyAction implements IFormatter {
         public boolean trimMultilineLiterals;
 
         // Only valid if manageBlankLines == true
-        public int blankLinesBeforeTopLevel = 2;
+        public int blankLinesTopLevel = 2;
 
         // Only valid if manageBlankLines == true
-        public int blankLinesBeforeInner = 1;
+        public int blankLinesInner = 1;
 
         public boolean manageBlankLines = false;
 
@@ -150,8 +150,8 @@ public class PyFormatStd extends PyAction implements IFormatter {
                 spacesBeforeComment = 2;
                 spacesInStartComment = 1;
                 manageBlankLines = true;
-                blankLinesBeforeTopLevel = 2;
-                blankLinesBeforeInner = 1;
+                blankLinesTopLevel = 2;
+                blankLinesInner = 1;
             }
         }
     }
@@ -325,12 +325,12 @@ public class PyFormatStd extends PyAction implements IFormatter {
                 }
 
                 for (LineOffsetAndInfo lineOffsetAndInfo : computed) {
-                    if (!hashSet.contains(lineOffsetAndInfo.infoFromLine)) {
+                    if (!hashSet.contains(lineOffsetAndInfo.infoFromLogicalLine)) {
                         continue;
                     }
                     // We're going backwards to keep lines valid...
                     if (lineOffsetAndInfo.delete) {
-                        PySelection.deleteLine(doc, lineOffsetAndInfo.infoFromLine);
+                        PySelection.deleteLine(doc, lineOffsetAndInfo.infoFromLogicalLine);
                     }
                     if (lineOffsetAndInfo.addBlankLines > 0) {
                         String useDelim;
@@ -342,7 +342,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
                             useDelim = new FastStringBuffer().appendN(delimiter, lineOffsetAndInfo.addBlankLines)
                                     .toString();
                         }
-                        doc.replace(doc.getLineInformation(lineOffsetAndInfo.infoFromLine).getOffset(), 0, useDelim);
+                        doc.replace(doc.getLineInformation(lineOffsetAndInfo.infoFromLogicalLine).getOffset(), 0, useDelim);
                     }
                 }
             }
@@ -441,9 +441,9 @@ public class PyFormatStd extends PyAction implements IFormatter {
         formatStd.formatWithAutopep8 = PyCodeFormatterPage.getFormatWithAutopep8(projectAdaptable);
         formatStd.autopep8Parameters = PyCodeFormatterPage.getAutopep8Parameters(projectAdaptable);
         formatStd.manageBlankLines = PyCodeFormatterPage.getManageBlankLines(projectAdaptable);
-        formatStd.blankLinesBeforeTopLevel = PyCodeFormatterPage
-                .getBlankLinesBeforeTopLevel(projectAdaptable);
-        formatStd.blankLinesBeforeInner = PyCodeFormatterPage.getBlankLinesBeforeInner(projectAdaptable);
+        formatStd.blankLinesTopLevel = PyCodeFormatterPage
+                .getBlankLinesTopLevel(projectAdaptable);
+        formatStd.blankLinesInner = PyCodeFormatterPage.getBlankLinesInner(projectAdaptable);
         formatStd.updateAutopep8();
         return formatStd;
     }

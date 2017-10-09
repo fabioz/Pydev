@@ -90,11 +90,11 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
     public static final String MANAGE_BLANK_LINES = "MANAGE_BLANK_LINES";
     public static final boolean DEFAULT_MANAGE_BLANK_LINES = true;
 
-    public static final String BLANK_LINES_BEFORE_TOP_LEVEL = "BLANK_LINES_BEFORE_TOP_LEVEL";
-    public static final int DEFAULT_BLANK_LINES_BEFORE_TOP_LEVEL = 2;
+    public static final String BLANK_LINES_TOP_LEVEL = "BLANK_LINES_TOP_LEVEL";
+    public static final int DEFAULT_BLANK_LINES_TOP_LEVEL = 2;
 
-    public static final String BLANK_LINES_BEFORE_INNER = "BLANK_LINES_BEFORE_INNER";
-    public static final int DEFAULT_BLANK_LINES_BEFORE_INNER = 1;
+    public static final String BLANK_LINES_INNER = "BLANK_LINES_INNER";
+    public static final int DEFAULT_BLANK_LINES_INNER = 1;
 
     private StyledText labelExample;
     private BooleanFieldEditorCustom formatWithAutoPep8;
@@ -143,8 +143,8 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
     private TabItem tabItemComments;
     private Composite commentsParent;
     private BooleanFieldEditorCustom manageBlankLines;
-    private IntegerFieldEditor blankLinesBeforeTopLevel;
-    private IntegerFieldEditor blankLinesBeforeInner;
+    private IntegerFieldEditor blankLinesTopLevel;
+    private IntegerFieldEditor blankLinesInner;
 
     /**
      * @see org.eclipse.jface.preference.FieldEditorPreferencePage#createFieldEditors()
@@ -239,13 +239,13 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
                 "Manage blank lines?\n(will convert 2+ subsequent blank lines to 1)", blankLinesParent);
         addField(manageBlankLines);
 
-        blankLinesBeforeTopLevel = new IntegerFieldEditor(BLANK_LINES_BEFORE_TOP_LEVEL,
-                "Blank lines before top level class/method?", blankLinesParent);
-        addField(blankLinesBeforeTopLevel);
+        blankLinesTopLevel = new IntegerFieldEditor(BLANK_LINES_TOP_LEVEL,
+                "Blank lines before/after top level class/method?", blankLinesParent);
+        addField(blankLinesTopLevel);
 
-        blankLinesBeforeInner = new IntegerFieldEditor(BLANK_LINES_BEFORE_INNER,
-                "Blank lines before non top level class/method?", blankLinesParent);
-        addField(blankLinesBeforeInner);
+        blankLinesInner = new IntegerFieldEditor(BLANK_LINES_INNER,
+                "Blank lines before/after non top level class/method?", blankLinesParent);
+        addField(blankLinesInner);
 
         formatAndStyleRangeHelper = new StyledTextForShowingCodeFactory();
         labelExample = formatAndStyleRangeHelper.createStyledTextForCodePresentation(p);
@@ -318,8 +318,8 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
 
             addNewLineAtEndOfFile.setEnabled(false, blankLinesParent);
             manageBlankLines.setEnabled(false, blankLinesParent);
-            blankLinesBeforeTopLevel.setEnabled(false, blankLinesParent);
-            blankLinesBeforeInner.setEnabled(false, blankLinesParent);
+            blankLinesTopLevel.setEnabled(false, blankLinesParent);
+            blankLinesInner.setEnabled(false, blankLinesParent);
 
             spacesBeforeComment.setEnabled(false, commentsParent);
             spacesInStartComment.setEnabled(false, commentsParent);
@@ -338,12 +338,12 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
             addNewLineAtEndOfFile.setEnabled(true, blankLinesParent);
             manageBlankLines.setEnabled(true, blankLinesParent);
             if (manageBlankLines.getBooleanValue()) {
-                blankLinesBeforeTopLevel.setEnabled(true, blankLinesParent);
-                blankLinesBeforeInner.setEnabled(true, blankLinesParent);
+                blankLinesTopLevel.setEnabled(true, blankLinesParent);
+                blankLinesInner.setEnabled(true, blankLinesParent);
 
             } else {
-                blankLinesBeforeTopLevel.setEnabled(false, blankLinesParent);
-                blankLinesBeforeInner.setEnabled(false, blankLinesParent);
+                blankLinesTopLevel.setEnabled(false, blankLinesParent);
+                blankLinesInner.setEnabled(false, blankLinesParent);
             }
 
             spacesBeforeComment.setEnabled(true, commentsParent);
@@ -434,14 +434,14 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
         formatStd.addNewLineAtEndOfFile = addNewLineAtEndOfFile.getBooleanValue();
         formatStd.manageBlankLines = manageBlankLines.getBooleanValue();
         try {
-            formatStd.blankLinesBeforeTopLevel = blankLinesBeforeTopLevel.getIntValue();
+            formatStd.blankLinesTopLevel = blankLinesTopLevel.getIntValue();
         } catch (NumberFormatException e1) {
-            formatStd.blankLinesBeforeTopLevel = 2;
+            formatStd.blankLinesTopLevel = 2;
         }
         try {
-            formatStd.blankLinesBeforeInner = blankLinesBeforeInner.getIntValue();
+            formatStd.blankLinesInner = blankLinesInner.getIntValue();
         } catch (NumberFormatException e) {
-            formatStd.blankLinesBeforeInner = 1;
+            formatStd.blankLinesInner = 1;
         }
         formatStd.trimLines = rightTrimLines.getBooleanValue();
         formatStd.trimMultilineLiterals = rightTrimMultilineLiterals.getBooleanValue();
@@ -523,12 +523,12 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
         return PyScopedPreferences.getBoolean(MANAGE_BLANK_LINES, projectAdaptable);
     }
 
-    public static int getBlankLinesBeforeTopLevel(IAdaptable projectAdaptable) {
-        return PyScopedPreferences.getInt(BLANK_LINES_BEFORE_TOP_LEVEL, projectAdaptable, 0);
+    public static int getBlankLinesTopLevel(IAdaptable projectAdaptable) {
+        return PyScopedPreferences.getInt(BLANK_LINES_TOP_LEVEL, projectAdaptable, 0);
     }
 
-    public static int getBlankLinesBeforeInner(IAdaptable projectAdaptable) {
-        return PyScopedPreferences.getInt(BLANK_LINES_BEFORE_INNER, projectAdaptable, 0);
+    public static int getBlankLinesInner(IAdaptable projectAdaptable) {
+        return PyScopedPreferences.getInt(BLANK_LINES_INNER, projectAdaptable, 0);
     }
 
     @Override

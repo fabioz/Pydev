@@ -47,7 +47,7 @@ public class TabNannyIteratorTest extends TestCase {
                 "";
         Document d = new Document(str);
         TabNannyDocIterator it = new TabNannyDocIterator(d);
-        assertEquals("    ", it.next().o1);
+        assertEquals("    ", it.next().indent);
         assertTrue(!it.hasNext()); //no indentations here...
     }
 
@@ -60,8 +60,8 @@ public class TabNannyIteratorTest extends TestCase {
                 "";
         Document d = new Document(str);
         TabNannyDocIterator it = new TabNannyDocIterator(d);
-        assertEquals("    ", it.next().o1);
-        assertEquals("\t", it.next().o1);
+        assertEquals("    ", it.next().indent);
+        assertEquals("\t", it.next().indent);
         assertTrue(!it.hasNext()); //no indentations here...
     }
 
@@ -83,7 +83,7 @@ public class TabNannyIteratorTest extends TestCase {
         String str = "    #comment";
         Document d = new Document(str);
         TabNannyDocIterator it = new TabNannyDocIterator(d);
-        assertEquals("    ", it.next().o1);
+        assertEquals("    ", it.next().indent);
         assertTrue(!it.hasNext());
     }
 
@@ -91,7 +91,7 @@ public class TabNannyIteratorTest extends TestCase {
         String str = "    #comment";
         Document d = new Document(str);
         TabNannyDocIterator it = new TabNannyDocIterator(d, true, false);
-        assertEquals("    ", it.next().o1);
+        assertEquals("    ", it.next().indent);
         assertTrue(!it.hasNext());
     }
 
@@ -99,7 +99,7 @@ public class TabNannyIteratorTest extends TestCase {
         String str = " #comment";
         Document d = new Document(str);
         TabNannyDocIterator it = new TabNannyDocIterator(d, true, false);
-        assertEquals(" ", it.next().o1);
+        assertEquals(" ", it.next().indent);
         assertTrue(!it.hasNext());
     }
 
@@ -107,7 +107,7 @@ public class TabNannyIteratorTest extends TestCase {
         String str = "#comment";
         Document d = new Document(str);
         TabNannyDocIterator it = new TabNannyDocIterator(d, true, false);
-        assertEquals("", it.next().o1);
+        assertEquals("", it.next().indent);
         assertTrue(!it.hasNext());
     }
 
@@ -123,8 +123,8 @@ public class TabNannyIteratorTest extends TestCase {
                 "    pass";
         Document d = new Document(str);
         TabNannyDocIterator it = new TabNannyDocIterator(d);
-        assertEquals("    ", it.next().o1);
-        assertEquals("    ", it.next().o1);
+        assertEquals("    ", it.next().indent);
+        assertEquals("    ", it.next().indent);
         assertTrue(!it.hasNext());
     }
 
@@ -133,8 +133,8 @@ public class TabNannyIteratorTest extends TestCase {
                 "    pass";
         Document d = new Document(str);
         TabNannyDocIterator it = new TabNannyDocIterator(d, true, false);
-        assertEquals("    ", it.next().o1);
-        assertEquals("    ", it.next().o1);
+        assertEquals("    ", it.next().indent);
+        assertEquals("    ", it.next().indent);
         assertTrue(!it.hasNext());
     }
 
@@ -144,9 +144,9 @@ public class TabNannyIteratorTest extends TestCase {
                 "    pass\r\n";
         Document d = new Document(str);
         TabNannyDocIterator it = new TabNannyDocIterator(d);
-        assertEquals("    ", it.next().o1);
-        assertEquals("    ", it.next().o1);
-        assertEquals("    ", it.next().o1);
+        assertEquals("    ", it.next().indent);
+        assertEquals("    ", it.next().indent);
+        assertEquals("    ", it.next().indent);
         assertTrue(!it.hasNext());
     }
 
@@ -156,9 +156,9 @@ public class TabNannyIteratorTest extends TestCase {
                 "    pass\r\n";
         Document d = new Document(str);
         TabNannyDocIterator it = new TabNannyDocIterator(d, true, false);
-        assertEquals("    ", it.next().o1);
-        assertEquals("    ", it.next().o1);
-        assertEquals("    ", it.next().o1);
+        assertEquals("    ", it.next().indent);
+        assertEquals("    ", it.next().indent);
+        assertEquals("    ", it.next().indent);
         assertTrue(!it.hasNext());
     }
 
@@ -167,7 +167,7 @@ public class TabNannyIteratorTest extends TestCase {
                 "    pass";
         Document d = new Document(str);
         TabNannyDocIterator it = new TabNannyDocIterator(d);
-        assertEquals("    ", it.next().o1);
+        assertEquals("    ", it.next().indent);
         assertTrue(!it.hasNext());
     }
 
@@ -176,7 +176,7 @@ public class TabNannyIteratorTest extends TestCase {
                 "    pass";
         Document d = new Document(str);
         TabNannyDocIterator it = new TabNannyDocIterator(d, true, false);
-        assertEquals("    ", it.next().o1);
+        assertEquals("    ", it.next().indent);
         assertTrue(!it.hasNext());
     }
 
@@ -185,7 +185,7 @@ public class TabNannyIteratorTest extends TestCase {
                 "    pass";
         Document d = new Document(str);
         TabNannyDocIterator it = new TabNannyDocIterator(d);
-        assertEquals("    ", it.next().o1);
+        assertEquals("    ", it.next().indent);
         assertTrue(!it.hasNext());
     }
 
@@ -194,8 +194,8 @@ public class TabNannyIteratorTest extends TestCase {
                 "    pass";
         Document d = new Document(str);
         TabNannyDocIterator it = new TabNannyDocIterator(d, true, false);
-        assertEquals("", it.next().o1);
-        assertEquals("    ", it.next().o1);
+        assertEquals("", it.next().indent);
+        assertEquals("    ", it.next().indent);
         assertTrue(!it.hasNext());
     }
 
@@ -206,8 +206,8 @@ public class TabNannyIteratorTest extends TestCase {
                 "    pass";
         Document d = new Document(str);
         TabNannyDocIterator it = new TabNannyDocIterator(d, true, false);
-        assertEquals("", it.next().o1);
-        assertEquals("    ", it.next().o1);
+        assertEquals("", it.next().indent);
+        assertEquals("    ", it.next().indent);
         assertTrue(!it.hasNext());
     }
 
@@ -218,7 +218,7 @@ public class TabNannyIteratorTest extends TestCase {
                 "    pass";
         Document d = new Document(str);
         TabNannyDocIterator it = new TabNannyDocIterator(d);
-        assertEquals("    ", it.next().o1);
+        assertEquals("    ", it.next().indent);
         assertTrue(!it.hasNext());
     }
 
@@ -229,8 +229,8 @@ public class TabNannyIteratorTest extends TestCase {
                 "    pass";
         Document d = new Document(str);
         TabNannyDocIterator it = new TabNannyDocIterator(d);
-        assertEquals(" ", it.next().o1);
-        assertEquals("    ", it.next().o1);
+        assertEquals(" ", it.next().indent);
+        assertEquals("    ", it.next().indent);
         assertTrue(!it.hasNext());
     }
 
@@ -241,7 +241,7 @@ public class TabNannyIteratorTest extends TestCase {
                 "ccc\n" +
                 "");
         TabNannyDocIterator it = new TabNannyDocIterator(doc);
-        assertEquals("\t", it.next().o1);
+        assertEquals("\t", it.next().indent);
         assertTrue(!it.hasNext());
     }
 
@@ -252,9 +252,9 @@ public class TabNannyIteratorTest extends TestCase {
                 "ccc\n" +
                 "");
         TabNannyDocIterator it = new TabNannyDocIterator(doc, true, false);
-        assertEquals("", it.next().o1);
+        assertEquals("", it.next().indent);
         //        assertEquals("\t",it.next().o1); -- empty line
-        assertEquals("", it.next().o1);
+        assertEquals("", it.next().indent);
         assertTrue(!it.hasNext());
     }
 
@@ -265,9 +265,9 @@ public class TabNannyIteratorTest extends TestCase {
                 "ccc\n" +
                 "");
         TabNannyDocIterator it = new TabNannyDocIterator(doc, true, false);
-        assertEquals("", it.next().o1);
-        assertEquals("\t", it.next().o1);
-        assertEquals("", it.next().o1);
+        assertEquals("", it.next().indent);
+        assertEquals("\t", it.next().indent);
+        assertEquals("", it.next().indent);
         assertTrue(!it.hasNext());
     }
 
@@ -280,7 +280,7 @@ public class TabNannyIteratorTest extends TestCase {
                 "    pass" +
                 "");
         TabNannyDocIterator it = new TabNannyDocIterator(doc);
-        assertEquals("    ", it.next().o1);
+        assertEquals("    ", it.next().indent);
         assertTrue(!it.hasNext());
     }
 
@@ -293,9 +293,9 @@ public class TabNannyIteratorTest extends TestCase {
                 "    pass" +
                 "");
         TabNannyDocIterator it = new TabNannyDocIterator(doc, true, false);
-        assertEquals("", it.next().o1);
-        assertEquals("", it.next().o1);
-        assertEquals("    ", it.next().o1);
+        assertEquals("", it.next().indent);
+        assertEquals("", it.next().indent);
+        assertEquals("    ", it.next().indent);
         assertTrue(!it.hasNext());
     }
 
@@ -308,11 +308,11 @@ public class TabNannyIteratorTest extends TestCase {
                 "    pass\n" +
                 "");
         TabNannyDocIterator it = new TabNannyDocIterator(doc, true, false);
-        assertEquals("", it.next().o1);
-        assertEquals("\t", it.next().o1);
-        assertEquals("\t", it.next().o1);
-        assertEquals("", it.next().o1);
-        assertEquals("    ", it.next().o1);
+        assertEquals("", it.next().indent);
+        assertEquals("\t", it.next().indent);
+        assertEquals("\t", it.next().indent);
+        assertEquals("", it.next().indent);
+        assertEquals("    ", it.next().indent);
         assertTrue(!it.hasNext());
     }
 
@@ -325,9 +325,9 @@ public class TabNannyIteratorTest extends TestCase {
                 "";
         Document d = new Document(str);
         TabNannyDocIterator it = new TabNannyDocIterator(d, true, false);
-        assertEquals("", it.next().o1);
-        assertEquals("    ", it.next().o1);
-        assertEquals("\t", it.next().o1);
+        assertEquals("", it.next().indent);
+        assertEquals("    ", it.next().indent);
+        assertEquals("\t", it.next().indent);
         assertTrue(!it.hasNext()); //no indentations here...
     }
 

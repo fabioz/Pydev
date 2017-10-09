@@ -10,7 +10,6 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
-import org.python.pydev.shared_core.structure.Tuple3;
 
 /**
  * Class to help iterating through the document's indentation strings.
@@ -22,9 +21,25 @@ import org.python.pydev.shared_core.structure.Tuple3;
  */
 public class TabNannyDocIterator {
 
+    public static class IndentInfo {
+
+        public final String indent;
+        public final Integer startOffset;
+
+        // if true actually has some code in it, otherwise, trimming gives an empty string.
+        public final Boolean hasNonIndentChars;
+
+        public IndentInfo(String indent, int startOffset, boolean hasNonIndentChars) {
+            this.indent = indent;
+            this.startOffset = startOffset;
+            this.hasNonIndentChars = hasNonIndentChars;
+        }
+
+    }
+
     //Mutable on iteration.
     private int offset;
-    private Tuple3<String, Integer, Boolean> nextString;
+    private IndentInfo nextString;
     private boolean firstPass = true;
 
     //Final fields.
@@ -45,7 +60,7 @@ public class TabNannyDocIterator {
 
     public TabNannyDocIterator(IDocument doc, boolean yieldEmptyIndents, boolean yieldOnLinesWithoutContents,
             int initialOffset)
-                    throws BadLocationException {
+            throws BadLocationException {
         parsingUtils = ParsingUtils.create(doc, true);
         this.offset = initialOffset;
         this.doc = doc;
@@ -62,12 +77,12 @@ public class TabNannyDocIterator {
      * @return tuple with the indentation, the offset where it started and a boolean identifying if the line
      * has more than only whitespaces (i.e.: there are contents in the line).
      */
-    public Tuple3<String, Integer, Boolean> next() throws BadLocationException {
+    public IndentInfo next() throws BadLocationException {
         if (!hasNext()) {
             throw new RuntimeException("Cannot iterate anymore.");
         }
 
-        Tuple3<String, Integer, Boolean> ret = nextString;
+        IndentInfo ret = nextString;
         buildNext(false);
         return ret;
     }
@@ -115,10 +130,10 @@ public class TabNannyDocIterator {
                         break;
                     } else {
                         if (yieldEmptyIndents) {
-                            nextString = new Tuple3<String, Integer, Boolean>(tempBuf.toString(), offset, c != '\r'
+                            nextString = new IndentInfo(tempBuf.toString(), offset, c != '\r'
                                     && c != '\n');
                             if (!yieldOnLinesWithoutContents) {
-                                if (!nextString.o3) {
+                                if (!nextString.hasNonIndentChars) {
                                     return false;
                                 }
                             }
@@ -226,16 +241,16 @@ public class TabNannyDocIterator {
                 c = doc.getChar(offset);
             }
             //true if we are in a line that has more contents than only the whitespaces/tabs
-            nextString = new Tuple3<String, Integer, Boolean>(tempBuf.toString(), startingOffset, c != '\r'
+            nextString = new IndentInfo(tempBuf.toString(), startingOffset, c != '\r'
                     && c != '\n');
 
             if (!yieldOnLinesWithoutContents) {
-                if (!nextString.o3) {
+                if (!nextString.hasNonIndentChars) {
                     return false;
                 }
             }
             //now, if we didn't have any indentation, try to make another build
-            if (nextString.o1.length() == 0) {
+            if (nextString.indent.length() == 0) {
                 if (yieldEmptyIndents) {
                     return true;
                 }

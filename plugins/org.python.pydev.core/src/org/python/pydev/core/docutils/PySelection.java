@@ -30,6 +30,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.IPythonPartitions;
+import org.python.pydev.core.docutils.TabNannyDocIterator.IndentInfo;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.partition.PyPartitionScanner;
 import org.python.pydev.shared_core.string.DocIterator;
@@ -37,7 +38,6 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.shared_core.structure.Tuple3;
 
 /**
  * Redone the whole class, so that the interface is better defined and no
@@ -1400,7 +1400,6 @@ public final class PySelection extends TextSelectionUtils {
      * @return a tuple(start line, end line).
      */
     public Tuple<Integer, Integer> getCurrentMethodStartEndLines() {
-
         try {
             boolean considerCurrentLine = false;
             LineStartingScope previousLineThatStartsScope = this.getPreviousLineThatStartsScope(FUNC_TOKEN,
@@ -1410,25 +1409,8 @@ public final class PySelection extends TextSelectionUtils {
                 return getFullDocStartEndLines();
             }
             int startLine = previousLineThatStartsScope.iLineStartingScope;
-            int minColumn = PySelection.getFirstCharPosition(previousLineThatStartsScope.lineStartingScope);
-
             int initialOffset = this.getLineOffset(startLine);
-            TabNannyDocIterator iterator = new TabNannyDocIterator(getDoc(), true, false,
-                    initialOffset);
-            if (iterator.hasNext()) {
-                iterator.next(); // ignore first one (this is from the current line).
-            }
-            int lastOffset = initialOffset;
-            while (iterator.hasNext()) {
-                Tuple3<String, Integer, Boolean> next = iterator.next();
-                if (next.o3) {
-                    if (next.o1.length() <= minColumn) {
-                        break;
-                    }
-                    lastOffset = next.o2;
-                }
-            }
-            return new Tuple<Integer, Integer>(startLine, this.getLineOfOffset(lastOffset));
+            return new Tuple<Integer, Integer>(startLine, getEndLineOfCurrentDeclaration(doc, initialOffset));
 
             // Can't use the approach below because we may be in an inner scope (thus, there'll be no other opening scope finishing
             // the current one).
@@ -1449,7 +1431,42 @@ public final class PySelection extends TextSelectionUtils {
             Log.log(e);
             return getFullDocStartEndLines();
         }
+    }
 
+    /**
+     * Gets the last line which is still a part of the current declaration.
+     * @param doc
+     * @param declarationOffset
+     * @return
+     * @throws BadLocationException
+     */
+    public static int getEndLineOfCurrentDeclaration(IDocument doc, int declarationOffset) throws BadLocationException {
+        int minColumn = PySelection.getFirstCharRelativePosition(doc, declarationOffset);
+
+        int initialOffset = declarationOffset;
+        TabNannyDocIterator iterator = new TabNannyDocIterator(doc, true, false,
+                initialOffset);
+        if (iterator.hasNext()) {
+            iterator.next(); // ignore first one (this is from the current line).
+        }
+        int lastOffset = initialOffset;
+        boolean finished = false;
+        while (iterator.hasNext()) {
+            IndentInfo next = iterator.next();
+            if (next.hasNonIndentChars) {
+                if (next.indent.length() <= minColumn) {
+                    finished = true;
+                    break;
+                }
+                lastOffset = next.startOffset;
+            }
+        }
+        if (finished) {
+            return getLineOfOffset(doc, lastOffset);
+        } else {
+            // reached the end of the document.
+            return doc.getNumberOfLines() - 1;
+        }
     }
 
     private Tuple<Integer, Integer> getFullDocStartEndLines() {
@@ -1471,7 +1488,7 @@ public final class PySelection extends TextSelectionUtils {
     /**
      * Return true if the completion is at the dot after a literal number.
      * Literal numbers have no valid completions as they can be the first part of floats.
-     * 
+     *
      * @param activationToken this comes from either the console's ActivationTokenAndQual
      *      or editor's CompletionRequest
      * @return true if this completion is for a number

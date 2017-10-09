@@ -267,10 +267,10 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
                 PyCodeFormatterPage.DEFAULT_SPACES_IN_START_COMMENT);
         node.putBoolean(PyCodeFormatterPage.MANAGE_BLANK_LINES,
                 PyCodeFormatterPage.DEFAULT_MANAGE_BLANK_LINES);
-        node.putInt(PyCodeFormatterPage.BLANK_LINES_BEFORE_TOP_LEVEL,
-                PyCodeFormatterPage.DEFAULT_BLANK_LINES_BEFORE_TOP_LEVEL);
-        node.putInt(PyCodeFormatterPage.BLANK_LINES_BEFORE_INNER,
-                PyCodeFormatterPage.DEFAULT_BLANK_LINES_BEFORE_INNER);
+        node.putInt(PyCodeFormatterPage.BLANK_LINES_TOP_LEVEL,
+                PyCodeFormatterPage.DEFAULT_BLANK_LINES_TOP_LEVEL);
+        node.putInt(PyCodeFormatterPage.BLANK_LINES_INNER,
+                PyCodeFormatterPage.DEFAULT_BLANK_LINES_INNER);
 
         //initialize pyunit prefs
         node.putInt(PyUnitPrefsPage2.TEST_RUNNER, PyUnitPrefsPage2.DEFAULT_TEST_RUNNER);

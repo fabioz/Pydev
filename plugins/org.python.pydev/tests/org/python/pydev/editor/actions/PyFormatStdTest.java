@@ -1610,6 +1610,44 @@ public class PyFormatStdTest extends TestCase {
         checkFormatResults(input, expected);
     }
 
+    public void testEmptyLinesBeforeAfter2() throws Exception {
+        String input = ""
+                + "def my(a):\n"
+                + "    pass\n"
+                + "a = 10\n"
+                + "";
+
+        String expected = ""
+                + "def my(a):\n"
+                + "    pass\n"
+                + "\n"
+                + "\n"
+                + "a = 10\n"
+                + "";
+        std.manageBlankLines = true;
+        checkFormatResults(input, expected);
+    }
+
+    public void testEmptyLinesBeforeAfter3() throws Exception {
+        String input = ""
+                + "def my(a):\n"
+                + "    rara = 10 + \\\n"
+                + "ignore this\n"
+                + "a = 10\n"
+                + "";
+
+        String expected = ""
+                + "def my(a):\n"
+                + "    rara = 10 + \\\n"
+                + "ignore this\n"
+                + "\n"
+                + "\n"
+                + "a = 10\n"
+                + "";
+        std.manageBlankLines = true;
+        checkFormatResults(input, expected);
+    }
+
     public void testEmptyLinesBeforeAfterAsyncDef() throws Exception {
         String input = ""
                 + "async def my(a):\n"

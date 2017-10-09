@@ -4,9 +4,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.docutils.ParsingUtils;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -20,16 +23,16 @@ public class PyFormatStdManageBlankLines {
         public boolean onlyWhitespacesFound = false;
         public boolean onlyCommentsFound = false;
         public int addBlankLines;
-        public final int infoFromLine; // Starts at 0
+        public final int infoFromLogicalLine; // Starts at 0
 
         public LineOffsetAndInfo(int offset, int currLine) {
             this.offset = offset;
-            this.infoFromLine = currLine;
+            this.infoFromLogicalLine = currLine;
         }
 
         @Override
         public String toString() {
-            return StringUtils.join(", ", "offset: " + offset, "delete: " + delete, "line: " + infoFromLine,
+            return StringUtils.join(", ", "offset: " + offset, "delete: " + delete, "line: " + infoFromLogicalLine,
                     "addBlankLines: " + addBlankLines,
                     "onlyWhitespacesFound: " + onlyWhitespacesFound,
                     "onlyCommentsFound: " + onlyCommentsFound + "\n");
@@ -69,27 +72,32 @@ public class PyFormatStdManageBlankLines {
         List<PyFormatStdManageBlankLines.LineOffsetAndInfo> lst = new ArrayList<>();
         lst.add(new PyFormatStdManageBlankLines.LineOffsetAndInfo(0, 0));
         int currLine = 0;
+        int nextScopeStartLine = -1;
 
         for (int i = 0; i < length; i++) {
             char c = cs[i];
 
             if (c == '\r' || c == '\n') {
+                boolean sameLogicLine = (i > 0 && cs[i - 1] == '\\');
                 // Don't let more than 2 consecutive empty lines anywhere
                 // (when we find some class or method we'll add spaces accordingly
                 // if needed).
                 if (c == '\r' && (i + 1) < length && cs[i + 1] == '\n') {
                     i++;
                 }
-                currLine++;
-                if (onlyWhitespacesFound && lst.size() > 2 && lst.get(lst.size() - 2).onlyWhitespacesFound) {
-                    lst.get(lst.size() - 2).delete = true;
+                if (!sameLogicLine) {
+                    // Only raise line if we didn't end with a '\\' (we're still in the same logic line).
+                    currLine++;
+                    if (onlyWhitespacesFound && lst.size() > 2 && lst.get(lst.size() - 2).onlyWhitespacesFound) {
+                        lst.get(lst.size() - 2).delete = true;
+                    }
+                    PyFormatStdManageBlankLines.LineOffsetAndInfo currLineOffsetAndInfo = lst.get(lst.size() - 1);
+                    currLineOffsetAndInfo.onlyWhitespacesFound = onlyWhitespacesFound;
+                    currLineOffsetAndInfo.onlyCommentsFound = onlyCommentsFound;
+                    lst.add(new PyFormatStdManageBlankLines.LineOffsetAndInfo(i + 1, currLine)); // offset == first char of the next line (could be EOF)
+                    onlyWhitespacesFound = true;
+                    onlyCommentsFound = false;
                 }
-                PyFormatStdManageBlankLines.LineOffsetAndInfo currLineOffsetAndInfo = lst.get(lst.size() - 1);
-                currLineOffsetAndInfo.onlyWhitespacesFound = onlyWhitespacesFound;
-                currLineOffsetAndInfo.onlyCommentsFound = onlyCommentsFound;
-                lst.add(new PyFormatStdManageBlankLines.LineOffsetAndInfo(i + 1, currLine)); // offset == first char of the next line (could be EOF)
-                onlyWhitespacesFound = true;
-                onlyCommentsFound = false;
                 continue;
             }
             if (Character.isWhitespace(c)) {
@@ -114,6 +122,7 @@ public class PyFormatStdManageBlankLines {
             onlyWhitespacesFound = false;
             matchI = -1;
 
+            boolean handledTopLevel = false;
             switch (c) {
                 case '\'':
                 case '"':
@@ -131,6 +140,14 @@ public class PyFormatStdManageBlankLines {
                         case 'a':
                             j = ParsingUtils.matchAsyncFunction(i, cs, length);
                             if (j > 0) {
+                                if (i == 0 || cs[i - 1] == '\n' || cs[i - 1] == '\r') {
+                                    try {
+                                        nextScopeStartLine = PySelection.getEndLineOfCurrentDeclaration(doc, i) + 1;
+                                    } catch (BadLocationException e) {
+                                        nextScopeStartLine = -1;
+                                        Log.log(e);
+                                    }
+                                }
                                 if (decoratorState > 0) {
                                     decoratorState = 0;
                                     matchI = -1;
@@ -141,6 +158,14 @@ public class PyFormatStdManageBlankLines {
                         case 'c':
                             j = ParsingUtils.matchClass(i, cs, length);
                             if (j > 0) {
+                                if (i == 0 || cs[i - 1] == '\n' || cs[i - 1] == '\r') {
+                                    try {
+                                        nextScopeStartLine = PySelection.getEndLineOfCurrentDeclaration(doc, i) + 1;
+                                    } catch (BadLocationException e) {
+                                        nextScopeStartLine = -1;
+                                        Log.log(e);
+                                    }
+                                }
                                 if (decoratorState > 0) {
                                     decoratorState = 0;
                                     matchI = -1;
@@ -152,6 +177,14 @@ public class PyFormatStdManageBlankLines {
                         case 'd':
                             j = ParsingUtils.matchFunction(i, cs, length);
                             if (j > 0) {
+                                if (i == 0 || cs[i - 1] == '\n' || cs[i - 1] == '\r') {
+                                    try {
+                                        nextScopeStartLine = PySelection.getEndLineOfCurrentDeclaration(doc, i) + 1;
+                                    } catch (BadLocationException e) {
+                                        nextScopeStartLine = -1;
+                                        Log.log(e);
+                                    }
+                                }
                                 if (decoratorState > 0) {
                                     decoratorState = 0;
                                     matchI = -1;
@@ -176,100 +209,112 @@ public class PyFormatStdManageBlankLines {
                         default:
                             throw new RuntimeException("Error, should not get here.");
                     }
-                    if (matchI > 0) {
+                    if (matchI > 0 && i > 0) {
+                        int blankLinesNeeded = std.blankLinesInner;
+                        if (cs[i - 1] == '\n' || cs[i - 1] == '\r') {
+                            // top level
+                            handledTopLevel = true;
+                            blankLinesNeeded = std.blankLinesTopLevel;
+                        }
+
                         // When we find a class, we have to make sure that we have
                         // exactly 2 empty lines before it (keeping comment blocks before it).
-                        if (lst.size() > 1) {
-                            // lst.size() == 1 means first line, so, no point in adding new line
-                            // lst.size() < 1 should never happen.
-                            int reverseI = lst.size() - 2;
-                            // lst.size() -2 is previous line and lst.size() -1 curr line
-                            // so, get a comment block right before the class or def and don't
-                            // split it (split before the block)
-                            int foundAt = lst.size() - 1;
-                            int foundAtLine = currLine;
-                            LineOffsetAndInfo currLineOffsetAndInfo = lst
-                                    .get(foundAt);
-                            while (reverseI >= 0) {
-                                LineOffsetAndInfo prev = lst.get(reverseI);
-                                if (prev.infoFromLine == foundAtLine - 1) {
-                                    foundAtLine--;
-                                } else {
-                                    break;
-                                }
-                                if (prev.onlyCommentsFound) {
-                                    currLineOffsetAndInfo = prev;
-                                    foundAt = reverseI;
-                                    reverseI--;
-                                } else {
-                                    break;
-                                }
-                            }
-                            if (reverseI >= 0) {
-                                // if reverseI < 0, we got to the top of the document only with comments
-                                // don't add new lines as it's dubious whether this is from the module or from the class.
-                                //
-                                // i.e.:
-                                // # comment
-                                // # comment
-                                // class Foo(object):
-                                int blankLinesNeeded = std.blankLinesBeforeInner;
-                                if (cs[i - 1] == '\n' || cs[i - 1] == '\r') {
-                                    // top level
-                                    blankLinesNeeded = std.blankLinesBeforeTopLevel;
-
-                                }
-                                foundAtLine = currLine;
-                                // Ok, now, let's see if we have the proper space (the curr line is empty,
-                                // so, start to check spaces before it).
-                                for (int k = foundAt - 1; k >= 0 && blankLinesNeeded > 0; k--) {
-                                    LineOffsetAndInfo info = lst.get(k);
-                                    if (info.infoFromLine == foundAtLine - 1) { // checking only subsequent lines
-                                        foundAtLine--;
-                                    } else {
-                                        break;
-                                    }
-                                    if (info.onlyWhitespacesFound) {
-                                        if (!info.delete) {
-                                            blankLinesNeeded--;
-                                        }
-                                    } else {
-                                        break; // Found non-whitespace line
-                                    }
-                                }
-
-                                if (blankLinesNeeded > 0) {
-                                    foundAtLine = currLine;
-                                    for (int k = foundAt - 1; k >= 0 && blankLinesNeeded > 0; k--) {
-                                        LineOffsetAndInfo info = lst.get(k);
-                                        if (info.infoFromLine == foundAtLine - 1) { // checking only subsequent lines
-                                            foundAtLine--;
-                                        } else {
-                                            break;
-                                        }
-                                        if (info.onlyWhitespacesFound) {
-                                            if (info.delete) {
-                                                info.delete = false;
-                                                blankLinesNeeded--;
-                                            }
-                                        } else {
-                                            break; // Found non-whitespace line
-                                        }
-                                    }
-                                    if (blankLinesNeeded > 0) {
-                                        currLineOffsetAndInfo.addBlankLines = blankLinesNeeded;
-                                    }
-                                }
-                            }
-                        }
+                        markBlankLinesNeededAt(lst, currLine, blankLinesNeeded);
                         i = matchI - 1;
-                    } else {
                     }
                     break;
 
             }
+
+            if (!handledTopLevel) {
+                if (nextScopeStartLine != -1 && currLine >= nextScopeStartLine) {
+                    nextScopeStartLine = -1;
+                    markBlankLinesNeededAt(lst, currLine, std.blankLinesTopLevel);
+                }
+            }
         }
         return lst;
+    }
+
+    private static void markBlankLinesNeededAt(List<PyFormatStdManageBlankLines.LineOffsetAndInfo> lst, int currLine,
+            int blankLinesNeeded) {
+        if (lst.size() > 1) {
+            // lst.size() == 1 means first line, so, no point in adding new line
+            // lst.size() < 1 should never happen.
+            int reverseI = lst.size() - 2;
+            // lst.size() -2 is previous line and lst.size() -1 curr line
+            // so, get a comment block right before the class or def and don't
+            // split it (split before the block)
+            int foundAt = lst.size() - 1;
+            int foundAtLine = currLine;
+            LineOffsetAndInfo currLineOffsetAndInfo = lst
+                    .get(foundAt);
+            while (reverseI >= 0) {
+                LineOffsetAndInfo prev = lst.get(reverseI);
+                if (prev.infoFromLogicalLine == foundAtLine - 1) {
+                    foundAtLine--;
+                } else {
+                    break;
+                }
+                if (prev.onlyCommentsFound) {
+                    currLineOffsetAndInfo = prev;
+                    foundAt = reverseI;
+                    reverseI--;
+                } else {
+                    break;
+                }
+            }
+            if (reverseI >= 0) {
+                // if reverseI < 0, we got to the top of the document only with comments
+                // don't add new lines as it's dubious whether this is from the module or from the class.
+                //
+                // i.e.:
+                // # comment
+                // # comment
+                // class Foo(object):
+                int tempLine = currLine;
+                // Ok, now, let's see if we have the proper space (the curr line is empty,
+                // so, start to check spaces before it).
+                for (int k = foundAt - 1; k >= 0 && blankLinesNeeded > 0; k--) {
+                    LineOffsetAndInfo info = lst.get(k);
+                    if (info.infoFromLogicalLine == tempLine - 1) { // checking only subsequent lines
+                        tempLine--;
+                    } else {
+                        break;
+                    }
+                    if (info.onlyWhitespacesFound) {
+                        if (!info.delete) {
+                            blankLinesNeeded--;
+                        }
+                    } else {
+                        break; // Found non-whitespace line
+                    }
+                }
+
+                if (blankLinesNeeded > 0) {
+                    tempLine = currLine;
+                    for (int k = foundAt - 1; k >= 0 && blankLinesNeeded > 0; k--) {
+                        LineOffsetAndInfo info = lst.get(k);
+                        if (info.infoFromLogicalLine == tempLine - 1) { // checking only subsequent lines
+                            tempLine--;
+                        } else {
+                            break;
+                        }
+                        if (info.onlyWhitespacesFound) {
+                            if (info.delete) {
+                                info.delete = false;
+                                blankLinesNeeded--;
+                            }
+                        } else {
+                            break; // Found non-whitespace line
+                        }
+                    }
+                    if (blankLinesNeeded > 0) {
+                        currLineOffsetAndInfo.addBlankLines = blankLinesNeeded;
+                    }
+                }
+            }
+        }
     }
 
     public static FastStringBuffer fixBlankLinesAmongMethodsAndClasses(List<LineOffsetAndInfo> computed, FormatStd std,
