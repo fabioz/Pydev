@@ -11,6 +11,7 @@ import java.util.Arrays;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -59,6 +60,25 @@ public class PyDialogHelpers {
                     key);
         }
         return MessageDialog.OK;
+    }
+
+    public static boolean openQuestionWithIgnoreToggle(String title, String message, String key) {
+        Shell shell = EditorUtils.getShell();
+        IPreferenceStore store = PydevPlugin.getDefault().getPreferenceStore();
+        String val = store.getString(key);
+        if (val.trim().length() == 0) {
+            val = MessageDialogWithToggle.PROMPT; //Initial value if not specified
+        }
+
+        if (!val.equals(MessageDialogWithToggle.ALWAYS)) {
+            MessageDialogWithToggle dialog = MessageDialogWithToggle.openYesNoQuestion(shell, title, message,
+                    "Don't show this message again", false, store,
+                    key);
+            if (dialog.getReturnCode() != IDialogConstants.YES_ID) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

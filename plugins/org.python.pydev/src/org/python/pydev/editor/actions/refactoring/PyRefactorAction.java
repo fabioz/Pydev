@@ -19,7 +19,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -35,6 +34,7 @@ import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
+import org.python.pydev.ui.dialogs.PyDialogHelpers;
 
 /**
  * @author Fabio Zadrozny
@@ -85,7 +85,7 @@ public abstract class PyRefactorAction extends PyAction {
 
     /**
      * @return the refactoring request (it is created and cached if still not available)
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     public RefactoringRequest getRefactoringRequest(IProgressMonitor monitor) throws MisconfigurationException {
         if (request == null) {
@@ -100,7 +100,7 @@ public abstract class PyRefactorAction extends PyAction {
     /**
      * @param operation the operation we're doing (may be null)
      * @param pyEdit the editor from where we'll get the info
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     public static RefactoringRequest createRefactoringRequest(IProgressMonitor monitor, PyEdit pyEdit, PySelection ps)
             throws MisconfigurationException {
@@ -125,8 +125,9 @@ public abstract class PyRefactorAction extends PyAction {
 
         boolean saveEditors = false;
         if (dirtyEditors.length > 0) {
-            saveEditors = MessageDialog.openQuestion(getPyEditShell(), "Save All?",
-                    "All the editors must be saved to make this operation.\nIs it ok to save them?");
+            saveEditors = PyDialogHelpers.openQuestionWithIgnoreToggle("Save All?",
+                    "All the editors must be saved to make this operation.\nIs it ok to save them?",
+                    "REFACTOR_PRECONDITION_TOGGLE");
             if (saveEditors == false) {
                 return false;
             }
@@ -148,8 +149,8 @@ public abstract class PyRefactorAction extends PyAction {
 
     /**
      * Actually executes this action.
-     * 
-     * Checks preconditions... if 
+     *
+     * Checks preconditions... if
      */
     @Override
     public void run(final IAction action) {
@@ -196,8 +197,8 @@ public abstract class PyRefactorAction extends PyAction {
 
     /**
      * This is the method that should be actually overridden to perform the refactoring action.
-     * 
-     * @param action the action to be performed 
+     *
+     * @param action the action to be performed
      * @param monitor the monitor for the operation
      * @return the status returned by the server for the refactoring.
      * @throws Exception
