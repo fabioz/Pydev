@@ -1532,7 +1532,7 @@ public class PyFormatStdTest extends TestCase {
                 + "        '''\n"
                 + "  \n"
                 + "  \n"
-                + "class my:\n"
+                + "class my:\n" // line 10
                 + "    a = 10\n"
                 + "    \n"
                 + "    def foo():\n"
@@ -1652,6 +1652,27 @@ public class PyFormatStdTest extends TestCase {
                 + "";
         std.manageBlankLines = true;
         checkFormatResults(input, expected);
+    }
+
+    public void testEmptyLinesBeforeAfter4() throws Exception {
+        String input = ""
+                + "from a import b\n" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "#comment\n" +
+                "class Test(object):\n" + // line 5
+                "\n" +
+                "\n" +
+                "    def m2(self):\n" +
+                "        pass\n" +
+                ""
+                + "";
+
+        std.manageBlankLines = true;
+        std.blankLinesTopLevel = 3;
+        std.blankLinesInner = 2;
+        checkFormatResults(input, input);
     }
 
     public void testEmptyLinesBeforeAfter2() throws Exception {

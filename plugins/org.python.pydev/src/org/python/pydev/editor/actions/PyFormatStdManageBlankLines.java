@@ -272,12 +272,12 @@ public class PyFormatStdManageBlankLines {
                 // # comment
                 // # comment
                 // class Foo(object):
-                int tempLine = currLine;
+                int tempLine = lst.get(reverseI).infoFromLogicalLine;
                 // Ok, now, let's see if we have the proper space (the curr line is empty,
                 // so, start to check spaces before it).
-                for (int k = foundAt - 1; k >= 0 && blankLinesNeeded > 0; k--) {
+                for (int k = reverseI; k >= 0 && blankLinesNeeded > 0; k--) {
                     LineOffsetAndInfo info = lst.get(k);
-                    if (info.infoFromLogicalLine == tempLine - 1) { // checking only subsequent lines
+                    if (info.infoFromLogicalLine == tempLine) { // checking only subsequent lines
                         tempLine--;
                     } else {
                         break;
@@ -292,10 +292,10 @@ public class PyFormatStdManageBlankLines {
                 }
 
                 if (blankLinesNeeded > 0) {
-                    tempLine = currLine;
-                    for (int k = foundAt - 1; k >= 0 && blankLinesNeeded > 0; k--) {
+                    tempLine = lst.get(reverseI).infoFromLogicalLine;
+                    for (int k = reverseI; k >= 0 && blankLinesNeeded > 0; k--) {
                         LineOffsetAndInfo info = lst.get(k);
-                        if (info.infoFromLogicalLine == tempLine - 1) { // checking only subsequent lines
+                        if (info.infoFromLogicalLine == tempLine) { // checking only subsequent lines
                             tempLine--;
                         } else {
                             break;
