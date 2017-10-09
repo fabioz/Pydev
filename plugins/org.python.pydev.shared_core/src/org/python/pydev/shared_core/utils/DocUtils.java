@@ -12,8 +12,10 @@
 package org.python.pydev.shared_core.utils;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.Assert;
@@ -25,6 +27,7 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ISynchronizable;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
 
 public class DocUtils {
 
@@ -233,5 +236,59 @@ public class DocUtils {
         } catch (BadLocationException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static class EmptyLinesComputer {
+
+        private final IDocument doc;
+        private Map<Integer, Boolean> lineToIsEmpty = new HashMap<>();
+        private final int numberOfLines;
+
+        public EmptyLinesComputer(IDocument doc) {
+            this.doc = doc;
+            numberOfLines = this.doc.getNumberOfLines();
+        }
+
+        public boolean isLineEmpty(int line) {
+            Boolean b = this.lineToIsEmpty.get(line);
+            if (b == null) {
+                String lineContents = TextSelectionUtils.getLine(doc, line);
+                if (lineContents.trim().isEmpty()) {
+                    this.lineToIsEmpty.put(line, true);
+                    b = true;
+                } else {
+                    this.lineToIsEmpty.put(line, false);
+                    b = false;
+                }
+            }
+            return b;
+        }
+
+        public void addToSetEmptyBlockLinesFromLine(Set<Integer> hashSet, int line) {
+            if (line < 0) {
+                return;
+            }
+            if (line >= numberOfLines) {
+                return;
+            }
+            if (!isLineEmpty(line)) {
+                return;
+            }
+            for (int i = line; i < numberOfLines; i++) {
+                if (isLineEmpty(i)) {
+                    hashSet.add(i);
+                } else {
+                    break;
+                }
+            }
+            for (int i = line - 1; i >= 0 && i < numberOfLines; i--) {
+                if (isLineEmpty(i)) {
+                    hashSet.add(i);
+                } else {
+                    break;
+                }
+            }
+        }
+
     }
 }

@@ -6,10 +6,15 @@
  */
 package org.python.pydev.core.docutils;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.utils.DocUtils;
+import org.python.pydev.shared_core.utils.DocUtils.EmptyLinesComputer;
 
 import junit.framework.TestCase;
 
@@ -436,5 +441,50 @@ public class DocUtilsTest extends TestCase {
         IDocument doc = new Document(docContents);
         DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
         assertEquals(newDocContents, doc.get());
+    }
+
+    public void testEmptyLinesAround() {
+        IDocument doc = new Document(""
+                + "a\n"
+                + "\n"
+                + "\n"
+                + "b\n"
+                + "c\n"
+                + "\n"
+                + "\n"
+                + "\n");
+        EmptyLinesComputer computer = new EmptyLinesComputer(doc);
+        Set<Integer> set = new HashSet<>();
+        computer.addToSetEmptyBlockLinesFromLine(set, 0);
+        assertEquals(0, set.size());
+        set.clear();
+
+        computer.addToSetEmptyBlockLinesFromLine(set, 1);
+        assertEquals(new HashSet(Arrays.asList(1, 2)), set);
+        set.clear();
+
+        computer.addToSetEmptyBlockLinesFromLine(set, 2);
+        assertEquals(new HashSet(Arrays.asList(1, 2)), set);
+        set.clear();
+
+        computer.addToSetEmptyBlockLinesFromLine(set, 0);
+        assertEquals(new HashSet(), set);
+        set.clear();
+
+        computer.addToSetEmptyBlockLinesFromLine(set, 5);
+        assertEquals(new HashSet(Arrays.asList(5, 6, 7, 8)), set);
+        set.clear();
+
+        computer.addToSetEmptyBlockLinesFromLine(set, 6);
+        assertEquals(new HashSet(Arrays.asList(5, 6, 7, 8)), set);
+        set.clear();
+
+        computer.addToSetEmptyBlockLinesFromLine(set, 7);
+        assertEquals(new HashSet(Arrays.asList(5, 6, 7, 8)), set);
+        set.clear();
+
+        computer.addToSetEmptyBlockLinesFromLine(set, 8);
+        assertEquals(new HashSet(Arrays.asList(5, 6, 7, 8)), set);
+        set.clear();
     }
 }

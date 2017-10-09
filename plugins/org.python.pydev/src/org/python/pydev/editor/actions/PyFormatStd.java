@@ -61,6 +61,7 @@ import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.ArrayUtils;
+import org.python.pydev.shared_core.utils.DocUtils.EmptyLinesComputer;
 
 /**
  * @author Fabio Zadrozny
@@ -319,9 +320,15 @@ public class PyFormatStd extends PyAction implements IFormatter {
                         .computeBlankLinesAmongMethodsAndClasses(formatStd, formatted, buf, delimiter);
                 Collections.reverse(computed);
                 String delimTwice = delimiter + delimiter;
-                HashSet<Object> hashSet = new HashSet<>();
+                Set<Integer> hashSet = new HashSet<>();
+                EmptyLinesComputer emptyLinesComputer = new EmptyLinesComputer(doc);
                 for (int i : regionsForSave) {
+                    // Note: to properly deal with blank line removal, consider all blank lines as a
+                    // single block (otherwise it may be really hard for the code formatter to know
+                    // which of those lines should be deleted or to which of those lines a new
+                    // line should be added).
                     hashSet.add(i);
+                    emptyLinesComputer.addToSetEmptyBlockLinesFromLine(hashSet, i);
                 }
 
                 for (LineOffsetAndInfo lineOffsetAndInfo : computed) {
