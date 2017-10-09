@@ -1475,6 +1475,50 @@ public class PyFormatStdTest extends TestCase {
         checkFormatResults(input, input);
     }
 
+    public void testSpacesBeforeAfterClass() throws Exception {
+        // Already is properly formatted.
+        String input = ""
+                + "from a import b\n"
+                + "\n"
+                + "\n"
+                + "\n"
+                + "class my:\n" // line 4
+                + "    a = 10\n"
+                + "    \n"
+                + "    \n"
+                + "    def foo():\n" // line 8
+                + "        '''docstring\n"
+                + "        docstring'''\n"
+                + "\n"
+                + "\n"
+                + "    def bar():\n" // line 13
+                + "        '''docstring\n" // line 14
+                + "        docstring'''\n"
+                + "\n"
+                + "\n"
+                + "\n"
+                + "class my:\n" // line 19
+                + "    a = 10\n"
+                + "    \n"
+                + "    \n"
+                + "    def foo():\n"
+                + "        '''docstring\n"
+                + "        docstring'''\n"
+                + "\n"
+                + "\n"
+                + "    def bar():\n"
+                + "        '''docstring\n"
+                + "        docstring'''\n"
+                + "\n"
+                + "";
+
+        std.manageBlankLines = true;
+        std.trimLines = false;
+        std.blankLinesInner = 2;
+        std.blankLinesTopLevel = 3;
+        checkFormatResults(input, input);
+    }
+
     public void testSpacesBeforeClassIgnoreLiterals() throws Exception {
         // Already is properly formatted.
         String input = ""

@@ -24,10 +24,10 @@ public class TabNannyDocIterator {
     public static class IndentInfo {
 
         public final String indent;
-        public final Integer startOffset;
+        public final int startOffset;
 
         // if true actually has some code in it, otherwise, trimming gives an empty string.
-        public final Boolean hasNonIndentChars;
+        public final boolean hasNonIndentChars;
 
         public IndentInfo(String indent, int startOffset, boolean hasNonIndentChars) {
             this.indent = indent;

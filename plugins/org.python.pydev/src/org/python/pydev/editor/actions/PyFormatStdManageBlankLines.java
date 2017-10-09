@@ -228,8 +228,8 @@ public class PyFormatStdManageBlankLines {
 
             if (!handledTopLevel) {
                 if (nextScopeStartLine != -1 && currLine >= nextScopeStartLine) {
-                    nextScopeStartLine = -1;
                     markBlankLinesNeededAt(lst, currLine, std.blankLinesTopLevel);
+                    nextScopeStartLine = -1;
                 }
             }
         }

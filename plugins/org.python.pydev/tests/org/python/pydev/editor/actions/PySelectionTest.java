@@ -829,7 +829,7 @@ public class PySelectionTest extends TestCase {
                 + "    return 10");
         ps = new PySelection(doc, line, col, len);
         Tuple<Integer, Integer> startEndLines = ps.getCurrentMethodStartEndLines();
-        assertEquals(new Tuple<Integer, Integer>(0, 4), startEndLines);
+        assertEquals(new Tuple<Integer, Integer>(0, 5), startEndLines);
     }
 
     public void testGetCurrentMethodLines() throws Exception {
@@ -967,7 +967,7 @@ public class PySelectionTest extends TestCase {
                 + "\n"
                 + "  \n"
                 + "b = 30\n");
-        assertEquals(1, PySelection.getEndLineOfCurrentDeclaration(doc, 0));
+        assertEquals(4, PySelection.getEndLineOfCurrentDeclaration(doc, 0));
     }
 
     public void testGetEndOfCurrentDeclaration5() throws Exception {
@@ -982,5 +982,18 @@ public class PySelectionTest extends TestCase {
                 + "'''\n"
                 + "");
         assertEquals(8, PySelection.getEndLineOfCurrentDeclaration(doc, 0));
+    }
+
+    public void testGetEndOfCurrentDeclaration6() throws Exception {
+        doc = new Document(""
+                + "def m1():\n"
+                + "  a = '''\n"
+                + "   foo\n"
+                + "   '''\n"
+                + "\n"
+                + "def m2():\n"
+                + "    pass\n"
+                + "");
+        assertEquals(4, PySelection.getEndLineOfCurrentDeclaration(doc, 0));
     }
 }

@@ -1444,7 +1444,7 @@ public final class PySelection extends TextSelectionUtils {
         int minColumn = PySelection.getFirstCharRelativePosition(doc, declarationOffset);
 
         int initialOffset = declarationOffset;
-        TabNannyDocIterator iterator = new TabNannyDocIterator(doc, true, false,
+        TabNannyDocIterator iterator = new TabNannyDocIterator(doc, true, true,
                 initialOffset);
         if (iterator.hasNext()) {
             iterator.next(); // ignore first one (this is from the current line).
@@ -1458,8 +1458,8 @@ public final class PySelection extends TextSelectionUtils {
                     finished = true;
                     break;
                 }
-                lastOffset = next.startOffset;
             }
+            lastOffset = next.startOffset;
         }
         if (finished) {
             return getLineOfOffset(doc, lastOffset);
