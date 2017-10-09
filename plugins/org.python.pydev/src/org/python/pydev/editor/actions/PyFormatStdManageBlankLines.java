@@ -114,7 +114,7 @@ public class PyFormatStdManageBlankLines {
             }
             if (c == '@') {
                 // Decorator or matrix multiplier
-                if (onlyWhitespacesFound) {
+                if (onlyWhitespacesFound && decoratorState == 0) {
                     // Consider it a decorator
                     decoratorState = 1;
                 }

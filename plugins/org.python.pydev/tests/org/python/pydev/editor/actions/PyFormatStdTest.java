@@ -1563,6 +1563,24 @@ public class PyFormatStdTest extends TestCase {
         checkFormatResults(input, input);
     }
 
+    public void testBlankLinesWithMultipleDecorators() throws Exception {
+        String input = "" +
+                "\n" +
+                "\n" +
+                "def m1():\n" +
+                "    pass\n" +
+                "\n" +
+                "\n" +
+                "@foo\n" +
+                "@bar\n" +
+                "def m2():\n" +
+                "    pass";
+
+        std.manageBlankLines = true;
+        std.trimLines = false;
+        checkFormatResults(input, input);
+    }
+
     public void testSpacesBeforeClassIgnoreLiterals3() throws Exception {
         // Already is properly formatted.
         String input = ""
