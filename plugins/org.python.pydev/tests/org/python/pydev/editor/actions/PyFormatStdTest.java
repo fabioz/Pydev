@@ -1581,6 +1581,19 @@ public class PyFormatStdTest extends TestCase {
         checkFormatResults(input, input);
     }
 
+    public void testIgnoreDefs() throws Exception {
+        String input = "" +
+                "\n" +
+                "\n" +
+                "def m1():\n" +
+                "    a = def class\n" +
+                "    pass";
+
+        std.manageBlankLines = true;
+        std.trimLines = false;
+        checkFormatResults(input, input);
+    }
+
     public void testSpacesBeforeClassIgnoreLiterals3() throws Exception {
         // Already is properly formatted.
         String input = ""

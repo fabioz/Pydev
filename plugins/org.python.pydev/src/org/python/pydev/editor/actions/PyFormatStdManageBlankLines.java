@@ -119,6 +119,7 @@ public class PyFormatStdManageBlankLines {
                     decoratorState = 1;
                 }
             }
+            final boolean onlyWhitespacesFoundInCurrLine = onlyWhitespacesFound;
             onlyWhitespacesFound = false;
             matchI = -1;
 
@@ -135,94 +136,96 @@ public class PyFormatStdManageBlankLines {
                 case 'c':
                 case 'd':
                 case '@':
-                    int j;
-                    switch (c) {
-                        case 'a':
-                            j = ParsingUtils.matchAsyncFunction(i, cs, length);
-                            if (j > 0) {
-                                if (i == 0 || cs[i - 1] == '\n' || cs[i - 1] == '\r') {
-                                    try {
-                                        nextScopeStartLine = PySelection.getEndLineOfCurrentDeclaration(doc, i) + 1;
-                                    } catch (BadLocationException e) {
-                                        nextScopeStartLine = -1;
-                                        Log.log(e);
+                    if (onlyWhitespacesFoundInCurrLine) {
+                        int j;
+                        switch (c) {
+                            case 'a':
+                                j = ParsingUtils.matchAsyncFunction(i, cs, length);
+                                if (j > 0) {
+                                    if (i == 0 || cs[i - 1] == '\n' || cs[i - 1] == '\r') {
+                                        try {
+                                            nextScopeStartLine = PySelection.getEndLineOfCurrentDeclaration(doc, i) + 1;
+                                        } catch (BadLocationException e) {
+                                            nextScopeStartLine = -1;
+                                            Log.log(e);
+                                        }
+                                    }
+                                    if (decoratorState > 0) {
+                                        decoratorState = 0;
+                                        matchI = -1;
+                                    } else {
+                                        matchI = j;
                                     }
                                 }
-                                if (decoratorState > 0) {
-                                    decoratorState = 0;
-                                    matchI = -1;
-                                } else {
-                                    matchI = j;
-                                }
-                            }
-                        case 'c':
-                            j = ParsingUtils.matchClass(i, cs, length);
-                            if (j > 0) {
-                                if (i == 0 || cs[i - 1] == '\n' || cs[i - 1] == '\r') {
-                                    try {
-                                        nextScopeStartLine = PySelection.getEndLineOfCurrentDeclaration(doc, i) + 1;
-                                    } catch (BadLocationException e) {
-                                        nextScopeStartLine = -1;
-                                        Log.log(e);
+                            case 'c':
+                                j = ParsingUtils.matchClass(i, cs, length);
+                                if (j > 0) {
+                                    if (i == 0 || cs[i - 1] == '\n' || cs[i - 1] == '\r') {
+                                        try {
+                                            nextScopeStartLine = PySelection.getEndLineOfCurrentDeclaration(doc, i) + 1;
+                                        } catch (BadLocationException e) {
+                                            nextScopeStartLine = -1;
+                                            Log.log(e);
+                                        }
+                                    }
+                                    if (decoratorState > 0) {
+                                        decoratorState = 0;
+                                        matchI = -1;
+                                    } else {
+                                        matchI = j;
                                     }
                                 }
-                                if (decoratorState > 0) {
-                                    decoratorState = 0;
-                                    matchI = -1;
-                                } else {
-                                    matchI = j;
-                                }
-                            }
-                            break;
-                        case 'd':
-                            j = ParsingUtils.matchFunction(i, cs, length);
-                            if (j > 0) {
-                                if (i == 0 || cs[i - 1] == '\n' || cs[i - 1] == '\r') {
-                                    try {
-                                        nextScopeStartLine = PySelection.getEndLineOfCurrentDeclaration(doc, i) + 1;
-                                    } catch (BadLocationException e) {
-                                        nextScopeStartLine = -1;
-                                        Log.log(e);
+                                break;
+                            case 'd':
+                                j = ParsingUtils.matchFunction(i, cs, length);
+                                if (j > 0) {
+                                    if (i == 0 || cs[i - 1] == '\n' || cs[i - 1] == '\r') {
+                                        try {
+                                            nextScopeStartLine = PySelection.getEndLineOfCurrentDeclaration(doc, i) + 1;
+                                        } catch (BadLocationException e) {
+                                            nextScopeStartLine = -1;
+                                            Log.log(e);
+                                        }
+                                    }
+                                    if (decoratorState > 0) {
+                                        decoratorState = 0;
+                                        matchI = -1;
+                                    } else {
+                                        matchI = j;
                                     }
                                 }
-                                if (decoratorState > 0) {
-                                    decoratorState = 0;
-                                    matchI = -1;
+                                break;
+                            case '@':
+                                matchI = -1;
+                                if (decoratorState == 2) {
+                                    // Don't reset flag if multiple decorators are found.
+                                    // (it should only be reset when a class or method is found).
                                 } else {
-                                    matchI = j;
+                                    if (decoratorState == 1) {
+                                        matchI = i + 1;
+                                        decoratorState = 2;
+                                    }
                                 }
-                            }
-                            break;
-                        case '@':
-                            matchI = -1;
-                            if (decoratorState == 2) {
-                                // Don't reset flag if multiple decorators are found.
-                                // (it should only be reset when a class or method is found).
-                            } else {
-                                if (decoratorState == 1) {
-                                    matchI = i + 1;
-                                    decoratorState = 2;
-                                }
-                            }
 
-                            break;
-                        default:
-                            throw new RuntimeException("Error, should not get here.");
-                    }
-                    if (matchI > 0 && i > 0) {
-                        int blankLinesNeeded = std.blankLinesInner;
-                        if (cs[i - 1] == '\n' || cs[i - 1] == '\r') {
-                            // top level
-                            handledTopLevel = true;
-                            blankLinesNeeded = std.blankLinesTopLevel;
+                                break;
+                            default:
+                                throw new RuntimeException("Error, should not get here.");
                         }
+                        if (matchI > 0 && i > 0) {
+                            int blankLinesNeeded = std.blankLinesInner;
+                            if (cs[i - 1] == '\n' || cs[i - 1] == '\r') {
+                                // top level
+                                handledTopLevel = true;
+                                blankLinesNeeded = std.blankLinesTopLevel;
+                            }
 
-                        // When we find a class, we have to make sure that we have
-                        // exactly 2 empty lines before it (keeping comment blocks before it).
-                        markBlankLinesNeededAt(lst, currLine, blankLinesNeeded);
-                        i = matchI - 1;
+                            // When we find a class, we have to make sure that we have
+                            // exactly 2 empty lines before it (keeping comment blocks before it).
+                            markBlankLinesNeededAt(lst, currLine, blankLinesNeeded);
+                            i = matchI - 1;
+                        }
+                        break;
                     }
-                    break;
 
             }
 
