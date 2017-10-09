@@ -264,17 +264,21 @@ public class DocUtils {
             return b;
         }
 
-        public void addToSetEmptyBlockLinesFromLine(Set<Integer> hashSet, int line) {
+        /**
+         * Note: will add the current line if it's not empty and will add
+         * surrounding empty lines (even if the passed line is not empty).
+         */
+        public void addToSetEmptyLinesCloseToLine(Set<Integer> hashSet, int line) {
             if (line < 0) {
                 return;
             }
             if (line >= numberOfLines) {
                 return;
             }
-            if (!isLineEmpty(line)) {
-                return;
+            if (isLineEmpty(line)) {
+                hashSet.add(line);
             }
-            for (int i = line; i < numberOfLines; i++) {
+            for (int i = line + 1; i < numberOfLines; i++) {
                 if (isLineEmpty(i)) {
                     hashSet.add(i);
                 } else {

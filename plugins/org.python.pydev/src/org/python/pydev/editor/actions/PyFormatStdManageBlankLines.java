@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.docutils.ParsingUtils;
@@ -28,6 +29,7 @@ public class PyFormatStdManageBlankLines {
 
         public LineOffsetAndInfo(int offset, int currLogicalLine, int currRealLine) {
             this.offset = offset;
+            Assert.isTrue(currRealLine >= currLogicalLine);
             this.infoFromLogicalLine = currLogicalLine;
             this.infoFromRealLine = currRealLine;
         }
@@ -138,7 +140,9 @@ public class PyFormatStdManageBlankLines {
                 case '"':
                     //ignore literals and multi-line literals.
                     i = parsingUtils.eatLiterals(tempBuf.clear(), i);
-                    currLogicLine += tempBuf.countNewLines();
+                    int count = tempBuf.countNewLines();
+                    currLogicLine += count;
+                    currRealLine += count;
                     break;
 
                 case 'a':

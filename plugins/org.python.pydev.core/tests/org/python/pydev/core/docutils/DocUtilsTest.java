@@ -455,36 +455,44 @@ public class DocUtilsTest extends TestCase {
                 + "\n");
         EmptyLinesComputer computer = new EmptyLinesComputer(doc);
         Set<Integer> set = new HashSet<>();
-        computer.addToSetEmptyBlockLinesFromLine(set, 0);
-        assertEquals(0, set.size());
-        set.clear();
-
-        computer.addToSetEmptyBlockLinesFromLine(set, 1);
+        computer.addToSetEmptyLinesCloseToLine(set, 0);
         assertEquals(new HashSet(Arrays.asList(1, 2)), set);
         set.clear();
 
-        computer.addToSetEmptyBlockLinesFromLine(set, 2);
+        computer.addToSetEmptyLinesCloseToLine(set, 1);
         assertEquals(new HashSet(Arrays.asList(1, 2)), set);
         set.clear();
 
-        computer.addToSetEmptyBlockLinesFromLine(set, 0);
-        assertEquals(new HashSet(), set);
+        computer.addToSetEmptyLinesCloseToLine(set, 2);
+        assertEquals(new HashSet(Arrays.asList(1, 2)), set);
         set.clear();
 
-        computer.addToSetEmptyBlockLinesFromLine(set, 5);
+        computer.addToSetEmptyLinesCloseToLine(set, 3);
+        assertEquals(new HashSet(Arrays.asList(1, 2)), set);
+        set.clear();
+
+        computer.addToSetEmptyLinesCloseToLine(set, 5);
         assertEquals(new HashSet(Arrays.asList(5, 6, 7, 8)), set);
         set.clear();
 
-        computer.addToSetEmptyBlockLinesFromLine(set, 6);
+        computer.addToSetEmptyLinesCloseToLine(set, 6);
         assertEquals(new HashSet(Arrays.asList(5, 6, 7, 8)), set);
         set.clear();
 
-        computer.addToSetEmptyBlockLinesFromLine(set, 7);
+        computer.addToSetEmptyLinesCloseToLine(set, 7);
         assertEquals(new HashSet(Arrays.asList(5, 6, 7, 8)), set);
         set.clear();
 
-        computer.addToSetEmptyBlockLinesFromLine(set, 8);
+        computer.addToSetEmptyLinesCloseToLine(set, 8);
         assertEquals(new HashSet(Arrays.asList(5, 6, 7, 8)), set);
+        set.clear();
+
+        computer.addToSetEmptyLinesCloseToLine(set, 9);
+        assertEquals(new HashSet(Arrays.asList()), set);
+        set.clear();
+
+        computer.addToSetEmptyLinesCloseToLine(set, -1);
+        assertEquals(new HashSet(Arrays.asList()), set);
         set.clear();
     }
 }

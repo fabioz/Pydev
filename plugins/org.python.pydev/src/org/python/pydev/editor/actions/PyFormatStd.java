@@ -328,7 +328,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
                     // which of those lines should be deleted or to which of those lines a new
                     // line should be added).
                     hashSet.add(i);
-                    emptyLinesComputer.addToSetEmptyBlockLinesFromLine(hashSet, i);
+                    emptyLinesComputer.addToSetEmptyLinesCloseToLine(hashSet, i);
                 }
 
                 for (LineOffsetAndInfo lineOffsetAndInfo : computed) {
