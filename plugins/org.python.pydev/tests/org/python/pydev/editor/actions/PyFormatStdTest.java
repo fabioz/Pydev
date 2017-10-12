@@ -1594,7 +1594,7 @@ public class PyFormatStdTest extends TestCase {
         checkFormatResults(input, input);
     }
 
-    public void testSpacesBeforeClassIgnoreLiterals3() throws Exception {
+    public void testBlankLinesBeforeClassIgnoreLiterals3() throws Exception {
         // Already is properly formatted.
         String input = ""
                 + "a = 10\n"
@@ -1607,6 +1607,48 @@ public class PyFormatStdTest extends TestCase {
                 + "    \n"
                 + "    def foo():\n"
                 + "";
+
+        std.manageBlankLines = true;
+        std.trimLines = false;
+        checkFormatResults(input, input);
+    }
+
+    public void testBlankLinesWithLogicalLines() throws Exception {
+        // Already is properly formatted.
+        String input = "" +
+                "def method():\n" +
+                "\n" +
+                "    def foo():\n" +
+                "        assert bar(),\\\n" +
+                "            'line1 '\\\n" +
+                "            'line2.'\n" +
+                "\n" +
+                "\n" +
+                "if xx == 'bar':\n" +
+                "    try:\n" +
+                "        from a import b\n" +
+                "    except ImportError:\n" +
+                "        import c\n" +
+                ""
+                + "";
+
+        std.manageBlankLines = true;
+        std.trimLines = false;
+        checkFormatResults(input, input);
+    }
+
+    public void testBlankLinesCommentsDontChangeLevel() throws Exception {
+        // Already is properly formatted.
+        String input = "" +
+                "class Foo:\n" +
+                "\n" +
+                "    def bar(self):\n" +
+                "        a = 10\n" +
+                "#             comment\n" +
+                "\n" +
+                "    def foo(self):\n" +
+                "        pass\n" +
+                "";
 
         std.manageBlankLines = true;
         std.trimLines = false;
@@ -1858,6 +1900,5 @@ public class PyFormatStdTest extends TestCase {
         int[] regionsForSave = new int[] { 5 };
         pyFormatStd.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
         assertEquals(expected, doc.get());
-
     }
 }
