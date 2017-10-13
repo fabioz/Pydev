@@ -317,9 +317,10 @@ public class PyFormatStd extends PyAction implements IFormatter {
                 // Now, remove or add blank lines as needed.
                 FastStringBuffer buf = new FastStringBuffer(formattedAsStr, 10);
                 List<LineOffsetAndInfo> computed = PyFormatStdManageBlankLines
-                        .computeBlankLinesAmongMethodsAndClasses(formatStd, formatted, buf, delimiter);
+                        .computeBlankLinesAmongMethodsAndClasses(formatStd, buf, delimiter);
                 Collections.reverse(computed);
                 String delimTwice = delimiter + delimiter;
+                String delimTimes3 = delimTwice + delimiter;
                 Set<Integer> hashSet = new HashSet<>();
                 EmptyLinesComputer emptyLinesComputer = new EmptyLinesComputer(doc);
                 for (int i : regionsForSave) {
@@ -349,6 +350,8 @@ public class PyFormatStd extends PyAction implements IFormatter {
                             useDelim = delimiter;
                         } else if (lineOffsetAndInfo.addBlankLines == 2) {
                             useDelim = delimTwice;
+                        } else if (lineOffsetAndInfo.addBlankLines == 3) {
+                            useDelim = delimTimes3;
                         } else {
                             useDelim = new FastStringBuffer().appendN(delimiter, lineOffsetAndInfo.addBlankLines)
                                     .toString();
@@ -484,7 +487,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
             FastStringBuffer buf = formatStr(doc.get(), std, 0, delimiter, throwSyntaxError);
             if (allowChangingBlankLines && std.manageBlankLines) {
                 List<LineOffsetAndInfo> computed = PyFormatStdManageBlankLines
-                        .computeBlankLinesAmongMethodsAndClasses(std, doc, buf, delimiter);
+                        .computeBlankLinesAmongMethodsAndClasses(std, buf, delimiter);
                 return PyFormatStdManageBlankLines
                         .fixBlankLinesAmongMethodsAndClasses(computed, std, doc, buf, delimiter).toString();
             } else {

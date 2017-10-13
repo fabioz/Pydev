@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
@@ -14,6 +15,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.structure.FastStack;
 
 public class PyFormatStdManageBlankLines {
 
@@ -61,14 +63,15 @@ public class PyFormatStdManageBlankLines {
     private int decoratorState = 0; // 0 = just found, 1 = first decorator found, 2 = first decorator processed.
     private int currLogicLine = 0;
     private int currRealLine = 0;
-    private int nextScopeStartRealLine = -1;
 
-    private List<PyFormatStdManageBlankLines.LineOffsetAndInfo> lst = new ArrayList<>();
+    private final FastStack<Integer> nextScopeStartRealLineTopLevel = new FastStack<>(2);
+    private final FastStack<Integer> nextScopeStartRealLineInnerLevel = new FastStack<>(10);
+    private final List<PyFormatStdManageBlankLines.LineOffsetAndInfo> logicalLinesInfo = new ArrayList<>();
 
-    private PyFormatStdManageBlankLines(FormatStd std, IDocument doc, FastStringBuffer initialFormatting,
+    private PyFormatStdManageBlankLines(FormatStd std, FastStringBuffer initialFormatting,
             String delimiter) {
         this.std = std;
-        this.doc = doc;
+        this.doc = new Document(initialFormatting.toString());
         this.initialFormatting = initialFormatting;
         this.delimiter = delimiter;
         parsingUtils = ParsingUtils.create(initialFormatting);
@@ -97,13 +100,13 @@ public class PyFormatStdManageBlankLines {
      * as much as possible to know what can be actually changed).
      */
     public static List<LineOffsetAndInfo> computeBlankLinesAmongMethodsAndClasses(PyFormatStd.FormatStd std,
-            IDocument doc, FastStringBuffer initialFormatting, String delimiter) throws SyntaxErrorException {
-        PyFormatStdManageBlankLines fmt = new PyFormatStdManageBlankLines(std, doc, initialFormatting, delimiter);
+            FastStringBuffer initialFormatting, String delimiter) throws SyntaxErrorException {
+        PyFormatStdManageBlankLines fmt = new PyFormatStdManageBlankLines(std, initialFormatting, delimiter);
         return fmt.computeBlankLinesAmongMethodsAndClassesInternal();
     }
 
     private List<LineOffsetAndInfo> computeBlankLinesAmongMethodsAndClassesInternal() throws SyntaxErrorException {
-        lst.add(new PyFormatStdManageBlankLines.LineOffsetAndInfo(0, 0, 0));
+        logicalLinesInfo.add(new PyFormatStdManageBlankLines.LineOffsetAndInfo(0, 0, 0));
 
         for (; offset < length; offset++) {
             char c = cs[offset];
@@ -120,15 +123,18 @@ public class PyFormatStdManageBlankLines {
                 if (!sameLogicLine) {
                     // Only raise line if we didn't end with a '\\' (we're still in the same logic line).
                     currLogicLine++;
-                    if (onlyWhitespacesFound && lst.size() > 2 && lst.get(lst.size() - 2).onlyWhitespacesFound) {
-                        lst.get(lst.size() - 2).delete = true;
+                    if (onlyWhitespacesFound && logicalLinesInfo.size() > 2
+                            && logicalLinesInfo.get(logicalLinesInfo.size() - 2).onlyWhitespacesFound) {
+                        logicalLinesInfo.get(logicalLinesInfo.size() - 2).delete = true;
                     }
-                    PyFormatStdManageBlankLines.LineOffsetAndInfo currLineOffsetAndInfo = lst.get(lst.size() - 1);
+                    PyFormatStdManageBlankLines.LineOffsetAndInfo currLineOffsetAndInfo = logicalLinesInfo
+                            .get(logicalLinesInfo.size() - 1);
                     currLineOffsetAndInfo.onlyWhitespacesFound = onlyWhitespacesFound;
                     currLineOffsetAndInfo.onlyCommentsFound = onlyCommentsFound;
 
                     // offset == first char of the next line (could be EOF)
-                    lst.add(new PyFormatStdManageBlankLines.LineOffsetAndInfo(offset + 1, currLogicLine, currRealLine));
+                    logicalLinesInfo.add(
+                            new PyFormatStdManageBlankLines.LineOffsetAndInfo(offset + 1, currLogicLine, currRealLine));
 
                     onlyWhitespacesFound = true;
                     onlyCommentsFound = false;
@@ -158,7 +164,6 @@ public class PyFormatStdManageBlankLines {
             onlyWhitespacesFound = false;
             matchI = -1;
 
-            boolean handledTopLevel = false;
             switch (c) {
                 case '\'':
                 case '"':
@@ -207,13 +212,12 @@ public class PyFormatStdManageBlankLines {
                             int blankLinesNeeded = std.blankLinesInner;
                             if (cs[offset - 1] == '\n' || cs[offset - 1] == '\r') {
                                 // top level
-                                handledTopLevel = true;
                                 blankLinesNeeded = std.blankLinesTopLevel;
                             }
 
                             // When we find a class, we have to make sure that we have
                             // exactly 2 empty lines before it (keeping comment blocks before it).
-                            markBlankLinesNeededAt(lst, currLogicLine, blankLinesNeeded);
+                            markBlankLinesNeededAt(currLogicLine, blankLinesNeeded);
                             offset = matchI - 1;
                         }
                         break;
@@ -221,52 +225,76 @@ public class PyFormatStdManageBlankLines {
 
             }
 
-            if (!handledTopLevel) {
-                if (nextScopeStartRealLine != -1 && currRealLine >= nextScopeStartRealLine) {
-                    markBlankLinesNeededAt(lst, currLogicLine, std.blankLinesTopLevel);
-                    nextScopeStartRealLine = -1;
+            if (!nextScopeStartRealLineTopLevel.empty() && currRealLine >= nextScopeStartRealLineTopLevel.peek()) {
+                nextScopeStartRealLineTopLevel.pop();
+                nextScopeStartRealLineInnerLevel.clear(); // if a top-level was found, the inner should be cleared.
+                markBlankLinesNeededAt(currLogicLine, std.blankLinesTopLevel);
+            } else {
+                if (!nextScopeStartRealLineInnerLevel.empty()
+                        && currRealLine >= nextScopeStartRealLineInnerLevel.peek()) {
+                    int endsAtRealLine = nextScopeStartRealLineInnerLevel.pop();
+                    while (!nextScopeStartRealLineInnerLevel.empty()
+                            && nextScopeStartRealLineInnerLevel.peek() <= endsAtRealLine) {
+                        // if we have many ending at the same line, consume them.
+                        nextScopeStartRealLineInnerLevel.pop();
+                    }
+                    markBlankLinesNeededAt(currLogicLine, std.blankLinesInner);
                 }
             }
         }
-        return lst;
+        return logicalLinesInfo;
     }
 
     private void onMatchDefinition(int matchOffset) {
         if (matchOffset > 0) {
-            if (offset == 0 || cs[offset - 1] == '\n' || cs[offset - 1] == '\r') {
-                try {
-                    nextScopeStartRealLine = PySelection.getEndLineOfCurrentDeclaration(doc,
-                            offset)
-                            + 1;
-                } catch (BadLocationException e) {
-                    nextScopeStartRealLine = -1;
-                    Log.log(e);
+            try {
+                int endLine = PySelection.getEndLineOfCurrentDeclaration(doc, offset) + 1;
+                if (offset == 0 || cs[offset - 1] == '\n' || cs[offset - 1] == '\r') {
+                    nextScopeStartRealLineTopLevel.push(endLine);
+                } else {
+                    nextScopeStartRealLineInnerLevel.push(endLine);
                 }
+            } catch (BadLocationException e) {
+                Log.log(e);
             }
+
             if (decoratorState > 0) {
                 decoratorState = 0;
                 matchI = -1;
+
+                // If a decorator was found before a match, delete any blank lines from
+                // this declaration to the decorator.
+                if (logicalLinesInfo.size() > 1) {
+
+                    for (int reverseI = logicalLinesInfo.size() - 2; reverseI >= 0; reverseI--) {
+                        LineOffsetAndInfo lineOffsetAndInfo = logicalLinesInfo.get(reverseI);
+                        if (lineOffsetAndInfo.onlyWhitespacesFound) {
+                            lineOffsetAndInfo.delete = true;
+                        } else {
+                            break;
+                        }
+                    }
+                }
             } else {
                 matchI = matchOffset;
             }
         }
     }
 
-    private void markBlankLinesNeededAt(List<PyFormatStdManageBlankLines.LineOffsetAndInfo> lst,
-            int currLogicLine, int blankLinesNeeded) {
-        if (lst.size() > 1) {
+    private void markBlankLinesNeededAt(int currLogicLine, int blankLinesNeeded) {
+        if (logicalLinesInfo.size() > 1) {
             // lst.size() == 1 means first line, so, no point in adding new line
             // lst.size() < 1 should never happen.
-            int reverseI = lst.size() - 2;
+            int reverseI = logicalLinesInfo.size() - 2;
             // lst.size() -2 is previous line and lst.size() -1 curr line
             // so, get a comment block right before the class or def and don't
             // split it (split before the block)
-            int foundAt = lst.size() - 1;
+            int foundAt = logicalLinesInfo.size() - 1;
             int foundAtLine = currLogicLine;
-            LineOffsetAndInfo currLineOffsetAndInfo = lst
+            LineOffsetAndInfo currLineOffsetAndInfo = logicalLinesInfo
                     .get(foundAt);
             while (reverseI >= 0) {
-                LineOffsetAndInfo prev = lst.get(reverseI);
+                LineOffsetAndInfo prev = logicalLinesInfo.get(reverseI);
                 if (prev.infoFromLogicalLine == foundAtLine - 1) {
                     foundAtLine--;
                 } else {
@@ -288,11 +316,11 @@ public class PyFormatStdManageBlankLines {
                 // # comment
                 // # comment
                 // class Foo(object):
-                int tempLine = lst.get(reverseI).infoFromLogicalLine;
+                int tempLine = logicalLinesInfo.get(reverseI).infoFromLogicalLine;
                 // Ok, now, let's see if we have the proper space (the curr line is empty,
                 // so, start to check spaces before it).
                 for (int k = reverseI; k >= 0 && blankLinesNeeded > 0; k--) {
-                    LineOffsetAndInfo info = lst.get(k);
+                    LineOffsetAndInfo info = logicalLinesInfo.get(k);
                     if (info.infoFromLogicalLine == tempLine) { // checking only subsequent lines
                         tempLine--;
                     } else {
@@ -308,9 +336,9 @@ public class PyFormatStdManageBlankLines {
                 }
 
                 if (blankLinesNeeded > 0) {
-                    tempLine = lst.get(reverseI).infoFromLogicalLine;
+                    tempLine = logicalLinesInfo.get(reverseI).infoFromLogicalLine;
                     for (int k = reverseI; k >= 0 && blankLinesNeeded > 0; k--) {
-                        LineOffsetAndInfo info = lst.get(k);
+                        LineOffsetAndInfo info = logicalLinesInfo.get(k);
                         if (info.infoFromLogicalLine == tempLine) { // checking only subsequent lines
                             tempLine--;
                         } else {

@@ -1808,6 +1808,92 @@ public class PyFormatStdTest extends TestCase {
         checkFormatResults(input, expected);
     }
 
+    public void testEmptyLinesBeforeAfter6() throws Exception {
+        String input = "" +
+                "class Test(object):\n" +
+                "\n" +
+                "    def m2(self):\n" +
+                "        pass\n" +
+                "    @foo\n" +
+                "\n" + // Remove this space
+                "    def m3(self):\n" +
+                "        pass\n" +
+                "    a = 10\n" +
+                "";
+        String expected = "" +
+                "class Test(object):\n" +
+                "\n" +
+                "    def m2(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "    @foo\n" +
+                "    def m3(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "    a = 10\n" +
+                "";
+
+        std.manageBlankLines = true;
+        checkFormatResults(input, expected);
+    }
+
+    public void testEmptyLinesBeforeAfter8() throws Exception {
+        String input = "" +
+                "class C:\n" +
+                "\n" +
+                "    @foo\n" +
+                "    @bar\n" +
+                " \n" +
+                " \n" +
+                "    def x(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "\n" +
+                "class B(QWidget):\n" +
+                "\n" +
+                "    @property\n" +
+                "    def model(self):\n" +
+                "        pass\n" +
+                "\n"
+                + "";
+        String expected = "" +
+                "class C:\n" +
+                "\n" +
+                "    @foo\n" +
+                "    @bar\n" +
+                "    def x(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "\n" +
+                "class B(QWidget):\n" +
+                "\n" +
+                "    @property\n" +
+                "    def model(self):\n" +
+                "        pass\n" +
+                "\n";
+
+        std.manageBlankLines = true;
+        checkFormatResults(input, expected);
+    }
+
+    public void testEmptyLinesBeforeAfter7() throws Exception {
+        String expected = "" +
+                "class Test(object):\n" +
+                "\n" +
+                "    def m2(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "    @foo\n" +
+                "    def m3(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "    a = 10\n" +
+                "";
+
+        std.manageBlankLines = true;
+        checkFormatResults(expected, expected);
+    }
+
     public void testEmptyLinesBeforeAfter2() throws Exception {
         String input = ""
                 + "def my(a):\n"
