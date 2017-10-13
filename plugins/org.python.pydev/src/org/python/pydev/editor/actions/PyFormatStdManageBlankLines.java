@@ -79,7 +79,7 @@ public class PyFormatStdManageBlankLines {
         lst.add(new PyFormatStdManageBlankLines.LineOffsetAndInfo(0, 0, 0));
         int currLogicLine = 0;
         int currRealLine = 0;
-        int nextScopeStartLine = -1;
+        int nextScopeStartRealLine = -1;
 
         for (int i = 0; i < length; i++) {
             char c = cs[i];
@@ -157,9 +157,10 @@ public class PyFormatStdManageBlankLines {
                                 if (j > 0) {
                                     if (i == 0 || cs[i - 1] == '\n' || cs[i - 1] == '\r') {
                                         try {
-                                            nextScopeStartLine = PySelection.getEndLineOfCurrentDeclaration(doc, i) + 1;
+                                            nextScopeStartRealLine = PySelection.getEndLineOfCurrentDeclaration(doc, i)
+                                                    + 1;
                                         } catch (BadLocationException e) {
-                                            nextScopeStartLine = -1;
+                                            nextScopeStartRealLine = -1;
                                             Log.log(e);
                                         }
                                     }
@@ -175,9 +176,10 @@ public class PyFormatStdManageBlankLines {
                                 if (j > 0) {
                                     if (i == 0 || cs[i - 1] == '\n' || cs[i - 1] == '\r') {
                                         try {
-                                            nextScopeStartLine = PySelection.getEndLineOfCurrentDeclaration(doc, i) + 1;
+                                            nextScopeStartRealLine = PySelection.getEndLineOfCurrentDeclaration(doc, i)
+                                                    + 1;
                                         } catch (BadLocationException e) {
-                                            nextScopeStartLine = -1;
+                                            nextScopeStartRealLine = -1;
                                             Log.log(e);
                                         }
                                     }
@@ -194,9 +196,10 @@ public class PyFormatStdManageBlankLines {
                                 if (j > 0) {
                                     if (i == 0 || cs[i - 1] == '\n' || cs[i - 1] == '\r') {
                                         try {
-                                            nextScopeStartLine = PySelection.getEndLineOfCurrentDeclaration(doc, i) + 1;
+                                            nextScopeStartRealLine = PySelection.getEndLineOfCurrentDeclaration(doc, i)
+                                                    + 1;
                                         } catch (BadLocationException e) {
-                                            nextScopeStartLine = -1;
+                                            nextScopeStartRealLine = -1;
                                             Log.log(e);
                                         }
                                     }
@@ -243,16 +246,17 @@ public class PyFormatStdManageBlankLines {
             }
 
             if (!handledTopLevel) {
-                if (nextScopeStartLine != -1 && currLogicLine >= nextScopeStartLine) {
+                if (nextScopeStartRealLine != -1 && currRealLine >= nextScopeStartRealLine) {
                     markBlankLinesNeededAt(lst, currLogicLine, std.blankLinesTopLevel);
-                    nextScopeStartLine = -1;
+                    nextScopeStartRealLine = -1;
                 }
             }
         }
         return lst;
     }
 
-    private static void markBlankLinesNeededAt(List<PyFormatStdManageBlankLines.LineOffsetAndInfo> lst, int currLine,
+    private static void markBlankLinesNeededAt(List<PyFormatStdManageBlankLines.LineOffsetAndInfo> lst,
+            int currLogicLine,
             int blankLinesNeeded) {
         if (lst.size() > 1) {
             // lst.size() == 1 means first line, so, no point in adding new line
@@ -262,7 +266,7 @@ public class PyFormatStdManageBlankLines {
             // so, get a comment block right before the class or def and don't
             // split it (split before the block)
             int foundAt = lst.size() - 1;
-            int foundAtLine = currLine;
+            int foundAtLine = currLogicLine;
             LineOffsetAndInfo currLineOffsetAndInfo = lst
                     .get(foundAt);
             while (reverseI >= 0) {

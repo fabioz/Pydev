@@ -1455,6 +1455,16 @@ public final class PySelection extends TextSelectionUtils {
             IndentInfo next = iterator.next();
             if (next.hasNonIndentChars && !next.hasOnlyComments) {
                 if (next.indent.length() <= minColumn) {
+                    lastOffset = next.startOffset - 1;
+                    if (lastOffset <= 0) {
+                        lastOffset = 0;
+                    } else {
+                        // lastOffset >= 1
+                        char c = doc.getChar(lastOffset);
+                        if (c == '\n' && doc.getChar(lastOffset - 1) == '\r') {
+                            lastOffset--;
+                        }
+                    }
                     finished = true;
                     break;
                 }
