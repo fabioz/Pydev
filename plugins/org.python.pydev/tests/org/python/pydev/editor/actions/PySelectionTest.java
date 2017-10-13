@@ -996,4 +996,24 @@ public class PySelectionTest extends TestCase {
                 + "");
         assertEquals(4, PySelection.getEndLineOfCurrentDeclaration(doc, 0));
     }
+
+    public void testGetEndOfCurrentDeclaration7() throws Exception {
+        doc = new Document(""
+                + "class A(object):\n"
+                + "# comment\n"
+                + "  def m2():\n"
+                + "    pass\n"
+                + "");
+        assertEquals(4, PySelection.getEndLineOfCurrentDeclaration(doc, 0));
+    }
+
+    public void testGetEndOfCurrentDeclaration8() throws Exception {
+        doc = new Document(""
+                + "class A(object):\n"
+                + "  # comment\n"
+                + "  def m2():\n"
+                + "    pass\n"
+                + "");
+        assertEquals(4, PySelection.getEndLineOfCurrentDeclaration(doc, 0));
+    }
 }

@@ -28,11 +28,13 @@ public class TabNannyDocIterator {
 
         // if true actually has some code in it, otherwise, trimming gives an empty string.
         public final boolean hasNonIndentChars;
+        public final boolean hasOnlyComments;
 
-        public IndentInfo(String indent, int startOffset, boolean hasNonIndentChars) {
+        public IndentInfo(String indent, int startOffset, boolean hasNonIndentChars, boolean hasOnlyComments) {
             this.indent = indent;
             this.startOffset = startOffset;
             this.hasNonIndentChars = hasNonIndentChars;
+            this.hasOnlyComments = hasOnlyComments;
         }
 
     }
@@ -131,7 +133,7 @@ public class TabNannyDocIterator {
                     } else {
                         if (yieldEmptyIndents) {
                             nextString = new IndentInfo(tempBuf.toString(), offset, c != '\r'
-                                    && c != '\n');
+                                    && c != '\n', c == '#');
                             if (!yieldOnLinesWithoutContents) {
                                 if (!nextString.hasNonIndentChars) {
                                     return false;
@@ -242,7 +244,7 @@ public class TabNannyDocIterator {
             }
             //true if we are in a line that has more contents than only the whitespaces/tabs
             nextString = new IndentInfo(tempBuf.toString(), startingOffset, c != '\r'
-                    && c != '\n');
+                    && c != '\n', c == '#');
 
             if (!yieldOnLinesWithoutContents) {
                 if (!nextString.hasNonIndentChars) {

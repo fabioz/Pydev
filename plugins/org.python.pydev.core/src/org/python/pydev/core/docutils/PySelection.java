@@ -1453,7 +1453,7 @@ public final class PySelection extends TextSelectionUtils {
         boolean finished = false;
         while (iterator.hasNext()) {
             IndentInfo next = iterator.next();
-            if (next.hasNonIndentChars) {
+            if (next.hasNonIndentChars && !next.hasOnlyComments) {
                 if (next.indent.length() <= minColumn) {
                     finished = true;
                     break;
