@@ -1787,6 +1787,27 @@ public class PyFormatStdTest extends TestCase {
         checkFormatResults(input, input);
     }
 
+    public void testEmptyLinesBeforeAfter5() throws Exception {
+        String input = "" +
+                "class Test(object):\n" +
+                "\n" +
+                "    def m2(self):\n" +
+                "        pass\n" +
+                "    a = 10\n" +
+                "";
+        String expected = "" +
+                "class Test(object):\n" +
+                "\n" +
+                "    def m2(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "    a = 10\n" +
+                "";
+
+        std.manageBlankLines = true;
+        checkFormatResults(input, expected);
+    }
+
     public void testEmptyLinesBeforeAfter2() throws Exception {
         String input = ""
                 + "def my(a):\n"
