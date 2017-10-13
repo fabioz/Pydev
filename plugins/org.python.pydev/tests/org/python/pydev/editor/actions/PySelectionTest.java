@@ -1036,4 +1036,15 @@ public class PySelectionTest extends TestCase {
                 + "");
         assertEquals(2, PySelection.getEndLineOfCurrentDeclaration(doc, 0));
     }
+
+    public void testGetEndOfCurrentDeclaration11() throws Exception {
+        doc = new Document(""
+                + "def my(a):\r\n"
+                + "    rara = 10 + \\\r\n"
+                + "ignore this\r\n"
+                + "#comment\r\n"
+                + "a = 10\r\n"
+                + "");
+        assertEquals(3, PySelection.getEndLineOfCurrentDeclaration(doc, 0));
+    }
 }
