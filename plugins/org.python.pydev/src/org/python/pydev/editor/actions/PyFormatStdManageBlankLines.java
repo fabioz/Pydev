@@ -328,7 +328,7 @@ public class PyFormatStdManageBlankLines {
                     }
                     if (info.onlyWhitespacesFound) {
                         if (!info.delete) {
-                            blankLinesNeeded--;
+                            blankLinesNeeded -= (1 + info.addBlankLines);
                         }
                     } else {
                         break; // Found non-whitespace line
@@ -347,14 +347,15 @@ public class PyFormatStdManageBlankLines {
                         if (info.onlyWhitespacesFound) {
                             if (info.delete) {
                                 info.delete = false;
-                                blankLinesNeeded--;
+                                blankLinesNeeded -= (1 + info.addBlankLines);
                             }
                         } else {
                             break; // Found non-whitespace line
                         }
                     }
                     if (blankLinesNeeded > 0) {
-                        currLineOffsetAndInfo.addBlankLines = blankLinesNeeded;
+                        currLineOffsetAndInfo.addBlankLines = Math.max(currLineOffsetAndInfo.addBlankLines,
+                                blankLinesNeeded);
                     }
                 }
             }

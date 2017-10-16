@@ -1655,6 +1655,39 @@ public class PyFormatStdTest extends TestCase {
         checkFormatResults(input, input);
     }
 
+    public void testBlankLinesAfterTop() throws Exception {
+        String input = "" +
+                "class A:\n" +
+                "\n" +
+                "    def foo(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "class B:\n" +
+                "    pass\n" +
+                "\n" +
+                "";
+
+        String expected = "" +
+                "class A:\n" +
+                "\n" +
+                "\n" +
+                "    def foo(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "class B:\n" +
+                "    pass\n" +
+                "\n" +
+                "";
+
+        std.manageBlankLines = true;
+        std.trimLines = false;
+        std.blankLinesTopLevel = 3;
+        std.blankLinesInner = 2;
+        checkFormatResults(input, expected);
+    }
+
     public void testBlankLinesCommentsDontChangeLevel2() throws Exception {
         // Already is properly formatted.
         String input = "" +
