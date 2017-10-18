@@ -102,7 +102,31 @@ public class PyFormatStdManageBlankLines {
     public static List<LineOffsetAndInfo> computeBlankLinesAmongMethodsAndClasses(PyFormatStd.FormatStd std,
             FastStringBuffer initialFormatting, String delimiter) throws SyntaxErrorException {
         PyFormatStdManageBlankLines fmt = new PyFormatStdManageBlankLines(std, initialFormatting, delimiter);
-        return fmt.computeBlankLinesAmongMethodsAndClassesInternal();
+        List<LineOffsetAndInfo> computed = fmt.computeBlankLinesAmongMethodsAndClassesInternal();
+
+        // Do a last loop to pass (if possible) the information to add lines on non whitespace lines to whitespace lines
+        // (so that we work better when the user chooses to only format changed lines).
+        int size = computed.size();
+        LineOffsetAndInfo prev = null;
+        for (int i = 0; i < size; i++) {
+            LineOffsetAndInfo curr = computed.get(i);
+            if (prev != null) {
+                if (prev.onlyWhitespacesFound && !curr.onlyWhitespacesFound) {
+                    if (curr.addBlankLines > 0) {
+                        if (prev.delete) {
+                            prev.delete = false;
+                            curr.addBlankLines--;
+                        }
+                        if (curr.addBlankLines > 0) {
+                            prev.addBlankLines += curr.addBlankLines;
+                            curr.addBlankLines = 0;
+                        }
+                    }
+                }
+            }
+            prev = curr;
+        }
+        return computed;
     }
 
     private List<LineOffsetAndInfo> computeBlankLinesAmongMethodsAndClassesInternal() throws SyntaxErrorException {

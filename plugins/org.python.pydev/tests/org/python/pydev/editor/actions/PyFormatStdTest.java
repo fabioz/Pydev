@@ -2026,8 +2026,8 @@ public class PyFormatStdTest extends TestCase {
                 + "a = 10\n"
                 + "  \n"
                 + "        ''' check '''\n"
-                + "  \n"
                 + "\n"
+                + "  \n"
                 + "class my:\n"
                 + "    a = 10\n"
                 + "    \n"
@@ -2077,6 +2077,36 @@ public class PyFormatStdTest extends TestCase {
         std.trimLines = true;
         Document doc = new Document(input);
         int[] regionsForSave = new int[] { 5 };
+        pyFormatStd.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
+        assertEquals(expected, doc.get());
+    }
+
+    public void testUpdateBlankLinesInCloseRegion2() throws Exception {
+        String input = ""
+                + "class my:\n"
+                + "    def foo():\n"
+                + "        a = 10\n"
+                + "\n"
+                + "    def foo():\n"
+                + "        a = 10\n"
+                + "";
+
+        String expected = ""
+                + "class my:\n"
+                + "    def foo():\n"
+                + "        a = 10\n"
+                + "\n"
+                + "\n"
+                + "    def foo():\n"
+                + "        a = 10\n"
+                + "";
+
+        final PyFormatStd pyFormatStd = new PyFormatStd();
+        std.manageBlankLines = true;
+        std.trimLines = true;
+        std.blankLinesInner = 2;
+        Document doc = new Document(input);
+        int[] regionsForSave = new int[] { 3 };
         pyFormatStd.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
         assertEquals(expected, doc.get());
     }
