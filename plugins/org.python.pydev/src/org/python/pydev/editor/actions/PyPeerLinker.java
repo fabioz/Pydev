@@ -72,6 +72,9 @@ public class PyPeerLinker {
                     case '[':
                     case '{':
                     case '(':
+                    case ']':
+                    case '}':
+                    case ')':
                         break;
                     default:
                         return;
@@ -130,10 +133,16 @@ public class PyPeerLinker {
         linkLen = 0;
 
         boolean literal = true;
+        boolean open = true;
         switch (c) {
             case '\'':
             case '\"':
                 break;
+            case ']':
+            case '}':
+            case ')':
+                open = false;
+                // fallthrough
             case '[':
             case '{':
             case '(':
@@ -158,7 +167,7 @@ public class PyPeerLinker {
             String contentType = ParsingUtils.getContentType(ps.getDoc(), ps.getAbsoluteCursorOffset());
             boolean isDefaultContext = contentType.equals(ParsingUtils.PY_DEFAULT);
             if (!isDefaultContext) {
-                //not handled: leave it up to the auto-indent (if we're in link mode already it may delete the selected text and add a ', which is what we want).
+                //not handled: leave it up to the auto indent strategy.
                 return false;
             }
             DocCmd docCmd = new DocCmd(ps.getAbsoluteCursorOffset(), ps.getSelLength(), "" + c);
@@ -167,7 +176,7 @@ public class PyPeerLinker {
                     return false; //not handled
                 }
             } else {
-                if (!handleBrackets(ps, c, doc, docCmd, viewer)) {
+                if (!handleBrackets(ps, c, doc, docCmd, viewer, open)) {
                     return false; //not handled
                 }
             }
@@ -175,7 +184,7 @@ public class PyPeerLinker {
                 return true; //it was handled (without the link)
             }
 
-            if (prefs.getAutoLink()) {
+            if (open && prefs.getAutoLink()) {
                 LinkedPositionGroup group = new LinkedPositionGroup();
                 group.addPosition(new LinkedPosition(doc, linkOffset, linkLen, LinkedPositionGroup.NO_STOP));
 
@@ -217,8 +226,20 @@ public class PyPeerLinker {
         return true;
     }
 
-    private boolean handleBrackets(PySelection ps, final char c, IDocument doc, DocCmd docCmd, TextViewer viewer)
+    private boolean handleBrackets(PySelection ps, final char c, IDocument doc, DocCmd docCmd, TextViewer viewer,
+            boolean open)
             throws BadLocationException {
+        if (!open) {
+            PyAutoIndentStrategy strategy = new PyAutoIndentStrategy(null);
+            strategy.setIndentPrefs(prefs);
+            if (strategy.canSkipCloseParenthesis(doc, docCmd)) {
+                if (viewer != null) {
+                    viewer.setSelectedRange(docCmd.offset + 1, 0);
+                    return true;
+                }
+            }
+            return false;
+        }
         if (c == '(') {
 
             PyAutoIndentStrategy.handleParens(doc, docCmd, prefs);
