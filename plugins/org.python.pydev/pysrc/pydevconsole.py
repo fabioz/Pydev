@@ -508,6 +508,17 @@ if __name__ == '__main__':
     port, client_port = sys.argv[1:3]
     from _pydev_bundle import pydev_localhost
 
+    # Automatically tear down the console if the parent Eclipse goes away
+    # https://www.brainwy.com/tracker/PyDev/860
+    import time
+    def exit_on_parent_death():
+        while True:
+            time.sleep(5)
+            # http://stackoverflow.com/questions/269494/how-can-i-cause-a-child-process-to-exit-when-the-parent-does
+            if os.getppid() == 1:
+                do_exit()
+    thread.start_new_thread(exit_on_parent_death, ())
+
     if int(port) == 0 and int(client_port) == 0:
         (h, p) = pydev_localhost.get_socket_name()
 
