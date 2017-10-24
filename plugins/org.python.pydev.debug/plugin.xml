@@ -875,7 +875,7 @@
            Note: putting the visibleWhen below *should* work to hide the set next, but it doesn't really work
            (and I don't really know why).
            See: https://github.com/eclipse/cdt/blob/bfea9deb90ae1e5c8b419386050eb48a455b60dd/dsf-gdb/org.eclipse.cdt.examples.dsf.gdb/plugin.xml#L107
-           
+
             <visibleWhen checkEnabled="false">
                <and>
                   <systemTest property="org.eclipse.debug.ui.debugViewToolbarVisible" value="true"/>
@@ -906,7 +906,7 @@
    </extension>
    <extension point="org.eclipse.ui.actionSets">
 	<actionSet
-		id="org.eclipse.debug.ui.debugActionSet"
+		id="org.python.pydev.debug.debugActionSet"
 		label="PyDev Set Next Statement">
 		<action
            id="org.eclipse.debug.ui.actions.SetNextStatement"
