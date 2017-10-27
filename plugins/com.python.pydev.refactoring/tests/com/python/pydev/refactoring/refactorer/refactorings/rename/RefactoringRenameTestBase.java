@@ -280,7 +280,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
         Map<Tuple<String, File>, HashSet<ASTEntry>> referencesForRename = getReferencesForRename(moduleName, line, col,
                 expectError);
         for (Map.Entry<Tuple<String, File>, HashSet<ASTEntry>> entry : referencesForRename.entrySet()) {
-            if (occurrencesToReturn.get(entry.getKey()) != null) {
+            if (occurrencesToReturn.get(entry.getKey().o1) != null) {
                 throw new RuntimeException("Error. Module: " + entry.getKey() + " already exists.");
             }
             occurrencesToReturn.put(entry.getKey().o1, entry.getValue());

@@ -41,7 +41,7 @@ import org.python.pydev.shared_ui.utils.PyMarkerUtils;
 /**
  * This class is used to keep the annotations related to the debugger in sync with external editors
  * (if we're not dealing with an external editor, this class won't actually do anything)
- * 
+ *
  * @author Fabio
  */
 public class PyEditBreakpointSync implements IPyEditListener, IPyEditListener4 {
@@ -125,7 +125,6 @@ public class PyEditBreakpointSync implements IPyEditListener, IPyEditListener4 {
         // update annotations ----------------------------------------------------------------------------------------------
         // update annotations ----------------------------------------------------------------------------------------------
 
-        @SuppressWarnings("unchecked")
         private void updateAnnotations() {
             if (edit == null) {
                 return;

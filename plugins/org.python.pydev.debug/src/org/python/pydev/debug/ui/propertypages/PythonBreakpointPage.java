@@ -6,7 +6,6 @@
  */
 package org.python.pydev.debug.ui.propertypages;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,6 +38,7 @@ import org.eclipse.ui.model.IWorkbenchAdapter;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyBreakpoint;
 import org.python.pydev.debug.model.PyDebugModelPresentation;
+import org.python.pydev.shared_core.string.StringUtils;
 
 public class PythonBreakpointPage extends PropertyPage {
 
@@ -89,8 +89,8 @@ public class PythonBreakpointPage extends PropertyPage {
                     @Override
                     public void shellActivated(ShellEvent e) {
                         Shell shell = (Shell) e.getSource();
-                        shell.setText(MessageFormat.format(
-                                "Create Breakpoint for {0}", new String[] { getName(getBreakpoint()) })); //$NON-NLS-1$
+                        shell.setText(StringUtils.format(
+                                "Create Breakpoint for %s", getName(getBreakpoint()))); //$NON-NLS-1$
                         shell.removeShellListener(this);
                     }
 
@@ -251,13 +251,13 @@ public class PythonBreakpointPage extends PropertyPage {
 
     /**
      * Returns the name of the given element.
-     * 
+     *
      * @param element
      *            the element
      * @return the name of the element
      */
     private String getName(IAdaptable element) {
-        IWorkbenchAdapter adapter = (IWorkbenchAdapter) element.getAdapter(IWorkbenchAdapter.class);
+        IWorkbenchAdapter adapter = element.getAdapter(IWorkbenchAdapter.class);
         if (adapter != null) {
             return adapter.getLabel(element);
         }
@@ -357,7 +357,7 @@ public class PythonBreakpointPage extends PropertyPage {
             List keyBindings = command.getKeySequenceBindings();
             if (keyBindings != null && keyBindings.size() > 0) {
                 IKeySequenceBinding binding = (IKeySequenceBinding) keyBindings.get(0);
-                label = MessageFormat.format("E&nable Condition", new String[] { binding.getKeySequence().format() }); //$NON-NLS-1$
+                label = StringUtils.format("E&nable Condition %s", binding.getKeySequence().format()); //$NON-NLS-1$
             }
         }
 
@@ -380,7 +380,7 @@ public class PythonBreakpointPage extends PropertyPage {
         fConditionEditor = new BreakpointConditionEditor(conditionComposite, this);
 
         //fSuspendWhenLabel= createLabel(conditionComposite, "Suspend when:");
-        //fConditionIsTrue= createRadioButton(conditionComposite, "condition is \'tr&ue\'"); 
+        //fConditionIsTrue= createRadioButton(conditionComposite, "condition is \'tr&ue\'");
         //fConditionIsTrue= createLabel(conditionComposite, "condition is \'tr&ue\'");
         //fConditionHasChanged= createRadioButton(conditionComposite, "value of condition ch&anges");
         //        if (breakpoint.isConditionSuspendOnTrue()) {

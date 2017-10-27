@@ -32,6 +32,7 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.TypedListener;
 import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.ItemPointer;
@@ -40,7 +41,7 @@ import org.python.pydev.shared_ui.tooltips.presenter.AbstractInformationPresente
 
 /**
  * Based on HTMLTextPresenter
- * 
+ *
  * @author Fabio
  */
 public class PyInformationPresenter extends AbstractInformationPresenter {
@@ -73,7 +74,7 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
         this(true);
     }
 
-    private ControlListener resizeListener = new ControlListener() {
+    private TypedListener resizeListener = new TypedListener(new ControlListener() {
 
         @Override
         public void controlMoved(ControlEvent e) {
@@ -89,7 +90,7 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
             }
         }
 
-    };
+    });
 
     /**
      * Creates the reader and properly puts the presentation into place.
@@ -176,7 +177,6 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
         return newString;
     }
 
-    @SuppressWarnings("unchecked")
     protected void adaptTextPresentation(TextPresentation presentation, int offset, int insertLength) {
 
         int yoursStart = offset;
@@ -266,7 +266,8 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
         if (drawable instanceof Control) {
             Control control = (Control) drawable;
             if (!Arrays.asList(control.getListeners(SWT.Resize)).contains(resizeListener)) {
-                control.addControlListener(resizeListener);
+                control.addListener(SWT.Resize, resizeListener);
+                control.addListener(SWT.Move, resizeListener);
             }
         }
 

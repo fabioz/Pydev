@@ -264,7 +264,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
                                 }
                                 continue;
                             }
-                            boolean removeFirst = keys.containsKey(newKey);
+                            boolean removeFirst = keys.containsKey(new CompleteIndexKey(newKey));
                             addAstForCompiledModule(builtinModule, info, newKey, removeFirst);
                         }
                     }

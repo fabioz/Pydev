@@ -127,7 +127,6 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener 
      * @param showSpacesAndNewLines if true, spaces will be shown as dots and new lines shown as a '\n' string
      *        (otherwise they're not visible).
      */
-    @SuppressWarnings("unchecked")
     public Tuple<String, StyleRange[]> formatAndGetStyleRanges(FormatStd formatStd, String str, IPreferenceStore prefs,
             boolean showSpacesAndNewLines) {
         //When new preferences are set, the cache is reset (the background color doesn't need to be
