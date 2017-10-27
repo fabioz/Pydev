@@ -125,7 +125,7 @@ public final class DiskCache {
                                 break;
                             case 4:
                                 //isfile in zip
-                                if (buf.toString().equals(0)) {
+                                if (buf.toString().equals("0")) {
                                     ((ModulesKeyForZip) key.key).isFile = true;
                                 }
                                 break;
@@ -156,7 +156,7 @@ public final class DiskCache {
                             break;
                         case 4:
                             //isfile in zip
-                            if (buf.toString().equals(0)) {
+                            if (buf.toString().equals("0")) {
                                 ((ModulesKeyForZip) key.key).isFile = true;
                             }
                             break;
