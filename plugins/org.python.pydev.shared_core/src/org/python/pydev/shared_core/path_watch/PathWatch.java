@@ -247,7 +247,7 @@ public class PathWatch implements IPathWatch {
      * @see org.python.pydev.shared_core.path_watch.IPathWatch#hasTracker(java.io.File, org.python.pydev.shared_core.path_watch.IFilesystemChangesListener)
      */
     @Override
-    public boolean hasTracker(File path, IFilesystemChangesListener listener) {
+    public boolean hasTracker(File path, final IFilesystemChangesListener listener) {
         if (disposed) {
             return false;
         }
@@ -267,7 +267,7 @@ public class PathWatch implements IPathWatch {
                 ListenerList<IFilesystemChangesListener> list = stacker.list;
                 IFilesystemChangesListener[] listeners = list.getListeners();
                 for (IFilesystemChangesListener iFilesystemChangesListener : listeners) {
-                    if (list.equals(iFilesystemChangesListener)) {
+                    if (listener.equals(iFilesystemChangesListener)) {
                         return true;
                     }
                 }
