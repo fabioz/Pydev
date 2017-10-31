@@ -6,12 +6,17 @@
  */
 package org.python.pydev.overview_ruler;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ST;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.shared_core.log.Log;
+import org.python.pydev.shared_core.utils.ArrayUtils;
 
 public final class StyledTextWithoutVerticalBar extends StyledText {
 
@@ -36,7 +41,9 @@ public final class StyledTextWithoutVerticalBar extends StyledText {
     @Override
     public void setStyleRanges(StyleRange[] styles) {
         if (styles != null) {
-            int[] newRanges = createRanges(styles);
+            RangesInfo rangesInfo = createRanges(styles, this.getCharCount());
+            int[] newRanges = rangesInfo.newRanges;
+            styles = rangesInfo.styles;
             super.setStyleRanges(newRanges, styles);
             return;
         }
@@ -52,7 +59,9 @@ public final class StyledTextWithoutVerticalBar extends StyledText {
         if (styles == null) {
             SWT.error(SWT.ERROR_NULL_ARGUMENT);
         }
-        int[] newRanges = createRanges(styles);
+        RangesInfo rangesInfo = createRanges(styles, this.getCharCount());
+        int[] newRanges = rangesInfo.newRanges;
+        styles = rangesInfo.styles;
         try {
             setStyleRanges(start, length, newRanges, styles);
         } catch (Exception e) {
@@ -69,13 +78,32 @@ public final class StyledTextWithoutVerticalBar extends StyledText {
         }
     }
 
-    private int[] createRanges(StyleRange[] styles) throws AssertionError {
-        int charCount = this.getCharCount();
+    public static class RangesInfo {
+
+        public final StyleRange[] styles;
+        public final int[] newRanges;
+
+        public RangesInfo(StyleRange[] styles, int[] newRanges) {
+            this.styles = styles;
+            this.newRanges = newRanges;
+        }
+    }
+
+    public static RangesInfo createRanges(StyleRange[] styles, int charCount) throws AssertionError {
 
         int[] newRanges = new int[styles.length << 1];
+        int removeRangesFrom = -1;
+        List<Integer> removeRanges = new ArrayList<>();
+
         int endOffset = -1;
-        for (int i = 0, j = 0; i < styles.length; i++) {
+        int i = 0, j = 0;
+        for (; i < styles.length; i++) {
             StyleRange newStyle = styles[i];
+            if (newStyle.start >= charCount) {
+                Log.log("Removing ranges past end.");
+                removeRangesFrom = i;
+                break;
+            }
             if (endOffset > newStyle.start) {
                 String msg = "Error endOffset (" + endOffset + ") > next style start (" + newStyle.start + ")";
                 Log.log(msg);
@@ -83,8 +111,9 @@ public final class StyledTextWithoutVerticalBar extends StyledText {
                 newStyle.start = endOffset;
                 newStyle.length -= diff;
                 if (newStyle.length < 0) {
-                    // Unable to fix it
-                    throw new AssertionError(msg);
+                    // Unable to fix it (remove element).
+                    removeRanges.add(i);
+                    continue;
                 }
             }
 
@@ -94,14 +123,33 @@ public final class StyledTextWithoutVerticalBar extends StyledText {
                 Log.log(msg);
                 newStyle.length -= endOffset - charCount;
                 if (newStyle.length < 0) {
-                    // Unable to fix it
-                    throw new AssertionError(msg);
+                    Log.log("Removing ranges past end.");
+                    removeRangesFrom = i;
+                    break;
                 }
             }
 
             newRanges[j++] = newStyle.start;
             newRanges[j++] = newStyle.length;
         }
-        return newRanges;
+        if (j < newRanges.length - 1) {
+            int[] reallocate = new int[j];
+            System.arraycopy(newRanges, 0, reallocate, 0, j);
+            newRanges = reallocate;
+        }
+        if (removeRangesFrom != -1) {
+            StyleRange[] reallocate = new StyleRange[removeRangesFrom];
+            System.arraycopy(styles, 0, reallocate, 0, removeRangesFrom);
+            styles = reallocate;
+        }
+        if (removeRanges.size() > 0) {
+            Collections.reverse(removeRanges);
+        }
+        for (int remove : removeRanges) {
+            if (remove < styles.length) {
+                styles = ArrayUtils.remove(styles, remove, StyleRange.class);
+            }
+        }
+        return new RangesInfo(styles, newRanges);
     }
 }
