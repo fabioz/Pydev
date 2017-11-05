@@ -6,6 +6,32 @@ History For PyDev
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
+Release 6.1.0 (2017-11-05)
+=============================
+
+* **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
+
+    * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
+
+* **Code Formatter**
+
+	* The PyDev code formatter can now add/remove blank lines to comply with pep-8.
+	* Added preference to skip blank lines formatting.
+
+* **Editor**
+
+	* Editor now tolerant against errors in the definitions of style ranges.
+	* When in link mode (after a code completion with params for instance), properly skip closing parenthesis if already well balanced.
+	* Fix logic error in editor preferences for disabling subword navigation (patch by **Stuart Berg**).
+
+* **Others**
+
+	* Using **python -m 'pip'** when unable to find pip executable in interpreter preferences (**#PyDev-853**).
+	* PyDev set next statement action set no longer disables Debug action set (**#PyDev-859**).
+	* It's possible to silence question about saving resources before a refactoring operation.
+	* Add problem markers for python files that declare invalid encodings (patch by **Mat Booth**).
+	* Other minor bugfixes.
+
 Release 6.0.0 (2017-09-19)
 =============================
 

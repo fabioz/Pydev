@@ -20,8 +20,8 @@
 	<tr align="center" bgcolor="#eeeeee" valign="top">
 		<td nowrap="nowrap" class="td_top">
 		<center>
-		<p class="header_text">Last Site Update: October 27th, 2017 |
-		Latest Version: 6.0.0</p>
+		<p class="header_text">Last Site Update: November 5th, 2017 |
+		Latest Version: 6.1.0</p>
 		</center>
 		</td>
 	</tr>
@@ -273,6 +273,46 @@
 
 <div class="section" id="history-for-pydev">
 <h1>History For PyDev</h1>
+<div class="section" id="release-6-1-0-2017-11-05">
+<h2>Release 6.1.0 (2017-11-05)</h2>
+<ul>
+<li><p class="first"><strong>Important</strong> PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.</p>
+<blockquote>
+<ul class="simple">
+<li>PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Code Formatter</strong></p>
+<blockquote>
+<ul class="simple">
+<li>The PyDev code formatter can now add/remove blank lines to comply with pep-8.</li>
+<li>Added preference to skip blank lines formatting.</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Editor</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Editor now tolerant against errors in the definitions of style ranges.</li>
+<li>When in link mode (after a code completion with params for instance), properly skip closing parenthesis if already well balanced.</li>
+<li>Fix logic error in editor preferences for disabling subword navigation (patch by <strong>Stuart Berg</strong>).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Others</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Using <strong>python -m 'pip'</strong> when unable to find pip executable in interpreter preferences (<strong>#PyDev-853</strong>).</li>
+<li>PyDev set next statement action set no longer disables Debug action set (<strong>#PyDev-859</strong>).</li>
+<li>It's possible to silence question about saving resources before a refactoring operation.</li>
+<li>Add problem markers for python files that declare invalid encodings (patch by <strong>Mat Booth</strong>).</li>
+<li>Other minor bugfixes.</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</div>
 <div class="section" id="release-6-0-0-2017-09-19">
 <h2>Release 6.0.0 (2017-09-19)</h2>
 <ul>
