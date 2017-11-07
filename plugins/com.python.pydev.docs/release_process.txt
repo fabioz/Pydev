@@ -110,5 +110,5 @@ mu acp "Updated to 6.1.0"
         ** Update the versions:
 x:
 cd x:\pydev
-python update_version.py 6.1.0
+python update_version.py 6.2.0
 
