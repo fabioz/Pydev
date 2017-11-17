@@ -52,26 +52,42 @@ public class CheckAnalysisErrors {
     }
 
     private static boolean isErrorHandledAtLine(String line, String pyLintMessageId, String codeAnalysisIgnoreMessage) {
+        int i = line.indexOf('#');
+        if (i == -1) {
+            return false;
+        }
+        // Get only the comments and all in lowercase.
+        line = line.substring(i).toLowerCase();
         if (pyLintMessageId != null) {
+            pyLintMessageId = pyLintMessageId.toLowerCase();
             int pos = -1;
             // Old format.
-            if ((pos = line.indexOf("IGNORE:")) != -1) {
-                String lintW = line.substring(pos + "IGNORE:".length());
+            if ((pos = line.indexOf("ignore:")) != -1) {
+                String lintW = line.substring(pos + "ignore:".length());
                 if (lintW.startsWith(pyLintMessageId)) {
                     return true;
                 }
             }
 
-            // The message is actually something as "# pylint: disable=" + messageId
-            if (line.contains(pyLintMessageId) && line.contains("disable=") && line.contains("pylint:")) {
+            // The message is actually something as "# pylint: disable=" + messageId or "noqa: "+messageId.
+            if (line.contains(pyLintMessageId)
+                    && (line.contains("disable=") || line.contains("pylint:") || line.contains("noqa:"))) {
                 return true;
             }
         }
 
         if (codeAnalysisIgnoreMessage != null) {
+            codeAnalysisIgnoreMessage = codeAnalysisIgnoreMessage.toLowerCase();
             if (line.contains(codeAnalysisIgnoreMessage)) {
                 return true;
             }
+        }
+
+        int noqaWithErr = line.indexOf("noqa:");
+        if (noqaWithErr != -1) {
+            // With id must be same as pylint
+        } else if (line.contains("noqa")) { // noqa is a catch all.
+            return true;
         }
         return false;
     }

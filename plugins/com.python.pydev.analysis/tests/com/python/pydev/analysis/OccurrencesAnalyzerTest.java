@@ -2591,6 +2591,22 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         checkNoError();
     }
 
+    public void testNoQa() throws Exception {
+        doc = new Document("print(a) #noqa\n");
+        checkNoError();
+    }
+
+    public void testNoQa2() throws Exception {
+        doc = new Document("print(a) #noqa: foo\n");
+        msgs = analyzeDoc();
+        printMessages(msgs, 1);
+    }
+
+    public void testNoQa3() throws Exception {
+        doc = new Document("print(a) #noqa: undefined-variable\n");
+        checkNoError();
+    }
+
     public void testBuiltInAssignment() {
         int initial = GRAMMAR_TO_USE_FOR_PARSING;
         try {
