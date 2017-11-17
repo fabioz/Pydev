@@ -10,9 +10,6 @@ import java.util.regex.Matcher;
 
 import junit.framework.TestCase;
 
-import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.shared_core.SharedCorePlugin;
-
 public class PythonConsoleLineTrackerTest extends TestCase {
 
     public void testFileMatch() throws Exception {
@@ -23,12 +20,12 @@ public class PythonConsoleLineTrackerTest extends TestCase {
         // Since the classes under test rely on IConsoleLineTracker, the test must be run as a
         // GUI enabled Plug-in test (i.e workbench started), however if you do that the test fails
         // because of interactions with other services in the workbench.
-        if (PydevPlugin.getDefault() != null) {
-            if (SharedCorePlugin.skipKnownFailures()) {
-                return;
-            }
-        }
-        Matcher matcher = PythonConsoleLineTracker.linePattern
+        //        if (PydevPlugin.getDefault() != null) {
+        //            if (SharedCorePlugin.skipKnownFailures()) {
+        //                return;
+        //            }
+        //        }
+        Matcher matcher = PythonConsoleLineTracker.regularPythonlinePattern
                 .matcher("File \"Y:\\test_python\\src\\mod1\\mod2\\test_it2.py\", line 45, in testAnotherCase");
         assertTrue(matcher.matches());
         String file = matcher.group(1);
@@ -38,7 +35,7 @@ public class PythonConsoleLineTrackerTest extends TestCase {
         assertEquals("Y:\\test_python\\src\\mod1\\mod2\\test_it2.py", fileName);
         assertEquals("45", lineNumber);
 
-        matcher = PythonConsoleLineTracker.linePattern
+        matcher = PythonConsoleLineTracker.regularPythonlinePattern
                 .matcher("File \"/home/users/foo/test_it2.py\", line 45, in testAnotherCase");
         assertTrue(matcher.matches());
         fileName = matcher.group(2);

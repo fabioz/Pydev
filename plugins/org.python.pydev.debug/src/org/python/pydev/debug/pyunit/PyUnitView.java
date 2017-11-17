@@ -15,6 +15,7 @@ import java.util.List;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.jface.action.IAction;
@@ -151,8 +152,51 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
     public static int MAX_RUNS_TO_KEEP = PyUnitViewTestsHolder.MAX_RUNS_TO_KEEP;
 
     private PyUnitTestRun currentRun;
-    private final PythonConsoleLineTracker lineTracker = new PythonConsoleLineTracker();
     private final ActivateLinkmouseListener activateLinkmouseListener = new ActivateLinkmouseListener();
+
+    private ILinkContainer iLinkContainer = new ILinkContainer() {
+
+        @Override
+        public void addLink(IHyperlink link, int offset, int length) {
+            if (testOutputText == null) {
+                return;
+            }
+            StyleRangeWithCustomData range = new StyleRangeWithCustomData();
+            range.underline = true;
+            try {
+                range.underlineStyle = SWT.UNDERLINE_LINK;
+            } catch (Throwable e) {
+                //Ignore (not available on earlier versions of eclipse)
+            }
+
+            //Set the proper color if it's available.
+            TextAttribute textAttribute = ColorManager.getDefault().getHyperlinkTextAttribute();
+            if (textAttribute != null) {
+                range.foreground = textAttribute.getForeground();
+            } else {
+                range.foreground = JFaceColors.getHyperlinkText(Display.getDefault());
+            }
+            range.start = offset;
+            range.length = length + 1;
+            range.customData = link;
+            testOutputText.setStyleRange(range);
+        }
+
+        @Override
+        public String getContents(int lineOffset, int lineLength) throws BadLocationException {
+            if (testOutputText == null) {
+                return "";
+            }
+            if (lineLength <= 0) {
+                return "";
+            }
+            try {
+                return testOutputText.getText(lineOffset, lineOffset + lineLength);
+            } catch (IllegalArgumentException e) {
+                return ""; //thrown on invalid range.
+            }
+        }
+    };
 
     /*default*/static final int COL_INDEX = 0;
     /*default*/static final int COL_RESULT = 1;
@@ -161,10 +205,6 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
     /*default*/static final int COL_TIME = 4;
     /*default*/static final int NUMBER_OF_COLUMNS = 5;
     private static final NumberFormatException NUMBER_FORMAT_EXCEPTION = new NumberFormatException();
-
-    /*default*/PythonConsoleLineTracker getLineTracker() {
-        return lineTracker;
-    }
 
     private ColorAndStyleCache colorAndStyleCache;
 
@@ -206,50 +246,6 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
         }
 
         NotifyViewCreated.notifyViewCreated(this);
-
-        lineTracker.init(new ILinkContainer() {
-
-            @Override
-            public void addLink(IHyperlink link, int offset, int length) {
-                if (testOutputText == null) {
-                    return;
-                }
-                StyleRangeWithCustomData range = new StyleRangeWithCustomData();
-                range.underline = true;
-                try {
-                    range.underlineStyle = SWT.UNDERLINE_LINK;
-                } catch (Throwable e) {
-                    //Ignore (not available on earlier versions of eclipse)
-                }
-
-                //Set the proper color if it's available.
-                TextAttribute textAttribute = ColorManager.getDefault().getHyperlinkTextAttribute();
-                if (textAttribute != null) {
-                    range.foreground = textAttribute.getForeground();
-                } else {
-                    range.foreground = JFaceColors.getHyperlinkText(Display.getDefault());
-                }
-                range.start = offset;
-                range.length = length + 1;
-                range.customData = link;
-                testOutputText.setStyleRange(range);
-            }
-
-            @Override
-            public String getContents(int lineOffset, int lineLength) throws BadLocationException {
-                if (testOutputText == null) {
-                    return "";
-                }
-                if (lineLength <= 0) {
-                    return "";
-                }
-                try {
-                    return testOutputText.getText(lineOffset, lineOffset + lineLength);
-                } catch (IllegalArgumentException e) {
-                    return ""; //thrown on invalid range.
-                }
-            }
-        });
     }
 
     public PyUnitProgressBar getProgressBar() {
@@ -779,6 +775,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
     private final FastStringBuffer tempOnSelectResult = new FastStringBuffer();
     private final String ERRORS_HEADER = "============================= ERRORS =============================\n";
     private final String CAPTURED_OUTPUT_HEADER = "======================== CAPTURED OUTPUT =========================\n";
+    private boolean onlyCreateLinksForExistingFiles = true;
 
     /**
      * Called when a test is selected in the tree (shows its results in the text output text component).
@@ -821,6 +818,18 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
             testOutputText.setStyleRange(range);
         }
 
+        PythonConsoleLineTracker lineTracker = new PythonConsoleLineTracker();
+
+        ILaunchConfiguration launchConfiguration = null;
+        PyUnitTestRun testRun = result.getTestRun();
+        if (testRun != null) {
+            IPyUnitLaunch pyUnitLaunch = testRun.getPyUnitLaunch();
+            if (pyUnitLaunch != null) {
+                launchConfiguration = pyUnitLaunch.getLaunchConfiguration();
+            }
+        }
+        lineTracker.init(launchConfiguration, iLinkContainer);
+        lineTracker.setOnlyCreateLinksForExistingFiles(this.onlyCreateLinksForExistingFiles);
         lineTracker.splitInLinesAndAppendToLineTracker(string);
     }
 
@@ -1035,6 +1044,10 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
             ErrorDialog.openError(EditorUtils.getShell(), "Error restoring tests from clipboard",
                     "Error restoring tests from clipboard", status);
         }
+    }
+
+    public void setOnlyCreateLinksForExistingFiles(boolean b) {
+        this.onlyCreateLinksForExistingFiles = b;
     }
 
 }

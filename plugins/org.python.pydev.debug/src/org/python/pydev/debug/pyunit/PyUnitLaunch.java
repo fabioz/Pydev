@@ -34,6 +34,11 @@ public class PyUnitLaunch implements IPyUnitLaunch {
     }
 
     @Override
+    public ILaunchConfiguration getLaunchConfiguration() {
+        return configuration;
+    }
+
+    @Override
     public void fillXMLElement(Document document, Element launchElement) {
         try {
             if (this.launch != null) {

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.swt.widgets.Tree;
 import org.python.pydev.debug.pyunit.HistoryAction.HistoryMenuCreator;
@@ -84,6 +85,10 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase {
                     public void fillXMLElement(Document document, Element launchElement) {
                     }
 
+                    @Override
+                    public ILaunchConfiguration getLaunchConfiguration() {
+                        return null;
+                    }
                 };
             }
         };
@@ -119,6 +124,11 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase {
 
                     @Override
                     public void fillXMLElement(Document document, Element launchElement) {
+                    }
+
+                    @Override
+                    public ILaunchConfiguration getLaunchConfiguration() {
+                        return null;
                     }
                 };
             }
