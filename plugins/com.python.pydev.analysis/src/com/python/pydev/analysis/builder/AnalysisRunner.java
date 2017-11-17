@@ -28,6 +28,7 @@ import com.python.pydev.analysis.messages.IMessage;
 public class AnalysisRunner {
 
     public static final String PYDEV_CODE_ANALYSIS_IGNORE = "@PydevCodeAnalysisIgnore";
+    public static final String PYDEV_CODE_ANALYSIS_IGNORE2 = "flake8: noqa"; // Also ignore if there's a flake8: noqa.
 
     /**
      * Indicates the type of the message given the constants in com.python.pydev.analysis.IAnalysisPreferences (unused import,
@@ -64,7 +65,9 @@ public class AnalysisRunner {
             String line = PySelection.getLine(document, i);
             int commentIndex;
             if ((commentIndex = line.indexOf('#')) != -1) {
-                if (line.substring(commentIndex).contains(PYDEV_CODE_ANALYSIS_IGNORE)) {
+                String commentPart = line.substring(commentIndex);
+                if (commentPart
+                        .contains(PYDEV_CODE_ANALYSIS_IGNORE) || commentPart.contains(PYDEV_CODE_ANALYSIS_IGNORE2)) {
                     return false;
                 }
             }
