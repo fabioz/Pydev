@@ -329,7 +329,9 @@ public class PyBackspace extends PyAction {
         if (cursorLine > 0) {
             IRegion prevLineInfo = doc.getLineInformation(cursorLine - 1);
             int prevLineEndOffset = prevLineInfo.getOffset() + prevLineInfo.getLength();
-            Tuple<Integer, Boolean> tup = PyAutoIndentStrategy.determineSmartIndent(prevLineEndOffset, doc, prefs);
+            PyAutoIndentStrategy pyAutoIndentStrategy = new PyAutoIndentStrategy(null);
+            pyAutoIndentStrategy.setIndentPrefs(getIndentPrefs());
+            Tuple<Integer, Boolean> tup = pyAutoIndentStrategy.determineSmartIndent(prevLineEndOffset, doc, prefs);
             Integer previousContextSmartIndent = tup.o1;
             if (previousContextSmartIndent > 0 && lineContentsToCursorLen > previousContextSmartIndent) {
                 int initialLineOffset = cursorOffset - lineContentsToCursorLen;

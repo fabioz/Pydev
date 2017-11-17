@@ -1153,7 +1153,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
      * @return indent, or -1 if smart indent could not be determined (fall back to default)
      * and a boolean indicating if we're inside a parenthesis
      */
-    public static Tuple<Integer, Boolean> determineSmartIndent(int offset, IDocument document, IIndentPrefs prefs)
+    public Tuple<Integer, Boolean> determineSmartIndent(final int offset, IDocument document, IIndentPrefs prefs)
             throws BadLocationException {
 
         PythonPairMatcher matcher = new PythonPairMatcher(PyStringUtils.BRACKETS);
@@ -1205,12 +1205,55 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
         if (indentToParLevel) {
             //now, a catch, if we didn't change the indent level, we've to indent in the same level
             //as the previous line, as this means that the user 'customized' the indent level at this place.
-            if (!openingPeerIsInCurrentLine && !PyStringUtils.hasUnbalancedClosingPeers(lineContentsToCursor)) {
+            if (!openingPeerIsInCurrentLine) {
                 try {
-                    char openingChar = document.getChar(openingPeerOffset);
-                    int closingPeerOffset = matcher.searchForClosingPeer(openingPeerOffset, openingChar,
+                    final char openingChar = document.getChar(openingPeerOffset);
+                    final int closingPeerOffset = matcher.searchForClosingPeer(openingPeerOffset, openingChar,
                             StringUtils.getPeer(openingChar), document);
                     if (closingPeerOffset == -1 || offset <= closingPeerOffset) {
+                        if (PyStringUtils.hasUnbalancedClosingPeers(lineContentsToCursor)) {
+                            // we have a closing peer which closes in another line, compute things based on that level.
+                            for (int peerI = lineContentsToCursor.length() - 1; peerI >= 0; peerI--) {
+                                char c = lineContentsToCursor.charAt(peerI);
+                                if (StringUtils.isClosingPeer(c)) {
+                                    final int foundAtOffset = matcher.searchForOpeningPeer(
+                                            ps.getLineOffset() + peerI, StringUtils.getPeer(c), c, document);
+                                    if (foundAtOffset != -1) {
+                                        final int currLineOffset = ps.getLineOffset();
+                                        IRegion lineInformationOfOffset2 = document
+                                                .getLineInformationOfOffset(foundAtOffset);
+                                        // I.e.: don't use info if it's in the same line
+                                        if (currLineOffset != lineInformationOfOffset2.getOffset()) {
+                                            // Now, if the parens on that line are all properly closed, simply use
+                                            // the indentation of that line, otherwise, compute what would be the
+                                            // indentation based on the unbalanced parens of that line.
+                                            String line = ps
+                                                    .getLine(ps.getLineOfOffset(lineInformationOfOffset2.getOffset()));
+                                            for (int openPeerI = 0; openPeerI < line.length(); openPeerI++) {
+                                                char f = line.charAt(openPeerI);
+                                                if (StringUtils.isOpeningPeer(f)) {
+                                                    final int closingPeerOffsetFound = matcher.searchForClosingPeer(
+                                                            lineInformationOfOffset2.getOffset() + openPeerI, f,
+                                                            StringUtils.getPeer(f), document);
+                                                    if (closingPeerOffsetFound == -1
+                                                            || closingPeerOffsetFound > offset) {
+                                                        return this.determineSmartIndent(
+                                                                lineInformationOfOffset2.getLength()
+                                                                        + lineInformationOfOffset2.getOffset(),
+                                                                document, prefs);
+                                                    }
+                                                    break;
+                                                }
+                                            }
+                                            return new Tuple<Integer, Boolean>(
+                                                    TextSelectionUtils.getFirstCharRelativePosition(document,
+                                                            foundAtOffset) - 1,
+                                                    true);
+                                        }
+                                    }
+                                }
+                            }
+                        }
                         return new Tuple<Integer, Boolean>(-1, true); // True because we're inside a parens
                     }
 
@@ -1250,7 +1293,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
             final String indent = prefs.getIndentationString();
             contents = PySelection.getLine(document, line);
             contents = PySelection.getIndentationFromLine(contents);
-            StringBuffer sb = new StringBuffer();
+            final StringBuffer sb = new StringBuffer();
 
             //Create the string for the indent level we want.
             for (int i = 0; i < indentAfterParWidth; i++) {

@@ -1143,13 +1143,11 @@ public class PyAutoIndentStrategyTest extends TestCase {
         strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
         String doc = "" +
                 "properties.create(a = newClass(),\n" +
-                "                  b = newClass(\n"
-                +
+                "                  b = newClass(\n" +
                 "                               )"; //go to the last indentation
         DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
-        String expected = "\n" +
-                "                  ";
+        String expected = "\n                  ";
         assertEquals(expected, docCmd.text);
     }
 
@@ -2334,13 +2332,12 @@ public class PyAutoIndentStrategyTest extends TestCase {
                 "\n" +
                 "def testIt():\n" +
                 "\n" +
-                "    return [0.5 * ((A / B) ** 2 + \n"
-                +
+                "    return [0.5 * ((A / B) ** 2 + \n" +
                 "                   (C / D) ** 2) for E, F in G]" + //<return> before 'for'
                 "";
         DocCmd docCmd = new DocCmd(doc.length() - "for E, F in G]".length(), 0, "\n");
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
-        String expected = "\n            ";
+        String expected = "\n                   ";
         assertEquals(expected, docCmd.text);
     }
 
@@ -2351,8 +2348,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
                 "\n" +
                 "def testIt():\n" +
                 "\n" +
-                "    return [0.5 * ((A / B) ** 2 + \n"
-                +
+                "    return [0.5 * ((A / B) ** 2 + \n" +
                 "                      (C / D) ** 2) for E, F in G]" + //keep the same level, not the one of the starting parens, as we didn't change the parens level!
                 "";
         DocCmd docCmd = new DocCmd(doc.length() - ") for E, F in G]".length(), 0, "\n");
@@ -2413,7 +2409,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
 
     public void testIndentParensPep8_1() throws Exception {
         // New indent mode:
-        // pep8 indents aligned with the opening parens (if not directly after the opening parens) 
+        // pep8 indents aligned with the opening parens (if not directly after the opening parens)
         // or with an additional level for vertical alignment of multiple vars after the parens.
         TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
         prefs.indentToParAsPep8 = true;
@@ -2429,7 +2425,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
 
     public void testIndentParensPep8_2() throws Exception {
         // New indent mode:
-        // pep8 indents aligned with the opening parens (if not directly after the opening parens) 
+        // pep8 indents aligned with the opening parens (if not directly after the opening parens)
         // or with an additional level for vertical alignment of multiple vars after the parens.
         TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
         prefs.indentToParAsPep8 = true;
@@ -2445,7 +2441,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
 
     public void testIndentParensPep8_3() throws Exception {
         // New indent mode:
-        // pep8 indents aligned with the opening parens (if not directly after the opening parens) 
+        // pep8 indents aligned with the opening parens (if not directly after the opening parens)
         // or with an additional level for vertical alignment of multiple vars after the parens.
         TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
         prefs.indentToParAsPep8 = true;
@@ -2461,7 +2457,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
 
     public void testIndentParensPep8_4() throws Exception {
         // New indent mode:
-        // pep8 indents aligned with the opening parens (if not directly after the opening parens) 
+        // pep8 indents aligned with the opening parens (if not directly after the opening parens)
         // or with an additional level for vertical alignment of multiple vars after the parens.
         TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
         prefs.indentToParAsPep8 = true;
@@ -2475,9 +2471,23 @@ public class PyAutoIndentStrategyTest extends TestCase {
         assertEquals(expected, docCmd.text);
     }
 
+    public void testIndentParensPep8_5() throws Exception {
+        TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
+        prefs.indentToParAsPep8 = true;
+        strategy.setIndentPrefs(prefs);
+        String doc = "" +
+                "a(\n" +
+                "    b(\n" +
+                "    ), ";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n    ";
+        assertEquals(expected, docCmd.text);
+    }
+
     public void testIndentParensPep8_1_tabs() throws Exception {
         // New indent mode:
-        // pep8 indents aligned with the opening parens (if not directly after the opening parens) 
+        // pep8 indents aligned with the opening parens (if not directly after the opening parens)
         // or with an additional level for vertical alignment of multiple vars after the parens.
         TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
         prefs.indentToParAsPep8 = true;
@@ -2494,7 +2504,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
 
     public void testIndentParensPep8_2_tabs() throws Exception {
         // New indent mode:
-        // pep8 indents aligned with the opening parens (if not directly after the opening parens) 
+        // pep8 indents aligned with the opening parens (if not directly after the opening parens)
         // or with an additional level for vertical alignment of multiple vars after the parens.
         TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
         prefs.indentToParAsPep8 = true;
@@ -2511,7 +2521,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
 
     public void testIndentParensPep8_3_tabs() throws Exception {
         // New indent mode:
-        // pep8 indents aligned with the opening parens (if not directly after the opening parens) 
+        // pep8 indents aligned with the opening parens (if not directly after the opening parens)
         // or with an additional level for vertical alignment of multiple vars after the parens.
         TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
         prefs.indentToParAsPep8 = true;
@@ -2528,7 +2538,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
 
     public void testIndentParensPep8_4_tabs() throws Exception {
         // New indent mode:
-        // pep8 indents aligned with the opening parens (if not directly after the opening parens) 
+        // pep8 indents aligned with the opening parens (if not directly after the opening parens)
         // or with an additional level for vertical alignment of multiple vars after the parens.
         TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
         prefs.indentToParAsPep8 = true;

@@ -22,7 +22,7 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 
 /**
- * This is an extension to the String utils so 
+ * This is an extension to the String utils so
  * @author Fabio
  *
  */
@@ -36,22 +36,22 @@ public final class PyStringUtils {
 
     /**
      * <p>Find the index of <tt>character</tt> in a <tt>string</tt>.</p>
-     * 
-     * <p>This method is like {@link java.lang.String#indexOf(int)} 
-     * but has the additional ability to ignore occurrences of 
+     *
+     * <p>This method is like {@link java.lang.String#indexOf(int)}
+     * but has the additional ability to ignore occurrences of
      * <tt>character</tt> in Python string literals (e.g. enclosed
      * by single, double or triple quotes). This is done by employing
      * a very simple statemachine.</p>
-     * 
+     *
      * @param string - the source string, e.g. the <i>haystack</i>
      * @param character - the character to retrieve the index for
-     * @param ignoreInStringLiteral - if <tt>true</tt>, ignore occurrences 
+     * @param ignoreInStringLiteral - if <tt>true</tt>, ignore occurrences
      *        of <tt>character</tt> in Python string literals
      * @return the position of the character in string.<br>
      *         if <tt>string</tt> is <tt>null</tt> or empty, or
      *         if <tt>(int)character < 0</tt>, returns <tt>-1</tt>.
-     * @note escaped (i.e. <tt>\"</tt>) characters are ignored and 
-     *       control characters, e.g. line delimiters etc., are treated 
+     * @note escaped (i.e. <tt>\"</tt>) characters are ignored and
+     *       control characters, e.g. line delimiters etc., are treated
      *       normally like every other character.
      */
     public static int indexOf(final String string, final char character, final boolean ignoreInStringLiteral) {
@@ -114,21 +114,21 @@ public final class PyStringUtils {
     }
 
     /**
-     * <p>Find the substring in <tt>string</tt> that starts from the first 
+     * <p>Find the substring in <tt>string</tt> that starts from the first
      * occurrence of <tt>character</tt>.</p>
-     * 
-     * <p>This method is similar to {@link java.lang.String#substring} 
-     * but has the additional ability to ignore occurrences of 
+     *
+     * <p>This method is similar to {@link java.lang.String#substring}
+     * but has the additional ability to ignore occurrences of
      * <tt>character</tt> in Python string literals (e.g. enclosed
      * by single, double or triple single/double quotes).</p>
-     * 
+     *
      * @param string - the source string, e.g. the <i>haystack</i>
      * @param character - the character that is the starting boundary of the searched substring
-     * @param ignoreInStringLiteral - if <tt>true</tt>, ignore occurrences 
+     * @param ignoreInStringLiteral - if <tt>true</tt>, ignore occurrences
      *        of <tt>character</tt> in Python string literals
-     * @return a substring from <tt>string</tt><br>or <tt>null</tt> if 
+     * @return a substring from <tt>string</tt><br>or <tt>null</tt> if
      *         {@link PyStringUtils#indexOf} returns <tt>-1</tt>
-     * @see {@link PyStringUtils#indexOf} 
+     * @see {@link PyStringUtils#indexOf}
      */
     public static String findSubstring(final String string, final char character, final boolean ignoreInStringLiteral) {
 
@@ -326,7 +326,7 @@ public final class PyStringUtils {
 
     /**
      * An array of Python pairs of characters that you will find in any Python code.
-     * 
+     *
      * Currently, the set contains:
      * <ul>
      * <ol>left and right brackets: [, ]</ol>
@@ -400,14 +400,14 @@ public final class PyStringUtils {
      *  {
      *      < NAME: <LETTER> ( <LETTER> | <DIGIT>)* >
      *  |
-     *      < #LETTER: 
+     *      < #LETTER:
      *      [
      *         "a"-"z",
      *         "A"-"Z",
      *         "_",
      *         "\u0080"-"\uffff" //Anything more than 128 is considered valid (unicode range)
-     *      
-     *      ] 
+     *
+     *      ]
      *  >
      *  }
      * @param param
