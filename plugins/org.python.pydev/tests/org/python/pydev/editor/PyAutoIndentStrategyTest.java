@@ -1597,6 +1597,16 @@ public class PyAutoIndentStrategyTest extends TestCase {
         assertEquals(offset + 1, docCmd.caretOffset);
     }
 
+    public void testParens4() {
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+        String str = "call()";
+        final Document doc = new Document(str);
+        int offset = doc.getLength() - ")".length();
+        DocCmd docCmd = new DocCmd(offset, 0, "]");
+        strategy.customizeDocumentCommand(doc, docCmd);
+        assertEquals("]", docCmd.text);
+    }
+
     public void testElse() {
         //first part of test - simple case
         strategy.setIndentPrefs(new TestIndentPrefs(true, 4, true));

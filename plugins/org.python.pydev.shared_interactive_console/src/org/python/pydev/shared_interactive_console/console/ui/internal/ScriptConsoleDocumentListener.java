@@ -446,18 +446,30 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
 
         String indentString = "";
         boolean addedNewLine = false;
-        boolean addedParen = false;
-        boolean addedCloseParen = false;
+        char addedParen = '\0';
+        char addedCloseParen = '\0';
         int addedLen = text.length();
         if (addedLen == 1) {
             if (text.equals("\r") || text.equals("\n")) {
                 addedNewLine = true;
 
             } else if (text.equals("(")) {
-                addedParen = true;
+                addedParen = '(';
 
             } else if (text.equals(")")) {
-                addedCloseParen = true;
+                addedCloseParen = ')';
+
+            } else if (text.equals("[")) {
+                addedParen = '[';
+
+            } else if (text.equals("]")) {
+                addedCloseParen = ']';
+
+            } else if (text.equals("{")) {
+                addedParen = '{';
+
+            } else if (text.equals("}")) {
+                addedCloseParen = '}';
             }
 
         } else if (addedLen == 2) {
@@ -536,7 +548,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      */
     private void execCommand(final boolean addedNewLine, final String delim, final String[] finalIndentString,
             final String cmd, final List<String> commands, final int currentCommand, final String text,
-            final boolean addedParen, final int start, final boolean addedCloseParen, final int newDeltaCaretPosition) {
+            final char addedParen, final int start, final char addedCloseParen, final int newDeltaCaretPosition) {
         applyStyleToUserAddedText(cmd, doc.getLength());
 
         //the cmd could be something as '\n'
@@ -773,16 +785,16 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
     /**
      * This method should be called after all the lines received were processed.
      */
-    private void onAfterAllLinesHandled(final String finalText, final boolean finalAddedParen, final int finalStart,
-            final int finalOffset, final boolean finalAddedCloseParen, final String finalIndentString,
+    private void onAfterAllLinesHandled(final String finalText, final char finalAddedParen, final int finalStart,
+            final int finalOffset, final char finalAddedCloseParen, final String finalIndentString,
             final int finalNewDeltaCaretPosition) {
         boolean shiftsCaret = true;
         String newText = finalText.substring(finalStart, finalText.length());
-        if (finalAddedParen) {
+        if (finalAddedParen != '\0') {
             String cmdLine = getCommandLine();
             Document parenDoc = new Document(cmdLine + newText);
             int currentOffset = cmdLine.length() + 1;
-            DocCmd docCmd = new DocCmd(currentOffset, 0, "(");
+            DocCmd docCmd = new DocCmd(currentOffset, 0, "" + finalAddedParen);
             docCmd.shiftsCaret = true;
             try {
                 strategy.customizeParenthesis(parenDoc, docCmd);
@@ -794,13 +806,13 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
                 shiftsCaret = false;
                 setCaretOffset(finalOffset + (docCmd.caretOffset - currentOffset));
             }
-        } else if (finalAddedCloseParen) {
+        } else if (finalAddedCloseParen != '\0') {
             String cmdLine = getCommandLine();
             String existingDoc = cmdLine + finalText.substring(1);
             int cmdLineOffset = cmdLine.length();
             if (existingDoc.length() > cmdLineOffset) {
                 Document parenDoc = new Document(existingDoc);
-                DocCmd docCmd = new DocCmd(cmdLineOffset, 0, ")");
+                DocCmd docCmd = new DocCmd(cmdLineOffset, 0, "" + finalAddedCloseParen);
                 docCmd.shiftsCaret = true;
                 boolean canSkipOpenParenthesis;
                 try {

@@ -1056,23 +1056,25 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
         PySelection ps = new PySelection(document, command.offset);
 
         char c = ps.getCharAtCurrentOffset();
+        if (command.text != null && command.text.length() == 1 && command.text.charAt(0) == c) {
+            try {
+                char peer = StringUtils.getPeer(c);
 
-        try {
-            char peer = StringUtils.getPeer(c);
+                FastStringBuffer doc = new FastStringBuffer(document.get(), 2);
+                //it is not enough just counting the chars, we have to ignore those that are within comments or literals.
+                ParsingUtils.removeCommentsWhitespacesAndLiterals(doc, false);
+                int chars = StringUtils.countChars(c, doc);
+                int peers = StringUtils.countChars(peer, doc);
 
-            FastStringBuffer doc = new FastStringBuffer(document.get(), 2);
-            //it is not enough just counting the chars, we have to ignore those that are within comments or literals.
-            ParsingUtils.removeCommentsWhitespacesAndLiterals(doc, false);
-            int chars = StringUtils.countChars(c, doc);
-            int peers = StringUtils.countChars(peer, doc);
-
-            boolean skipChar = chars == peers;
-            return skipChar;
-        } catch (NoPeerAvailableException e) {
-            return false;
-        } catch (SyntaxErrorException e) {
-            throw new RuntimeException(e);//not expected!
+                boolean skipChar = chars == peers;
+                return skipChar;
+            } catch (NoPeerAvailableException e) {
+                return false;
+            } catch (SyntaxErrorException e) {
+                throw new RuntimeException(e);//not expected!
+            }
         }
+        return false;
     }
 
     /**
