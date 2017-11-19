@@ -42,6 +42,24 @@ public class PythonConsoleLineTrackerTest extends TestCase {
         lineNumber = matcher.group(3);
         assertEquals("/home/users/foo/test_it2.py", fileName);
         assertEquals("45", lineNumber);
-
     }
+
+    public void testFileMatch2() {
+        Matcher matcher = PythonConsoleLineTracker.insideQuotesMatcher1.matcher("sss\"yyy\"zzz");
+        assertTrue(matcher.matches());
+        assertEquals("yyy", matcher.group(1));
+    }
+
+    public void testFileMatch3() {
+        Matcher matcher = PythonConsoleLineTracker.insideQuotesMatcher2.matcher("sss'yyy'zzz");
+        assertTrue(matcher.matches());
+        assertEquals("yyy", matcher.group(1));
+    }
+
+    public void testFileMatch4() {
+        Matcher matcher = PythonConsoleLineTracker.insideQuotesMatcher2.matcher("sss'yyy:82'zzz");
+        assertTrue(matcher.matches());
+        assertEquals("yyy:82", matcher.group(1));
+    }
+
 }

@@ -11,9 +11,13 @@
 package org.python.pydev.debug.ui;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -41,6 +45,8 @@ import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.structure.Location;
+import org.python.pydev.shared_core.utils.PlatformUtils;
+import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
  * Line tracker that hyperlinks error lines: 'File "D:\mybad.py" line 3\n n Syntax error'
@@ -53,28 +59,38 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
     private boolean onlyCreateLinksForExistingFiles = true;
     private IProject project;
 
+    private void updateProjectAndWorkingDir() {
+        IProcess process = DebugUITools.getCurrentProcess();
+        if (process != null) {
+            ILaunch launch = process.getLaunch();
+            if (launch != null) {
+                ILaunchConfiguration lc = launch.getLaunchConfiguration();
+                initLaunchConfiguration(lc);
+            }
+        }
+    }
+
     private IProject getProject() {
         IProject project = this.project;
         if (project == null) {
-            IProcess process = DebugUITools.getCurrentProcess();
-            if (process != null) {
-                ILaunchConfiguration lc = process.getLaunch().getLaunchConfiguration();
-                try {
-                    project = lc.getMappedResources()[0].getProject();
-                } catch (NullPointerException e) {
-                    //Ignore if we don't have lc or mapped resources.
-                } catch (CoreException e) {
-                    Log.log("Error accessing launched resources.", e);
-                }
-            }
+            updateProjectAndWorkingDir();
         }
         return project;
     }
 
     private IPath workingDirectory;
 
+    public IPath getWorkingDirectory() {
+        if (workingDirectory == null) {
+            updateProjectAndWorkingDir();
+        }
+        return workingDirectory;
+    }
+
     /** pattern for detecting error lines */
     static Pattern regularPythonlinePattern = Pattern.compile(".*(File) \\\"([^\\\"]*)\\\", line (\\d*).*");
+    static Pattern insideQuotesMatcher1 = Pattern.compile(".*\\\"(.*)?\\\".*");
+    static Pattern insideQuotesMatcher2 = Pattern.compile(".*\\'(.*)?\\'.*");
 
     /**
      * Opens up a file with a given line
@@ -155,61 +171,249 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
      */
     @Override
     public void lineAppended(IRegion line) {
-        int lineOffset = line.getOffset();
-        int lineLength = line.getLength();
-        String text;
         try {
-            text = linkContainer.getContents(lineOffset, lineLength);
-        } catch (BadLocationException e) {
-            PydevDebugPlugin.log(IStatus.ERROR, "unexpected error", e);
-            return;
-        }
+            int lineOffset = line.getOffset();
+            int lineLength = line.getLength();
+            String text;
+            try {
+                text = linkContainer.getContents(lineOffset, lineLength);
+            } catch (BadLocationException e) {
+                PydevDebugPlugin.log(IStatus.ERROR, "unexpected error", e);
+                return;
+            }
 
-        Matcher m = regularPythonlinePattern.matcher(text);
-        // match
-        if (m.matches()) {
-            regularPythonMatcher(lineOffset, lineLength, m);
+            Matcher m = regularPythonlinePattern.matcher(text);
+            if (m.matches()) {
+                regularPythonMatcher(lineOffset, lineLength, m);
+                return;
+            }
+
+            if (quotesPattern(lineOffset, text, insideQuotesMatcher1)) {
+                return;
+            }
+
+            if (quotesPattern(lineOffset, text, insideQuotesMatcher2)) {
+                return;
+            }
+
+            // Ok, we did not have a direct match, let's try a different approach...
+            String[] dottedValidSourceFiles = FileTypesPreferencesPage.getDottedValidSourceFiles();
+            for (String dottedExt : dottedValidSourceFiles) {
+                Pattern pattern = getRegexpForExtension(dottedExt);
+                m = pattern.matcher(text);
+                if (m.matches()) {
+                    int lineNumberInt = 0;
+                    String filename = m.group(1);
+                    int endCol = m.end(1);
+                    if (text.length() > endCol) {
+                        if (text.charAt(endCol) == ':') {
+                            int j = 1;
+                            while (endCol + j < text.length()) {
+                                char c = text.charAt(endCol + j);
+                                if (Character.isDigit(c)) {
+                                    j++;
+                                } else {
+                                    break;
+                                }
+                            }
+                            if (j > 1) {
+                                String string = text.substring(endCol + 1, endCol + j);
+                                lineNumberInt = Integer.parseInt(string);
+                                endCol += j;
+                            }
+                        }
+                    }
+                    if (checkMapFilenameToHyperlink(lineOffset, 0, endCol, filename, lineNumberInt)) {
+                        return;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Log.log(e);
+
         }
     }
 
-    private void regularPythonMatcher(int lineOffset, int lineLength, Matcher m) {
-        String fileName = null;
+    private boolean quotesPattern(int lineOffset, String text, Pattern quotesRegex) {
+        Matcher m;
+        m = quotesRegex.matcher(text);
+        if (m.matches()) {
+            String filename = m.group(1);
+            int endCol = m.end(1);
+
+            int lineNumberInt = 0;
+            int matchStartCol = m.start(1);
+            int colonI = filename.lastIndexOf(':');
+            if (colonI != -1) {
+                if (!(PlatformUtils.isWindowsPlatform() && colonI == 1)) {
+                    String lineNumber = filename.substring(colonI + 1).trim();
+                    if (lineNumber.length() > 0) {
+                        try {
+                            lineNumberInt = Integer.parseInt(lineNumber);
+                            filename = filename.substring(0, colonI);
+                        } catch (NumberFormatException e) {
+                            // ignore
+                        }
+                    }
+                }
+            }
+
+            if (checkMapFilenameToHyperlink(lineOffset, matchStartCol, endCol, filename, lineNumberInt)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean checkMapFilenameToHyperlink(int lineOffset, int matchStartCol, int endCol, String filename,
+            int lineNumberInt) {
+        final String initialFilename = filename;
+        if (new File(filename).exists()) {
+            if (createHyperlink(lineOffset, matchStartCol, endCol, filename, lineNumberInt)) {
+                return true;
+            }
+            return false;
+        }
+
+        if (PlatformUtils.isWindowsPlatform()) {
+            // On windows an absolute file would start with the drive letter and a colon, so, check for that.
+            int colonI = filename.lastIndexOf(':');
+            if (colonI > 0) { // at 0 it'd not be ok (because we still need the drive letter).
+                filename = filename.substring(colonI - 1);
+                matchStartCol = matchStartCol + colonI - 1;
+                if (new File(filename).exists()) {
+                    if (createHyperlink(lineOffset, matchStartCol, endCol, filename, lineNumberInt)) {
+                        return true;
+                    }
+                    return false;
+                }
+            }
+        }
+        // Not a direct match, let's try some heuristics to get a match based on the working dir.
+        IPath path = Path.fromOSString(filename);
+
+        IProject project = getProject();
+        try {
+            IFile file = project.getFile(path);
+            if (file.exists()) {
+                FileLink link = new FileLink(file, null, -1, -1, lineNumberInt);
+                linkContainer.addLink(link, lineOffset + matchStartCol, endCol - matchStartCol);
+                return true;
+            }
+        } catch (IllegalArgumentException e1) {
+            // ignore
+        } catch (Exception e1) {
+            Log.log(e1);
+        }
+
+        PythonNature nature = PythonNature.getPythonNature(project);
+        if (nature != null) {
+            try {
+                Set<IResource> projectSourcePathFolderSet = nature.getPythonPathNature()
+                        .getProjectSourcePathFolderSet();
+                for (IResource iResource : projectSourcePathFolderSet) {
+                    if (iResource instanceof IContainer) {
+                        IContainer iContainer = (IContainer) iResource;
+                        try {
+                            IFile file2 = iContainer.getFile(path);
+                            if (file2.exists()) {
+                                FileLink link = new FileLink(file2, null, -1, -1, lineNumberInt);
+                                linkContainer.addLink(link, lineOffset + matchStartCol, endCol - matchStartCol);
+                            }
+                        } catch (IllegalArgumentException e) {
+                        } catch (Exception e) {
+                            Log.log(e);
+                        }
+                    }
+                }
+            } catch (CoreException e) {
+            }
+        }
+
+        try {
+            IPath workingDirectory = getWorkingDirectory();
+            while (path.segmentCount() > 0) {
+                IPath appended = workingDirectory.append(path);
+                File checkFile = appended.toFile();
+                if (checkFile.exists()) {
+                    if (createHyperlink(lineOffset,
+                            matchStartCol + (initialFilename.length() - path.toString().length()),
+                            endCol, checkFile.getAbsolutePath(), lineNumberInt)) {
+                        return true;
+                    }
+                }
+                path = path.removeFirstSegments(1);
+            }
+        } catch (Exception e) {
+            Log.log(e);
+        }
+        return false;
+    }
+
+    private Map<String, Pattern> compiledPatterns = new HashMap<>();
+
+    private Pattern getRegexpForExtension(String dottedExt) {
+        Pattern pattern = compiledPatterns.get(dottedExt);
+        if (pattern != null) {
+            return pattern;
+        }
+        pattern = Pattern.compile("(.*" + Pattern.quote(dottedExt) + ")\\b.*");
+        compiledPatterns.put(dottedExt, pattern);
+        return pattern;
+    }
+
+    private boolean regularPythonMatcher(int lineOffset, int lineLength, Matcher m) {
         String lineNumber = null;
-        int fileStart = -1;
-        fileName = m.group(2);
+        int col = -1;
+        final String fileName = m.group(2);
         lineNumber = m.group(3);
-        fileStart = m.start(1); // The beginning of the line, "File  "
+        col = m.start(1); // The beginning of the line, "File  "
+        int lineNumberInt = 0;
+        try {
+            lineNumberInt = lineNumber != null ? Integer.parseInt(lineNumber) : 0;
+        } catch (NumberFormatException e) {
+        }
+
+        return createHyperlink(lineOffset, col, lineLength, fileName, lineNumberInt);
+    }
+
+    /**
+     * @return true if the hyperlink was created and false otherwise.
+     */
+    private boolean createHyperlink(int lineOffset, int startCol, int endCol, final String fileName,
+            int lineNumberInt) {
         // hyperlink if we found something
         if (fileName != null) {
             IHyperlink link = null;
-            int num = -1;
-            try {
-                num = lineNumber != null ? Integer.parseInt(lineNumber) : 0;
-            } catch (NumberFormatException e) {
-                num = 0;
-            }
             IFile file;
             if (SharedCorePlugin.inTestMode()) {
                 file = null;
             } else {
-                IProject project = getProject();
-                file = new PySourceLocatorBase().getFileForLocation(Path.fromOSString(fileName), project);
-
+                file = getFileForLocation(fileName);
             }
             if (file != null && file.exists()) {
-                link = new FileLink(file, null, -1, -1, num);
+                link = new FileLink(file, null, -1, -1, lineNumberInt);
             } else {
                 // files outside of the workspace
                 File realFile = new File(fileName);
                 if (!onlyCreateLinksForExistingFiles || realFile.exists()) {
-                    ItemPointer p = new ItemPointer(realFile, new Location(num - 1, 0), null);
+                    ItemPointer p = new ItemPointer(realFile, new Location(lineNumberInt - 1, 0), null);
                     link = new ConsoleLink(p);
                 }
             }
             if (link != null) {
-                linkContainer.addLink(link, lineOffset + fileStart, lineLength - fileStart);
+                linkContainer.addLink(link, lineOffset + startCol, endCol - startCol);
+                return true;
             }
         }
+        return false;
+    }
+
+    private IFile getFileForLocation(String fileName) {
+        IFile file;
+        IProject project = getProject();
+        file = new PySourceLocatorBase().getFileForLocation(Path.fromOSString(fileName), project);
+        return file;
     }
 
     /**
@@ -243,7 +447,10 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
                 last = i + 1;
             }
         }
-        this.lineAppended(new Region(last, len - last));
+        int lastLen = (len - last) - 1;
+        if (lastLen > 0) {
+            this.lineAppended(new Region(last, lastLen));
+        }
     }
 
 }
