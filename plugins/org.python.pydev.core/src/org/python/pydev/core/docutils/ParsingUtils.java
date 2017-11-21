@@ -663,6 +663,10 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
         if (this.throwSyntaxError && c != closingPar) {
             throw new SyntaxErrorException();
         }
+        if (j >= len) {
+            // We could overflow in eatPar(j - 1, null, par) + 1;
+            j = len;
+        }
         return j;
     }
 

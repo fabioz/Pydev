@@ -6,13 +6,13 @@
  */
 package org.python.pydev.editor.codecompletion;
 
-import junit.framework.TestCase;
-
 import org.python.pydev.core.UnpackInfo;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 import org.python.pydev.parser.visitors.NodeUtils;
+
+import junit.framework.TestCase;
 
 public class NodeUtilsTest extends TestCase {
 
@@ -92,7 +92,8 @@ public class NodeUtilsTest extends TestCase {
         assertEquals("str", NodeUtils.getUnpackedTypeFromTypeDocstring("list(str)", new UnpackInfo(true, -1)));
         assertEquals("int,str", NodeUtils.getUnpackedTypeFromTypeDocstring("dict[int,str]", new UnpackInfo(true, -1)));
         assertEquals("int,str", NodeUtils.getUnpackedTypeFromTypeDocstring("dict [int,str]", new UnpackInfo(true, -1)));
-        assertEquals("int->str", NodeUtils.getUnpackedTypeFromTypeDocstring("dict[int->str]", new UnpackInfo(true, -1)));
+        assertEquals("int->str",
+                NodeUtils.getUnpackedTypeFromTypeDocstring("dict[int->str]", new UnpackInfo(true, -1)));
         assertEquals("int:str", NodeUtils.getUnpackedTypeFromTypeDocstring("dict[int:str]", new UnpackInfo(true, -1)));
         assertEquals("int", NodeUtils.getUnpackedTypeFromTypeDocstring("dict[int,str]", new UnpackInfo(false, 0)));
         assertEquals("int", NodeUtils.getUnpackedTypeFromTypeDocstring("dict [int,str]", new UnpackInfo(false, 0)));
@@ -112,7 +113,8 @@ public class NodeUtilsTest extends TestCase {
                         .getUnpackedTypeFromTypeDocstring("list(dict[int,str], foo(str,a), bar)", new UnpackInfo(false,
                                 0)));
         assertEquals("foo(str,a)",
-                NodeUtils.getUnpackedTypeFromTypeDocstring("list(dict[int,str], foo(str,a))", new UnpackInfo(false, 1)));
+                NodeUtils.getUnpackedTypeFromTypeDocstring("list(dict[int,str], foo(str,a))",
+                        new UnpackInfo(false, 1)));
         assertEquals("str",
                 NodeUtils.getUnpackedTypeFromTypeDocstring("list(dict[int,str], str)", new UnpackInfo(false, 1)));
     }
@@ -137,5 +139,13 @@ public class NodeUtilsTest extends TestCase {
                 + "";
         String returnTypeFromDocstring = NodeUtils.getReturnTypeFromDocstring(docstring);
         assertEquals("list(Foo)", returnTypeFromDocstring);
+    }
+
+    public void testGetReturnTypeNoCrash() throws Exception {
+        String docstring = ""
+                + "list(D's (key, value) pairs, as 2-tuples)\n"
+                + "";
+        String returnTypeFromDocstring = NodeUtils.getReturnTypeFromDocstring(docstring);
+        assertNull(returnTypeFromDocstring);
     }
 }

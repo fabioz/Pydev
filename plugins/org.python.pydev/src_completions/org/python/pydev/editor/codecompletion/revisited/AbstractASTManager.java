@@ -59,6 +59,7 @@ import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -1299,7 +1300,16 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
     private IToken[] getCompletionsFromAssignDefinition(IModule module, ICompletionState state, UnpackInfo unpackPos,
             AssignDefinition assignDefinition) throws CompletionRecursionException, Exception {
-        exprType[] elts = NodeUtils.getEltsFromCompoundObject(assignDefinition.nodeValue);
+        exprType[] elts = null;
+        if (assignDefinition.ast instanceof Assign) {
+            Assign assign = (Assign) assignDefinition.ast;
+            if (assign.type != null) {
+                elts = NodeUtils.getEltsTypedAnnotation(assign.type);
+            }
+        }
+        if (elts == null) {
+            elts = NodeUtils.getEltsFromCompoundObject(assignDefinition.nodeValue);
+        }
         if (elts != null) {
             // I.e.: something as [1,2,3, Call()]
             IToken[] completionsFromUnpackedList = getCompletionsFromUnpackedCompoundObject(module, state,

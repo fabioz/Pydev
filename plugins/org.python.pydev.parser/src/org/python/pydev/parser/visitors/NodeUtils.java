@@ -38,11 +38,13 @@ import org.python.pydev.parser.jython.ast.Comprehension;
 import org.python.pydev.parser.jython.ast.Dict;
 import org.python.pydev.parser.jython.ast.DictComp;
 import org.python.pydev.parser.jython.ast.Expr;
+import org.python.pydev.parser.jython.ast.ExtSlice;
 import org.python.pydev.parser.jython.ast.For;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.Index;
 import org.python.pydev.parser.jython.ast.ListComp;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
@@ -65,6 +67,7 @@ import org.python.pydev.parser.jython.ast.comprehensionType;
 import org.python.pydev.parser.jython.ast.excepthandlerType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.keywordType;
+import org.python.pydev.parser.jython.ast.sliceType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
@@ -1925,6 +1928,32 @@ public class NodeUtils {
 
         ret.o2 = PySelection.getAbsoluteCursorOffset(doc, last.beginLine - 1, last.beginColumn - 1)
                 + NodeUtils.getRepresentationString(last).length();
+    }
+
+    public static exprType[] getEltsTypedAnnotation(exprType type) {
+        if (type instanceof Subscript) {
+            Subscript subscript = (Subscript) type;
+            exprType value = subscript.value;
+            if (value != null) {
+                sliceType slice = subscript.slice;
+                if (slice instanceof ExtSlice) {
+                    ExtSlice extSlice = (ExtSlice) slice;
+                    sliceType[] dims = extSlice.dims;
+                    if (dims != null) {
+                        exprType[] ret = new exprType[dims.length];
+                        for (int i = 0; i < dims.length; i++) {
+                            sliceType sliceType = dims[i];
+                            if (sliceType instanceof Index) {
+                                Index index = (Index) sliceType;
+                                ret[i] = index.value;
+                            }
+                        }
+                        return ret;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
 }

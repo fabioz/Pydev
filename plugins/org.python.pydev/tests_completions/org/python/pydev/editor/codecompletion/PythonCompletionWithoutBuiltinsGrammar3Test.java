@@ -93,7 +93,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
 
             @Override
             public int getGrammarVersion() {
-                return IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+                return IPythonNature.GRAMMAR_PYTHON_VERSION_3_6;
             }
         };
     }
@@ -106,4 +106,20 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
         assertNotContains("NotFound", codeCompletionProposals);
     }
 
+    public void testDictAccess() throws Exception {
+        String s = ""
+                + "class A:\n"
+                + "    def method(self):\n"
+                + "        pass\n"
+                + "class Starship:\n" +
+                "    stats: Dict[A, A] = {}\n" +
+                "    for key, val in stats.items():\n" +
+                "        key.";
+
+        ICompletionProposal[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        assertEquals(1, proposals.length);
+        ICompletionProposal prop = proposals[0];
+        assertEquals("method()", prop.getDisplayString());
+
+    }
 }
