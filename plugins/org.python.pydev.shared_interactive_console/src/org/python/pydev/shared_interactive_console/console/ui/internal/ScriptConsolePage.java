@@ -26,7 +26,6 @@ import org.eclipse.ui.console.actions.TextViewerAction;
 import org.python.pydev.shared_interactive_console.console.ui.ScriptConsole;
 import org.python.pydev.shared_interactive_console.console.ui.internal.actions.CloseScriptConsoleAction;
 import org.python.pydev.shared_interactive_console.console.ui.internal.actions.InterruptScriptConsoleAction;
-import org.python.pydev.shared_interactive_console.console.ui.internal.actions.SaveConsoleSessionAction;
 
 public class ScriptConsolePage extends TextConsolePage implements IScriptConsoleContentHandler {
 
@@ -64,7 +63,7 @@ public class ScriptConsolePage extends TextConsolePage implements IScriptConsole
 
     private TextViewerAction quickAssistAction;
 
-    private SaveConsoleSessionAction saveSessionAction;
+    // private SaveConsoleSessionAction saveSessionAction;
 
     private CloseScriptConsoleAction closeConsoleAction;
 
@@ -77,8 +76,8 @@ public class ScriptConsolePage extends TextConsolePage implements IScriptConsole
         proposalsAction = new ContentAssistProposalsAction(getViewer());
         quickAssistAction = new QuickAssistProposalsAction(getViewer());
 
-        saveSessionAction = new SaveConsoleSessionAction((ScriptConsole) getConsole(),
-                ScriptConsoleMessages.SaveSessionAction, ScriptConsoleMessages.SaveSessionTooltip);
+        // saveSessionAction = new SaveConsoleSessionAction((ScriptConsole) getConsole(),
+        //        ScriptConsoleMessages.SaveSessionAction, ScriptConsoleMessages.SaveSessionTooltip);
 
         closeConsoleAction = new CloseScriptConsoleAction((ScriptConsole) getConsole(),
                 ScriptConsoleMessages.TerminateConsoleAction, ScriptConsoleMessages.TerminateConsoleTooltip);
@@ -95,7 +94,7 @@ public class ScriptConsolePage extends TextConsolePage implements IScriptConsole
 
         toolbarManager.appendToGroup(SCRIPT_GROUP, closeConsoleAction);
 
-        toolbarManager.appendToGroup(SCRIPT_GROUP, saveSessionAction);
+        // toolbarManager.appendToGroup(SCRIPT_GROUP, saveSessionAction);
 
         toolbarManager.appendToGroup(SCRIPT_GROUP, interruptConsoleAction);
 
@@ -109,7 +108,7 @@ public class ScriptConsolePage extends TextConsolePage implements IScriptConsole
     protected void contextMenuAboutToShow(IMenuManager menuManager) {
         super.contextMenuAboutToShow(menuManager);
         menuManager.add(new Separator(SCRIPT_GROUP));
-        menuManager.appendToGroup(SCRIPT_GROUP, saveSessionAction);
+        // menuManager.appendToGroup(SCRIPT_GROUP, saveSessionAction);
         menuManager.appendToGroup(SCRIPT_GROUP, closeConsoleAction);
         menuManager.appendToGroup(SCRIPT_GROUP, interruptConsoleAction);
     }
