@@ -85,7 +85,11 @@ public final class keywordType extends SimpleNode {
 
     @Override
     public Object accept(VisitorIF visitor) throws Exception {
-        traverse(visitor);
+        if (visitor instanceof VisitorBase) {
+            ((VisitorBase) visitor).traverse(this);
+        } else {
+            traverse(visitor);
+        }
         return null;
     }
 

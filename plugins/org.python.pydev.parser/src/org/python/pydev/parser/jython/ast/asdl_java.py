@@ -74,7 +74,7 @@ class EmitVisitor(asdl.VisitorBase):
 
 
 
-# This step will add a 'simple' boolean attribute to all Sum and Product 
+# This step will add a 'simple' boolean attribute to all Sum and Product
 # nodes and add a 'typedef' link to each Field node that points to the
 # Sum or Product node that defines the field.
 
@@ -232,7 +232,7 @@ class JavaVisitor(EmitVisitor):
 #fabioz: Removed the consructor with the parent that set the beginLine/Col, as this wasn't used and added some
 #confusion because the parent wasn't properly set -- if a parent is actually set, it's set later in the parsing (because
 #the parent is resolved after the child).
-#        Creates something as:            
+#        Creates something as:
 #        public Attribute(exprType value, NameTokType attr, int ctx, SimpleNode
 #        parent) {
 #            this(value, attr, ctx);
@@ -389,7 +389,7 @@ class JavaVisitor(EmitVisitor):
         self.emit("}", depth)
         self.emit("", 0)
 
-#        # The pickle() method -- commented out, as it's not used within Pydev 
+#        # The pickle() method -- commented out, as it's not used within Pydev
 #        self.emit("public void pickle(DataOutputStream ostream) throws IOException {", depth)
 #        self.emit("pickleThis(%s, ostream);" % type.index, depth+1);
 #        for f in fields:
@@ -403,7 +403,11 @@ class JavaVisitor(EmitVisitor):
         if clsname == ctorname:
             self.emit('return visitor.visit%s(this);' % clsname, depth + 1)
         else:
-            self.emit('traverse(visitor);' % clsname, depth + 1)
+            self.emit('if (visitor instanceof VisitorBase) {', depth + 1)
+            self.emit('((VisitorBase) visitor).traverse(this);', depth + 2)
+            self.emit('} else {' % clsname, depth + 1)
+            self.emit('traverse(visitor);', depth + 2)
+            self.emit('}', depth + 1)
             self.emit('return null;' % clsname, depth + 1)
         self.emit("}", depth)
         self.emit("", 0)
