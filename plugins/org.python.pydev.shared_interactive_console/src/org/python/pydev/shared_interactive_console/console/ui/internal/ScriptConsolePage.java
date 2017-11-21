@@ -26,6 +26,7 @@ import org.eclipse.ui.console.actions.TextViewerAction;
 import org.python.pydev.shared_interactive_console.console.ui.ScriptConsole;
 import org.python.pydev.shared_interactive_console.console.ui.internal.actions.CloseScriptConsoleAction;
 import org.python.pydev.shared_interactive_console.console.ui.internal.actions.InterruptScriptConsoleAction;
+import org.python.pydev.shared_interactive_console.console.ui.internal.actions.WordWrapAction;
 
 public class ScriptConsolePage extends TextConsolePage implements IScriptConsoleContentHandler {
 
@@ -69,6 +70,8 @@ public class ScriptConsolePage extends TextConsolePage implements IScriptConsole
 
     private InterruptScriptConsoleAction interruptConsoleAction;
 
+    private WordWrapAction wordWrapAction;
+
     @Override
     protected void createActions() {
         super.createActions();
@@ -78,6 +81,8 @@ public class ScriptConsolePage extends TextConsolePage implements IScriptConsole
 
         // saveSessionAction = new SaveConsoleSessionAction((ScriptConsole) getConsole(),
         //        ScriptConsoleMessages.SaveSessionAction, ScriptConsoleMessages.SaveSessionTooltip);
+
+        wordWrapAction = new WordWrapAction((ScriptConsole) getConsole(), "Word Wrap", "Toggles word-wrap in console.");
 
         closeConsoleAction = new CloseScriptConsoleAction((ScriptConsole) getConsole(),
                 ScriptConsoleMessages.TerminateConsoleAction, ScriptConsoleMessages.TerminateConsoleTooltip);
@@ -97,6 +102,8 @@ public class ScriptConsolePage extends TextConsolePage implements IScriptConsole
         // toolbarManager.appendToGroup(SCRIPT_GROUP, saveSessionAction);
 
         toolbarManager.appendToGroup(SCRIPT_GROUP, interruptConsoleAction);
+
+        toolbarManager.appendToGroup(SCRIPT_GROUP, wordWrapAction);
 
         ScriptConsole console = (ScriptConsole) getConsole();
         console.createActions(toolbarManager);
