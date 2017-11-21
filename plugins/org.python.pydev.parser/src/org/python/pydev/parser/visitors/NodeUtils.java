@@ -1950,6 +1950,9 @@ public class NodeUtils {
                         }
                         return ret;
                     }
+                } else if (slice instanceof Index) {
+                    Index index = (Index) slice;
+                    return new exprType[] { index.value };
                 }
             }
         }

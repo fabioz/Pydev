@@ -120,6 +120,34 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
         assertEquals(1, proposals.length);
         ICompletionProposal prop = proposals[0];
         assertEquals("method()", prop.getDisplayString());
+    }
 
+    public void testListAccess() throws Exception {
+        String s = ""
+                + "class A:\n"
+                + "    def method(self):\n"
+                + "        pass\n"
+                + "primes: List[A] = []\n"
+                + "for p in primes:\n"
+                + "    p.";
+
+        ICompletionProposal[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        assertEquals(1, proposals.length);
+        ICompletionProposal prop = proposals[0];
+        assertEquals("method()", prop.getDisplayString());
+    }
+
+    public void testListAccess2() throws Exception {
+        String s = ""
+                + "class A:\n"
+                + "    def method(self):\n"
+                + "        pass\n"
+                + "primes: List[A] = []\n"
+                + "primes[0].";
+
+        ICompletionProposal[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        assertEquals(1, proposals.length);
+        ICompletionProposal prop = proposals[0];
+        assertEquals("method()", prop.getDisplayString());
     }
 }
