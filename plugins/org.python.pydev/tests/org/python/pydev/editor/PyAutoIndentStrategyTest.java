@@ -15,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.autoedit.TestIndentPrefs;
@@ -1573,38 +1574,54 @@ public class PyAutoIndentStrategyTest extends TestCase {
 
     }
 
-    public void testParens2() {
+    public void testParens2() throws BadLocationException {
         strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
         String str = "isShown() #suite()'" +
                 "";
         final Document doc = new Document(str);
         int offset = doc.getLength() - ") #suite()'".length();
         DocCmd docCmd = new DocCmd(offset, 0, ")");
+        assertTrue(strategy.canSkipCloseParenthesis(doc, docCmd));
         strategy.customizeDocumentCommand(doc, docCmd);
         assertEquals("", docCmd.text);
         assertEquals(offset + 1, docCmd.caretOffset);
 
     }
 
-    public void testParens3() {
+    public void testParens3() throws BadLocationException {
         strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
         String str = "assert_('\\\\' in txt) a()";
         final Document doc = new Document(str);
         int offset = doc.getLength() - ")".length();
         DocCmd docCmd = new DocCmd(offset, 0, ")");
+        assertTrue(strategy.canSkipCloseParenthesis(doc, docCmd));
         strategy.customizeDocumentCommand(doc, docCmd);
         assertEquals("", docCmd.text);
         assertEquals(offset + 1, docCmd.caretOffset);
     }
 
-    public void testParens4() {
+    public void testParens4() throws BadLocationException {
         strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
         String str = "call()";
         final Document doc = new Document(str);
         int offset = doc.getLength() - ")".length();
         DocCmd docCmd = new DocCmd(offset, 0, "]");
+        assertFalse(strategy.canSkipCloseParenthesis(doc, docCmd));
         strategy.customizeDocumentCommand(doc, docCmd);
         assertEquals("]", docCmd.text);
+
+    }
+
+    public void testParens5() throws BadLocationException {
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+        String str = "a = list(range(20)";
+        final Document doc = new Document(str);
+        int offset = doc.getLength();
+        DocCmd docCmd = new DocCmd(offset, 0, ")");
+        assertFalse(strategy.canSkipCloseParenthesis(doc, docCmd));
+        strategy.customizeDocumentCommand(doc, docCmd);
+        assertEquals(")", docCmd.text);
+
     }
 
     public void testElse() {

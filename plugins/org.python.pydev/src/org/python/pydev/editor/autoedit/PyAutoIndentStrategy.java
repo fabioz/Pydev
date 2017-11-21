@@ -1055,6 +1055,10 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
     public boolean canSkipCloseParenthesis(IDocument document, DocumentCommand command) throws BadLocationException {
         PySelection ps = new PySelection(document, command.offset);
 
+        int absoluteCursorOffset = ps.getAbsoluteCursorOffset();
+        if (absoluteCursorOffset >= document.getLength()) {
+            return false;
+        }
         char c = ps.getCharAtCurrentOffset();
         if (command.text != null && command.text.length() == 1 && command.text.charAt(0) == c) {
             try {
