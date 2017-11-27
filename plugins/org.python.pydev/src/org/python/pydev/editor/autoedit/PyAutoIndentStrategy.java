@@ -1322,11 +1322,6 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
         this.blockSelection = blockSelection;
     }
 
-    @Override
-    public void customizeParenthesis(IDocument doc, DocumentCommand docCmd) throws BadLocationException {
-        PyAutoIndentStrategy.customizeParenthesis(doc, docCmd, true, this.getIndentPrefs());
-    }
-
     /**
      * Empty document (should not be written to).
      */
