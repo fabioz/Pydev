@@ -59,10 +59,11 @@ public class PyProcessFactory implements IProcessFactory {
         public void destroy() {
             if (RunPreferencesPage.getKillSubprocessesWhenTerminatingProcess()) {
                 try {
-                    AbstractProcess p = ProcessFactory.CreateProcess(process);
-                    //I.e.: this is the real change in this wrapper: when killing a process, we'll kill the children 
-                    //processes too, not only the main process (i.e.: so that we don't have zombie processes alive for 
-                    //Django, etc).
+                    AbstractProcess p = ProcessFactory.createProcess(process);
+                    // I.e.: this is the real change in this wrapper: when killing a process, we'll kill the children
+                    // processes too, not only the main process (i.e.: so that we don't have zombie processes alive for
+                    // Django, etc).
+                    // Note: custom build from https://github.com/fabioz/winp (appveyor) to also support unix
                     p.killRecursively();
                 } catch (Exception e) {
                     Log.log(e);
