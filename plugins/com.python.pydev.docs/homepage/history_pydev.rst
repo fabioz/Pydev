@@ -6,6 +6,33 @@ History For PyDev
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
+Release 6.2.0 (2017-11-28)
+=============================
+
+* **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
+
+    * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
+
+* **Interactive Console**
+
+	* It's possible to use word-wrapping in the PyDev interactive console (**#PyDev-862**).
+
+* **Code Completion**
+
+	* Checking list unpacking with user specified types.
+	* Code completion aware of variable typing from Python 3.6 (**#PyDev-866**).
+
+* **Others**
+
+	* Properly terminating child processes of launched python processes on Linux with Java 9 (**#PyDev-871**).
+	* Comments with 3 dashes properly appear in outline in all cases (**#PyDev-868**).
+	* Properly hyperlinking pytest output.
+	* Accepting **noqa** as a way to skip errors (**#PyDev-814**).
+	* If there's a **flake8: noqa** in the first 3 lines of the file, don't analyze it (**#PyDev-814**).
+	* Fixed issue where a closing peer character was skiped when it was actually not a matching closing peer (**#PyDev-869**).
+	* Fixed issue where line indentation was not correct on a new line with multiple open parenthesis.
+
+
 Release 6.1.0 (2017-11-05)
 =============================
 

@@ -4,7 +4,7 @@ Bundle-Name: Pydev debug
 Bundle-SymbolicName: org.python.pydev.debug; singleton:=true
 Bundle-Version: 6.2.0.qualifier
 Bundle-ClassPath: pydev-debug.jar,
- libs/winp-1.19.jar
+ libs/winp-1.25.0.5.jar
 Bundle-Activator: org.python.pydev.debug.core.PydevDebugPlugin
 Bundle-Vendor: Brainwy Software Ltda
 Bundle-Localization: plugin

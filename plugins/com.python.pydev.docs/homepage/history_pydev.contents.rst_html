@@ -4,6 +4,46 @@
 
 <div class="section" id="history-for-pydev">
 <h1>History For PyDev</h1>
+<div class="section" id="release-6-2-0-2017-11-28">
+<h2>Release 6.2.0 (2017-11-28)</h2>
+<ul>
+<li><p class="first"><strong>Important</strong> PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.</p>
+<blockquote>
+<ul class="simple">
+<li>PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Interactive Console</strong></p>
+<blockquote>
+<ul class="simple">
+<li>It's possible to use word-wrapping in the PyDev interactive console (<strong>#PyDev-862</strong>).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Code Completion</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Checking list unpacking with user specified types.</li>
+<li>Code completion aware of variable typing from Python 3.6 (<strong>#PyDev-866</strong>).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Others</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Properly terminating child processes of launched python processes on Linux with Java 9 (<strong>#PyDev-871</strong>).</li>
+<li>Comments with 3 dashes properly appear in outline in all cases (<strong>#PyDev-868</strong>).</li>
+<li>Properly hyperlinking pytest output.</li>
+<li>Accepting <strong>noqa</strong> as a way to skip errors (<strong>#PyDev-814</strong>).</li>
+<li>If there's a <strong>flake8: noqa</strong> in the first 3 lines of the file, don't analyze it (<strong>#PyDev-814</strong>).</li>
+<li>Fixed issue where a closing peer character was skiped when it was actually not a matching closing peer (<strong>#PyDev-869</strong>).</li>
+<li>Fixed issue where line indentation was not correct on a new line with multiple open parenthesis.</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</div>
 <div class="section" id="release-6-1-0-2017-11-05">
 <h2>Release 6.1.0 (2017-11-05)</h2>
 <ul>
