@@ -21,12 +21,12 @@ public abstract class AbstractPackageManager {
     }
 
     public static AbstractPackageManager createPackageManager(InterpreterInfo interpreterInfo) {
-        String executableOrJar = interpreterInfo.getExecutableOrJar();
-        if (new File(new File(executableOrJar).getParentFile(), "conda-meta").exists()) {
-            return new CondaPackageManager(interpreterInfo);
-        } else {
-            return new PipPackageManager(interpreterInfo);
+        File condaPrefix = interpreterInfo.getCondaPrefix();
+        if (condaPrefix != null) {
+            return new CondaPackageManager(interpreterInfo, condaPrefix);
         }
+
+        return new PipPackageManager(interpreterInfo);
     }
 
     public abstract List<String[]> list();

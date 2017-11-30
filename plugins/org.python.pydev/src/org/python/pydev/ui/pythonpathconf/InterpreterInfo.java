@@ -1612,8 +1612,10 @@ public class InterpreterInfo implements IInterpreterInfo {
 
         fillMapWithEnv(env, computedMap, null, null);
         if (this.activateCondaEnv) {
-            File condaPrefix = new File(this.getExecutableOrJar()).getParentFile();
-            if (new File(condaPrefix, "/etc/conda/activate.d").exists()) {
+            File condaPrefix = this.getCondaPrefix();
+            if (condaPrefix == null) {
+                Log.log("Unable to find conda prefix for: " + this.getExecutableOrJar());
+            } else if (new File(condaPrefix, "/etc/conda/activate.d").exists()) {
                 try {
                     String[] cmdLine;
                     File relativePath;
@@ -1649,6 +1651,9 @@ public class InterpreterInfo implements IInterpreterInfo {
                 } catch (Exception e) {
                     Log.log(e);
                 }
+            } else {
+                Log.log("Expected: " + new File(condaPrefix, "/etc/conda/activate.d")
+                        + " to exist to activate conda env.");
             }
         }
         if (hasEnvVarsToUpdate) {
@@ -1922,7 +1927,7 @@ public class InterpreterInfo implements IInterpreterInfo {
                         + StringUtils.join(", ", searchedDirectories));
     }
 
-    public static File searchExecutableInContainer(String executable, File dir, List<File> searchedDirectories) {
+    public static File searchExecutableInContainer(String executable, final File dir, List<File> searchedDirectories) {
         searchedDirectories.add(dir);
         File ret = searchExecutable(dir, executable); // Linux
         if (ret != null) {
@@ -1977,5 +1982,17 @@ public class InterpreterInfo implements IInterpreterInfo {
     @Override
     public void setActivateCondaEnv(boolean b) {
         this.activateCondaEnv = b;
+    }
+
+    public File getCondaPrefix() {
+        String executableOrJar = getExecutableOrJar();
+        File parentFile = new File(executableOrJar).getParentFile();
+        while (parentFile != null) {
+            if (new File(parentFile, "conda-meta").exists()) {
+                return parentFile;
+            }
+            parentFile = parentFile.getParentFile();
+        }
+        return null;
     }
 }

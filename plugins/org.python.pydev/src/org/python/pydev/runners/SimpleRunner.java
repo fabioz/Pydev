@@ -258,7 +258,7 @@ public class SimpleRunner {
      * @return the separator for the pythonpath variables (system dependent)
      */
     public static String getPythonPathSeparator() {
-        return System.getProperty("path.separator"); //is system dependent, and should cover for all cases...
+        return File.pathSeparator; //is system dependent, and should cover for all cases...
         //        boolean win32= isWindowsPlatform();
         //        String separator = ";";
         //        if(!win32){

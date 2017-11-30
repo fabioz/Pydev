@@ -25,8 +25,11 @@ import com.eclipsesource.json.JsonValue;
 
 public class CondaPackageManager extends AbstractPackageManager {
 
-    public CondaPackageManager(InterpreterInfo interpreterInfo) {
+    private File prefix;
+
+    public CondaPackageManager(InterpreterInfo interpreterInfo, File prefix) {
         super(interpreterInfo);
+        this.prefix = prefix;
     }
 
     @Override
@@ -38,9 +41,6 @@ public class CondaPackageManager extends AbstractPackageManager {
         } catch (UnableToFindExecutableException e) {
             return errorToList(listed, e);
         }
-
-        String executableOrJar = interpreterInfo.getExecutableOrJar();
-        File prefix = new File(executableOrJar).getParentFile();
 
         String encoding = null; // use system encoding
         Tuple<String, String> output = new SimpleRunner().runAndGetOutput(
@@ -108,6 +108,7 @@ public class CondaPackageManager extends AbstractPackageManager {
             pathsToSearch.add(new File(userHomeDir, "conda").toString());
             pathsToSearch.add(new File(userHomeDir, "conda2").toString());
             pathsToSearch.add(new File(userHomeDir, "conda3").toString());
+            pathsToSearch.add(new File(userHomeDir).toString());
 
             List<File> searchedDirectories = new ArrayList<>();
             for (String string : pathsToSearch) {

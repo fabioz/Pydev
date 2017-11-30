@@ -97,7 +97,8 @@ public class PackageTab {
                     new SelectionAdapter() {
                         @Override
                         public void widgetSelected(SelectionEvent e) {
-                            AbstractPackageManager packageManager = new CondaPackageManager(interpreterInfo);
+                            AbstractPackageManager packageManager = AbstractPackageManager
+                                    .createPackageManager(interpreterInfo);
                             packageManager.manage();
                             update();
                         }
