@@ -34,9 +34,6 @@
         <!--Added 2016-12-24-->
         <a href="http://www.givemedeals.com/?utm_source=PYD&utm_medium=donate&utm_campaign=PyDev" border=0><img class="sponsors" src="images/sponsors/give_me_deals.png" style="width:150px;height:60px;" alt="Give Me Deals" title="http://www.givemedeals.com/?utm_source=PYD&utm_medium=donate&utm_campaign=PyDev" /></a>
 
-        <!--Added 2016-09-09-->
-        <a href="http://www.binaryoptionrobotinfo.com/brokers/" border=0><img class="sponsors" src="images/sponsors/binary_option_robot_info_150_60.png" style="width:150px;height:60px;" alt="Binary Option Robot Info" title="http://www.binaryoptionrobotinfo.com/brokers/" /></a>
-
         <div class="section" id="bronze-sponsors">
         <h1>Bronze Sponsors</h1>
         <!-- Added 2017-10-27 -->
@@ -170,6 +167,8 @@ Gold Sponsors
    <a href="http://www.squishlist.com/" border=0><img class="sponsors" src="images/sponsors/squishlist.png" alt="Squishlist" title="http://www.squishlist.com/" /></a>
    <!--Added 2014-07-16-->
    <a href="http://www.pyvmmonitor.com/" border=0><img class="sponsors" src="images/sponsors/pyvmmonitor.png" alt="PyVmMonitor" title="http://www.pyvmmonitor.com/" /></a>
+   <!--Added 2017-12-01-->
+   <a href="http://www.plato.de/" border=0><img class="sponsors" src="images/sponsors/logo_plato.png" alt="PLATO AG" title="http://www.plato.de/" /></a>
 
 Supporting PyDev
 =================

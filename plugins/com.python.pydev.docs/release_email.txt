@@ -1,30 +1,26 @@
-PyDev 6.1.0 Released
+PyDev 6.2.0 Released
 
-PyDev 6.1.0 Release Highlights
+PyDev 6.2.0 Release Highlights
 -------------------------------
 
-* **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
+* **Interactive Console**
 
-    * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
+	* It's possible to use word-wrapping in the PyDev interactive console (**#PyDev-862**).
 
-* **Code Formatter**
+* **Code Completion**
 
-	* The PyDev code formatter can now add/remove blank lines to comply with pep-8.
-	* Added preference to skip blank lines formatting.
-
-* **Editor**
-
-	* Editor now tolerant against errors in the definitions of style ranges.
-	* When in link mode (after a code completion with params for instance), properly skip closing parenthesis if already well balanced.
-	* Fix logic error in editor preferences for disabling subword navigation (patch by **Stuart Berg**).
+	* Checking list unpacking with user specified types.
+	* Code completion aware of variable typing from Python 3.6 (**#PyDev-866**).
 
 * **Others**
 
-	* Using **python -m 'pip'** when unable to find pip executable in interpreter preferences (**#PyDev-853**).
-	* PyDev set next statement action set no longer disables Debug action set (**#PyDev-859**).
-	* It's possible to silence question about saving resources before a refactoring operation.
-	* Add problem markers for python files that declare invalid encodings (patch by **Mat Booth**).
-	* Other minor bugfixes.
+	* Properly terminating child processes of launched python processes on Linux with Java 9 (**#PyDev-871**).
+	* Comments with 3 dashes properly appear in outline in all cases (**#PyDev-868**).
+	* Properly hyperlinking pytest output.
+	* Accepting **noqa** as a way to skip errors (**#PyDev-814**).
+	* If there's a **flake8: noqa** in the first 3 lines of the file, don't analyze it (**#PyDev-814**).
+	* Fixed issue where a closing peer character was skiped when it was actually not a matching closing peer (**#PyDev-869**).
+	* Fixed issue where line indentation was not correct on a new line with multiple open parenthesis.
 
 
 What is PyDev?
