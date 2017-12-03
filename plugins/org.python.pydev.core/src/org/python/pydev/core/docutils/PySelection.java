@@ -1100,10 +1100,20 @@ public final class PySelection extends TextSelectionUtils {
     public static int getBeforeParentesisCall(Object doc, int calltipOffset) {
         ParsingUtils parsingUtils = ParsingUtils.create(doc);
         char c = parsingUtils.charAt(calltipOffset);
+        int parensBefore = 0;
 
-        while (calltipOffset > 0 && c != '(') {
-            calltipOffset--;
+        while (calltipOffset > 0) {
             c = parsingUtils.charAt(calltipOffset);
+            if (c == ')') {
+                parensBefore += 1;
+            } else if (c == '(') {
+                if (parensBefore <= 0) {
+                    break;
+                } else {
+                    parensBefore -= 1;
+                }
+            }
+            calltipOffset--;
         }
         if (c == '(') {
             while (calltipOffset > 0 && Character.isWhitespace(c)) {
