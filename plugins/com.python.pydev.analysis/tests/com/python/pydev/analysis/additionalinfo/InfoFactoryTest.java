@@ -22,7 +22,13 @@ public class InfoFactoryTest extends TestCase {
 
     public void testInfoFactory() throws Exception {
         InfoFactory infoFactory = new InfoFactory(new AdditionalInfoAndIInfo(null, null));
-        DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setFeature("http://xml.org/sax/features/namespaces", false);
+        factory.setFeature("http://xml.org/sax/features/validation", false);
+        factory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+        factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+
+        DocumentBuilder documentBuilder = factory.newDocumentBuilder();
         Document document = documentBuilder.newDocument();
         Element root = document.createElement("root");
         IMemento memento = new XMLMemento(document, root);

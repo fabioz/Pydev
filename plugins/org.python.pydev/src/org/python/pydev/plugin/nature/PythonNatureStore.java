@@ -6,7 +6,7 @@
  */
 /*
  * Created on Oct 21, 2006
- * 
+ *
  * @author Gergely Kis
  */
 package org.python.pydev.plugin.nature;
@@ -58,11 +58,11 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.ProcessingInstruction;
 
 /**
- * This class stores PythonNature and PythonPathNature properties inside the project in a file instead of persistent 
+ * This class stores PythonNature and PythonPathNature properties inside the project in a file instead of persistent
  * properties. This allows PYTHONPATH and Python project version to be checked in into version control systems.
- * 
+ *
  * @author Gergely Kis <gergely.kis@gmail.com>
- * 
+ *
  */
 class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
 
@@ -277,7 +277,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
     /**
      * Loads the Xml representation of the PythonNature properties from the project resource. If the project resource does not exist then an empty representation is created, and its storage is
      * requested in the project folder.
-     * 
+     *
      * @return true if some change has actually happened in the file and false otherwise
      * @throws CoreException
      */
@@ -290,7 +290,12 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
 
         DocumentBuilder parser;
         try {
-            parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setFeature("http://xml.org/sax/features/namespaces", false);
+            factory.setFeature("http://xml.org/sax/features/validation", false);
+            factory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+            factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+            parser = factory.newDocumentBuilder();
         } catch (ParserConfigurationException e) {
             throw new RuntimeException(e); //What can we do about that?
         }
@@ -347,7 +352,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
 
     /**
      * Creates a new xml document in memory
-     * @return 
+     * @return
      */
     private void createAndSetInMemoryDocument(DocumentBuilder parser) throws CoreException {
         document = parser.newDocument();
@@ -401,9 +406,9 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
 
     /**
      * Get the root node of the project description
-     * 
+     *
      * @return the root Node object
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      * @throws CoreException if root node is not present
      */
     private synchronized Node getRootNodeInXml() throws MisconfigurationException {
@@ -428,7 +433,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
 
     /**
      * Assemble a string representation of a QualifiedName typed key
-     * 
+     *
      * @param key
      * @return the assembled string key representation
      */
@@ -442,11 +447,11 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
 
     /**
      * Finds a property node as a direct child of the root node with the specified type and key.
-     * 
+     *
      * @param type
      * @param key
      * @return The property node or null if a node with the supplied key and type cannot be found.
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      * @throws CoreException
      */
     private synchronized Node findPropertyNodeInXml(String type, QualifiedName key) throws MisconfigurationException {
@@ -478,7 +483,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
 
     /**
      * Returns the text contents of a nodes' children. The children shall have the specified type.
-     * 
+     *
      * @param node
      * @param type
      * @return the array of strings with the text contents or null if the node has no children.
@@ -508,7 +513,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
 
     /**
      * Add children to a node with specified type and text contents. For each values array element a new child is created.
-     * 
+     *
      * @param node
      * @param type
      * @param values
@@ -528,7 +533,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
 
     /**
      * Convert an array of path strings to a single string separated by | characters.
-     * 
+     *
      * @param pathArray
      * @return the assembled string of paths or null if the input was null
      */
@@ -571,7 +576,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
 
     /**
      * Convert a single string of paths separated by | characters to an array of strings.
-     * 
+     *
      * @param pathString
      * @return the splitted array of strings or null if the input was null
      */
@@ -663,7 +668,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
     }
 
     /**
-     * This function was gotten as a copy of the Node.setTextContent, because this function 
+     * This function was gotten as a copy of the Node.setTextContent, because this function
      * is not available in java 1.4
      */
     private void setTextContent(String textContent, Node self) throws DOMException {
@@ -735,7 +740,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
     /**
      * Retrieve the value of a path property from the Xml representation. If the property is not found in the Xml document, the eclipse persistent property of the same key is read and migrated to the
      * xml representation.
-     * 
+     *
      * @param key
      * @return the array of strings representing paths
      * @throws CoreException
@@ -763,7 +768,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
 
     /**
      * Store a path property in the xml document and request the storage of changes. If the paths parameter is null the property is removed from the document.
-     * 
+     *
      * @param key
      * @param paths
      * @throws CoreException
@@ -818,7 +823,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
 
     /**
      * Serializes an Xml document to an array of bytes.
-     * 
+     *
      * @param doc
      * @return the array of bytes representing the Xml document
      * @throws IOException

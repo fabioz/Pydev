@@ -226,6 +226,11 @@ public class PyUnitTestRun {
     public String toXML() {
         try {
             DocumentBuilderFactory icFactory = DocumentBuilderFactory.newInstance();
+            icFactory.setFeature("http://xml.org/sax/features/namespaces", false);
+            icFactory.setFeature("http://xml.org/sax/features/validation", false);
+            icFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+            icFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+
             DocumentBuilder icBuilder = icFactory.newDocumentBuilder();
             Document document = icBuilder.newDocument();
             ProcessingInstruction version = document.createProcessingInstruction("pydev-testrun", "version=\"1.0\""); //$NON-NLS-1$ //$NON-NLS-2$

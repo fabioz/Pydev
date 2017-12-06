@@ -35,6 +35,8 @@ import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -46,6 +48,16 @@ import org.xml.sax.helpers.DefaultHandler;
 public class XMLUtils {
 
     public static final SAXParserFactory parserFactory = SAXParserFactory.newInstance();
+    static {
+        try {
+            parserFactory.setFeature("http://xml.org/sax/features/namespaces", false);
+            parserFactory.setFeature("http://xml.org/sax/features/validation", false);
+            parserFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+            parserFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        } catch (SAXNotRecognizedException | SAXNotSupportedException | ParserConfigurationException e) {
+            Log.log(e);
+        }
+    }
 
     public static SAXParser getSAXParser() throws CoreException {
         SAXParser parser = null;

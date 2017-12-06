@@ -310,7 +310,13 @@ public class InterpreterInfo implements IInterpreterInfo {
 
             DocumentBuilder parser;
             try {
-                parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                factory.setFeature("http://xml.org/sax/features/namespaces", false);
+                factory.setFeature("http://xml.org/sax/features/validation", false);
+                factory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+                factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+
+                parser = factory.newDocumentBuilder();
                 Document document = parser.parse(new InputSource(new StringReader(received)));
                 NodeList childNodes = document.getChildNodes();
                 for (int i = 0; i < childNodes.getLength(); i++) {
