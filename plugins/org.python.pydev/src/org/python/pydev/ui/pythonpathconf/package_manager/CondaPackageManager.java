@@ -101,6 +101,10 @@ public class CondaPackageManager extends AbstractPackageManager {
                 pathsToSearch.add("c:/tools/conda");
                 pathsToSearch.add("c:/tools/conda2");
                 pathsToSearch.add("c:/tools/conda3");
+            } else {
+                pathsToSearch.add("/opt/conda");
+                pathsToSearch.add("/opt/conda/bin");
+                pathsToSearch.add("/usr/bin");
             }
             pathsToSearch.add(new File(userHomeDir, "miniconda").toString());
             pathsToSearch.add(new File(userHomeDir, "miniconda2").toString());
@@ -108,6 +112,9 @@ public class CondaPackageManager extends AbstractPackageManager {
             pathsToSearch.add(new File(userHomeDir, "conda").toString());
             pathsToSearch.add(new File(userHomeDir, "conda2").toString());
             pathsToSearch.add(new File(userHomeDir, "conda3").toString());
+            pathsToSearch.add(new File(userHomeDir, "Anaconda").toString());
+            pathsToSearch.add(new File(userHomeDir, "Anaconda2").toString());
+            pathsToSearch.add(new File(userHomeDir, "Anaconda3").toString());
             pathsToSearch.add(new File(userHomeDir).toString());
 
             List<File> searchedDirectories = new ArrayList<>();
