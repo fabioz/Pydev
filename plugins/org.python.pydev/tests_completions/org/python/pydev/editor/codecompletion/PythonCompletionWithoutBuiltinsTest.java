@@ -3187,4 +3187,22 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals("Bar(a, b)", prop.getDisplayString());
 
     }
+
+    public void testTypingForVariable() throws Exception {
+        String s;
+        String original = "" +
+                "class Foo:\n" +
+                "    def m1(self):pass\n\n" +
+                "def m(self, b):\n" +
+                "    #: :type b.var: Foo\n" +
+                "    b.var." +
+                "";
+        s = StringUtils.format(original, "");
+
+        ICompletionProposal[] proposals = requestCompl(s, s.length() - 1, -1, new String[] {});
+        assertEquals(1, proposals.length);
+        ICompletionProposal prop = proposals[0];
+        assertEquals("m1()", prop.getDisplayString());
+
+    }
 }
