@@ -103,7 +103,12 @@ public class EditorUtils {
      * @return the active workbench window or null if it's not available.
      */
     public static IWorkbenchWindow getActiveWorkbenchWindow() {
-        IWorkbench workbench = PlatformUI.getWorkbench();
+        IWorkbench workbench;
+        try {
+            workbench = PlatformUI.getWorkbench();
+        } catch (IllegalStateException e) {
+            return null;
+        }
         if (workbench == null) {
             return null;
         }

@@ -14,7 +14,7 @@ PyDev requires **Java 8** and **Eclipse 4.6 (Neon)** in order to run and only su
 
 -  `Python <http://www.python.org/>`_ **(2.6 or newer)**
 -  `Jython <http://www.jython.org/>`_ **(2.6 or newer)**
--  `IronPython <http://www.codeplex.com/Wiki/View.aspx?ProjectName=IronPython>`_ **(2.6 or newer)** - excluding 2.7.6 and 2.7.7 have a `bug <https://github.com/IronLanguages/main/issues/1663>`_ which makes them unusable in PyDev.
+-  `IronPython <http://ironpython.net/>`_ **(2.6 or newer)** - excluding 2.7.6 and 2.7.7, which have a bug which makes them unusable in PyDev.
 
 If you don't have Java 8, the update process may appear to succeed, but PyDev
 will simply not show in the target installation. Please double-check if you're using a Java 8 vm in **about > installation
