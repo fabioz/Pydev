@@ -173,7 +173,7 @@ public class CtxParticipant
 
             String displayAsStr = displayString.toString();
             PyConsoleCompletion proposal = new PyConsoleCompletion(rep, requestOffset - qlen, qlen,
-                    realImportRep.length(), AnalysisPlugin.getImageForAutoImportTypeInfo(info),
+                    realImportRep.length(), info.getType(),
                     displayAsStr, (IContextInformation) null, "",
                     displayAsStr.equals(qual) ? IPyCompletionProposal.PRIORITY_GLOBALS_EXACT
                             : IPyCompletionProposal.PRIORITY_GLOBALS,
@@ -255,7 +255,7 @@ public class CtxParticipant
                 String displayAsStr = displayString.toString();
                 CtxInsensitiveImportComplProposal proposal = new CtxInsensitiveImportComplProposal(rep,
                         request.documentOffset - request.qlen, request.qlen, realImportRep.length(),
-                        AnalysisPlugin.getImageForAutoImportTypeInfo(info), displayAsStr,
+                        info.getType(), displayAsStr,
                         (IContextInformation) null, "",
                         displayAsStr.equals(qual) ? IPyCompletionProposal.PRIORITY_GLOBALS_EXACT
                                 : IPyCompletionProposal.PRIORITY_GLOBALS,
@@ -356,7 +356,7 @@ public class CtxParticipant
 
     /**
      * IPyDevCompletionParticipant
-     * @throws CompletionRecursionException 
+     * @throws CompletionRecursionException
      */
     @Override
     public Collection<IToken> getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope,

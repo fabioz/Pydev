@@ -18,7 +18,6 @@ import java.util.Set;
 
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContextInformation;
-import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
@@ -33,7 +32,6 @@ import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant2;
 import org.python.pydev.editor.codecompletion.ProposalsComparator.CompareContext;
-import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils.IFilter;
@@ -43,6 +41,7 @@ import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal.ICompareContext;
 
 import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
+import com.python.pydev.analysis.additionalinfo.IInfo;
 import com.python.pydev.analysis.ui.AutoImportsPreferencesPage;
 import com.python.pydev.codecompletion.ctxinsensitive.PyConsoleCompletion;
 import com.python.pydev.codecompletion.ui.CodeCompletionPreferencesPage;
@@ -88,8 +87,6 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
         if (astManager == null) {
             return;
         }
-
-        Image img = PyCodeCompletionImages.getImageForType(IToken.TYPE_PACKAGE);
 
         IModulesManager modulesManager = astManager.getModulesManager();
         try {
@@ -154,7 +151,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
 
                 String displayAsStr = realImportRep.toString();
                 PyConsoleCompletion proposal = new PyConsoleCompletion(importRep, requestOffset - qlen, qlen,
-                        realImportRep.length(), img, found, (IContextInformation) null, "",
+                        realImportRep.length(), IInfo.USE_PACKAGE_ICON, found, (IContextInformation) null, "",
                         displayAsStr.toLowerCase().equals(lowerQual) ? IPyCompletionProposal.PRIORITY_PACKAGES_EXACT
                                 : IPyCompletionProposal.PRIORITY_PACKAGES,
                         displayAsStr, viewer, compareContext);
@@ -181,8 +178,6 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
                 return list;
             }
             String initialModule = request.resolveModule();
-
-            Image img = PyCodeCompletionImages.getImageForType(IToken.TYPE_PACKAGE);
 
             IModulesManager projectModulesManager = astManager.getModulesManager();
 
@@ -241,7 +236,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
                                 request.documentOffset - request.qlen,
                                 request.qlen,
                                 realImportRep.length(),
-                                img,
+                                IInfo.USE_PACKAGE_ICON,
                                 displayAsStr,
                                 (IContextInformation) null,
                                 "",

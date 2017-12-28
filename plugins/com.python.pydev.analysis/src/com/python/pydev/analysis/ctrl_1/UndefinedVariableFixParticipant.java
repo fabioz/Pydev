@@ -20,7 +20,6 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.texteditor.MarkerAnnotation;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
@@ -32,15 +31,11 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.ProposalsComparator.CompareContext;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.editor.codefolding.PySourceViewer;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.shared_ui.ImageCache;
-import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal.ICompareContext;
 
-import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
@@ -102,11 +97,6 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
         String markerContents = ps.getSelectedText();
         String fullRep = ps.getFullRepAfterSelection();
 
-        ImageCache imageCache = PydevPlugin.getImageCache();
-        Image packageImage = null;
-        if (imageCache != null) { //making tests
-            packageImage = imageCache.get(UIConstants.COMPLETION_PACKAGE_ICON);
-        }
         IModulesManager projectModulesManager = astManager.getModulesManager();
         IModulesManager[] managersInvolved = projectModulesManager.getManagersInvolved(true);
         boolean doIgnoreImportsStartingWithUnder = AutoImportsPreferencesPage.doIgnoreImportsStartingWithUnder();
@@ -142,7 +132,7 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
                             String realImportRep = buffer.append("import ").append(mod).toString();
                             buffer.clear();
                             String displayString = buffer.append("Import ").append(mod).toString();
-                            addProp(props, realImportRep, displayString, packageImage, offset, mods,
+                            addProp(props, realImportRep, displayString, IInfo.USE_PACKAGE_ICON, offset, mods,
                                     compareContext);
                         }
                     }
@@ -160,7 +150,7 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
                             buffer.clear();
                             String displayString = buffer.append("Import ").append(importRep).append(" (")
                                     .append(packageName).append(")").toString();
-                            addProp(props, realImportRep, displayString, packageImage, offset, mods,
+                            addProp(props, realImportRep, displayString, IInfo.USE_PACKAGE_ICON, offset, mods,
                                     compareContext);
 
                         } else {
@@ -168,7 +158,7 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
                             String realImportRep = buffer.append("import ").append(strings[1]).toString();
                             buffer.clear();
                             String displayString = buffer.append("Import ").append(importRep).toString();
-                            addProp(props, realImportRep, displayString, packageImage, offset, mods,
+                            addProp(props, realImportRep, displayString, IInfo.USE_PACKAGE_ICON, offset, mods,
                                     compareContext);
                         }
                     }
@@ -209,14 +199,14 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
                         .append(")").toString();
 
                 addProp(props, importDeclaration, displayImport,
-                        AnalysisPlugin.getImageForAutoImportTypeInfo(found),
+                        found.getType(),
                         offset, mods, new CompareContext(found.getNature()));
             }
         }
     }
 
     private void addProp(List<ICompletionProposal> props, String importDeclaration, String displayImport,
-            Image importImage, int offset, Set<Tuple<String, String>> mods, ICompareContext compareContext) {
+            int infoTypeForImage, int offset, Set<Tuple<String, String>> mods, ICompareContext compareContext) {
         Tuple<String, String> tuple = new Tuple<String, String>(importDeclaration, displayImport);
         if (mods.contains(tuple)) {
             return;
@@ -224,7 +214,7 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
 
         mods.add(tuple);
 
-        props.add(new CtxInsensitiveImportComplProposal("", offset, 0, 0, importImage, displayImport, null,
+        props.add(new CtxInsensitiveImportComplProposal("", offset, 0, 0, infoTypeForImage, displayImport, null,
                 importDeclaration,
                 IPyCompletionProposal.PRIORITY_LOCALS, importDeclaration, compareContext) {
 

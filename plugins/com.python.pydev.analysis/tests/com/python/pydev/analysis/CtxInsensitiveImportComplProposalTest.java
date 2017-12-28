@@ -9,7 +9,8 @@ package com.python.pydev.analysis;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
+
+import com.python.pydev.analysis.additionalinfo.IInfo;
 
 import junit.framework.TestCase;
 
@@ -53,10 +54,10 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
         String additionalProposalInfo = null;
         IContextInformation contextInformation = null;
         String displayString = "Import YYY (from XXX)";
-        Image image = null;
 
         CtxInsensitiveImportComplProposal prop = new CtxInsensitiveImportComplProposal(replacementString,
-                replacementOffset, replacementLength, cursorPosition, image, displayString, contextInformation,
+                replacementOffset, replacementLength, cursorPosition, IInfo.ATTRIBUTE_WITH_IMPORT_TYPE, displayString,
+                contextInformation,
                 additionalProposalInfo, priority, realImportRep, null);
 
         prop.indentString = "\t";
@@ -69,7 +70,8 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
         Document doc = new Document("from XXX import YYY\n");
 
         CtxInsensitiveImportComplProposal prop = new CtxInsensitiveImportComplProposal("BBB", doc.getLength(), 0,
-                doc.getLength(), null, "Import BBB (from XXX)", null, null, 0, "from XXX import BBB", null);
+                doc.getLength(), IInfo.ATTRIBUTE_WITH_IMPORT_TYPE, "Import BBB (from XXX)", null, null, 0,
+                "from XXX import BBB", null);
 
         prop.indentString = "\t";
         prop.apply(doc, '\n', 0, doc.getLength());
@@ -80,7 +82,8 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
         Document doc = new Document("from XXX import (YYY, ZZZ)\n");
 
         CtxInsensitiveImportComplProposal prop = new CtxInsensitiveImportComplProposal("BBB", doc.getLength(), 0,
-                doc.getLength(), null, "Import BBB (from XXX)", null, null, 0, "from XXX import BBB", null);
+                doc.getLength(), IInfo.ATTRIBUTE_WITH_IMPORT_TYPE, "Import BBB (from XXX)", null, null, 0,
+                "from XXX import BBB", null);
 
         prop.indentString = "\t";
         prop.apply(doc, '\n', 0, doc.getLength());
@@ -93,7 +96,8 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
                 "from XXX import (YYY,                                                                     ZZZ)\n");
 
         CtxInsensitiveImportComplProposal prop = new CtxInsensitiveImportComplProposal("BBB", doc.getLength(), 0,
-                doc.getLength(), null, "Import BBB (from XXX)", null, null, 0, "from XXX import BBB", null);
+                doc.getLength(), IInfo.ATTRIBUTE_WITH_IMPORT_TYPE, "Import BBB (from XXX)", null, null, 0,
+                "from XXX import BBB", null);
 
         prop.indentString = "\t";
         prop.apply(doc, '\n', 0, doc.getLength());
@@ -108,7 +112,8 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
                 "from XXX import YYY,                                                                     ZZZ\n");
 
         CtxInsensitiveImportComplProposal prop = new CtxInsensitiveImportComplProposal("BBB", doc.getLength(), 0,
-                doc.getLength(), null, "Import BBB (from XXX)", null, null, 0, "from XXX import BBB", null);
+                doc.getLength(), IInfo.ATTRIBUTE_WITH_IMPORT_TYPE, "Import BBB (from XXX)", null, null, 0,
+                "from XXX import BBB", null);
 
         prop.indentString = "\t";
         prop.apply(doc, '\n', 0, doc.getLength());
@@ -125,7 +130,8 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
                         "from XXX import YYY,                                                                     ZZZ\n");
 
         CtxInsensitiveImportComplProposal prop = new CtxInsensitiveImportComplProposal("BBB", doc.getLength(), 0,
-                doc.getLength(), null, "Import BBB (from XXX)", null, null, 0, "from XXX import BBB", null);
+                doc.getLength(), IInfo.ATTRIBUTE_WITH_IMPORT_TYPE, "Import BBB (from XXX)", null, null, 0,
+                "from XXX import BBB", null);
 
         prop.indentString = "\t";
         prop.apply(doc, '\n', 0, doc.getLength());
@@ -149,10 +155,10 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
         String additionalProposalInfo = null;
         IContextInformation contextInformation = null;
         String displayString = "Import with_statement (from __future__)";
-        Image image = null;
 
         CtxInsensitiveImportComplProposal prop = new CtxInsensitiveImportComplProposal(replacementString,
-                replacementOffset, replacementLength, cursorPosition, image, displayString, contextInformation,
+                replacementOffset, replacementLength, cursorPosition, IInfo.ATTRIBUTE_WITH_IMPORT_TYPE, displayString,
+                contextInformation,
                 additionalProposalInfo, priority, realImportRep, null);
 
         prop.indentString = "\t";
@@ -167,7 +173,8 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
                 "    ");
 
         CtxInsensitiveImportComplProposal prop = new CtxInsensitiveImportComplProposal("BBB", doc.getLength(), 0,
-                doc.getLength(), null, "Import BBB (from XXX)", null, null, 0, "from XXX import BBB", null);
+                doc.getLength(), IInfo.ATTRIBUTE_WITH_IMPORT_TYPE, "Import BBB (from XXX)", null, null, 0,
+                "from XXX import BBB", null);
 
         prop.indentString = "\t";
         prop.apply(doc, '\n', 0, doc.getLength());
@@ -184,7 +191,8 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
                 "    ");
 
         CtxInsensitiveImportComplProposal prop = new CtxInsensitiveImportComplProposal("BBB", doc.getLength(), 0,
-                doc.getLength(), null, "Import BBB (from XXX)", null, null, 0, "from XXX import BBB", null);
+                doc.getLength(), IInfo.ATTRIBUTE_WITH_IMPORT_TYPE, "Import BBB (from XXX)", null, null, 0,
+                "from XXX import BBB", null);
 
         prop.setAddLocalImport(true);
         prop.indentString = "\t";
@@ -205,7 +213,8 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
                 "");
 
         CtxInsensitiveImportComplProposal prop = new CtxInsensitiveImportComplProposal("BBB", doc.getLength(), 0,
-                doc.getLength(), null, "Import BBB (from XXX)", null, null, 0, "from XXX import BBB", null);
+                doc.getLength(), IInfo.ATTRIBUTE_WITH_IMPORT_TYPE, "Import BBB (from XXX)", null, null, 0,
+                "from XXX import BBB", null);
 
         prop.setAddLocalImport(true);
         prop.indentString = "\t";
@@ -227,7 +236,8 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
                 "");
 
         CtxInsensitiveImportComplProposal prop = new CtxInsensitiveImportComplProposal("BBB", doc.getLength(), 0,
-                doc.getLength(), null, "Import BBB (from XXX)", null, null, 0, "from XXX import BBB", null);
+                doc.getLength(), IInfo.ATTRIBUTE_WITH_IMPORT_TYPE, "Import BBB (from XXX)", null, null, 0,
+                "from XXX import BBB", null);
 
         prop.setAddLocalImport(true);
         prop.indentString = "\t";
@@ -246,7 +256,8 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
         Document doc = new Document("\n");
 
         CtxInsensitiveImportComplProposal prop = new CtxInsensitiveImportComplProposal("BBB", doc.getLength(), 0,
-                doc.getLength(), null, "Import BBB (from XXX)", null, null, 0, "from XXX import BBB", null);
+                doc.getLength(), IInfo.ATTRIBUTE_WITH_IMPORT_TYPE, "Import BBB (from XXX)", null, null, 0,
+                "from XXX import BBB", null);
 
         prop.setAddLocalImport(true);
         prop.indentString = "\t";
@@ -261,7 +272,7 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
         Document doc = new Document("class Bar(");
 
         CtxInsensitiveImportComplProposal prop = new CtxInsensitiveImportComplProposal("sys", doc.getLength(), 0,
-                doc.getLength(), null, "Import sys", null, null, 0, "import sys", null);
+                doc.getLength(), IInfo.ATTRIBUTE_WITH_IMPORT_TYPE, "Import sys", null, null, 0, "import sys", null);
 
         prop.setAddLocalImport(true);
         prop.indentString = "\t";
@@ -276,7 +287,7 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
         Document doc = new Document("\n\nclass Bar(");
 
         CtxInsensitiveImportComplProposal prop = new CtxInsensitiveImportComplProposal("sys", doc.getLength(), 0,
-                doc.getLength(), null, "Import sys", null, null, 0, "import sys", null);
+                doc.getLength(), IInfo.ATTRIBUTE_WITH_IMPORT_TYPE, "Import sys", null, null, 0, "import sys", null);
 
         prop.setAddLocalImport(true);
         prop.indentString = "\t";
@@ -293,7 +304,7 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
         Document doc = new Document("\n\nclass Bar():\n\n    s");
 
         CtxInsensitiveImportComplProposal prop = new CtxInsensitiveImportComplProposal("sys", doc.getLength(), 0,
-                doc.getLength(), null, "Import sys", null, null, 0, "import sys", null);
+                doc.getLength(), IInfo.ATTRIBUTE_WITH_IMPORT_TYPE, "Import sys", null, null, 0, "import sys", null);
 
         prop.setAddLocalImport(true);
         prop.indentString = "\t";
@@ -307,7 +318,7 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
         Document doc = new Document("\n\nclass Bar():\n\n    s\n    s");
 
         CtxInsensitiveImportComplProposal prop = new CtxInsensitiveImportComplProposal("sys", doc.getLength(), 0,
-                doc.getLength(), null, "Import sys", null, null, 0, "import sys", null);
+                doc.getLength(), IInfo.ATTRIBUTE_WITH_IMPORT_TYPE, "Import sys", null, null, 0, "import sys", null);
 
         prop.setAddLocalImport(true);
         prop.indentString = "\t";
@@ -327,7 +338,8 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
         Document doc = new Document(initial);
 
         CtxInsensitiveImportComplProposal prop = new CtxInsensitiveImportComplProposal("Decimal", doc.getLength(), 0,
-                doc.getLength(), null, "Import Decimal", null, null, 0, "import Decimal", null);
+                doc.getLength(), IInfo.ATTRIBUTE_WITH_IMPORT_TYPE, "Import Decimal", null, null, 0, "import Decimal",
+                null);
 
         prop.setAddLocalImport(true);
         prop.indentString = "    ";
@@ -338,7 +350,8 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
                 "    pass\n" +
                 "\n" +
                 "eggs = DDecimal" +
-                "", doc.get()
+                "",
+                doc.get()
                         .replace("\r\n", "\n").replace('\r', '\n'));
     }
 
@@ -353,7 +366,8 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
         Document doc = new Document(initial);
 
         CtxInsensitiveImportComplProposal prop = new CtxInsensitiveImportComplProposal("Decimal", doc.getLength(), 0,
-                doc.getLength(), null, "Import Decimal", null, null, 0, "import Decimal", null);
+                doc.getLength(), IInfo.ATTRIBUTE_WITH_IMPORT_TYPE, "Import Decimal", null, null, 0, "import Decimal",
+                null);
 
         prop.setAddLocalImport(true);
         prop.indentString = "    ";
@@ -379,7 +393,7 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
                         "");
 
         CtxInsensitiveImportComplProposal prop = new CtxInsensitiveImportComplProposal("sys", doc.getLength(), 0,
-                doc.getLength(), null, "Import sys", null, null, 0, "import sys", null);
+                doc.getLength(), IInfo.ATTRIBUTE_WITH_IMPORT_TYPE, "Import sys", null, null, 0, "import sys", null);
 
         prop.setAddLocalImport(true);
         prop.indentString = "    ";
@@ -402,7 +416,7 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
                         "");
 
         CtxInsensitiveImportComplProposal prop = new CtxInsensitiveImportComplProposal("sys", doc.getLength(), 0,
-                doc.getLength(), null, "Import sys", null, null, 0, "import sys", null);
+                doc.getLength(), IInfo.ATTRIBUTE_WITH_IMPORT_TYPE, "Import sys", null, null, 0, "import sys", null);
 
         prop.setAddLocalImport(true);
         prop.indentString = "    ";
@@ -428,7 +442,7 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
                         "");
 
         CtxInsensitiveImportComplProposal prop = new CtxInsensitiveImportComplProposal("sys", doc.getLength(), 0,
-                doc.getLength(), null, "Import sys", null, null, 0, "import sys", null);
+                doc.getLength(), IInfo.ATTRIBUTE_WITH_IMPORT_TYPE, "Import sys", null, null, 0, "import sys", null);
 
         prop.setAddLocalImport(true);
         prop.indentString = "    ";
@@ -458,7 +472,7 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
                         "    ");
 
         CtxInsensitiveImportComplProposal prop = new CtxInsensitiveImportComplProposal("sys", doc.getLength(), 0,
-                doc.getLength(), null, "Import sys", null, null, 0, "import sys", null);
+                doc.getLength(), IInfo.ATTRIBUTE_WITH_IMPORT_TYPE, "Import sys", null, null, 0, "import sys", null);
 
         prop.setAddLocalImport(true);
         prop.indentString = "    ";
@@ -493,7 +507,7 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
                         "    ");
 
         CtxInsensitiveImportComplProposal prop = new CtxInsensitiveImportComplProposal("sys", doc.getLength(), 0,
-                doc.getLength(), null, "Import sys", null, null, 0, "import sys", null);
+                doc.getLength(), IInfo.ATTRIBUTE_WITH_IMPORT_TYPE, "Import sys", null, null, 0, "import sys", null);
 
         prop.setAddLocalImport(true);
         prop.indentString = "    ";
@@ -531,7 +545,7 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
                         "    ");
 
         CtxInsensitiveImportComplProposal prop = new CtxInsensitiveImportComplProposal("sys", doc.getLength(), 0,
-                doc.getLength(), null, "Import sys", null, null, 0, "import sys", null);
+                doc.getLength(), IInfo.ATTRIBUTE_WITH_IMPORT_TYPE, "Import sys", null, null, 0, "import sys", null);
 
         prop.setAddLocalImport(true);
         prop.indentString = "    ";
@@ -571,7 +585,7 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
                         "    ");
 
         CtxInsensitiveImportComplProposal prop = new CtxInsensitiveImportComplProposal("sys", doc.getLength(), 0,
-                doc.getLength(), null, "Import sys", null, null, 0, "import sys", null);
+                doc.getLength(), IInfo.ATTRIBUTE_WITH_IMPORT_TYPE, "Import sys", null, null, 0, "import sys", null);
 
         prop.setAddLocalImport(true);
         prop.indentString = "    ";
@@ -612,7 +626,7 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
                         "    ");
 
         CtxInsensitiveImportComplProposal prop = new CtxInsensitiveImportComplProposal("sys", doc.getLength(), 0,
-                doc.getLength(), null, "Import sys", null, null, 0, "import sys", null);
+                doc.getLength(), IInfo.ATTRIBUTE_WITH_IMPORT_TYPE, "Import sys", null, null, 0, "import sys", null);
 
         prop.setAddLocalImport(true);
         prop.indentString = "    ";

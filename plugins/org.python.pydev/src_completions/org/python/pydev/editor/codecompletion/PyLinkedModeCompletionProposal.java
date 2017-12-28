@@ -40,6 +40,8 @@ import org.python.pydev.shared_ui.utils.RunInUiThread;
 public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionProposalExtension2 implements
         ICompletionProposalExtension {
 
+    public static boolean addApplyTipOnAdditionalInfo = true;
+
     private int firstParameterLen = 0;
 
     /**
@@ -156,6 +158,9 @@ public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionPr
             + "  + Ctrl: replace current word (no Pop-up focus).\n";
 
     private String addTipForApplyWithModifiers(String string) {
+        if (!addApplyTipOnAdditionalInfo) {
+            return string;
+        }
         String ret = string;
         if (onApplyAction == ON_APPLY_DEFAULT) {
             String msg;

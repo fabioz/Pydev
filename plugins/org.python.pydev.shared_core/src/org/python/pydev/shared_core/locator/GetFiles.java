@@ -17,9 +17,9 @@ public class GetFiles {
     /**
      * This method is a workaround for w.getRoot().getFileForLocation(path); which does not work consistently because
      * it filters out files which should not be filtered (i.e.: if a project is not in the workspace but imported).
-     * 
+     *
      * Also, it can fail to get resources in linked folders in the pythonpath.
-     * 
+     *
      * @param project is optional (may be null): if given we'll search in it dependencies first.
      */
     public IFile getFileForLocation(IPath location, IProject project) {
@@ -34,9 +34,9 @@ public class GetFiles {
     /**
      * This method is a workaround for w.getRoot().getFilesForLocation(path); which does not work consistently because
      * it filters out files which should not be filtered (i.e.: if a project is not in the workspace but imported).
-     * 
+     *
      * Also, it can fail to get resources in linked folders in the pythonpath.
-     * 
+     *
      * @param project is optional (may be null): if given we'll search in it dependencies first.
      */
     public IFile[] getFilesForLocation(IPath location, IProject project, boolean stopOnFirst) {
@@ -99,11 +99,11 @@ public class GetFiles {
      * Gets an IFile inside a container given a path in the filesystem (resolves the full path of the container and
      * checks if the location given is under it).
      */
-    protected IFile getFileInContainer(IPath location, IContainer container) {
-        IPath projectLocation = container.getLocation();
-        if (projectLocation != null) {
-            if (projectLocation.isPrefixOf(location)) {
-                int segmentsToRemove = projectLocation.segmentCount();
+    public static final IFile getFileInContainer(IPath location, IContainer container) {
+        IPath containerLocation = container.getLocation();
+        if (containerLocation != null) {
+            if (containerLocation.isPrefixOf(location)) {
+                int segmentsToRemove = containerLocation.segmentCount();
                 IPath removingFirstSegments = location.removeFirstSegments(segmentsToRemove);
                 if (removingFirstSegments.segmentCount() == 0) {
                     //It's equal: as we want a file in the container, and the path to the file is equal to the
@@ -117,7 +117,7 @@ public class GetFiles {
             }
         } else {
             if (container instanceof IProject) {
-                Log.logInfo("Info: Project: " + container + " has no associated location.");
+                Log.logInfo("Info: container: " + container + " has no associated location.");
             }
         }
         return null;

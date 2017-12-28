@@ -10,7 +10,6 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.IContextInformation;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
@@ -40,11 +39,11 @@ public class PyConsoleCompletion extends CtxInsensitiveImportComplProposal {
     private int diff;
 
     public PyConsoleCompletion(String replacementString, int replacementOffset, int replacementLength,
-            int cursorPosition, Image image, String displayString, IContextInformation contextInformation,
+            int cursorPosition, int infoTypeForImage, String displayString, IContextInformation contextInformation,
             String additionalProposalInfo, int priority, String realImportRep, IScriptConsoleViewer viewer,
             ICompareContext compareContext) {
 
-        super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
+        super(replacementString, replacementOffset, replacementLength, cursorPosition, infoTypeForImage, displayString,
                 contextInformation, additionalProposalInfo, priority, realImportRep, compareContext);
         commandLineOffset = viewer.getCommandLineOffset();
     }

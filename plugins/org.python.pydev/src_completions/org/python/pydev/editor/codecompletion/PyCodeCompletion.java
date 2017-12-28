@@ -151,6 +151,9 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
 
             ICompletionState state = new CompletionState(line, request.documentOffset - region.getOffset(), null,
                     request.nature, request.qualifier);
+            if (viewer instanceof ITextEditorWithCodeCompletionCancelMonitor) {
+                state.setCancelMonitor(((ITextEditorWithCodeCompletionCancelMonitor) viewer).getCancelMonitor());
+            }
             state.setIsInCalltip(request.isInCalltip);
 
             Map<String, IToken> alreadyChecked = new HashMap<String, IToken>();

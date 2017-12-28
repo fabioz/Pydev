@@ -227,7 +227,11 @@ public class AnalysisPlugin extends AbstractUIPlugin {
     public static Image autoImportModImportType;
 
     public static Image getImageForAutoImportTypeInfo(IInfo info) {
-        switch (info.getType()) {
+        return getImageForAutoImportTypeInfo(info.getType());
+    }
+
+    public static Image getImageForAutoImportTypeInfo(int infoType) {
+        switch (infoType) {
             case IInfo.CLASS_WITH_IMPORT_TYPE:
                 if (autoImportClassWithImportType == null) {
                     synchronized (lock) {
@@ -271,6 +275,10 @@ public class AnalysisPlugin extends AbstractUIPlugin {
                     }
                 }
                 return autoImportModImportType;
+
+            case IInfo.USE_PACKAGE_ICON:
+                ImageCache imageCache = org.python.pydev.plugin.PydevPlugin.getImageCache();
+                return imageCache.get(UIConstants.COMPLETION_PACKAGE_ICON);
 
             default:
                 throw new RuntimeException("Undefined type.");

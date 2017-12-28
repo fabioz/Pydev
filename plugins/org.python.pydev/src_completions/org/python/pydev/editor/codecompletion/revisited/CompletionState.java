@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.Stack;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
@@ -67,6 +68,13 @@ public final class CompletionState implements ICompletionState {
     private String fullActivationToken;
     private long initialMillis = 0;
     private long maxMillisToComplete;
+
+    private IProgressMonitor cancelMonitor;
+
+    @Override
+    public void setCancelMonitor(IProgressMonitor cancelMonitor) {
+        this.cancelMonitor = cancelMonitor;
+    }
 
     @Override
     public ICompletionState getCopy() {
@@ -263,6 +271,12 @@ public final class CompletionState implements ICompletionState {
 
     @Override
     public void checkMaxTimeForCompletion() throws CompletionRecursionException {
+        if (cancelMonitor != null) {
+            if (cancelMonitor.isCanceled()) {
+                throw new CompletionRecursionException(
+                        "Completion cancelled.");
+            }
+        }
         if (this.initialMillis <= 0) {
             this.initialMillis = System.currentTimeMillis();
             if (SharedCorePlugin.inTestMode()) {

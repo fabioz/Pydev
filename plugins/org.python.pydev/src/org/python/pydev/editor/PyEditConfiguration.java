@@ -162,7 +162,9 @@ public class PyEditConfiguration extends PyEditConfigurationWithoutEditor {
 
         pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_COMMENT);
         pyContentAssistant.setContentAssistProcessor(processor, IDocument.DEFAULT_CONTENT_TYPE);
-        pyContentAssistant.setInformationControlCreator(getInformationControlCreator(sourceViewer));
+        if (sourceViewer != null) {
+            pyContentAssistant.setInformationControlCreator(getInformationControlCreator(sourceViewer));
+        }
         pyContentAssistant.enableAutoActivation(true); //always true, but the chars depend on whether it is activated or not in the preferences
 
         //note: delay and auto activate are set on PyContentAssistant constructor.

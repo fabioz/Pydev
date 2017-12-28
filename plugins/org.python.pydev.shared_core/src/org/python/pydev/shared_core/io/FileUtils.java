@@ -54,7 +54,6 @@ import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.filebuffers.ITextFileBufferManager;
 import org.eclipse.core.filebuffers.LocationKind;
@@ -938,40 +937,17 @@ public class FileUtils {
      * @param path the path we're interested in
      * @return a file buffer to be used.
      */
-    @SuppressWarnings("deprecation")
     public static ITextFileBuffer getBufferFromPath(IPath path) {
         try {
-            try {
+            //eclipse 3.3 onwards
+            ITextFileBufferManager textFileBufferManager = ITextFileBufferManager.DEFAULT;
+            if (textFileBufferManager != null) {//we don't have it in tests
+                ITextFileBuffer textFileBuffer = textFileBufferManager.getTextFileBuffer(path,
+                        LocationKind.LOCATION);
 
-                //eclipse 3.3 has a different interface
-                ITextFileBufferManager textFileBufferManager = ITextFileBufferManager.DEFAULT;
-                if (textFileBufferManager != null) {//we don't have it in tests
-                    ITextFileBuffer textFileBuffer = textFileBufferManager.getTextFileBuffer(path,
-                            LocationKind.LOCATION);
-
-                    if (textFileBuffer != null) { //we don't have it when it is not properly refreshed
-                        return textFileBuffer;
-                    }
+                if (textFileBuffer != null) { //we don't have it when it is not properly refreshed
+                    return textFileBuffer;
                 }
-
-            } catch (Throwable e) {//NoSuchMethod/NoClassDef exception
-                if (e instanceof ClassNotFoundException || e instanceof LinkageError
-                        || e instanceof NoSuchMethodException || e instanceof NoSuchMethodError
-                        || e instanceof NoClassDefFoundError) {
-
-                    ITextFileBufferManager textFileBufferManager = FileBuffers.getTextFileBufferManager();
-
-                    if (textFileBufferManager != null) {//we don't have it in tests
-                        ITextFileBuffer textFileBuffer = textFileBufferManager.getTextFileBuffer(path);
-
-                        if (textFileBuffer != null) { //we don't have it when it is not properly refreshed
-                            return textFileBuffer;
-                        }
-                    }
-                } else {
-                    throw e;
-                }
-
             }
             return null;
 

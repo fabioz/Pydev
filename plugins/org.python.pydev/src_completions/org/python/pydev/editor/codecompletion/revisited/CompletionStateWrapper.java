@@ -8,6 +8,7 @@ package org.python.pydev.editor.codecompletion.revisited;
 
 import java.util.List;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
@@ -31,6 +32,11 @@ public final class CompletionStateWrapper implements ICompletionState {
     private int col = -1;
     private int line = -1;
     private boolean localImportsGotten;
+
+    @Override
+    public void setCancelMonitor(IProgressMonitor cancelMonitor) {
+        this.wrapped.setCancelMonitor(cancelMonitor);
+    }
 
     @Override
     public String getActivationToken() {

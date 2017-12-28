@@ -54,6 +54,8 @@ import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionProposalExtension2 implements
         ICompletionProposalExtension, IPyCompletionProposal2 {
 
+    public static boolean addApplyTipOnAdditionalInfo = true;
+
     /**
      * If empty, act as a regular completion
      */
@@ -90,6 +92,13 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
      */
     public Boolean addLocalImportsOnTopOfFunc = null;
 
+    private int infoTypeForImage;
+
+    public int getInfoTypeForImage() {
+        // See IInfo constants.
+        return infoTypeForImage;
+    }
+
     public boolean getAddLocalImportsOnTopOfMethod() {
         if (SharedCorePlugin.inTestMode()) {
             if (addLocalImportsOnTopOfFunc != null) {
@@ -102,12 +111,21 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
     }
 
     public CtxInsensitiveImportComplProposal(String replacementString, int replacementOffset, int replacementLength,
-            int cursorPosition, Image image, String displayString, IContextInformation contextInformation,
+            int cursorPosition, int infoTypeForImage, String displayString, IContextInformation contextInformation,
             String additionalProposalInfo, int priority, String realImportRep, ICompareContext compareContext) {
 
-        super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
+        super(replacementString, replacementOffset, replacementLength, cursorPosition, null, displayString,
                 contextInformation, additionalProposalInfo, priority, ON_APPLY_DEFAULT, "", compareContext);
+        this.infoTypeForImage = infoTypeForImage;
         this.realImportRep = realImportRep;
+    }
+
+    @Override
+    public Image getImage() {
+        if (fImage == null) {
+            fImage = AnalysisPlugin.getImageForAutoImportTypeInfo(infoTypeForImage);
+        }
+        return fImage;
     }
 
     public void setAddLocalImport(boolean b) {
@@ -126,7 +144,7 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
     @Override
     public String getAdditionalProposalInfo() {
         String original = super.getAdditionalProposalInfo();
-        if (getMakeLocalWhenShiftApplied()) {
+        if (addApplyTipOnAdditionalInfo && getMakeLocalWhenShiftApplied()) {
             if (original == null || original.length() == 0) {
                 return MSG;
             } else {

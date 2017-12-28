@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.templates.Template;
@@ -37,7 +38,7 @@ public class PyTemplateCompletionProcessor extends TemplateCompletionProcessor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.jface.text.templates.TemplateCompletionProcessor#getTemplates(java.lang.String)
      */
     @Override
@@ -47,7 +48,7 @@ public class PyTemplateCompletionProcessor extends TemplateCompletionProcessor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.jface.text.templates.TemplateCompletionProcessor#getContextType(org.eclipse.jface.text.ITextViewer,
      *      org.eclipse.jface.text.IRegion)
      */
@@ -58,7 +59,7 @@ public class PyTemplateCompletionProcessor extends TemplateCompletionProcessor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.jface.text.templates.TemplateCompletionProcessor#getImage(org.eclipse.jface.text.templates.Template)
      */
     @Override
@@ -70,7 +71,7 @@ public class PyTemplateCompletionProcessor extends TemplateCompletionProcessor {
      * @param viewer
      * @param documentOffset
      * @param propList
-     *  
+     *
      */
     public void addTemplateProposals(ITextViewer viewer, int documentOffset, List<ICompletionProposal> propList) {
         IDocument doc = viewer.getDocument();
@@ -107,7 +108,8 @@ public class PyTemplateCompletionProcessor extends TemplateCompletionProcessor {
             final ITextViewer viewer, final IRegion region) {
         if (contextType != null) {
             IDocument document = viewer.getDocument();
-            PySelection selection = new PySelection(document, viewer.getTextWidget().getSelection().x);
+            PySelection selection = new PySelection(document,
+                    ((ITextSelection) viewer.getSelectionProvider().getSelection()).getOffset());
             String indent = selection.getIndentationFromLine();
             return createContext(contextType, viewer, region, indent);
         }

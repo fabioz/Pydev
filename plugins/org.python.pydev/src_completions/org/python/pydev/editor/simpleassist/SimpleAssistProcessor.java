@@ -251,7 +251,9 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
                 this.keepSynched.dispose();
                 this.keepSynched = null;
             }
-            this.keepSynched = new KeepProposalsComparatorSynched(viewer, doc, offset, this.sorter);
+            if (viewer.getTextWidget() != null) {
+                this.keepSynched = new KeepProposalsComparatorSynched(viewer, doc, offset, this.sorter);
+            }
 
             if (showDefault()) {
                 ICompletionProposal[] ret = defaultPythonProcessor.computeCompletionProposals(viewer, offset);
@@ -262,7 +264,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
 
                 PySelection ps = edit.createPySelection();
                 if (ps == null) {
-                    return new ICompletionProposal[0];
+                    ps = new PySelection(doc, offset);
                 }
                 List<ICompletionProposal> results = new ArrayList<ICompletionProposal>();
 

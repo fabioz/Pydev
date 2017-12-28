@@ -11,6 +11,7 @@ package org.python.pydev.core;
 
 import java.util.List;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.core.structure.CompletionRecursionException;
 
 public interface ICompletionState extends ICompletionCache {
@@ -156,5 +157,7 @@ public interface ICompletionState extends ICompletionCache {
     void pushGetCompletionsUnpackingObject() throws CompletionRecursionException;
 
     void popGetCompletionsUnpackingObject();
+
+    void setCancelMonitor(IProgressMonitor cancelMonitor);
 
 }

@@ -15,14 +15,14 @@ public interface IInfo extends Comparable<IInfo> {
 
     /**
      * @return the name of the representing token
-     * 
+     *
      * Cannot be null.
      */
     String getName();
 
     /**
      * @return the name of the module that declares this information
-     * 
+     *
      * Cannot be null.
      */
     String getDeclaringModuleName();
@@ -32,9 +32,9 @@ public interface IInfo extends Comparable<IInfo> {
      * class Test:
      *      def m1(self):
      *          pass
-     *          
+     *
      * If this is the representation for the method m1, the path will be 'Test'
-     * 
+     *
      * This field may be null!
      */
     String getPath();
@@ -63,6 +63,12 @@ public interface IInfo extends Comparable<IInfo> {
      * The type when it is a module
      */
     int MOD_IMPORT_TYPE = 5;
+
+    /**
+     * Hack to use the package icon with CtxInsensitiveImportComplProposal.
+     * See: com.python.pydev.analysis.AnalysisPlugin.getImageForAutoImportTypeInfo(int)
+     */
+    int USE_PACKAGE_ICON = 6;
 
     /**
      * @return the type of the information we are holding (given constants)
