@@ -81,6 +81,10 @@ public class SimpleAssistProposal extends PyCompletionProposal implements ICompl
 
     private int changeInCursorPos = 0;
 
+    public String getReplacementString() {
+        return fReplacementString;
+    }
+
     @Override
     public Point getSelection(IDocument document) {
         return new Point(fReplacementOffset + fCursorPosition + changeInCursorPos, 0);

@@ -34,7 +34,6 @@ import org.python.pydev.editor.hover.AbstractPyEditorTextHover;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
-import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionProposalExtension2 implements
@@ -67,6 +66,14 @@ public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionPr
      * Offset forced to be returned (only valid if >= 0)
      */
     private int newForcedOffset = -1;
+
+    public String getReplacementString() {
+        return this.fReplacementString;
+    }
+
+    public int getOnApplyAction() {
+        return this.onApplyAction;
+    }
 
     /**
      * Constructor where the image and the docstring are lazily computed (initially added for the java integration).
@@ -370,31 +377,34 @@ public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionPr
             return;
         }
         List<Integer> offsetsAndLens = new ArrayList<Integer>();
+        computeOffsetsAndLens(newStr, offsetsAndLens);
 
-        FastStringBuffer buffer = new FastStringBuffer();
-        for (int i = 0; i < newStr.length(); i++) {
-            char c = newStr.charAt(i);
+        goToLinkedMode(viewer, offset, doc, exitPos, iPar, offsetsAndLens);
+    }
+
+    public static void computeOffsetsAndLens(String args, List<Integer> offsetsAndLens) {
+        int bufferLen = 0;
+        int len = args.length();
+        for (int i = 0; i < len; i++) {
+            char c = args.charAt(i);
 
             if (Character.isJavaIdentifierPart(c)) {
-                if (buffer.length() == 0) {
+                if (bufferLen == 0) {
                     offsetsAndLens.add(i);
-                    buffer.append(c);
+                    bufferLen += 1;
                 } else {
-                    buffer.append(c);
+                    bufferLen += 1;
                 }
             } else {
-                if (buffer.length() > 0) {
-                    offsetsAndLens.add(buffer.length());
-                    buffer.clear();
+                if (bufferLen > 0) {
+                    offsetsAndLens.add(bufferLen);
+                    bufferLen = 0;
                 }
             }
         }
-        if (buffer.length() > 0) {
-            offsetsAndLens.add(buffer.length());
+        if (bufferLen > 0) {
+            offsetsAndLens.add(bufferLen);
         }
-        buffer = null;
-
-        goToLinkedMode(viewer, offset, doc, exitPos, iPar, offsetsAndLens);
     }
 
     private void goToLinkedMode(ITextViewer viewer, int offset, IDocument doc, int exitPos, int iPar,
