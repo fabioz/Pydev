@@ -748,6 +748,13 @@ public class InterpreterInfo implements IInterpreterInfo {
      */
     @Override
     public String toString() {
+        return toString(false);
+    }
+
+    /**
+     * @see java.lang.Object#toString()
+     */
+    public String toString(boolean forceShowActivateCondaEnv) {
         FastStringBuffer buffer = new FastStringBuffer();
         buffer.append("<xml>\n");
         if (this.name != null) {
@@ -763,10 +770,10 @@ public class InterpreterInfo implements IInterpreterInfo {
         buffer.append(escape(executableOrJar));
         buffer.append("</executable>\n");
 
-        if (activateCondaEnv) {
-            // Only add tag if actually true (otherwise, just omit it so that backward compatibility
+        if (activateCondaEnv || forceShowActivateCondaEnv) {
+            // Only add tag if actually true or forced (otherwise, just omit it so that backward compatibility
             // is preserved).
-            buffer.append("<activate_conda>true</activate_conda>\n");
+            buffer.append("<activate_conda>" + activateCondaEnv + "</activate_conda>\n");
         }
 
         for (Iterator<String> iter = libs.iterator(); iter.hasNext();) {
