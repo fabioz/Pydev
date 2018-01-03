@@ -19,7 +19,6 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -34,9 +33,13 @@ public class FileStub extends AbstractIFileStub implements IFile {
     protected File file;
 
     public FileStub(ProjectStub project, File file) {
-        Assert.isTrue(file.exists() && file.isFile());
         this.project = project;
         this.file = file;
+    }
+
+    @Override
+    public boolean exists() {
+        return file.isFile();
     }
 
     @Override

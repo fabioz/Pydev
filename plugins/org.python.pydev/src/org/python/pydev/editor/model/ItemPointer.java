@@ -11,22 +11,29 @@
 package org.python.pydev.editor.model;
 
 import java.io.File;
+import java.net.URI;
 import java.util.Properties;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.python.pydev.core.PropertiesHelper;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractJavaClassModule;
+import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.locator.BaseItemPointer;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Location;
+import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
- * Pointer points to a python resource inside a file system. 
- * 
- * You can create one of these, and use PyOpenAction to open the 
+ * Pointer points to a python resource inside a file system.
+ *
+ * You can create one of these, and use PyOpenAction to open the
  * right editor.
  */
 public class ItemPointer extends BaseItemPointer {
@@ -94,6 +101,75 @@ public class ItemPointer extends BaseItemPointer {
         }
 
         return true;
+    }
+
+    public URI getFileAsURI() {
+        // Also see org.python.pydev.editor.actions.PyOpenAction
+        Object file = this.file;
+        if (file instanceof File) {
+            File f = (File) file;
+            String filename = f.getName();
+            if (PythonPathHelper.isValidSourceFile(filename) || filename.indexOf('.') == -1 || //treating files without any extension!
+                    (zipFilePath != null && PythonPathHelper.isValidSourceFile(zipFilePath))) {
+
+                //Keep on going as we were going...
+
+            } else if (definition instanceof JavaDefinition) {
+                Log.log(new RuntimeException("Not currently able to convert JavaDefinition to URI."));
+                return null;
+
+            } else {
+                boolean giveError = true;
+
+                if (definition != null && definition.module instanceof AbstractJavaClassModule) {
+                    Log.log(new RuntimeException("Not currently able to convert AbstractJavaClassModule to URI."));
+                    return null;
+
+                } else {
+                    if (FileTypesPreferencesPage.isValidDll(filename)) {
+                        if (f.exists()) {
+                            //It's a pyd or dll, let's check if it was a cython module to open it...
+                            File parentFile = f.getParentFile();
+                            File newFile = new File(parentFile, StringUtils.stripExtension(f.getName()) + "." + "pyx");
+
+                            if (!newFile.exists()) {
+                                newFile = new File(parentFile, StringUtils.stripExtension(f.getName()) + "." + "pxd");
+                            }
+                            if (!newFile.exists()) {
+                                newFile = new File(parentFile, StringUtils.stripExtension(f.getName()) + "." + "pxi");
+                            }
+
+                            if (newFile.exists()) {
+                                giveError = false;
+                                file = newFile;
+                            }
+                        }
+                    }
+                }
+
+                if (giveError) {
+                    return null;
+                }
+            }
+        }
+
+        if (zipFilePath != null) {
+            Log.log("Not currently able to convert file with zip path to URI.");
+            return null;
+
+        } else if (file instanceof IFile) {
+            IFile f = (IFile) file;
+            return f.getRawLocationURI();
+
+        } else if (file instanceof IPath) {
+            IPath path = (IPath) file;
+            return path.toFile().toURI();
+
+        } else if (file instanceof File) {
+            return ((File) file).toURI();
+        }
+
+        return null;
     }
 
     /**
@@ -168,4 +244,5 @@ public class ItemPointer extends BaseItemPointer {
         String zip = (String) properties.get("ZIP");
         return new ItemPointer(Path.fromPortableString(filePath), start, end, null, zip);
     }
+
 }

@@ -38,7 +38,7 @@ import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
  * Opens an editor and selects text in it.
- * 
+ *
  * Inspired by org.eclipse.jdt.ui.actions.OpenAction, but simplifies all handling in a single class.
  */
 public class PyOpenAction extends Action {
@@ -57,6 +57,7 @@ public class PyOpenAction extends Action {
     }
 
     public void run(ItemPointer p, IProject project, IWorkbenchPartSite site) {
+        // Also see org.python.pydev.editor.model.ItemPointer.getFileAsURI()
         editor = null;
         Object file = p.file;
         String zipFilePath = p.zipFilePath;
@@ -65,7 +66,7 @@ public class PyOpenAction extends Action {
         if (file instanceof File) {
             File f = (File) file;
             String filename = f.getName();
-            if (PythonPathHelper.isValidSourceFile(filename) || filename.indexOf('.') == -1 || //treating files without any extension! 
+            if (PythonPathHelper.isValidSourceFile(filename) || filename.indexOf('.') == -1 || //treating files without any extension!
                     (zipFilePath != null && PythonPathHelper.isValidSourceFile(zipFilePath))) {
 
                 //Keep on going as we were going...
@@ -79,7 +80,7 @@ public class PyOpenAction extends Action {
                 }
 
                 //note that it will only be able to find a java definition if JDT is actually available
-                //so, we don't have to care about JDTNotAvailableExceptions here. 
+                //so, we don't have to care about JDTNotAvailableExceptions here.
                 JavaDefinition javaDefinition = (JavaDefinition) definition;
                 OpenAction openAction = new OpenAction(site);
                 StructuredSelection selection = new StructuredSelection(new Object[] { javaDefinition.javaElement });
@@ -127,7 +128,7 @@ public class PyOpenAction extends Action {
         }
 
         if (zipFilePath != null) {
-            //currently, only open zip file 
+            //currently, only open zip file
             editor = PyOpenEditor.doOpenEditor((File) file, zipFilePath);
 
         } else if (file instanceof IFile) {
