@@ -73,8 +73,36 @@ public class DocUtils {
     public static void updateDocRangeWithContents(final IDocument doc, final String docContents,
             final String newDocContents,
             final String endLineDelimiter) {
+
+        updateDocRangeWithContents(new IDocumentUpdateAPI() {
+
+            @Override
+            public void set(String string) {
+                doc.set(string);
+            }
+
+            @Override
+            public void replace(int offset, int length, String text) throws BadLocationException {
+                doc.replace(offset, length, text);
+
+            }
+        }, doc, docContents, newDocContents, endLineDelimiter);
+    }
+
+    public static interface IDocumentUpdateAPI {
+
+        void replace(int offset, int length, String text) throws BadLocationException;
+
+        void set(String text) throws BadLocationException;
+    }
+
+    /**
+     * @param docUpdateAPI any document mutation is done through this parameter (so, it's possible to record any changes done).
+     */
+    public static void updateDocRangeWithContents(final IDocumentUpdateAPI docUpdateAPI, final IDocument docToUpdate,
+            final String docContents, final String newDocContents, final String endLineDelimiter) {
         try {
-            Assert.isTrue(doc.getLength() == docContents.length());
+            Assert.isTrue(docToUpdate.getLength() == docContents.length());
             List<String> prevSplitInLines = StringUtils.splitInLines(docContents, false);
             List<String> iSortSplitInLines = StringUtils.splitInLines(newDocContents, false);
 
@@ -92,7 +120,7 @@ public class DocUtils {
                             addedContents += endLineDelimiter;
                         }
 
-                        doc.replace(doc.getLength(), 0, addedContents);
+                        docUpdateAPI.replace(docToUpdate.getLength(), 0, addedContents);
                     }
                     return;
                 }
@@ -100,12 +128,14 @@ public class DocUtils {
                     // All lines matched... we may still have removed lines if iSortSplitInLines.size() < prevSplitInLines.size().
                     if (iSortSplitInLines.size() < prevSplitInLines.size()) {
                         if (prevFirstIndex > 0) {
-                            int lineOffset = doc.getLineOffset(prevFirstIndex - 1);
-                            int lineLength = doc.getLineLength(prevFirstIndex - 1);
+                            int lineOffset = docToUpdate.getLineOffset(prevFirstIndex - 1);
+                            int lineLength = docToUpdate.getLineLength(prevFirstIndex - 1);
 
-                            doc.replace(lineOffset + lineLength, doc.getLength() - (lineOffset + lineLength), "");
+                            docUpdateAPI.replace(lineOffset + lineLength,
+                                    docToUpdate.getLength() - (lineOffset + lineLength),
+                                    "");
                         } else {
-                            doc.set(""); // Clear doc
+                            docUpdateAPI.set(""); // Clear doc
                         }
                     }
                     return;
@@ -139,7 +169,7 @@ public class DocUtils {
                     while (true) {
                         if (prevLastIndex < 0) {
                             if (iSortLastIndex >= 0) {
-                                doc.replace(0, 0, StringUtils.join(endLineDelimiter,
+                                docUpdateAPI.replace(0, 0, StringUtils.join(endLineDelimiter,
                                         iSortSplitInLines.subList(iSortFirstIndex, iSortLastIndex + 1))
                                         + endLineDelimiter);
                             }
@@ -149,7 +179,7 @@ public class DocUtils {
                             // This means that the first document has lines which aren't in the final document, so,
                             // go on and remove the lines we still didn't reach.
                             if (prevLastIndex >= 0) {
-                                doc.replace(0, doc.getLineOffset(prevLastIndex + 1), "");
+                                docUpdateAPI.replace(0, docToUpdate.getLineOffset(prevLastIndex + 1), "");
                             }
                             return;
                         }
@@ -160,7 +190,7 @@ public class DocUtils {
                         } else {
                             if (prevFirstIndex == 0 && prevLastIndex == prevSplitInLines.size() - 1) {
                                 // Everything changed
-                                doc.set(newDocContents);
+                                docUpdateAPI.set(newDocContents);
                                 return;
                             }
                             if (prevLastIndex < prevFirstIndex) {
@@ -171,32 +201,34 @@ public class DocUtils {
 
                                 if (start > end) {
                                     // This means that some lines which match were removed
-                                    IRegion lineInformation1 = doc.getLineInformation(prevFirstIndex - (start - end));
-                                    IRegion lineInformation2 = doc.getLineInformation(prevFirstIndex);
+                                    IRegion lineInformation1 = docToUpdate
+                                            .getLineInformation(prevFirstIndex - (start - end));
+                                    IRegion lineInformation2 = docToUpdate.getLineInformation(prevFirstIndex);
                                     int offset1 = lineInformation1.getOffset();
                                     int offset2 = lineInformation2.getOffset();
 
                                     try {
-                                        doc.replace(offset1, offset2 - offset1, "");
+                                        docUpdateAPI.replace(offset1, offset2 - offset1, "");
                                     } catch (BadLocationException e) {
                                         throw new BadLocationException(
                                                 StringUtils.format(
                                                         "Error trying to access offset: %s, len: %s max doc len: %s",
-                                                        offset1, offset2 - offset1, doc.getLength()));
+                                                        offset1, offset2 - offset1, docToUpdate.getLength()));
                                     }
                                     return;
                                 }
 
                                 List<String> lst = iSortSplitInLines.subList(start, end);
-                                IRegion lineInformation = doc.getLineInformation(prevFirstIndex);
+                                IRegion lineInformation = docToUpdate.getLineInformation(prevFirstIndex);
                                 int offset = lineInformation.getOffset();
                                 try {
-                                    doc.replace(offset, 0, StringUtils.join(endLineDelimiter, lst) + endLineDelimiter);
+                                    docUpdateAPI.replace(offset, 0,
+                                            StringUtils.join(endLineDelimiter, lst) + endLineDelimiter);
                                 } catch (BadLocationException e) {
                                     throw new BadLocationException(
                                             StringUtils.format(
                                                     "Error trying to access offset: %s, len: %s max doc len: %s",
-                                                    offset, 0, doc.getLength()));
+                                                    offset, 0, docToUpdate.getLength()));
                                 }
                                 return;
                             }
@@ -206,26 +238,27 @@ public class DocUtils {
                             try {
                                 String replaceText;
                                 if (iSortLastIndex < iSortFirstIndex) {
-                                    IRegion lineInformationStart = doc.getLineInformation(prevFirstIndex);
-                                    IRegion lineInformationEnd = doc.getLineInformation(prevLastIndex);
+                                    IRegion lineInformationStart = docToUpdate.getLineInformation(prevFirstIndex);
+                                    IRegion lineInformationEnd = docToUpdate.getLineInformation(prevLastIndex);
 
                                     offset = lineInformationStart.getOffset();
-                                    len = (lineInformationEnd.getOffset() + doc.getLineLength(prevLastIndex)) - offset; // Get with end line delimiter
+                                    len = (lineInformationEnd.getOffset() + docToUpdate.getLineLength(prevLastIndex))
+                                            - offset; // Get with end line delimiter
                                     replaceText = "";
                                 } else {
-                                    IRegion lineInformationStart = doc.getLineInformation(prevFirstIndex);
-                                    IRegion lineInformationEnd = doc.getLineInformation(prevLastIndex);
+                                    IRegion lineInformationStart = docToUpdate.getLineInformation(prevFirstIndex);
+                                    IRegion lineInformationEnd = docToUpdate.getLineInformation(prevLastIndex);
 
                                     offset = lineInformationStart.getOffset();
                                     len = (lineInformationEnd.getOffset() + lineInformationEnd.getLength()) - offset;
                                     replaceText = StringUtils.join(endLineDelimiter,
                                             iSortSplitInLines.subList(iSortFirstIndex, iSortLastIndex + 1));
                                 }
-                                doc.replace(offset, len, replaceText);
+                                docUpdateAPI.replace(offset, len, replaceText);
                             } catch (BadLocationException e) {
                                 throw new BadLocationException(
                                         StringUtils.format("Error trying to access offset: %s, len: %s max doc len: %s",
-                                                offset, len, doc.getLength()));
+                                                offset, len, docToUpdate.getLength()));
                             }
                             return;
                         }

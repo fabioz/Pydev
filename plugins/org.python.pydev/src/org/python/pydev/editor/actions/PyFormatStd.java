@@ -261,6 +261,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
 
     /**
      * Formats the given selection
+     * @param regionsForSave lines to be formatted (0-based).
      * @see IFormatter
      */
     public void formatSelection(IDocument doc, int[] regionsForSave, IPyFormatStdProvider edit, PySelection ps,
