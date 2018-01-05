@@ -10,6 +10,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.logging.DebugSettings;
+import org.python.pydev.shared_ui.log.ToLogFile;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
@@ -36,7 +37,7 @@ public class AnalysisBuilderRunnableForRemove extends AbstractAnalysisBuilderRun
                 key, resourceModificationStamp);
 
         if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-            Log.toLogFile(this, "Removing additional info from: " + moduleName);
+            ToLogFile.toLogFile(this, "Removing additional info from: " + moduleName);
         }
         removeInfoForModule(moduleName, nature, isFullBuild);
     }
@@ -69,7 +70,7 @@ public class AnalysisBuilderRunnableForRemove extends AbstractAnalysisBuilderRun
             info.removeInfoFromModule(moduleName, generateDelta);
         } else {
             if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                Log.toLogFile("Unable to remove info. name: " + moduleName + " or nature:" + nature + " is null.",
+                ToLogFile.toLogFile("Unable to remove info. name: " + moduleName + " or nature:" + nature + " is null.",
                         AnalysisBuilderRunnableForRemove.class);
             }
         }

@@ -19,6 +19,7 @@ import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback0;
+import org.python.pydev.shared_ui.log.ToLogFile;
 
 /**
  * Whenever a given resource is changed, a syntax check is done, updating errors related to the syntax.
@@ -36,13 +37,13 @@ public class PySyntaxChecker extends PyDevBuilderVisitor {
 
         if (PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()) {
             if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                Log.toLogFile(this, "PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()");
+                ToLogFile.toLogFile(this, "PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()");
             }
             return; //not analyzed with this builder... always from parser changes.
         }
 
         if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-            Log.toLogFile(this, "Checking!");
+            ToLogFile.toLogFile(this, "Checking!");
         }
 
         IDocument doc = document.call();

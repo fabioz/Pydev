@@ -44,6 +44,7 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.Timer;
+import org.python.pydev.shared_ui.log.ToLogFile;
 
 /**
  * This is the shell that 'talks' to the python / jython process (it is intended to be subclassed so that
@@ -107,7 +108,7 @@ public abstract class AbstractShell {
             System.out.println(string);
         }
         if (DebugSettings.DEBUG_CODE_COMPLETION) {
-            Log.toLogFile(string, AbstractShell.class);
+            ToLogFile.toLogFile(string, AbstractShell.class);
         }
     }
 

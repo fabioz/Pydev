@@ -6,8 +6,8 @@
  */
 package com.python.pydev.analysis.additionalinfo;
 
-import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.shared_core.string.FullRepIterable;
 
 /**
  * @author fabioz

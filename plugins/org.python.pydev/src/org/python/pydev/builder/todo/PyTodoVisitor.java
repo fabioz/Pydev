@@ -27,6 +27,7 @@ import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.shared_core.callbacks.ICallback0;
+import org.python.pydev.shared_ui.log.ToLogFile;
 import org.python.pydev.shared_ui.utils.PyMarkerUtils;
 import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
 
@@ -102,7 +103,7 @@ public class PyTodoVisitor extends PyDevBuilderVisitor {
             }
 
             if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                Log.toLogFile(this, "Adding todo markers");
+                ToLogFile.toLogFile(this, "Adding todo markers");
             }
         }
         return lst;

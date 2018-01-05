@@ -31,7 +31,6 @@ import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.ICompletionState;
@@ -74,6 +73,7 @@ import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.FastStack;
 import org.python.pydev.shared_core.structure.ImmutableTuple;
@@ -81,6 +81,7 @@ import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 import org.python.pydev.shared_core.structure.OrderedMap;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_ui.log.ToLogFile;
 
 /**
  * @author Dmoore
@@ -108,9 +109,9 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
         }
 
         if (DebugSettings.DEBUG_CODE_COMPLETION) {
-            Log.toLogFile(this, "Starting getCodeCompletionProposals");
-            Log.addLogLevel();
-            Log.toLogFile(this, "Request:" + request);
+            ToLogFile.toLogFile(this, "Starting getCodeCompletionProposals");
+            ToLogFile.addLogLevel();
+            ToLogFile.toLogFile(this, "Request:" + request);
         }
 
         ArrayList<ICompletionProposal> ret = new ArrayList<ICompletionProposal>();
@@ -351,15 +352,15 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                 onCompletionRecursionException.call(e);
             }
             if (DebugSettings.DEBUG_CODE_COMPLETION) {
-                Log.toLogFile(e);
+                ToLogFile.toLogFile(e);
             }
             //PydevPlugin.log(e);
             //ret.add(new CompletionProposal("",request.documentOffset,0,0,null,e.getMessage(), null,null));
         }
 
         if (DebugSettings.DEBUG_CODE_COMPLETION) {
-            Log.remLogLevel();
-            Log.toLogFile(this, "Finished completion. Returned:" + ret.size() + " completions.\r\n");
+            ToLogFile.remLogLevel();
+            ToLogFile.toLogFile(this, "Finished completion. Returned:" + ret.size() + " completions.\r\n");
         }
 
         return ret;
@@ -603,20 +604,20 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             MisconfigurationException {
         state.setActivationToken(request.activationToken);
         if (DebugSettings.DEBUG_CODE_COMPLETION) {
-            Log.toLogFile(this, "astManager.getCompletionsForToken");
-            Log.addLogLevel();
+            ToLogFile.toLogFile(this, "astManager.getCompletionsForToken");
+            ToLogFile.addLogLevel();
         }
 
         IModule module = request.getModule();
         if (module == null) {
-            Log.remLogLevel();
-            Log.toLogFile(this, "END astManager.getCompletionsForToken: null module");
+            ToLogFile.remLogLevel();
+            ToLogFile.toLogFile(this, "END astManager.getCompletionsForToken: null module");
             return;
         }
         IToken[] comps = astManager.getCompletionsForModule(module, state, true, true);
         if (DebugSettings.DEBUG_CODE_COMPLETION) {
-            Log.remLogLevel();
-            Log.toLogFile(this, "END astManager.getCompletionsForToken");
+            ToLogFile.remLogLevel();
+            ToLogFile.toLogFile(this, "END astManager.getCompletionsForToken");
         }
 
         for (int i = 0; i < comps.length; i++) {

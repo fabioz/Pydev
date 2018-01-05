@@ -11,9 +11,6 @@ import java.util.ResourceBundle;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
-import org.python.pydev.shared_ui.ImageCache;
-import org.python.pydev.shared_ui.bundle.BundleInfo;
-import org.python.pydev.shared_ui.bundle.IBundleInfo;
 
 /**
  * The main plugin class to be used in the desktop.
@@ -23,29 +20,6 @@ public class CorePlugin extends AbstractUIPlugin {
     private static CorePlugin plugin;
     //Resource bundle.
     private ResourceBundle resourceBundle;
-
-    // ----------------- BUNDLE INFO -----------------------------
-    public static IBundleInfo info;
-
-    public static IBundleInfo getBundleInfo() {
-        if (CorePlugin.info == null) {
-            CorePlugin.info = new BundleInfo(CorePlugin.getDefault().getBundle());
-        }
-        return CorePlugin.info;
-    }
-
-    public static void setBundleInfo(IBundleInfo b) {
-        CorePlugin.info = b;
-    }
-
-    // ----------------- END BUNDLE INFO -------------------------
-
-    /**
-     * @return the cache that should be used to access images within the core plugin.
-     */
-    public static ImageCache getImageCache() {
-        return CorePlugin.getBundleInfo().getImageCache();
-    }
 
     /**
      * The constructor.

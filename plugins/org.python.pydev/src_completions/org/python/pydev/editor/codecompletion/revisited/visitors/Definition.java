@@ -12,7 +12,6 @@
 package org.python.pydev.editor.codecompletion.revisited.visitors;
 
 import org.eclipse.core.runtime.Assert;
-import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.IDefinition;
@@ -26,6 +25,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.FullRepIterable;
 
 /**
  * @author Fabio Zadrozny

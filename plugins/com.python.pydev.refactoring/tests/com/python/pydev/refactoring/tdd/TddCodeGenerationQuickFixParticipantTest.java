@@ -65,14 +65,14 @@ public class TddCodeGenerationQuickFixParticipantTest extends CodeCompletionTest
 
             @Override
             public Boolean call(Exception e) {
-                throw new RuntimeException("Error:" + Log.getExceptionStr(e));
+                throw new RuntimeException("Error:" + org.python.pydev.shared_core.log.Log.getExceptionStr(e));
             }
         };
         PyCodeCompletion.onCompletionRecursionException = new ICallback<Object, CompletionRecursionException>() {
 
             @Override
             public Object call(CompletionRecursionException e) {
-                throw new RuntimeException("Recursion error:" + Log.getExceptionStr(e));
+                throw new RuntimeException("Recursion error:" + org.python.pydev.shared_core.log.Log.getExceptionStr(e));
             }
 
         };

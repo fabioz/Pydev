@@ -57,7 +57,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
 
             @Override
             public Object call(CompletionRecursionException e) {
-                throw new RuntimeException("Recursion error:" + Log.getExceptionStr(e));
+                throw new RuntimeException("Recursion error:" + org.python.pydev.shared_core.log.Log.getExceptionStr(e));
             }
 
         };

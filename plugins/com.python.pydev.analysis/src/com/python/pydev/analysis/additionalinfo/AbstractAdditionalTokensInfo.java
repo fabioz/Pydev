@@ -30,7 +30,6 @@ import java.util.SortedMap;
 
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.FileUtilsFileBuffer;
-import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
@@ -48,10 +47,12 @@ import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.DefinitionsASTIteratorVisitor;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.FastStack;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
+import org.python.pydev.shared_ui.log.ToLogFile;
 
 /**
  * This class contains additional information on an interpreter, so that we are able to make code-completion in
@@ -335,7 +336,7 @@ public abstract class AbstractAdditionalTokensInfo {
         try {
             Tuple<DefinitionsASTIteratorVisitor, Iterator<ASTEntry>> tup = getInnerEntriesForAST(node);
             if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                Log.toLogFile(this, "Adding ast info to: " + key.name);
+                ToLogFile.toLogFile(this, "Adding ast info to: " + key.name);
             }
 
             try {
@@ -549,7 +550,7 @@ public abstract class AbstractAdditionalTokensInfo {
      */
     public void removeInfoFromModule(String moduleName, boolean generateDelta) {
         if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-            Log.toLogFile(this, "Removing ast info from: " + moduleName);
+            ToLogFile.toLogFile(this, "Removing ast info from: " + moduleName);
         }
         synchronized (lock) {
             removeInfoFromMap(moduleName, topLevelInitialsToInfo);

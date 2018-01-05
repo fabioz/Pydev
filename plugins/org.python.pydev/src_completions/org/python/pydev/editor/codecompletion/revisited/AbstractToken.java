@@ -12,7 +12,6 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import org.eclipse.swt.graphics.Image;
-import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.ITypeInfo;
@@ -24,6 +23,7 @@ import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.FullRepIterable;
 
 /**
  * @author Fabio Zadrozny

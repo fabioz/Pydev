@@ -32,6 +32,7 @@ import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.log.ToLogFile;
 import org.python.pydev.ui.pythonpathconf.IInterpreterInfoBuilder;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
@@ -92,7 +93,7 @@ public class InterpreterInfoBuilder implements IInterpreterInfoBuilder {
             monitor = new NullProgressMonitor();
         }
         if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {
-            Log.toLogFile(this, "--- Start run");
+            ToLogFile.toLogFile(this, "--- Start run");
         }
         BuilderResult ret = checkEarlyReturn(monitor, info);
         if (ret != BuilderResult.OK) {
@@ -109,7 +110,7 @@ public class InterpreterInfoBuilder implements IInterpreterInfoBuilder {
                 modulesFound);
 
         if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {
-            Log.toLogFile(
+            ToLogFile.toLogFile(
                     this,
                     StringUtils.format("Found: %s modules",
                             keysFound.size()));
@@ -142,7 +143,7 @@ public class InterpreterInfoBuilder implements IInterpreterInfoBuilder {
 
                 if (diffModules.o1.size() > 0 || diffModules.o2.size() > 0) {
                     if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {
-                        Log.toLogFile(this, StringUtils.format(
+                        ToLogFile.toLogFile(this, StringUtils.format(
                                 "Diff modules. Added: %s Removed: %s", diffModules.o1,
                                 diffModules.o2));
                     }
@@ -165,7 +166,7 @@ public class InterpreterInfoBuilder implements IInterpreterInfoBuilder {
         }
 
         if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {
-            Log.toLogFile(this, "--- End Run");
+            ToLogFile.toLogFile(this, "--- End Run");
         }
         return BuilderResult.OK;
     }
@@ -173,14 +174,14 @@ public class InterpreterInfoBuilder implements IInterpreterInfoBuilder {
     private BuilderResult checkEarlyReturn(IProgressMonitor monitor, InterpreterInfo info) {
         if (monitor.isCanceled()) {
             if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {
-                Log.toLogFile(this, "Cancelled");
+                ToLogFile.toLogFile(this, "Cancelled");
             }
             return BuilderResult.ABORTED;
         }
 
         if (info != null && !info.getLoadFinished()) {
             if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {
-                Log.toLogFile(this, "Load not finished (rescheduling)");
+                ToLogFile.toLogFile(this, "Load not finished (rescheduling)");
             }
             Log.log("The interpreter sync was cancelled (scheduling for checking the integrity later on again).\n"
                     + "To prevent any scheduling (at the cost of possible index corruptions),\n"

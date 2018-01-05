@@ -12,7 +12,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
@@ -23,6 +22,7 @@ import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant3;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
+import org.python.pydev.shared_core.string.FullRepIterable;
 
 public class CompletionParticipantsHelper {
 

@@ -10,9 +10,9 @@
  */
 package org.python.pydev.debug.model.remote;
 
-import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.debug.model.AbstractDebugTarget;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.FullRepIterable;
 
 /**
  * Set breakpoint command.

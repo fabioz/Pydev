@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 
-import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.grammarcommon.AbstractTreeBuilder;
 import org.python.pydev.parser.grammarcommon.Decorators;
@@ -53,6 +52,7 @@ import org.python.pydev.parser.jython.ast.keywordType;
 import org.python.pydev.parser.jython.ast.sliceType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
+import org.python.pydev.shared_core.string.FullRepIterable;
 
 public final class TreeBuilder24 extends AbstractTreeBuilder implements ITreeBuilder, ITreeConstants {
 

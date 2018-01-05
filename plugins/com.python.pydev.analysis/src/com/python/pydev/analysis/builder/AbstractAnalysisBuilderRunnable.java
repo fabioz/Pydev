@@ -12,6 +12,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.logging.DebugSettings;
+import org.python.pydev.shared_ui.log.ToLogFile;
 
 
 /**
@@ -118,7 +119,7 @@ public abstract class AbstractAnalysisBuilderRunnable implements IAnalysisBuilde
 
     protected void logOperationCancelled() {
         if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-            Log.toLogFile(this, "OperationCanceledException: cancelled by new runnable -- " + moduleName
+            ToLogFile.toLogFile(this, "OperationCanceledException: cancelled by new runnable -- " + moduleName
                     + ". Cancelled was from: " + getAnalysisCauseStr());
         }
     }
@@ -134,7 +135,7 @@ public abstract class AbstractAnalysisBuilderRunnable implements IAnalysisBuilde
             try {
                 if (oldAnalysisBuilderThread != null) {
                     if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                        Log.toLogFile(this, "Waiting for other to be finished...");
+                        ToLogFile.toLogFile(this, "Waiting for other to be finished...");
                     }
 
                     //just to make sure that the analysis of the existing runnable had a request for stopping already
@@ -152,7 +153,7 @@ public abstract class AbstractAnalysisBuilderRunnable implements IAnalysisBuilde
                         }
                     }
                     if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                        Log.toLogFile(this, "Starting analysis after attempts: " + attempts);
+                        ToLogFile.toLogFile(this, "Starting analysis after attempts: " + attempts);
                     }
                 }
                 //that's all we need it for... we can already dispose of it.

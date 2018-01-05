@@ -24,7 +24,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionRequest;
 import org.python.pydev.core.ICompletionState;
@@ -81,12 +80,14 @@ import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
+import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.FastStack;
 import org.python.pydev.shared_core.structure.ImmutableTuple;
 import org.python.pydev.shared_core.structure.LowMemoryArrayList;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
+import org.python.pydev.shared_ui.log.ToLogFile;
 
 public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
@@ -725,7 +726,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         } else {
             name = module.getName();
         }
-        Log.toLogFile(this, message + ": " + name + " -- " + state.getActivationToken());
+        ToLogFile.toLogFile(this, message + ": " + name + " -- " + state.getActivationToken());
     }
 
     /**
@@ -1767,12 +1768,12 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         if (!state.getBuiltinsGotten()) {
             state.setBuiltinsGotten(true);
             if (DebugSettings.DEBUG_CODE_COMPLETION) {
-                Log.toLogFile(this, "getBuiltinCompletions");
+                ToLogFile.toLogFile(this, "getBuiltinCompletions");
             }
             //last thing: get completions from module __builtin__
             getBuiltinCompletions(state, completions);
             if (DebugSettings.DEBUG_CODE_COMPLETION) {
-                Log.toLogFile(this, "END getBuiltinCompletions");
+                ToLogFile.toLogFile(this, "END getBuiltinCompletions");
             }
         }
 

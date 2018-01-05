@@ -15,11 +15,11 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.log.Log;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.shared_core.cache.LRUCache;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.log.ToLogFile;
 
 public class AnalysisBuilderRunnableFactory {
 
@@ -65,14 +65,14 @@ public class AnalysisBuilderRunnableFactory {
 
     private static void logCreate(String moduleName, IAnalysisBuilderRunnable analysisBuilderThread, String factory) {
         if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-            Log.toLogFile(analysisBuilderThread, "Created new builder: " + analysisBuilderThread + " for:" + moduleName
+            ToLogFile.toLogFile(analysisBuilderThread, "Created new builder: " + analysisBuilderThread + " for:" + moduleName
                     + " -- " + analysisBuilderThread.getAnalysisCauseStr() + " -- " + factory);
         }
     }
 
     private static void logStop(IAnalysisBuilderRunnable oldAnalysisBuilderThread, String creation) {
         if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-            Log.toLogFile(
+            ToLogFile.toLogFile(
                     oldAnalysisBuilderThread,
                     "Stopping previous builder: " + oldAnalysisBuilderThread + " ("
                             + oldAnalysisBuilderThread.getModuleName() + " -- "
@@ -155,7 +155,7 @@ public class AnalysisBuilderRunnableFactory {
                 }
             }
             if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                Log.toLogFile(oldAnalysisBuilderThread,
+                ToLogFile.toLogFile(oldAnalysisBuilderThread,
                         createExistinTimeHigherMessage(oldDocTime, documentTime, oldResourceStamp, resourceStamp));
             }
 
@@ -203,7 +203,7 @@ public class AnalysisBuilderRunnableFactory {
                     forceAnalysis = oldAnalysisBuilderThread.getForceAnalysis();
                     if (forceAnalysis) {
                         if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                            Log.toLogFile(oldAnalysisBuilderThread,
+                            ToLogFile.toLogFile(oldAnalysisBuilderThread,
                                     "Now forcing analysis because old one, which didn't finish was forced!");
                         }
                     }

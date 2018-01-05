@@ -9,10 +9,10 @@ import java.util.StringTokenizer;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.ObjectsInternPool;
 import org.python.pydev.core.ObjectsInternPool.ObjectsPoolMap;
-import org.python.pydev.core.log.Log;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.log.ToLogFile;
 
 /*default*/class ShellConvert {
 
@@ -71,15 +71,15 @@ import org.python.pydev.shared_core.structure.Tuple;
                     list.add(new String[] { token, description, args, type });
                 } else {
                     if (DebugSettings.DEBUG_CODE_COMPLETION) {
-                        Log.addLogLevel();
+                        ToLogFile.addLogLevel();
                         try {
-                            Log.toLogFile("Code completion shell error:", AbstractShell.class);
-                            Log.toLogFile(token, AbstractShell.class);
-                            Log.toLogFile(description, AbstractShell.class);
-                            Log.toLogFile(args, AbstractShell.class);
-                            Log.toLogFile(type, AbstractShell.class);
+                            ToLogFile.toLogFile("Code completion shell error:", AbstractShell.class);
+                            ToLogFile.toLogFile(token, AbstractShell.class);
+                            ToLogFile.toLogFile(description, AbstractShell.class);
+                            ToLogFile.toLogFile(args, AbstractShell.class);
+                            ToLogFile.toLogFile(type, AbstractShell.class);
                         } finally {
-                            Log.remLogLevel();
+                            ToLogFile.remLogLevel();
                         }
                     }
                 }

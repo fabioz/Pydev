@@ -16,6 +16,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_ui.log.ToLogFile;
 
 public class ShellsContainer {
 
@@ -57,7 +58,7 @@ public class ShellsContainer {
     public static void shutdownAllShells() {
         synchronized (shells) {
             if (DebugSettings.DEBUG_CODE_COMPLETION) {
-                Log.toLogFile("Shutting down all shells (for good)...", AbstractShell.class);
+                ToLogFile.toLogFile("Shutting down all shells (for good)...", AbstractShell.class);
             }
 
             for (Iterator<Map<Integer, AbstractShell>> iter = shells.values().iterator(); iter.hasNext();) {
@@ -91,7 +92,7 @@ public class ShellsContainer {
         synchronized (shells) {
             try {
                 if (DebugSettings.DEBUG_CODE_COMPLETION) {
-                    Log.toLogFile("Restarting all shells and clearing caches...", AbstractShell.class);
+                    ToLogFile.toLogFile("Restarting all shells and clearing caches...", AbstractShell.class);
                 }
 
                 for (Map<Integer, AbstractShell> val : shells.values()) {
@@ -187,7 +188,7 @@ public class ShellsContainer {
         AbstractShell pythonShell = null;
         synchronized (shells) {
             if (DebugSettings.DEBUG_CODE_COMPLETION) {
-                Log.toLogFile("Synchronizing on shells...", AbstractShell.class);
+                ToLogFile.toLogFile("Synchronizing on shells...", AbstractShell.class);
             }
             if (DebugSettings.DEBUG_CODE_COMPLETION) {
                 String flavor;
@@ -202,7 +203,7 @@ public class ShellsContainer {
                         flavor = "Python";
                 }
                 ;
-                Log.toLogFile(
+                ToLogFile.toLogFile(
                         "Getting shell related to:" + flavor + " id:" + id + " interpreter: "
                                 + interpreter.getExecutableOrJar(), AbstractShell.class);
             }
@@ -211,7 +212,7 @@ public class ShellsContainer {
 
             if (pythonShell == null) {
                 if (DebugSettings.DEBUG_CODE_COMPLETION) {
-                    Log.toLogFile("pythonShell == null", AbstractShell.class);
+                    ToLogFile.toLogFile("pythonShell == null", AbstractShell.class);
                 }
                 if (relatedTo == IPythonNature.INTERPRETER_TYPE_PYTHON) {
                     pythonShell = new PythonShell();
@@ -226,13 +227,13 @@ public class ShellsContainer {
                     throw new RuntimeException("unknown related id");
                 }
                 if (DebugSettings.DEBUG_CODE_COMPLETION) {
-                    Log.toLogFile("pythonShell.startIt()", AbstractShell.class);
-                    Log.addLogLevel();
+                    ToLogFile.toLogFile("pythonShell.startIt()", AbstractShell.class);
+                    ToLogFile.addLogLevel();
                 }
                 pythonShell.startIt(interpreter); //first start it
                 if (DebugSettings.DEBUG_CODE_COMPLETION) {
-                    Log.remLogLevel();
-                    Log.toLogFile("Finished pythonShell.startIt()", AbstractShell.class);
+                    ToLogFile.remLogLevel();
+                    ToLogFile.toLogFile("Finished pythonShell.startIt()", AbstractShell.class);
                 }
 
                 //then make it accessible

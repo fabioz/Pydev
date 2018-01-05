@@ -19,6 +19,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.FullRepIterable;
 
 /**
  * This class can be used to work on deltas. It is able to save and restore data on a 'delta' fashion.

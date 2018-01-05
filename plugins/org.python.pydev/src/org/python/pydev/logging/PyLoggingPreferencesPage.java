@@ -15,13 +15,13 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;
 import org.python.pydev.shared_ui.field_editors.LinkFieldEditor;
+import org.python.pydev.shared_ui.log.ToLogFile;
 
 /**
  * Preferences page for logging -- gives the option to enable logging on some specific feature
@@ -62,7 +62,7 @@ public class PyLoggingPreferencesPage extends FieldEditorPreferencePage implemen
 
         addField(new BooleanFieldEditor(DEBUG_INTERPRETER_AUTO_UPDATE, "Enable logging for interpreter auto update?", p));
 
-        String logOutputFile = Log.getLogOutputFile();
+        String logOutputFile = ToLogFile.getLogOutputFile();
         if (logOutputFile != null) {
             final File f = new File(logOutputFile);
             addField(new LinkFieldEditor("UNUSED 2",

@@ -7,13 +7,10 @@
 /*
  * Created on 28/07/2005
  */
-package org.python.pydev.core;
+package org.python.pydev.shared_core.string;
 
 import java.util.Iterator;
 import java.util.List;
-
-import org.python.pydev.shared_core.string.FastStringBuffer;
-import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * iterates through a string so that parts of it are gotten each time in a progressive way based on dots

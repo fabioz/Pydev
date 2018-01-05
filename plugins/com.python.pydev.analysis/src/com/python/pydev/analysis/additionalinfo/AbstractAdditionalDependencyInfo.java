@@ -52,6 +52,7 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
+import org.python.pydev.shared_ui.log.ToLogFile;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 /**
@@ -274,7 +275,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
 
         if (hasNew || hasRemoved) {
             if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {
-                Log.toLogFile(this,
+                ToLogFile.toLogFile(this,
                         StringUtils.format(
                                 "Additional info modules. Added: %s Removed: %s", newKeys, removedKeys));
             }

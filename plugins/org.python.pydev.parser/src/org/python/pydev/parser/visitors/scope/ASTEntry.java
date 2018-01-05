@@ -9,7 +9,6 @@
  */
 package org.python.pydev.parser.visitors.scope;
 
-import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.structure.DecoratableObject;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -30,6 +29,7 @@ import org.python.pydev.parser.jython.ast.With;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.shared_core.string.FullRepIterable;
 
 /**
  * This class defines an AST entry.
