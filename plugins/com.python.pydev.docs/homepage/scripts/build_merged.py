@@ -68,6 +68,7 @@ homepageBase = (
     ('template1.html', 'manual_adv_keybindings'    , 'Keybindings'),
     ('template1.html', 'faq'                       , 'FAQ'),
     ('template1.html', 'screenshots'               , 'Screenshots'),
+    ('template1.html', 'vscode'                    , 'Visual Studio Code'),
 )
 
 def template(template, contents, title, **kwargs):
@@ -97,12 +98,12 @@ def template(template, contents, title, **kwargs):
         else:
             c = kwargs[r]
         contents = contents.replace('%(' + r + ')s', c)
-        
+
     from datetime import datetime as dt
-    
+
     def suffix(d):
         return 'th' if 11<=d<=13 else {1:'st',2:'nd',3:'rd'}.get(d%10, 'th')
-    
+
     def custom_strftime(format, t):
         return t.strftime(format).replace('{S}', str(t.day) + suffix(t.day))
 

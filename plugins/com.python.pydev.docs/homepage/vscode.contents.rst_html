@@ -1,0 +1,90 @@
+<doc>
+<contents_area>
+<h1 class="title">PyDev on Visual Studio Code</h1>
+
+<!-- <image_area></image_area>
+
+
+<quote_area></quote_area> -->
+<p>Although PyDev is a <strong>Python IDE</strong> commonly used along with <strong>Eclipse</strong>, it's now possible to
+leverage the features from <strong>PyDev</strong> on <strong>Visual Studio Code</strong>.</p>
+<p>While there are some important features to be added (such as the <strong>debugger</strong>), the current version can
+already leverage many features that make <strong>PyDev</strong> unique inside of Visual Studio Code! See below which features are
+available and details on getting it running.</p>
+<div class="section" id="pydev-on-visual-studio-code-0-0-1">
+<h1>PyDev on Visual Studio Code (0.0.1)</h1>
+<ul class="simple">
+<li>Bundled with <strong>PyDev 6.2.0</strong></li>
+<li><dl class="first docutils">
+<dt><strong>Code-completion</strong></dt>
+<dd><ul class="first last">
+<li>Fast</li>
+<li>Context sensitive</li>
+<li>Common tokens</li>
+<li>Context insensitive with auto import</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><strong>Code analysis</strong></dt>
+<dd><ul class="first last">
+<li>Real time</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><strong>Go to definition</strong></li>
+<li><dl class="first docutils">
+<dt><strong>Code formatter</strong></dt>
+<dd><ul class="first last">
+<li>Fast</li>
+<li>Works with line ranges</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><strong>Symbols for Workspace</strong></li>
+<li><strong>Symbols for open editor</strong></li>
+</ul>
+</div>
+<div class="section" id="planned-features-soon">
+<h1>Planned features (soon)</h1>
+<ul class="simple">
+<li>Launching</li>
+<li>PyDev Debugger integration</li>
+<li>Find references</li>
+<li>Hover</li>
+</ul>
+</div>
+<div class="section" id="getting-it-running">
+<h1>Getting it running</h1>
+<p>The main requisite to run <strong>PyDev</strong> in <strong>Visual Studio Code</strong> is a <strong>Java 8</strong> installation. If you have
+it installed, just installing the extension from the <strong>Visual Studio Code Marketplace</strong> may be all that's
+needed, but if it doesn't work, you may customize the setting:</p>
+<p><strong>python.pydev.java.home</strong></p>
+<p>locally to point to the proper <strong>Java Home</strong> in your <strong>Visual Studio Code</strong> installation (note that the <strong>Java Home</strong>
+is the directory which contains the <strong>/bin/java</strong> executable).</p>
+<p><strong>Note</strong>: you have to restart <strong>Visual Studio Code</strong> after changing this setting.</p>
+</div>
+<div class="section" id="customizations">
+<h1>Customizations</h1>
+<p>Right now, it is possible to change the Python executable to be a different executable
+(by default, the <strong>python</strong> in the <strong>PATH</strong> will be used). So, if you
+want to use a Python installation which is not the default in the PATH, you can customize the setting:</p>
+<p><strong>python.pydev.pythonExecutable</strong></p>
+<p>to point to a different Python executable.</p>
+</div>
+<div class="section" id="pythonpath-customization">
+<h1>PYTHONPATH customization</h1>
+<p>By default, <strong>PyDev</strong> on <strong>Visual Studio Code</strong> will provide code-completion, code-analysis, etc. all based on indexing
+info from the folders which are currently in the <strong>PYTHONPATH</strong>, but if none of the folders in the
+<strong>PYTHONPATH</strong> are available as root folders inside Visual Studio Code, it will also consider each root folder
+from <strong>Visual Studio Code</strong> to be a folder in the <strong>PYTHONPATH</strong> too.</p>
+</div>
+</contents_area>
+
+
+
+</doc>
+

@@ -15,7 +15,7 @@ updated as a whole).</p>
 <ul class="simple">
 <li><a class="reference external" href="http://www.python.org/">Python</a> <strong>(2.6 or newer)</strong></li>
 <li><a class="reference external" href="http://www.jython.org/">Jython</a> <strong>(2.6 or newer)</strong></li>
-<li><a class="reference external" href="http://www.codeplex.com/Wiki/View.aspx?ProjectName=IronPython">IronPython</a> <strong>(2.6 or newer)</strong> - excluding 2.7.6 and 2.7.7 have a <a class="reference external" href="https://github.com/IronLanguages/main/issues/1663">bug</a> which makes them unusable in PyDev.</li>
+<li><a class="reference external" href="http://ironpython.net/">IronPython</a> <strong>(2.6 or newer)</strong> - excluding 2.7.6 and 2.7.7, which have a bug which makes them unusable in PyDev.</li>
 </ul>
 <p>If you don't have Java 8, the update process may appear to succeed, but PyDev
 will simply not show in the target installation. Please double-check if you're using a Java 8 vm in <strong>about &gt; installation
