@@ -71,6 +71,7 @@ public class ProcessUtils {
                     interrupted = true;
                 }
             }
+            monitor.setTaskName("Process finished.");
 
             try {
                 std.join(1000); // An additional full second for the thread to finish getting the output

@@ -40,6 +40,8 @@ import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
+import org.python.pydev.shared_core.global_feedback.GlobalFeedback;
+import org.python.pydev.shared_core.global_feedback.GlobalFeedback.GlobalFeedbackReporter;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.OrderedMap;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -251,8 +253,10 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
 
                         @Override
                         protected IStatus run(IProgressMonitor monitor) {
-                            try {
+                            try (GlobalFeedbackReporter r = GlobalFeedback.start("Check index integrity...")) {
                                 new InterpreterInfoBuilder().syncInfoToPythonPath(monitor, nature);
+                            } catch (Exception e) {
+                                Log.log(e);
                             } finally {
                                 temp.setWaitForIntegrityCheck(false);
                             }
@@ -315,7 +319,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
     }
 
     public static void recreateAllInfo(IPythonNature nature, IProgressMonitor monitor) {
-        try {
+        try (GlobalFeedbackReporter r = GlobalFeedback.start("Full projects reindex...")) {
             synchronized (additionalNatureInfoLock) {
                 //Note: at this point we're 100% certain that the ast manager is there.
                 IModulesManager m = nature.getAstManager().getModulesManager();

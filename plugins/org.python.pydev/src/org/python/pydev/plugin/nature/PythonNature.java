@@ -65,6 +65,8 @@ import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.navigator.elements.ProjectConfigError;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.global_feedback.GlobalFeedback;
+import org.python.pydev.shared_core.global_feedback.GlobalFeedback.GlobalFeedbackReporter;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -131,7 +133,6 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         @Override
         @SuppressWarnings("unchecked")
         protected IStatus run(IProgressMonitor monitor) {
-
             String paths;
             try {
                 paths = pythonPathNature.getOnlyProjectPythonPathStr(true);
@@ -139,57 +140,84 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 Log.log(e1);
                 return Status.OK_STATUS;
             }
-
-            try {
-                if (monitor.isCanceled()) {
-                    return Status.OK_STATUS;
-                }
-                final JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(monitor,
-                        "Rebuilding modules", IProgressMonitor.UNKNOWN, this);
-                final PythonNature nature = PythonNature.this;
+            try (GlobalFeedbackReporter r = GlobalFeedback.start("Indexing modules...")) {
                 try {
-                    ICodeCompletionASTManager tempAstManager = astManager;
-                    if (tempAstManager == null) {
-                        tempAstManager = new ASTManager();
-                    }
                     if (monitor.isCanceled()) {
                         return Status.OK_STATUS;
                     }
-                    synchronized (tempAstManager.getLock()) {
-                        astManager = tempAstManager;
-                        tempAstManager.setProject(getProject(), nature, false); //it is a new manager, so, remove all deltas
+                    final JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(monitor,
+                            "Rebuilding modules", IProgressMonitor.UNKNOWN, this) {
+                        private long lastReport = 0;
 
-                        //begins task automatically
-                        tempAstManager.changePythonPath(paths, project, jobProgressComunicator);
+                        @Override
+                        public void setTaskName(String name) {
+                            super.setTaskName(name);
+                            reportToListeners(name);
+                        }
+
+                        @Override
+                        public void subTask(String name) {
+                            super.subTask(name);
+                            reportToListeners(name);
+                        }
+
+                        @Override
+                        public void beginTask(String name, int totalWork) {
+                            super.beginTask(name, totalWork);
+                            reportToListeners(name);
+                        }
+
+                        private void reportToListeners(String name) {
+                            r.progress(name);
+                        }
+                    };
+                    final PythonNature nature = PythonNature.this;
+                    try {
+                        ICodeCompletionASTManager tempAstManager = astManager;
+                        if (tempAstManager == null) {
+                            tempAstManager = new ASTManager();
+                        }
                         if (monitor.isCanceled()) {
                             return Status.OK_STATUS;
                         }
-                        saveAstManager();
+                        synchronized (tempAstManager.getLock()) {
+                            astManager = tempAstManager;
+                            tempAstManager.setProject(getProject(), nature, false); //it is a new manager, so, remove all deltas
 
-                        List<IInterpreterObserver> participants = ExtensionHelper
-                                .getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
-                        for (IInterpreterObserver observer : participants) {
+                            //begins task automatically
+                            tempAstManager.changePythonPath(paths, project, jobProgressComunicator);
                             if (monitor.isCanceled()) {
                                 return Status.OK_STATUS;
                             }
-                            try {
-                                observer.notifyProjectPythonpathRestored(nature, jobProgressComunicator);
-                            } catch (Exception e) {
-                                //let's keep it safe
-                                Log.log(e);
+                            saveAstManager();
+
+                            List<IInterpreterObserver> participants = ExtensionHelper
+                                    .getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
+                            for (IInterpreterObserver observer : participants) {
+                                if (monitor.isCanceled()) {
+                                    return Status.OK_STATUS;
+                                }
+                                try {
+                                    observer.notifyProjectPythonpathRestored(nature, jobProgressComunicator);
+                                } catch (Exception e) {
+                                    //let's keep it safe
+                                    Log.log(e);
+                                }
                             }
                         }
+                    } catch (Throwable e) {
+                        Log.log(e);
                     }
-                } catch (Throwable e) {
+
+                    if (monitor.isCanceled()) {
+                        return Status.OK_STATUS;
+                    }
+                    PythonNatureListenersManager.notifyPythonPathRebuilt(project, nature);
+                    //end task
+                    jobProgressComunicator.done();
+                } catch (Exception e) {
                     Log.log(e);
                 }
-
-                if (monitor.isCanceled()) {
-                    return Status.OK_STATUS;
-                }
-                PythonNatureListenersManager.notifyPythonPathRebuilt(project, nature);
-                //end task
-                jobProgressComunicator.done();
             } catch (Exception e) {
                 Log.log(e);
             }

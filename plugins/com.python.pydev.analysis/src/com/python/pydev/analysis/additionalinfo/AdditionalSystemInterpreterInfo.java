@@ -6,7 +6,7 @@
  */
 /*
  * Created on Sep 13, 2005
- * 
+ *
  * @author Fabio Zadrozny
  */
 package com.python.pydev.analysis.additionalinfo;
@@ -28,6 +28,8 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.SystemPythonNature;
+import org.python.pydev.shared_core.global_feedback.GlobalFeedback;
+import org.python.pydev.shared_core.global_feedback.GlobalFeedback.GlobalFeedbackReporter;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
@@ -71,7 +73,7 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithB
 
     /**
      * @return the path to the folder we want to keep things on
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     @Override
     protected File getPersistingFolder() {
@@ -152,7 +154,7 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithB
     /**
      * @param m the module manager that we want to get info on (python, jython...)
      * @return the additional info for the system
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     public static AbstractAdditionalDependencyInfo getAdditionalSystemInfo(IInterpreterManager manager,
             String interpreter, boolean errorIfNotAvailable) throws MisconfigurationException {
@@ -179,7 +181,7 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithB
 
     public static void recreateAllInfo(IInterpreterManager manager, String interpreter, IProgressMonitor monitor) {
         synchronized (additionalSystemInfoLock) {
-            try {
+            try (GlobalFeedbackReporter r = GlobalFeedback.start("Full system reindex...")) {
                 final IInterpreterInfo interpreterInfo = manager.getInterpreterInfo(interpreter, monitor);
                 int grammarVersion = interpreterInfo.getGrammarVersion();
                 AbstractAdditionalTokensInfo currInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
