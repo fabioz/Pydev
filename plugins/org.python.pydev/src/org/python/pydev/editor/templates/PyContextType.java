@@ -58,6 +58,7 @@ public class PyContextType extends TemplateContextType {
         addResolver(new GlobalTemplateVariables.Time());
         addResolver(new GlobalTemplateVariables.User());
 
+        PyContextTypeVariables.addResolvers(this);
         HashMap<String, Object> locals = new HashMap<String, Object>();
         locals.put("py_context_type", this);
 
