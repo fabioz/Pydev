@@ -154,7 +154,9 @@ public class ItemPointer extends BaseItemPointer {
         }
 
         if (zipFilePath != null) {
-            Log.log("Not currently able to convert file with zip path to URI.");
+            Log.log(StringUtils.format(
+                    "Not currently able to convert file with zip path to URI.\nFile: %s\nStart: %s\nEnd: %s\nZip path: %s\n",
+                    file, start, end, zipFilePath));
             return null;
 
         } else if (file instanceof IFile) {
