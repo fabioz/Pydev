@@ -375,7 +375,10 @@ public class SynchSystemModulesManager {
         if (builder == null) {
             builder = (IInterpreterInfoBuilder) ExtensionHelper
                     .getParticipant(ExtensionHelper.PYDEV_INTERPRETER_INFO_BUILDER, false);
-
+            if (builder == null) {
+                Log.log("Expecting at least one " + ExtensionHelper.PYDEV_INTERPRETER_INFO_BUILDER + ".");
+                return;
+            }
         }
         //Ok, all is Ok in the PYTHONPATH, so, check if something changed inside the interpreter info
         //and not on the PYTHONPATH.
@@ -383,6 +386,10 @@ public class SynchSystemModulesManager {
         for (Tuple<IInterpreterManager, IInterpreterInfo> tuple : managerAndInfos) {
             //If it was changed or not, we must check the internal structure too!
             InterpreterInfo info = (InterpreterInfo) tuple.o2;
+            if (info == null) {
+                Log.log("Info null when synchronizing info.");
+                continue;
+            }
             if (DEBUG) {
                 System.out.println("Synchronizing PYTHONPATH info: " + info.getNameForUI());
             }
