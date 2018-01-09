@@ -23,6 +23,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.newconsole.PydevConsoleFactory;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.PySelectionFromEditor;
 import org.python.pydev.shared_interactive_console.console.codegen.PythonSnippetUtils;
 import org.python.pydev.shared_interactive_console.console.ui.ScriptConsole;
 import org.python.pydev.shared_interactive_console.console.ui.internal.ScriptConsoleViewer;
@@ -48,7 +49,7 @@ public class EvaluateActionSetter implements IPyEditListener {
         @Override
         public void run() {
             try {
-                PySelection selection = new PySelection(edit);
+                PySelection selection = PySelectionFromEditor.createPySelectionFromEditor(edit);
 
                 ScriptConsole console = ScriptConsole.getActiveScriptConsole();
 

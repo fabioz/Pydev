@@ -11,6 +11,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.PySelectionFromEditor;
 import org.python.pydev.shared_ui.actions.ShiftLeftAction;
 
 /**
@@ -33,7 +34,7 @@ public class PyShiftLeft extends PyAction {
 
             PyEdit pyEdit = (PyEdit) getTextEditor();
             IIndentPrefs indentPrefs = pyEdit.getIndentPrefs();
-            PySelection ps = new PySelection(pyEdit);
+            PySelection ps = PySelectionFromEditor.createPySelectionFromEditor(pyEdit);
             perform(ps, indentPrefs);
         } catch (Exception e) {
             beep(e);

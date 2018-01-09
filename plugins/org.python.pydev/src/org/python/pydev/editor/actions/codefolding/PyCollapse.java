@@ -20,9 +20,9 @@ import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.editor.PySelectionFromEditor;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codefolding.PyProjectionAnnotation;
-
 
 /**
  * @author Fabio Zadrozny
@@ -36,9 +36,9 @@ public class PyCollapse extends PyAction {
      */
     @Override
     public void run(IAction action) {
-        PySelection ps = new PySelection(getTextEditor());
+        PySelection ps = PySelectionFromEditor.createPySelectionFromEditor(getTextEditor());
 
-        ProjectionAnnotationModel model = (ProjectionAnnotationModel) getTextEditor().getAdapter(
+        ProjectionAnnotationModel model = getTextEditor().getAdapter(
                 ProjectionAnnotationModel.class);
         try {
             if (model != null) {

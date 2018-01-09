@@ -18,6 +18,7 @@ import org.eclipse.jface.action.IAction;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.PySelectionFromEditor;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -55,7 +56,7 @@ public class PyRemoveBlockComment extends PyAddBlockComment {
             // Select from text editor
             PyEdit pyEdit = getPyEdit();
 
-            PySelection ps = new PySelection(getTextEditor());
+            PySelection ps = PySelectionFromEditor.createPySelectionFromEditor(getTextEditor());
 
             // Perform the action
             Tuple<Integer, Integer> repRegion = perform(ps);

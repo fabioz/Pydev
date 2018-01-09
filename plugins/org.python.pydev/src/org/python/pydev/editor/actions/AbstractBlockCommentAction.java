@@ -10,6 +10,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.editor.PySelectionFromEditor;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -41,7 +42,7 @@ public abstract class AbstractBlockCommentAction extends PyAction {
                 return;
             }
             // Select from text editor
-            PySelection ps = new PySelection(getTextEditor());
+            PySelection ps = PySelectionFromEditor.createPySelectionFromEditor(getTextEditor());
             // Perform the action
             Tuple<Integer, Integer> toSelect = perform(ps);
             if (toSelect != null) {

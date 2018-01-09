@@ -21,6 +21,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.PySelectionFromEditor;
 import org.python.pydev.parser.fastparser.FastParser;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -36,7 +37,7 @@ public class PyCopyQualifiedName extends PyAction {
         try {
             PyEdit pyEdit = getPyEdit();
 
-            PySelection pySelection = new PySelection(pyEdit);
+            PySelection pySelection = PySelectionFromEditor.createPySelectionFromEditor(pyEdit);
 
             IPythonNature nature = pyEdit.getPythonNature();
             File editorFile = pyEdit.getEditorFile();

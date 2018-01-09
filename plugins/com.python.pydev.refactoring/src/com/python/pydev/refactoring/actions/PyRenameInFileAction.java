@@ -40,6 +40,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.PySelectionFromEditor;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -78,7 +79,7 @@ public class PyRenameInFileAction extends Action {
                     try {
                         ISourceViewer viewer = pyEdit.getPySourceViewer();
                         IDocument document = viewer.getDocument();
-                        PySelection ps = new PySelection(pyEdit);
+                        PySelection ps = PySelectionFromEditor.createPySelectionFromEditor(pyEdit);
                         LinkedPositionGroup group = new LinkedPositionGroup();
 
                         if (!fillWithOccurrences(document, group, new NullProgressMonitor(), ps)) {
@@ -96,7 +97,8 @@ public class PyRenameInFileAction extends Action {
                             final LinkedModeUI ui = new EditorLinkedModeUI(model, viewer);
                             Tuple<String, Integer> currToken = ps.getCurrToken();
                             ui.setCyclingMode(LinkedModeUI.CYCLE_ALWAYS);
-                            ui.setExitPosition(viewer, currToken.o2 + currToken.o1.length(), 0, 0 /*ordered so that 0 is current pos*/);
+                            ui.setExitPosition(viewer, currToken.o2 + currToken.o1.length(), 0,
+                                    0 /*ordered so that 0 is current pos*/);
                             ui.enter();
                         }
                     } catch (BadLocationException e) {

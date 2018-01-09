@@ -21,6 +21,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.editor.PySelectionFromEditor;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
@@ -50,7 +51,7 @@ public class PyGlobalsBrowser extends PyAction {
             handle(e1);
             return;
         }
-        PySelection ps = new PySelection(this.getPyEdit());
+        PySelection ps = PySelectionFromEditor.createPySelectionFromEditor(this.getPyEdit());
         String selectedText = ps.getSelectedText();
         if (selectedText == null || selectedText.length() == 0) {
             try {
@@ -187,7 +188,8 @@ public class PyGlobalsBrowser extends PyAction {
 
                         } else if (additional.additionalInfo instanceof AdditionalSystemInterpreterInfo) {
                             AdditionalSystemInterpreterInfo systemInterpreterInfo = (AdditionalSystemInterpreterInfo) additional.additionalInfo;
-                            SystemPythonNature pythonNature = new SystemPythonNature(systemInterpreterInfo.getManager());
+                            SystemPythonNature pythonNature = new SystemPythonNature(
+                                    systemInterpreterInfo.getManager());
                             pythonNatures = new ArrayList<IPythonNature>();
                             pythonNatures.add(pythonNature);
                         }

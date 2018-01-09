@@ -25,6 +25,7 @@ import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PythonPairMatcher;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.PySelectionFromEditor;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -149,7 +150,7 @@ public class PyBackspace extends PyAction {
             return;
         }
 
-        PySelection ps = new PySelection(getTextEditor());
+        PySelection ps = PySelectionFromEditor.createPySelectionFromEditor(getTextEditor());
         perform(ps);
     }
 

@@ -30,6 +30,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.PySelectionFromEditor;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
@@ -156,7 +157,7 @@ public abstract class PyRefactorAction extends PyAction {
     public void run(final IAction action) {
         // Select from text editor
         request = null; //clear the cache from previous runs
-        ps = new PySelection(getTextEditor());
+        ps = PySelectionFromEditor.createPySelectionFromEditor(getTextEditor());
 
         RefactoringRequest req;
         try {

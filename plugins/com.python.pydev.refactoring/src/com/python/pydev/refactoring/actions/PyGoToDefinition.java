@@ -37,9 +37,9 @@ import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.eclipse.ui.progress.UIJob;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.PySelectionFromEditor;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
@@ -197,7 +197,7 @@ public class PyGoToDefinition extends PyRefactorAction {
     public ItemPointer[] findDefinitionsAndOpen(boolean doOpenDefinition) {
         request = null;
 
-        ps = new PySelection(getTextEditor());
+        ps = PySelectionFromEditor.createPySelectionFromEditor(getTextEditor());
         final PyEdit pyEdit = getPyEdit();
         RefactoringRequest refactoringRequest;
         try {

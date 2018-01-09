@@ -46,6 +46,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.PySelectionFromEditor;
 import org.python.pydev.editor.actions.PyFormatStdManageBlankLines.LineOffsetAndInfo;
 import org.python.pydev.parser.prettyprinterv2.IFormatter;
 import org.python.pydev.plugin.PydevPlugin;
@@ -168,7 +169,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
             }
 
             PyEdit pyEdit = getPyEdit();
-            PySelection ps = new PySelection(pyEdit);
+            PySelection ps = PySelectionFromEditor.createPySelectionFromEditor(pyEdit);
 
             try {
                 int[] regionsToFormat = null;

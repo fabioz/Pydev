@@ -35,6 +35,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.PySelectionFromEditor;
 import org.python.pydev.editor.actions.organize_imports.ImportArranger;
 import org.python.pydev.editor.actions.organize_imports.Pep8ImportArranger;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
@@ -72,7 +73,7 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
 
             PyEdit pyEdit = getPyEdit();
 
-            PySelection ps = new PySelection(pyEdit);
+            PySelection ps = PySelectionFromEditor.createPySelectionFromEditor(pyEdit);
             final IDocument doc = ps.getDoc();
             if (ps.getStartLineIndex() == ps.getEndLineIndex()) {
                 organizeImports(pyEdit, doc, null, ps);

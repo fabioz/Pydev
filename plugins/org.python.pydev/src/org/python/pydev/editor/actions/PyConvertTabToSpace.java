@@ -16,6 +16,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.editor.PySelectionFromEditor;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
 /**
@@ -40,7 +41,7 @@ public class PyConvertTabToSpace extends PyConvertSpaceToTab {
 
             // Select from text editor
             ITextEditor textEditor = getTextEditor();
-            ps = new PySelection(textEditor);
+            ps = PySelectionFromEditor.createPySelectionFromEditor(textEditor);
             ps.selectAll(false);
             // Perform the action
             perform(textEditor);

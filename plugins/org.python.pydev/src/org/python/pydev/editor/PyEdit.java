@@ -243,12 +243,12 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      */
     @Override
     public PySelection createPySelection() {
-        return new PySelection(this);
+        return PySelectionFromEditor.createPySelectionFromEditor(this);
     }
 
     @Override
     public TextSelectionUtils createTextSelectionUtils() {
-        return new PySelection(this);
+        return PySelectionFromEditor.createPySelectionFromEditor(this);
     }
 
     /**
@@ -1274,7 +1274,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
         try {
             int startOffset = -1, endOffset = -1;
-            PySelection selection = new PySelection(this);
+            PySelection selection = PySelectionFromEditor.createPySelectionFromEditor(this);
 
             for (ISimpleNode inode : nodes) {
                 SimpleNode node = (SimpleNode) inode;
@@ -1314,7 +1314,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         int offset, length, endOffset;
 
         try {
-            PySelection selection = new PySelection(this);
+            PySelection selection = PySelectionFromEditor.createPySelectionFromEditor(this);
             offset = selection.getLineOffset(node.beginLine - 1) + node.beginColumn - 1;
             int[] colLineEnd = NodeUtils.getColLineEnd(node);
 

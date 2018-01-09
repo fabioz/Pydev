@@ -10,6 +10,7 @@ import org.eclipse.jface.action.IAction;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.PySelectionFromEditor;
 import org.python.pydev.shared_core.structure.Tuple;
 
 public class PySelectWord extends PyAction {
@@ -17,7 +18,7 @@ public class PySelectWord extends PyAction {
     @Override
     public void run(IAction action) {
         PyEdit pyEdit = getPyEdit();
-        PySelection ps = new PySelection(pyEdit);
+        PySelection ps = PySelectionFromEditor.createPySelectionFromEditor(pyEdit);
         try {
             Tuple<String, Integer> currToken = ps.getCurrToken();
             if (currToken.o1 != null) {

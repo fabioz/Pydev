@@ -27,7 +27,6 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.docutils.TabNannyDocIterator.IndentInfo;
@@ -130,16 +129,6 @@ public final class PySelection extends TextSelectionUtils {
         ALL_KEYWORD_TOKENS.add("with");
         ALL_KEYWORD_TOKENS.add("yield");
     };
-
-    /**
-     * Alternate constructor for PySelection. Takes in a text editor from Eclipse.
-     *
-     * @param textEditor The text editor operating in Eclipse
-     */
-    public PySelection(ITextEditor textEditor) {
-        this(textEditor.getDocumentProvider().getDocument(textEditor.getEditorInput()), (ITextSelection) textEditor
-                .getSelectionProvider().getSelection());
-    }
 
     /**
      * @param document the document we are using to make the selection
