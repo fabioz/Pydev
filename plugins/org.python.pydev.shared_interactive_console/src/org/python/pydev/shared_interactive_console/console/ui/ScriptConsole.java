@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.debug.internal.ui.views.console.ProcessConsole;
 import org.eclipse.debug.ui.console.IConsoleLineTracker;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
@@ -77,6 +78,11 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
     // Backward-compatibility
     public static ScriptConsole getActiveScriptConsole(String ignored) {
         return getActiveScriptConsole();
+    }
+
+    @Override
+    public IDocument getDocument() {
+        return super.getDocument();
     }
 
     public static Iterable<IConsoleView> iterConsoles() {

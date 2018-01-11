@@ -646,6 +646,11 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
         return this.console.getInterpreterInfo();
     }
 
+    @Override
+    public StyledText getTextWidget() {
+        return super.getTextWidget();
+    }
+
     /**
      * Sets the new caret position in the console.
      *
