@@ -294,11 +294,13 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
 
         IProject project = getProject();
         try {
-            IFile file = project.getFile(path);
-            if (file.exists()) {
-                FileLink link = new FileLink(file, null, -1, -1, lineNumberInt);
-                linkContainer.addLink(link, lineOffset + matchStartCol, endCol - matchStartCol);
-                return true;
+            if (project != null) {
+                IFile file = project.getFile(path);
+                if (file.exists()) {
+                    FileLink link = new FileLink(file, null, -1, -1, lineNumberInt);
+                    linkContainer.addLink(link, lineOffset + matchStartCol, endCol - matchStartCol);
+                    return true;
+                }
             }
         } catch (IllegalArgumentException e1) {
             // ignore
@@ -332,17 +334,19 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
 
         try {
             IPath workingDirectory = getWorkingDirectory();
-            while (path.segmentCount() > 0) {
-                IPath appended = workingDirectory.append(path);
-                File checkFile = appended.toFile();
-                if (checkFile.exists()) {
-                    if (createHyperlink(lineOffset,
-                            matchStartCol + (initialFilename.length() - path.toString().length()),
-                            endCol, checkFile.getAbsolutePath(), lineNumberInt)) {
-                        return true;
+            if (workingDirectory != null) {
+                while (path.segmentCount() > 0) {
+                    IPath appended = workingDirectory.append(path);
+                    File checkFile = appended.toFile();
+                    if (checkFile.exists()) {
+                        if (createHyperlink(lineOffset,
+                                matchStartCol + (initialFilename.length() - path.toString().length()),
+                                endCol, checkFile.getAbsolutePath(), lineNumberInt)) {
+                            return true;
+                        }
                     }
+                    path = path.removeFirstSegments(1);
                 }
-                path = path.removeFirstSegments(1);
             }
         } catch (Exception e) {
             Log.log(e);
