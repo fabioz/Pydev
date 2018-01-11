@@ -1,4 +1,4 @@
-package org.python.pydev.shared_ui.debug;
+package org.python.pydev.debug.console_actions;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;

@@ -4,6 +4,15 @@
    <extension-point id="pydev_debug_console_input_listener" name="pydev_debug_console_input_listener" schema="schema/pydev_debug_console_input_listener.exsd"/>
    <extension-point id="pydev_debug_command_line_participant" name="pydev_debug_command_line_participant" schema="schema/pydev_debug_command_line_participant.exsd"/>
 
+<extension
+      point="org.eclipse.ui.console.consolePageParticipants">
+   <consolePageParticipant
+         class="org.python.pydev.debug.console_actions.ConsoleRestartLaunchPageParticipant"
+         id="org.python.pydev.debug.console_actions.ConsoleRestartLaunchPageParticipant">
+      <enablement></enablement>
+   </consolePageParticipant>
+</extension>
+
 <!--- run keybindings -->
 <extension point="org.eclipse.ui.editorActions">
 <editorContribution
@@ -30,13 +39,13 @@
      <action
            definitionId="org.python.pydev.debug.ui.actions.relaunchLastAction"
            label="Relaunch last pydev launch"
-           class="org.python.pydev.shared_ui.debug.RelaunchLastAction"
+           class="org.python.pydev.debug.console_actions.RelaunchLastAction"
            id="org.python.pydev.debug.ui.actions.relaunchLastAction">
      </action>
      <action
            definitionId="org.python.pydev.debug.ui.actions.terminateAllLaunchesAction"
            label="Terminate all launches"
-           class="org.python.pydev.shared_ui.debug.TerminateAllLaunchesAction"
+           class="org.python.pydev.debug.console_actions.TerminateAllLaunchesAction"
            id="org.python.pydev.debug.ui.actions.terminateAllLaunchesAction">
      </action>
 </editorContribution>
