@@ -15,27 +15,21 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.ITextViewerExtension2;
-import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.jface.text.quickassist.IQuickAssistAssistant;
 import org.eclipse.jface.text.quickassist.IQuickAssistProcessor;
 import org.eclipse.jface.text.source.IAnnotationHover;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.python.pydev.core.IPySyntaxHighlightingAndCodeCompletionEditor;
-import org.python.pydev.core.IPythonPartitions;
-import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
-import org.python.pydev.editor.codecompletion.PythonCompletionProcessor;
-import org.python.pydev.editor.codecompletion.PythonStringCompletionProcessor;
+import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.editor.correctionassist.PyCorrectionAssistant;
 import org.python.pydev.editor.correctionassist.PythonCorrectionProcessor;
 import org.python.pydev.editor.hover.PyAnnotationHover;
 import org.python.pydev.editor.hover.PyEditorTextHoverDescriptor;
 import org.python.pydev.editor.hover.PyEditorTextHoverProxy;
 import org.python.pydev.editor.hover.PyHoverPreferencesPage;
-import org.python.pydev.editor.simpleassist.SimpleAssistProcessor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.utils.ArrayUtils;
 import org.python.pydev.ui.ColorAndStyleCache;
@@ -135,45 +129,14 @@ public class PyEditConfiguration extends PyEditConfigurationWithoutEditor {
      */
     @Override
     public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
-        // next create a content assistant processor to populate the completions window
-        IContentAssistProcessor processor = new SimpleAssistProcessor(edit, new PythonCompletionProcessor(edit,
-                pyContentAssistant), pyContentAssistant);
-
-        PythonStringCompletionProcessor stringProcessor = new PythonStringCompletionProcessor(edit, pyContentAssistant);
-
+        PyContentAssistant contentAssistant = (PyContentAssistant) SetupContentAssist.configContentAssistant(
+                edit, pyContentAssistant);
         pyContentAssistant.setRestoreCompletionProposalSize(getSettings("pydev_completion_proposal_size"));
-
-        // No code completion in comments
-        pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_SINGLELINE_BYTES1);
-        pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_SINGLELINE_BYTES2);
-        pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_MULTILINE_BYTES1);
-        pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_MULTILINE_BYTES2);
-
-        pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_SINGLELINE_UNICODE1);
-        pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_SINGLELINE_UNICODE2);
-        pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_MULTILINE_UNICODE1);
-        pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_MULTILINE_UNICODE2);
-
-        pyContentAssistant
-                .setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE1);
-        pyContentAssistant
-                .setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE2);
-        pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_MULTILINE_BYTES_OR_UNICODE1);
-        pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_MULTILINE_BYTES_OR_UNICODE2);
-
-        pyContentAssistant.setContentAssistProcessor(stringProcessor, IPythonPartitions.PY_COMMENT);
-        pyContentAssistant.setContentAssistProcessor(processor, IDocument.DEFAULT_CONTENT_TYPE);
         if (sourceViewer != null) {
             pyContentAssistant.setInformationControlCreator(getInformationControlCreator(sourceViewer));
         }
-        pyContentAssistant.enableAutoActivation(true); //always true, but the chars depend on whether it is activated or not in the preferences
 
-        //note: delay and auto activate are set on PyContentAssistant constructor.
-
-        pyContentAssistant.setDocumentPartitioning(IPythonPartitions.PYTHON_PARTITION_TYPE);
-        pyContentAssistant.setAutoActivationDelay(PyCodeCompletionPreferencesPage.getAutocompleteDelay());
-
-        return pyContentAssistant;
+        return contentAssistant;
     }
 
     /*
