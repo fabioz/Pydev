@@ -81,6 +81,9 @@ want to use a Python installation which is not the default in the PATH, you can 
 info from the folders which are currently in the <strong>PYTHONPATH</strong>, but if none of the folders in the
 <strong>PYTHONPATH</strong> are available as root folders inside Visual Studio Code, it will also consider each root folder
 from <strong>Visual Studio Code</strong> to be a folder in the <strong>PYTHONPATH</strong> too.</p>
+<p>To see information on the current interpreter configured, the command:</p>
+<p><strong>PyDev: Show Python Interpreter Configuration</strong></p>
+<p>may be executed from inside <strong>Visual Studio Code</strong>.</p>
 </div>
 </contents_area>
 
