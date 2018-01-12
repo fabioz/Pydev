@@ -9,7 +9,7 @@ package org.python.pydev.editor.codecompletion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
-import org.python.pydev.editor.IPySyntaxHighlightingAndCodeCompletionEditor;
+import org.python.pydev.core.IPySyntaxHighlightingAndCodeCompletionEditor;
 
 public class PythonStringCompletionProcessor extends PythonCompletionProcessor {
 

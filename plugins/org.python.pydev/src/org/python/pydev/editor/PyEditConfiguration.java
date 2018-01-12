@@ -24,6 +24,7 @@ import org.eclipse.jface.text.quickassist.IQuickAssistAssistant;
 import org.eclipse.jface.text.quickassist.IQuickAssistProcessor;
 import org.eclipse.jface.text.source.IAnnotationHover;
 import org.eclipse.jface.text.source.ISourceViewer;
+import org.python.pydev.core.IPySyntaxHighlightingAndCodeCompletionEditor;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.PythonCompletionProcessor;

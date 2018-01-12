@@ -25,6 +25,7 @@ import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IIndentPrefs;
+import org.python.pydev.core.IPyEditConfigurationWithoutEditor;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
@@ -34,7 +35,8 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.ui.ColorAndStyleCache;
 
-public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfiguration {
+public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfiguration
+        implements IPyEditConfigurationWithoutEditor {
 
     private ColorAndStyleCache colorCache;
 

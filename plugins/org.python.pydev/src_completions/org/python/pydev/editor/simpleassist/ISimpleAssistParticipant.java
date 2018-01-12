@@ -12,8 +12,8 @@ package org.python.pydev.editor.simpleassist;
 import java.util.Collection;
 
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.core.IPySyntaxHighlightingAndCodeCompletionEditor;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.IPySyntaxHighlightingAndCodeCompletionEditor;
 
 public interface ISimpleAssistParticipant {
 

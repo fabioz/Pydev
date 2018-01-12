@@ -4,18 +4,13 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.editor;
+package org.python.pydev.core;
 
 import java.io.File;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.text.source.ISourceViewer;
-import org.python.pydev.core.IGrammarVersionProvider;
-import org.python.pydev.core.IIndentPrefs;
-import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.ui.ColorAndStyleCache;
 
 /**
  * This is the interface needed for an editor that has syntax highlighting and code-completion
@@ -29,9 +24,9 @@ public interface IPySyntaxHighlightingAndCodeCompletionEditor extends IAdaptable
 
     void resetForceTabs();
 
-    ColorAndStyleCache getColorCache();
+    IColorCache /* ColorAndStyleCache*/ getColorCache();
 
-    PyEditConfigurationWithoutEditor getEditConfiguration();
+    IPyEditConfigurationWithoutEditor /*PyEditConfigurationWithoutEditor*/ getEditConfiguration();
 
     PySelection createPySelection();
 

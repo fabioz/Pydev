@@ -90,6 +90,7 @@ import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPyEdit;
+import org.python.pydev.core.IPySyntaxHighlightingAndCodeCompletionEditor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ITabChangedListener;
 import org.python.pydev.core.MisconfigurationException;
