@@ -8,10 +8,28 @@ package org.python.pydev.shared_ui.utils;
 
 import org.eclipse.swt.widgets.Display;
 import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
+import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
 
 public class RunInUiThread {
 
+    public static final ICallbackWithListeners<RunInUiThreadInfo> listeners = new CallbackWithListeners<>();
+
+    public static class RunInUiThreadInfo {
+
+        public final Runnable runnable;
+        public final boolean async;
+        public final boolean runNowIfInUiThread;
+
+        public RunInUiThreadInfo(Runnable r, boolean async, boolean runNowIfInUiThread) {
+            this.runnable = r;
+            this.async = async;
+            this.runNowIfInUiThread = runNowIfInUiThread;
+        }
+    }
+
     public static void sync(Runnable r) {
+        listeners.call(new RunInUiThreadInfo(r, false, true));
         if (SharedCorePlugin.inTestMode()) {
             //Executing in tests: run it now!
             r.run();
@@ -31,6 +49,7 @@ public class RunInUiThread {
     }
 
     public static void async(Runnable r, boolean runNowIfInUiThread) {
+        listeners.call(new RunInUiThreadInfo(r, true, runNowIfInUiThread));
         if (SharedCorePlugin.inTestMode()) {
             //Executing in tests: run it now!
             r.run();

@@ -139,4 +139,6 @@ public interface IInterpreterInfo {
     public boolean getActivateCondaEnv();
 
     void setActivateCondaEnv(boolean b);
+
+    public String toString(boolean forceShowActivateCondaEnv);
 }

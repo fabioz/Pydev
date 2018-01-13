@@ -11,6 +11,8 @@
  */
 package org.python.pydev.ui.pythonpathconf;
 
+import static org.junit.Assert.assertNotEquals;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,10 +20,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 
-import junit.framework.TestCase;
-
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.shared_core.io.FileUtils;
+
+import junit.framework.TestCase;
 
 /**
  * @author Fabio Zadrozny
@@ -146,6 +148,12 @@ public class InterpreterInfoTest extends TestCase {
         assertEquals(info8, InterpreterInfo.fromString(s, false));
         check(info8);
 
+        InterpreterInfo newInfo8 = InterpreterInfo.fromString(info8.toString(), false);
+        newInfo8.setActivateCondaEnv(true);
+        info8.setActivateCondaEnv(false);
+        assertNotEquals(newInfo8, info8);
+        info8.setActivateCondaEnv(true);
+        assertEquals(newInfo8, info8);
     }
 
     public void testSeparatorChars() {
@@ -281,7 +289,7 @@ public class InterpreterInfoTest extends TestCase {
         //cd W:/pydev/plugins/org.python.pydev/tests/org/python/pydev/ui/pythonpathconf
         //"d:\instaçao âo\Python27\python.exe"  W:\pydev\plugins\org.python.pydev\pysrc\interpreterInfo.py > InterpreterInfoOutput.txt
 
-        String contents = (String) FileUtils.getFileContentsCustom(new File(TestDependent.TEST_PYDEV_PLUGIN_LOC
+        String contents = FileUtils.getFileContentsCustom(new File(TestDependent.TEST_PYDEV_PLUGIN_LOC
                 + "tests/org/python/pydev/ui/pythonpathconf/InterpreterInfoOutput.txt"), "utf-8", String.class);
         InterpreterInfo i1 = InterpreterInfo.fromString(contents, false);
         InterpreterInfo i2 = i1.makeCopy();
@@ -294,7 +302,7 @@ public class InterpreterInfoTest extends TestCase {
         //cd W:/pydev/plugins/org.python.pydev/tests/org/python/pydev/ui/pythonpathconf
         //"d:\instaçao âo\Python27\python.exe"  W:\pydev\plugins\org.python.pydev\pysrc\interpreterInfo.py > InterpreterInfoOutput.txt
 
-        String contents = (String) FileUtils.getFileContentsCustom(new File(TestDependent.TEST_PYDEV_PLUGIN_LOC
+        String contents = FileUtils.getFileContentsCustom(new File(TestDependent.TEST_PYDEV_PLUGIN_LOC
                 + "tests/org/python/pydev/ui/pythonpathconf/InterpreterInfoOutput.txt"), "utf-8", String.class);
         InterpreterInfo i1 = InterpreterInfo
                 .fromString("Some random string before" + contents + " random after", false);

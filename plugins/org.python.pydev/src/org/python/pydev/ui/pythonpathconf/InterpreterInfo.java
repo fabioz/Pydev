@@ -229,6 +229,10 @@ public class InterpreterInfo implements IInterpreterInfo {
             return false;
         }
 
+        if (info.activateCondaEnv != this.activateCondaEnv) {
+            return false;
+        }
+
         if (info.libs.equals(this.libs) == false) {
             return false;
         }
@@ -754,6 +758,7 @@ public class InterpreterInfo implements IInterpreterInfo {
     /**
      * @see java.lang.Object#toString()
      */
+    @Override
     public String toString(boolean forceShowActivateCondaEnv) {
         FastStringBuffer buffer = new FastStringBuffer();
         buffer.append("<xml>\n");
