@@ -76,6 +76,7 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 public class SynchSystemModulesManager {
 
     public static final boolean DEBUG = false;
+    public static boolean ALWAYS_APPLY_ALL_CHANGES_WITHOUT_ASKING = false;
 
     public static class PythonpathChange {
 
@@ -420,8 +421,7 @@ public class SynchSystemModulesManager {
     /*default*/void asyncSelectAndScheduleElementsToChangePythonpath(final DataAndImageTreeNode root,
             final ManagerInfoToUpdate managerToNameToInfo,
             final List<TreeNode> initialSelection) {
-        RunInUiThread.async(new Runnable() {
-
+        Runnable runnable = new Runnable() {
             @Override
             public void run() {
                 synchronized (selectingElementsInDialogLock) {
@@ -440,7 +440,13 @@ public class SynchSystemModulesManager {
                         }
                         return; //If something changed, don't do anything (we should automatically reschedule in this case).
                     }
-                    List<TreeNode> selectedElements = selectElementsInDialog(root, initialSelection);
+                    List<TreeNode> selectedElements;
+                    if (ALWAYS_APPLY_ALL_CHANGES_WITHOUT_ASKING) {
+                        selectedElements = root.flattenChildren();
+
+                    } else {
+                        selectedElements = selectElementsInDialog(root, initialSelection);
+                    }
                     saveUnselected(root, selectedElements, PydevPrefs.getPreferences());
                     if (selectedElements != null && selectedElements.size() > 0) {
                         jobApplyChanges.stack(root, selectedElements, managerToNameToInfo);
@@ -454,7 +460,12 @@ public class SynchSystemModulesManager {
                     }
                 }
             }
-        });
+        };
+        if (ALWAYS_APPLY_ALL_CHANGES_WITHOUT_ASKING) {
+            runnable.run();
+        } else {
+            RunInUiThread.async(runnable);
+        }
     }
 
     /**
