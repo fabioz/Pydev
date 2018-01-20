@@ -876,18 +876,22 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
 
     }
 
+    public static Tuple<String, Integer> autoDedentStatement(IDocument document, DocumentCommand command, String tok,
+            String[] tokens, IIndentPrefs prefs) throws BadLocationException {
+        return autoDedentStatement(document, command, tok, tokens, prefs, true);
+    }
+
     /**
      * This function makes the else auto-dedent (if available)
      * @return the new indent and the number of chars it has been dedented (so, that has to be considered as a shift to the left
      * on subsequent things).
      */
-    public static Tuple<String, Integer> autoDedentAfterColon(IDocument document, DocumentCommand command, String tok,
-            String[] tokens, IIndentPrefs prefs) throws BadLocationException {
+    public static Tuple<String, Integer> autoDedentStatement(IDocument document, DocumentCommand command, String tok,
+            String[] tokens, IIndentPrefs prefs, boolean applyDedentInDocument) throws BadLocationException {
         if (prefs.getAutoDedentElse() && command.doit) {
             PySelection ps = new PySelection(document, command.offset);
             String lineContents = ps.getCursorLineContents();
             if (lineContents.trim().equals(tok)) {
-
                 String previousIfLine = ps.getPreviousLineThatStartsWithToken(tokens);
                 if (previousIfLine != null) {
                     String ifIndent = PySelection.getIndentationFromLine(previousIfLine);
@@ -896,7 +900,9 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
                     String indent = prefs.getIndentationString();
                     if (lineIndent.length() == ifIndent.length() + indent.length()) {
                         Tuple<String, Integer> dedented = removeFirstIndent(lineContents, prefs);
-                        ps.replaceLineContentsToSelection(dedented.o1);
+                        if (applyDedentInDocument) {
+                            ps.replaceLineContentsToSelection(dedented.o1);
+                        }
                         command.offset = command.offset - dedented.o2;
                         return dedented;
                     }
@@ -909,14 +915,14 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
     public static Tuple<String, Integer> autoDedentAfterColon(IDocument document, DocumentCommand command,
             IIndentPrefs prefs) throws BadLocationException {
         Tuple<String, Integer> ret = null;
-        if ((ret = autoDedentAfterColon(document, command, "else", PySelection.TOKENS_BEFORE_ELSE, prefs)) != null) {
+        if ((ret = autoDedentStatement(document, command, "else", PySelection.TOKENS_BEFORE_ELSE, prefs)) != null) {
             return ret;
         }
-        if ((ret = autoDedentAfterColon(document, command, "except", PySelection.TOKENS_BEFORE_EXCEPT,
+        if ((ret = autoDedentStatement(document, command, "except", PySelection.TOKENS_BEFORE_EXCEPT,
                 prefs)) != null) {
             return ret;
         }
-        if ((ret = autoDedentAfterColon(document, command, "finally", PySelection.TOKENS_BEFORE_FINALLY,
+        if ((ret = autoDedentStatement(document, command, "finally", PySelection.TOKENS_BEFORE_FINALLY,
                 prefs)) != null) {
             return ret;
         }
@@ -930,7 +936,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
      */
     public static Tuple<String, Integer> autoDedentElif(IDocument document, DocumentCommand command, IIndentPrefs prefs)
             throws BadLocationException {
-        return autoDedentAfterColon(document, command, "elif", PySelection.TOKENS_BEFORE_ELIF, prefs);
+        return autoDedentStatement(document, command, "elif", PySelection.TOKENS_BEFORE_ELIF, prefs);
     }
 
     /**
