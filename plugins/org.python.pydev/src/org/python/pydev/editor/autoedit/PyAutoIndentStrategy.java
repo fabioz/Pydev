@@ -735,101 +735,106 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
             boolean considerOnlyCurrentLine, IIndentPrefs prefs) throws BadLocationException {
         if (prefs.getAutoParentesis()) {
             PySelection ps = new PySelection(document, command.offset);
-            String line = ps.getLine();
 
             if (shouldClose(ps, '(', ')')) {
+                customizeParenthesis2(command, considerOnlyCurrentLine, prefs, ps);
+            }
+        }
+    }
 
-                boolean hasClass = line.indexOf("class ") != -1;
-                boolean hasClassMethodDef = line.indexOf(" def ") != -1 || line.indexOf("\tdef ") != -1;
-                boolean hasMethodDef = line.indexOf("def ") != -1;
-                boolean hasDoublePoint = line.indexOf(":") != -1;
+    public static void customizeParenthesis2(DocumentCommand command, boolean considerOnlyCurrentLine,
+            IIndentPrefs prefs,
+            PySelection ps) {
+        final String line = ps.getLine();
+        boolean hasClass = line.indexOf("class ") != -1;
+        boolean hasClassMethodDef = line.indexOf(" def ") != -1 || line.indexOf("\tdef ") != -1;
+        boolean hasMethodDef = line.indexOf("def ") != -1;
+        boolean hasDoublePoint = line.indexOf(":") != -1;
 
-                command.shiftsCaret = false;
-                if (!hasDoublePoint && (hasClass || hasClassMethodDef || hasMethodDef)) {
-                    if (hasClass) {
-                        //command.text = "(object):"; //TODO: put some option in the interface for that
-                        //command.caretOffset = command.offset + 7;
-                        command.text = "():";
-                        command.caretOffset = command.offset + 1;
+        command.shiftsCaret = false;
+        if (!hasDoublePoint && (hasClass || hasClassMethodDef || hasMethodDef)) {
+            if (hasClass) {
+                //command.text = "(object):"; //TODO: put some option in the interface for that
+                //command.caretOffset = command.offset + 7;
+                command.text = "():";
+                command.caretOffset = command.offset + 1;
 
-                    } else if (hasClassMethodDef && prefs.getAutoAddSelf()) {
-                        String prevLine = ps.getLine(ps.getCursorLine() - 1);
-                        if (prevLine.indexOf("@classmethod") != -1) {
-                            command.text = "(cls):";
-                            command.caretOffset = command.offset + 4;
+            } else if (hasClassMethodDef && prefs.getAutoAddSelf()) {
+                String prevLine = ps.getLine(ps.getCursorLine() - 1);
+                if (prevLine.indexOf("@classmethod") != -1) {
+                    command.text = "(cls):";
+                    command.caretOffset = command.offset + 4;
 
-                        } else if (prevLine.indexOf("@staticmethod") != -1) {
-                            command.text = "():";
-                            command.caretOffset = command.offset + 1;
+                } else if (prevLine.indexOf("@staticmethod") != -1) {
+                    command.text = "():";
+                    command.caretOffset = command.offset + 1;
 
-                        } else {
+                } else {
 
-                            boolean addRegular = true;
-                            if (!considerOnlyCurrentLine) {
-                                //ok, also analyze the scope we're in (otherwise, if we only have the current line
-                                //that's the best guess we can give).
-                                int firstCharPosition = PySelection.getFirstCharPosition(line);
+                    boolean addRegular = true;
+                    if (!considerOnlyCurrentLine) {
+                        //ok, also analyze the scope we're in (otherwise, if we only have the current line
+                        //that's the best guess we can give).
+                        int firstCharPosition = PySelection.getFirstCharPosition(line);
 
-                                LineStartingScope scopeStart = ps.getPreviousLineThatStartsScope(
-                                        PySelection.CLASS_AND_FUNC_TOKENS, false, firstCharPosition);
+                        LineStartingScope scopeStart = ps.getPreviousLineThatStartsScope(
+                                PySelection.CLASS_AND_FUNC_TOKENS, false, firstCharPosition);
 
-                                if (scopeStart != null) {
-                                    if (scopeStart.lineStartingScope != null
-                                            && scopeStart.lineStartingScope.indexOf("def ") != -1) {
-                                        int iCurrDef = PySelection.getFirstCharPosition(line);
-                                        int iPrevDef = PySelection.getFirstCharPosition(scopeStart.lineStartingScope);
-                                        if (iCurrDef > iPrevDef) {
+                        if (scopeStart != null) {
+                            if (scopeStart.lineStartingScope != null
+                                    && scopeStart.lineStartingScope.indexOf("def ") != -1) {
+                                int iCurrDef = PySelection.getFirstCharPosition(line);
+                                int iPrevDef = PySelection.getFirstCharPosition(scopeStart.lineStartingScope);
+                                if (iCurrDef > iPrevDef) {
+                                    addRegular = false;
+
+                                } else if (iCurrDef == iPrevDef) {
+                                    if (scopeStart.lineStartingScope.indexOf("self") == -1) {
+                                        //only add self if the one in the same level also has it.
+                                        //with a 'gotcha': if it's a classmethod or staticmethod, we
+                                        //should still add it.
+                                        if (scopeStart.iLineStartingScope <= 0) {
                                             addRegular = false;
-
-                                        } else if (iCurrDef == iPrevDef) {
-                                            if (scopeStart.lineStartingScope.indexOf("self") == -1) {
-                                                //only add self if the one in the same level also has it.
-                                                //with a 'gotcha': if it's a classmethod or staticmethod, we
-                                                //should still add it.
-                                                if (scopeStart.iLineStartingScope <= 0) {
-                                                    addRegular = false;
-                                                } else {
-                                                    addRegular = false;
-                                                    int i = scopeStart.iLineStartingScope - 1;
-                                                    String line2;
-                                                    do {
-                                                        line2 = ps.getLine(i).trim();
-                                                        i--;
-                                                        if (line2.startsWith("@classmethod")
-                                                                || line2.startsWith("@staticmethod")) {
-                                                            addRegular = true;
-                                                            break;
-                                                        }
-                                                    } while (line2.startsWith("@")); //check all the available decorators...
-
+                                        } else {
+                                            addRegular = false;
+                                            int i = scopeStart.iLineStartingScope - 1;
+                                            String line2;
+                                            do {
+                                                line2 = ps.getLine(i).trim();
+                                                i--;
+                                                if (line2.startsWith("@classmethod")
+                                                        || line2.startsWith("@staticmethod")) {
+                                                    addRegular = true;
+                                                    break;
                                                 }
-                                            }
+                                            } while (line2.startsWith("@")); //check all the available decorators...
+
                                         }
                                     }
-                                } else {
-                                    addRegular = false;
                                 }
                             }
-                            if (addRegular) {
-                                command.text = "(self):";
-                                command.caretOffset = command.offset + 5;
-                            } else {
-                                command.text = "():";
-                                command.caretOffset = command.offset + 1;
-                            }
+                        } else {
+                            addRegular = false;
                         }
-                    } else if (hasMethodDef) {
+                    }
+                    if (addRegular) {
+                        command.text = "(self):";
+                        command.caretOffset = command.offset + 5;
+                    } else {
                         command.text = "():";
                         command.caretOffset = command.offset + 1;
-                    } else {
-                        throw new RuntimeException(PyAutoIndentStrategy.class.toString()
-                                + ": customizeDocumentCommand()");
                     }
-                } else {
-                    command.text = "()";
-                    command.caretOffset = command.offset + 1;
                 }
+            } else if (hasMethodDef) {
+                command.text = "():";
+                command.caretOffset = command.offset + 1;
+            } else {
+                throw new RuntimeException(PyAutoIndentStrategy.class.toString()
+                        + ": customizeDocumentCommand()");
             }
+        } else {
+            command.text = "()";
+            command.caretOffset = command.offset + 1;
         }
     }
 
