@@ -53,25 +53,25 @@ public abstract class AbstractModule implements IModule {
      */
     public static String MODULE_NAME_WHEN_FILE_IS_UNDEFINED = "";
 
-    /** 
+    /**
      * @see org.python.pydev.core.IModule#getWildImportedModules()
      */
     @Override
     public abstract IToken[] getWildImportedModules();
 
-    /** 
+    /**
      * @see org.python.pydev.core.IModule#getFile()
      */
     @Override
     public abstract File getFile();
 
-    /** 
+    /**
      * @see org.python.pydev.core.IModule#getTokenImportedModules()
      */
     @Override
     public abstract IToken[] getTokenImportedModules();
 
-    /** 
+    /**
      * @see org.python.pydev.core.IModule#getGlobalTokens()
      */
     @Override
@@ -85,7 +85,7 @@ public abstract class AbstractModule implements IModule {
         return null;
     }
 
-    /** 
+    /**
      * @see org.python.pydev.core.IModule#getLocalTokens(int, int, ILocalScope)
      */
     @Override
@@ -101,8 +101,8 @@ public abstract class AbstractModule implements IModule {
     @Override
     public abstract boolean isInDirectGlobalTokens(String tok, ICompletionCache completionCache);
 
-    /** 
-     * @throws CompletionRecursionException 
+    /**
+     * @throws CompletionRecursionException
      * @see org.python.pydev.core.IModule#isInGlobalTokens(java.lang.String, org.python.pydev.plugin.nature.PythonNature)
      */
     @Override
@@ -111,8 +111,8 @@ public abstract class AbstractModule implements IModule {
         return isInGlobalTokens(tok, nature, true, completionCache);
     }
 
-    /** 
-     * @throws CompletionRecursionException 
+    /**
+     * @throws CompletionRecursionException
      * @see org.python.pydev.core.IModule#isInGlobalTokens(java.lang.String, org.python.pydev.plugin.nature.PythonNature, boolean)
      */
     @Override
@@ -239,13 +239,13 @@ public abstract class AbstractModule implements IModule {
     public abstract Definition[] findDefinition(ICompletionState state, int line, int col, IPythonNature nature)
             throws Exception;
 
-    /** 
+    /**
      * @see org.python.pydev.core.IModule#getGlobalTokens(org.python.pydev.editor.codecompletion.revisited.CompletionState, org.python.pydev.core.ICodeCompletionASTManager)
      */
     @Override
     public abstract IToken[] getGlobalTokens(ICompletionState state, ICodeCompletionASTManager manager);
 
-    /** 
+    /**
      * @see org.python.pydev.core.IModule#getDocString()
      */
     @Override
@@ -256,7 +256,7 @@ public abstract class AbstractModule implements IModule {
      */
     protected String name;
 
-    /** 
+    /**
      * @see org.python.pydev.core.IModule#getName()
      */
     @Override
@@ -266,7 +266,7 @@ public abstract class AbstractModule implements IModule {
 
     /**
      * Constructor
-     * 
+     *
      * @param name - name of the module
      */
     protected AbstractModule(String name) {
@@ -275,10 +275,10 @@ public abstract class AbstractModule implements IModule {
 
     /**
      * This method creates a source module from a file.
-     * 
+     *
      * @return
-     * @throws IOException 
-     * @throws MisconfigurationException 
+     * @throws IOException
+     * @throws MisconfigurationException
      */
     public static AbstractModule createModule(String name, File f, IPythonNature nature, boolean checkForPath)
             throws IOException, MisconfigurationException {
@@ -300,9 +300,9 @@ public abstract class AbstractModule implements IModule {
         return createModuleFromDoc(name, f, doc, nature, checkForPath, nature);
     }
 
-    /** 
+    /**
      * This function creates the module given that you have a document (that will be parsed)
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     public static SourceModule createModuleFromDoc(String name, File f, IDocument doc, IPythonNature nature,
             boolean checkForPath, IGrammarVersionProvider grammarVersionProvider) throws MisconfigurationException {
@@ -323,7 +323,7 @@ public abstract class AbstractModule implements IModule {
 
     /**
      * This function creates a module and resolves the module name (use this function if only the file is available).
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     public static IModule createModuleFromDoc(File file, IDocument doc, IPythonNature pythonNature)
             throws MisconfigurationException {
@@ -350,11 +350,11 @@ public abstract class AbstractModule implements IModule {
 
     /**
      * Creates a source file generated only from an ast.
-     * 
+     *
      * @param n the ast root
      * @param file the module file
      * @param moduleName the name of the module
-     * 
+     *
      * @return the module
      */
     public static IModule createModule(SimpleNode n, File file, String moduleName, IPythonNature nature) {
@@ -379,7 +379,7 @@ public abstract class AbstractModule implements IModule {
         return null;
     }
 
-    /** 
+    /**
      * @see org.python.pydev.core.IModule#toString()
      */
     @Override

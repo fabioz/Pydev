@@ -8,8 +8,23 @@ Bundle-Activator: org.python.pydev.ast.AstPlugin
 Bundle-Localization: plugin
 Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime
+ org.eclipse.core.resources,
+ org.eclipse.jface.text,
+ org.eclipse.core.runtime,
+ org.python.pydev.core,
+ org.eclipse.text,
+ org.python.pydev.parser,
+ org.python.pydev.shared_ui
 Bundle-ActivationPolicy: lazy
-Export-Package: org.python.pydev.ast,org.python.pydev.ast.management
+Export-Package: org.python.pydev.ast,
+ org.python.pydev.ast.management,
+ org.python.pydev.editor.codecompletion,
+ org.python.pydev.editor.codecompletion.revisited,
+ org.python.pydev.editor.codecompletion.revisited.javaintegration,
+ org.python.pydev.editor.codecompletion.revisited.modules,
+ org.python.pydev.editor.codecompletion.revisited.visitors,
+ org.python.pydev.editor.codecompletion.shell,
+ org.python.pydev.editor.codecompletion.templates,
+ org.python.pydev.editor.simpleassist
 Bundle-Vendor: Brainwy Software Ltda
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

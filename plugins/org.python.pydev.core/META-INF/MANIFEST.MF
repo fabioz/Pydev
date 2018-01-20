@@ -17,13 +17,17 @@ Require-Bundle: org.junit;bundle-version="4.0.0";resolution:=optional,
  org.eclipse.core.variables,
  org.python.pydev.shared_core;bundle-version="[6.3.0,6.3.1)";visibility:=reexport
 Bundle-ActivationPolicy: lazy
-Export-Package: org.python.pydev.core,
+Export-Package: org.python.copiedfromeclipsesrc,
+ org.python.pydev.core,
  org.python.pydev.core.cache,
  org.python.pydev.core.concurrency,
  org.python.pydev.core.docutils,
+ org.python.pydev.core.interpreter_managers,
  org.python.pydev.core.log,
  org.python.pydev.core.parser,
  org.python.pydev.core.partition,
  org.python.pydev.core.performanceeval,
- org.python.pydev.core.structure
+ org.python.pydev.core.structure,
+ org.python.pydev.plugin.preferences,
+ org.python.pydev.shared_interactive_console.console.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

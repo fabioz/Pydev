@@ -12,7 +12,7 @@ import org.eclipse.jface.text.contentassist.ICompletionProposalExtension4;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
@@ -45,7 +45,7 @@ public class CompletionError implements ICompletionProposal, IPyCompletionPropos
 
     @Override
     public Image getImage() {
-        return PydevPlugin.getImageCache().get(UIConstants.ERROR);
+        return SharedUiPlugin.getImageCache().get(UIConstants.ERROR);
     }
 
     @Override

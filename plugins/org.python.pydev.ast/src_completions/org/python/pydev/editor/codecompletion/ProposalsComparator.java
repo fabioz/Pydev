@@ -16,9 +16,9 @@ import java.util.Comparator;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposalSorter;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal.ICompareContext;
 
@@ -42,7 +42,7 @@ public final class ProposalsComparator implements Comparator<ICompletionProposal
             this.project = project;
         }
 
-        public CompareContext(PyEdit edit) {
+        public CompareContext(IPyEdit edit) {
             this(edit == null ? null : edit.getProject());
         }
 

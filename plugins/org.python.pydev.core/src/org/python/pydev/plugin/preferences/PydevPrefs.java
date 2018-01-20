@@ -6,17 +6,16 @@
  */
 package org.python.pydev.plugin.preferences;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.ui.editors.text.EditorsUI;
-import org.eclipse.ui.texteditor.ChainedPreferenceStore;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.callbacks.ICallback0;
 
 /**
  * Helper to deal with the pydev preferences.
- * 
+ *
  * @author Fabio
  */
 public class PydevPrefs {
@@ -24,7 +23,12 @@ public class PydevPrefs {
     /**
      * This is a preference store that combines the preferences for pydev with the general preferences for editors.
      */
-    private static IPreferenceStore fChainedPrefStore;
+    private static transient IPreferenceStore fChainedPrefStore;
+    private static final Object fChainedPrefStoreLock = new Object();
+
+    public static ICallback<List<IPreferenceStore>, Boolean> getDefaultStores;
+    public static ICallback0<IPreferenceStore> getPreferenceStore;
+    public static ICallback0<IPreferenceStore> getChainedPrefStore;
 
     /**
      * @return the place where this plugin preferences are stored.
@@ -38,23 +42,23 @@ public class PydevPrefs {
      */
     public synchronized static IPreferenceStore getChainedPrefStore() {
         if (PydevPrefs.fChainedPrefStore == null) {
-            List<IPreferenceStore> stores = getDefaultStores(true);
-            PydevPrefs.fChainedPrefStore = new ChainedPreferenceStore(
-                    stores.toArray(new IPreferenceStore[stores.size()]));
+            synchronized (fChainedPrefStoreLock) {
+                if (PydevPrefs.fChainedPrefStore == null) {
+                    Assert.isNotNull(getChainedPrefStore, "Callback must be set prior to use.");
+                    PydevPrefs.fChainedPrefStore = getChainedPrefStore.call();
+                }
+            }
         }
         return PydevPrefs.fChainedPrefStore;
     }
 
     public static List<IPreferenceStore> getDefaultStores(boolean addEditorsUIStore) {
-        List<IPreferenceStore> stores = new ArrayList<IPreferenceStore>();
-        stores.add(PydevPlugin.getDefault().getPreferenceStore());
-        if (addEditorsUIStore) {
-            stores.add(EditorsUI.getPreferenceStore());
-        }
-        return stores;
+        Assert.isNotNull(getDefaultStores, "Callback must be set prior to use.");
+        return getDefaultStores.call(addEditorsUIStore);
     }
 
     public static IPreferenceStore getPreferenceStore() {
-        return PydevPlugin.getDefault().getPreferenceStore();
+        Assert.isNotNull(getPreferenceStore, "Callback must be set prior to use.");
+        return getPreferenceStore.call();
     }
 }

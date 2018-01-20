@@ -15,12 +15,12 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IIndentPrefs;
+import org.python.pydev.core.IPyEdit;
+import org.python.pydev.core.IPySourceViewer;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
-import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.NameTok;
@@ -87,9 +87,9 @@ public class OverrideMethodCompletionProposal extends AbstractPyCompletionPropos
 
     public int applyOnDocument(ITextViewer viewer, IDocument document, char trigger, int stateMask, int offset) {
         IGrammarVersionProvider versionProvider = null;
-        PyEdit edit = null;
-        if (viewer instanceof PySourceViewer) {
-            PySourceViewer pySourceViewer = (PySourceViewer) viewer;
+        IPyEdit edit = null;
+        if (viewer instanceof IPySourceViewer) {
+            IPySourceViewer pySourceViewer = (IPySourceViewer) viewer;
             versionProvider = edit = pySourceViewer.getEdit();
         } else {
             versionProvider = new IGrammarVersionProvider() {
@@ -138,7 +138,7 @@ public class OverrideMethodCompletionProposal extends AbstractPyCompletionPropos
         return -1;
     }
 
-    public static String printAst(PyEdit edit, SimpleNode astToPrint, String lineDelimiter) {
+    public static String printAst(IPyEdit edit, SimpleNode astToPrint, String lineDelimiter) {
         String str = null;
         if (astToPrint != null) {
             IIndentPrefs indentPrefs;

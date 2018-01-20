@@ -19,12 +19,12 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.structure.DecoratableObject;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -85,7 +85,7 @@ public class RefactoringRequest extends DecoratableObject {
     /**
      * The python editor. May be null (especially on tests)
      */
-    public final PyEdit pyEdit;
+    public final IPyEdit pyEdit;
 
     /**
      * The module for the passed document. Has a getter that caches the result here.
@@ -120,7 +120,7 @@ public class RefactoringRequest extends DecoratableObject {
      * @param file the file correspondent to this request
      * @throws MisconfigurationException
      */
-    public RefactoringRequest(PyEdit pyEdit, PySelection ps) throws MisconfigurationException {
+    public RefactoringRequest(IPyEdit pyEdit, PySelection ps) throws MisconfigurationException {
         this(pyEdit.getEditorFile(), ps, null, pyEdit.getPythonNature(), pyEdit);
     }
 
@@ -129,7 +129,7 @@ public class RefactoringRequest extends DecoratableObject {
      * nature is not specified)
      */
     public RefactoringRequest(File file, PySelection ps, IProgressMonitor monitor, IPythonNature nature,
-            PyEdit pyEdit) {
+            IPyEdit pyEdit) {
         this.file = file;
         this.ps = ps;
         this.pushMonitor(monitor);
@@ -229,7 +229,7 @@ public class RefactoringRequest extends DecoratableObject {
     public IModule getModule() {
         if (module == null) {
             if (pyEdit != null) {
-                SimpleNode ast = pyEdit.getAST();
+                SimpleNode ast = (SimpleNode) pyEdit.getAST();
                 if (ast != null) {
                     IDocument doc = ps.getDoc();
                     long astModificationTimeStamp = pyEdit.getAstModificationTimeStamp();

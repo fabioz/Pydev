@@ -12,11 +12,11 @@ import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.templates.DocumentTemplateContext;
 import org.eclipse.jface.text.templates.TemplateContext;
 import org.eclipse.jface.text.templates.TemplateContextType;
-import org.python.pydev.editor.templates.PyContextType;
-import org.python.pydev.editor.templates.TemplateHelper;
-import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.callbacks.ICallback0;
 
 public abstract class AbstractTemplateCodeCompletion extends AbstractPyCodeCompletion {
+
+    public static ICallback0<TemplateContextType> getTemplateContextType;
 
     /**
      * Creates a concrete template context for the given region in the document. This involves finding out which
@@ -37,15 +37,15 @@ public abstract class AbstractTemplateCodeCompletion extends AbstractPyCodeCompl
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.jface.text.templates.TemplateCompletionProcessor#getContextType(org.eclipse.jface.text.ITextViewer,
      *      org.eclipse.jface.text.IRegion)
      */
     protected TemplateContextType getContextType(ITextViewer viewer, IRegion region) {
-        if (SharedCorePlugin.inTestMode()) {
-            return new TemplateContextType();
+        if (getTemplateContextType != null) {
+            return getTemplateContextType.call();
         }
-        return TemplateHelper.getContextTypeRegistry().getContextType(PyContextType.PY_COMPLETIONS_CONTEXT_TYPE);
+        return new TemplateContextType();
     }
 
 }

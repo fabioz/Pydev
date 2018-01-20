@@ -38,9 +38,11 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.forms.FormColors;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.prefs.BackingStoreException;
@@ -49,11 +51,14 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.editor.codecompletion.AbstractTemplateCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.SyncSystemModulesManagerScheduler;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.hover.PyEditorTextHoverDescriptor;
 import org.python.pydev.editor.hover.PyHoverPreferencesPage;
 import org.python.pydev.editor.hover.PydevCombiningHover;
+import org.python.pydev.editor.templates.PyContextType;
+import org.python.pydev.editor.templates.TemplateHelper;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
@@ -229,6 +234,32 @@ public class PydevPlugin extends AbstractUIPlugin {
     public void start(BundleContext context) throws Exception {
         this.isAlive = true;
         super.start(context);
+
+        // Setup extensions in dependencies (could actually be done as extension points, but done like this for
+        // ease of implementation right now).
+        AbstractTemplateCodeCompletion.getTemplateContextType = () -> TemplateHelper.getContextTypeRegistry()
+                .getContextType(PyContextType.PY_COMPLETIONS_CONTEXT_TYPE);
+
+        PydevPrefs.getDefaultStores = (addEditorsUIStore) -> {
+            List<IPreferenceStore> stores = new ArrayList<IPreferenceStore>();
+            stores.add(PydevPlugin.getDefault().getPreferenceStore());
+            if (addEditorsUIStore) {
+                stores.add(EditorsUI.getPreferenceStore());
+            }
+            return stores;
+        };
+
+        PydevPrefs.getPreferenceStore = () -> PydevPlugin.getDefault().getPreferenceStore();
+
+        PydevPrefs.getChainedPrefStore = () -> {
+            List<IPreferenceStore> stores = PydevPrefs.getDefaultStores(true);
+            return new ChainedPreferenceStore(
+                    stores.toArray(new IPreferenceStore[stores.size()]));
+
+        };
+
+        // End setup extension in dependencies
+
         try {
             resourceBundle = ResourceBundle.getBundle("org.python.pydev.PyDevPluginResources");
         } catch (MissingResourceException x) {
@@ -533,10 +564,10 @@ public class PydevPlugin extends AbstractUIPlugin {
     public static String getIResourceOSString(IResource f) {
         URI locationURI = f.getLocationURI();
         if (locationURI != null) {
-            try{
+            try {
                 //RTC source control not return a valid uri
                 return FileUtils.getFileAbsolutePath(new File(locationURI));
-            }catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException e) {
             }
         }
 

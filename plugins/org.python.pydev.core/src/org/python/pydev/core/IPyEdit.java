@@ -9,18 +9,22 @@
  */
 package org.python.pydev.core;
 
+import java.io.File;
+
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.python.pydev.shared_core.editor.IBaseEditor;
 import org.python.pydev.shared_core.parsing.IParserObserver;
 
 /**
  * @author Fabio
  */
-public interface IPyEdit extends IParserObserver, IBaseEditor, IPyFormatStdProvider {
+public interface IPyEdit extends IParserObserver, IBaseEditor, IPyFormatStdProvider, IGrammarVersionProvider {
 
     /**
      * @return the python nature used in this editor
-     * @throws NotConfiguredInterpreterException 
-     * @throws MisconfigurationException 
+     * @throws NotConfiguredInterpreterException
+     * @throws MisconfigurationException
      */
     @Override
     IPythonNature getPythonNature() throws MisconfigurationException;
@@ -29,5 +33,15 @@ public interface IPyEdit extends IParserObserver, IBaseEditor, IPyFormatStdProvi
      * Set status message
      */
     void setStatusLineErrorMessage(String msg);
+
+    IProject getProject();
+
+    /* SimpleNode*/ Object getAST();
+
+    File getEditorFile();
+
+    long getAstModificationTimeStamp();
+
+    IFile getIFile();
 
 }
