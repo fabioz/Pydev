@@ -44,7 +44,7 @@ import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
 
 /**
  * This is the entry point for any refactoring that we implement.
- * 
+ *
  * @author Fabio
  */
 public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2 {
@@ -55,10 +55,10 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
     }
 
     /**
-     * Renames something... 
-     * 
-     * Basically passes things to the rename processor (it will choose the kind of rename that will happen). 
-     * 
+     * Renames something...
+     *
+     * Basically passes things to the rename processor (it will choose the kind of rename that will happen).
+     *
      * @see org.python.pydev.editor.refactoring.IPyRefactoring#rename(org.python.pydev.editor.refactoring.RefactoringRequest)
      */
     @Override
@@ -164,7 +164,8 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
             req.checkCancelled();
             occurrencesInOtherFiles = pyReferenceSearcher.getWorkspaceReferences(req);
             HashSet<ASTEntry> occurrences = pyReferenceSearcher.getLocalReferences(req);
-            occurrencesInOtherFiles.put(new Tuple<String, File>(req.moduleName, req.pyEdit.getEditorFile()),
+            occurrencesInOtherFiles.put(
+                    new Tuple<String, File>(req.moduleName, req.pyEdit != null ? req.pyEdit.getEditorFile() : req.file),
                     occurrences);
 
             req.getMonitor().worked(5);

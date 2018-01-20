@@ -66,6 +66,7 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery {
             monitor.beginTask("Searching...", 100);
             req.pushMonitor(monitor);
 
+            FindOccurrencesSearchResult searchResult = (FindOccurrencesSearchResult) getSearchResult();
             Map<Tuple<String, File>, HashSet<ASTEntry>> occurrences;
             try {
                 req.pushMonitor(new SubProgressMonitor(monitor, 80));
@@ -128,8 +129,8 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery {
                             int lineStartOffset = ps.getLineOffset(lineNumber);
 
                             LineElement element = new LineElement(workspaceFile, lineNumber, lineStartOffset,
-                                    lineContents);
-                            findOccurrencesSearchResult.addMatch(new FileMatch(workspaceFile, offset, length, element));
+                                    lineContents, offset - lineStartOffset);
+                            searchResult.addMatch(new FileMatch(workspaceFile, offset, length, element));
                         }
                     }
                 }
