@@ -56,7 +56,7 @@ public class PythonPathNature implements IPythonPathNature {
      */
     private static QualifiedName projectSourcePathQualifiedName = null;
 
-    static QualifiedName getProjectSourcePathQualifiedName() {
+    public static QualifiedName getProjectSourcePathQualifiedName() {
         if (projectSourcePathQualifiedName == null) {
             projectSourcePathQualifiedName = new QualifiedName(SharedCorePlugin.PYDEV_PLUGIN_ID, "PROJECT_SOURCE_PATH");
         }
@@ -68,7 +68,7 @@ public class PythonPathNature implements IPythonPathNature {
      */
     private static QualifiedName projectExternalSourcePathQualifiedName = null;
 
-    static QualifiedName getProjectExternalSourcePathQualifiedName() {
+    public static QualifiedName getProjectExternalSourcePathQualifiedName() {
         if (projectExternalSourcePathQualifiedName == null) {
             projectExternalSourcePathQualifiedName = new QualifiedName(SharedCorePlugin.PYDEV_PLUGIN_ID,
                     "PROJECT_EXTERNAL_SOURCE_PATH");
@@ -81,7 +81,7 @@ public class PythonPathNature implements IPythonPathNature {
      */
     private static QualifiedName projectVariableSubstitutionQualifiedName = null;
 
-    static QualifiedName getProjectVariableSubstitutionQualifiedName() {
+    public static QualifiedName getProjectVariableSubstitutionQualifiedName() {
         if (projectVariableSubstitutionQualifiedName == null) {
             projectVariableSubstitutionQualifiedName = new QualifiedName(SharedCorePlugin.PYDEV_PLUGIN_ID,
                     "PROJECT_VARIABLE_SUBSTITUTION");

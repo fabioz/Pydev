@@ -11,10 +11,10 @@ package org.python.pydev.editor.codecompletion.revisited.jython;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
@@ -23,10 +23,11 @@ import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.ui.interpreters.AbstractInterpreterManager;
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
-import org.python.pydev.utils.ICallback;
+import org.python.pydev.utils.JavaVmLocationFinder;
 
 public class JythonCodeCompletionTestsBase extends CodeCompletionTestsBase {
 
@@ -37,18 +38,18 @@ public class JythonCodeCompletionTestsBase extends CodeCompletionTestsBase {
     public void setUp() throws Exception {
         super.setUp();
         //we also need to set from where the info on the java env
-        JavaVmLocationFinder.callbackJavaExecutable = new ICallback() {
+        JavaVmLocationFinder.callbackJavaExecutable = new ICallback0<File>() {
             @Override
-            public Object call(Object args) {
+            public File call() {
                 calledJavaExecutable = true;
                 return new File(TestDependent.JAVA_LOCATION);
             }
         };
 
         //and on the associated jars to the java runtime
-        JavaVmLocationFinder.callbackJavaJars = new ICallback() {
+        JavaVmLocationFinder.callbackJavaJars = new ICallback0<List<File>>() {
             @Override
-            public Object call(Object args) {
+            public List<File> call() {
                 calledJavaJars = true;
                 ArrayList<File> jars = new ArrayList<File>();
                 jars.add(new File(TestDependent.JAVA_RT_JAR_LOCATION));
@@ -115,7 +116,7 @@ public class JythonCodeCompletionTestsBase extends CodeCompletionTestsBase {
 
     /**
      * @see #restorePythonPath(boolean)
-     * 
+     *
      * same as the restorePythonPath function but also includes the site packages in the distribution
      */
     @Override
@@ -125,7 +126,7 @@ public class JythonCodeCompletionTestsBase extends CodeCompletionTestsBase {
 
     /**
      * restores the pythonpath with the source library (system manager) and the source location for the tests (project manager)
-     * 
+     *
      * @param force whether this should be forced, even if it was previously created for this class
      */
     @Override

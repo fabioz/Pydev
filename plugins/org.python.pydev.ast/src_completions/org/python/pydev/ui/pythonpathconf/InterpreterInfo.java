@@ -32,6 +32,7 @@ import java.util.zip.ZipFile;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -711,31 +712,26 @@ public class InterpreterInfo implements IInterpreterInfo {
     }
 
     public static List<String> filterUserSelection(List<String> selection, List<String> toAsk) throws CancelException {
-        boolean result = true;//true == OK, false == CANCELLED
         if (ProjectModulesManager.IN_TESTS) {
             if (InterpreterInfo.configurePathsCallback != null) {
                 InterpreterInfo.configurePathsCallback.call(new Tuple<List<String>, List<String>>(toAsk, selection));
             }
         } else {
             if (toAsk.size() > 0) {
-                PythonSelectionLibrariesDialog runnable = new PythonSelectionLibrariesDialog(selection, toAsk, true);
-                try {
-                    RunInUiThread.sync(runnable);
-                } catch (NoClassDefFoundError e) {
-                } catch (UnsatisfiedLinkError e) {
-                    //this means that we're running unit-tests, so, we don't have to do anything about it
-                    //as 'l' is already ok.
-                }
-                result = runnable.getOkResult();
-                if (result == false) {
-                    //Canceled by the user
-                    throw new CancelException();
-                }
-                selection = runnable.getSelection();
+                Assert.isNotNull(selectLibraries, "InterpreterInfo.selectLibraries must be set prior to using it.");
+                selection = selectLibraries.select(selection, toAsk);
             }
         }
         return selection;
     }
+
+    public static interface IPythonSelectLibraries {
+
+        List<String> select(List<String> selection, List<String> toAsk) throws CancelException;
+
+    }
+
+    public static IPythonSelectLibraries selectLibraries;
 
     private static void fillList(Tuple<String, String> forcedSplit, ArrayList<String> l2) {
         String forcedLibs = forcedSplit.o2;

@@ -34,7 +34,6 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
-import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
@@ -72,6 +71,7 @@ import org.python.pydev.shared_core.utils.PlatformUtils;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
+import org.python.pydev.utils.JavaVmLocationFinder;
 
 /**
  * Holds configuration for PythonRunner.

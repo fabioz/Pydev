@@ -13,20 +13,15 @@ package org.python.pydev.editor.codecompletion;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension;
 import org.eclipse.jface.text.contentassist.IContextInformation;
-import org.eclipse.jface.text.link.LinkedModeModel;
-import org.eclipse.jface.text.link.LinkedModeUI;
-import org.eclipse.jface.text.link.LinkedPositionGroup;
-import org.eclipse.jface.text.link.ProposalPosition;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.ui.texteditor.link.EditorLinkedModeUI;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
@@ -34,14 +29,13 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.visitors.NodeUtils;
-import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionProposalExtension2 implements
         ICompletionProposalExtension {
 
     public static boolean addApplyTipOnAdditionalInfo = true;
 
-    private int firstParameterLen = 0;
+    public int firstParameterLen = 0;
 
     /**
      * The number of positions that we should add to the original position.
@@ -413,38 +407,20 @@ public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionPr
             return;
         }
         if (offsetsAndLens.size() > 0) {
-            LinkedModeModel model = new LinkedModeModel();
-
-            for (int i = 0; i < offsetsAndLens.size(); i++) {
-                Integer offs = offsetsAndLens.get(i);
-                i++;
-                Integer len = offsetsAndLens.get(i);
-                if (i == 1) {
-                    firstParameterLen = len;
-                }
-                int location = offset + iPar + offs + 1;
-                LinkedPositionGroup group = new LinkedPositionGroup();
-                ProposalPosition proposalPosition = new ProposalPosition(doc, location, len, 0,
-                        new ICompletionProposal[0]);
-                group.addPosition(proposalPosition);
-                model.addGroup(group);
-            }
-
-            model.forceInstall();
-
-            final LinkedModeUI ui = new EditorLinkedModeUI(model, viewer);
-            ui.setDoContextInfo(true); //set it to request the ctx info from the completion processor
-            ui.setExitPosition(viewer, exitPos, 0, Integer.MAX_VALUE);
-            Runnable r = new Runnable() {
-                @Override
-                public void run() {
-                    ui.enter();
-                }
-            };
-            RunInUiThread.async(r);
-
+            Assert.isNotNull(goToLinkedModeHandler,
+                    "PyLinkedModeCompletionProposal.goToLinkedModeHandler must be set prior to usage.");
+            goToLinkedModeHandler.goToLinkedMode(this, viewer, offset, doc, exitPos, iPar, offsetsAndLens);
         }
     }
+
+    public static interface IGoToLinkedModeHandler {
+        void goToLinkedMode(PyLinkedModeCompletionProposal proposal, ITextViewer viewer, int offset, IDocument doc,
+                int exitPos, int iPar,
+                List<Integer> offsetsAndLens) throws BadLocationException;
+
+    }
+
+    public static IGoToLinkedModeHandler goToLinkedModeHandler;
 
     //-------------------------------------------- ICompletionProposalExtension
 

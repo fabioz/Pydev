@@ -33,7 +33,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IInterpreterManagerListener;
 import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.revisited.SynchSystemModulesManager.CreateInterpreterInfoCallback;
+import org.python.pydev.editor.codecompletion.revisited.SyncSystemModulesManager.CreateInterpreterInfoCallback;
 import org.python.pydev.plugin.preferences.InterpreterGeneralPreferences;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.io.FileUtils;
@@ -133,7 +133,7 @@ public class SyncSystemModulesManagerScheduler implements IInterpreterManagerLis
         for (Entry<IInterpreterManager, Map<String, IInterpreterInfo>> entry : entrySet) {
             Set<Entry<String, IInterpreterInfo>> entrySet2 = entry.getValue().entrySet();
             for (Entry<String, IInterpreterInfo> entry2 : entrySet2) {
-                String key = SynchSystemModulesManager.createKeyForInfo(entry2.getValue());
+                String key = SyncSystemModulesManager.createKeyForInfo(entry2.getValue());
                 preferences.setValue(key, "");
             }
         }
@@ -192,7 +192,7 @@ public class SyncSystemModulesManagerScheduler implements IInterpreterManagerLis
             setPriority(Job.BUILD);
         }
 
-        private final SynchSystemModulesManager fSynchManager = new SynchSystemModulesManager();
+        private final SyncSystemModulesManager fSynchManager = new SyncSystemModulesManager();
 
         private Object fManagerToNameToInfoLock = new Object();
 
@@ -203,13 +203,13 @@ public class SyncSystemModulesManagerScheduler implements IInterpreterManagerLis
             boolean selectingElementsInDialog = fSynchManager.getSelectingElementsInDialog();
             if (selectingElementsInDialog) {
                 //No point in starting a process if the user already has a dialog related to this process open.
-                if (SynchSystemModulesManager.DEBUG) {
+                if (SyncSystemModulesManager.DEBUG) {
                     System.out.println("Dialog already showing: rescheduling new check for later.");
                 }
                 this.scheduleLater(20000);
                 return Status.OK_STATUS;
             }
-            if (SynchSystemModulesManager.DEBUG) {
+            if (SyncSystemModulesManager.DEBUG) {
                 System.out.println("Running SynchJob!");
             }
 
@@ -237,7 +237,7 @@ public class SyncSystemModulesManagerScheduler implements IInterpreterManagerLis
 
                 fSynchManager.updateStructures(monitor, root, managerToNameToInfo, new CreateInterpreterInfoCallback());
                 long delta = System.currentTimeMillis() - initialTime;
-                if (SynchSystemModulesManager.DEBUG) {
+                if (SyncSystemModulesManager.DEBUG) {
                     System.out.println("Time to check polling for changes in interpreters: " + delta
                             / 1000.0 + " secs.");
                 }
@@ -249,13 +249,13 @@ public class SyncSystemModulesManagerScheduler implements IInterpreterManagerLis
                 }
 
                 if (root.hasChildren() && initialSelection.size() > 0) {
-                    if (SynchSystemModulesManager.DEBUG) {
+                    if (SyncSystemModulesManager.DEBUG) {
                         System.out.println("Changes found in PYTHONPATH.");
                     }
                     fSynchManager.asyncSelectAndScheduleElementsToChangePythonpath(root, managerToNameToInfo,
                             initialSelection);
                 } else {
-                    if (SynchSystemModulesManager.DEBUG) {
+                    if (SyncSystemModulesManager.DEBUG) {
                         System.out.println("PYTHONPATH remained the same.");
                     }
                     fSynchManager.synchronizeManagerToNameToInfoPythonpath(monitor, managerToNameToInfo, null);
@@ -312,7 +312,7 @@ public class SyncSystemModulesManagerScheduler implements IInterpreterManagerLis
          * already scheduled, it'll only make it execute after more time passes.
          */
         public void scheduleLater(long millis) {
-            if (SynchSystemModulesManager.DEBUG) {
+            if (SyncSystemModulesManager.DEBUG) {
                 System.out.println("(Re)Scheduling change for: " + millis / 1000.0 + " secs.");
             }
             runAt = System.currentTimeMillis() + millis;
@@ -336,7 +336,7 @@ public class SyncSystemModulesManagerScheduler implements IInterpreterManagerLis
                                     delta = currentTimeMillis - runAt;
                                 }
                                 synchronized (scheduleThreadLock) {
-                                    if (SynchSystemModulesManager.DEBUG) {
+                                    if (SyncSystemModulesManager.DEBUG) {
                                         System.out.println("Actually schedulling job!");
                                     }
                                     SynchJob.this.schedule();
@@ -399,7 +399,7 @@ public class SyncSystemModulesManagerScheduler implements IInterpreterManagerLis
 
         @Override
         public void onChangedIInterpreterInfo(InfoTracker infoTracker, File file) {
-            if (SynchSystemModulesManager.DEBUG) {
+            if (SyncSystemModulesManager.DEBUG) {
                 System.out.println("File changed :" + file + " starting track of: " + infoTracker.info.getNameForUI());
             }
             job.addToTrack(infoTracker.manager, infoTracker.info);
@@ -456,7 +456,7 @@ public class SyncSystemModulesManagerScheduler implements IInterpreterManagerLis
                 InfoTracker tracker = new InfoTracker(manager, info, listener);
                 for (String string : pythonPath) {
                     File f = new File(string);
-                    if (SynchSystemModulesManager.DEBUG) {
+                    if (SyncSystemModulesManager.DEBUG) {
                         System.out.println("Tracking file: " + f + " for: " + info.getNameForUI());
                     }
                     tracker.registerTracking(f);

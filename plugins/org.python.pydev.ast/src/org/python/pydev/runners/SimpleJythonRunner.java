@@ -19,7 +19,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
-import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
@@ -31,12 +30,13 @@ import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.ArrayUtils;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
+import org.python.pydev.utils.JavaVmLocationFinder;
 
 public class SimpleJythonRunner extends SimpleRunner {
 
     /**
      * Error risen when java is not available to the jython environment
-     * 
+     *
      * @author Fabio
      */
     @SuppressWarnings("serial")
@@ -65,7 +65,7 @@ public class SimpleJythonRunner extends SimpleRunner {
     public Tuple<String, String> runAndGetOutputWithJar(File javaExecutable, String script, String jythonJar,
             String[] args, File workingDir, IProject project, IProgressMonitor monitor, String additionalPythonpath,
             String encoding) {
-        //"C:\Program Files\Java\jdk1.5.0_04\bin\java.exe" "-Dpython.home=C:\bin\jython21" 
+        //"C:\Program Files\Java\jdk1.5.0_04\bin\java.exe" "-Dpython.home=C:\bin\jython21"
         //-classpath "C:\bin\jython21\jython.jar;%CLASSPATH%" org.python.util.jython %ARGS%
         //used just for getting info without any classpath nor pythonpath
 
@@ -111,7 +111,7 @@ public class SimpleJythonRunner extends SimpleRunner {
      * @param script
      * @return
      * @throws IOException
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     public static String[] makeExecutableCommandStrWithVMArgs(String jythonJar, String script, String basePythonPath,
             String vmArgs, String... args) throws IOException, JDTNotAvailableException, MisconfigurationException {

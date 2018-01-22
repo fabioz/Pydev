@@ -24,8 +24,8 @@ import org.python.pydev.editor.PyEditTitleTestWorkbench;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaClassModuleTestWorkbench;
 import org.python.pydev.editor.codecompletion.revisited.jython.JythonCompletionWithBuiltinsTestWorkbench;
 import org.python.pydev.editor.codecompletion.revisited.jython.JythonFindDefinitionTestWorkbench;
-import org.python.pydev.plugin.nature.ProjectImportedHasAstManagerTestWorkbench;
-import org.python.pydev.plugin.nature.SaveFileWithoutNatureTestWorkbench;
+import org.python.pydev.plugin.ProjectImportedHasAstManagerTestWorkbench;
+import org.python.pydev.plugin.SaveFileWithoutNatureTestWorkbench;
 
 import com.python.pydev.analysis.AnalysisRequestsTestWorkbench;
 import com.python.pydev.codecompletion.JavaIntegrationPydevComTestWorkbench;

@@ -35,6 +35,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_core.callbacks.ICallback2;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.DataAndImageTreeNode;
 import org.python.pydev.shared_core.structure.OrderedSet;
@@ -45,8 +46,6 @@ import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
-import org.python.pydev.ui.dialogs.SelectNDialog;
-import org.python.pydev.ui.dialogs.TreeNodeLabelProvider;
 import org.python.pydev.ui.pythonpathconf.DefaultPathsForInterpreterInfo;
 import org.python.pydev.ui.pythonpathconf.IInterpreterInfoBuilder;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
@@ -73,7 +72,7 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
  * @author Fabio
  */
 @SuppressWarnings({ "unchecked", "rawtypes" })
-public class SynchSystemModulesManager {
+public class SyncSystemModulesManager {
 
     public static final boolean DEBUG = false;
     public static boolean ALWAYS_APPLY_ALL_CHANGES_WITHOUT_ASKING = false;
@@ -296,38 +295,7 @@ public class SynchSystemModulesManager {
         }
     }
 
-    /**
-     * Given a passed tree, selects the elements on the tree (and returns the selected elements in a flat list).
-     */
-    private List<TreeNode> selectElementsInDialog(final DataAndImageTreeNode root, List<TreeNode> initialSelection) {
-        List<TreeNode> selectElements = SelectNDialog.selectElements(root,
-                new TreeNodeLabelProvider() {
-                    @Override
-                    public org.eclipse.swt.graphics.Image getImage(Object element) {
-                        DataAndImageTreeNode n = (DataAndImageTreeNode) element;
-                        return n.image;
-                    };
-
-                    @Override
-                    public String getText(Object element) {
-                        TreeNode n = (TreeNode) element;
-                        Object data = n.getData();
-                        if (data == null) {
-                            return "null";
-                        }
-                        if (data instanceof IInterpreterInfo) {
-                            IInterpreterInfo iInterpreterInfo = (IInterpreterInfo) data;
-                            return iInterpreterInfo.getNameForUI();
-                        }
-                        return data.toString();
-                    };
-                },
-                "System PYTHONPATH changes detected",
-                "Please check which interpreters and paths should be updated.",
-                true,
-                initialSelection);
-        return selectElements;
-    }
+    public static ICallback2<List<TreeNode>, DataAndImageTreeNode, List<TreeNode>> selectElementsInDialog;
 
     /**
      * Given the tree structure we created initially with all the changes (root) and the elements
@@ -445,7 +413,7 @@ public class SynchSystemModulesManager {
                         selectedElements = root.flattenChildren();
 
                     } else {
-                        selectedElements = selectElementsInDialog(root, initialSelection);
+                        selectedElements = selectElementsInDialog.call(root, initialSelection);
                     }
                     saveUnselected(root, selectedElements, PydevPrefs.getPreferences());
                     if (selectedElements != null && selectedElements.size() > 0) {
@@ -555,7 +523,7 @@ public class SynchSystemModulesManager {
                         initialSelection.add(pathNode);
                         added = true;
                     } else {
-                        if (SynchSystemModulesManager.DEBUG) {
+                        if (SyncSystemModulesManager.DEBUG) {
                             System.out.println("Removed from initial selection: " + pathNode);
                         }
                     }
@@ -569,7 +537,7 @@ public class SynchSystemModulesManager {
                 initialSelection.addAll(interpreterNode.getChildren());
             }
         }
-        if (SynchSystemModulesManager.DEBUG) {
+        if (SyncSystemModulesManager.DEBUG) {
             for (TreeNode treeNode : initialSelection) {
                 System.out.println("Initial selection: " + treeNode.getData());
             }
@@ -580,7 +548,7 @@ public class SynchSystemModulesManager {
     /**
      * Note: it's public mostly for tests. Should not be instanced when not in tests!
      */
-    public SynchSystemModulesManager() {
+    public SyncSystemModulesManager() {
 
     }
 

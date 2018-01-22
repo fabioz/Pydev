@@ -321,7 +321,7 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
      */
     @Override
     public IInformationControlCreator getInformationControlCreator(ISourceViewer sourceViewer) {
-        return PyContentAssistant.createInformationControlCreator(sourceViewer);
+        return new PyInformationControlCreator();
     }
 
     /**

@@ -36,6 +36,7 @@ import org.python.pydev.debug.newconsole.CurrentPyStackFrameForConsole;
 import org.python.pydev.debug.newconsole.PydevConsoleCommunication;
 import org.python.pydev.debug.newconsole.PydevConsoleCompletionProcessor;
 import org.python.pydev.debug.newconsole.PydevConsoleInterpreter;
+import org.python.pydev.editor.PyInformationControlCreator;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.shared_core.callbacks.ICallback;
@@ -245,7 +246,7 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
                     return super.showPossibleCompletions();
                 };
             };
-            contentAssist.setInformationControlCreator(PyContentAssistant.createInformationControlCreator(viewer));
+            contentAssist.setInformationControlCreator(new PyInformationControlCreator());
             contentAssist.install(new ScriptConsoleViewerWrapper(viewer, interpreter.getInterpreterInfo()));
 
             IContentAssistProcessor processor = new PydevConsoleCompletionProcessor(interpreter, contentAssist);

@@ -18,12 +18,12 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
-import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.runners.SimpleJythonRunner;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
+import org.python.pydev.utils.JavaVmLocationFinder;
 
 public class JythonInterpreterManager extends AbstractInterpreterManager {
 

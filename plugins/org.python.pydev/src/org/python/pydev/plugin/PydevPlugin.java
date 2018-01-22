@@ -30,8 +30,19 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jdt.internal.launching.StandardVMType;
+import org.eclipse.jdt.launching.IVMInstall;
+import org.eclipse.jdt.launching.JavaRuntime;
+import org.eclipse.jdt.launching.LibraryLocation;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.ITextViewer;
+import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.jface.text.link.LinkedModeModel;
+import org.eclipse.jface.text.link.LinkedModeUI;
+import org.eclipse.jface.text.link.LinkedPositionGroup;
+import org.eclipse.jface.text.link.ProposalPosition;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.graphics.Color;
@@ -42,16 +53,20 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
+import org.eclipse.ui.texteditor.link.EditorLinkedModeUI;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.prefs.BackingStoreException;
 import org.python.pydev.core.CorePlugin;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.AbstractTemplateCodeCompletion;
+import org.python.pydev.editor.codecompletion.PyLinkedModeCompletionProposal;
 import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
+import org.python.pydev.editor.codecompletion.revisited.SyncSystemModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.SyncSystemModulesManagerScheduler;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaProjectModulesManagerCreator;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.JythonModulesManagerUtils;
@@ -66,14 +81,24 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.structure.DataAndImageTreeNode;
+import org.python.pydev.shared_core.structure.TreeNode;
 import org.python.pydev.shared_ui.ColorCache;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.bundle.BundleInfo;
 import org.python.pydev.shared_ui.bundle.IBundleInfo;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
+import org.python.pydev.ui.dialogs.SelectNDialog;
+import org.python.pydev.ui.dialogs.TreeNodeLabelProvider;
 import org.python.pydev.ui.interpreters.IronpythonInterpreterManager;
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
+import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
+import org.python.pydev.ui.pythonpathconf.InterpreterInfo.IPythonSelectLibraries;
+import org.python.pydev.ui.pythonpathconf.PythonSelectionLibrariesDialog;
+import org.python.pydev.utils.CancelException;
+import org.python.pydev.utils.JavaVmLocationFinder;
 
 /**
  * The main plugin class - initialized on startup - has resource bundle for internationalization - has preferences
@@ -164,10 +189,15 @@ public class PydevPlugin extends AbstractUIPlugin {
         return false;
     }
 
+    @SuppressWarnings({ "rawtypes", "restriction" })
     @Override
     public void start(BundleContext context) throws Exception {
         this.isAlive = true;
         super.start(context);
+
+        // Setup extensions in dependencies
+        // Setup extensions in dependencies
+        // Setup extensions in dependencies
 
         // Setup extensions in dependencies (could actually be done as extension points, but done like this for
         // ease of implementation right now).
@@ -200,6 +230,128 @@ public class PydevPlugin extends AbstractUIPlugin {
                 IPythonNature nature) -> JythonModulesManagerUtils.createModuleFromJar(emptyModuleForZip, nature);
 
         CorePlugin.pydevStatelocation = Platform.getStateLocation(getBundle()).toFile();
+
+        JavaVmLocationFinder.callbackJavaJars = () -> {
+
+            try {
+                IVMInstall defaultVMInstall = JavaRuntime.getDefaultVMInstall();
+                LibraryLocation[] libraryLocations = JavaRuntime.getLibraryLocations(defaultVMInstall);
+
+                ArrayList<File> jars = new ArrayList<File>();
+                for (LibraryLocation location : libraryLocations) {
+                    jars.add(location.getSystemLibraryPath().toFile());
+                }
+                return jars;
+            } catch (Throwable e) {
+                JythonModulesManagerUtils.tryRethrowAsJDTNotAvailableException(e);
+                throw new RuntimeException("Should never get here", e);
+            }
+        };
+
+        JavaVmLocationFinder.callbackJavaExecutable = () -> {
+
+            try {
+                IVMInstall defaultVMInstall = JavaRuntime.getDefaultVMInstall();
+                File installLocation = defaultVMInstall.getInstallLocation();
+                return StandardVMType.findJavaExecutable(installLocation);
+            } catch (Throwable e) {
+                JythonModulesManagerUtils.tryRethrowAsJDTNotAvailableException(e);
+                throw new RuntimeException("Should never get here", e);
+            }
+        };
+
+        PyLinkedModeCompletionProposal.goToLinkedModeHandler = (PyLinkedModeCompletionProposal proposal,
+                ITextViewer viewer, int offset, IDocument doc, int exitPos, int iPar,
+                List<Integer> offsetsAndLens) -> {
+            LinkedModeModel model = new LinkedModeModel();
+
+            for (int i = 0; i < offsetsAndLens.size(); i++) {
+                Integer offs = offsetsAndLens.get(i);
+                i++;
+                Integer len = offsetsAndLens.get(i);
+                if (i == 1) {
+                    proposal.firstParameterLen = len;
+                }
+                int location = offset + iPar + offs + 1;
+                LinkedPositionGroup group = new LinkedPositionGroup();
+                ProposalPosition proposalPosition = new ProposalPosition(doc, location, len, 0,
+                        new ICompletionProposal[0]);
+                group.addPosition(proposalPosition);
+                model.addGroup(group);
+            }
+
+            model.forceInstall();
+
+            final LinkedModeUI ui = new EditorLinkedModeUI(model, viewer);
+            ui.setDoContextInfo(true); //set it to request the ctx info from the completion processor
+            ui.setExitPosition(viewer, exitPos, 0, Integer.MAX_VALUE);
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
+                    ui.enter();
+                }
+            };
+            RunInUiThread.async(r);
+        };
+
+        /**
+         * Given a passed tree, selects the elements on the tree (and returns the selected elements in a flat list).
+         */
+        SyncSystemModulesManager.selectElementsInDialog = (final DataAndImageTreeNode root,
+                List<TreeNode> initialSelection) -> {
+            List<TreeNode> selectElements = SelectNDialog.selectElements(root,
+                    new TreeNodeLabelProvider() {
+                        @Override
+                        public org.eclipse.swt.graphics.Image getImage(Object element) {
+                            DataAndImageTreeNode n = (DataAndImageTreeNode) element;
+                            return n.image;
+                        };
+
+                        @Override
+                        public String getText(Object element) {
+                            TreeNode n = (TreeNode) element;
+                            Object data = n.getData();
+                            if (data == null) {
+                                return "null";
+                            }
+                            if (data instanceof IInterpreterInfo) {
+                                IInterpreterInfo iInterpreterInfo = (IInterpreterInfo) data;
+                                return iInterpreterInfo.getNameForUI();
+                            }
+                            return data.toString();
+                        };
+                    },
+                    "System PYTHONPATH changes detected",
+                    "Please check which interpreters and paths should be updated.",
+                    true,
+                    initialSelection);
+            return selectElements;
+        };
+
+        InterpreterInfo.selectLibraries = new IPythonSelectLibraries() {
+
+            @Override
+            public List<String> select(List<String> selection, List<String> toAsk) throws CancelException {
+                boolean result = true;//true == OK, false == CANCELLED
+                PythonSelectionLibrariesDialog runnable = new PythonSelectionLibrariesDialog(selection, toAsk, true);
+                try {
+                    RunInUiThread.sync(runnable);
+                } catch (NoClassDefFoundError e) {
+                } catch (UnsatisfiedLinkError e) {
+                    //this means that we're running unit-tests, so, we don't have to do anything about it
+                    //as 'l' is already ok.
+                }
+                result = runnable.getOkResult();
+                if (result == false) {
+                    //Canceled by the user
+                    throw new CancelException();
+                }
+                return runnable.getSelection();
+            }
+
+        };
+        // End setup extension in dependencies
+        // End setup extension in dependencies
         // End setup extension in dependencies
 
         try {

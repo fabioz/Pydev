@@ -11,13 +11,7 @@
  */
 package org.python.pydev.editor.codecompletion;
 
-import org.eclipse.jface.text.DefaultInformationControl;
-import org.eclipse.jface.text.IInformationControl;
-import org.eclipse.jface.text.IInformationControlCreator;
-import org.eclipse.jface.text.source.ISourceViewer;
-import org.eclipse.swt.widgets.Shell;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
-import org.python.pydev.editor.PyInformationPresenter;
 import org.python.pydev.shared_ui.content_assist.ContentAssistHackingAroundBugs;
 import org.python.pydev.shared_ui.content_assist.DefaultContentAssist;
 
@@ -50,15 +44,6 @@ public class PyContentAssistant extends DefaultContentAssist {
             }
             throw e;
         }
-    }
-
-    public static IInformationControlCreator createInformationControlCreator(ISourceViewer sourceViewer) {
-        return new IInformationControlCreator() {
-            @Override
-            public IInformationControl createInformationControl(Shell parent) {
-                return new DefaultInformationControl(parent, new PyInformationPresenter());
-            }
-        };
     }
 
 }

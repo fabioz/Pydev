@@ -43,8 +43,8 @@ import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.SyncSystemModulesManagerScheduler;
 import org.python.pydev.editor.codecompletion.revisited.SyncSystemModulesManagerScheduler.IInfoTrackerListener;
 import org.python.pydev.editor.codecompletion.revisited.SyncSystemModulesManagerScheduler.InfoTracker;
-import org.python.pydev.editor.codecompletion.revisited.SynchSystemModulesManager;
-import org.python.pydev.editor.codecompletion.revisited.SynchSystemModulesManager.PythonpathChange;
+import org.python.pydev.editor.codecompletion.revisited.SyncSystemModulesManager;
+import org.python.pydev.editor.codecompletion.revisited.SyncSystemModulesManager.PythonpathChange;
 import org.python.pydev.plugin.PydevTestUtils;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
@@ -177,7 +177,7 @@ public class SyncSystemModulesManagerTest extends TestCase {
     public void testUpdateWhenEggIsAdded() throws Exception {
         setupEnv(true);
 
-        SynchSystemModulesManager synchManager = new SynchSystemModulesManager();
+        SyncSystemModulesManager synchManager = new SyncSystemModulesManager();
 
         final DataAndImageTreeNode root = new DataAndImageTreeNode(null, null, null);
         Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfoMap = InterpreterManagersAPI
@@ -189,7 +189,7 @@ public class SyncSystemModulesManagerTest extends TestCase {
         root.clear();
         managerToNameToInfo = new ManagerInfoToUpdate(InterpreterManagersAPI.getInterpreterManagerToInterpreterNameToInfo());
         synchManager.updateStructures(null, root, managerToNameToInfo,
-                new SynchSystemModulesManager.CreateInterpreterInfoCallback() {
+                new SyncSystemModulesManager.CreateInterpreterInfoCallback() {
                     @Override
                     public IInterpreterInfo createInterpreterInfo(IInterpreterManager manager, String executable,
                             IProgressMonitor monitor) {
@@ -297,7 +297,7 @@ public class SyncSystemModulesManagerTest extends TestCase {
     public void testUpdateAndApply() throws Exception {
         setupEnv();
 
-        SynchSystemModulesManager synchManager = new SynchSystemModulesManager();
+        SyncSystemModulesManager synchManager = new SyncSystemModulesManager();
 
         final DataAndImageTreeNode root = new DataAndImageTreeNode(null, null, null);
         Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfoMap = InterpreterManagersAPI
@@ -313,7 +313,7 @@ public class SyncSystemModulesManagerTest extends TestCase {
         root.clear();
         managerToNameToInfo = new ManagerInfoToUpdate(InterpreterManagersAPI.getInterpreterManagerToInterpreterNameToInfo());
         synchManager.updateStructures(null, root, managerToNameToInfo,
-                new SynchSystemModulesManager.CreateInterpreterInfoCallback() {
+                new SyncSystemModulesManager.CreateInterpreterInfoCallback() {
                     @Override
                     public IInterpreterInfo createInterpreterInfo(IInterpreterManager manager, String executable,
                             IProgressMonitor monitor) {
@@ -337,10 +337,10 @@ public class SyncSystemModulesManagerTest extends TestCase {
         }
     }
 
-    private void checkUpdateStructures(SynchSystemModulesManager synchManager, final DataAndImageTreeNode root,
+    private void checkUpdateStructures(SyncSystemModulesManager synchManager, final DataAndImageTreeNode root,
             ManagerInfoToUpdate managerToNameToInfo) {
         synchManager.updateStructures(null, root, managerToNameToInfo,
-                new SynchSystemModulesManager.CreateInterpreterInfoCallback() {
+                new SyncSystemModulesManager.CreateInterpreterInfoCallback() {
                     @Override
                     public IInterpreterInfo createInterpreterInfo(IInterpreterManager manager, String executable,
                             IProgressMonitor monitor) {
@@ -358,7 +358,7 @@ public class SyncSystemModulesManagerTest extends TestCase {
         assertEquals(found, 1);
     }
 
-    private void checkSynchronize(SynchSystemModulesManager synchManager, final DataAndImageTreeNode root,
+    private void checkSynchronize(SyncSystemModulesManager synchManager, final DataAndImageTreeNode root,
             ManagerInfoToUpdate managerToNameToInfo) {
         //Ok, all is Ok in the PYTHONPATH, so, check if something changed inside the interpreter info
         //and not on the PYTHONPATH.
@@ -377,14 +377,14 @@ public class SyncSystemModulesManagerTest extends TestCase {
         setupEnv(false);
 
         IPreferenceStore preferences = createPreferenceStore();
-        SynchSystemModulesManager synchManager = new SynchSystemModulesManager();
+        SyncSystemModulesManager synchManager = new SyncSystemModulesManager();
 
         final DataAndImageTreeNode root = new DataAndImageTreeNode(null, null, null);
         Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo = InterpreterManagersAPI
                 .getInterpreterManagerToInterpreterNameToInfo();
 
         synchManager.updateStructures(null, root, new ManagerInfoToUpdate(managerToNameToInfo),
-                new SynchSystemModulesManager.CreateInterpreterInfoCallback() {
+                new SyncSystemModulesManager.CreateInterpreterInfoCallback() {
                     @Override
                     public IInterpreterInfo createInterpreterInfo(IInterpreterManager manager, String executable,
                             IProgressMonitor monitor) {
@@ -412,7 +412,7 @@ public class SyncSystemModulesManagerTest extends TestCase {
         synchManager.saveUnselected(root, selectedElements, preferences);
 
         //Check that we ignored libDir3 and libZipFile
-        String key = SynchSystemModulesManager.createKeyForInfo((IInterpreterInfo) ((TreeNode) root.getChildren()
+        String key = SyncSystemModulesManager.createKeyForInfo((IInterpreterInfo) ((TreeNode) root.getChildren()
                 .get(0)).getData());
         String entry = preferences.getString(key);
         List<String> entries = StringUtils.split(entry, "|||");

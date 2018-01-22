@@ -32,13 +32,13 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.interpreter_managers.ChooseInterpreterManager;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.templates.PyTemplateCompletionProcessor;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.content_assist.AbstractCompletionProcessorWithCycling;
-import org.python.pydev.ui.interpreters.ChooseInterpreterManager;
 
 /**
  * @author Dmoore

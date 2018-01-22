@@ -8,7 +8,7 @@
  * Created on Oct 28, 2006
  * @author Fabio
  */
-package org.python.pydev.plugin.nature;
+package org.python.pydev.plugin;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +17,8 @@ import org.python.pydev.core.CorePlugin;
 import org.python.pydev.editor.actions.PySelectionTest;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.PythonNatureStore;
+import org.python.pydev.plugin.nature.PythonPathNature;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.ui.BundleInfoStub;
 

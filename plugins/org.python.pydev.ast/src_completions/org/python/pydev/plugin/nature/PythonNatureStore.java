@@ -64,7 +64,7 @@ import org.w3c.dom.ProcessingInstruction;
  * @author Gergely Kis <gergely.kis@gmail.com>
  *
  */
-class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
+public class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
 
     private final static String STORE_FILE_NAME = ".pydevproject";
 

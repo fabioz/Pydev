@@ -8,7 +8,7 @@
  * Created on Oct 28, 2006
  * @author Fabio
  */
-package org.python.pydev.plugin.nature;
+package org.python.pydev.plugin;
 
 import java.io.IOException;
 import java.io.InputStream;

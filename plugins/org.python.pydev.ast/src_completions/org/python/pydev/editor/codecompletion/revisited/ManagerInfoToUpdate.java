@@ -31,7 +31,7 @@ public class ManagerInfoToUpdate {
                 .entrySet()) {
             for (Entry<String, IInterpreterInfo> entry2 : entry.getValue().entrySet()) {
                 lst.add(new Tuple<IInterpreterManager, IInterpreterInfo>(entry.getKey(), entry2.getValue()));
-                if (SynchSystemModulesManager.DEBUG) {
+                if (SyncSystemModulesManager.DEBUG) {
                     System.out.println("Will check: " + entry2.getKey());
                 }
             }
@@ -68,7 +68,7 @@ public class ManagerInfoToUpdate {
             }
 
             if (!foundMatching) {
-                if (SynchSystemModulesManager.DEBUG) {
+                if (SyncSystemModulesManager.DEBUG) {
                     System.out.println("Did not find match for: " + tup1.o2.getName());
                 }
                 return true; //if we didn't find a match, something changed

@@ -20,6 +20,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.interpreter_managers.ChooseInterpreterManager;
 import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PySelectionFromEditor;
@@ -31,7 +32,6 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.EditorUtils;
-import org.python.pydev.ui.interpreters.ChooseInterpreterManager;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
