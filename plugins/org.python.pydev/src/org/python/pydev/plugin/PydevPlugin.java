@@ -22,12 +22,10 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
@@ -336,25 +334,6 @@ public class PydevPlugin extends AbstractUIPlugin {
 
     public ResourceBundle getResourceBundle() {
         return resourceBundle;
-    }
-
-    /**
-     * @return the script to get the variables.
-     *
-     * @throws CoreException
-     */
-    public static File getScriptWithinPySrc(String targetExec) throws CoreException {
-        IPath relative = new Path("pysrc").addTrailingSeparator().append(targetExec);
-        return PydevPlugin.getBundleInfo().getRelativePath(relative);
-    }
-
-    /**
-     * @return
-     * @throws CoreException
-     */
-    public static File getPySrcPath() throws CoreException {
-        IPath relative = new Path("pysrc");
-        return PydevPlugin.getBundleInfo().getRelativePath(relative);
     }
 
     private static ImageCache imageCache = null;

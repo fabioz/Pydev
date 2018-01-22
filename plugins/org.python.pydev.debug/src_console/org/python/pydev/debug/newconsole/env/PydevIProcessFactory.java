@@ -32,6 +32,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ListDialog;
 import org.eclipse.ui.dialogs.SelectionDialog;
+import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
@@ -41,7 +42,6 @@ import org.python.pydev.debug.model.PyStackFrame;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsoleUMDPrefs;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimpleIronpythonRunner;
 import org.python.pydev.runners.SimpleJythonRunner;
 import org.python.pydev.runners.SimplePythonRunner;
@@ -251,7 +251,7 @@ public class PydevIProcessFactory {
         launch.setAttribute(DebugPlugin.ATTR_CAPTURE_OUTPUT, "false");
         launch.setAttribute(INTERACTIVE_LAUNCH_PORT, "" + port);
 
-        File scriptWithinPySrc = PydevPlugin.getScriptWithinPySrc("pydevconsole.py");
+        File scriptWithinPySrc = CorePlugin.getScriptWithinPySrc("pydevconsole.py");
         String pythonpathEnv = SimpleRunner.makePythonPathEnvFromPaths(pythonpath);
         String[] commandLine;
         switch (interpreterManager.getInterpreterType()) {

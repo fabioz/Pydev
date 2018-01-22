@@ -9,14 +9,15 @@
  */
 package com.python.pydev.ui.hierarchy;
 
-import junit.framework.TestCase;
-
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.BundleInfoStub;
+
+import junit.framework.TestCase;
 
 public class HierarchyViewerTest extends TestCase {
 
@@ -28,11 +29,14 @@ public class HierarchyViewerTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         PydevPlugin.setBundleInfo(new BundleInfoStub());
+        CorePlugin.setBundleInfo(new BundleInfoStub());
     }
 
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
+        PydevPlugin.setBundleInfo(null);
+        CorePlugin.setBundleInfo(null);
     }
 
     public void testIt() throws Exception {

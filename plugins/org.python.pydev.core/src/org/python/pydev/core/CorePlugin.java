@@ -6,9 +6,13 @@
  */
 package org.python.pydev.core;
 
+import java.io.File;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -20,6 +24,19 @@ public class CorePlugin extends AbstractUIPlugin {
     private static CorePlugin plugin;
     //Resource bundle.
     private ResourceBundle resourceBundle;
+
+    public static ICoreBundleInfo info;
+
+    public static ICoreBundleInfo getBundleInfo() {
+        if (CorePlugin.info == null) {
+            CorePlugin.info = new CoreBundleInfo(CorePlugin.getDefault().getBundle());
+        }
+        return CorePlugin.info;
+    }
+
+    public static void setBundleInfo(ICoreBundleInfo b) {
+        CorePlugin.info = b;
+    }
 
     /**
      * The constructor.
@@ -79,5 +96,24 @@ public class CorePlugin extends AbstractUIPlugin {
      */
     public ResourceBundle getResourceBundle() {
         return resourceBundle;
+    }
+
+    /**
+     * @return
+     * @throws CoreException
+     */
+    public static File getPySrcPath() throws CoreException {
+        IPath relative = new Path("pysrc");
+        return getBundleInfo().getRelativePath(relative);
+    }
+
+    /**
+     * @return the script to get the variables.
+     *
+     * @throws CoreException
+     */
+    public static File getScriptWithinPySrc(String targetExec) throws CoreException {
+        IPath relative = new Path("pysrc").addTrailingSeparator().append(targetExec);
+        return getBundleInfo().getRelativePath(relative);
     }
 }

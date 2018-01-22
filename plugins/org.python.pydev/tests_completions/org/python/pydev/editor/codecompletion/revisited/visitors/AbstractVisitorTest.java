@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
@@ -38,6 +39,7 @@ public class AbstractVisitorTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         PydevPlugin.setBundleInfo(new BundleInfoStub());
+        CorePlugin.setBundleInfo(new BundleInfoStub());
         MODULE_NAME = "testModule";
     }
 
@@ -45,6 +47,7 @@ public class AbstractVisitorTest extends TestCase {
     protected void tearDown() throws Exception {
         super.tearDown();
         PydevPlugin.setBundleInfo(null);
+        CorePlugin.setBundleInfo(null);
     }
 
     public void testImportCreation1() throws Exception {

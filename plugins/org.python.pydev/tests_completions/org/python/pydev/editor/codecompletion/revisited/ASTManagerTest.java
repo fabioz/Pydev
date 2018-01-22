@@ -26,12 +26,11 @@ import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.IASTManagerObserver;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
 /**
  * Tests here have no dependency on the pythonpath.
- * 
+ *
  * @author Fabio Zadrozny
  */
 public class ASTManagerTest extends CodeCompletionTestsBase {
@@ -63,7 +62,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
      * @return Returns the manager.
      */
     private ICodeCompletionASTManager getManager() {
-        return (ICodeCompletionASTManager) nature.getAstManager();
+        return nature.getAstManager();
     }
 
     /*
@@ -83,7 +82,6 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
     public void tearDown() throws Exception {
         super.tearDown();
         CompiledModule.COMPILED_MODULES_ENABLED = true;
-        PydevPlugin.setBundleInfo(null);
     }
 
     public void testCompletion() {
@@ -437,7 +435,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
     }
 
     /**
-     * Check that registered observers are called when ASTManager is 
+     * Check that registered observers are called when ASTManager is
      * associated with project.
      */
     public void testManagerObserver() {

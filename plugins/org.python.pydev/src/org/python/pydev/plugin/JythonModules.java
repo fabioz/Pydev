@@ -7,6 +7,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.python.core.PyList;
 import org.python.core.PyObject;
+import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.jython.IPythonInterpreter;
 import org.python.pydev.jython.JythonPlugin;
@@ -57,7 +58,7 @@ public class JythonModules {
      */
     private static File getPepModuleLocation(String moduleFilename) {
         try {
-            String pep8Location = PydevPlugin.getScriptWithinPySrc(
+            String pep8Location = CorePlugin.getScriptWithinPySrc(
                     new Path("third_party").append("pep8").append(moduleFilename).toString()).toString();
             File pep8Loc = new File(pep8Location);
             if (!pep8Loc.exists()) {
@@ -93,7 +94,7 @@ public class JythonModules {
             interpreter = JythonPlugin.newPythonInterpreter(useConsole, false);
             String isortContainerLocation = null;
             try {
-                isortContainerLocation = PydevPlugin.getScriptWithinPySrc(
+                isortContainerLocation = CorePlugin.getScriptWithinPySrc(
                         new Path("third_party").append("isort_container").toString()).toString();
                 File isortContainer = new File(isortContainerLocation);
                 if (!isortContainer.exists()) {

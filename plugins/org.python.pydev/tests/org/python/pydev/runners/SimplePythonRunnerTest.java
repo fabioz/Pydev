@@ -14,14 +14,14 @@ package org.python.pydev.runners;
 import java.io.File;
 import java.io.IOException;
 
-import junit.framework.TestCase;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
+import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.ui.BundleInfoStub;
+
+import junit.framework.TestCase;
 
 /**
  * @author Fabio Zadrozny
@@ -39,6 +39,7 @@ public class SimplePythonRunnerTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         PydevPlugin.setBundleInfo(new BundleInfoStub());
+        CorePlugin.setBundleInfo(new BundleInfoStub());
     }
 
     /*
@@ -47,18 +48,21 @@ public class SimplePythonRunnerTest extends TestCase {
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
+        PydevPlugin.setBundleInfo(null);
+        CorePlugin.setBundleInfo(null);
     }
 
     /**
      * @throws CoreException
      * @throws IOException
-     * 
+     *
      */
     public void testEnv() throws CoreException, IOException {
 
         File relativePath = PydevPlugin.getBundleInfo().getRelativePath(new Path("pysrc/interpreterInfo.py"));
         String string = new SimplePythonRunner().runAndGetOutput(
-                new String[] { TestDependent.PYTHON_EXE, relativePath.getCanonicalPath() }, null, null, null, "utf-8").o1;
+                new String[] { TestDependent.PYTHON_EXE, relativePath.getCanonicalPath() }, null, null, null,
+                "utf-8").o1;
         assertNotNull(string);
         //System.out.println(string);
     }

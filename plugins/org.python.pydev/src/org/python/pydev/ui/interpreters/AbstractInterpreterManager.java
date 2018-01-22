@@ -36,6 +36,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.progress.UIJob;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
+import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
@@ -607,7 +608,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     }
 
     protected static File getInterpreterInfoPy() throws CoreException {
-        File script = PydevPlugin.getScriptWithinPySrc("interpreterInfo.py");
+        File script = CorePlugin.getScriptWithinPySrc("interpreterInfo.py");
         if (!script.exists()) {
             throw new RuntimeException("The file specified does not exist: " + script);
         }

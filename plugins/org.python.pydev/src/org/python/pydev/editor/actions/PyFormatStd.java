@@ -36,6 +36,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.viewers.ISelectionProvider;
+import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
@@ -50,7 +51,6 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.PySelectionFromEditor;
 import org.python.pydev.editor.actions.PyFormatStdManageBlankLines.LineOffsetAndInfo;
 import org.python.pydev.parser.prettyprinterv2.IFormatter;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.plugin.preferences.PyCodeFormatterPage;
 import org.python.pydev.runners.SimplePythonRunner;
@@ -508,7 +508,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
     public static String runWithPep8BaseScript(IDocument doc, String parameters, String script) {
         File autopep8File;
         try {
-            autopep8File = PydevPlugin.getScriptWithinPySrc(new Path("third_party").append("pep8")
+            autopep8File = CorePlugin.getScriptWithinPySrc(new Path("third_party").append("pep8")
                     .append(script).toString());
         } catch (CoreException e) {
             Log.log("Unable to get " + script + " location.");
