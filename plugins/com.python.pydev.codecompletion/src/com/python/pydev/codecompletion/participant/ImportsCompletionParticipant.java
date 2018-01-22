@@ -31,7 +31,7 @@ import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant2;
 import org.python.pydev.editor.codecompletion.ProposalsComparator.CompareContext;
-import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils.IFilter;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -100,7 +100,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
         }
 
         String lowerQual = qual.toLowerCase();
-        final boolean useSubstringMatchInCodeCompletion = PyCodeCompletionPreferencesPage
+        final boolean useSubstringMatchInCodeCompletion = PyCodeCompletionPreferences
                 .getUseSubstringMatchInCodeCompletion();
         Set<String> allModuleNames = PyCodeCompletionUtils.getModulesNamesToFilterOn(useSubstringMatchInCodeCompletion,
                 modulesManager, qual);

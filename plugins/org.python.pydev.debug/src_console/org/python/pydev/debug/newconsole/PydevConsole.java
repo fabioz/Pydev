@@ -41,7 +41,7 @@ import org.python.pydev.debug.newconsole.prefs.ColorManager;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
 import org.python.pydev.debug.ui.PythonConsoleLineTracker;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
-import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.editor.correctionassist.PyCorrectionAssistant;
 import org.python.pydev.plugin.PydevPlugin;
@@ -121,7 +121,7 @@ public class PydevConsole extends ScriptConsole {
 
         contentAssist.enableAutoActivation(true);
         contentAssist.enableAutoInsert(false);
-        contentAssist.setAutoActivationDelay(PyCodeCompletionPreferencesPage.getAutocompleteDelay());
+        contentAssist.setAutoActivationDelay(PyCodeCompletionPreferences.getAutocompleteDelay());
 
         PyCorrectionAssistant quickAssist = new PyCorrectionAssistant();
         // next create a content assistant processor to populate the completions window

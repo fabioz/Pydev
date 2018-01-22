@@ -34,7 +34,7 @@ import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.concurrency.Semaphore;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledToken;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.shared_core.SharedCorePlugin;
@@ -301,7 +301,7 @@ public abstract class AbstractShell {
 
                     dbg("connecting... ", 1);
                     sleepALittle(milisSleep);
-                    int maxAttempts = PyCodeCompletionPreferencesPage.getNumberOfConnectionAttempts();
+                    int maxAttempts = PyCodeCompletionPreferences.getNumberOfConnectionAttempts();
 
                     dbg("maxAttempts: " + maxAttempts, 1);
                     dbg("finishedForGood: " + finishedForGood, 1);

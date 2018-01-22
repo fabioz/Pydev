@@ -29,7 +29,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.structure.CompletionRecursionException;
-import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.structure.Tuple3;
@@ -282,7 +282,7 @@ public final class CompletionState implements ICompletionState {
             if (SharedCorePlugin.inTestMode()) {
                 this.maxMillisToComplete = Long.MAX_VALUE; //2 * 1000; //In test mode the max is 2 seconds.
             } else {
-                this.maxMillisToComplete = PyCodeCompletionPreferencesPage
+                this.maxMillisToComplete = PyCodeCompletionPreferences
                         .getMaximumNumberOfMillisToCompleteCodeCompletionRequest();
             }
         } else {

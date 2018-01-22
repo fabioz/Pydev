@@ -8,7 +8,7 @@ import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.python.pydev.core.IPySyntaxHighlightingAndCodeCompletionEditor;
 import org.python.pydev.core.IPythonPartitions;
-import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.editor.codecompletion.PythonCompletionProcessor;
 import org.python.pydev.editor.codecompletion.PythonStringCompletionProcessor;
@@ -55,7 +55,7 @@ public class SetupContentAssist {
         //note: delay and auto activate are set on PyContentAssistant constructor.
 
         pyContentAssistant.setDocumentPartitioning(IPythonPartitions.PYTHON_PARTITION_TYPE);
-        pyContentAssistant.setAutoActivationDelay(PyCodeCompletionPreferencesPage.getAutocompleteDelay());
+        pyContentAssistant.setAutoActivationDelay(PyCodeCompletionPreferences.getAutocompleteDelay());
 
         return pyContentAssistant;
     }

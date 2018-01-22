@@ -36,7 +36,7 @@ import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant2;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant3;
 import org.python.pydev.editor.codecompletion.ProposalsComparator.CompareContext;
-import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils.IFilter;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
@@ -90,7 +90,7 @@ public class CtxParticipant
                 && naturesUsed != null && naturesUsed.size() > 0) { //at least n characters required...
             boolean addAutoImport = AutoImportsPreferencesPage.doAutoImport();
             int qlen = qual.length();
-            boolean useSubstringMatchInCodeCompletion = PyCodeCompletionPreferencesPage
+            boolean useSubstringMatchInCodeCompletion = PyCodeCompletionPreferences
                     .getUseSubstringMatchInCodeCompletion();
             IFilter nameFilter = PyCodeCompletionUtils.getNameFilter(useSubstringMatchInCodeCompletion, qual);
 
@@ -392,7 +392,7 @@ public class CtxParticipant
 
             // if we have a parameter, do code-completion with all available tokens, since we don't know what's the type which
             // may actually be received
-            boolean useSubstringMatchInCodeCompletion = PyCodeCompletionPreferencesPage
+            boolean useSubstringMatchInCodeCompletion = PyCodeCompletionPreferences
                     .getUseSubstringMatchInCodeCompletion();
             List<IInfo> tokensStartingWith;
             if (useSubstringMatchInCodeCompletion) {

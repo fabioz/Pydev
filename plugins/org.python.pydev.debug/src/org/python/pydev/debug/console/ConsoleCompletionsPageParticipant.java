@@ -36,7 +36,7 @@ import org.python.pydev.debug.newconsole.CurrentPyStackFrameForConsole;
 import org.python.pydev.debug.newconsole.PydevConsoleCommunication;
 import org.python.pydev.debug.newconsole.PydevConsoleCompletionProcessor;
 import org.python.pydev.debug.newconsole.PydevConsoleInterpreter;
-import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -197,8 +197,8 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
         if (process == null) {
             return;
         }
-        if (!PyCodeCompletionPreferencesPage.useCodeCompletion()
-                || !PyCodeCompletionPreferencesPage.useCodeCompletionOnDebug()) {
+        if (!PyCodeCompletionPreferences.useCodeCompletion()
+                || !PyCodeCompletionPreferences.useCodeCompletionOnDebug()) {
             return;
         }
         String attribute = process.getAttribute(Constants.PYDEV_DEBUG_IPROCESS_ATTR);
@@ -254,7 +254,7 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
 
             contentAssist.enableAutoActivation(true);
             contentAssist.enableAutoInsert(false);
-            contentAssist.setAutoActivationDelay(PyCodeCompletionPreferencesPage.getAutocompleteDelay());
+            contentAssist.setAutoActivationDelay(PyCodeCompletionPreferences.getAutocompleteDelay());
         }
     }
 

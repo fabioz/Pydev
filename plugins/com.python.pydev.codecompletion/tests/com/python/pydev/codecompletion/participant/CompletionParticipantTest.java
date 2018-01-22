@@ -22,7 +22,7 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.actions.PySelectionTest;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
-import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.NameTok;
@@ -59,7 +59,7 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
     @Override
     public void tearDown() throws Exception {
         super.tearDown();
-        PyCodeCompletionPreferencesPage.getPreferencesForTests = null;
+        PyCodeCompletionPreferences.getPreferencesForTests = null;
     }
 
     @Override
@@ -104,7 +104,7 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
 
         document = new Document("unittest");
         final IPreferenceStore prefs = new PreferenceStore();
-        PyCodeCompletionPreferencesPage.getPreferencesForTests = new ICallback<IPreferenceStore, Object>() {
+        PyCodeCompletionPreferences.getPreferencesForTests = new ICallback<IPreferenceStore, Object>() {
 
             @Override
             public IPreferenceStore call(Object arg) {
@@ -113,13 +113,13 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
         };
 
         document = new Document("unittest");
-        prefs.setValue(PyCodeCompletionPreferencesPage.APPLY_COMPLETION_ON_DOT, false);
+        prefs.setValue(PyCodeCompletionPreferences.APPLY_COMPLETION_ON_DOT, false);
         ((CtxInsensitiveImportComplProposal) p1).indentString = "    ";
         ((CtxInsensitiveImportComplProposal) p1).apply(document, '.', 0, 8);
         PySelectionTest.checkStrEquals("unittest.", document.get());
 
         document = new Document("unittest");
-        prefs.setValue(PyCodeCompletionPreferencesPage.APPLY_COMPLETION_ON_DOT, true);
+        prefs.setValue(PyCodeCompletionPreferences.APPLY_COMPLETION_ON_DOT, true);
         ((CtxInsensitiveImportComplProposal) p1).indentString = "    ";
         ((CtxInsensitiveImportComplProposal) p1).apply(document, '.', 0, 8);
         PySelectionTest.checkStrEquals("from testlib import unittest\r\nunittest.", document.get());

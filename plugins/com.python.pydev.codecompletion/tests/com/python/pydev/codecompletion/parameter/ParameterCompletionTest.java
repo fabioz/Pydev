@@ -19,7 +19,7 @@ import org.eclipse.jface.preference.PreferenceStore;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
-import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.shared_core.callbacks.ICallback;
 
@@ -66,7 +66,7 @@ public class ParameterCompletionTest extends AdditionalInfoTestsBase {
         this.restorePythonPath(false);
 
         final IPreferenceStore prefs = new PreferenceStore();
-        PyCodeCompletionPreferencesPage.getPreferencesForTests = new ICallback<IPreferenceStore, Object>() {
+        PyCodeCompletionPreferences.getPreferencesForTests = new ICallback<IPreferenceStore, Object>() {
 
             @Override
             public IPreferenceStore call(Object arg) {
@@ -74,7 +74,7 @@ public class ParameterCompletionTest extends AdditionalInfoTestsBase {
             }
         };
 
-        prefs.setValue(PyCodeCompletionPreferencesPage.MATCH_BY_SUBSTRING_IN_CODE_COMPLETION, false);
+        prefs.setValue(PyCodeCompletionPreferences.MATCH_BY_SUBSTRING_IN_CODE_COMPLETION, false);
 
     }
 
@@ -83,7 +83,7 @@ public class ParameterCompletionTest extends AdditionalInfoTestsBase {
         super.tearDown();
         useOriginalRequestCompl = false;
         ExtensionHelper.testingParticipants = null;
-        PyCodeCompletionPreferencesPage.getPreferencesForTests = null;
+        PyCodeCompletionPreferences.getPreferencesForTests = null;
     }
 
     // ------------------------------------------------------------------------------------------------- tests

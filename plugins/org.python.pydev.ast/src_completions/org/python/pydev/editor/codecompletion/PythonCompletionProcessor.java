@@ -153,11 +153,11 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
             }
             try {
                 CompletionRequest request = new CompletionRequest(edit.getEditorFile(), nature, doc, documentOffset,
-                        codeCompletion, PyCodeCompletionPreferencesPage.getUseSubstringMatchInCodeCompletion());
+                        codeCompletion, PyCodeCompletionPreferences.getUseSubstringMatchInCodeCompletion());
 
                 //SECOND: getting code completions and deciding if templates should be shown too.
                 //Get code completion proposals
-                if (PyCodeCompletionPreferencesPage.useCodeCompletion()) {
+                if (PyCodeCompletionPreferences.useCodeCompletion()) {
                     if (whatToShow == SHOW_ALL) {
                         try {
                             pythonAndTemplateProposals.addAll(getPythonProposals(viewer, documentOffset, doc, request));
@@ -293,15 +293,15 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
 
         if (activationChars == null) { //let's cache this
 
-            if (!PyCodeCompletionPreferencesPage.useAutocomplete()) {
+            if (!PyCodeCompletionPreferences.useAutocomplete()) {
                 activationChars = new char[0];
 
             } else {
                 char[] c = new char[0];
-                if (PyCodeCompletionPreferencesPage.isToAutocompleteOnDot()) {
+                if (PyCodeCompletionPreferences.isToAutocompleteOnDot()) {
                     c = StringUtils.addChar(c, '.');
                 }
-                if (PyCodeCompletionPreferencesPage.isToAutocompleteOnPar()) {
+                if (PyCodeCompletionPreferences.isToAutocompleteOnPar()) {
                     c = StringUtils.addChar(c, '(');
                 }
                 activationChars = c;

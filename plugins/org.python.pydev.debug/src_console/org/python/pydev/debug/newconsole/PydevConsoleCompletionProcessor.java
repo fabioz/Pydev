@@ -14,7 +14,7 @@ import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.CompletionError;
-import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.editor.codecompletion.PyContextInformationValidator;
 import org.python.pydev.editor.codecompletion.PythonCompletionProcessor;
@@ -85,7 +85,7 @@ public class PydevConsoleCompletionProcessor extends AbstractCompletionProcessor
         IScriptConsoleViewer viewer = (IScriptConsoleViewer) v;
 
         try {
-            if (!PyCodeCompletionPreferencesPage.useCodeCompletion()) {
+            if (!PyCodeCompletionPreferences.useCodeCompletion()) {
                 return new ICompletionProposal[0];
             }
             String commandLine = viewer.getCommandLine();

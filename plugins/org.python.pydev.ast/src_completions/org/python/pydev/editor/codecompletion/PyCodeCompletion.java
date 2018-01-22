@@ -189,7 +189,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                 handleKeywordParam(request, line, alreadyChecked);
             }
 
-            if (request.qualifier.length() >= PyCodeCompletionPreferencesPage.getArgumentsDeepAnalysisNChars()) {
+            if (request.qualifier.length() >= PyCodeCompletionPreferences.getArgumentsDeepAnalysisNChars()) {
                 //this can take some time on the analysis, so, let's let the user choose on how many chars does he
                 //want to do the analysis...
                 state.pushFindResolveImportMemoryCtx();

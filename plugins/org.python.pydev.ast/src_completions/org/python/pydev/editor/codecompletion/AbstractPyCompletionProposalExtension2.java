@@ -40,7 +40,7 @@ public abstract class AbstractPyCompletionProposalExtension2 extends AbstractCom
 
     @Override
     protected boolean getApplyCompletionOnDot() {
-        return PyCodeCompletionPreferencesPage.applyCompletionOnDot();
+        return PyCodeCompletionPreferences.applyCompletionOnDot();
     }
 
     @Override
@@ -53,7 +53,7 @@ public abstract class AbstractPyCompletionProposalExtension2 extends AbstractCom
         }
         String qualifier = strs[1];
 
-        final boolean useSubstringMatchInCodeCompletion = PyCodeCompletionPreferencesPage
+        final boolean useSubstringMatchInCodeCompletion = PyCodeCompletionPreferences
                 .getUseSubstringMatchInCodeCompletion();
         String original = getDisplayString();
         // Qualifier is everything after " - ".
@@ -96,7 +96,7 @@ public abstract class AbstractPyCompletionProposalExtension2 extends AbstractCom
             return false;
         }
         String qualifier = strs[1];
-        final boolean useSubstringMatchInCodeCompletion = PyCodeCompletionPreferencesPage
+        final boolean useSubstringMatchInCodeCompletion = PyCodeCompletionPreferences
                 .getUseSubstringMatchInCodeCompletion();
         String displayString = getDisplayString();
         boolean ret = PyCodeCompletionUtils.acceptName(useSubstringMatchInCodeCompletion, displayString, qualifier);
@@ -119,10 +119,10 @@ public abstract class AbstractPyCompletionProposalExtension2 extends AbstractCom
     @Override
     public char[] getTriggerCharacters() {
         char[] chars = VAR_TRIGGER;
-        if (PyCodeCompletionPreferencesPage.applyCompletionOnLParen()) {
+        if (PyCodeCompletionPreferences.applyCompletionOnLParen()) {
             chars = StringUtils.addChar(chars, '(');
         }
-        if (PyCodeCompletionPreferencesPage.applyCompletionOnRParen()) {
+        if (PyCodeCompletionPreferences.applyCompletionOnRParen()) {
             chars = StringUtils.addChar(chars, ')');
         }
         return chars;

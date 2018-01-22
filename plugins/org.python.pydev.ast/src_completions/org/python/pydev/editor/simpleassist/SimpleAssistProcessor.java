@@ -38,7 +38,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.CompletionError;
 import org.python.pydev.editor.codecompletion.ProposalsComparator;
 import org.python.pydev.editor.codecompletion.ProposalsComparator.CompareContext;
-import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.editor.codecompletion.PythonCompletionProcessor;
 import org.python.pydev.plugin.PydevPlugin;
@@ -368,8 +368,8 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
             char[] defaultAutoActivationCharacters = PythonCompletionProcessor
                     .getStaticCompletionProposalAutoActivationCharacters();
 
-            useAutocompleteOnAllAsciiCharsCache = PyCodeCompletionPreferencesPage.useAutocompleteOnAllAsciiChars()
-                    && PyCodeCompletionPreferencesPage.useAutocomplete();
+            useAutocompleteOnAllAsciiCharsCache = PyCodeCompletionPreferences.useAutocompleteOnAllAsciiChars()
+                    && PyCodeCompletionPreferences.useAutocomplete();
 
             char[] c2;
             //just use the extension for the simple if we do have it

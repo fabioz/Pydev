@@ -38,7 +38,7 @@ import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.codecompletion.AbstractPyCompletionProposalExtension2;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal2;
-import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
@@ -107,7 +107,7 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
             // In tests the default is true.
             return true;
         }
-        return PyCodeCompletionPreferencesPage.getPutLocalImportsOnTopOfMethod();
+        return PyCodeCompletionPreferences.getPutLocalImportsOnTopOfMethod();
     }
 
     public CtxInsensitiveImportComplProposal(String replacementString, int replacementOffset, int replacementLength,
