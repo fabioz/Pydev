@@ -29,9 +29,11 @@ import org.python.pydev.core.ICompletionRequest;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
+import org.python.pydev.core.IPyTemplateCompletionProcessor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.PyTemplateCompletionProcessorCreator;
 import org.python.pydev.core.docutils.ImportsSelection;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
@@ -41,10 +43,10 @@ import org.python.pydev.debug.model.PyStackFrame;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant2;
 import org.python.pydev.editor.codecompletion.ProposalsComparator;
 import org.python.pydev.editor.codecompletion.PyLinkedModeCompletionProposal;
-import org.python.pydev.editor.codecompletion.templates.PyTemplateCompletionProcessor;
 import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant2;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_interactive_console.console.IScriptConsoleCommunication;
 import org.python.pydev.shared_interactive_console.console.IScriptConsoleInterpreter;
@@ -227,8 +229,12 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
 
         if (tokenAndQual.activationToken.length() == 0) {
             //templates (only if we have no activation token)
-            PyTemplateCompletionProcessor pyTemplateCompletionProcessor = new PyTemplateCompletionProcessor();
-            pyTemplateCompletionProcessor.addTemplateProposals((ITextViewer) viewer, offset, results2);
+            ICallback0<IPyTemplateCompletionProcessor> createPyTemplateCompletionProcessorCreator = PyTemplateCompletionProcessorCreator.createPyTemplateCompletionProcessorCreator;
+            if (createPyTemplateCompletionProcessorCreator != null) {
+                IPyTemplateCompletionProcessor pyTemplateCompletionProcessor = createPyTemplateCompletionProcessorCreator
+                        .call();
+                pyTemplateCompletionProcessor.addTemplateProposals((ITextViewer) viewer, offset, results2);
+            }
         }
 
         Collections.sort(results2, proposalsComparator);

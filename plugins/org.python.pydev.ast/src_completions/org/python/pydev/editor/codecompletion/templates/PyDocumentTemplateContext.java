@@ -10,6 +10,8 @@ import java.io.File;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.templates.TemplateContextType;
 import org.python.pydev.core.IGrammarVersionProvider;
@@ -130,6 +132,39 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContextWith
             }
         }
         return "";
+    }
+
+    /**
+     * Creates a concrete template context for the given region in the document. This involves finding out which
+     * context type is valid at the given location, and then creating a context of this type. The default implementation
+     * returns a <code>DocumentTemplateContext</code> for the context type at the given location.
+     *
+     * @param contextType the context type for the template.
+     * @param viewer the viewer for which the context is created
+     * @param region the region into <code>document</code> for which the context is created
+     * @return a template context that can handle template insertion at the given location, or <code>null</code>
+     */
+    public static PyDocumentTemplateContext createContext(final TemplateContextType contextType,
+            final ITextViewer viewer, final IRegion region, String indent) {
+        if (contextType != null) {
+            IDocument document = viewer.getDocument();
+            final String indentTo = indent;
+            return new PyDocumentTemplateContext(contextType, document, region.getOffset(), region.getLength(),
+                    indentTo, viewer);
+        }
+        return null;
+    }
+
+    public static PyDocumentTemplateContext createContext(final TemplateContextType contextType,
+            final ITextViewer viewer, final IRegion region) {
+        if (contextType != null) {
+            IDocument document = viewer.getDocument();
+            PySelection selection = new PySelection(document,
+                    ((ITextSelection) viewer.getSelectionProvider().getSelection()).getOffset());
+            String indent = selection.getIndentationFromLine();
+            return PyDocumentTemplateContext.createContext(contextType, viewer, region, indent);
+        }
+        return null;
     }
 
     /**

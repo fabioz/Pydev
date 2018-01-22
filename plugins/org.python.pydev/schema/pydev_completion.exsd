@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Schema file written by PDE -->
-<schema targetNamespace="org.python.pydev">
+<schema targetNamespace="org.python.pydev" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appInfo>
          <meta.schema plugin="org.python.pydev" id="pydev_completion" name="org.python.pydev.pydev_completion"/>
@@ -11,6 +11,11 @@
    </annotation>
 
    <element name="extension">
+      <annotation>
+         <appInfo>
+            <meta.element />
+         </appInfo>
+      </annotation>
       <complexType>
          <sequence>
             <element ref="completion_participant" minOccurs="0" maxOccurs="unbounded"/>
@@ -80,8 +85,6 @@
          This extension point defines a class that should be called for completions whenever it is requested.
 
 The class defined must implement org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant.
-
-
       </documentation>
    </annotation>
 
@@ -94,13 +97,5 @@ The class defined must implement org.python.pydev.editor.codecompletion.IPyDevCo
       </documentation>
    </annotation>
 
-   <annotation>
-      <appInfo>
-         <meta.section type="copyright"/>
-      </appInfo>
-      <documentation>
-         
-      </documentation>
-   </annotation>
 
 </schema>

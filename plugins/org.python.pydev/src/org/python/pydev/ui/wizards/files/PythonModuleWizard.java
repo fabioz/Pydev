@@ -22,7 +22,6 @@ import org.eclipse.ui.IEditorPart;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.templates.PyDocumentTemplateContext;
-import org.python.pydev.editor.codecompletion.templates.PyTemplateCompletionProcessor;
 import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.plugin.preferences.FileTypesPreferences;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
@@ -133,7 +132,7 @@ public class PythonModuleWizard extends AbstractPythonWizard {
                 Template template = selectedTemplate.getTemplate();
 
                 Region region = new Region(0, 0);
-                PyDocumentTemplateContext context = PyTemplateCompletionProcessor.createContext(new PyContextType(),
+                PyDocumentTemplateContext context = PyDocumentTemplateContext.createContext(new PyContextType(),
                         pyEdit.getPySourceViewer(), region);
 
                 TemplateProposal templateProposal = new TemplateProposal(template, context, region, null);

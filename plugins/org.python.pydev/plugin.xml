@@ -17,11 +17,26 @@
          </contentTypeBinding>
       </editor>
    </extension>
+   <extension
+         id="pythonNature"
+         name="Python Nature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="org.python.pydev.plugin.nature.PythonNature">
+         </run>
+      </runtime>
+      <builder id="org.python.pydev.builder"/>
+   </extension>
 <!-- Initialize our preferences -->
    <extension point="org.eclipse.core.runtime.preferences">
       <initializer class="org.python.pydev.builder.pylint.PyLintPrefInitializer"/>
       <initializer class="org.python.pydev.plugin.preferences.PydevPrefsInitializer"/>
    </extension>
+   <extension point="org.eclipse.core.runtime.preferences">
+      <initializer class="org.python.pydev.editor.codecompletion.PyCodeCompletionInitializer"/>
+   </extension>
+
 <!-- document provider (even for the external files) -->
    <extension point="org.eclipse.ui.editors.documentProviders">
       <provider
@@ -1157,13 +1172,14 @@
                id="org.python.pydev.editor.templates.python.modules"
                name="New Module"/>
     </extension>
+<!-- extensions -->
+<!-- extensions -->
+<!-- extensions -->
+<!-- extensions -->
+<!-- extensions -->
+<!-- extensions -->
+   <extension-point id="pydev_completion" name="PyDev completion" schema="schema/pydev_completion.exsd"/>
    <extension-point id="pydev_builder" name="PyDev Builder" schema="schema/pydev_builder.exsd"/>
-<!-- extensions -->
-<!-- extensions -->
-<!-- extensions -->
-<!-- extensions -->
-<!-- extensions -->
-<!-- extensions -->
    <extension-point id="pydev_modules_observer" name="PyDev modules observer" schema="schema/pydev_modules_observer.exsd"/>
    <extension-point id="pydev_interpreter_observer" name="PyDev Interpreter Observer" schema="schema/pydev_interpreter_observer.exsd"/>
    <extension-point id="pydev_interpreter_new_custom_entries" name="PyDev Interpreter New Custom Entries" schema="schema/pydev_interpreter_new_custom_entries.exsd"/>

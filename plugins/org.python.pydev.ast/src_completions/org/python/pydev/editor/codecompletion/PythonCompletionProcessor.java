@@ -28,15 +28,17 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPySyntaxHighlightingAndCodeCompletionEditor;
+import org.python.pydev.core.IPyTemplateCompletionProcessor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.PyTemplateCompletionProcessorCreator;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.interpreter_managers.ChooseInterpreterManager;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.templates.PyTemplateCompletionProcessor;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.content_assist.AbstractCompletionProcessorWithCycling;
 
@@ -51,7 +53,7 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
     /**
      * This makes the templates completion
      */
-    private PyTemplateCompletionProcessor templatesCompletion = new PyTemplateCompletionProcessor();
+    private IPyTemplateCompletionProcessor templatesCompletion;
 
     /**
      * This makes python code completion
@@ -86,6 +88,10 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
     public PythonCompletionProcessor(IPySyntaxHighlightingAndCodeCompletionEditor edit,
             PyContentAssistant pyContentAssistant) {
         super(pyContentAssistant);
+        ICallback0<IPyTemplateCompletionProcessor> createPyTemplateCompletionProcessorCreator = PyTemplateCompletionProcessorCreator.createPyTemplateCompletionProcessorCreator;
+        if (createPyTemplateCompletionProcessorCreator != null) {
+            templatesCompletion = createPyTemplateCompletionProcessorCreator.call();
+        }
         this.edit = edit;
         this.contentAssistant = pyContentAssistant;
         this.codeCompletion = getCodeCompletionEngine();
@@ -237,7 +243,9 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
             String activationToken,
             java.lang.String qualifier) {
         List<ICompletionProposal> propList = new ArrayList<ICompletionProposal>();
-        this.templatesCompletion.addTemplateProposals(viewer, documentOffset, propList);
+        if (this.templatesCompletion != null) {
+            this.templatesCompletion.addTemplateProposals(viewer, documentOffset, propList);
+        }
         return propList;
     }
 
