@@ -24,7 +24,6 @@ Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: pydev.jar
 Export-Package: com.python.pydev,
  com.python.pydev.actions,
- com.python.pydev.refactoring,
  com.python.pydev.ui.hierarchy,
  com.python.pydev.util
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

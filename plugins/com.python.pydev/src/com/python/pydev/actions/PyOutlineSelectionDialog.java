@@ -33,7 +33,9 @@ import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
+import org.python.pydev.editor.refactoring.HierarchyNodeModel;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
+import org.python.pydev.editor.refactoring.IPyRefactoring2;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -49,8 +51,6 @@ import org.python.pydev.shared_ui.quick_outline.DataAndImageTreeNodeContentProvi
 import org.python.pydev.shared_ui.tree.LabelProviderWithDecoration;
 
 import com.python.pydev.PydevPlugin;
-import com.python.pydev.refactoring.IPyRefactoring2;
-import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
 
 /**
  * @author fabioz

@@ -7,7 +7,7 @@
 /*
  * Created on Apr 10, 2006
  */
-package com.python.pydev.ui.hierarchy;
+package org.python.pydev.editor.refactoring;
 
 import java.util.ArrayList;
 import java.util.List;

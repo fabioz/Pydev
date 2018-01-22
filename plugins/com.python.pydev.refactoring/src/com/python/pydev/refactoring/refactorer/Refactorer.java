@@ -24,7 +24,9 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinitio
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
+import org.python.pydev.editor.refactoring.HierarchyNodeModel;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
+import org.python.pydev.editor.refactoring.IPyRefactoring2;
 import org.python.pydev.editor.refactoring.IPyRefactoringRequest;
 import org.python.pydev.editor.refactoring.ModuleRenameRefactoringRequest;
 import org.python.pydev.editor.refactoring.MultiModuleMoveRefactoringRequest;
@@ -35,12 +37,10 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.EditorUtils;
 
-import com.python.pydev.refactoring.IPyRefactoring2;
 import com.python.pydev.refactoring.wizards.RefactorProcessFactory;
 import com.python.pydev.refactoring.wizards.rename.PyReferenceSearcher;
 import com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint;
 import com.python.pydev.refactoring.wizards.rename.PyRenameRefactoringWizard;
-import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
 
 /**
  * This is the entry point for any refactoring that we implement.

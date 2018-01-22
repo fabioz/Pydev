@@ -17,6 +17,7 @@ import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
 import org.eclipse.jface.viewers.StyledString.Styler;
 import org.eclipse.swt.graphics.Image;
+import org.python.pydev.editor.refactoring.HierarchyNodeModel;
 import org.python.pydev.shared_core.structure.DataAndImageTreeNode;
 
 class HierarchyLabelProvider extends LabelProvider implements IStyledLabelProvider {

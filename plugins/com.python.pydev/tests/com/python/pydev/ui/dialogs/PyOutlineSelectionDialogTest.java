@@ -17,13 +17,13 @@ import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.editor.refactoring.HierarchyNodeModel;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.ui.SWTTest;
 
 import com.python.pydev.actions.PyOutlineSelectionDialog;
-import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
 
 public class PyOutlineSelectionDialogTest extends SWTTest {
 

@@ -12,12 +12,6 @@
    </extension>
 
 
-<!-- Initialize our preferences -->
-   <extension
-         point="org.eclipse.core.runtime.preferences">
-      <initializer class="com.python.pydev.PydevExtensionInitializer"/>
-   </extension>
-
 <!-- command: activate interactive console-->
    <extension point="org.eclipse.ui.commands">
       <command

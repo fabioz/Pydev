@@ -35,6 +35,7 @@ import org.eclipse.ui.PlatformUI;
 import org.python.pydev.core.IModule;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.ItemPointer;
+import org.python.pydev.editor.refactoring.HierarchyNodeModel;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;

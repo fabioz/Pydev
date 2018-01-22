@@ -19,13 +19,13 @@ import org.eclipse.ui.PlatformUI;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
+import org.python.pydev.editor.refactoring.HierarchyNodeModel;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
+import org.python.pydev.editor.refactoring.IPyRefactoring2;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorDialog;
 
-import com.python.pydev.refactoring.IPyRefactoring2;
-import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
 import com.python.pydev.ui.hierarchy.PyHierarchyView;
 
 /**

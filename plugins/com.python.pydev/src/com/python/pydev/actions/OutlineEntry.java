@@ -6,12 +6,11 @@
  */
 package com.python.pydev.actions;
 
+import org.python.pydev.editor.refactoring.HierarchyNodeModel;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
-
-import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
 
 /**
  * @author fabioz
