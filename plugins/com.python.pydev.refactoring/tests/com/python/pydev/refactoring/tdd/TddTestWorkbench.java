@@ -23,6 +23,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension2;
+import org.python.pydev.core.IMiscConstants;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
@@ -38,7 +39,6 @@ import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
 import com.python.pydev.analysis.AnalysisRequestsTestWorkbench;
-import com.python.pydev.analysis.builder.AnalysisParserObserver;
 import com.python.pydev.analysis.builder.AnalysisRunner;
 
 public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IParserObserver {
@@ -1644,7 +1644,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
 
         ICallback<Boolean, Object> parseHappenedCondition = getParseHappenedCondition();
 
-        while (!parser.forceReparse(new Tuple<String, Boolean>(AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE,
+        while (!parser.forceReparse(new Tuple<String, Boolean>(IMiscConstants.ANALYSIS_PARSER_OBSERVER_FORCE,
                 true))) {
             goToManual(50);
         }

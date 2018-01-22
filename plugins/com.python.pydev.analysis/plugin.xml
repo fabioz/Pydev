@@ -80,10 +80,7 @@
    <extension point="org.python.pydev.pydev_globals_browser">
    		<globals_browser_participant class="com.python.pydev.analysis.actions.PyGlobalsBrowser"/>
    </extension>
-<!-- Have an instance observing all the PyEdit editors -->
-   <extension point="org.python.pydev.pydev_pyedit_listener">
-  		<pyedit_listener_participant class="com.python.pydev.analysis.actions.AnalyzeOnRequestSetter"/>
-   </extension>
+
 <!-- organize imports participant -->
    <extension point="org.python.pydev.pydev_organize_imports">
 		<organize_imports_participant class="com.python.pydev.analysis.organizeimports.OrganizeImports"/>

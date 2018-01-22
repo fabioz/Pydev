@@ -33,6 +33,10 @@
       <initializer class="org.python.pydev.builder.pylint.PyLintPrefInitializer"/>
       <initializer class="org.python.pydev.plugin.preferences.PydevPrefsInitializer"/>
    </extension>
+<!-- Analyze file on request through ctrl+2, c -->
+   <extension point="org.python.pydev.pydev_pyedit_listener">
+  		<pyedit_listener_participant class="com.python.pydev.analysis.actions.AnalyzeOnRequestSetter"/>
+   </extension>
 
 <!-- document provider (even for the external files) -->
    <extension point="org.eclipse.ui.editors.documentProviders">

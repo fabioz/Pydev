@@ -83,8 +83,6 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver3
         }
     }
 
-    public static final String ANALYSIS_PARSER_OBSERVER_FORCE = IMiscConstants.ANALYSIS_PARSER_OBSERVER_FORCE;
-
     @Override
     public void parserChanged(final ChangedParserInfoForObservers info) {
         if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
@@ -111,7 +109,7 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver3
             if (info.argsToReparse[0] instanceof Tuple) {
                 Tuple t = (Tuple) info.argsToReparse[0];
                 if (t.o1 instanceof String && t.o2 instanceof Boolean) {
-                    if (t.o1.equals(ANALYSIS_PARSER_OBSERVER_FORCE)) {
+                    if (t.o1.equals(IMiscConstants.ANALYSIS_PARSER_OBSERVER_FORCE)) {
                         //if this message is passed, it will decide whether we will force the analysis or not
                         force = (Boolean) t.o2;
                     }

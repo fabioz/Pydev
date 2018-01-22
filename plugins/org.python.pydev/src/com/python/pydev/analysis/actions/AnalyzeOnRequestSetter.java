@@ -11,13 +11,12 @@ import java.util.ListResourceBundle;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.IMiscConstants;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.editor.BaseEditor;
 import org.python.pydev.shared_ui.editor.IPyEditListener;
-
-import com.python.pydev.analysis.builder.AnalysisParserObserver;
 
 public class AnalyzeOnRequestSetter implements IPyEditListener {
 
@@ -33,7 +32,7 @@ public class AnalyzeOnRequestSetter implements IPyEditListener {
         public void run() {
             PyParser parser = (PyParser) edit.getParser();
             parser.forceReparse(
-                    new Tuple<String, Boolean>(AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE, true));
+                    new Tuple<String, Boolean>(IMiscConstants.ANALYSIS_PARSER_OBSERVER_FORCE, true));
         }
     }
 

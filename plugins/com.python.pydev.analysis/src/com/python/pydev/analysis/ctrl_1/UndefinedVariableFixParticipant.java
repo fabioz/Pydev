@@ -22,6 +22,7 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.swt.SWT;
 import org.eclipse.ui.texteditor.MarkerAnnotation;
 import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.IMiscConstants;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
@@ -41,7 +42,6 @@ import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.IInfo;
-import com.python.pydev.analysis.builder.AnalysisParserObserver;
 import com.python.pydev.analysis.builder.AnalysisRunner;
 import com.python.pydev.analysis.ui.AutoImportsPreferencesPage;
 
@@ -236,7 +236,7 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
                         PyEdit edit = sourceViewer.getEdit();
                         if (edit != null) {
                             edit.getParser().forceReparse(
-                                    new Tuple<String, Boolean>(AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE,
+                                    new Tuple<String, Boolean>(IMiscConstants.ANALYSIS_PARSER_OBSERVER_FORCE,
                                             true));
                         }
                     }
