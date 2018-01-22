@@ -64,8 +64,8 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
 
     @Override
     protected String getSystemPythonpathPaths() {
-        return TestDependent.GetCompletePythonLib(true) + "|" + TestDependent.TEST_PYSRC_LOC + "myzipmodule.zip" + "|"
-                + TestDependent.TEST_PYSRC_LOC + "myeggmodule.egg";
+        return TestDependent.GetCompletePythonLib(true) + "|" + TestDependent.TEST_PYSRC_TESTING_LOC + "myzipmodule.zip" + "|"
+                + TestDependent.TEST_PYSRC_TESTING_LOC + "myeggmodule.egg";
     }
 
     public void testImportCompletion() throws Exception {
@@ -137,7 +137,7 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
         }
 
         //check on actual file
-        requestCompl(new File(TestDependent.TEST_PYSRC_LOC + "/testlib/unittest/guitestcase.py"), "guite", -1, 0,
+        requestCompl(new File(TestDependent.TEST_PYSRC_TESTING_LOC + "/testlib/unittest/guitestcase.py"), "guite", -1, 0,
                 new String[] {});
 
         Import importTok = new Import(new aliasType[] { new aliasType(new NameTok("unittest", NameTok.ImportModule),
@@ -175,7 +175,7 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
         ICompletionProposal[] proposals = requestCompl("xml", -1, -1, new String[] {});
         assertNotContains("xml - xmlrpclib", proposals);
 
-        requestCompl(new File(TestDependent.TEST_PYSRC_LOC + "/testlib/unittest/guitestcase.py"), "guite", -1, 0,
+        requestCompl(new File(TestDependent.TEST_PYSRC_TESTING_LOC + "/testlib/unittest/guitestcase.py"), "guite", -1, 0,
                 new String[] {});
 
         //the behavior changes for tokens on modules

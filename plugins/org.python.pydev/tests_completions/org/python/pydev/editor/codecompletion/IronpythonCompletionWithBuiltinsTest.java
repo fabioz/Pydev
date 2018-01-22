@@ -76,7 +76,7 @@ public class IronpythonCompletionWithBuiltinsTest extends IronPythonCodeCompleti
     }
 
     public void testRecursion() throws FileNotFoundException, Exception, CompletionRecursionException {
-        String file = TestDependent.TEST_PYSRC_LOC +
+        String file = TestDependent.TEST_PYSRC_TESTING_LOC +
                 "testrec3/rec.py";
         String strDoc = "RuntimeError.";
         File f = new File(file);

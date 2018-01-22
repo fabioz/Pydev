@@ -56,7 +56,7 @@ public class TddCodeGenerationQuickFixParticipantTest extends CodeCompletionTest
         this.restorePythonPath(TestDependent.GetCompletePythonLib(true) +
                 "|" + TestDependent.PYTHON_PIL_PACKAGES +
                 "|"
-                + TestDependent.TEST_PYSRC_LOC +
+                + TestDependent.TEST_PYSRC_TESTING_LOC +
                 "configobj-4.6.0-py2.6.egg", false);
 
         this.restorePythonPath(false);

@@ -99,7 +99,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
     }
 
     public void testGrammar3AbsoluteAndRelativeImports() throws Exception {
-        String file = TestDependent.TEST_PYSRC_LOC + "extendable/grammar3/sub1.py";
+        String file = TestDependent.TEST_PYSRC_TESTING_LOC + "extendable/grammar3/sub1.py";
         String strDoc = "from relative import ";
         ICompletionProposal[] codeCompletionProposals = requestCompl(new File(file), strDoc, strDoc.length(), -1,
                 new String[] { "DTest" });

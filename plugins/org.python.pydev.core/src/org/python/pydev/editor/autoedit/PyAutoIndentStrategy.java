@@ -427,7 +427,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
                     return;
 
                 case '(':
-                    handleParens(document, command, prefs);
+                    handleParens(document, command, prefs, considerOnlyCurrentLine);
                     return;
 
                 case ':':
@@ -533,14 +533,26 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
     /**
      * Called right after a '('
      */
-    public static void handleParens(IDocument document, DocumentCommand command, IIndentPrefs prefs)
+    public static void handleParens(IDocument document, DocumentCommand command, IIndentPrefs prefs,
+            boolean considerOnlyCurrentLine)
             throws BadLocationException {
         /*
          * Now, let's also check if we are in an 'elif ' that must be dedented in the doc
          */
         autoDedentElif(document, command, prefs);
 
-        customizeParenthesis(document, command, false, prefs);
+        customizeParenthesis(document, command, considerOnlyCurrentLine, prefs);
+    }
+
+    private boolean considerOnlyCurrentLine = false;
+
+    @Override
+    public void setConsiderOnlyCurrentLine(boolean considerOnlyCurrentLine) {
+        this.considerOnlyCurrentLine = considerOnlyCurrentLine;
+    }
+
+    public boolean getConsiderOnlyCurrentLine() {
+        return this.considerOnlyCurrentLine;
     }
 
     /**

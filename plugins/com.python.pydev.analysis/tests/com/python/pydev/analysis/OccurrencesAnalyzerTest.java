@@ -632,7 +632,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testRelImport() throws Exception {
 
         analyzer = new OccurrencesAnalyzer();
-        File file = new File(TestDependent.TEST_PYSRC_LOC +
+        File file = new File(TestDependent.TEST_PYSRC_TESTING_LOC +
                 "relative/__init__.py");
         Document doc = new Document(FileUtils.getFileContents(file));
         msgs = analyzer.analyzeDocument(nature,
@@ -646,7 +646,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testImportNotFound8() throws Exception {
 
         analyzer = new OccurrencesAnalyzer();
-        File file = new File(TestDependent.TEST_PYSRC_LOC +
+        File file = new File(TestDependent.TEST_PYSRC_TESTING_LOC +
                 "testenc/encimport.py");
         Document doc = new Document(FileUtils.getFileContents(file));
         msgs = analyzer.analyzeDocument(nature,
@@ -659,7 +659,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testUnusedWildRelativeImport() throws Exception {
 
         analyzer = new OccurrencesAnalyzer();
-        File file = new File(TestDependent.TEST_PYSRC_LOC +
+        File file = new File(TestDependent.TEST_PYSRC_TESTING_LOC +
                 "testOtherImports/f1.py");
         Document doc = new Document(FileUtils.getFileContents(file));
         msgs = analyzer.analyzeDocument(nature,
@@ -715,7 +715,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testRelativeNotUndefined() throws Exception {
 
         analyzer = new OccurrencesAnalyzer();
-        File file = new File(TestDependent.TEST_PYSRC_LOC +
+        File file = new File(TestDependent.TEST_PYSRC_TESTING_LOC +
                 "testlib/unittest/relative/testrelative.py");
         Document doc = new Document(FileUtils.getFileContents(file));
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule(
@@ -728,7 +728,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testRelativeNotUndefined2() throws Exception {
 
         analyzer = new OccurrencesAnalyzer();
-        File file = new File(TestDependent.TEST_PYSRC_LOC +
+        File file = new File(TestDependent.TEST_PYSRC_TESTING_LOC +
                 "relative/mod2.py");
         Document doc = new Document(FileUtils.getFileContents(file));
         msgs = analyzer.analyzeDocument(nature,
@@ -2415,7 +2415,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testRecursionCondition() throws Exception {
 
         analyzer = new OccurrencesAnalyzer();
-        File file = new File(TestDependent.TEST_PYSRC_LOC +
+        File file = new File(TestDependent.TEST_PYSRC_TESTING_LOC +
                 "extendable/recursion_on_non_existent/unexistent_import.py");
         Document doc = new Document(FileUtils.getFileContents(file));
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule(
@@ -2429,7 +2429,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testRelativeWithWildCard() throws Exception {
 
         analyzer = new OccurrencesAnalyzer();
-        File file = new File(TestDependent.TEST_PYSRC_LOC +
+        File file = new File(TestDependent.TEST_PYSRC_TESTING_LOC +
                 "extendable/relative_wildcard/mymod2.py");
         Document doc = new Document(FileUtils.getFileContents(file));
         msgs = analyzer.analyzeDocument(nature,
@@ -2442,7 +2442,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testModuleNotFoundOnRelativeAndFullMixed() throws Exception {
 
         analyzer = new OccurrencesAnalyzer();
-        File file = new File(TestDependent.TEST_PYSRC_LOC +
+        File file = new File(TestDependent.TEST_PYSRC_TESTING_LOC +
                 "extendable/relative_and_full_mixed/pluginstestcaseext.py");
         Document doc = new Document(FileUtils.getFileContents(file));
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule(
@@ -2455,7 +2455,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testModuleNotFoundOnRelativeAbsolute() throws Exception {
 
         analyzer = new OccurrencesAnalyzer();
-        File file = new File(TestDependent.TEST_PYSRC_LOC +
+        File file = new File(TestDependent.TEST_PYSRC_TESTING_LOC +
                 "extendable/relative_absolute_import/__init__.py");
         Document doc = new Document(FileUtils.getFileContents(file));
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule(
@@ -2468,7 +2468,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testImportErrorPattern() throws Exception {
 
         analyzer = new OccurrencesAnalyzer();
-        File file = new File(TestDependent.TEST_PYSRC_LOC +
+        File file = new File(TestDependent.TEST_PYSRC_TESTING_LOC +
                 "extendable/redefinition_in_import/check_access.py");
         Document doc = new Document(FileUtils.getFileContents(file));
         msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule(
@@ -2707,7 +2707,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
             analyzer = new OccurrencesAnalyzer();
-            File file = new File(TestDependent.TEST_PYSRC_LOC +
+            File file = new File(TestDependent.TEST_PYSRC_TESTING_LOC +
                     "extendable/grammar3/sub1.py");
             Document doc = new Document(FileUtils.getFileContents(file));
             msgs = analyzer.analyzeDocument(nature,
@@ -2722,7 +2722,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testRelativeOnPy2() throws IOException, MisconfigurationException {
         analyzer = new OccurrencesAnalyzer();
-        File file = new File(TestDependent.TEST_PYSRC_LOC +
+        File file = new File(TestDependent.TEST_PYSRC_TESTING_LOC +
                 "extendable/grammar3/sub1.py");
         Document doc = new Document(FileUtils.getFileContents(file));
         msgs = analyzer.analyzeDocument(nature,
@@ -2734,7 +2734,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testImportSelf() throws IOException, MisconfigurationException {
         analyzer = new OccurrencesAnalyzer();
-        File file = new File(TestDependent.TEST_PYSRC_LOC +
+        File file = new File(TestDependent.TEST_PYSRC_TESTING_LOC +
                 "importself/__init__.py");
         Document doc = new Document(FileUtils.getFileContents(file));
         msgs = analyzer.analyzeDocument(nature,
@@ -2746,7 +2746,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testImportSelf2() throws IOException, MisconfigurationException {
         analyzer = new OccurrencesAnalyzer();
-        File file = new File(TestDependent.TEST_PYSRC_LOC +
+        File file = new File(TestDependent.TEST_PYSRC_TESTING_LOC +
                 "importself/importself2.py");
         Document doc = new Document(FileUtils.getFileContents(file));
         msgs = analyzer.analyzeDocument(nature,
@@ -2773,7 +2773,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testRelativeImport() throws IOException, MisconfigurationException {
         analyzer = new OccurrencesAnalyzer();
-        File file = new File(TestDependent.TEST_PYSRC_LOC +
+        File file = new File(TestDependent.TEST_PYSRC_TESTING_LOC +
                 "mod/mod1/test_relative.py");
         Document doc = new Document(FileUtils.getFileContents(file));
         msgs = analyzer.analyzeDocument(nature,

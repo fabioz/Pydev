@@ -365,15 +365,15 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
             if (javaModulesManagerForProject != null) {
                 list.add(javaModulesManagerForProject);
             }
-
-            Set<IProject> projs;
-            if (referenced) {
-                projs = getReferencedProjects(project);
-            } else {
-                projs = getReferencingProjects(project);
-            }
-            addModuleManagers(list, projs);
         }
+
+        Set<IProject> projs;
+        if (referenced) {
+            projs = getReferencedProjects(project);
+        } else {
+            projs = getReferencingProjects(project);
+        }
+        addModuleManagers(list, projs);
 
         //the system is the last one we add
         //http://sourceforge.net/tracker/index.php?func=detail&aid=1687018&group_id=85796&atid=577329

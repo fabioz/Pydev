@@ -61,7 +61,7 @@ public class IronpythonTest extends AbstractBasicRunTestCase {
                 return true;
             }
         };
-        execAllAndCheckErrors("test", new File[] { new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "pysrc/tests"), },
+        execAllAndCheckErrors("test", new File[] { new File(TestDependent.PYSRC_LOC + "tests"), },
                 filter);
     }
 

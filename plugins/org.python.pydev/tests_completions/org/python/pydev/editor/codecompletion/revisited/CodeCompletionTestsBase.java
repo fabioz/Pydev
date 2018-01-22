@@ -399,7 +399,7 @@ public class CodeCompletionTestsBase extends TestCase {
     }
 
     public String getProjectPythonpathNature2() {
-        return TestDependent.TEST_PYSRC_LOC2;
+        return TestDependent.TEST_PYSRC_TESTING_LOC2;
     }
 
     /**
@@ -407,7 +407,7 @@ public class CodeCompletionTestsBase extends TestCase {
      * remainders will be set as external source folders.
      */
     public String getProjectPythonpath() {
-        return TestDependent.TEST_PYSRC_LOC;
+        return TestDependent.TEST_PYSRC_TESTING_LOC;
     }
 
     /**

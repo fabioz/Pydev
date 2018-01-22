@@ -76,7 +76,7 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
 
     public void testResolvePath() {
         PythonPathHelper helper = new PythonPathHelper();
-        String path = TestDependent.GetCompletePythonLib(true) + "|" + TestDependent.TEST_PYSRC_LOC;
+        String path = TestDependent.GetCompletePythonLib(true) + "|" + TestDependent.TEST_PYSRC_TESTING_LOC;
         helper.setPythonPath(path);
 
         IProject project = null;
@@ -88,27 +88,27 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         assertSame(null, helper.resolveModule(TestDependent.PYTHON_LIB + "curses/invalid", true, project));
         assertSame(null, helper.resolveModule(TestDependent.PYTHON_LIB + "invalid", true, project));
 
-        assertEquals("testlib", helper.resolveModule(TestDependent.TEST_PYSRC_LOC + "testlib", project));
+        assertEquals("testlib", helper.resolveModule(TestDependent.TEST_PYSRC_TESTING_LOC + "testlib", project));
         assertEquals("testlib.__init__",
-                helper.resolveModule(TestDependent.TEST_PYSRC_LOC + "testlib/__init__.py", project));
+                helper.resolveModule(TestDependent.TEST_PYSRC_TESTING_LOC + "testlib/__init__.py", project));
         assertEquals("testlib.unittest",
-                helper.resolveModule(TestDependent.TEST_PYSRC_LOC + "testlib/unittest", project));
+                helper.resolveModule(TestDependent.TEST_PYSRC_TESTING_LOC + "testlib/unittest", project));
         assertEquals("testlib.unittest.__init__",
-                helper.resolveModule(TestDependent.TEST_PYSRC_LOC + "testlib/unittest/__init__.py", project));
+                helper.resolveModule(TestDependent.TEST_PYSRC_TESTING_LOC + "testlib/unittest/__init__.py", project));
         assertEquals("testlib.unittest.testcase",
-                helper.resolveModule(TestDependent.TEST_PYSRC_LOC + "testlib/unittest/testcase.py", project));
+                helper.resolveModule(TestDependent.TEST_PYSRC_TESTING_LOC + "testlib/unittest/testcase.py", project));
         assertEquals(null,
-                helper.resolveModule(TestDependent.TEST_PYSRC_LOC + "testlib/unittest/invalid.py", true, project));
+                helper.resolveModule(TestDependent.TEST_PYSRC_TESTING_LOC + "testlib/unittest/invalid.py", true, project));
 
         assertEquals(
                 null,
-                helper.resolveModule(TestDependent.TEST_PYSRC_LOC + "extendable/invalid.folder/invalidfile.py",
+                helper.resolveModule(TestDependent.TEST_PYSRC_TESTING_LOC + "extendable/invalid.folder/invalidfile.py",
                         project));
     }
 
     public void testGetModulesFoundStructure() {
         PythonPathHelper helper = new PythonPathHelper();
-        String path = TestDependent.GetCompletePythonLib(true) + "|" + TestDependent.TEST_PYSRC_LOC;
+        String path = TestDependent.GetCompletePythonLib(true) + "|" + TestDependent.TEST_PYSRC_TESTING_LOC;
         helper.setPythonPath(path);
         ModulesFoundStructure modulesFoundStructure = helper.getModulesFoundStructure(null, null);
         Map<File, String> regularModules = modulesFoundStructure.regularModules;
@@ -421,7 +421,7 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
     }
 
     public void testGetEncoding() {
-        String loc = TestDependent.TEST_PYSRC_LOC + "testenc/encutf8.py";
+        String loc = TestDependent.TEST_PYSRC_TESTING_LOC + "testenc/encutf8.py";
         try {
             String encoding = FileUtils.getPythonFileEncoding(new File(loc));
             assertEquals("UTF-8", encoding);

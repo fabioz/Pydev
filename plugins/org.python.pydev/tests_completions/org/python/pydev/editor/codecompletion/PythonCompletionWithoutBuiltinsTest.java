@@ -36,7 +36,6 @@ import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.ImportsSelection;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
-import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
@@ -169,7 +168,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         this.restorePythonPath(TestDependent.GetCompletePythonLib(true) +
                 "|" + TestDependent.PYTHON_PIL_PACKAGES +
                 "|"
-                + TestDependent.TEST_PYSRC_LOC +
+                + TestDependent.TEST_PYSRC_TESTING_LOC +
                 "configobj-4.6.0-py2.6.egg", false);
 
         this.restorePythonPath(false);
@@ -178,7 +177,8 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 
             @Override
             public Object call(CompletionRecursionException e) {
-                throw new RuntimeException("Recursion error:" + org.python.pydev.shared_core.log.Log.getExceptionStr(e));
+                throw new RuntimeException(
+                        "Recursion error:" + org.python.pydev.shared_core.log.Log.getExceptionStr(e));
             }
 
         };
@@ -579,28 +579,28 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     }
 
     public void testRelativeImport() throws FileNotFoundException, Exception {
-        String file = TestDependent.TEST_PYSRC_LOC +
+        String file = TestDependent.TEST_PYSRC_TESTING_LOC +
                 "testlib/unittest/relative/testrelative.py";
         String strDoc = "from toimport import ";
         requestCompl(new File(file), strDoc, strDoc.length(), -1, new String[] { "Test1", "Test2" });
     }
 
     public void testRelativeImport2() throws FileNotFoundException, Exception {
-        String file = TestDependent.TEST_PYSRC_LOC +
+        String file = TestDependent.TEST_PYSRC_TESTING_LOC +
                 "extendable/relative_absolute_import/__init__.py";
         String strDoc = "from .foo import bar as buzz\nbuzz.";
         requestCompl(new File(file), strDoc, strDoc.length(), -1, new String[] { "jazz()" });
     }
 
     public void testInModuleWithoutExtension() throws FileNotFoundException, Exception {
-        String file = TestDependent.TEST_PYSRC_LOC +
+        String file = TestDependent.TEST_PYSRC_TESTING_LOC +
                 "mod_without_extension";
         String strDoc = FileUtils.getFileContents(new File(file));
         requestCompl(new File(file), strDoc, strDoc.length(), -1, new String[] { "ClassInModWithoutExtension" });
     }
 
     public void testRelativeImportWithSubclass() throws FileNotFoundException, Exception {
-        String file = TestDependent.TEST_PYSRC_LOC +
+        String file = TestDependent.TEST_PYSRC_TESTING_LOC +
                 "extendable/relative_with_sub/bb.py";
         String strDoc = FileUtils.getFileContents(new File(file));
         requestCompl(new File(file), strDoc, strDoc.length(), -1, new String[] { "yyy()" });
@@ -1834,7 +1834,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     }
 
     public void testGrammar2AbsoluteAndRelativeImports() throws Exception {
-        String file = TestDependent.TEST_PYSRC_LOC +
+        String file = TestDependent.TEST_PYSRC_TESTING_LOC +
                 "extendable/grammar3/sub1.py";
         String strDoc = "from relative import ";
         ICompletionProposal[] codeCompletionProposals = requestCompl(new File(file), strDoc, strDoc.length(), -1,
@@ -1843,14 +1843,14 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     }
 
     public void testGrammar2GetRootsOnImport() throws Exception {
-        String file = TestDependent.TEST_PYSRC_LOC +
+        String file = TestDependent.TEST_PYSRC_TESTING_LOC +
                 "extendable/grammar3/sub1.py";
         String strDoc = "import zipf";
         requestCompl(new File(file), strDoc, strDoc.length(), -1, new String[] { "zipfile" });
     }
 
     public void testGrammar2AbsoluteAndRelativeImportsWithFromFuture() throws Exception {
-        String file = TestDependent.TEST_PYSRC_LOC +
+        String file = TestDependent.TEST_PYSRC_TESTING_LOC +
                 "extendable/grammar3/sub1.py";
 
         //Must behave as Py3
@@ -3188,7 +3188,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 
     }
 
-    public void testTypingForVariable() throws Exception {
+    public void testTypingForVariable() throws Exception { // TODO: Fix this test.
         String s;
         String original = "" +
                 "class Foo:\n" +

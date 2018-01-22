@@ -21,12 +21,12 @@ import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ListDialog;
 import org.eclipse.ui.dialogs.SelectionDialog;
+import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.shared_core.structure.TreeNode;
@@ -139,7 +139,7 @@ public class AttachToProcess implements IWorkbenchWindowActionDelegate {
             }
             SimplePythonRunner runner = new SimplePythonRunner();
             IPath relative = new Path("pysrc").append("pydevd_attach_to_process").append("attach_pydevd.py");
-            String script = PydevPlugin.getBundleInfo().getRelativePath(relative).getAbsolutePath();
+            String script = CorePlugin.getBundleInfo().getRelativePath(relative).getAbsolutePath();
             String[] args = new String[] {
                     "--port",
                     "" + DebugPluginPrefsInitializer.getRemoteDebuggerPort(),

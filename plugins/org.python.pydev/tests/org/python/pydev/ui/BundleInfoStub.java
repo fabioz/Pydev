@@ -25,22 +25,23 @@ public class BundleInfoStub implements IBundleInfo {
     @Override
     public File getRelativePath(IPath relative) throws CoreException {
         if (relative.toString().indexOf("interpreterInfo.py") != -1) {
-            return new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "pysrc/interpreterInfo.py");
+            return new File(TestDependent.PYSRC_LOC + "interpreterInfo.py");
         }
         if (relative.toString().indexOf("pycompletionserver.py") != -1) {
-            return new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "pysrc/pycompletionserver.py");
+            return new File(TestDependent.PYSRC_LOC + "pycompletionserver.py");
         }
         if (relative.toString().indexOf("jycompletionserver.py") != -1) {
-            return new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "pysrc/jycompletionserver.py");
+            return new File(TestDependent.PYSRC_LOC + "jycompletionserver.py");
         }
         if (relative.toString().indexOf("indent.py") != -1) {
             return new File(TestDependent.TEST_PYDEV_JYTHON_PLUGIN_LOC + "jysrc/indent.py");
         }
         if (relative.toString().indexOf("pysrc/pydev_sitecustomize") != -1) {
-            return new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "pysrc/pydev_sitecustomize");
+            return new File(TestDependent.PYSRC_LOC + "pydev_sitecustomize");
         }
         if (relative.toString().indexOf("pysrc/stubs/_django_manager_body.py") != -1) {
-            return new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "pysrc/stubs/_django_manager_body.py");
+            return new File(
+                    TestDependent.PYSRC_LOC + "stubs/_django_manager_body.py");
         }
         throw new RuntimeException("Not available info on: " + relative);
     }

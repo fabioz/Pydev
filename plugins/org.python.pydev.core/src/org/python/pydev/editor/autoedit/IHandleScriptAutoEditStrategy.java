@@ -24,4 +24,6 @@ public interface IHandleScriptAutoEditStrategy extends IAutoEditStrategy {
 
     String convertTabs(String cmd);
 
+    void setConsiderOnlyCurrentLine(boolean considerOnlyCurrentLine);
+
 }

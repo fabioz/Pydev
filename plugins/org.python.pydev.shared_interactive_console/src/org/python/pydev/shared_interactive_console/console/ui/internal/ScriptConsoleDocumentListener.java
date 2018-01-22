@@ -797,6 +797,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             int currentOffset = cmdLine.length() + 1;
             DocCmd docCmd = new DocCmd(currentOffset, 0, "" + finalAddedParen);
             docCmd.shiftsCaret = true;
+            strategy.setConsiderOnlyCurrentLine(true);
             strategy.customizeDocumentCommand(parenDoc, docCmd);
             newText = docCmd.text + newText.substring(1);
             if (!docCmd.shiftsCaret) {

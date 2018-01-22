@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
@@ -147,7 +148,7 @@ public class SimpleJythonRunner extends SimpleRunner {
         String cacheDir = null;
         try {
             cacheDir = PydevPrefs.getChainedPrefStore().getString(IInterpreterManager.JYTHON_CACHE_DIR);
-        } catch (NullPointerException e) {
+        } catch (AssertionFailedException e) {
             //this may happen while running the tests... it should be ok.
             cacheDir = null;
         }

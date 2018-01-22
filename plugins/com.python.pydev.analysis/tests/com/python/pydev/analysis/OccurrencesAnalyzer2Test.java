@@ -177,7 +177,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
     public void testPathFound() throws IOException, MisconfigurationException {
 
         analyzer = new OccurrencesAnalyzer();
-        File file = new File(TestDependent.TEST_PYSRC_LOC +
+        File file = new File(TestDependent.TEST_PYSRC_TESTING_LOC +
                 "extendable/with_path.py");
         Document doc = new Document(FileUtils.getFileContents(file));
         msgs = analyzer.analyzeDocument(nature,
@@ -190,7 +190,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
     public void testPathFound2() throws IOException, MisconfigurationException {
 
         analyzer = new OccurrencesAnalyzer();
-        File file = new File(TestDependent.TEST_PYSRC_LOC +
+        File file = new File(TestDependent.TEST_PYSRC_TESTING_LOC +
                 "extendable/__init__.py");
         Document doc = new Document(FileUtils.getFileContents(file));
         msgs = analyzer.analyzeDocument(nature,

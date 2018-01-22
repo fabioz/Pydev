@@ -35,11 +35,11 @@ public class JythonTest extends TestCase {
     final File[] foldersWithTestContentsOnSameProcess = new File[] {
             new File(TestDependent.TEST_PYDEV_JYTHON_PLUGIN_LOC + "jysrc/tests"),
             new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "tests/jysrc/tests"),
-            new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "pysrc/tests_runfiles"), };
+            new File(TestDependent.PYSRC_LOC + "tests_runfiles"), };
 
     final File[] additionalPythonpathFolders = new File[] {
             new File(TestDependent.TEST_PYDEV_JYTHON_PLUGIN_LOC + "jysrc/"),
-            new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "pysrc/"), new File(TestDependent.JYTHON_ANT_JAR_LOCATION),
+            new File(TestDependent.PYSRC_LOC), new File(TestDependent.JYTHON_ANT_JAR_LOCATION),
             new File(TestDependent.JYTHON_JUNIT_JAR_LOCATION), new File(TestDependent.JYTHON_LIB_LOCATION), };
 
     private static final boolean RUN_TESTS_ON_SEPARATE_PROCESS = true;

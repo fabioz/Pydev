@@ -242,7 +242,7 @@ public class PyPeerLinker {
         }
         if (c == '(') {
 
-            PyAutoIndentStrategy.handleParens(doc, docCmd, prefs);
+            PyAutoIndentStrategy.handleParens(doc, docCmd, prefs, false);
 
             docCmd.doExecute(doc);
 

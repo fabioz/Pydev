@@ -53,9 +53,10 @@ public class TestDependent {
     public static String PYTHON_30_EXE = null;
 
     // the following are all derived from TEST_PYDEV_BASE_LOC if unset
-    public static String TEST_PYSRC_LOC = null;
+    public static String PYSRC_LOC = null;
+    public static String TEST_PYSRC_TESTING_LOC = null;
     public static String TEST_PYSRC_NAVIGATOR_LOC = null;
-    public static String TEST_PYSRC_LOC2 = null;
+    public static String TEST_PYSRC_TESTING_LOC2 = null;
     public static String TEST_PYDEV_PLUGIN_LOC = null;
     public static String TEST_PYDEV_DEBUG_PLUGIN_LOC = null;
     public static String TEST_PYDEV_JYTHON_PLUGIN_LOC = null;
@@ -208,11 +209,11 @@ public class TestDependent {
                 }
             }
 
-            if (TEST_PYSRC_LOC == null) {
-                TEST_PYSRC_LOC = TEST_PYDEV_BASE_LOC + "org.python.pydev/tests/pysrc/";
+            if (TEST_PYSRC_TESTING_LOC == null) {
+                TEST_PYSRC_TESTING_LOC = TEST_PYDEV_BASE_LOC + "org.python.pydev/tests/pysrc/";
             }
-            if (!TEST_PYSRC_LOC.endsWith("/")) {
-                throw new RuntimeException("Expecting TEST_PYSRC_LOC to end with '/'");
+            if (!TEST_PYSRC_TESTING_LOC.endsWith("/")) {
+                throw new RuntimeException("Expecting TEST_PYSRC_TESTING_LOC to end with '/'");
             }
 
             if (TEST_PYSRC_NAVIGATOR_LOC == null) {
@@ -222,11 +223,11 @@ public class TestDependent {
                 throw new RuntimeException("Expecting TEST_PYSRC_NAVIGATOR_LOC to end with '/'");
             }
 
-            if (TEST_PYSRC_LOC2 == null) {
-                TEST_PYSRC_LOC2 = TEST_PYDEV_BASE_LOC + "org.python.pydev/tests/pysrc2/";
+            if (TEST_PYSRC_TESTING_LOC2 == null) {
+                TEST_PYSRC_TESTING_LOC2 = TEST_PYDEV_BASE_LOC + "org.python.pydev/tests/pysrc2/";
             }
-            if (!TEST_PYSRC_LOC2.endsWith("/")) {
-                throw new RuntimeException("Expecting TEST_PYSRC_LOC2 to end with '/'");
+            if (!TEST_PYSRC_TESTING_LOC2.endsWith("/")) {
+                throw new RuntimeException("Expecting TEST_PYSRC_TESTING_LOC2 to end with '/'");
             }
 
             if (TEST_PYDEV_PLUGIN_LOC == null) {
@@ -234,6 +235,17 @@ public class TestDependent {
             }
             if (!TEST_PYDEV_PLUGIN_LOC.endsWith("/")) {
                 throw new RuntimeException("Expecting TEST_PYDEV_PLUGIN_LOC to end with '/'");
+            }
+
+            if (PYSRC_LOC == null) {
+                PYSRC_LOC = TEST_PYDEV_BASE_LOC + "org.python.pydev.core/pysrc/";
+            }
+            if (!PYSRC_LOC.endsWith("/")) {
+                throw new RuntimeException("Expecting PYSRC_LOC to end with '/'");
+            }
+            if (!new File(PYSRC_LOC).exists()) {
+                throw new RuntimeException("PYSRC_LOC variable points to path that does NOT exist: "
+                        + PYSRC_LOC);
             }
 
             if (TEST_PYDEV_DEBUG_PLUGIN_LOC == null) {

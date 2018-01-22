@@ -447,7 +447,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
                     .put(ExtensionHelper.PYDEV_MANAGER_OBSERVER, Collections.<Object> singletonList(trackingObserver));
 
             ExtensionHelper.testingParticipants = extensions;
-            restoreProjectPythonPath(false, TestDependent.TEST_PYSRC_LOC, "TestProject");
+            restoreProjectPythonPath(false, TestDependent.TEST_PYSRC_TESTING_LOC, "TestProject");
             assertTrue(trackingObserver.called);
         } finally {
             ExtensionHelper.testingParticipants = oldExtensions;

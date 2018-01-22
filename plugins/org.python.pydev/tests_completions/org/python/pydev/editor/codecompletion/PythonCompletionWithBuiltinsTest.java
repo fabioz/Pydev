@@ -96,7 +96,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
         if (shell == null && TestDependent.PYTHON_NUMPY_PACKAGES != null) {
             try {
                 FileUtils.copyFile(TestDependent.PYTHON_NUMPY_PACKAGES +
-                        "numpy/core/umath.pyd", TestDependent.TEST_PYSRC_LOC
+                        "numpy/core/umath.pyd", TestDependent.TEST_PYSRC_TESTING_LOC
                                 +
                                 "extendable/bootstrap_dll/umath.pyd");
             } catch (RuntimeException e) {
@@ -137,7 +137,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
     }
 
     public void testRecursion() throws FileNotFoundException, Exception, CompletionRecursionException {
-        String file = TestDependent.TEST_PYSRC_LOC +
+        String file = TestDependent.TEST_PYSRC_TESTING_LOC +
                 "testrec3/rec.py";
         String strDoc = "RuntimeError.";
         File f = new File(file);
@@ -243,7 +243,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
             String s = "" +
                     "from numpy import less\n" +
                     "less.";
-            requestCompl(new File(TestDependent.TEST_PYSRC_LOC +
+            requestCompl(new File(TestDependent.TEST_PYSRC_TESTING_LOC +
                     "extendable/not_existent.py"), s, s.length(), -1,
                     new String[] { "types", "ntypes", "nout", "nargs", "nin" });
         }

@@ -79,6 +79,7 @@ import org.python.pydev.shared_core.structure.ImmutableTuple;
 import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 import org.python.pydev.shared_core.structure.OrderedMap;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.log.ToLogFile;
@@ -412,7 +413,8 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
     private void createOverrideCodeCompletions(CompletionRequest request,
             ArrayList<ICompletionProposal> ret,
             PySelection ps) throws BadLocationException {
-        Image imageOverride = SharedUiPlugin.getImageCache().get(UIConstants.METHOD_ICON);
+        ImageCache imageCache = SharedUiPlugin.getImageCache();
+        Image imageOverride = imageCache != null ? imageCache.get(UIConstants.METHOD_ICON) : null;
         String lineContentsToCursor = ps.getLineContentsToCursor();
         LineStartingScope scopeStart = ps.getPreviousLineThatStartsScope(PySelection.CLASS_TOKEN, false,
                 PySelection.getFirstCharPosition(lineContentsToCursor));

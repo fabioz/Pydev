@@ -33,6 +33,7 @@ import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
+import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.console_actions.RelaunchConstants;
 import org.python.pydev.debug.core.Constants;
@@ -45,7 +46,6 @@ import org.python.pydev.debug.processfactory.PyProcessFactory;
 import org.python.pydev.debug.pyunit.IPyUnitServer;
 import org.python.pydev.debug.pyunit.PyUnitServer;
 import org.python.pydev.debug.pyunit.PyUnitView;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimpleRunner;
 import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 import org.python.pydev.shared_core.process.ProcessUtils;
@@ -269,7 +269,7 @@ public class PythonRunner {
             throws CoreException {
         Map<String, String> arrayAsMapEnv = ProcessUtils.getArrayAsMapEnv(envp);
         arrayAsMapEnv.put("PYTHONUNBUFFERED", "1");
-        arrayAsMapEnv.put("PYDEV_COMPLETER_PYTHONPATH", PydevPlugin.getBundleInfo().getRelativePath(new Path("pysrc"))
+        arrayAsMapEnv.put("PYDEV_COMPLETER_PYTHONPATH", CorePlugin.getBundleInfo().getRelativePath(new Path("pysrc"))
                 .toString());
 
         //Not using DebugPlugin.ATTR_CONSOLE_ENCODING to provide backward compatibility for eclipse 3.2

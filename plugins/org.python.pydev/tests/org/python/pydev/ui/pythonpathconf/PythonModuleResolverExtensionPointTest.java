@@ -49,7 +49,7 @@ public class PythonModuleResolverExtensionPointTest extends TestCase {
      */
     public void testResolvePathWithResolver() {
         PythonPathHelper helper = new PythonPathHelper();
-        String path = TestDependent.GetCompletePythonLib(true) + "|" + TestDependent.TEST_PYSRC_LOC;
+        String path = TestDependent.GetCompletePythonLib(true) + "|" + TestDependent.TEST_PYSRC_TESTING_LOC;
         helper.setPythonPath(path);
         final IPath stubbedModulePath1 = Path.fromOSString("/this/is/a/path/to/a/file1.py");
         final IPath stubbedModulePath2 = Path.fromOSString("/this/is/a/path/to/a/file2.py");
@@ -98,7 +98,7 @@ public class PythonModuleResolverExtensionPointTest extends TestCase {
      */
     public void testGetModulesFoundStructureWithResolver() {
         PythonPathHelper helper = new PythonPathHelper();
-        String path = TestDependent.GetCompletePythonLib(true) + "|" + TestDependent.TEST_PYSRC_LOC;
+        String path = TestDependent.GetCompletePythonLib(true) + "|" + TestDependent.TEST_PYSRC_TESTING_LOC;
         helper.setPythonPath(path);
         setTestingModuleResolver(new IPythonModuleResolver() {
             @Override
