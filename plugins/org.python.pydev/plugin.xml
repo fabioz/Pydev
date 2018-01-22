@@ -1178,7 +1178,6 @@
 <!-- extensions -->
 <!-- extensions -->
 <!-- extensions -->
-   <extension-point id="pydev_completion" name="PyDev completion" schema="schema/pydev_completion.exsd"/>
    <extension-point id="pydev_builder" name="PyDev Builder" schema="schema/pydev_builder.exsd"/>
    <extension-point id="pydev_modules_observer" name="PyDev modules observer" schema="schema/pydev_modules_observer.exsd"/>
    <extension-point id="pydev_interpreter_observer" name="PyDev Interpreter Observer" schema="schema/pydev_interpreter_observer.exsd"/>
