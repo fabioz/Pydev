@@ -33,6 +33,7 @@ import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
+import org.python.pydev.shared_core.structure.Tuple;
 
 public class PythonNatureStub implements IPythonNature {
 
@@ -237,6 +238,11 @@ public class PythonNatureStub implements IPythonNature {
 
     @Override
     public long getMtime() {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public Tuple<String, String> getVersionAndError(boolean translateIfInterpreter) throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 

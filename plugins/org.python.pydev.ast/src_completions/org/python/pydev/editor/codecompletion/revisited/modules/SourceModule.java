@@ -40,7 +40,6 @@ import org.python.pydev.editor.codecompletion.revisited.AbstractASTManager;
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.ConcreteToken;
-import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractJavaClassModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindDefinitionModelVisitor;
@@ -61,6 +60,7 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.plugin.preferences.FileTypesPreferences;
 import org.python.pydev.shared_core.cache.Cache;
 import org.python.pydev.shared_core.cache.LRUCache;
 import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
@@ -70,7 +70,6 @@ import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.FastStack;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
-import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
  * The module should have all the information we need for code completion, find definition, and refactoring on a module.
@@ -1018,7 +1017,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                     return (Definition[]) o.o1.findDefinition(state.getCopyWithActTok(tok), -1, -1, nature);
                 }
 
-            } else if (o.o1 instanceof AbstractJavaClassModule) {
+            } else if (o.o1 instanceof IAbstractJavaClassModule) {
                 tok = o.o2;
                 state.checkFindDefinitionMemory(o.o1, tok);
                 return (Definition[]) o.o1.findDefinition(state.getCopyWithActTok(tok), -1, -1, nature);
@@ -1403,7 +1402,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                                         if (namePart.equals(modName)) {
                                                             String extension = name.substring(i + 1);
                                                             if (extension.length() > 0
-                                                                    && FileTypesPreferencesPage
+                                                                    && FileTypesPreferences
                                                                             .isValidDllExtension(extension)) {
                                                                 return true;
                                                             }

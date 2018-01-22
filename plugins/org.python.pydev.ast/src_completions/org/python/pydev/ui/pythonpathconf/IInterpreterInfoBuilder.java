@@ -19,9 +19,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 public interface IInterpreterInfoBuilder {
 
     public enum BuilderResult {
-        OK,
-        ABORTED,
-        MUST_SYNCH_LATER
+        OK, ABORTED, MUST_SYNCH_LATER
     }
 
     /**

@@ -5,7 +5,8 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import org.python.pydev.core.ModulesKey;
-import org.python.pydev.plugin.nature.FileStub2;
+
+import com.python.pydev.analysis.additionalinfo.AdditionalInfoFileStub;
 
 import junit.framework.TestCase;
 
@@ -15,7 +16,7 @@ public class SearchIndexQueryTest extends TestCase {
         PySearchIndexQuery query = new PySearchIndexQuery("my");
         String text = "rara\nmy\nnomyno\nmy";
         IDocument doc = new Document(text);
-        IFile f = new FileStub2("stub") {
+        IFile f = new AdditionalInfoFileStub("stub") {
             @Override
             public long getModificationStamp() {
                 return 0;
@@ -30,7 +31,7 @@ public class SearchIndexQueryTest extends TestCase {
         PySearchIndexQuery query = new PySearchIndexQuery("*my");
         String text = "rara\nmy\nnomyno\nmy";
         IDocument doc = new Document(text);
-        IFile f = new FileStub2("stub") {
+        IFile f = new AdditionalInfoFileStub("stub") {
             @Override
             public long getModificationStamp() {
                 return 0;
@@ -45,7 +46,7 @@ public class SearchIndexQueryTest extends TestCase {
         PySearchIndexQuery query = new PySearchIndexQuery("*my*");
         String text = "rara\nmy\nnomyno\nmy";
         IDocument doc = new Document(text);
-        IFile f = new FileStub2("stub") {
+        IFile f = new AdditionalInfoFileStub("stub") {
             @Override
             public long getModificationStamp() {
                 return 0;

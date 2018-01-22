@@ -41,13 +41,13 @@ import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.autoedit.TestIndentPrefs;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.TokenMgrError;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.refactoring.ast.PythonModuleManager;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
@@ -106,7 +106,7 @@ public class RefactoringInfo {
         }
 
         if (localNature == null) {
-            Tuple<IPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(this.realFile);
+            Tuple<IPythonNature, String> infoForFile = InterpreterManagersAPI.getInfoForFile(this.realFile);
             if (infoForFile != null && infoForFile.o1 != null) {
                 localNature = infoForFile.o1;
             }

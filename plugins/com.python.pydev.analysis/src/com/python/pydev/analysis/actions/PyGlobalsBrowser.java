@@ -20,13 +20,13 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PySelectionFromEditor;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.model.ItemPointer;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -79,7 +79,7 @@ public class PyGlobalsBrowser extends PyAction {
 
         Tuple<IPythonNature, String> infoForFile;
         if (editorFile != null) {
-            infoForFile = PydevPlugin.getInfoForFile(editorFile);
+            infoForFile = InterpreterManagersAPI.getInfoForFile(editorFile);
         } else {
             infoForFile = null;
         }

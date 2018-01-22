@@ -15,12 +15,12 @@ import org.eclipse.jface.text.templates.TemplateContextType;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IInterpreterInfo;
+import org.python.pydev.core.IPyEdit;
+import org.python.pydev.core.IPySourceViewer;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
-import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.parser.fastparser.FastParser;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -28,9 +28,9 @@ import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
 
 /**
- * Makes a custom evaluation of the template buffer to be created (to put it in the correct indentation and 
- * change tabs to spaces -- if needed). 
- * 
+ * Makes a custom evaluation of the template buffer to be created (to put it in the correct indentation and
+ * change tabs to spaces -- if needed).
+ *
  * @author Fabio
  */
 public final class PyDocumentTemplateContext extends DocumentTemplateContextWithIndent {
@@ -40,7 +40,7 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContextWith
     /**
      * Note that it's in the default context because it should be used on subclasses.
      */
-    /*default*/PyDocumentTemplateContext(TemplateContextType type, IDocument document, int offset, int length,
+    /*default*/ PyDocumentTemplateContext(TemplateContextType type, IDocument document, int offset, int length,
             String indentTo, IIndentPrefs indentPrefs) {
         super(type, document, offset, length, indentTo, indentPrefs);
     }
@@ -78,15 +78,15 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContextWith
     }
 
     public boolean isCythonFile() {
-        if (this.viewer instanceof PySourceViewer) {
-            return ((PySourceViewer) this.viewer).getEdit().isCythonFile();
+        if (this.viewer instanceof IPySourceViewer) {
+            return ((IPySourceViewer) this.viewer).getEdit().isCythonFile();
         }
         return false;
     }
 
     public File getEditorFile() {
-        if (this.viewer instanceof PySourceViewer) {
-            return ((PySourceViewer) this.viewer).getEdit().getEditorFile();
+        if (this.viewer instanceof IPySourceViewer) {
+            return ((IPySourceViewer) this.viewer).getEdit().getEditorFile();
         }
         return new File("");
     }
@@ -95,9 +95,9 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContextWith
         //Other possibilities
         //org.eclipse.jface.text.source.SourceViewer (in compare)
 
-        if (this.viewer instanceof PySourceViewer) {
+        if (this.viewer instanceof IPySourceViewer) {
             try {
-                IPythonNature nature = ((PySourceViewer) this.viewer).getEdit().getPythonNature();
+                IPythonNature nature = ((IPySourceViewer) this.viewer).getEdit().getPythonNature();
                 if (nature != null) {
                     return nature.getGrammarVersion();
                 }
@@ -118,10 +118,10 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContextWith
     }
 
     public String getModuleName() {
-        if (this.viewer instanceof PySourceViewer) {
+        if (this.viewer instanceof IPySourceViewer) {
             try {
-                PySourceViewer pyViewer = (PySourceViewer) this.viewer;
-                PyEdit edit = pyViewer.getEdit();
+                IPySourceViewer pyViewer = (IPySourceViewer) this.viewer;
+                IPyEdit edit = pyViewer.getEdit();
                 IPythonNature nature = edit.getPythonNature();
                 if (nature != null) {
                     return nature.resolveModule(edit.getEditorFile());
@@ -136,8 +136,8 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContextWith
      * @return the indent preferences to be used.
      */
     private static IIndentPrefs getIndentPrefs(ITextViewer viewer) {
-        if (viewer instanceof PySourceViewer) {
-            PySourceViewer pyViewer = (PySourceViewer) viewer;
+        if (viewer instanceof IPySourceViewer) {
+            IPySourceViewer pyViewer = (IPySourceViewer) viewer;
             return pyViewer.getEdit().getIndentPrefs();
         } else {
             return DefaultIndentPrefs.get(null);

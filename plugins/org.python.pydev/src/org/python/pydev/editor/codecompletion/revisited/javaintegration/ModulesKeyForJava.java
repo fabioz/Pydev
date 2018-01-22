@@ -9,6 +9,7 @@ package org.python.pydev.editor.codecompletion.revisited.javaintegration;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.python.pydev.core.ModulesKey;
+import org.python.pydev.editor.codecompletion.revisited.modules.IModulesKeyForJava;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
 /**
@@ -16,7 +17,7 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
  *
  * @author Fabio
  */
-public class ModulesKeyForJava extends ModulesKey {
+public class ModulesKeyForJava extends ModulesKey implements IModulesKeyForJava {
 
     private IPackageFragmentRoot packageRoot;
     private IJavaElement javaElement;

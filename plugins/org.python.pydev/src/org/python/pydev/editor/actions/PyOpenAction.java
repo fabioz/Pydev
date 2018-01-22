@@ -30,11 +30,11 @@ import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaDefi
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editorinput.PyOpenEditor;
+import org.python.pydev.plugin.preferences.FileTypesPreferences;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Location;
 import org.python.pydev.shared_ui.EditorUtils;
-import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
  * Opens an editor and selects text in it.
@@ -95,7 +95,7 @@ public class PyOpenAction extends Action {
                             + module.getName();
 
                 } else {
-                    if (FileTypesPreferencesPage.isValidDll(filename)) {
+                    if (FileTypesPreferences.isValidDll(filename)) {
                         if (f.exists()) {
                             //It's a pyd or dll, let's check if it was a cython module to open it...
                             File parentFile = f.getParentFile();

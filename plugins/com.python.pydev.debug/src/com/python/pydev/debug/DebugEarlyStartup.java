@@ -20,7 +20,7 @@ import org.eclipse.swt.widgets.TaskItem;
 import org.eclipse.ui.IStartup;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.model.PyThread;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.utils.PlatformUtils;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.shared_ui.utils.UIUtils;
@@ -36,7 +36,7 @@ public class DebugEarlyStartup implements IStartup {
         @Override
         protected IStatus run(IProgressMonitor monitor) {
             try {
-                checkAlwaysOn(PydevPlugin.getDefault().getPreferenceStore());
+                checkAlwaysOn(PydevPrefs.getPreferenceStore());
             } catch (NullPointerException e) {
                 // Ignore: it can happen during interpreter shutdown.
                 // java.lang.NullPointerException
@@ -53,7 +53,7 @@ public class DebugEarlyStartup implements IStartup {
     @Override
     public void earlyStartup() {
         //Note: preferences are in the PydevPlugin, not in the debug plugin.
-        IPreferenceStore preferenceStore = PydevPlugin.getDefault().getPreferenceStore();
+        IPreferenceStore preferenceStore = PydevPrefs.getPreferenceStore();
         preferenceStore.addPropertyChangeListener(new IPropertyChangeListener() {
 
             @Override
@@ -85,7 +85,7 @@ public class DebugEarlyStartup implements IStartup {
                             if (debugEvent.getDetail() == DebugEvent.BREAKPOINT) {
                                 if (debugEvent.getSource() instanceof PyThread) {
 
-                                    IPreferenceStore preferenceStore2 = PydevPlugin.getDefault().getPreferenceStore();
+                                    IPreferenceStore preferenceStore2 = PydevPrefs.getPreferenceStore();
                                     final int forceOption = preferenceStore2
                                             .getInt(DebugPluginPrefsInitializer.FORCE_SHOW_SHELL_ON_BREAKPOINT);
 
@@ -114,10 +114,10 @@ public class DebugEarlyStartup implements IStartup {
 
     /**
      * There are some issues with just forceActive as it doesn't actually bring it to the front on windows on some situations.
-     * 
+     *
      * - https://bugs.eclipse.org/bugs/show_bug.cgi?id=192036: outlines the win32 solution implemented in here (using reflection to avoid issues compiling on other platforms).
-     * 
-     * Some possible alternatives: 
+     *
+     * Some possible alternatives:
      * - we could change the text/icon in the taskbar (http://git.eclipse.org/c/platform/eclipse.platform.swt.git/tree/examples/org.eclipse.swt.snippets/src/org/eclipse/swt/snippets/Snippet336.java)
      * - Creating our own windows-dependent dll (but this is probably too much for the build process too) http://stackoverflow.com/questions/2773364/make-jface-window-blink-in-taskbar-or-get-users-attention
      * - https://github.com/jnr/jnr-ffi using the approach commented on http://stackoverflow.com/questions/2315560/how-do-you-force-a-java-swt-program-to-move-itself-to-the-foreground seems a possible acceptable workaround
@@ -268,7 +268,7 @@ public class DebugEarlyStartup implements IStartup {
                     } else if (debugServerStartup == DebugPluginPrefsInitializer.DEBUG_SERVER_ON_WHEN_PLUGIN_STARTED) {
                         if (!checkedOnOnce && !PydevRemoteDebuggerServer.isRunning()) {
                             //Note: if the preference was manual and the user just changed to this setting, this
-                            //will turn it on as that'll be the first time it's checked. 
+                            //will turn it on as that'll be the first time it's checked.
                             //Is this a bug or feature? -- I think it's a feature :)
                             PydevRemoteDebuggerServer.startServer();
                         }

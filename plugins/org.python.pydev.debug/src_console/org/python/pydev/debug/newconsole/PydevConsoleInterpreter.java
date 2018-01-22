@@ -20,6 +20,7 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICodeCompletionASTManager;
@@ -227,7 +228,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
         if (tokenAndQual.activationToken.length() == 0) {
             //templates (only if we have no activation token)
             PyTemplateCompletionProcessor pyTemplateCompletionProcessor = new PyTemplateCompletionProcessor();
-            pyTemplateCompletionProcessor.addTemplateProposals(viewer, offset, results2);
+            pyTemplateCompletionProcessor.addTemplateProposals((ITextViewer) viewer, offset, results2);
         }
 
         Collections.sort(results2, proposalsComparator);

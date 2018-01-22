@@ -24,8 +24,8 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.templates.PyDocumentTemplateContext;
 import org.python.pydev.editor.codecompletion.templates.PyTemplateCompletionProcessor;
 import org.python.pydev.editor.templates.PyContextType;
+import org.python.pydev.plugin.preferences.FileTypesPreferences;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
-import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
  * Python module creation wizard
@@ -95,7 +95,7 @@ public class PythonModuleWizard extends AbstractPythonWizard {
             }
             validatedPackage = packageInit.getParent();
         }
-        String validatedName = filePage.getValidatedName() + FileTypesPreferencesPage.getDefaultDottedPythonExtension();
+        String validatedName = filePage.getValidatedName() + FileTypesPreferences.getDefaultDottedPythonExtension();
 
         IFile file = validatedPackage.getFile(new Path(validatedName));
         if (file.exists()) {

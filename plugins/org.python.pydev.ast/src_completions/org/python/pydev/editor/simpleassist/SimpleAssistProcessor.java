@@ -41,7 +41,7 @@ import org.python.pydev.editor.codecompletion.ProposalsComparator.CompareContext
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.editor.codecompletion.PythonCompletionProcessor;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.preferences.PydevPrefs;
 
 /**
  * This processor controls the completion cycle (and also works as a 'delegator' to the processor that deals
@@ -355,7 +355,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
      */
     public synchronized static char[] getStaticAutoActivationCharacters() {
         if (!listenerToClearAutoActivationAlreadySetup) {
-            PydevPlugin.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
+            PydevPrefs.getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
                 @Override
                 public void propertyChange(PropertyChangeEvent event) {
                     autoActivationCharsCache = null;

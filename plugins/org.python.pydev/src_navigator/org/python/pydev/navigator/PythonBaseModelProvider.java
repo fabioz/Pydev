@@ -65,7 +65,6 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
-import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -84,6 +83,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.IPythonNatureListener;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.PythonNatureListenersManager;
+import org.python.pydev.plugin.preferences.FileTypesPreferences;
 import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
@@ -91,7 +91,6 @@ import org.python.pydev.shared_core.structure.TreeNode;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.outline.IParsedItem;
-import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
  * A good part of the refresh for the model was gotten from org.eclipse.ui.model.WorkbenchContentProvider
@@ -738,7 +737,7 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
                                     //ok, something strange happened... it shouldn't be null... maybe empty, but not null at this point
                                     //so, if it exists, let's try to create it...
                                     //TODO: This should be moved to somewhere else.
-                                    String resourceOSString = InterpreterManagersAPI.getIResourceOSString(file.getActualObject());
+                                    String resourceOSString = SharedCorePlugin.getIResourceOSString(file.getActualObject());
                                     if (resourceOSString != null) {
                                         File f = new File(resourceOSString);
                                         if (f.exists()) {
@@ -1262,7 +1261,7 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
         if (resource != null) {
             String name = resource.getName();
             if (name != null) {
-                for (String init : FileTypesPreferencesPage.getValidInitFiles()) {
+                for (String init : FileTypesPreferences.getValidInitFiles()) {
                     if (name.equals(init)) {
                         //we must make an actual refresh (and not only update) because it'll affect all the children too.
                         runnables.add(getRefreshRunnable(resource.getParent()));

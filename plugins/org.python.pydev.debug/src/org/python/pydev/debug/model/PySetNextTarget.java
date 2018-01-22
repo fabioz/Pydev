@@ -16,6 +16,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchPart;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.ui.actions.ISetNextTarget;
 import org.python.pydev.editor.PyEdit;
@@ -23,7 +24,6 @@ import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.NodeUtils;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.string.FullRepIterable;
 
 
@@ -65,7 +65,7 @@ public class PySetNextTarget implements ISetNextTarget {
                     Log.log(e);
                     return false;
                 }
-                nature = PydevPlugin.getInfoForFile(editorFile).o1;
+                nature = InterpreterManagersAPI.getInfoForFile(editorFile).o1;
             }
 
             if (nature == null) {

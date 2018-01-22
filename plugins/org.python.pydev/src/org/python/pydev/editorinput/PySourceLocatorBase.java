@@ -36,13 +36,13 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.plugin.preferences.FileTypesPreferences;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.locator.GetContainers;
 import org.python.pydev.shared_core.locator.GetFiles;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.editor_input.EditorInputUtils;
-import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
  * Refactored from the PydevPlugin: helpers to find some IFile / IEditorInput
@@ -426,7 +426,7 @@ public class PySourceLocatorBase {
                 Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
                 FileDialog dialog = new FileDialog(shell);
                 dialog.setText(path + " - select correspondent filesystem file.");
-                String[] wildcardValidSourceFiles = FileTypesPreferencesPage.getWildcardValidSourceFiles();
+                String[] wildcardValidSourceFiles = FileTypesPreferences.getWildcardValidSourceFiles();
                 wildcardValidSourceFiles = StringUtils.addString(wildcardValidSourceFiles, "*");
                 dialog.setFilterExtensions(wildcardValidSourceFiles);
                 String string = dialog.open();

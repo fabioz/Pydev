@@ -13,6 +13,7 @@ import java.util.Map;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
@@ -164,6 +165,16 @@ public class PyParserEditorIntegrationTest extends TestCase {
         @Override
         public IFile getIFile() {
             throw new RuntimeException("Not implemented");
+        }
+
+        @Override
+        public void addOfflineActionListener(String key, IAction action, String description, boolean needsEnter) {
+            throw new RuntimeException("Not implemented");
+        }
+
+        @Override
+        public boolean isCythonFile() {
+            return false;
         }
     }
 

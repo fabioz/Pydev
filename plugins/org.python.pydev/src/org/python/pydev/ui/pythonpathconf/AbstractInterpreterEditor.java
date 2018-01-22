@@ -70,6 +70,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.jython.IPythonInterpreter;
 import org.python.pydev.jython.JythonPlugin;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.preferences.FileTypesPreferences;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -81,7 +82,6 @@ import org.python.pydev.tree.EnabledTreeDragReorder;
 import org.python.pydev.ui.TabVariables;
 import org.python.pydev.ui.dialogs.InterpreterInputDialog;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
-import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.python.pydev.utils.CancelException;
 
 /**
@@ -788,12 +788,12 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
                             switch (AbstractInterpreterEditor.this.interpreterManager.getInterpreterType()) {
 
                                 case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
-                                    dialog.setFilterExtensions(FileTypesPreferencesPage
+                                    dialog.setFilterExtensions(FileTypesPreferences
                                             .getWildcardJythonValidZipFiles());
                                     break;
 
                                 default:
-                                    dialog.setFilterExtensions(FileTypesPreferencesPage
+                                    dialog.setFilterExtensions(FileTypesPreferences
                                             .getWildcardPythonValidZipFiles());
                             }
 

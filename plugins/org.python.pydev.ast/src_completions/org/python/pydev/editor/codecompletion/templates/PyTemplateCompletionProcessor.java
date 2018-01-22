@@ -26,7 +26,7 @@ import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.editor.templates.TemplateHelper;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 
 /**
@@ -64,7 +64,7 @@ public class PyTemplateCompletionProcessor extends TemplateCompletionProcessor {
      */
     @Override
     protected Image getImage(Template template) {
-        return PydevPlugin.getImageCache().get(UIConstants.COMPLETION_TEMPLATE);
+        return SharedUiPlugin.getImageCache().get(UIConstants.COMPLETION_TEMPLATE);
     }
 
     /**

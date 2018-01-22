@@ -310,7 +310,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     @Override
     public boolean isResourceInPythonpathProjectSources(IResource resource, boolean addExternal)
             throws MisconfigurationException, CoreException {
-        String resourceOSString = InterpreterManagersAPI.getIResourceOSString(resource);
+        String resourceOSString = SharedCorePlugin.getIResourceOSString(resource);
         if (resourceOSString == null) {
             return false;
         }
@@ -328,7 +328,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     public String resolveModuleOnlyInProjectSources(IResource fileAbsolutePath, boolean addExternal)
             throws CoreException, MisconfigurationException {
 
-        String resourceOSString = InterpreterManagersAPI.getIResourceOSString(fileAbsolutePath);
+        String resourceOSString = SharedCorePlugin.getIResourceOSString(fileAbsolutePath);
         if (resourceOSString == null) {
             return null;
         }

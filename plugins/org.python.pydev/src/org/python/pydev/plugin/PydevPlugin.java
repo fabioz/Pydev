@@ -6,16 +6,19 @@
  */
 package org.python.pydev.plugin;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -38,21 +41,23 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.forms.FormColors;
 import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.prefs.BackingStoreException;
-import org.python.pydev.core.IInterpreterInfo;
-import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.AbstractTemplateCodeCompletion;
+import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.SyncSystemModulesManagerScheduler;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaProjectModulesManagerCreator;
+import org.python.pydev.editor.codecompletion.revisited.javaintegration.JythonModulesManagerUtils;
+import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModuleForZip;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.hover.PyEditorTextHoverDescriptor;
 import org.python.pydev.editor.hover.PyHoverPreferencesPage;
@@ -60,11 +65,9 @@ import org.python.pydev.editor.hover.PydevCombiningHover;
 import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.editor.templates.TemplateHelper;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.io.FileUtils;
-import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.ColorCache;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
@@ -132,8 +135,38 @@ public class PydevPlugin extends AbstractUIPlugin {
             syncScheduler.start();
             return Status.OK_STATUS;
         }
-
     };
+
+    /**
+     * @return true if PyEdit.EDITOR_ID is set as the persistent property (only if the file does not have an extension).
+     */
+    public static boolean markAsPyDevFileIfDetected(IFile file) {
+        String name = file.getName();
+        if (name == null || name.indexOf('.') != -1) {
+            return false;
+        }
+
+        String editorID;
+        try {
+            editorID = file.getPersistentProperty(IDE.EDITOR_KEY);
+            if (editorID == null) {
+                InputStream contents = file.getContents(true);
+                Reader inputStreamReader = new InputStreamReader(new BufferedInputStream(contents));
+                if (FileUtils.hasPythonShebang(inputStreamReader)) {
+                    IDE.setDefaultEditor(file, IPyEdit.EDITOR_ID);
+                    return true;
+                }
+            } else {
+                return IPyEdit.EDITOR_ID.equals(editorID);
+            }
+
+        } catch (Exception e) {
+            if (file.exists()) {
+                Log.log(e);
+            }
+        }
+        return false;
+    }
 
     @Override
     public void start(BundleContext context) throws Exception {
@@ -166,6 +199,9 @@ public class PydevPlugin extends AbstractUIPlugin {
         ProjectModulesManager.createJavaProjectModulesManagerIfPossible = (
                 IProject project) -> JavaProjectModulesManagerCreator
                         .createJavaProjectModulesManagerIfPossible(project);
+
+        ModulesManager.createModuleFromJar = (EmptyModuleForZip emptyModuleForZip,
+                IPythonNature nature) -> JythonModulesManagerUtils.createModuleFromJar(emptyModuleForZip, nature);
         // End setup extension in dependencies
 
         try {
@@ -339,130 +375,6 @@ public class PydevPlugin extends AbstractUIPlugin {
 
     //End Images for the console
 
-    /**
-     * @param file the file we want to get info on.
-     * @return a tuple with the nature to be used and the name of the module represented by the file in that scenario.
-     */
-    public static Tuple<IPythonNature, String> getInfoForFile(File file) {
-
-        IInterpreterManager pythonInterpreterManager2 = InterpreterManagersAPI.getPythonInterpreterManager(false);
-        IInterpreterManager jythonInterpreterManager2 = InterpreterManagersAPI.getJythonInterpreterManager(false);
-        IInterpreterManager ironpythonInterpreterManager2 = InterpreterManagersAPI
-                .getIronpythonInterpreterManager(false);
-
-        if (file != null) {
-            //Check if we can resolve the manager for the passed file...
-            Tuple<IPythonNature, String> infoForManager = getInfoForManager(file, pythonInterpreterManager2);
-            if (infoForManager != null) {
-                return infoForManager;
-            }
-
-            infoForManager = getInfoForManager(file, jythonInterpreterManager2);
-            if (infoForManager != null) {
-                return infoForManager;
-            }
-
-            infoForManager = getInfoForManager(file, ironpythonInterpreterManager2);
-            if (infoForManager != null) {
-                return infoForManager;
-            }
-
-            //Ok, the file is not part of the interpreter configuration, but it's still possible that it's part of a
-            //project... (external projects), so, let's go on and see if there's some match there.
-
-            List<IPythonNature> allPythonNatures = PythonNature.getAllPythonNatures();
-            int size = allPythonNatures.size();
-            for (int i = 0; i < size; i++) {
-                IPythonNature nature = allPythonNatures.get(i);
-                try {
-                    //Note: only resolve in the project sources, as we've already checked the system and we'll be
-                    //checking all projects anyways.
-                    String modName = nature
-                            .resolveModuleOnlyInProjectSources(FileUtils.getFileAbsolutePath(file), true);
-                    if (modName != null) {
-                        return new Tuple<IPythonNature, String>(nature, modName);
-                    }
-                } catch (Exception e) {
-                    Log.log(e);
-                }
-            }
-        }
-
-        if (pythonInterpreterManager2.isConfigured()) {
-            try {
-                return new Tuple<IPythonNature, String>(new SystemPythonNature(pythonInterpreterManager2),
-                        getModNameFromFile(file));
-            } catch (MisconfigurationException e) {
-            }
-        }
-
-        if (jythonInterpreterManager2.isConfigured()) {
-            try {
-                return new Tuple<IPythonNature, String>(new SystemPythonNature(jythonInterpreterManager2),
-                        getModNameFromFile(file));
-            } catch (MisconfigurationException e) {
-            }
-        }
-
-        if (ironpythonInterpreterManager2.isConfigured()) {
-            try {
-                return new Tuple<IPythonNature, String>(new SystemPythonNature(ironpythonInterpreterManager2),
-                        getModNameFromFile(file));
-            } catch (MisconfigurationException e) {
-            }
-        }
-
-        //Ok, nothing worked, let's just do a call which'll ask to configure python and return null!
-        try {
-            pythonInterpreterManager2.getDefaultInterpreterInfo(true);
-        } catch (MisconfigurationException e) {
-            //Ignore
-        }
-        return null;
-    }
-
-    /**
-     * @param file
-     * @return
-     *
-     */
-    public static Tuple<IPythonNature, String> getInfoForManager(File file,
-            IInterpreterManager pythonInterpreterManager) {
-        if (pythonInterpreterManager != null) {
-            if (pythonInterpreterManager.isConfigured()) {
-                IInterpreterInfo[] interpreterInfos = pythonInterpreterManager.getInterpreterInfos();
-                for (IInterpreterInfo iInterpreterInfo : interpreterInfos) {
-                    try {
-                        SystemPythonNature systemPythonNature = new SystemPythonNature(pythonInterpreterManager,
-                                iInterpreterInfo);
-                        String modName = systemPythonNature.resolveModule(file);
-                        if (modName != null) {
-                            return new Tuple<IPythonNature, String>(systemPythonNature, modName);
-                        }
-                    } catch (Exception e) {
-                        // that's ok
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * This is the last resort (should not be used anywhere else).
-     */
-    private static String getModNameFromFile(File file) {
-        if (file == null) {
-            return null;
-        }
-        String name = file.getName();
-        int i = name.indexOf('.');
-        if (i != -1) {
-            return name.substring(0, i);
-        }
-        return name;
-    }
-
     //Default for using in tests (could be private)
     /*default*/static File location;
 
@@ -512,26 +424,6 @@ public class PydevPlugin extends AbstractUIPlugin {
 
     public static void fixSelectionStatusDialogStatusLineColor(Object dialog, Color color) {
         SharedUiPlugin.fixSelectionStatusDialogStatusLineColor(dialog, color);
-    }
-
-    public static Map<IInterpreterManager, Map<String, IInterpreterInfo>> getInterpreterManagerToInterpreterNameToInfo() {
-        Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo = new HashMap<>();
-        IInterpreterManager[] allInterpreterManagers = InterpreterManagersAPI.getAllInterpreterManagers();
-        for (int i = 0; i < allInterpreterManagers.length; i++) {
-            IInterpreterManager manager = allInterpreterManagers[i];
-            if (manager == null) {
-                continue;
-            }
-            Map<String, IInterpreterInfo> nameToInfo = new HashMap<>();
-            managerToNameToInfo.put(manager, nameToInfo);
-
-            IInterpreterInfo[] interpreterInfos = manager.getInterpreterInfos();
-            for (int j = 0; j < interpreterInfos.length; j++) {
-                IInterpreterInfo internalInfo = interpreterInfos[j];
-                nameToInfo.put(internalInfo.getName(), internalInfo);
-            }
-        }
-        return managerToNameToInfo;
     }
 
     /**

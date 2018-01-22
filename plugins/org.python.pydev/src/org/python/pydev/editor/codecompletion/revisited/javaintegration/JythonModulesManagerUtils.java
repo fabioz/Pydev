@@ -14,9 +14,9 @@ import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModuleForZi
 
 /**
  * Wrap things related to jython (specially dependent on JDT)
- * 
+ *
  * So, all accesses that require creation of objects dependent on JDT should be done through this class.
- * 
+ *
  * @author Fabio
  */
 public class JythonModulesManagerUtils {
@@ -34,10 +34,10 @@ public class JythonModulesManagerUtils {
     }
 
     /**
-     * Handles the exception and re-throws it as a JDTNotAvailableException (if it was a LinkageError or a 
+     * Handles the exception and re-throws it as a JDTNotAvailableException (if it was a LinkageError or a
      * ClassNotFoundException or a JDTNotAvailableException) or creates a RuntimeException and throws this exception
      * encapsulating the previous one
-     * 
+     *
      * @param e the exception that should be transformed to a JDTNotAvailableException (if possible)
      * @throws JDTNotAvailableException
      */

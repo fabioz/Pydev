@@ -21,8 +21,8 @@ import org.python.pydev.core.IDeltaProcessor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
-import org.python.pydev.editor.codecompletion.revisited.javaintegration.ModulesKeyForJava;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
+import org.python.pydev.editor.codecompletion.revisited.modules.IModulesKeyForJava;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.io.FileUtils;
@@ -38,7 +38,7 @@ public abstract class ModulesManagerWithBuild extends ModulesManager implements 
 
     /**
      * Used to process deltas (in case we have the process killed for some reason)
-     * 
+     *
      * Note that it may become null during normal processing when not generating deltas.
      */
     protected volatile DeltaSaver<ModulesKey> deltaSaver;
@@ -73,7 +73,7 @@ public abstract class ModulesManagerWithBuild extends ModulesManager implements 
         }
     };
 
-    /** 
+    /**
      * @see org.python.pydev.core.IProjectModulesManager#processUpdate(org.python.pydev.core.ModulesKey)
      */
     @Override
@@ -82,7 +82,7 @@ public abstract class ModulesManagerWithBuild extends ModulesManager implements 
         throw new RuntimeException("Not impl");
     }
 
-    /** 
+    /**
      * @see org.python.pydev.core.IProjectModulesManager#processDelete(org.python.pydev.core.ModulesKey)
      */
     @Override
@@ -90,7 +90,7 @@ public abstract class ModulesManagerWithBuild extends ModulesManager implements 
         doRemoveSingleModule(key);
     }
 
-    /** 
+    /**
      * @see org.python.pydev.core.IProjectModulesManager#processInsert(org.python.pydev.core.ModulesKey)
      */
     @Override
@@ -103,7 +103,7 @@ public abstract class ModulesManagerWithBuild extends ModulesManager implements 
 
     /**
      * This method can be used to signal that some processing may be done under which no deltas should be generated.
-     * 
+     *
      * The returned AutoCloseable must be closed afterwards (use in try block).
      */
     @Override
@@ -152,7 +152,7 @@ public abstract class ModulesManagerWithBuild extends ModulesManager implements 
         super.doAddSingleModule(key, n);
         DeltaSaver<ModulesKey> d = deltaSaver;
         if ((d != null && !IN_TESTS) && !(key instanceof ModulesKeyForZip)
-                && !(key instanceof ModulesKeyForJava)) {
+                && !(key instanceof IModulesKeyForJava)) {
             //we don't want deltas in tests nor in zips/java modules
             //overridden to add delta
             d.addInsertCommand(key);

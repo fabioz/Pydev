@@ -18,12 +18,12 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.core.IInterpreterInfo.UnableToFindExecutableException;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.preferences.InterpreterGeneralPreferences;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.dialogs.DialogHelpers;
 import org.python.pydev.shared_ui.utils.UIUtils;
 import org.python.pydev.ui.interpreters.AbstractInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterConfigHelpers;
-import org.python.pydev.ui.pythonpathconf.InterpreterGeneralPreferencesPage;
 
 /**
  * @author fabioz
@@ -112,7 +112,7 @@ public class PyDialogHelpers {
 
     public static int openQuestionConfigureInterpreter(AbstractInterpreterManager m) {
         IPreferenceStore store = PydevPlugin.getDefault().getPreferenceStore();
-        String key = InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER + m.getInterpreterType();
+        String key = InterpreterGeneralPreferences.NOTIFY_NO_INTERPRETER + m.getInterpreterType();
         boolean val = store.getBoolean(key);
 
         if (val) {
@@ -151,7 +151,7 @@ public class PyDialogHelpers {
             return false;
         }
         IPreferenceStore store = PydevPlugin.getDefault().getPreferenceStore();
-        return store.getBoolean(InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER + m.getInterpreterType());
+        return store.getBoolean(InterpreterGeneralPreferences.NOTIFY_NO_INTERPRETER + m.getInterpreterType());
     }
 
     public static void openException(String title, UnableToFindExecutableException e) {

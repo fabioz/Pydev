@@ -16,8 +16,8 @@ import org.eclipse.core.expressions.PropertyTester;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IAdaptable;
-import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.navigator.elements.IWrappedResource;
+import org.python.pydev.plugin.PydevPlugin;
 
 public class PythonTypePropertyTester extends PropertyTester {
 
@@ -37,11 +37,11 @@ public class PythonTypePropertyTester extends PropertyTester {
         }
         if (receiver instanceof IAdaptable) {
             IAdaptable iAdaptable = (IAdaptable) receiver;
-            iFile = (IFile) iAdaptable.getAdapter(IFile.class);
+            iFile = iAdaptable.getAdapter(IFile.class);
         }
 
         if (iFile != null) {
-            if (PythonPathHelper.markAsPyDevFileIfDetected(iFile)) {
+            if (PydevPlugin.markAsPyDevFileIfDetected(iFile)) {
                 return true;
             }
         }

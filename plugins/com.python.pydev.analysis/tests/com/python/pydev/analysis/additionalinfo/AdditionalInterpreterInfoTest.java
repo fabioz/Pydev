@@ -28,7 +28,6 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.NameTok;
-import org.python.pydev.plugin.nature.ProjectStub2;
 import org.python.pydev.shared_core.callbacks.ICallbackListener;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -58,7 +57,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        ProjectStub2 project = new ProjectStub2("empty");
+        AdditionalInfoProjectStub project = new AdditionalInfoProjectStub("empty");
         info = new AdditionalProjectInterpreterInfo(project) {
 
             @Override

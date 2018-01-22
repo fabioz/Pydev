@@ -32,6 +32,7 @@ import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledToken;
+import org.python.pydev.editor.codecompletion.revisited.modules.IAbstractJavaClassModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.FullRepIterable;
@@ -43,7 +44,7 @@ import org.python.pydev.shared_core.structure.Tuple;
  *
  * @author Fabio
  */
-public abstract class AbstractJavaClassModule extends AbstractModule {
+public abstract class AbstractJavaClassModule extends AbstractModule implements IAbstractJavaClassModule {
 
     public static final boolean DEBUG_JAVA_COMPLETIONS = false;
 
@@ -84,7 +85,7 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
             return;
         }
         //that's because if the JavaPlugin is not initialized, we'll have errors because it will try to create the
-        //image descriptor registry from a non-display owner when making the completions (and in this way, we'll 
+        //image descriptor registry from a non-display owner when making the completions (and in this way, we'll
         //guarantee that its cache is already created).
         try {
             JavaPlugin.getImageDescriptorRegistry();
@@ -296,7 +297,7 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
 
     /**
      * Gotten from Arrays.binarySearch (but returning boolean if key was found or not).
-     * 
+     *
      * It also works directly with CompiledToken because we want a custom compare (from the representation)
      */
     private static boolean binaryHasObject(CompiledToken[] a, CompiledToken key) {
@@ -320,7 +321,7 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
     }
 
     /**
-     * @param findInfo 
+     * @param findInfo
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#findDefinition(java.lang.String, int, int)
      */
     @Override
@@ -328,8 +329,8 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
             throws Exception {
 
         //try to see if that's a java class from a package... to do that, we must go iterating through the name found
-        //to check if we're able to find modules with that name. If a module with that name is found, that means that 
-        //we actually have a java class. 
+        //to check if we're able to find modules with that name. If a module with that name is found, that means that
+        //we actually have a java class.
         List<String> splitted = StringUtils.dotSplit(state.getActivationToken());
         FastStringBuffer modNameBuf = new FastStringBuffer(this.getName(), 128);
         IModule validModule = null;
@@ -353,7 +354,7 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
             pathInJavaClass.clear();
             pathInJavaClass.append(state.getActivationToken());
         } else {
-            //After having found a valid java class, we must also check which was the resulting token within that class 
+            //After having found a valid java class, we must also check which was the resulting token within that class
             //to check if it's some method or something alike (that should be easy after having the class and the path
             //to the method we want to find within it).
             if (!(validModule instanceof AbstractJavaClassModule)) {
@@ -405,13 +406,13 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
     /**
      * @return tuple with:
      * - a list of tuples corresponding to the element and the proposal for the gotten elements
-     * 
+     *
      */
     protected abstract IJavaElement findJavaElement(String javaClassModuleName) throws Exception;
 
     /**
      * Gets tuples with the java element and the corresponding completion proposal for that element.
-     * 
+     *
      * @param completeClassDesc the name of the class from where we should get the tokens. E.g. java.lang.Class, javax.swing.JFrame
      * @param filterCompletionName if specified, only return matches from elements that have the name passed (otherwise it should be null)
      * @return a list of tuples corresponding to the element and the proposal for the gotten elements
@@ -422,7 +423,7 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
 
     /**
      * Gets tuples with the java element and the corresponding completion proposal for that element.
-     * 
+     *
      * @param contents the contents that should be set for doing the code-completion
      * @param completionOffset the offset where the code completion should be requested
      * @param filterCompletionName if specified, only return matches from elements that have the name passed (otherwise it should be null)
@@ -433,15 +434,15 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
             int completionOffset, final String filterCompletionName) throws Exception;
 
     /**
-     * Create a proposal collector that's able to gather the passed completions/related java elements and adds 
+     * Create a proposal collector that's able to gather the passed completions/related java elements and adds
      * them to the passed 'ret' parameter
-     * 
+     *
      * @param filterCompletionName may be null or a name to which we want to match the java element name (so, only
      * a java element with an exact match of its name to filterCompletionName is added).
-     * 
+     *
      * @param ret the placeholder for the found java elements and completion proposals
      * @param unit the ICompilationUnit that's used (must be passed in the CompletionProposalCollector constructor).
-     * @return the collector that will gather the completions (note that it'll keep the 'ret' placeholder alive unti it's 
+     * @return the collector that will gather the completions (note that it'll keep the 'ret' placeholder alive unti it's
      * garbage-collected.
      */
     protected CompletionProposalCollector createCollector(final String filterCompletionName,

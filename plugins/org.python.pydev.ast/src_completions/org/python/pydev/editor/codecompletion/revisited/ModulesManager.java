@@ -42,7 +42,6 @@ import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure.ZipContents;
 import org.python.pydev.editor.codecompletion.revisited.PyPublicTreeMap.Entry;
-import org.python.pydev.editor.codecompletion.revisited.javaintegration.JythonModulesManagerUtils;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModule;
@@ -61,7 +60,9 @@ import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.preferences.FileTypesPreferences;
 import org.python.pydev.shared_core.cache.LRUMap;
+import org.python.pydev.shared_core.callbacks.ICallback2;
 import org.python.pydev.shared_core.callbacks.ICallbackListener;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.out_of_memory.OnExpectedOutOfMemory;
@@ -70,7 +71,6 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
  * This class manages the modules that are available
@@ -589,7 +589,7 @@ public abstract class ModulesManager implements IModulesManager {
 
     public static void buildKeysForRegularEntries(IProgressMonitor monitor, ModulesFoundStructure modulesFound,
             PyPublicTreeMap<ModulesKey, ModulesKey> keys, boolean includeOnlySourceModules) {
-        String[] dottedValidSourceFiles = FileTypesPreferencesPage.getDottedValidSourceFiles();
+        String[] dottedValidSourceFiles = FileTypesPreferences.getDottedValidSourceFiles();
 
         int j = 0;
         FastStringBuffer buffer = new FastStringBuffer();
@@ -794,6 +794,8 @@ public abstract class ModulesManager implements IModulesManager {
     private final Object lockTemporaryModules = new Object();
     private int nextHandle = 0;
 
+    public static ICallback2<AbstractModule, EmptyModuleForZip, IPythonNature> createModuleFromJar;
+
     /**
      * Returns the handle to be used to remove the module added later on!
      */
@@ -902,8 +904,12 @@ public abstract class ModulesManager implements IModulesManager {
                             if (emptyModuleForZip.pathInZip.endsWith(".class") || !emptyModuleForZip.isFile) {
                                 //handle java class... (if it's a class or a folder in a jar)
                                 try {
-                                    n = JythonModulesManagerUtils.createModuleFromJar(emptyModuleForZip, nature);
-                                    n = decorateModule(n, nature);
+                                    if (createModuleFromJar != null) {
+                                        n = createModuleFromJar.call(emptyModuleForZip, nature);
+                                        n = decorateModule(n, nature);
+                                    } else {
+                                        n = null;
+                                    }
                                 } catch (Throwable e1) {
                                     Log.log("Unable to create module from jar (note: JDT is required for Jython development): "
                                             + emptyModuleForZip + " project: "
@@ -911,7 +917,7 @@ public abstract class ModulesManager implements IModulesManager {
                                     n = null;
                                 }
 
-                            } else if (FileTypesPreferencesPage.isValidDll(emptyModuleForZip.pathInZip)) {
+                            } else if (FileTypesPreferences.isValidDll(emptyModuleForZip.pathInZip)) {
                                 //.pyd
                                 n = new CompiledModule(name, this, nature);
                                 n = decorateModule(n, nature);

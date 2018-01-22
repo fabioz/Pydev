@@ -27,11 +27,11 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.plugin.preferences.FileTypesPreferences;
 import org.python.pydev.plugin.preferences.PyDevBuilderPreferences;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
-import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 public class PycHandlerBuilderVisitor extends PyDevBuilderVisitor {
 
@@ -122,7 +122,7 @@ public class PycHandlerBuilderVisitor extends PyDevBuilderVisitor {
             String dotPyLoc = null;
 
             final FastStringBuffer buf = new FastStringBuffer(StringUtils.stripExtension(loc), 8);
-            for (String ext : FileTypesPreferencesPage.getDottedValidSourceFiles()) {
+            for (String ext : FileTypesPreferences.getDottedValidSourceFiles()) {
                 buf.append(ext);
                 final String bufStr = buf.toString();
                 File file = new File(bufStr);

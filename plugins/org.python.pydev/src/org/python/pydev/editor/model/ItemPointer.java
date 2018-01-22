@@ -24,11 +24,11 @@ import org.python.pydev.editor.codecompletion.revisited.javaintegration.Abstract
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.plugin.preferences.FileTypesPreferences;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.locator.BaseItemPointer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Location;
-import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
  * Pointer points to a python resource inside a file system.
@@ -126,7 +126,7 @@ public class ItemPointer extends BaseItemPointer {
                     return null;
 
                 } else {
-                    if (FileTypesPreferencesPage.isValidDll(filename)) {
+                    if (FileTypesPreferences.isValidDll(filename)) {
                         if (f.exists()) {
                             //It's a pyd or dll, let's check if it was a cython module to open it...
                             File parentFile = f.getParentFile();

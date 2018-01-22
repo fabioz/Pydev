@@ -25,6 +25,7 @@ import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.navigator.PythonpathTreeNode;
 import org.python.pydev.navigator.PythonpathZipChildTreeNode;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.structure.Location;
 import org.python.pydev.shared_ui.editor_input.PydevZipFileEditorInput;
 import org.python.pydev.shared_ui.editor_input.PydevZipFileStorage;
@@ -90,7 +91,7 @@ public class PyOpenResourceAction extends PyOpenPythonFileAction {
     @Override
     protected void openFiles(List<IFile> filesSelected) {
         for (IFile f : filesSelected) {
-            PythonPathHelper.markAsPyDevFileIfDetected(f);
+            PydevPlugin.markAsPyDevFileIfDetected(f);
             try {
                 IDE.openEditor(page, f);
             } catch (PartInitException e) {

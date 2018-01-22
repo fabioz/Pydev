@@ -19,7 +19,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.ui.text.java.CompletionProposalCollector;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
@@ -152,7 +152,7 @@ public class JavaModuleInProject extends AbstractJavaClassModule {
                     this.moduleType = IS_PACKAGE;
                 } else {
                     this.moduleType = IS_CLASS;
-                    this.file = new File(InterpreterManagersAPI.getIResourceOSString(type.getResource()));
+                    this.file = new File(SharedCorePlugin.getIResourceOSString(type.getResource()));
                 }
             }
 

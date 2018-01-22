@@ -31,9 +31,10 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IInterpreterManagerListener;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.SynchSystemModulesManager.CreateInterpreterInfoCallback;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.preferences.InterpreterGeneralPreferences;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.path_watch.EventsStackerRunnable;
@@ -43,8 +44,6 @@ import org.python.pydev.shared_core.path_watch.PathWatch;
 import org.python.pydev.shared_core.structure.DataAndImageTreeNode;
 import org.python.pydev.shared_core.structure.TreeNode;
 import org.python.pydev.shared_core.utils.ThreadPriorityHelper;
-import org.python.pydev.ui.interpreters.AbstractInterpreterManager;
-import org.python.pydev.ui.pythonpathconf.InterpreterGeneralPreferencesPage;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class SyncSystemModulesManagerScheduler implements IInterpreterManagerListener {
@@ -62,7 +61,8 @@ public class SyncSystemModulesManagerScheduler implements IInterpreterManagerLis
      * @param interpreterInfos
      * @return true if there are infos to be tracked and false otherwise.
      */
-    private void registerInterpreterManager(IInterpreterManager iInterpreterManager, IInterpreterInfo[] interpreterInfos) {
+    private void registerInterpreterManager(IInterpreterManager iInterpreterManager,
+            IInterpreterInfo[] interpreterInfos) {
         //This will make us start tracking changes in the filesystem.
         afterSetInfos(iInterpreterManager, interpreterInfos);
 
@@ -79,9 +79,9 @@ public class SyncSystemModulesManagerScheduler implements IInterpreterManagerLis
     public void start() {
 
         boolean scheduleInitially = false;
-        boolean reCheckOnFilesystemChanges = InterpreterGeneralPreferencesPage.getReCheckOnFilesystemChanges();
+        boolean reCheckOnFilesystemChanges = InterpreterGeneralPreferences.getReCheckOnFilesystemChanges();
 
-        IInterpreterManager[] managers = PydevPlugin.getAllInterpreterManagers();
+        IInterpreterManager[] managers = InterpreterManagersAPI.getAllInterpreterManagers();
         for (IInterpreterManager iInterpreterManager : managers) {
             if (iInterpreterManager != null) {
                 IInterpreterInfo[] interpreterInfos = iInterpreterManager.getInterpreterInfos();
@@ -103,7 +103,7 @@ public class SyncSystemModulesManagerScheduler implements IInterpreterManagerLis
             timeout = 1000 * 7; //In this case, wait only 7 seconds after startup
         }
 
-        if (force || InterpreterGeneralPreferencesPage.getCheckConsistentOnStartup()) {
+        if (force || InterpreterGeneralPreferences.getCheckConsistentOnStartup()) {
             if (scheduleInitially) {
                 //Only do the initial schedule if there's something to be tracked (otherwise, wait for some interpreter
                 //to be configured and work only on deltas already).
@@ -115,7 +115,7 @@ public class SyncSystemModulesManagerScheduler implements IInterpreterManagerLis
         }
     }
 
-    public void addToCheck(AbstractInterpreterManager manager, IInterpreterInfo[] infos) {
+    public void addToCheck(IInterpreterManager manager, IInterpreterInfo[] infos) {
         for (IInterpreterInfo info : infos) {
             job.addToTrack(manager, info);
         }
@@ -155,7 +155,7 @@ public class SyncSystemModulesManagerScheduler implements IInterpreterManagerLis
      */
     public void stop() {
         job.cancel();
-        IInterpreterManager[] managers = PydevPlugin.getAllInterpreterManagers();
+        IInterpreterManager[] managers = InterpreterManagersAPI.getAllInterpreterManagers();
         synchronized (lockSetInfos) {
             for (IInterpreterManager iInterpreterManager : managers) {
                 if (iInterpreterManager != null) {
@@ -273,7 +273,7 @@ public class SyncSystemModulesManagerScheduler implements IInterpreterManagerLis
          */
         public Map<IInterpreterManager, Map<String, IInterpreterInfo>> addAllToTrack() {
             synchronized (fManagerToNameToInfoLock) {
-                fManagerToNameToInfo = PydevPlugin
+                fManagerToNameToInfo = InterpreterManagersAPI
                         .getInterpreterManagerToInterpreterNameToInfo();
                 Map<IInterpreterManager, Map<String, IInterpreterInfo>> copy = new HashMap<IInterpreterManager, Map<String, IInterpreterInfo>>();
 

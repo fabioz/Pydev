@@ -98,6 +98,7 @@ import org.python.pydev.core.NotConfiguredInterpreterException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PythonPairMatcher;
 import org.python.pydev.core.docutils.SyntaxErrorException;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.partition.PyPartitionScanner;
 import org.python.pydev.editor.actions.FirstCharAction;
@@ -144,6 +145,7 @@ import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.CheckDefaultPreferencesDialog;
+import org.python.pydev.plugin.preferences.FileTypesPreferences;
 import org.python.pydev.plugin.preferences.PyCodeFormatterPage;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
@@ -177,7 +179,6 @@ import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.ui.ColorAndStyleCache;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
-import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
  * The TextWidget.
@@ -210,8 +211,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
     public static final String PY_EDIT_CONTEXT = "#PyEditContext";
     public static final String PY_EDIT_RULER_CONTEXT = "#PyEditRulerContext";
-
-    static public final String EDITOR_ID = "org.python.pydev.editor.PythonEditor";
 
     static public final String ACTION_OPEN = "OpenEditor";
 
@@ -1540,7 +1539,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         if (editorFile == null) {
             throw new MisconfigurationException();
         }
-        Tuple<IPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(editorFile);
+        Tuple<IPythonNature, String> infoForFile = InterpreterManagersAPI.getInfoForFile(editorFile);
         if (infoForFile == null || infoForFile.o1 == null) {
             throw new MisconfigurationException();
         }
@@ -1584,7 +1583,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                 fileName = editorFile.getName();
             }
         }
-        return FileTypesPreferencesPage.isCythonFile(fileName);
+        return FileTypesPreferences.isCythonFile(fileName);
     }
 
     /**
@@ -1613,7 +1612,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         if (editorFile == null) {
             return null;
         }
-        Tuple<IPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(editorFile);
+        Tuple<IPythonNature, String> infoForFile = InterpreterManagersAPI.getInfoForFile(editorFile);
         if (infoForFile == null) {
             NotConfiguredInterpreterException e = new NotConfiguredInterpreterException();
             ErrorDialog.openError(EditorUtils.getShell(), "Error: no interpreter configured",

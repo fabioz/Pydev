@@ -18,10 +18,10 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.navigator.elements.ISortedElement;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.preferences.FileTypesPreferences;
 import org.python.pydev.shared_core.structure.TreeNode;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.UIConstants;
-import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
  * This class represents nodes in the tree that are below the interpreter pythonpath information
@@ -134,7 +134,7 @@ public class PythonpathTreeNode extends TreeNode<LabelAndImage> implements ISort
     }
 
     private boolean isZipFile() {
-        return file.isFile() && FileTypesPreferencesPage.isValidZipFile(file.getName());
+        return file.isFile() && FileTypesPreferences.isValidZipFile(file.getName());
     }
 
     @Override

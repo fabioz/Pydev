@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.builder.pycremover.PycHandlerBuilderVisitor;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
 public abstract class PydevInternalResourceDeltaVisitor extends PyDevBuilderVisitor implements IResourceDeltaVisitor {
@@ -79,7 +80,7 @@ public abstract class PydevInternalResourceDeltaVisitor extends PyDevBuilderVisi
             String ext = resource.getFileExtension();
             if (ext == null) { //resource.getFileExtension() may return null if it has none.
                 if (resource instanceof IFile) {
-                    PythonPathHelper.markAsPyDevFileIfDetected((IFile) resource);
+                    PydevPlugin.markAsPyDevFileIfDetected((IFile) resource);
                 }
                 return true;
             }

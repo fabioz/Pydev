@@ -10,7 +10,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.ui.pythonpathconf.InterpreterGeneralPreferencesPage;
+import org.python.pydev.plugin.preferences.InterpreterGeneralPreferences;
 
 /**
  * Base class for code-completion on a workbench test.
@@ -26,11 +26,11 @@ public abstract class AbstractJythonWorkbenchTests extends JythonCodeCompletionT
         // Set Interpreter Configuration Auto to DONT_ASK. We can't have the
         // Python not configured dialog open in the tests as that causes the tests to hang
         IPreferenceStore store = PydevPlugin.getDefault().getPreferenceStore();
-        store.setValue(InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER_PY,
+        store.setValue(InterpreterGeneralPreferences.NOTIFY_NO_INTERPRETER_PY,
                 false);
-        store.setValue(InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER_JY,
+        store.setValue(InterpreterGeneralPreferences.NOTIFY_NO_INTERPRETER_JY,
                 false);
-        store.setValue(InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER_IP,
+        store.setValue(InterpreterGeneralPreferences.NOTIFY_NO_INTERPRETER_IP,
                 false);
 
         CompiledModule.COMPILED_MODULES_ENABLED = true;

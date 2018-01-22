@@ -35,11 +35,11 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.dialogs.SelectionDialog;
 import org.python.pydev.plugin.PyStructureConfigHelpers;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.preferences.FileTypesPreferences;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.dialogs.MapOfStringsInputDialog;
-import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
  * @author Fabio Zadrozny
@@ -303,7 +303,7 @@ public abstract class TreeWithAddRemove extends Composite {
                     IFile p = (IFile) object;
                     String pathAsString = getPathAsString(p.getProjectRelativePath(), project);
                     pathAsString = "/" + p.getProject().getName() + pathAsString;
-                    if (FileTypesPreferencesPage.isValidZipFile(pathAsString)) {
+                    if (FileTypesPreferences.isValidZipFile(pathAsString)) {
                         addTreeItem(pathAsString);
                     }
                 }

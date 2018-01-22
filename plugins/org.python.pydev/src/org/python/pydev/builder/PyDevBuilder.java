@@ -37,6 +37,7 @@ import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PyCodeCompletionVisitor;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PyDevBuilderPreferences;
 import org.python.pydev.shared_core.callbacks.ICallback0;
@@ -294,7 +295,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
             total += inc;
             IFile r = iter.next();
 
-            PythonPathHelper.markAsPyDevFileIfDetected(r);
+            PydevPlugin.markAsPyDevFileIfDetected(r);
 
             IPythonNature nature = PythonNature.getPythonNature(r);
             if (nature == null) {

@@ -56,14 +56,14 @@ import org.python.pydev.editor.simpleassist.SimpleAssistProcessor;
 import org.python.pydev.editorinput.PyOpenEditor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.plugin.preferences.FileTypesPreferences;
+import org.python.pydev.plugin.preferences.InterpreterGeneralPreferences;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
-import org.python.pydev.ui.pythonpathconf.InterpreterGeneralPreferencesPage;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 /**
@@ -141,11 +141,11 @@ public class AbstractWorkbenchTestCase extends TestCase {
         // Set Interpreter Configuration Auto to "Don't ask again". We can't have the
         // Python not configured dialog open in the tests as that causes the tests to hang
         IPreferenceStore store = PydevPlugin.getDefault().getPreferenceStore();
-        store.setValue(InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER_PY,
+        store.setValue(InterpreterGeneralPreferences.NOTIFY_NO_INTERPRETER_PY,
                 false);
-        store.setValue(InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER_JY,
+        store.setValue(InterpreterGeneralPreferences.NOTIFY_NO_INTERPRETER_JY,
                 false);
-        store.setValue(InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER_IP,
+        store.setValue(InterpreterGeneralPreferences.NOTIFY_NO_INTERPRETER_IP,
                 false);
 
         String mod1Contents = "import java.lang.Class\njava.lang.Class";
@@ -366,7 +366,7 @@ public class AbstractWorkbenchTestCase extends TestCase {
             }
             parent = folder;
             IFile file = parent.getFile(new Path("__init__"
-                    + FileTypesPreferencesPage.getDefaultDottedPythonExtension()));
+                    + FileTypesPreferences.getDefaultDottedPythonExtension()));
             if (!file.exists()) {
                 file.create(new ByteArrayInputStream(new byte[0]), true, monitor);
             }

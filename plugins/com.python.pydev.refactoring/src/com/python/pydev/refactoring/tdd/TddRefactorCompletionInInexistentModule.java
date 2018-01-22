@@ -30,7 +30,7 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editorinput.PySourceLocatorBase;
-import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
+import org.python.pydev.plugin.preferences.FileTypesPreferences;
 
 /**
  * This is the proposal that goes outside. It only creates the proposal that'll actually do something later, as
@@ -104,7 +104,7 @@ public final class TddRefactorCompletionInInexistentModule extends AbstractTddRe
 
             container = folder;
             IFile file = container.getFile(new Path("__init__"
-                    + FileTypesPreferencesPage.getDefaultDottedPythonExtension()));
+                    + FileTypesPreferences.getDefaultDottedPythonExtension()));
             if (!file.exists()) {
                 try {
                     file.create(new ByteArrayInputStream(new byte[0]), true, null);

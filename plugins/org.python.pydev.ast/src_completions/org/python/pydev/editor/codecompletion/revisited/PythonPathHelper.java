@@ -11,13 +11,9 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -43,24 +39,22 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.ui.ide.IDE;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.IPythonModuleResolver;
 import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure.ZipContents;
 import org.python.pydev.plugin.PyStructureConfigHelpers;
 import org.python.pydev.plugin.nature.IPythonPathHelper;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.plugin.preferences.FileTypesPreferences;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.OrderedMap;
-import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.python.pydev.utils.PyFileListing;
 import org.python.pydev.utils.PyFileListing.PyFileInfo;
 
@@ -142,7 +136,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
     protected static ModulesFoundStructure.ZipContents getFromZip(File root, IProgressMonitor monitor) {
 
         String fileName = root.getName();
-        if (root.isFile() && FileTypesPreferencesPage.isValidZipFile(fileName)) { //ok, it may be a jar file, so let's get its contents and get the available modules
+        if (root.isFile() && FileTypesPreferences.isValidZipFile(fileName)) { //ok, it may be a jar file, so let's get its contents and get the available modules
 
             //the major difference from handling jars from regular python files is that we don't have to check for __init__.py files
             ModulesFoundStructure.ZipContents zipContents = new ModulesFoundStructure.ZipContents(root);
@@ -215,7 +209,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
      * @return if the path passed belongs to a valid python source file (checks for the extension)
      */
     public static boolean isValidSourceFile(String path) {
-        return isValidSourceFile(path, FileTypesPreferencesPage.getDottedValidSourceFiles());
+        return isValidSourceFile(path, FileTypesPreferences.getDottedValidSourceFiles());
     }
 
     public static boolean isValidSourceFile(String path, String[] dottedValidSourceFiles) {
@@ -240,7 +234,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
             return false;
         }
         ext = ext.toLowerCase();
-        String[] validSourceFiles = FileTypesPreferencesPage.getValidSourceFiles();
+        String[] validSourceFiles = FileTypesPreferences.getValidSourceFiles();
         int len = validSourceFiles.length;
         for (int i = 0; i < len; i++) {
             String end = validSourceFiles[i];
@@ -263,7 +257,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
         if (isValidSourceFile(path)) {
             ret = true;
 
-        } else if (FileTypesPreferencesPage.isValidDll(path)) {
+        } else if (FileTypesPreferences.isValidDll(path)) {
             ret = true;
         }
 
@@ -349,7 +343,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
         absoluteModuleLocation = getDefaultPathStr(absoluteModuleLocation);
         String fullPathWithoutExtension;
 
-        if (isValidSourceFile(absoluteModuleLocation) || FileTypesPreferencesPage.isValidDll(absoluteModuleLocation)) {
+        if (isValidSourceFile(absoluteModuleLocation) || FileTypesPreferences.isValidDll(absoluteModuleLocation)) {
             fullPathWithoutExtension = FullRepIterable.headAndTail(absoluteModuleLocation)[0];
         } else {
             fullPathWithoutExtension = absoluteModuleLocation;
@@ -491,7 +485,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
      */
     public static File getFolderInit(File root) {
         // Checking for existence of a specific file is much faster than listing a directory!
-        String[] validInitFiles = FileTypesPreferencesPage.getValidInitFiles();
+        String[] validInitFiles = FileTypesPreferences.getValidInitFiles();
         int len = validInitFiles.length;
         for (int i = 0; i < len; i++) {
             String init = validInitFiles[i];
@@ -510,7 +504,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
      */
     public static IFile getFolderInit(IContainer root) {
         // Checking for existence of a specific file is much faster than listing a directory!
-        String[] validInitFiles = FileTypesPreferencesPage.getValidInitFiles();
+        String[] validInitFiles = FileTypesPreferences.getValidInitFiles();
         int len = validInitFiles.length;
         for (int i = 0; i < len; i++) {
             String init = validInitFiles[i];
@@ -528,7 +522,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
      * @return true if the file is a valid __init__ file
      */
     public static boolean isValidInitFile(String path) {
-        String[] validInitFiles = FileTypesPreferencesPage.getValidInitFiles();
+        String[] validInitFiles = FileTypesPreferences.getValidInitFiles();
         int len = validInitFiles.length;
         for (int i = 0; i < len; i++) {
             String init = validInitFiles[i];
@@ -660,7 +654,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
                 ModulesFoundStructure modulesFoundStructure = new ModulesFoundStructure();
                 for (IPath moduleOrZip : modulesAndZips) {
                     File moduleOrZipFile = moduleOrZip.toFile();
-                    if (FileTypesPreferencesPage.isValidZipFile(moduleOrZip.toOSString())) {
+                    if (FileTypesPreferences.isValidZipFile(moduleOrZip.toOSString())) {
                         ModulesFoundStructure.ZipContents zipContents = getFromZip(moduleOrZipFile, monitor);
                         if (zipContents != null) {
                             modulesFoundStructure.zipContents.add(zipContents);
@@ -747,37 +741,6 @@ public final class PythonPathHelper implements IPythonPathHelper {
                 if (PythonPathHelper.isValidSourceFile(modulesKeyForZip.zipModulePath)) {
                     return true;
                 }
-            }
-        }
-        return false;
-    }
-
-    /**
-     * @return true if PyEdit.EDITOR_ID is set as the persistent property (only if the file does not have an extension).
-     */
-    public static boolean markAsPyDevFileIfDetected(IFile file) {
-        String name = file.getName();
-        if (name == null || name.indexOf('.') != -1) {
-            return false;
-        }
-
-        String editorID;
-        try {
-            editorID = file.getPersistentProperty(IDE.EDITOR_KEY);
-            if (editorID == null) {
-                InputStream contents = file.getContents(true);
-                Reader inputStreamReader = new InputStreamReader(new BufferedInputStream(contents));
-                if (FileUtils.hasPythonShebang(inputStreamReader)) {
-                    IDE.setDefaultEditor(file, PyEdit.EDITOR_ID);
-                    return true;
-                }
-            } else {
-                return PyEdit.EDITOR_ID.equals(editorID);
-            }
-
-        } catch (Exception e) {
-            if (file.exists()) {
-                Log.log(e);
             }
         }
         return false;
@@ -907,8 +870,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
 
             ArrayList<IPythonModuleResolver> tempPythonModuleResolvers = new ArrayList<>();
             @SuppressWarnings("unchecked")
-            List<Object> resolvers =
-                    ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PYTHON_MODULE_RESOLVER);
+            List<Object> resolvers = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PYTHON_MODULE_RESOLVER);
             for (Object resolver : resolvers) {
                 if (resolver instanceof IPythonModuleResolver) {
                     tempPythonModuleResolvers.add((IPythonModuleResolver) resolver);

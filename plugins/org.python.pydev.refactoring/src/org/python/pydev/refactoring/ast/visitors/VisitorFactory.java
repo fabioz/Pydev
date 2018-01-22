@@ -43,6 +43,7 @@ import org.python.pydev.parser.jython.TokenMgrError;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.VisitorIF;
 import org.python.pydev.parser.jython.ast.exprType;
+import org.python.pydev.plugin.preferences.FileTypesPreferences;
 import org.python.pydev.refactoring.ast.PythonModuleManager;
 import org.python.pydev.refactoring.ast.adapters.AbstractNodeAdapter;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
@@ -53,7 +54,6 @@ import org.python.pydev.refactoring.ast.visitors.selection.SelectionExtenderVisi
 import org.python.pydev.refactoring.ast.visitors.selection.SelectionValidationVisitor;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
-import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 public final class VisitorFactory {
     private VisitorFactory() {
@@ -116,7 +116,7 @@ public final class VisitorFactory {
     public static ModuleAdapter createModuleAdapter(PythonModuleManager pythonModuleManager, File file, IDocument doc,
             IPythonNature nature, IGrammarVersionProvider versionProvider) throws Throwable {
         if (file != null && file.exists()) {
-            if (FileTypesPreferencesPage.isCythonFile(file.getName())) {
+            if (FileTypesPreferences.isCythonFile(file.getName())) {
                 versionProvider = new IGrammarVersionProvider() {
 
                     @Override

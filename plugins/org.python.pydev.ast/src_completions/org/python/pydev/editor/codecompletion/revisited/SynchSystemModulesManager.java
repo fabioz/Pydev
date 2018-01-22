@@ -32,8 +32,8 @@ import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.DataAndImageTreeNode;
@@ -184,7 +184,7 @@ public class SynchSystemModulesManager {
         List<IInterpreterInfo> changedInfos = computeChanges(root, selectElements);
 
         if (changedInfos.size() > 0) {
-            IInterpreterManager[] allInterpreterManagers = PydevPlugin.getAllInterpreterManagers();
+            IInterpreterManager[] allInterpreterManagers = InterpreterManagersAPI.getAllInterpreterManagers();
 
             for (IInterpreterManager manager : allInterpreterManagers) {
                 if (manager == null) {

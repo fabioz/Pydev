@@ -174,8 +174,9 @@ public class PyStructureConfigHelpers {
                         buf.append(containerPath);
                     }
 
-                    projectPythonpath = projectPythonpath != null ? projectPythonpath.concat(buf.toString()) : buf
-                            .toString();
+                    projectPythonpath = projectPythonpath != null ? projectPythonpath.concat(buf.toString())
+                            : buf
+                                    .toString();
                 }
             }
 

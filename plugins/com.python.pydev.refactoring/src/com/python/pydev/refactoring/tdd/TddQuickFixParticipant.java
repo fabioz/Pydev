@@ -42,6 +42,7 @@ import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.preferences.FileTypesPreferences;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -49,7 +50,6 @@ import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
-import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.builder.AnalysisRunner;
@@ -249,7 +249,7 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
                                     //Cannot create class or method from the info (only the module structure).
                                     if (sourceModule.getName().endsWith(".__init__")) {
                                         File f = new File(file.getParent(), found.o2
-                                                + FileTypesPreferencesPage.getDefaultDottedPythonExtension());
+                                                + FileTypesPreferences.getDefaultDottedPythonExtension());
                                         addCreateModuleOption(ps, edit, props, markerContents, f);
                                     }
                                 } else {
@@ -326,7 +326,7 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
         int size = split.size();
         for (int i = 0; i < size; i++) {
             if (i == size - 1) {
-                f = new File(f, split.get(i) + FileTypesPreferencesPage.getDefaultDottedPythonExtension());
+                f = new File(f, split.get(i) + FileTypesPreferences.getDefaultDottedPythonExtension());
 
             } else {
                 f = new File(f, split.get(i));

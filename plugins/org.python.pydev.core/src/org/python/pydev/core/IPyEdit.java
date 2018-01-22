@@ -22,6 +22,8 @@ import org.python.pydev.shared_core.parsing.IParserObserver;
 public interface IPyEdit extends IParserObserver, IBaseEditor, IPyFormatStdProvider, IGrammarVersionProvider,
         IPyEditOfflineActionListener {
 
+    static public final String EDITOR_ID = "org.python.pydev.editor.PythonEditor";
+
     /**
      * @return the python nature used in this editor
      * @throws NotConfiguredInterpreterException
@@ -44,5 +46,7 @@ public interface IPyEdit extends IParserObserver, IBaseEditor, IPyFormatStdProvi
     long getAstModificationTimeStamp();
 
     IFile getIFile();
+
+    boolean isCythonFile();
 
 }

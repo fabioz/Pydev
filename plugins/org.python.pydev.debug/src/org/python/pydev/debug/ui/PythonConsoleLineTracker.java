@@ -43,10 +43,10 @@ import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.plugin.preferences.FileTypesPreferences;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.structure.Location;
 import org.python.pydev.shared_core.utils.PlatformUtils;
-import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
  * Line tracker that hyperlinks error lines: 'File "D:\mybad.py" line 3\n n Syntax error'
@@ -197,7 +197,7 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
             }
 
             // Ok, we did not have a direct match, let's try a different approach...
-            String[] dottedValidSourceFiles = FileTypesPreferencesPage.getDottedValidSourceFiles();
+            String[] dottedValidSourceFiles = FileTypesPreferences.getDottedValidSourceFiles();
             for (String dottedExt : dottedValidSourceFiles) {
                 Pattern pattern = getRegexpForExtension(dottedExt);
                 m = pattern.matcher(text);

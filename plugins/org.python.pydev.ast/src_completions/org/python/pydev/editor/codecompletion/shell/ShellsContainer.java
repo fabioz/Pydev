@@ -12,10 +12,10 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
 import org.python.pydev.logging.DebugSettings;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_ui.log.ToLogFile;
 
 public class ShellsContainer {
@@ -53,7 +53,7 @@ public class ShellsContainer {
     }
 
     /**
-     * Stops all registered shells (should only be called at plugin shutdown). 
+     * Stops all registered shells (should only be called at plugin shutdown).
      */
     public static void shutdownAllShells() {
         synchronized (shells) {
@@ -101,7 +101,7 @@ public class ShellsContainer {
                             val2.endIt();
                         }
                     }
-                    IInterpreterManager[] interpreterManagers = PydevPlugin.getAllInterpreterManagers();
+                    IInterpreterManager[] interpreterManagers = InterpreterManagersAPI.getAllInterpreterManagers();
                     for (IInterpreterManager iInterpreterManager : interpreterManagers) {
                         if (iInterpreterManager == null) {
                             continue; //Should happen only on testing...
@@ -205,7 +205,8 @@ public class ShellsContainer {
                 ;
                 ToLogFile.toLogFile(
                         "Getting shell related to:" + flavor + " id:" + id + " interpreter: "
-                                + interpreter.getExecutableOrJar(), AbstractShell.class);
+                                + interpreter.getExecutableOrJar(),
+                        AbstractShell.class);
             }
             Map<Integer, AbstractShell> typeToShell = getTypeToShellFromId(interpreter);
             pythonShell = typeToShell.get(id);

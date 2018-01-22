@@ -24,10 +24,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.plugin.preferences.FileTypesPreferences;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
-import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
  * Helper class for finding out about python files below some source folder.
@@ -210,7 +210,7 @@ public class PyFileListing {
 
         return new FileFilter() {
 
-            private final String[] dottedValidSourceFiles = FileTypesPreferencesPage.getDottedValidSourceFiles();
+            private final String[] dottedValidSourceFiles = FileTypesPreferences.getDottedValidSourceFiles();
 
             @Override
             public boolean accept(File pathname) {

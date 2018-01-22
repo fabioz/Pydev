@@ -45,7 +45,6 @@ import org.python.pydev.editor.codecompletion.revisited.SyncSystemModulesManager
 import org.python.pydev.editor.codecompletion.revisited.SyncSystemModulesManagerScheduler.InfoTracker;
 import org.python.pydev.editor.codecompletion.revisited.SynchSystemModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.SynchSystemModulesManager.PythonpathChange;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevTestUtils;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
@@ -181,14 +180,14 @@ public class SyncSystemModulesManagerTest extends TestCase {
         SynchSystemModulesManager synchManager = new SynchSystemModulesManager();
 
         final DataAndImageTreeNode root = new DataAndImageTreeNode(null, null, null);
-        Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfoMap = PydevPlugin
+        Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfoMap = InterpreterManagersAPI
                 .getInterpreterManagerToInterpreterNameToInfo();
         ManagerInfoToUpdate managerToNameToInfo = new ManagerInfoToUpdate(managerToNameToInfoMap);
         checkUpdateStructures(synchManager, root, managerToNameToInfo);
         checkSynchronize(synchManager, root, managerToNameToInfo);
 
         root.clear();
-        managerToNameToInfo = new ManagerInfoToUpdate(PydevPlugin.getInterpreterManagerToInterpreterNameToInfo());
+        managerToNameToInfo = new ManagerInfoToUpdate(InterpreterManagersAPI.getInterpreterManagerToInterpreterNameToInfo());
         synchManager.updateStructures(null, root, managerToNameToInfo,
                 new SynchSystemModulesManager.CreateInterpreterInfoCallback() {
                     @Override
@@ -224,7 +223,7 @@ public class SyncSystemModulesManagerTest extends TestCase {
     public void testScheduleCheckForUpdates() throws Exception {
         setupEnv();
 
-        Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo = PydevPlugin
+        Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo = InterpreterManagersAPI
                 .getInterpreterManagerToInterpreterNameToInfo();
 
         SyncSystemModulesManagerScheduler scheduler = new SyncSystemModulesManagerScheduler();
@@ -301,7 +300,7 @@ public class SyncSystemModulesManagerTest extends TestCase {
         SynchSystemModulesManager synchManager = new SynchSystemModulesManager();
 
         final DataAndImageTreeNode root = new DataAndImageTreeNode(null, null, null);
-        Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfoMap = PydevPlugin
+        Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfoMap = InterpreterManagersAPI
                 .getInterpreterManagerToInterpreterNameToInfo();
         ManagerInfoToUpdate managerToNameToInfo = new ManagerInfoToUpdate(managerToNameToInfoMap);
         checkUpdateStructures(synchManager, root, managerToNameToInfo);
@@ -312,7 +311,7 @@ public class SyncSystemModulesManagerTest extends TestCase {
         //In this situation, the sync manager should ask the user if that path should actually be added
         //to this interpreter.
         root.clear();
-        managerToNameToInfo = new ManagerInfoToUpdate(PydevPlugin.getInterpreterManagerToInterpreterNameToInfo());
+        managerToNameToInfo = new ManagerInfoToUpdate(InterpreterManagersAPI.getInterpreterManagerToInterpreterNameToInfo());
         synchManager.updateStructures(null, root, managerToNameToInfo,
                 new SynchSystemModulesManager.CreateInterpreterInfoCallback() {
                     @Override
@@ -381,7 +380,7 @@ public class SyncSystemModulesManagerTest extends TestCase {
         SynchSystemModulesManager synchManager = new SynchSystemModulesManager();
 
         final DataAndImageTreeNode root = new DataAndImageTreeNode(null, null, null);
-        Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo = PydevPlugin
+        Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo = InterpreterManagersAPI
                 .getInterpreterManagerToInterpreterNameToInfo();
 
         synchManager.updateStructures(null, root, new ManagerInfoToUpdate(managerToNameToInfo),

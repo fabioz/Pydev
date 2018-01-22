@@ -94,12 +94,12 @@ public class PyListSelectionDialog extends SelectionDialog {
             SelectionListener listenerNotInWorkspace = new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent e) {
-                    HashSet<IPath> rootPaths = InterpreterConfigHelpers.getRootPaths();
+                    HashSet<IPath> rootPaths = DefaultPathsForInterpreterInfo.getRootPaths();
                     TableItem[] children = listViewer.getTable().getItems();
                     for (int i = 0; i < children.length; i++) {
                         TableItem item = children[i];
                         item.setChecked(
-                                !InterpreterConfigHelpers.isChildOfRootPath((String) item.getData(), rootPaths));
+                                !DefaultPathsForInterpreterInfo.isChildOfRootPath((String) item.getData(), rootPaths));
                     }
                 }
             };

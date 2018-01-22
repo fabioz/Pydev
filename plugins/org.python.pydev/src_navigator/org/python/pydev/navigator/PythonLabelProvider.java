@@ -30,16 +30,17 @@ import org.python.pydev.navigator.elements.PythonFolder;
 import org.python.pydev.navigator.elements.PythonNode;
 import org.python.pydev.navigator.elements.PythonProjectSourceFolder;
 import org.python.pydev.navigator.elements.PythonSourceFolder;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.plugin.preferences.FileTypesPreferences;
 import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 import org.python.pydev.shared_core.structure.TreeNode;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
-import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
  * Provides the labels for the pydev package explorer.
- * 
+ *
  * @author Fabio
  */
 public class PythonLabelProvider implements ILabelProvider {
@@ -69,7 +70,7 @@ public class PythonLabelProvider implements ILabelProvider {
             PythonFolder folder = (PythonFolder) element;
             IFolder actualObject = folder.getActualObject();
             if (actualObject != null) {
-                final String[] validInitFiles = FileTypesPreferencesPage.getValidInitFiles();
+                final String[] validInitFiles = FileTypesPreferences.getValidInitFiles();
 
                 for (String init : validInitFiles) {
                     if (actualObject.getFile(init).exists()) {
@@ -96,8 +97,8 @@ public class PythonLabelProvider implements ILabelProvider {
 
                 if (name.indexOf('.') == -1) {
                     try {
-                        if (PythonPathHelper.markAsPyDevFileIfDetected(iFile)) {
-                            if (FileTypesPreferencesPage.isCythonFile(name)) {
+                        if (PydevPlugin.markAsPyDevFileIfDetected(iFile)) {
+                            if (FileTypesPreferences.isCythonFile(name)) {
                                 return SharedUiPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON);
                             }
                             return SharedUiPlugin.getImageCache().get(UIConstants.PY_FILE_ICON);
@@ -106,7 +107,7 @@ public class PythonLabelProvider implements ILabelProvider {
                         //Ignore
                     }
                 }
-                if (FileTypesPreferencesPage.isCythonFile(name)) {
+                if (FileTypesPreferences.isCythonFile(name)) {
                     return SharedUiPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON);
                 }
 
@@ -143,7 +144,7 @@ public class PythonLabelProvider implements ILabelProvider {
         if (element instanceof IFile) {
             IFile iFile = (IFile) element;
             String name = iFile.getName();
-            if (FileTypesPreferencesPage.isCythonFile(name)) {
+            if (FileTypesPreferences.isCythonFile(name)) {
                 return SharedUiPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON);
             }
 
@@ -198,11 +199,11 @@ public class PythonLabelProvider implements ILabelProvider {
 
     /**
      * Checks if all the parents have the needed __init__ files (needed to consider some folder an actual python module)
-     * 
+     *
      * @param pythonFolder the python folder whose hierarchy should be checked (note that the folder itself must have already
      * been checked at this point)
      * @param validInitFiles the valid names for the __init__ files (because we can have more than one matching extension)
-     * 
+     *
      * @return true if all the parents have the __init__ files and false otherwise.
      */
     private final boolean checkParentsHaveInit(final PythonFolder pythonFolder, final String[] validInitFiles) {

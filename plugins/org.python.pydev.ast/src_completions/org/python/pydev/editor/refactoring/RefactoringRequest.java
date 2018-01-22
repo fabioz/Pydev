@@ -24,11 +24,11 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.structure.DecoratableObject;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.structure.Tuple;
 
 /**
@@ -135,7 +135,7 @@ public class RefactoringRequest extends DecoratableObject {
         this.pushMonitor(monitor);
 
         if (nature == null) {
-            Tuple<IPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(file);
+            Tuple<IPythonNature, String> infoForFile = InterpreterManagersAPI.getInfoForFile(file);
             if (infoForFile != null) {
                 this.nature = infoForFile.o1;
                 this.moduleName = infoForFile.o2;

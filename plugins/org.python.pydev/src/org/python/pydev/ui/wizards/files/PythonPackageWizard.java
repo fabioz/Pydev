@@ -17,8 +17,8 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.python.pydev.plugin.preferences.FileTypesPreferences;
 import org.python.pydev.shared_core.string.StringUtils;
-import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 public class PythonPackageWizard extends AbstractPythonWizard {
 
@@ -80,7 +80,7 @@ public class PythonPackageWizard extends AbstractPythonWizard {
             }
             parent = folder;
             IFile file = parent.getFile(new Path("__init__"
-                    + FileTypesPreferencesPage.getDefaultDottedPythonExtension()));
+                    + FileTypesPreferences.getDefaultDottedPythonExtension()));
             if (!file.exists()) {
                 file.create(new ByteArrayInputStream(new byte[0]), true, monitor);
             }

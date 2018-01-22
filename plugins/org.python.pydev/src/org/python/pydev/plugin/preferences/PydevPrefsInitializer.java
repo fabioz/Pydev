@@ -27,9 +27,7 @@ import org.python.pydev.parser.PyParserManager;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.pyunit.preferences.PyUnitPrefsPage2;
 import org.python.pydev.shared_ui.word_boundaries.SubWordPreferences;
-import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
-import org.python.pydev.ui.pythonpathconf.InterpreterGeneralPreferencesPage;
 import org.python.pydev.ui.wizards.project.IWizardNewProjectNameAndLocationPage;
 
 public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
@@ -284,9 +282,9 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.put(DocstringsPrefPage.P_DONT_GENERATE_TYPETAGS, DocstringsPrefPage.DEFAULT_P_DONT_GENERATE_TYPETAGS);
 
         //file types
-        node.put(FileTypesPreferencesPage.VALID_SOURCE_FILES, FileTypesPreferencesPage.DEFAULT_VALID_SOURCE_FILES);
-        node.put(FileTypesPreferencesPage.FIRST_CHOICE_PYTHON_SOURCE_FILE,
-                FileTypesPreferencesPage.DEFAULT_FIRST_CHOICE_PYTHON_SOURCE_FILE);
+        node.put(FileTypesPreferences.VALID_SOURCE_FILES, FileTypesPreferences.DEFAULT_VALID_SOURCE_FILES);
+        node.put(FileTypesPreferences.FIRST_CHOICE_PYTHON_SOURCE_FILE,
+                FileTypesPreferences.DEFAULT_FIRST_CHOICE_PYTHON_SOURCE_FILE);
 
         //imports
         node.putBoolean(ImportsPreferencesPage.GROUP_IMPORTS, ImportsPreferencesPage.DEFAULT_GROUP_IMPORTS);
@@ -312,18 +310,18 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.putInt(PySourceLocatorPrefs.FILE_CONTENTS_TIMEOUT, PySourceLocatorPrefs.DEFAULT_FILE_CONTENTS_TIMEOUT);
 
         //general interpreters
-        node.putBoolean(InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER_PY,
-                InterpreterGeneralPreferencesPage.DEFAULT_NOTIFY_NO_INTERPRETER_PY);
-        node.putBoolean(InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER_JY,
-                InterpreterGeneralPreferencesPage.DEFAULT_NOTIFY_NO_INTERPRETER_JY);
-        node.putBoolean(InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER_IP,
-                InterpreterGeneralPreferencesPage.DEFAULT_NOTIFY_NO_INTERPRETER_IP);
+        node.putBoolean(InterpreterGeneralPreferences.NOTIFY_NO_INTERPRETER_PY,
+                InterpreterGeneralPreferences.DEFAULT_NOTIFY_NO_INTERPRETER_PY);
+        node.putBoolean(InterpreterGeneralPreferences.NOTIFY_NO_INTERPRETER_JY,
+                InterpreterGeneralPreferences.DEFAULT_NOTIFY_NO_INTERPRETER_JY);
+        node.putBoolean(InterpreterGeneralPreferences.NOTIFY_NO_INTERPRETER_IP,
+                InterpreterGeneralPreferences.DEFAULT_NOTIFY_NO_INTERPRETER_IP);
 
-        node.putBoolean(InterpreterGeneralPreferencesPage.CHECK_CONSISTENT_ON_STARTUP,
-                InterpreterGeneralPreferencesPage.DEFAULT_CHECK_CONSISTENT_ON_STARTUP);
+        node.putBoolean(InterpreterGeneralPreferences.CHECK_CONSISTENT_ON_STARTUP,
+                InterpreterGeneralPreferences.DEFAULT_CHECK_CONSISTENT_ON_STARTUP);
 
-        node.putBoolean(InterpreterGeneralPreferencesPage.UPDATE_INTERPRETER_INFO_ON_FILESYSTEM_CHANGES,
-                InterpreterGeneralPreferencesPage.DEFAULT_UPDATE_INTERPRETER_INFO_ON_FILESYSTEM_CHANGES);
+        node.putBoolean(InterpreterGeneralPreferences.UPDATE_INTERPRETER_INFO_ON_FILESYSTEM_CHANGES,
+                InterpreterGeneralPreferences.DEFAULT_UPDATE_INTERPRETER_INFO_ON_FILESYSTEM_CHANGES);
 
         //save actions
         node.putBoolean(PydevSaveActionsPrefPage.SORT_IMPORTS_ON_SAVE,

@@ -17,7 +17,7 @@ import java.util.Map.Entry;
 
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.shared_core.structure.Tuple;
 
 public class ManagerInfoToUpdate {
@@ -48,7 +48,7 @@ public class ManagerInfoToUpdate {
      * interpreter (as this information may be just part of what's in the settings).
      */
     public boolean somethingChanged() {
-        ManagerInfoToUpdate currentInfoInSettings = new ManagerInfoToUpdate(PydevPlugin
+        ManagerInfoToUpdate currentInfoInSettings = new ManagerInfoToUpdate(InterpreterManagersAPI
                 .getInterpreterManagerToInterpreterNameToInfo());
 
         int len = managerAndInfos.length;

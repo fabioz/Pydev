@@ -21,6 +21,7 @@ import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
@@ -32,7 +33,6 @@ import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Name;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.structure.Location;
@@ -114,7 +114,7 @@ public class PyRefactoringFindDefinition {
         //might turn out a little tricky.
         if (request.nature == null) {
             //the request is not associated to any project. It is probably a system file. So, let's check it...
-            Tuple<IPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(request.file);
+            Tuple<IPythonNature, String> infoForFile = InterpreterManagersAPI.getInfoForFile(request.file);
             if (infoForFile != null) {
                 modName = infoForFile.o2;
                 request.nature = infoForFile.o1;
