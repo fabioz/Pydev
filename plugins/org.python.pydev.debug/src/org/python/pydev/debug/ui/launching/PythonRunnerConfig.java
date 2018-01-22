@@ -187,21 +187,6 @@ public class PythonRunnerConfig {
         }
     }
 
-    /**
-     * Parses the argument text into an array of individual
-     * strings using the space character as the delimiter.
-     * An individual argument containing spaces must have a
-     * double quote (") at the start and end. Two double
-     * quotes together is taken to mean an embedded double
-     * quote in the argument text.
-     *
-     * @param arguments the arguments as one string
-     * @return the array of arguments
-     */
-    public static String[] parseStringIntoList(String arguments) {
-        return ProcessUtils.parseArguments(arguments);
-    }
-
     private static StringSubstitution getStringSubstitution(IPythonNature nature) {
         return new StringSubstitution(nature);
     }
@@ -791,7 +776,7 @@ public class PythonRunnerConfig {
             if (actualRun && arguments != null) {
                 String expanded = getStringSubstitution(PythonNature.getPythonNature(project))
                         .performStringSubstitution(arguments);
-                runArguments = parseStringIntoList(expanded);
+                runArguments = ProcessUtils.parseArguments(expanded);
             }
 
             for (int i = 0; runArguments != null && i < runArguments.length; i++) {
@@ -870,8 +855,9 @@ public class PythonRunnerConfig {
                         if (e instanceof CoreException) {
                             throw (CoreException) e;
                         }
-                        throw new CoreException(SharedCorePlugin.makeStatus(IStatus.ERROR, "Error writing to: " + tempFile,
-                                e));
+                        throw new CoreException(
+                                SharedCorePlugin.makeStatus(IStatus.ERROR, "Error writing to: " + tempFile,
+                                        e));
                     }
                     cmdArgs.add(tempFile.toString());
                 } else {
@@ -936,8 +922,8 @@ public class PythonRunnerConfig {
             }
 
             //Last thing: nose parameters or parameters the user configured.
-            for (String s : parseStringIntoList(PyUnitPrefsPage2.getTestRunnerParameters(this.configuration,
-                    this.project))) {
+            for (String s : ProcessUtils.parseArguments(PyUnitPrefsPage2.getTestRunnerParameters(this.configuration,
+            this.project))) {
                 cmdArgs.add(s);
             }
         }
@@ -1017,7 +1003,7 @@ public class PythonRunnerConfig {
         if (args != null && args.trim().length() > 0) {
             String expanded = getStringSubstitution(PythonNature.getPythonNature(project)).performStringSubstitution(
                     args);
-            return parseStringIntoList(expanded);
+            return ProcessUtils.parseArguments(expanded);
         }
         return null;
     }

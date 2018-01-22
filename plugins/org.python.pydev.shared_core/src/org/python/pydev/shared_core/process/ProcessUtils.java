@@ -241,6 +241,13 @@ public class ProcessUtils {
      * <code>DebugPlugin.exec(String[], File)</code>. Embedded quotes and slashes
      * are escaped.
      *
+     * Parses the argument text into an array of individual
+     * strings using the space character as the delimiter.
+     * An individual argument containing spaces must have a
+     * double quote (") at the start and end. Two double
+     * quotes together is taken to mean an embedded double
+     * quote in the argument text.
+     *
      * @param args command line arguments as a single string
      * @return individual arguments
      * @since 3.1

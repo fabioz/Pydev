@@ -25,7 +25,7 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
+import org.python.pydev.shared_core.process.ProcessUtils;
 import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;
 import org.python.pydev.shared_ui.field_editors.LinkFieldEditor;
 import org.python.pydev.shared_ui.field_editors.RadioGroupFieldEditor;
@@ -223,7 +223,7 @@ public class AnalysisPreferencesPage extends ScopedFieldEditorPreferencePage imp
     }
 
     public static String[] getPep8CommandLine(IAdaptable projectAdaptable) {
-        return PythonRunnerConfig.parseStringIntoList(getPep8CommandLineAsStr(projectAdaptable));
+        return ProcessUtils.parseArguments(getPep8CommandLineAsStr(projectAdaptable));
     }
 
     public static String getPep8CommandLineAsStr(IAdaptable projectAdaptable) {

@@ -20,8 +20,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.editors,
  org.eclipse.search,
  org.eclipse.ui.ide,
- org.python.pydev.jython;bundle-version="[6.3.0,6.3.1)",
- org.python.pydev.debug;bundle-version="[6.3.0,6.3.1)"
+ org.python.pydev.jython;bundle-version="[6.3.0,6.3.1)"
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: analysis.jar
 Export-Package: com.python.pydev.analysis,
