@@ -37,6 +37,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.editor.codecompletion.revisited.ManagerInfoToUpdate;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.SyncSystemModulesManagerScheduler;
@@ -112,9 +113,9 @@ public class SyncSystemModulesManagerTest extends TestCase {
         FileUtils.IN_TESTS = true;
         ProjectModulesManager.IN_TESTS = true;
 
-        PydevPlugin.setPythonInterpreterManager(null);
-        PydevPlugin.setIronpythonInterpreterManager(null);
-        PydevPlugin.setJythonInterpreterManager(null);
+        InterpreterManagersAPI.setPythonInterpreterManager(null);
+        InterpreterManagersAPI.setIronpythonInterpreterManager(null);
+        InterpreterManagersAPI.setJythonInterpreterManager(null);
 
     }
 
@@ -138,7 +139,7 @@ public class SyncSystemModulesManagerTest extends TestCase {
 
         IPreferenceStore preferences = createPreferenceStore();
         final PythonInterpreterManager manager = new PythonInterpreterManager(preferences);
-        PydevPlugin.setPythonInterpreterManager(manager);
+        InterpreterManagersAPI.setPythonInterpreterManager(manager);
         manager.setInfos(new IInterpreterInfo[] { info }, null, null);
 
         AdditionalSystemInterpreterInfo additionalInfo = new AdditionalSystemInterpreterInfo(manager,
@@ -207,7 +208,7 @@ public class SyncSystemModulesManagerTest extends TestCase {
         selectElements.addAll(root.flattenChildren());
         synchManager.applySelectedChangesToInterpreterInfosPythonpath(root, selectElements, null);
 
-        List<IInterpreterInfo> allInterpreterInfos = PydevPlugin.getAllInterpreterInfos();
+        List<IInterpreterInfo> allInterpreterInfos = InterpreterManagersAPI.getAllInterpreterInfos();
         for (IInterpreterInfo interpreterInfo : allInterpreterInfos) {
             assertEquals(4, interpreterInfo.getModulesManager().getSize(false));
 
@@ -331,7 +332,7 @@ public class SyncSystemModulesManagerTest extends TestCase {
         selectElements.addAll(root.flattenChildren());
         synchManager.applySelectedChangesToInterpreterInfosPythonpath(root, selectElements, null);
 
-        List<IInterpreterInfo> allInterpreterInfos = PydevPlugin.getAllInterpreterInfos();
+        List<IInterpreterInfo> allInterpreterInfos = InterpreterManagersAPI.getAllInterpreterInfos();
         for (IInterpreterInfo interpreterInfo : allInterpreterInfos) {
             assertEquals(5, interpreterInfo.getModulesManager().getSize(false));
         }

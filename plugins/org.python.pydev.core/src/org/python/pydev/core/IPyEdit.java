@@ -19,7 +19,8 @@ import org.python.pydev.shared_core.parsing.IParserObserver;
 /**
  * @author Fabio
  */
-public interface IPyEdit extends IParserObserver, IBaseEditor, IPyFormatStdProvider, IGrammarVersionProvider {
+public interface IPyEdit extends IParserObserver, IBaseEditor, IPyFormatStdProvider, IGrammarVersionProvider,
+        IPyEditOfflineActionListener {
 
     /**
      * @return the python nature used in this editor

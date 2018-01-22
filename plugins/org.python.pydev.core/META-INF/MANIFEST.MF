@@ -28,6 +28,10 @@ Export-Package: org.python.copiedfromeclipsesrc,
  org.python.pydev.core.partition,
  org.python.pydev.core.performanceeval,
  org.python.pydev.core.structure,
+ org.python.pydev.logging,
+ org.python.pydev.plugin.nature,
  org.python.pydev.plugin.preferences,
- org.python.pydev.shared_interactive_console.console.ui
+ org.python.pydev.shared_interactive_console.console.ui,
+ org.python.pydev.ui.interpreters,
+ org.python.pydev.ui.pythonpathconf
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

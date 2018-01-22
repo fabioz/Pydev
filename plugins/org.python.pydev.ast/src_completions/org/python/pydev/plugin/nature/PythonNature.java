@@ -16,7 +16,6 @@ import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -26,7 +25,6 @@ import java.util.Map;
 import org.eclipse.core.internal.resources.Project;
 import org.eclipse.core.internal.resources.ProjectInfo;
 import org.eclipse.core.resources.ICommand;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IProjectNature;
@@ -38,13 +36,9 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.part.FileEditorInput;
-import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IGrammarVersionProvider;
@@ -58,13 +52,14 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ProjectMisconfiguredException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
-import org.python.pydev.navigator.elements.ProjectConfigError;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.preferences.PyDevBuilderPreferences;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.global_feedback.GlobalFeedback;
 import org.python.pydev.shared_core.global_feedback.GlobalFeedback.GlobalFeedbackReporter;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -279,7 +274,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     static QualifiedName getPythonProjectVersionQualifiedName() {
         if (pythonProjectVersion == null) {
             //we need to do this because the plugin ID may not be known on 'static' time
-            pythonProjectVersion = new QualifiedName(PydevPlugin.getPluginID(), "PYTHON_PROJECT_VERSION");
+            pythonProjectVersion = new QualifiedName(SharedCorePlugin.PYDEV_PLUGIN_ID, "PYTHON_PROJECT_VERSION");
         }
         return pythonProjectVersion;
     }
@@ -292,7 +287,8 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     static QualifiedName getPythonProjectInterpreterQualifiedName() {
         if (pythonProjectInterpreter == null) {
             //we need to do this because the plugin ID may not be known on 'static' time
-            pythonProjectInterpreter = new QualifiedName(PydevPlugin.getPluginID(), "PYTHON_PROJECT_INTERPRETER");
+            pythonProjectInterpreter = new QualifiedName(SharedCorePlugin.PYDEV_PLUGIN_ID,
+                    "PYTHON_PROJECT_INTERPRETER");
         }
         return pythonProjectInterpreter;
     }
@@ -305,7 +301,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     static QualifiedName getPythonAdditionalGrammarValidationQualifiedName() {
         if (pythonAdditionalGrammarValidation == null) {
             //we need to do this because the plugin ID may not be known on 'static' time
-            pythonAdditionalGrammarValidation = new QualifiedName(PydevPlugin.getPluginID(),
+            pythonAdditionalGrammarValidation = new QualifiedName(SharedCorePlugin.PYDEV_PLUGIN_ID,
                     "PYTHON_ADDITIONAL_GRAMMAR_VALIDATION");
         }
         return pythonAdditionalGrammarValidation;
@@ -314,7 +310,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     @Override
     public boolean isResourceInPythonpathProjectSources(IResource resource, boolean addExternal)
             throws MisconfigurationException, CoreException {
-        String resourceOSString = PydevPlugin.getIResourceOSString(resource);
+        String resourceOSString = InterpreterManagersAPI.getIResourceOSString(resource);
         if (resourceOSString == null) {
             return false;
         }
@@ -332,7 +328,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     public String resolveModuleOnlyInProjectSources(IResource fileAbsolutePath, boolean addExternal)
             throws CoreException, MisconfigurationException {
 
-        String resourceOSString = PydevPlugin.getIResourceOSString(fileAbsolutePath);
+        String resourceOSString = InterpreterManagersAPI.getIResourceOSString(fileAbsolutePath);
         if (resourceOSString == null) {
             return null;
         }
@@ -383,20 +379,6 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             this.clearCaches(false);
         }
 
-    }
-
-    public static IPythonNature addNature(IEditorInput element) {
-        if (element instanceof FileEditorInput) {
-            IFile file = ((FileEditorInput) element).getAdapter(IFile.class);
-            if (file != null) {
-                try {
-                    return PythonNature.addNature(file.getProject(), null, null, null, null, null, null);
-                } catch (CoreException e) {
-                    Log.log(e);
-                }
-            }
-        }
-        return null;
     }
 
     /**
@@ -521,7 +503,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 ICommand[] commands = desc.getBuildSpec();
 
                 //now, add the builder if it still hasn't been added.
-                if (hasBuilder(commands) == false && PyDevBuilderPrefPage.usePydevBuilders()) {
+                if (hasBuilder(commands) == false && PyDevBuilderPreferences.usePydevBuilders()) {
 
                     ICommand command = desc.newCommand();
                     command.setBuilderName(BUILDER_ID);
@@ -708,7 +690,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * @return
      */
     private File getCompletionsCacheDir(IProject p) {
-        IPath path = p.getWorkingLocation(PydevPlugin.getPluginID());
+        IPath path = p.getWorkingLocation(SharedCorePlugin.PYDEV_PLUGIN_ID);
 
         if (path == null) {
             //this can happen if the project was removed.
@@ -869,7 +851,8 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         return getVersionAndError(translateIfInterpreter).o1;
     }
 
-    private Tuple<String, String> getVersionAndError(boolean translateIfInterpreter) throws CoreException {
+    @Override
+    public Tuple<String, String> getVersionAndError(boolean translateIfInterpreter) throws CoreException {
         if (project != null) {
             if (versionPropertyCache == null) {
                 String storeVersion = getStore().getPropertyFromXml(getPythonProjectVersionQualifiedName());
@@ -1136,13 +1119,13 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             int interpreterType = getInterpreterType();
             switch (interpreterType) {
                 case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
-                    return PydevPlugin.getPythonInterpreterManager();
+                    return InterpreterManagersAPI.getPythonInterpreterManager();
 
                 case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
-                    return PydevPlugin.getJythonInterpreterManager();
+                    return InterpreterManagersAPI.getJythonInterpreterManager();
 
                 case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
-                    return PydevPlugin.getIronpythonInterpreterManager();
+                    return InterpreterManagersAPI.getIronpythonInterpreterManager();
 
                 default:
                     throw new RuntimeException("Unable to find the related interpreter manager for type: "
@@ -1398,81 +1381,6 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             }
         }
         return interpreterPropertyCache;
-    }
-
-    /**
-     * @return a list of configuration errors and the interpreter info for the project (the interpreter info can be null)
-     * @throws PythonNatureWithoutProjectException
-     */
-    public Tuple<List<ProjectConfigError>, IInterpreterInfo> getConfigErrorsAndInfo(final IProject relatedToProject)
-            throws PythonNatureWithoutProjectException {
-        if (IN_TESTS) {
-            return new Tuple<List<ProjectConfigError>, IInterpreterInfo>(new ArrayList<ProjectConfigError>(), null);
-        }
-        ArrayList<ProjectConfigError> lst = new ArrayList<ProjectConfigError>();
-        if (this.project == null) {
-            lst.add(new ProjectConfigError(relatedToProject, "The configured nature has no associated project."));
-        }
-        IInterpreterInfo info = null;
-        try {
-            info = this.getProjectInterpreter();
-
-            String executableOrJar = info.getExecutableOrJar();
-            //Ok, if the user did a quick config, it's possible that the final executable is simply 'python', so,
-            //in this case, don't check if it actually exists (as it's found on the PATH).
-            //Note: this happened after we let the user keep the original name instead of getting it from the
-            //interpreterInfo.py output.
-            if (executableOrJar.contains("/") || executableOrJar.contains("\\")) {
-                if (!new File(executableOrJar).exists()) {
-                    lst.add(new ProjectConfigError(relatedToProject,
-                            "The interpreter configured does not exist in the filesystem: " + executableOrJar));
-                }
-            }
-
-            List<String> projectSourcePathSet = new ArrayList<String>(this.getPythonPathNature()
-                    .getProjectSourcePathSet(true));
-            Collections.sort(projectSourcePathSet);
-            IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-
-            for (String path : projectSourcePathSet) {
-                if (path.trim().length() > 0) {
-                    IPath p = new Path(path);
-                    IResource resource = root.findMember(p);
-                    if (resource == null) {
-                        relatedToProject.refreshLocal(p.segmentCount(), null);
-                        resource = root.findMember(p); //2nd attempt (after refresh)
-                    }
-                    if (resource == null || !resource.exists()) {
-                        lst.add(new ProjectConfigError(relatedToProject, "Source folder: " + path + " not found"));
-                    }
-                }
-            }
-
-            List<String> externalPaths = this.getPythonPathNature().getProjectExternalSourcePathAsList(true);
-            Collections.sort(externalPaths);
-            for (String path : externalPaths) {
-                if (!new File(path).exists()) {
-                    lst.add(new ProjectConfigError(relatedToProject, "Invalid external source folder specified: "
-                            + path));
-                }
-            }
-
-            Tuple<String, String> versionAndError = getVersionAndError(true);
-            if (versionAndError.o2 != null) {
-                lst.add(new ProjectConfigError(relatedToProject, org.python.pydev.shared_core.string.StringUtils
-                        .replaceNewLines(versionAndError.o2, " ")));
-            }
-
-        } catch (MisconfigurationException e) {
-            lst.add(new ProjectConfigError(relatedToProject, org.python.pydev.shared_core.string.StringUtils
-                    .replaceNewLines(e.getMessage(), " ")));
-
-        } catch (Throwable e) {
-            lst.add(new ProjectConfigError(relatedToProject, org.python.pydev.shared_core.string.StringUtils
-                    .replaceNewLines(
-                            "Unexpected error:" + e.getMessage(), " ")));
-        }
-        return new Tuple<List<ProjectConfigError>, IInterpreterInfo>(lst, info);
     }
 
     @Override

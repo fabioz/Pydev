@@ -14,17 +14,20 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev.core,
  org.eclipse.text,
  org.python.pydev.parser,
- org.python.pydev.shared_ui
+ org.python.pydev.shared_ui,
+ org.eclipse.core.variables
 Bundle-ActivationPolicy: lazy
 Export-Package: org.python.pydev.ast,
  org.python.pydev.ast.management,
  org.python.pydev.editor.codecompletion,
  org.python.pydev.editor.codecompletion.revisited,
- org.python.pydev.editor.codecompletion.revisited.javaintegration,
  org.python.pydev.editor.codecompletion.revisited.modules,
  org.python.pydev.editor.codecompletion.revisited.visitors,
  org.python.pydev.editor.codecompletion.shell,
  org.python.pydev.editor.codecompletion.templates,
- org.python.pydev.editor.simpleassist
+ org.python.pydev.editor.refactoring,
+ org.python.pydev.editor.simpleassist,
+ org.python.pydev.plugin.nature,
+ org.python.pydev.ui.pythonpathconf
 Bundle-Vendor: Brainwy Software Ltda
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

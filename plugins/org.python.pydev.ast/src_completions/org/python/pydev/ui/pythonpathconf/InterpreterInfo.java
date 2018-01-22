@@ -63,7 +63,7 @@ import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.PlatformUtils;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
-import org.python.pydev.ui.pythonpathconf.AbstractInterpreterEditor.CancelException;
+import org.python.pydev.utils.CancelException;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;

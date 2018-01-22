@@ -16,10 +16,10 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.interpreters.IronpythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
@@ -30,7 +30,7 @@ public class IronPythonCodeCompletionTestsBase extends CodeCompletionTestsBase {
 
     @Override
     protected IInterpreterManager getInterpreterManager() {
-        return PydevPlugin.getIronpythonInterpreterManager();
+        return InterpreterManagersAPI.getIronpythonInterpreterManager();
     }
 
     @Override
@@ -47,7 +47,7 @@ public class IronPythonCodeCompletionTestsBase extends CodeCompletionTestsBase {
         }
 
         interpreterManager.setInfos(new IInterpreterInfo[] { info }, null, null);
-        PydevPlugin.setIronpythonInterpreterManager(interpreterManager);
+        InterpreterManagersAPI.setIronpythonInterpreterManager(interpreterManager);
     }
 
     @Override

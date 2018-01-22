@@ -6,7 +6,9 @@
  */
 package org.python.pydev.navigator;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -15,11 +17,18 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.python.pydev.core.IInterpreterInfo;
+import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.navigator.elements.ProjectConfigError;
@@ -146,7 +155,7 @@ public class ProjectInfoForPackageExplorer {
 
     /**
      * Do the update of the markers in a separate job so that we don't do that in the ui-thread.
-     * 
+     *
      * See: #PyDev-88: Eclipse freeze on project import and project creation (presumable cause: virtualenvs as custom interpreters)
      */
     private static final class UpdatePydevPackageExplorerProblemMarkers extends Job {
@@ -213,7 +222,7 @@ public class ProjectInfoForPackageExplorer {
 
     /**
      * Never returns null.
-     * 
+     *
      * This method should only be called through recreateInfo.
      */
     private Tuple<List<ProjectConfigError>, IInterpreterInfo> getConfigErrorsAndInfo(IProject project) {
@@ -231,7 +240,7 @@ public class ProjectInfoForPackageExplorer {
         boolean goodToGo = false;
         for (int i = 0; i < 10 && !goodToGo; i++) {
             try {
-                configErrorsAndInfo = nature.getConfigErrorsAndInfo(project);
+                configErrorsAndInfo = getConfigErrorsAndInfo(nature, project);
                 goodToGo = true;
             } catch (PythonNatureWithoutProjectException e1) {
                 goodToGo = false;
@@ -263,6 +272,82 @@ public class ProjectInfoForPackageExplorer {
         }
 
         return configErrorsAndInfo;
+    }
+
+    /**
+     * @return a list of configuration errors and the interpreter info for the project (the interpreter info can be null)
+     * @throws PythonNatureWithoutProjectException
+     */
+    public Tuple<List<ProjectConfigError>, IInterpreterInfo> getConfigErrorsAndInfo(IPythonNature nature,
+            final IProject relatedToProject)
+            throws PythonNatureWithoutProjectException {
+        if (PythonNature.IN_TESTS) {
+            return new Tuple<List<ProjectConfigError>, IInterpreterInfo>(new ArrayList<ProjectConfigError>(), null);
+        }
+        ArrayList<ProjectConfigError> lst = new ArrayList<ProjectConfigError>();
+        if (nature.getProject() == null) {
+            lst.add(new ProjectConfigError(relatedToProject, "The configured nature has no associated project."));
+        }
+        IInterpreterInfo info = null;
+        try {
+            info = nature.getProjectInterpreter();
+
+            String executableOrJar = info.getExecutableOrJar();
+            //Ok, if the user did a quick config, it's possible that the final executable is simply 'python', so,
+            //in this case, don't check if it actually exists (as it's found on the PATH).
+            //Note: this happened after we let the user keep the original name instead of getting it from the
+            //interpreterInfo.py output.
+            if (executableOrJar.contains("/") || executableOrJar.contains("\\")) {
+                if (!new File(executableOrJar).exists()) {
+                    lst.add(new ProjectConfigError(relatedToProject,
+                            "The interpreter configured does not exist in the filesystem: " + executableOrJar));
+                }
+            }
+
+            List<String> projectSourcePathSet = new ArrayList<String>(nature.getPythonPathNature()
+                    .getProjectSourcePathSet(true));
+            Collections.sort(projectSourcePathSet);
+            IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+
+            for (String path : projectSourcePathSet) {
+                if (path.trim().length() > 0) {
+                    IPath p = new Path(path);
+                    IResource resource = root.findMember(p);
+                    if (resource == null) {
+                        relatedToProject.refreshLocal(p.segmentCount(), null);
+                        resource = root.findMember(p); //2nd attempt (after refresh)
+                    }
+                    if (resource == null || !resource.exists()) {
+                        lst.add(new ProjectConfigError(relatedToProject, "Source folder: " + path + " not found"));
+                    }
+                }
+            }
+
+            List<String> externalPaths = nature.getPythonPathNature().getProjectExternalSourcePathAsList(true);
+            Collections.sort(externalPaths);
+            for (String path : externalPaths) {
+                if (!new File(path).exists()) {
+                    lst.add(new ProjectConfigError(relatedToProject, "Invalid external source folder specified: "
+                            + path));
+                }
+            }
+
+            Tuple<String, String> versionAndError = nature.getVersionAndError(true);
+            if (versionAndError.o2 != null) {
+                lst.add(new ProjectConfigError(relatedToProject, org.python.pydev.shared_core.string.StringUtils
+                        .replaceNewLines(versionAndError.o2, " ")));
+            }
+
+        } catch (MisconfigurationException e) {
+            lst.add(new ProjectConfigError(relatedToProject, org.python.pydev.shared_core.string.StringUtils
+                    .replaceNewLines(e.getMessage(), " ")));
+
+        } catch (Throwable e) {
+            lst.add(new ProjectConfigError(relatedToProject, org.python.pydev.shared_core.string.StringUtils
+                    .replaceNewLines(
+                            "Unexpected error:" + e.getMessage(), " ")));
+        }
+        return new Tuple<List<ProjectConfigError>, IInterpreterInfo>(lst, info);
     }
 
 }

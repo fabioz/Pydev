@@ -38,6 +38,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PyCodeCompletionVisitor;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.plugin.preferences.PyDevBuilderPreferences;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.utils.PyFileListing;
@@ -86,7 +87,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
     @Override
     protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor) throws CoreException {
 
-        if (PyDevBuilderPrefPage.usePydevBuilders() == false) {
+        if (PyDevBuilderPreferences.usePydevBuilders() == false) {
             return null;
         }
 

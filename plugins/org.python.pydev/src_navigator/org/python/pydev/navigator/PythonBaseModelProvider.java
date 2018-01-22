@@ -65,6 +65,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -737,7 +738,7 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
                                     //ok, something strange happened... it shouldn't be null... maybe empty, but not null at this point
                                     //so, if it exists, let's try to create it...
                                     //TODO: This should be moved to somewhere else.
-                                    String resourceOSString = PydevPlugin.getIResourceOSString(file.getActualObject());
+                                    String resourceOSString = InterpreterManagersAPI.getIResourceOSString(file.getActualObject());
                                     if (resourceOSString != null) {
                                         File f = new File(resourceOSString);
                                         if (f.exists()) {

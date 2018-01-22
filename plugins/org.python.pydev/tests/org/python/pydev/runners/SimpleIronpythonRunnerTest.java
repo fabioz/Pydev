@@ -13,6 +13,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.editor.codecompletion.revisited.IronpythonInterpreterManagerStub;
 import org.python.pydev.editor.codecompletion.revisited.jython.JythonCodeCompletionTestsBase;
 import org.python.pydev.plugin.PydevPlugin;
@@ -26,7 +27,7 @@ public class SimpleIronpythonRunnerTest extends JythonCodeCompletionTestsBase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        PydevPlugin.setIronpythonInterpreterManager(new IronpythonInterpreterManagerStub(getPreferences()));
+        InterpreterManagersAPI.setIronpythonInterpreterManager(new IronpythonInterpreterManagerStub(getPreferences()));
 
     }
 

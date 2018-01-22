@@ -31,6 +31,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils;
@@ -240,7 +241,7 @@ public class CodeCompletionTestsBase extends TestCase {
      * @return the pydev interpreter manager we are testing
      */
     protected IInterpreterManager getInterpreterManager() {
-        return PydevPlugin.getPythonInterpreterManager();
+        return InterpreterManagersAPI.getPythonInterpreterManager();
     }
 
     protected static int GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.LATEST_GRAMMAR_VERSION;
@@ -354,7 +355,7 @@ public class CodeCompletionTestsBase extends TestCase {
         }
 
         interpreterManager.setInfos(new IInterpreterInfo[] { info }, null, null);
-        PydevPlugin.setPythonInterpreterManager(interpreterManager);
+        InterpreterManagersAPI.setPythonInterpreterManager(interpreterManager);
     }
 
     /**

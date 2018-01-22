@@ -6,7 +6,7 @@
  */
 /*
  * Created on Jun 2, 2005
- * 
+ *
  * @author Fabio Zadrozny
  */
 package org.python.pydev.plugin.nature;
@@ -37,7 +37,6 @@ import org.python.pydev.core.PropertiesHelper;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.docutils.StringSubstitution;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -59,7 +58,7 @@ public class PythonPathNature implements IPythonPathNature {
 
     static QualifiedName getProjectSourcePathQualifiedName() {
         if (projectSourcePathQualifiedName == null) {
-            projectSourcePathQualifiedName = new QualifiedName(PydevPlugin.getPluginID(), "PROJECT_SOURCE_PATH");
+            projectSourcePathQualifiedName = new QualifiedName(SharedCorePlugin.PYDEV_PLUGIN_ID, "PROJECT_SOURCE_PATH");
         }
         return projectSourcePathQualifiedName;
     }
@@ -71,7 +70,7 @@ public class PythonPathNature implements IPythonPathNature {
 
     static QualifiedName getProjectExternalSourcePathQualifiedName() {
         if (projectExternalSourcePathQualifiedName == null) {
-            projectExternalSourcePathQualifiedName = new QualifiedName(PydevPlugin.getPluginID(),
+            projectExternalSourcePathQualifiedName = new QualifiedName(SharedCorePlugin.PYDEV_PLUGIN_ID,
                     "PROJECT_EXTERNAL_SOURCE_PATH");
         }
         return projectExternalSourcePathQualifiedName;
@@ -84,7 +83,7 @@ public class PythonPathNature implements IPythonPathNature {
 
     static QualifiedName getProjectVariableSubstitutionQualifiedName() {
         if (projectVariableSubstitutionQualifiedName == null) {
-            projectVariableSubstitutionQualifiedName = new QualifiedName(PydevPlugin.getPluginID(),
+            projectVariableSubstitutionQualifiedName = new QualifiedName(SharedCorePlugin.PYDEV_PLUGIN_ID,
                     "PROJECT_VARIABLE_SUBSTITUTION");
         }
         return projectVariableSubstitutionQualifiedName;
@@ -105,7 +104,7 @@ public class PythonPathNature implements IPythonPathNature {
 
     /**
      * Returns a list of paths with the complete pythonpath for this nature.
-     * 
+     *
      * This includes the pythonpath for the project, all the referenced projects and the
      * system.
      */
@@ -264,9 +263,9 @@ public class PythonPathNature implements IPythonPathNature {
 
     /**
      * Gets the source path contributed by plugins.
-     * 
+     *
      * See: http://sourceforge.net/tracker/index.php?func=detail&aid=1988084&group_id=85796&atid=577329
-     * 
+     *
      * @throws CoreException
      */
     @SuppressWarnings("unchecked")
@@ -345,13 +344,13 @@ public class PythonPathNature implements IPythonPathNature {
     /**
      * Function which can take care of getting the paths just for the project (i.e.: without external
      * source folders).
-     * 
+     *
      * @param replace used only if returnType == RETURN_STRING_WITH_SEPARATOR.
-     * 
+     *
      * @param substitution the object which will do the string substitutions (only internally used as an optimization as
      * creating the instance may be expensive, so, if some other place already creates it, it can be passed along).
-     * 
-     * @param returnType if RETURN_STRING_WITH_SEPARATOR returns a string using '|' as the separator. 
+     *
+     * @param returnType if RETURN_STRING_WITH_SEPARATOR returns a string using '|' as the separator.
      * If RETURN_MAP_RESOLVED_TO_UNRESOLVED returns a map which points from the paths resolved to the maps unresolved.
      */
     private Object getProjectSourcePath(boolean replace, StringSubstitution substitution, int returnType)
@@ -386,7 +385,7 @@ public class PythonPathNature implements IPythonPathNature {
             substitution = new StringSubstitution(fNature);
         }
 
-        //we have to validate it, because as we store the values relative to the workspace, and not to the 
+        //we have to validate it, because as we store the values relative to the workspace, and not to the
         //project, the path may become invalid (in which case we have to make it compatible again).
         StringBuffer buffer = new StringBuffer();
         List<String> paths = StringUtils.splitAndRemoveEmptyTrimmed(projectSourcePath, '|');

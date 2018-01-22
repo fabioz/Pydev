@@ -22,7 +22,7 @@ import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.process.ProcessUtils;
@@ -116,7 +116,7 @@ public class SimpleJythonRunner extends SimpleRunner {
     public static String[] makeExecutableCommandStrWithVMArgs(String jythonJar, String script, String basePythonPath,
             String vmArgs, String... args) throws IOException, JDTNotAvailableException, MisconfigurationException {
 
-        IInterpreterManager interpreterManager = PydevPlugin.getJythonInterpreterManager();
+        IInterpreterManager interpreterManager = InterpreterManagersAPI.getJythonInterpreterManager();
         String javaLoc = JavaVmLocationFinder.findDefaultJavaExecutable().getCanonicalPath();
 
         File file = new File(javaLoc);

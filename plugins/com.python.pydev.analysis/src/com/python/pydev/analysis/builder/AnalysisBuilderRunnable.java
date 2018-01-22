@@ -20,7 +20,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.builder.pylint.IPyLintVisitor;
 import org.python.pydev.builder.pylint.PyLintVisitorFactory;
@@ -34,6 +33,7 @@ import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.correctionassist.CheckAnalysisErrors;
 import org.python.pydev.logging.DebugSettings;
+import org.python.pydev.plugin.preferences.PyDevBuilderPreferences;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_ui.log.ToLogFile;
 import org.python.pydev.shared_ui.utils.PyMarkerUtils;
@@ -132,7 +132,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
         // So, this process is now synchronous (just the code-analysis is done in a thread now).
         try {
             onlyRecreateCtxInsensitiveInfo = !forceAnalysis && analysisCause == ANALYSIS_CAUSE_BUILDER
-                    && PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor();
+                    && PyDevBuilderPreferences.getAnalyzeOnlyActiveEditor();
 
             if (!onlyRecreateCtxInsensitiveInfo) {
                 //if not a source folder, we'll just want to recreate the context insensitive information
@@ -287,11 +287,11 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
 
             //don't stop after setting to add / remove the markers
             if (r != null) {
-                boolean analyzeOnlyActiveEditor = PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor();
+                boolean analyzeOnlyActiveEditor = PyDevBuilderPreferences.getAnalyzeOnlyActiveEditor();
                 if (forceAnalysis
                         || !analyzeOnlyActiveEditor
                         || (analyzeOnlyActiveEditor
-                                && (!PyDevBuilderPrefPage.getRemoveErrorsWhenEditorIsClosed() || PyEdit
+                                && (!PyDevBuilderPreferences.getRemoveErrorsWhenEditorIsClosed() || PyEdit
                                         .isEditorOpenForResource(r)))) {
                     markersFromCodeAnalysis = runner.setMarkers(r, document, messages, this.internalCancelMonitor);
                 } else {

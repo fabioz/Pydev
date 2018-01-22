@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.editor.codecompletion.revisited.PythonInterpreterManagerStub;
 import org.python.pydev.editor.codecompletion.revisited.jython.JythonCodeCompletionTestsBase;
 import org.python.pydev.plugin.PydevPlugin;
@@ -32,13 +33,13 @@ public class SimpleJythonRunnerTest extends JythonCodeCompletionTestsBase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        curr = PydevPlugin.getJythonInterpreterManager();
-        PydevPlugin.setJythonInterpreterManager(new PythonInterpreterManagerStub(getPreferences()));
+        curr = InterpreterManagersAPI.getJythonInterpreterManager();
+        InterpreterManagersAPI.setJythonInterpreterManager(new PythonInterpreterManagerStub(getPreferences()));
     }
 
     @Override
     public void tearDown() throws Exception {
-        PydevPlugin.setJythonInterpreterManager(curr);
+        InterpreterManagersAPI.setJythonInterpreterManager(curr);
     }
 
     public void testRun() throws CoreException, IOException {

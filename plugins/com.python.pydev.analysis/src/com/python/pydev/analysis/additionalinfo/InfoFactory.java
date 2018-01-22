@@ -14,8 +14,8 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.ui.IMemento;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.analysis.actions.AdditionalInfoAndIInfo;
@@ -145,15 +145,15 @@ public class InfoFactory {
                 if (interpreterType != null) {
                     switch (interpreterType) {
                         case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
-                            manager = PydevPlugin.getPythonInterpreterManager();
+                            manager = InterpreterManagersAPI.getPythonInterpreterManager();
                             break;
 
                         case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
-                            manager = PydevPlugin.getJythonInterpreterManager();
+                            manager = InterpreterManagersAPI.getJythonInterpreterManager();
                             break;
 
                         case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
-                            manager = PydevPlugin.getIronpythonInterpreterManager();
+                            manager = InterpreterManagersAPI.getIronpythonInterpreterManager();
                             break;
                     }
 
@@ -164,9 +164,9 @@ public class InfoFactory {
                 Boolean isTagPython = memento.getBoolean(TAG_MANAGER_IS_PYTHON);
                 if (isTagPython != null) {
                     if (isTagPython) {
-                        manager = PydevPlugin.getPythonInterpreterManager();
+                        manager = InterpreterManagersAPI.getPythonInterpreterManager();
                     } else {
-                        manager = PydevPlugin.getJythonInterpreterManager();
+                        manager = InterpreterManagersAPI.getJythonInterpreterManager();
 
                     }
                 }

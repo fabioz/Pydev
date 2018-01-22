@@ -25,9 +25,9 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
@@ -100,7 +100,7 @@ public class PythonRunnerConfigTestWorkbench extends AbstractWorkbenchTestCase {
         variableManager.addVariables(new IValueVariable[] { myCustomVariable });
 
         try {
-            IInterpreterManager manager = PydevPlugin.getPythonInterpreterManager(true);
+            IInterpreterManager manager = InterpreterManagersAPI.getPythonInterpreterManager(true);
             InterpreterInfo info = (InterpreterInfo) manager.getDefaultInterpreterInfo(false);
             info.setEnvVariables(new String[] { "MY_CUSTOM_VAR_FOR_TEST=FOO", "MY_CUSTOM_VAR_FOR_TEST2=FOO2",
                     "MY_CUSTOM_VAR_WITH_VAR=${pydev_python_runner_config_test_var}" });

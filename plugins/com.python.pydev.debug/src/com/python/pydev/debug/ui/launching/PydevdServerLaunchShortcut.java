@@ -16,10 +16,10 @@ import org.eclipse.debug.ui.CommonTab;
 import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.debug.ui.IDebugUIConstants;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.launching.AbstractLaunchShortcut;
 import org.python.pydev.debug.ui.launching.FileOrResource;
-import org.python.pydev.plugin.PydevPlugin;
 
 public class PydevdServerLaunchShortcut extends AbstractLaunchShortcut {
 
@@ -72,7 +72,7 @@ public class PydevdServerLaunchShortcut extends AbstractLaunchShortcut {
 
     @Override
     protected IInterpreterManager getInterpreterManager(IProject project) {
-        return PydevPlugin.getPythonInterpreterManager();
+        return InterpreterManagersAPI.getPythonInterpreterManager();
     }
 
 }

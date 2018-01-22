@@ -42,6 +42,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.docutils.StringSubstitution;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.codecoverage.PyCodeCoverageView;
 import org.python.pydev.debug.codecoverage.PyCoverage;
@@ -416,11 +417,11 @@ public class PythonRunnerConfig {
         envp = launchManager.getEnvironment(conf);
         IInterpreterManager manager;
         if (isJython()) {
-            manager = PydevPlugin.getJythonInterpreterManager();
+            manager = InterpreterManagersAPI.getJythonInterpreterManager();
         } else if (isIronpython()) {
-            manager = PydevPlugin.getIronpythonInterpreterManager();
+            manager = InterpreterManagersAPI.getIronpythonInterpreterManager();
         } else {
-            manager = PydevPlugin.getPythonInterpreterManager();
+            manager = InterpreterManagersAPI.getPythonInterpreterManager();
         }
 
         boolean win32 = PlatformUtils.isWindowsPlatform();
@@ -1046,12 +1047,12 @@ public class PythonRunnerConfig {
 
     public IInterpreterManager getRelatedInterpreterManager() {
         if (isJython()) {
-            return PydevPlugin.getJythonInterpreterManager();
+            return InterpreterManagersAPI.getJythonInterpreterManager();
         }
         if (isIronpython()) {
-            return PydevPlugin.getIronpythonInterpreterManager();
+            return InterpreterManagersAPI.getIronpythonInterpreterManager();
         }
-        return PydevPlugin.getPythonInterpreterManager();
+        return InterpreterManagersAPI.getPythonInterpreterManager();
     }
 
     public PyUnitServer getPyUnitServer() {

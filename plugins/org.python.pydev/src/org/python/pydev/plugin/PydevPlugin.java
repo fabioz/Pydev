@@ -7,9 +7,7 @@
 package org.python.pydev.plugin;
 
 import java.io.File;
-import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -19,7 +17,6 @@ import java.util.ResourceBundle;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -50,9 +47,12 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.AbstractTemplateCodeCompletion;
+import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.SyncSystemModulesManagerScheduler;
+import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaProjectModulesManagerCreator;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.hover.PyEditorTextHoverDescriptor;
 import org.python.pydev.editor.hover.PyHoverPreferencesPage;
@@ -90,7 +90,6 @@ public class PydevPlugin extends AbstractUIPlugin {
         }
     }
 
-    // ----------------- SINGLETON THINGS -----------------------------
     public static IBundleInfo info;
 
     public static IBundleInfo getBundleInfo() {
@@ -102,100 +101,6 @@ public class PydevPlugin extends AbstractUIPlugin {
 
     public static void setBundleInfo(IBundleInfo b) {
         PydevPlugin.info = b;
-    }
-
-    // ----------------- END BUNDLE INFO THINGS --------------------------
-
-    private static IInterpreterManager pythonInterpreterManager;
-
-    public static void setPythonInterpreterManager(IInterpreterManager interpreterManager) {
-        PydevPlugin.pythonInterpreterManager = interpreterManager;
-    }
-
-    public static IInterpreterManager getPythonInterpreterManager() {
-        return getPythonInterpreterManager(false);
-    }
-
-    public static IInterpreterManager getPythonInterpreterManager(boolean haltOnStub) {
-        return pythonInterpreterManager;
-    }
-
-    private static IInterpreterManager jythonInterpreterManager;
-
-    public static void setJythonInterpreterManager(IInterpreterManager interpreterManager) {
-        PydevPlugin.jythonInterpreterManager = interpreterManager;
-    }
-
-    public static IInterpreterManager getJythonInterpreterManager() {
-        return getJythonInterpreterManager(false);
-    }
-
-    public static IInterpreterManager getJythonInterpreterManager(boolean haltOnStub) {
-        return jythonInterpreterManager;
-    }
-
-    private static IInterpreterManager ironpythonInterpreterManager;
-
-    public static void setIronpythonInterpreterManager(IInterpreterManager interpreterManager) {
-        PydevPlugin.ironpythonInterpreterManager = interpreterManager;
-    }
-
-    public static IInterpreterManager getIronpythonInterpreterManager() {
-        return getIronpythonInterpreterManager(false);
-    }
-
-    public static IInterpreterManager getIronpythonInterpreterManager(boolean haltOnStub) {
-        return ironpythonInterpreterManager;
-    }
-
-    public static IInterpreterManager[] getAllInterpreterManagers() {
-        return new IInterpreterManager[] { PydevPlugin.getPythonInterpreterManager(),
-                PydevPlugin.getJythonInterpreterManager(), PydevPlugin.getIronpythonInterpreterManager() };
-    }
-
-    public static List<IInterpreterInfo> getAllInterpreterInfos() {
-        List<IInterpreterInfo> infos = new ArrayList<>();
-        IInterpreterManager[] allInterpreterManagers = getAllInterpreterManagers();
-        for (IInterpreterManager iInterpreterManager : allInterpreterManagers) {
-            if (iInterpreterManager != null) {
-                infos.addAll(Arrays.asList(iInterpreterManager.getInterpreterInfos()));
-            }
-        }
-        return infos;
-    }
-
-    // ----------------- END SINGLETON THINGS --------------------------
-
-    /**
-     * returns the interpreter manager for a given nature
-     * @param nature the nature from where we want to get the associated interpreter manager
-     *
-     * @return the interpreter manager
-     */
-    public static IInterpreterManager getInterpreterManager(IPythonNature nature) {
-        try {
-            return getInterpreterManagerFromType(nature.getInterpreterType());
-        } catch (CoreException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static IInterpreterManager getInterpreterManagerFromType(int interpreterType) {
-        try {
-            switch (interpreterType) {
-                case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
-                    return jythonInterpreterManager;
-                case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
-                    return pythonInterpreterManager;
-                case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
-                    return ironpythonInterpreterManager;
-                default:
-                    throw new RuntimeException("Unable to get the interpreter manager for unknown interpreter type: "
-                            + interpreterType);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private static PydevPlugin plugin; //The shared instance.
@@ -258,6 +163,9 @@ public class PydevPlugin extends AbstractUIPlugin {
 
         };
 
+        ProjectModulesManager.createJavaProjectModulesManagerIfPossible = (
+                IProject project) -> JavaProjectModulesManagerCreator
+                        .createJavaProjectModulesManagerIfPossible(project);
         // End setup extension in dependencies
 
         try {
@@ -273,9 +181,9 @@ public class PydevPlugin extends AbstractUIPlugin {
 
         //changed: the interpreter manager is always set in the initialization (initialization
         //has some problems if that's not done).
-        setPythonInterpreterManager(new PythonInterpreterManager(preferences));
-        setJythonInterpreterManager(new JythonInterpreterManager(preferences));
-        setIronpythonInterpreterManager(new IronpythonInterpreterManager(preferences));
+        InterpreterManagersAPI.setPythonInterpreterManager(new PythonInterpreterManager(preferences));
+        InterpreterManagersAPI.setJythonInterpreterManager(new JythonInterpreterManager(preferences));
+        InterpreterManagersAPI.setIronpythonInterpreterManager(new IronpythonInterpreterManager(preferences));
 
         //This is usually fast, but in lower end machines it could be a bit slow, so, let's do it in a job to make sure
         //that the plugin is properly initialized without any delays.
@@ -441,9 +349,10 @@ public class PydevPlugin extends AbstractUIPlugin {
      */
     public static Tuple<IPythonNature, String> getInfoForFile(File file) {
 
-        IInterpreterManager pythonInterpreterManager2 = getPythonInterpreterManager(false);
-        IInterpreterManager jythonInterpreterManager2 = getJythonInterpreterManager(false);
-        IInterpreterManager ironpythonInterpreterManager2 = getIronpythonInterpreterManager(false);
+        IInterpreterManager pythonInterpreterManager2 = InterpreterManagersAPI.getPythonInterpreterManager(false);
+        IInterpreterManager jythonInterpreterManager2 = InterpreterManagersAPI.getJythonInterpreterManager(false);
+        IInterpreterManager ironpythonInterpreterManager2 = InterpreterManagersAPI
+                .getIronpythonInterpreterManager(false);
 
         if (file != null) {
             //Check if we can resolve the manager for the passed file...
@@ -521,7 +430,7 @@ public class PydevPlugin extends AbstractUIPlugin {
      * @return
      *
      */
-    private static Tuple<IPythonNature, String> getInfoForManager(File file,
+    public static Tuple<IPythonNature, String> getInfoForManager(File file,
             IInterpreterManager pythonInterpreterManager) {
         if (pythonInterpreterManager != null) {
             if (pythonInterpreterManager.isConfigured()) {
@@ -556,55 +465,6 @@ public class PydevPlugin extends AbstractUIPlugin {
             return name.substring(0, i);
         }
         return name;
-    }
-
-    /**
-     * Given a resource get the string in the filesystem for it.
-     */
-    public static String getIResourceOSString(IResource f) {
-        URI locationURI = f.getLocationURI();
-        if (locationURI != null) {
-            try {
-                //RTC source control not return a valid uri
-                return FileUtils.getFileAbsolutePath(new File(locationURI));
-            } catch (IllegalArgumentException e) {
-            }
-        }
-
-        IPath rawLocation = f.getRawLocation();
-        if (rawLocation == null) {
-            return null; //yes, we could have a resource that was deleted but we still have it's representation...
-        }
-        String fullPath = rawLocation.toOSString();
-        //now, we have to make sure it is canonical...
-        File file = new File(fullPath);
-        if (file.exists()) {
-            return FileUtils.getFileAbsolutePath(file);
-        } else {
-            //it does not exist, so, we have to check its project to validate the part that we can
-            IProject project = f.getProject();
-            IPath location = project.getLocation();
-            File projectFile = location.toFile();
-            if (projectFile.exists()) {
-                String projectFilePath = FileUtils.getFileAbsolutePath(projectFile);
-
-                if (fullPath.startsWith(projectFilePath)) {
-                    //the case is all ok
-                    return fullPath;
-                } else {
-                    //the case appears to be different, so, let's check if this is it...
-                    if (fullPath.toLowerCase().startsWith(projectFilePath.toLowerCase())) {
-                        String relativePart = fullPath.substring(projectFilePath.length());
-
-                        //at least the first part was correct
-                        return projectFilePath + relativePart;
-                    }
-                }
-            }
-        }
-
-        //it may not be correct, but it was the best we could do...
-        return fullPath;
     }
 
     //Default for using in tests (could be private)
@@ -660,7 +520,7 @@ public class PydevPlugin extends AbstractUIPlugin {
 
     public static Map<IInterpreterManager, Map<String, IInterpreterInfo>> getInterpreterManagerToInterpreterNameToInfo() {
         Map<IInterpreterManager, Map<String, IInterpreterInfo>> managerToNameToInfo = new HashMap<>();
-        IInterpreterManager[] allInterpreterManagers = PydevPlugin.getAllInterpreterManagers();
+        IInterpreterManager[] allInterpreterManagers = InterpreterManagersAPI.getAllInterpreterManagers();
         for (int i = 0; i < allInterpreterManagers.length; i++) {
             IInterpreterManager manager = allInterpreterManagers[i];
             if (manager == null) {

@@ -21,13 +21,13 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.plugin.preferences.PyDevBuilderPreferences;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -93,7 +93,7 @@ public class PycHandlerBuilderVisitor extends PyDevBuilderVisitor {
     @Override
     public void visitingWillStart(IProgressMonitor monitor, boolean isFullBuild, IPythonNature nature) {
         super.visitingWillStart(monitor, isFullBuild, nature);
-        pycDeleteHandling = PyDevBuilderPrefPage.getPycDeleteHandling();
+        pycDeleteHandling = PyDevBuilderPreferences.getPycDeleteHandling();
     }
 
     @Override
@@ -107,13 +107,13 @@ public class PycHandlerBuilderVisitor extends PyDevBuilderVisitor {
     @Override
     public void visitAddedResource(IResource resource, ICallback0<IDocument> document, IProgressMonitor monitor) {
         switch (pycDeleteHandling) {
-            case PyDevBuilderPrefPage.PYC_NEVER_DELETE:
+            case PyDevBuilderPreferences.PYC_NEVER_DELETE:
                 //See: never delete!
                 return;
-            case PyDevBuilderPrefPage.PYC_DELETE_WHEN_PY_IS_DELETED:
+            case PyDevBuilderPreferences.PYC_DELETE_WHEN_PY_IS_DELETED:
                 //We just found a pyc (not a remove from a .py), so, don't delete.
                 return;
-            case PyDevBuilderPrefPage.PYC_ALWAYS_DELETE:
+            case PyDevBuilderPreferences.PYC_ALWAYS_DELETE:
                 //keep on going
         }
 
@@ -178,7 +178,7 @@ public class PycHandlerBuilderVisitor extends PyDevBuilderVisitor {
     @Override
     public void visitRemovedResource(IResource resource, ICallback0<IDocument> document, IProgressMonitor monitor) {
         switch (pycDeleteHandling) {
-            case PyDevBuilderPrefPage.PYC_NEVER_DELETE:
+            case PyDevBuilderPreferences.PYC_NEVER_DELETE:
                 //See: never delete!
                 return;
         }

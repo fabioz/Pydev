@@ -44,6 +44,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.PySelectionFromEditor;
@@ -519,7 +520,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
         }
 
         SimplePythonRunner simplePythonRunner = new SimplePythonRunner();
-        IInterpreterManager pythonInterpreterManager = PydevPlugin.getPythonInterpreterManager();
+        IInterpreterManager pythonInterpreterManager = InterpreterManagersAPI.getPythonInterpreterManager();
         IInterpreterInfo defaultInterpreterInfo;
         try {
             defaultInterpreterInfo = pythonInterpreterManager.getDefaultInterpreterInfo(false);

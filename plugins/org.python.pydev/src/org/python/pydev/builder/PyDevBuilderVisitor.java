@@ -26,11 +26,11 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 
@@ -236,7 +236,7 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
 
             List<String> onlyProjectPythonPathLst = memo.getOnlyProjectPythonPathStr(nature, addExternal);
 
-            String resourceOSString = PydevPlugin.getIResourceOSString(resource);
+            String resourceOSString = InterpreterManagersAPI.getIResourceOSString(resource);
             String moduleName = null;
             if (resourceOSString != null) {
                 ICodeCompletionASTManager astManager = nature.getAstManager();

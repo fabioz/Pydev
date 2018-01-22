@@ -13,11 +13,11 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.IEditorInput;
-import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.PyParser;
+import org.python.pydev.plugin.preferences.PyDevBuilderPreferences;
 import org.python.pydev.shared_ui.editor.BaseEditor;
 import org.python.pydev.shared_ui.editor.IPyEditListener;
 import org.python.pydev.shared_ui.editor.IPyEditListener3;
@@ -62,7 +62,7 @@ public class ClearSyntaxMarkersPyeditListener implements IPyEditListener, IPyEdi
      * @param input the input
      */
     private void removeMarkersFromInput(IEditorInput input) {
-        if (input != null && PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()) {
+        if (input != null && PyDevBuilderPreferences.getAnalyzeOnlyActiveEditor()) {
             if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
                 ToLogFile.toLogFile(this, "removing syntax error markers from editor.");
             }

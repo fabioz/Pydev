@@ -44,7 +44,7 @@ public class ProcessListWin32Internal implements IProcessList {
         Process p = null;
         String command = null;
         InputStream in = null;
-        Bundle bundle = Platform.getBundle(SharedCorePlugin.PLUGIN_ID);
+        Bundle bundle = Platform.getBundle(SharedCorePlugin.SHARED_CORE_PLUGIN_ID);
         IProcessInfo[] procInfos = NOPROCESS;
 
         try {

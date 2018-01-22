@@ -13,7 +13,7 @@ import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 
 public class IronpythonInterpreterPreferencesPage extends AbstractInterpreterPreferencesPage {
 
@@ -36,7 +36,7 @@ public class IronpythonInterpreterPreferencesPage extends AbstractInterpreterPre
     @Override
     protected AbstractInterpreterEditor getInterpreterEditor(Composite p) {
         return new IronpythonInterpreterEditor(getInterpretersTitle(), p,
-                PydevPlugin.getIronpythonInterpreterManager(true));
+                InterpreterManagersAPI.getIronpythonInterpreterManager(true));
     }
 
     @Override
@@ -56,7 +56,7 @@ public class IronpythonInterpreterPreferencesPage extends AbstractInterpreterPre
 
     @Override
     protected IInterpreterManager getInterpreterManager() {
-        return PydevPlugin.getIronpythonInterpreterManager(true);
+        return InterpreterManagersAPI.getIronpythonInterpreterManager(true);
     }
 
 }

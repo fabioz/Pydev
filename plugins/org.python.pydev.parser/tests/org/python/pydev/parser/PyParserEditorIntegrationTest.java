@@ -6,9 +6,12 @@
  */
 package org.python.pydev.parser;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.jface.text.Document;
@@ -18,6 +21,7 @@ import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.parser.IPyParser;
 import org.python.pydev.shared_core.editor.IBaseEditor;
 import org.python.pydev.shared_core.model.IModelListener;
@@ -124,6 +128,41 @@ public class PyParserEditorIntegrationTest extends TestCase {
 
         @Override
         public void removeModelListener(IModelListener modelListener) {
+            throw new RuntimeException("Not implemented");
+        }
+
+        @Override
+        public int getGrammarVersion() throws MisconfigurationException {
+            throw new RuntimeException("Not implemented");
+        }
+
+        @Override
+        public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException {
+            throw new RuntimeException("Not implemented");
+        }
+
+        @Override
+        public IProject getProject() {
+            throw new RuntimeException("Not implemented");
+        }
+
+        @Override
+        public Object getAST() {
+            throw new RuntimeException("Not implemented");
+        }
+
+        @Override
+        public File getEditorFile() {
+            throw new RuntimeException("Not implemented");
+        }
+
+        @Override
+        public long getAstModificationTimeStamp() {
+            throw new RuntimeException("Not implemented");
+        }
+
+        @Override
+        public IFile getIFile() {
             throw new RuntimeException("Not implemented");
         }
     }

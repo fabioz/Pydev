@@ -548,7 +548,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             // Also adds Python nature to the project.
             // The reason this is done here is because I want to assign python
             // nature automatically to any project that has active python files.
-            final IPythonNature nature = PythonNature.addNature(input);
+            final IPythonNature nature = addNature(input);
 
             //we also want to initialize our shells...
             //we use 2: one for the main thread and one for the other threads.
@@ -1602,7 +1602,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         }
 
         //if it's an external file, there's the possibility that it won't be added even here.
-        pythonNature = PythonNature.addNature(this.getEditorInput());
+        pythonNature = addNature(this.getEditorInput());
 
         if (pythonNature != null) {
             return pythonNature;
@@ -1649,6 +1649,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         offlineActionsManager.addOfflineActionListener(key, action);
     }
 
+    @Override
     public void addOfflineActionListener(String key, IAction action, String description, boolean needsEnter) {
         offlineActionsManager.addOfflineActionListener(key, action, description, needsEnter);
     }
@@ -1874,5 +1875,19 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     @Override
     public IScopesParser createScopesParser() {
         return new ScopesParser();
+    }
+
+    public static IPythonNature addNature(IEditorInput element) {
+        if (element instanceof FileEditorInput) {
+            IFile file = ((FileEditorInput) element).getAdapter(IFile.class);
+            if (file != null) {
+                try {
+                    return PythonNature.addNature(file.getProject(), null, null, null, null, null, null);
+                } catch (CoreException e) {
+                    Log.log(e);
+                }
+            }
+        }
+        return null;
     }
 }

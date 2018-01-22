@@ -16,10 +16,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.runners.SimpleRunner;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -66,16 +66,16 @@ public class PythonPathBlock extends AbstractLaunchConfigurationTab {
             IInterpreterManager manager = null;
             if (Constants.ID_JYTHON_LAUNCH_CONFIGURATION_TYPE.equals(id)
                     || Constants.ID_JYTHON_UNITTEST_LAUNCH_CONFIGURATION_TYPE.equals(id)) {
-                manager = PydevPlugin.getJythonInterpreterManager();
+                manager = InterpreterManagersAPI.getJythonInterpreterManager();
 
             } else if (Constants.ID_IRONPYTHON_LAUNCH_CONFIGURATION_TYPE.equals(id)
                     || Constants.ID_IRONPYTHON_UNITTEST_LAUNCH_CONFIGURATION_TYPE.equals(id)) {
-                manager = PydevPlugin.getIronpythonInterpreterManager();
+                manager = InterpreterManagersAPI.getIronpythonInterpreterManager();
 
             } else if (Constants.ID_PYTHON_REGULAR_LAUNCH_CONFIGURATION_TYPE.equals(id)
                     || Constants.ID_PYTHON_COVERAGE_LAUNCH_CONFIGURATION_TYPE.equals(id)
                     || Constants.ID_PYTHON_UNITTEST_LAUNCH_CONFIGURATION_TYPE.equals(id)) {
-                manager = PydevPlugin.getPythonInterpreterManager();
+                manager = InterpreterManagersAPI.getPythonInterpreterManager();
             } else {
                 //Get from the project
                 try {
@@ -83,7 +83,7 @@ public class PythonPathBlock extends AbstractLaunchConfigurationTab {
                     IProject project = PythonRunnerConfig.getProjectFromConfiguration(configuration);
                     PythonNature nature = PythonNature.getPythonNature(project);
                     if (nature != null) {
-                        manager = PydevPlugin.getInterpreterManager(nature);
+                        manager = InterpreterManagersAPI.getInterpreterManager(nature);
                     }
                 } catch (Exception e) {
                     Log.log(e);
@@ -91,7 +91,7 @@ public class PythonPathBlock extends AbstractLaunchConfigurationTab {
 
                 if (manager == null) {
                     Log.log("Could not recognize: '" + id + "' using default python interpreter manager.");
-                    manager = PydevPlugin.getPythonInterpreterManager();
+                    manager = InterpreterManagersAPI.getPythonInterpreterManager();
                 }
             }
             String pythonPath = PythonRunnerConfig.getPythonpathFromConfiguration(configuration, manager);

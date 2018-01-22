@@ -8,7 +8,7 @@ package com.python.pydev.analysis.indexview;
 
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 
 public class InterpretersGroup extends ElementWithChildren {
 
@@ -23,7 +23,7 @@ public class InterpretersGroup extends ElementWithChildren {
 
     @Override
     public void calculateChildren() {
-        IInterpreterManager[] allInterpreterManagers = PydevPlugin.getAllInterpreterManagers();
+        IInterpreterManager[] allInterpreterManagers = InterpreterManagersAPI.getAllInterpreterManagers();
         for (IInterpreterManager iInterpreterManager : allInterpreterManagers) {
             IInterpreterInfo[] interpreterInfos = iInterpreterManager.getInterpreterInfos();
             if (interpreterInfos != null && interpreterInfos.length > 0) {

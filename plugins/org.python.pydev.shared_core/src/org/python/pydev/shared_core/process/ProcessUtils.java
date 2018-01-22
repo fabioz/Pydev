@@ -87,7 +87,7 @@ public class ProcessUtils {
 
         } else {
             try {
-                throw new CoreException(new Status(IStatus.ERROR, SharedCorePlugin.PLUGIN_ID,
+                throw new CoreException(new Status(IStatus.ERROR, SharedCorePlugin.SHARED_CORE_PLUGIN_ID,
                         "Error creating process - got null process(" + executionString + ")", new Exception(
                                 "Error creating process - got null process.")));
             } catch (CoreException e) {

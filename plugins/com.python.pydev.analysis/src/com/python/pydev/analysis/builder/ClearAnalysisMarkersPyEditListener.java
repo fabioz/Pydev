@@ -12,8 +12,8 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.IEditorInput;
-import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.plugin.preferences.PyDevBuilderPreferences;
 import org.python.pydev.shared_ui.editor.BaseEditor;
 import org.python.pydev.shared_ui.editor.IPyEditListener;
 import org.python.pydev.shared_ui.editor.IPyEditListener3;
@@ -62,8 +62,8 @@ public class ClearAnalysisMarkersPyEditListener implements IPyEditListener, IPyE
      * @param input the input that has a related resource that should have markers removed
      */
     private void removeMarkersFromInput(IEditorInput input) {
-        if (input != null && PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()
-                && PyDevBuilderPrefPage.getRemoveErrorsWhenEditorIsClosed()) {
+        if (input != null && PyDevBuilderPreferences.getAnalyzeOnlyActiveEditor()
+                && PyDevBuilderPreferences.getRemoveErrorsWhenEditorIsClosed()) {
             IFile relatedFile = (IFile) input.getAdapter(IFile.class);
 
             if (relatedFile != null && relatedFile.exists()) {

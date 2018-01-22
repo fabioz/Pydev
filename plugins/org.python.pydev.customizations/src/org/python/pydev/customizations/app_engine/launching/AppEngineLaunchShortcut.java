@@ -11,10 +11,10 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.launching.AbstractLaunchShortcut;
 import org.python.pydev.debug.ui.launching.FileOrResource;
-import org.python.pydev.plugin.PydevPlugin;
 
 public class AppEngineLaunchShortcut extends AbstractLaunchShortcut {
 
@@ -48,6 +48,6 @@ public class AppEngineLaunchShortcut extends AbstractLaunchShortcut {
 
     @Override
     protected IInterpreterManager getInterpreterManager(IProject project) {
-        return PydevPlugin.getPythonInterpreterManager();
+        return InterpreterManagersAPI.getPythonInterpreterManager();
     }
 }

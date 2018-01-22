@@ -38,6 +38,7 @@ import org.eclipse.ui.dialogs.ListDialog;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
@@ -85,13 +86,13 @@ public class AutoConfigMaker {
         this.nameToInfo = nameToInfo;
         switch (interpreterType) {
             case JYTHON:
-                interpreterManager = PydevPlugin.getJythonInterpreterManager(true);
+                interpreterManager = InterpreterManagersAPI.getJythonInterpreterManager(true);
                 break;
             case IRONPYTHON:
-                interpreterManager = PydevPlugin.getIronpythonInterpreterManager(true);
+                interpreterManager = InterpreterManagersAPI.getIronpythonInterpreterManager(true);
                 break;
             default:
-                interpreterManager = PydevPlugin.getPythonInterpreterManager(true);
+                interpreterManager = InterpreterManagersAPI.getPythonInterpreterManager(true);
         }
         this.advanced = advanced;
 

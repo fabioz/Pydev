@@ -20,12 +20,12 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.ui.IEditorPart;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.fastparser.FastParser;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
 public class UnitTestLaunchShortcut extends AbstractLaunchShortcut {
@@ -39,7 +39,7 @@ public class UnitTestLaunchShortcut extends AbstractLaunchShortcut {
 
     @Override
     protected IInterpreterManager getInterpreterManager(IProject project) {
-        return PydevPlugin.getPythonInterpreterManager();
+        return InterpreterManagersAPI.getPythonInterpreterManager();
     }
 
     @Override

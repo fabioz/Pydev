@@ -82,6 +82,7 @@ import org.python.pydev.ui.TabVariables;
 import org.python.pydev.ui.dialogs.InterpreterInputDialog;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
+import org.python.pydev.utils.CancelException;
 
 /**
  * Field editor for a list of python interpreter with executable verifier.
@@ -1035,12 +1036,6 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
             return dialog.getKeyAndValueEntered();
         }
         return null;
-
-    }
-
-    public static final class CancelException extends Exception {
-
-        private static final long serialVersionUID = 1L;
 
     }
 

@@ -23,7 +23,6 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
-import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
@@ -34,6 +33,7 @@ import org.python.pydev.parser.PyParser.ParserInfo;
 import org.python.pydev.parser.fastparser.FastDefinitionsParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.plugin.preferences.PyDevBuilderPreferences;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -74,7 +74,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase {
         resourcesAnalyzed = new ArrayList<IResource>();
 
         //analyze all files
-        PyDevBuilderPrefPage.setAnalyzeOnlyActiveEditor(false);
+        PyDevBuilderPreferences.setAnalyzeOnlyActiveEditor(false);
         super.setUp();
     }
 
@@ -90,7 +90,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase {
         PyParser.successfulParseListeners.remove(addParsesToListListener);
         //analyze only files open in the editor
         //restore default on tearDown
-        PyDevBuilderPrefPage.setAnalyzeOnlyActiveEditor(PyDevBuilderPrefPage.DEFAULT_ANALYZE_ONLY_ACTIVE_EDITOR);
+        PyDevBuilderPreferences.setAnalyzeOnlyActiveEditor(PyDevBuilderPreferences.DEFAULT_ANALYZE_ONLY_ACTIVE_EDITOR);
     }
 
     private void print(String... msg) {
@@ -275,7 +275,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase {
     public void CheckRefreshAnalyzesFilesOnlyOnActiveEditor() throws Exception {
         print("----------- CheckRefreshAnalyzesFilesOnlyOnActiveEditor ---------");
         //analyze all files
-        PyDevBuilderPrefPage.setAnalyzeOnlyActiveEditor(true);
+        PyDevBuilderPreferences.setAnalyzeOnlyActiveEditor(true);
 
         print("----------- CLOSING EDITOR ---------");
         editor.close(false);

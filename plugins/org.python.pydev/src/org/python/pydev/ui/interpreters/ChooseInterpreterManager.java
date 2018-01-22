@@ -7,7 +7,7 @@
 package org.python.pydev.ui.interpreters;
 
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 
 /**
  * On a number of cases, we may want to do some action that relies on the python nature, but we are uncertain
@@ -26,17 +26,17 @@ public class ChooseInterpreterManager {
      * TODO: Instead of choosing always python as default if both are available, ask the user (and save that info).
      */
     public static IInterpreterManager chooseInterpreterManager() {
-        IInterpreterManager manager = PydevPlugin.getPythonInterpreterManager();
+        IInterpreterManager manager = InterpreterManagersAPI.getPythonInterpreterManager();
         if (manager.isConfigured()) {
             return manager;
         }
 
-        manager = PydevPlugin.getJythonInterpreterManager();
+        manager = InterpreterManagersAPI.getJythonInterpreterManager();
         if (manager.isConfigured()) {
             return manager;
         }
 
-        manager = PydevPlugin.getIronpythonInterpreterManager();
+        manager = InterpreterManagersAPI.getIronpythonInterpreterManager();
         if (manager.isConfigured()) {
             return manager;
         }

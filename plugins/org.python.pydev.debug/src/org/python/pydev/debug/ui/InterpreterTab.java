@@ -34,6 +34,7 @@ import org.eclipse.swt.widgets.Text;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.launching.InvalidRunException;
@@ -76,7 +77,7 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
                             .getProjectFromConfiguration(this.fWorkingCopyForCommandLineGeneration);
                     PythonNature nature = PythonNature.getPythonNature(project);
                     if (nature != null) {
-                        return PydevPlugin.getInterpreterManager(nature);
+                        return InterpreterManagersAPI.getInterpreterManager(nature);
                     }
                 } catch (Exception e) {
                     Log.log(e);

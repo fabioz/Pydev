@@ -46,8 +46,8 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -175,13 +175,13 @@ public class PyProjectPythonDetails extends PropertyPage {
                     IInterpreterManager interpreterManager;
 
                     if (radioJy.getSelection()) {
-                        interpreterManager = PydevPlugin.getJythonInterpreterManager();
+                        interpreterManager = InterpreterManagersAPI.getJythonInterpreterManager();
 
                     } else if (radioIron.getSelection()) {
-                        interpreterManager = PydevPlugin.getIronpythonInterpreterManager();
+                        interpreterManager = InterpreterManagersAPI.getIronpythonInterpreterManager();
 
                     } else {
-                        interpreterManager = PydevPlugin.getPythonInterpreterManager();
+                        interpreterManager = InterpreterManagersAPI.getPythonInterpreterManager();
                     }
 
                     IInterpreterInfo[] interpretersInfo = interpreterManager.getInterpreterInfos();

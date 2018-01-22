@@ -25,6 +25,7 @@ Export-Package: org.python.pydev.parser,
  org.python.pydev.parser.grammar26,
  org.python.pydev.parser.grammar27,
  org.python.pydev.parser.grammar30,
+ org.python.pydev.parser.grammar36,
  org.python.pydev.parser.grammar_fstrings,
  org.python.pydev.parser.grammarcommon,
  org.python.pydev.parser.jython,
@@ -34,5 +35,6 @@ Export-Package: org.python.pydev.parser,
  org.python.pydev.parser.prettyprinterv2,
  org.python.pydev.parser.visitors,
  org.python.pydev.parser.visitors.comparator,
- org.python.pydev.parser.visitors.scope
+ org.python.pydev.parser.visitors.scope,
+ org.python.pydev.plugin.preferences
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

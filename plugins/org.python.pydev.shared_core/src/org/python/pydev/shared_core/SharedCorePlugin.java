@@ -14,7 +14,9 @@ import org.osgi.framework.BundleContext;
  */
 public class SharedCorePlugin extends Plugin {
 
-    public static final String PLUGIN_ID = "org.python.pydev.shared_core";
+    public static final String SHARED_CORE_PLUGIN_ID = "org.python.pydev.shared_core";
+
+    public static final String PYDEV_PLUGIN_ID = "org.python.pydev";
 
     //The shared instance.
     private static SharedCorePlugin plugin;

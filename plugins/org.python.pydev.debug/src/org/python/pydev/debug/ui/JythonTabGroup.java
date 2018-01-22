@@ -15,7 +15,7 @@ import org.eclipse.debug.ui.EnvironmentTab;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.debug.ui.RefreshTab;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 
 /**
  * Special launch configuration for Jython
@@ -30,7 +30,7 @@ public class JythonTabGroup extends AbstractLaunchConfigurationTabGroup {
     public void createTabs(ILaunchConfigurationDialog dialog, String mode) {
         MainModuleTab mainModuleTab = new MainModuleTab();
         ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] { mainModuleTab,
-                new ArgumentsTab(mainModuleTab), new InterpreterTab(PydevPlugin.getJythonInterpreterManager()),
+                new ArgumentsTab(mainModuleTab), new InterpreterTab(InterpreterManagersAPI.getJythonInterpreterManager()),
                 new RefreshTab(), new EnvironmentTab(), new CommonTab() };
         setTabs(tabs);
     }

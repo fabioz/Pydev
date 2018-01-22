@@ -16,8 +16,8 @@ import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.io.FileUtils;
 
 public abstract class AbstractPythonNature implements IPythonNature {
@@ -44,7 +44,7 @@ public abstract class AbstractPythonNature implements IPythonNature {
      */
     @Override
     public String resolveModule(IResource resource) throws MisconfigurationException {
-        String resourceOSString = PydevPlugin.getIResourceOSString(resource);
+        String resourceOSString = InterpreterManagersAPI.getIResourceOSString(resource);
         if (resourceOSString == null) {
             return null;
         }

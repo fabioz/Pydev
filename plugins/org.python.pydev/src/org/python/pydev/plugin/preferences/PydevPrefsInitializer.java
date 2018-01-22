@@ -13,7 +13,6 @@ import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.jface.resource.StringConverter;
 import org.osgi.service.prefs.Preferences;
-import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.builder.todo.PyTodoPrefPage;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.editor.codefolding.PyDevCodeFoldingPrefPage;
@@ -147,16 +146,16 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.put(PyTodoPrefPage.PY_TODO_TAGS, PyTodoPrefPage.DEFAULT_PY_TODO_TAGS);
 
         //builders
-        node.putBoolean(PyDevBuilderPrefPage.USE_PYDEV_BUILDERS, PyDevBuilderPrefPage.DEFAULT_USE_PYDEV_BUILDERS);
+        node.putBoolean(PyDevBuilderPreferences.USE_PYDEV_BUILDERS, PyDevBuilderPreferences.DEFAULT_USE_PYDEV_BUILDERS);
         node.putBoolean(PyParserManager.USE_PYDEV_ANALYSIS_ONLY_ON_DOC_SAVE,
-                PyDevBuilderPrefPage.DEFAULT_USE_PYDEV_ONLY_ON_DOC_SAVE);
+                PyDevBuilderPreferences.DEFAULT_USE_PYDEV_ONLY_ON_DOC_SAVE);
         node.putInt(PyParserManager.PYDEV_ELAPSE_BEFORE_ANALYSIS,
-                PyDevBuilderPrefPage.DEFAULT_PYDEV_ELAPSE_BEFORE_ANALYSIS);
-        node.putBoolean(PyDevBuilderPrefPage.ANALYZE_ONLY_ACTIVE_EDITOR,
-                PyDevBuilderPrefPage.DEFAULT_ANALYZE_ONLY_ACTIVE_EDITOR);
-        node.putBoolean(PyDevBuilderPrefPage.REMOVE_ERRORS_WHEN_EDITOR_IS_CLOSED,
-                PyDevBuilderPrefPage.DEFAULT_REMOVE_ERRORS_WHEN_EDITOR_IS_CLOSED);
-        node.putInt(PyDevBuilderPrefPage.PYC_DELETE_HANDLING, PyDevBuilderPrefPage.DEFAULT_PYC_DELETE_HANDLING);
+                PyDevBuilderPreferences.DEFAULT_PYDEV_ELAPSE_BEFORE_ANALYSIS);
+        node.putBoolean(PyDevBuilderPreferences.ANALYZE_ONLY_ACTIVE_EDITOR,
+                PyDevBuilderPreferences.DEFAULT_ANALYZE_ONLY_ACTIVE_EDITOR);
+        node.putBoolean(PyDevBuilderPreferences.REMOVE_ERRORS_WHEN_EDITOR_IS_CLOSED,
+                PyDevBuilderPreferences.DEFAULT_REMOVE_ERRORS_WHEN_EDITOR_IS_CLOSED);
+        node.putInt(PyDevBuilderPreferences.PYC_DELETE_HANDLING, PyDevBuilderPreferences.DEFAULT_PYC_DELETE_HANDLING);
 
         //code folding
         node.putBoolean(PyDevCodeFoldingPrefPage.USE_CODE_FOLDING, PyDevCodeFoldingPrefPage.DEFAULT_USE_CODE_FOLDING);

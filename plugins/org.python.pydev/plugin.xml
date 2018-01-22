@@ -1746,7 +1746,7 @@
    </extension>
 
    <extension point="org.python.pydev.pydev_pyedit_listener">
-  		<pyedit_listener_participant class="org.python.pydev.plugin.nature.PyNatureReindexer"/>
+  		<pyedit_listener_participant class="org.python.pydev.editor.actions.PyNatureReindexer"/>
    </extension>
 
 

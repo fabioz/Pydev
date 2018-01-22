@@ -24,6 +24,7 @@ import org.eclipse.ui.dialogs.SelectionDialog;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.SystemPythonNature;
@@ -107,7 +108,7 @@ public class AttachToProcess implements IWorkbenchWindowActionDelegate {
 
             //Select interpreter
             IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-            IInterpreterManager interpreterManager = PydevPlugin.getPythonInterpreterManager();
+            IInterpreterManager interpreterManager = InterpreterManagersAPI.getPythonInterpreterManager();
             if (interpreterManager == null) {
                 MessageDialog.openError(workbenchWindow.getShell(), "No interpreter manager.",
                         "No interpreter manager was available for attaching to a process.");

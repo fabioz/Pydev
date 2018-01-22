@@ -18,7 +18,7 @@ public class DebugSettings {
     /**
      * Should we debug requests for analysis (syntax check, etc.)
      */
-    public static boolean DEBUG_ANALYSIS_REQUESTS = PyLoggingPreferencesPage.isToDebugAnalysisRequests();
+    public static boolean DEBUG_ANALYSIS_REQUESTS = PyLoggingPreferences.isToDebugAnalysisRequests();
 
     /**
      * This constant is used to debug the code-completion process on a production environment,
@@ -28,10 +28,10 @@ public class DebugSettings {
      * 
      * It is kept updated from the Preferences Page
      */
-    public static volatile boolean DEBUG_CODE_COMPLETION = PyLoggingPreferencesPage.isToDebugCodeCompletion();
+    public static volatile boolean DEBUG_CODE_COMPLETION = PyLoggingPreferences.isToDebugCodeCompletion();
 
     /**
      * Debug the interpreter auto update?
      */
-    public static boolean DEBUG_INTERPRETER_AUTO_UPDATE = PyLoggingPreferencesPage.isToDebugInterpreterAutoUpdate();
+    public static boolean DEBUG_INTERPRETER_AUTO_UPDATE = PyLoggingPreferences.isToDebugInterpreterAutoUpdate();
 }

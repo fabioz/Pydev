@@ -12,10 +12,10 @@ import java.util.Map;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.logging.DebugSettings;
+import org.python.pydev.plugin.preferences.PyDevBuilderPreferences;
 import org.python.pydev.shared_core.cache.LRUCache;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -209,7 +209,7 @@ public class AnalysisBuilderRunnableFactory {
                     }
                 }
                 if (!forceAnalysis) {
-                    if (PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()) {
+                    if (PyDevBuilderPreferences.getAnalyzeOnlyActiveEditor()) {
                         if (analysisCause == IAnalysisBuilderRunnable.ANALYSIS_CAUSE_BUILDER
                                 && oldAnalysisBuilderThread
                                         .getAnalysisCause() != IAnalysisBuilderRunnable.ANALYSIS_CAUSE_BUILDER) {

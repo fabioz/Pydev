@@ -49,6 +49,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.simpleassist.SimpleAssistProcessor;
@@ -99,9 +100,9 @@ public class AbstractWorkbenchTestCase extends TestCase {
                     return Boolean.TRUE;
                 }
             };
-            PydevPlugin.setJythonInterpreterManager(new JythonInterpreterManager(PydevPlugin.getDefault()
+            InterpreterManagersAPI.setJythonInterpreterManager(new JythonInterpreterManager(PydevPlugin.getDefault()
                     .getPreferenceStore()));
-            PydevPlugin.setPythonInterpreterManager(new PythonInterpreterManager(PydevPlugin.getDefault()
+            InterpreterManagersAPI.setPythonInterpreterManager(new PythonInterpreterManager(PydevPlugin.getDefault()
                     .getPreferenceStore()));
 
             ProjectModulesManager.IN_TESTS = true;
@@ -539,7 +540,7 @@ public class AbstractWorkbenchTestCase extends TestCase {
      * Creates the jython interpreter manager with the default jython jar location.
      */
     protected static void createJythonInterpreterManager(NullProgressMonitor monitor) {
-        IInterpreterManager iMan = PydevPlugin.getJythonInterpreterManager(true);
+        IInterpreterManager iMan = InterpreterManagersAPI.getJythonInterpreterManager(true);
         IInterpreterInfo interpreterInfo = iMan
                 .createInterpreterInfo(TestDependent.JYTHON_JAR_LOCATION, monitor, false);
         iMan.setInfos(new IInterpreterInfo[] { interpreterInfo }, null, null);
@@ -549,7 +550,7 @@ public class AbstractWorkbenchTestCase extends TestCase {
      * Creates the python interpreter manager with the default jython jar location.
      */
     protected static void createPythonInterpreterManager(NullProgressMonitor monitor) {
-        IInterpreterManager iMan = PydevPlugin.getPythonInterpreterManager(true);
+        IInterpreterManager iMan = InterpreterManagersAPI.getPythonInterpreterManager(true);
         IInterpreterInfo interpreterInfo = iMan.createInterpreterInfo(TestDependent.PYTHON_EXE, monitor, false);
         iMan.setInfos(new IInterpreterInfo[] { interpreterInfo }, null, null);
     }

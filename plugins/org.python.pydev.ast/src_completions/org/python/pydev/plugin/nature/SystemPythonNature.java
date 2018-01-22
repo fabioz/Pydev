@@ -30,6 +30,7 @@ import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.SystemASTManager;
 import org.python.pydev.shared_core.structure.OrderedMap;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * This nature is used only as a 'last resort', if we're unable to link a given resource to
@@ -347,5 +348,10 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
     @Override
     public <T> T getAdapter(Class<T> adapter) {
         return null;
+    }
+
+    @Override
+    public Tuple<String, String> getVersionAndError(boolean translateIfInterpreter) throws CoreException {
+        throw new RuntimeException("Not implemented (expected only for the PythonNature itself).");
     }
 }

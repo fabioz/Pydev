@@ -37,8 +37,8 @@ import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaProjectModulesManagerCreator;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -359,9 +359,8 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
         list.add(this);
 
         //get the projects 1st
-        if (project != null) {
-            IModulesManager javaModulesManagerForProject = JavaProjectModulesManagerCreator
-                    .createJavaProjectModulesManagerIfPossible(project);
+        if (project != null && createJavaProjectModulesManagerIfPossible != null) {
+            IModulesManager javaModulesManagerForProject = createJavaProjectModulesManagerIfPossible.call(project);
 
             if (javaModulesManagerForProject != null) {
                 list.add(javaModulesManagerForProject);
@@ -458,13 +457,16 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
                     //Log.log(IStatus.WARNING, msg, new RuntimeException(msg));
                 }
             }
-            IModulesManager javaModulesManagerForProject = JavaProjectModulesManagerCreator
-                    .createJavaProjectModulesManagerIfPossible(project);
-            if (javaModulesManagerForProject != null) {
-                list.add(javaModulesManagerForProject);
+            if (createJavaProjectModulesManagerIfPossible != null) {
+                IModulesManager javaModulesManagerForProject = createJavaProjectModulesManagerIfPossible.call(project);
+                if (javaModulesManagerForProject != null) {
+                    list.add(javaModulesManagerForProject);
+                }
             }
         }
     }
+
+    public static ICallback<IModulesManager, IProject> createJavaProjectModulesManagerIfPossible;
 
     /**
      * @return Returns the managers that this project references, including itself.

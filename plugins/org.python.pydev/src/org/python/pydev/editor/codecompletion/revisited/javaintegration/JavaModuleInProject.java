@@ -19,12 +19,12 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.ui.text.java.CompletionProposalCollector;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
 /**
- * This class defines a module that represents a given java class or package within a java project 
+ * This class defines a module that represents a given java class or package within a java project
  * (that's referenced from a jython project).
  *
  * @author Fabio
@@ -129,7 +129,7 @@ public class JavaModuleInProject extends AbstractJavaClassModule {
 
     /**
      * @see AbstractJavaClassModule#getJavaCompletionProposals(String, int, String)
-     * 
+     *
      * @note: the completionOffset is ignored (we find the type and go for the completions on that type).
      */
     @Override
@@ -152,7 +152,7 @@ public class JavaModuleInProject extends AbstractJavaClassModule {
                     this.moduleType = IS_PACKAGE;
                 } else {
                     this.moduleType = IS_CLASS;
-                    this.file = new File(PydevPlugin.getIResourceOSString(type.getResource()));
+                    this.file = new File(InterpreterManagersAPI.getIResourceOSString(type.getResource()));
                 }
             }
 

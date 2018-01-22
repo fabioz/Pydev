@@ -19,9 +19,9 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.interpreters.AbstractInterpreterManager;
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
@@ -90,7 +90,7 @@ public class JythonCodeCompletionTestsBase extends CodeCompletionTestsBase {
 
     @Override
     protected IInterpreterManager getInterpreterManager() {
-        return PydevPlugin.getJythonInterpreterManager();
+        return InterpreterManagersAPI.getJythonInterpreterManager();
     }
 
     @Override
@@ -109,7 +109,7 @@ public class JythonCodeCompletionTestsBase extends CodeCompletionTestsBase {
         }
 
         interpreterManager.setInfos(new IInterpreterInfo[] { info }, null, null);
-        PydevPlugin.setJythonInterpreterManager(interpreterManager);
+        InterpreterManagersAPI.setJythonInterpreterManager(interpreterManager);
 
     }
 

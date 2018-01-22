@@ -22,8 +22,8 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevTestUtils;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -81,7 +81,7 @@ public class InterpreterInfoBuilderTest extends TestCase {
 
         IPreferenceStore preferences = new PreferenceStore();
         final PythonInterpreterManager manager = new PythonInterpreterManager(preferences);
-        PydevPlugin.setPythonInterpreterManager(manager);
+        InterpreterManagersAPI.setPythonInterpreterManager(manager);
         manager.setInfos(new IInterpreterInfo[] { info }, null, null);
 
         final AdditionalSystemInterpreterInfo additionalInfo = new AdditionalSystemInterpreterInfo(manager,
