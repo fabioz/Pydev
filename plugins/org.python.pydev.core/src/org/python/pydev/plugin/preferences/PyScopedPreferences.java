@@ -1,8 +1,7 @@
-package org.python.pydev.editor.preferences;
+package org.python.pydev.plugin.preferences;
 
 import org.eclipse.core.runtime.IAdaptable;
-import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.preferences.IScopedPreferences;
 import org.python.pydev.shared_core.preferences.ScopedPreferences;
 
@@ -33,7 +32,7 @@ public class PyScopedPreferences {
     }
 
     public static IScopedPreferences get() {
-        return ScopedPreferences.get(PydevPlugin.DEFAULT_PYDEV_SCOPE);
+        return ScopedPreferences.get(SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_SCOPE);
     }
 
 }

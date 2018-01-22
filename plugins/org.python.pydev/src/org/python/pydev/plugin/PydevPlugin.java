@@ -42,9 +42,9 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
-import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.prefs.BackingStoreException;
+import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
@@ -111,8 +111,6 @@ public class PydevPlugin extends AbstractUIPlugin {
     private ResourceBundle resourceBundle; //Resource bundle.
 
     public final SyncSystemModulesManagerScheduler syncScheduler = new SyncSystemModulesManagerScheduler();
-
-    public static final String DEFAULT_PYDEV_SCOPE = "org.python.pydev";
 
     private boolean isAlive;
 
@@ -200,6 +198,8 @@ public class PydevPlugin extends AbstractUIPlugin {
 
         ModulesManager.createModuleFromJar = (EmptyModuleForZip emptyModuleForZip,
                 IPythonNature nature) -> JythonModulesManagerUtils.createModuleFromJar(emptyModuleForZip, nature);
+
+        CorePlugin.pydevStatelocation = Platform.getStateLocation(getBundle()).toFile();
         // End setup extension in dependencies
 
         try {
@@ -353,25 +353,6 @@ public class PydevPlugin extends AbstractUIPlugin {
     }
 
     //End Images for the console
-
-    //Default for using in tests (could be private)
-    /*default*/static File location;
-
-    /**
-     * Loads from the workspace metadata a given object (given the filename)
-     */
-    public static File getWorkspaceMetadataFile(String fileName) {
-        if (location == null) {
-            try {
-                Bundle bundle = Platform.getBundle("org.python.pydev");
-                IPath path = Platform.getStateLocation(bundle);
-                location = path.toFile();
-            } catch (Exception e) {
-                throw new RuntimeException("If running in tests, call: setTestPlatformStateLocation", e);
-            }
-        }
-        return new File(location, fileName);
-    }
 
     /**
      * @return

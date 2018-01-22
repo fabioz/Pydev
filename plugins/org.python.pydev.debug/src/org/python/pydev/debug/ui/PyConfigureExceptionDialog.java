@@ -45,7 +45,7 @@ import org.eclipse.ui.internal.WorkbenchMessages;
 import org.python.pydev.debug.model.PyExceptionBreakPointManager;
 import org.python.pydev.debug.ui.actions.PyExceptionListProvider;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.preferences.AbstractPydevPrefs;
+import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
 import org.python.pydev.shared_core.string.StringMatcher;
 
 public class PyConfigureExceptionDialog extends SelectionDialog {
@@ -337,7 +337,7 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
         breakOnDjangoTemplateExceptionsCheck = new Button(composite, SWT.CHECK);
         breakOnDjangoTemplateExceptionsCheck.setText("Suspend on django template render exceptions");
         breakOnDjangoTemplateExceptionsCheck.setSelection(PydevPlugin.getDefault().getPreferenceStore()
-                .getBoolean(AbstractPydevPrefs.TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS));
+                .getBoolean(PyDevEditorPreferences.TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS));
     }
 
     private void updateStates() {
@@ -418,7 +418,7 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
                 .getSelection();
 
         PydevPlugin.getDefault().getPreferenceStore().setValue(
-                AbstractPydevPrefs.TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS,
+                PyDevEditorPreferences.TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS,
                 breakOnDjangoTemplateExceptionsCheck.getSelection());
 
         super.okPressed();

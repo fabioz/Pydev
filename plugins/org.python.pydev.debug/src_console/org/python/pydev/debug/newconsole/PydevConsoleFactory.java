@@ -37,7 +37,7 @@ import org.python.pydev.debug.newconsole.env.PydevIProcessFactory;
 import org.python.pydev.debug.newconsole.env.PydevIProcessFactory.PydevConsoleLaunchInfo;
 import org.python.pydev.debug.newconsole.env.UserCanceledException;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
-import org.python.pydev.editor.preferences.PydevEditorPrefs;
+import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_interactive_console.InteractiveConsolePlugin;
 import org.python.pydev.shared_interactive_console.console.ui.ScriptConsoleManager;
@@ -193,7 +193,7 @@ public class PydevConsoleFactory implements IConsoleFactory {
                 PydevConsoleCommunication consoleCommunication = (PydevConsoleCommunication) interpreter
                         .getConsoleCommunication();
 
-                int acceptTimeout = PydevPrefs.getPreferences().getInt(PydevEditorPrefs.CONNECT_TIMEOUT);
+                int acceptTimeout = PydevPrefs.getPreferences().getInt(PyDevEditorPreferences.CONNECT_TIMEOUT);
                 PyDebugTargetConsole pyDebugTargetConsole = null;
                 ILaunch launch = interpreter.getLaunch();
                 IProcess eclipseProcess = launch.getProcesses()[0];

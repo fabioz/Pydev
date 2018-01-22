@@ -19,13 +19,11 @@ import org.python.pydev.editor.codefolding.PyDevCodeFoldingPrefPage;
 import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
 import org.python.pydev.editor.correctionassist.docstrings.DocstringsPrefPage;
 import org.python.pydev.editor.hover.PyHoverPreferencesPage;
-import org.python.pydev.editor.preferences.PydevEditorPrefs;
-import org.python.pydev.editor.preferences.PydevTypingPrefs;
 import org.python.pydev.editor.saveactions.PydevSaveActionsPrefPage;
 import org.python.pydev.editorinput.PySourceLocatorPrefs;
 import org.python.pydev.parser.PyParserManager;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.pyunit.preferences.PyUnitPrefsPage2;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_ui.word_boundaries.SubWordPreferences;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 import org.python.pydev.ui.wizards.project.IWizardNewProjectNameAndLocationPage;
@@ -34,27 +32,27 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
 
     @Override
     public void initializeDefaultPreferences() {
-        Preferences node = DefaultScope.INSTANCE.getNode(PydevPlugin.DEFAULT_PYDEV_SCOPE);
+        Preferences node = DefaultScope.INSTANCE.getNode(SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_SCOPE);
 
         //ironpython
         node.put(IInterpreterManager.IRONPYTHON_INTERNAL_SHELL_VM_ARGS,
                 IInterpreterManager.IRONPYTHON_DEFAULT_INTERNAL_SHELL_VM_ARGS);
 
         //text
-        node.putBoolean(PydevTypingPrefs.SMART_INDENT_PAR, PydevTypingPrefs.DEFAULT_SMART_INDENT_PAR);
-        node.putBoolean(PydevTypingPrefs.AUTO_PAR, PydevTypingPrefs.DEFAULT_AUTO_PAR);
-        node.putBoolean(PydevTypingPrefs.INDENT_AFTER_PAR_AS_PEP8, PydevTypingPrefs.DEFAULT_INDENT_AFTER_PAR_AS_PEP8);
-        node.putBoolean(PydevTypingPrefs.AUTO_LINK, PydevTypingPrefs.DEFAULT_AUTO_LINK);
-        node.putBoolean(PydevTypingPrefs.AUTO_INDENT_TO_PAR_LEVEL, PydevTypingPrefs.DEFAULT_AUTO_INDENT_TO_PAR_LEVEL);
-        node.putBoolean(PydevTypingPrefs.AUTO_DEDENT_ELSE, PydevTypingPrefs.DEFAULT_AUTO_DEDENT_ELSE);
-        node.putInt(PydevTypingPrefs.AUTO_INDENT_AFTER_PAR_WIDTH, PydevTypingPrefs.DEFAULT_AUTO_INDENT_AFTER_PAR_WIDTH);
-        node.putBoolean(PydevTypingPrefs.AUTO_COLON, PydevTypingPrefs.DEFAULT_AUTO_COLON);
-        node.putBoolean(PydevTypingPrefs.AUTO_BRACES, PydevTypingPrefs.DEFAULT_AUTO_BRACES);
-        node.putBoolean(PydevTypingPrefs.AUTO_WRITE_IMPORT_STR, PydevTypingPrefs.DEFAULT_AUTO_WRITE_IMPORT_STR);
-        node.putBoolean(PydevTypingPrefs.AUTO_LITERALS, PydevTypingPrefs.DEFAULT_AUTO_LITERALS);
-        node.putBoolean(PydevTypingPrefs.SMART_LINE_MOVE, PydevTypingPrefs.DEFAULT_SMART_LINE_MOVE);
+        node.putBoolean(PyDevTypingPreferences.SMART_INDENT_PAR, PyDevTypingPreferences.DEFAULT_SMART_INDENT_PAR);
+        node.putBoolean(PyDevTypingPreferences.AUTO_PAR, PyDevTypingPreferences.DEFAULT_AUTO_PAR);
+        node.putBoolean(PyDevTypingPreferences.INDENT_AFTER_PAR_AS_PEP8, PyDevTypingPreferences.DEFAULT_INDENT_AFTER_PAR_AS_PEP8);
+        node.putBoolean(PyDevTypingPreferences.AUTO_LINK, PyDevTypingPreferences.DEFAULT_AUTO_LINK);
+        node.putBoolean(PyDevTypingPreferences.AUTO_INDENT_TO_PAR_LEVEL, PyDevTypingPreferences.DEFAULT_AUTO_INDENT_TO_PAR_LEVEL);
+        node.putBoolean(PyDevTypingPreferences.AUTO_DEDENT_ELSE, PyDevTypingPreferences.DEFAULT_AUTO_DEDENT_ELSE);
+        node.putInt(PyDevTypingPreferences.AUTO_INDENT_AFTER_PAR_WIDTH, PyDevTypingPreferences.DEFAULT_AUTO_INDENT_AFTER_PAR_WIDTH);
+        node.putBoolean(PyDevTypingPreferences.AUTO_COLON, PyDevTypingPreferences.DEFAULT_AUTO_COLON);
+        node.putBoolean(PyDevTypingPreferences.AUTO_BRACES, PyDevTypingPreferences.DEFAULT_AUTO_BRACES);
+        node.putBoolean(PyDevTypingPreferences.AUTO_WRITE_IMPORT_STR, PyDevTypingPreferences.DEFAULT_AUTO_WRITE_IMPORT_STR);
+        node.putBoolean(PyDevTypingPreferences.AUTO_LITERALS, PyDevTypingPreferences.DEFAULT_AUTO_LITERALS);
+        node.putBoolean(PyDevTypingPreferences.SMART_LINE_MOVE, PyDevTypingPreferences.DEFAULT_SMART_LINE_MOVE);
 
-        node.putInt(PydevEditorPrefs.TAB_WIDTH, PydevEditorPrefs.DEFAULT_TAB_WIDTH);
+        node.putInt(PyDevEditorPreferences.TAB_WIDTH, PyDevEditorPreferences.DEFAULT_TAB_WIDTH);
         node.putInt(IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PREFERENCES,
                 IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER);
 
@@ -71,74 +69,74 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
                 CommentBlocksPreferences.DEFAULT_SINGLE_BLOCK_COMMENT_ALIGN_RIGHT);
 
         //checkboxes
-        node.putBoolean(PydevEditorPrefs.SUBSTITUTE_TABS, PydevEditorPrefs.DEFAULT_SUBSTITUTE_TABS);
-        node.putBoolean(PydevTypingPrefs.AUTO_ADD_SELF, PydevTypingPrefs.DEFAULT_AUTO_ADD_SELF);
-        node.putBoolean(PydevEditorPrefs.GUESS_TAB_SUBSTITUTION, PydevEditorPrefs.DEFAULT_GUESS_TAB_SUBSTITUTION);
-        node.putBoolean(PydevEditorPrefs.USE_VERTICAL_INDENT_GUIDE, PydevEditorPrefs.DEFAULT_USE_VERTICAL_INDENT_GUIDE);
-        node.putBoolean(PydevEditorPrefs.USE_VERTICAL_INDENT_COLOR_EDITOR_FOREGROUND,
-                PydevEditorPrefs.DEFAULT_USE_VERTICAL_INDENT_COLOR_EDITOR_FOREGROUND);
-        node.putInt(PydevEditorPrefs.VERTICAL_INDENT_TRANSPARENCY,
-                PydevEditorPrefs.DEFAULT_VERTICAL_INDENT_TRANSPARENCY);
+        node.putBoolean(PyDevEditorPreferences.SUBSTITUTE_TABS, PyDevEditorPreferences.DEFAULT_SUBSTITUTE_TABS);
+        node.putBoolean(PyDevTypingPreferences.AUTO_ADD_SELF, PyDevTypingPreferences.DEFAULT_AUTO_ADD_SELF);
+        node.putBoolean(PyDevEditorPreferences.GUESS_TAB_SUBSTITUTION, PyDevEditorPreferences.DEFAULT_GUESS_TAB_SUBSTITUTION);
+        node.putBoolean(PyDevEditorPreferences.USE_VERTICAL_INDENT_GUIDE, PyDevEditorPreferences.DEFAULT_USE_VERTICAL_INDENT_GUIDE);
+        node.putBoolean(PyDevEditorPreferences.USE_VERTICAL_INDENT_COLOR_EDITOR_FOREGROUND,
+                PyDevEditorPreferences.DEFAULT_USE_VERTICAL_INDENT_COLOR_EDITOR_FOREGROUND);
+        node.putInt(PyDevEditorPreferences.VERTICAL_INDENT_TRANSPARENCY,
+                PyDevEditorPreferences.DEFAULT_VERTICAL_INDENT_TRANSPARENCY);
 
         node.put(SubWordPreferences.WORD_NAVIGATION_STYLE, SubWordPreferences.DEFAULT_WORD_NAVIGATION_STYLE);
 
         //matching
-        node.putBoolean(PydevEditorPrefs.USE_MATCHING_BRACKETS, PydevEditorPrefs.DEFAULT_USE_MATCHING_BRACKETS);
-        node.put(PydevEditorPrefs.MATCHING_BRACKETS_COLOR,
-                StringConverter.asString(PydevEditorPrefs.DEFAULT_MATCHING_BRACKETS_COLOR));
-        node.putInt(PydevEditorPrefs.MATCHING_BRACKETS_STYLE, PydevEditorPrefs.DEFAULT_MATCHING_BRACKETS_STYLE);
+        node.putBoolean(PyDevEditorPreferences.USE_MATCHING_BRACKETS, PyDevEditorPreferences.DEFAULT_USE_MATCHING_BRACKETS);
+        node.put(PyDevEditorPreferences.MATCHING_BRACKETS_COLOR,
+                StringConverter.asString(PyDevEditorPreferences.DEFAULT_MATCHING_BRACKETS_COLOR));
+        node.putInt(PyDevEditorPreferences.MATCHING_BRACKETS_STYLE, PyDevEditorPreferences.DEFAULT_MATCHING_BRACKETS_STYLE);
 
         //colors
-        node.put(PydevEditorPrefs.VERTICAL_INDENT_COLOR,
-                StringConverter.asString(PydevEditorPrefs.DEFAULT_VERTICAL_INDENT_COLOR));
-        node.put(PydevEditorPrefs.CODE_COLOR, StringConverter.asString(PydevEditorPrefs.DEFAULT_CODE_COLOR));
-        node.put(PydevEditorPrefs.NUMBER_COLOR, StringConverter.asString(PydevEditorPrefs.DEFAULT_NUMBER_COLOR));
-        node.put(PydevEditorPrefs.DECORATOR_COLOR, StringConverter.asString(PydevEditorPrefs.DEFAULT_DECORATOR_COLOR));
-        node.put(PydevEditorPrefs.KEYWORD_COLOR, StringConverter.asString(PydevEditorPrefs.DEFAULT_KEYWORD_COLOR));
-        node.put(PydevEditorPrefs.SELF_COLOR, StringConverter.asString(PydevEditorPrefs.DEFAULT_SELF_COLOR));
-        node.put(PydevEditorPrefs.STRING_COLOR, StringConverter.asString(PydevEditorPrefs.DEFAULT_STRING_COLOR));
-        node.put(PydevEditorPrefs.UNICODE_COLOR, StringConverter.asString(PydevEditorPrefs.DEFAULT_UNICODE_COLOR));
-        node.put(PydevEditorPrefs.COMMENT_COLOR, StringConverter.asString(PydevEditorPrefs.DEFAULT_COMMENT_COLOR));
-        node.put(PydevEditorPrefs.BACKQUOTES_COLOR,
-                StringConverter.asString(PydevEditorPrefs.DEFAULT_BACKQUOTES_COLOR));
-        node.put(PydevEditorPrefs.CLASS_NAME_COLOR,
-                StringConverter.asString(PydevEditorPrefs.DEFAULT_CLASS_NAME_COLOR));
-        node.put(PydevEditorPrefs.FUNC_NAME_COLOR, StringConverter.asString(PydevEditorPrefs.DEFAULT_FUNC_NAME_COLOR));
-        node.put(PydevEditorPrefs.PARENS_COLOR, StringConverter.asString(PydevEditorPrefs.DEFAULT_PARENS_COLOR));
-        node.put(PydevEditorPrefs.OPERATORS_COLOR, StringConverter.asString(PydevEditorPrefs.DEFAULT_OPERATORS_COLOR));
-        node.put(PydevEditorPrefs.DOCSTRING_MARKUP_COLOR,
-                StringConverter.asString(PydevEditorPrefs.DEFAULT_DOCSTRING_MARKUP_COLOR));
+        node.put(PyDevEditorPreferences.VERTICAL_INDENT_COLOR,
+                StringConverter.asString(PyDevEditorPreferences.DEFAULT_VERTICAL_INDENT_COLOR));
+        node.put(PyDevEditorPreferences.CODE_COLOR, StringConverter.asString(PyDevEditorPreferences.DEFAULT_CODE_COLOR));
+        node.put(PyDevEditorPreferences.NUMBER_COLOR, StringConverter.asString(PyDevEditorPreferences.DEFAULT_NUMBER_COLOR));
+        node.put(PyDevEditorPreferences.DECORATOR_COLOR, StringConverter.asString(PyDevEditorPreferences.DEFAULT_DECORATOR_COLOR));
+        node.put(PyDevEditorPreferences.KEYWORD_COLOR, StringConverter.asString(PyDevEditorPreferences.DEFAULT_KEYWORD_COLOR));
+        node.put(PyDevEditorPreferences.SELF_COLOR, StringConverter.asString(PyDevEditorPreferences.DEFAULT_SELF_COLOR));
+        node.put(PyDevEditorPreferences.STRING_COLOR, StringConverter.asString(PyDevEditorPreferences.DEFAULT_STRING_COLOR));
+        node.put(PyDevEditorPreferences.UNICODE_COLOR, StringConverter.asString(PyDevEditorPreferences.DEFAULT_UNICODE_COLOR));
+        node.put(PyDevEditorPreferences.COMMENT_COLOR, StringConverter.asString(PyDevEditorPreferences.DEFAULT_COMMENT_COLOR));
+        node.put(PyDevEditorPreferences.BACKQUOTES_COLOR,
+                StringConverter.asString(PyDevEditorPreferences.DEFAULT_BACKQUOTES_COLOR));
+        node.put(PyDevEditorPreferences.CLASS_NAME_COLOR,
+                StringConverter.asString(PyDevEditorPreferences.DEFAULT_CLASS_NAME_COLOR));
+        node.put(PyDevEditorPreferences.FUNC_NAME_COLOR, StringConverter.asString(PyDevEditorPreferences.DEFAULT_FUNC_NAME_COLOR));
+        node.put(PyDevEditorPreferences.PARENS_COLOR, StringConverter.asString(PyDevEditorPreferences.DEFAULT_PARENS_COLOR));
+        node.put(PyDevEditorPreferences.OPERATORS_COLOR, StringConverter.asString(PyDevEditorPreferences.DEFAULT_OPERATORS_COLOR));
+        node.put(PyDevEditorPreferences.DOCSTRING_MARKUP_COLOR,
+                StringConverter.asString(PyDevEditorPreferences.DEFAULT_DOCSTRING_MARKUP_COLOR));
         //for selection colors see initializeDefaultColors()
 
         //font style
-        node.putInt(PydevEditorPrefs.CODE_STYLE, PydevEditorPrefs.DEFAULT_CODE_STYLE);
-        node.putInt(PydevEditorPrefs.NUMBER_STYLE, PydevEditorPrefs.DEFAULT_NUMBER_STYLE);
-        node.putInt(PydevEditorPrefs.DECORATOR_STYLE, PydevEditorPrefs.DEFAULT_DECORATOR_STYLE);
-        node.putInt(PydevEditorPrefs.KEYWORD_STYLE, PydevEditorPrefs.DEFAULT_KEYWORD_STYLE);
-        node.putInt(PydevEditorPrefs.SELF_STYLE, PydevEditorPrefs.DEFAULT_SELF_STYLE);
-        node.putInt(PydevEditorPrefs.STRING_STYLE, PydevEditorPrefs.DEFAULT_STRING_STYLE);
-        node.putInt(PydevEditorPrefs.UNICODE_STYLE, PydevEditorPrefs.DEFAULT_UNICODE_STYLE);
-        node.putInt(PydevEditorPrefs.COMMENT_STYLE, PydevEditorPrefs.DEFAULT_COMMENT_STYLE);
-        node.putInt(PydevEditorPrefs.BACKQUOTES_STYLE, PydevEditorPrefs.DEFAULT_BACKQUOTES_STYLE);
-        node.putInt(PydevEditorPrefs.CLASS_NAME_STYLE, PydevEditorPrefs.DEFAULT_CLASS_NAME_STYLE);
-        node.putInt(PydevEditorPrefs.FUNC_NAME_STYLE, PydevEditorPrefs.DEFAULT_FUNC_NAME_STYLE);
-        node.putInt(PydevEditorPrefs.PARENS_STYLE, PydevEditorPrefs.DEFAULT_PARENS_STYLE);
-        node.putInt(PydevEditorPrefs.OPERATORS_STYLE, PydevEditorPrefs.DEFAULT_OPERATORS_STYLE);
-        node.putInt(PydevEditorPrefs.DOCSTRING_MARKUP_STYLE, PydevEditorPrefs.DEFAULT_DOCSTRING_MARKUP_STYLE);
+        node.putInt(PyDevEditorPreferences.CODE_STYLE, PyDevEditorPreferences.DEFAULT_CODE_STYLE);
+        node.putInt(PyDevEditorPreferences.NUMBER_STYLE, PyDevEditorPreferences.DEFAULT_NUMBER_STYLE);
+        node.putInt(PyDevEditorPreferences.DECORATOR_STYLE, PyDevEditorPreferences.DEFAULT_DECORATOR_STYLE);
+        node.putInt(PyDevEditorPreferences.KEYWORD_STYLE, PyDevEditorPreferences.DEFAULT_KEYWORD_STYLE);
+        node.putInt(PyDevEditorPreferences.SELF_STYLE, PyDevEditorPreferences.DEFAULT_SELF_STYLE);
+        node.putInt(PyDevEditorPreferences.STRING_STYLE, PyDevEditorPreferences.DEFAULT_STRING_STYLE);
+        node.putInt(PyDevEditorPreferences.UNICODE_STYLE, PyDevEditorPreferences.DEFAULT_UNICODE_STYLE);
+        node.putInt(PyDevEditorPreferences.COMMENT_STYLE, PyDevEditorPreferences.DEFAULT_COMMENT_STYLE);
+        node.putInt(PyDevEditorPreferences.BACKQUOTES_STYLE, PyDevEditorPreferences.DEFAULT_BACKQUOTES_STYLE);
+        node.putInt(PyDevEditorPreferences.CLASS_NAME_STYLE, PyDevEditorPreferences.DEFAULT_CLASS_NAME_STYLE);
+        node.putInt(PyDevEditorPreferences.FUNC_NAME_STYLE, PyDevEditorPreferences.DEFAULT_FUNC_NAME_STYLE);
+        node.putInt(PyDevEditorPreferences.PARENS_STYLE, PyDevEditorPreferences.DEFAULT_PARENS_STYLE);
+        node.putInt(PyDevEditorPreferences.OPERATORS_STYLE, PyDevEditorPreferences.DEFAULT_OPERATORS_STYLE);
+        node.putInt(PyDevEditorPreferences.DOCSTRING_MARKUP_STYLE, PyDevEditorPreferences.DEFAULT_DOCSTRING_MARKUP_STYLE);
 
         //Debugger
-        node.putInt(PydevEditorPrefs.CONNECT_TIMEOUT, PydevEditorPrefs.DEFAULT_CONNECT_TIMEOUT);
-        node.putBoolean(PydevEditorPrefs.RELOAD_MODULE_ON_CHANGE, PydevEditorPrefs.DEFAULT_RELOAD_MODULE_ON_CHANGE);
-        node.putBoolean(PydevEditorPrefs.DONT_TRACE_ENABLED, PydevEditorPrefs.DEFAULT_DONT_TRACE_ENABLED);
-        node.putBoolean(PydevEditorPrefs.SHOW_RETURN_VALUES, PydevEditorPrefs.DEFAULT_SHOW_RETURN_VALUES);
-        node.putBoolean(PydevEditorPrefs.DEBUG_MULTIPROCESSING_ENABLED,
-                PydevEditorPrefs.DEFAULT_DEBUG_MULTIPROCESSING_ENABLED);
-        node.putBoolean(PydevEditorPrefs.KILL_SUBPROCESSES_WHEN_TERMINATING_PROCESS,
-                PydevEditorPrefs.DEFAULT_KILL_SUBPROCESSES_WHEN_TERMINATING_PROCESS);
-        node.putBoolean(PydevEditorPrefs.GEVENT_DEBUGGING, PydevEditorPrefs.DEFAULT_GEVENT_DEBUGGING);
-        node.putBoolean(PydevEditorPrefs.TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS,
-                PydevEditorPrefs.DEFAULT_TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS);
-        node.put(PydevEditorPrefs.QT_THREADS_DEBUG_MODE, PydevEditorPrefs.DEFAULT_QT_THREADS_DEBUG_MODE);
+        node.putInt(PyDevEditorPreferences.CONNECT_TIMEOUT, PyDevEditorPreferences.DEFAULT_CONNECT_TIMEOUT);
+        node.putBoolean(PyDevEditorPreferences.RELOAD_MODULE_ON_CHANGE, PyDevEditorPreferences.DEFAULT_RELOAD_MODULE_ON_CHANGE);
+        node.putBoolean(PyDevEditorPreferences.DONT_TRACE_ENABLED, PyDevEditorPreferences.DEFAULT_DONT_TRACE_ENABLED);
+        node.putBoolean(PyDevEditorPreferences.SHOW_RETURN_VALUES, PyDevEditorPreferences.DEFAULT_SHOW_RETURN_VALUES);
+        node.putBoolean(PyDevEditorPreferences.DEBUG_MULTIPROCESSING_ENABLED,
+                PyDevEditorPreferences.DEFAULT_DEBUG_MULTIPROCESSING_ENABLED);
+        node.putBoolean(PyDevEditorPreferences.KILL_SUBPROCESSES_WHEN_TERMINATING_PROCESS,
+                PyDevEditorPreferences.DEFAULT_KILL_SUBPROCESSES_WHEN_TERMINATING_PROCESS);
+        node.putBoolean(PyDevEditorPreferences.GEVENT_DEBUGGING, PyDevEditorPreferences.DEFAULT_GEVENT_DEBUGGING);
+        node.putBoolean(PyDevEditorPreferences.TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS,
+                PyDevEditorPreferences.DEFAULT_TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS);
+        node.put(PyDevEditorPreferences.QT_THREADS_DEBUG_MODE, PyDevEditorPreferences.DEFAULT_QT_THREADS_DEBUG_MODE);
 
         //pydev todo tasks
         node.put(PyTodoPrefPage.PY_TODO_TAGS, PyTodoPrefPage.DEFAULT_PY_TODO_TAGS);

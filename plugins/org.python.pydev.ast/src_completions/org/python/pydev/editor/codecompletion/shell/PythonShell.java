@@ -15,10 +15,11 @@ import java.io.File;
 import java.io.IOException;
 
 import org.eclipse.core.runtime.CoreException;
+import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.runners.SimpleRunner;
 import org.python.pydev.shared_core.io.FileUtils;
@@ -30,12 +31,12 @@ public class PythonShell extends AbstractShell {
 
     /**
      * Initialize with the default python server file.
-     * 
+     *
      * @throws IOException
      * @throws CoreException
      */
     public PythonShell() throws IOException, CoreException {
-        super(PydevPlugin.getScriptWithinPySrc("pycompletionserver.py"));
+        super(CorePlugin.getScriptWithinPySrc("pycompletionserver.py"));
     }
 
     @Override
@@ -49,7 +50,7 @@ public class PythonShell extends AbstractShell {
         String[] parameters = SimplePythonRunner.preparePythonCallParameters(interpreter.getExecutableOrJar(),
                 FileUtils.getFileAbsolutePath(serverFile), new String[] { "" + port });
 
-        IInterpreterManager manager = PydevPlugin.getPythonInterpreterManager();
+        IInterpreterManager manager = InterpreterManagersAPI.getPythonInterpreterManager();
 
         String[] envp = null;
         try {

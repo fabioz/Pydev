@@ -16,6 +16,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
 
 public class PydevVerticalIndentGuidePreferencesPage extends FieldEditorPreferencePage implements
         IWorkbenchPreferencePage {
@@ -40,20 +41,20 @@ public class PydevVerticalIndentGuidePreferencesPage extends FieldEditorPreferen
     protected void createFieldEditors() {
         Composite p = getFieldEditorParent();
 
-        showVerticalindentGuideFieldEditor = new BooleanFieldEditor(PydevEditorPrefs.USE_VERTICAL_INDENT_GUIDE,
+        showVerticalindentGuideFieldEditor = new BooleanFieldEditor(PyDevEditorPreferences.USE_VERTICAL_INDENT_GUIDE,
                 "Show vertical indent guide?", p);
         addField(showVerticalindentGuideFieldEditor);
 
         useEditorForegroundAsColorFieldEditor = new BooleanFieldEditor(
-                PydevEditorPrefs.USE_VERTICAL_INDENT_COLOR_EDITOR_FOREGROUND,
+                PyDevEditorPreferences.USE_VERTICAL_INDENT_COLOR_EDITOR_FOREGROUND,
                 "Use the editor foreground as the color?", p);
         addField(useEditorForegroundAsColorFieldEditor);
 
-        selectionColorFieldEditor = new ColorFieldEditor(PydevEditorPrefs.VERTICAL_INDENT_COLOR,
+        selectionColorFieldEditor = new ColorFieldEditor(PyDevEditorPreferences.VERTICAL_INDENT_COLOR,
                 "Vertical indent guide color.", p);
         addField(selectionColorFieldEditor);
 
-        transparencyFieldEditor = new IntegerFieldEditor(PydevEditorPrefs.VERTICAL_INDENT_TRANSPARENCY,
+        transparencyFieldEditor = new IntegerFieldEditor(PyDevEditorPreferences.VERTICAL_INDENT_TRANSPARENCY,
                 "Vertical indent guide transparency\n(0 = transparent, 255 = opaque).", p);
         transparencyFieldEditor.setValidRange(0, 255);
         addField(transparencyFieldEditor);
@@ -63,9 +64,9 @@ public class PydevVerticalIndentGuidePreferencesPage extends FieldEditorPreferen
 
     private void updateInitialState() {
         IPreferenceStore preferenceStore = PydevPlugin.getDefault().getPreferenceStore();
-        boolean show = preferenceStore.getBoolean(PydevEditorPrefs.USE_VERTICAL_INDENT_GUIDE);
+        boolean show = preferenceStore.getBoolean(PyDevEditorPreferences.USE_VERTICAL_INDENT_GUIDE);
         update(show,
-                show && !preferenceStore.getBoolean(PydevEditorPrefs.USE_VERTICAL_INDENT_COLOR_EDITOR_FOREGROUND));
+                show && !preferenceStore.getBoolean(PyDevEditorPreferences.USE_VERTICAL_INDENT_COLOR_EDITOR_FOREGROUND));
     }
 
     @Override

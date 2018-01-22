@@ -26,6 +26,8 @@ public class SharedCorePlugin extends Plugin {
 
     public static final String PYDEV_PLUGIN_ID = "org.python.pydev";
 
+    public static final String DEFAULT_PYDEV_PREFERENCES_SCOPE = "org.python.pydev";
+
     //The shared instance.
     private static SharedCorePlugin plugin;
 
@@ -65,7 +67,7 @@ public class SharedCorePlugin extends Plugin {
             } catch (IllegalArgumentException e) {
             }
         }
-    
+
         IPath rawLocation = f.getRawLocation();
         if (rawLocation == null) {
             return null; //yes, we could have a resource that was deleted but we still have it's representation...
@@ -82,7 +84,7 @@ public class SharedCorePlugin extends Plugin {
             File projectFile = location.toFile();
             if (projectFile.exists()) {
                 String projectFilePath = FileUtils.getFileAbsolutePath(projectFile);
-    
+
                 if (fullPath.startsWith(projectFilePath)) {
                     //the case is all ok
                     return fullPath;
@@ -90,14 +92,14 @@ public class SharedCorePlugin extends Plugin {
                     //the case appears to be different, so, let's check if this is it...
                     if (fullPath.toLowerCase().startsWith(projectFilePath.toLowerCase())) {
                         String relativePart = fullPath.substring(projectFilePath.length());
-    
+
                         //at least the first part was correct
                         return projectFilePath + relativePart;
                     }
                 }
             }
         }
-    
+
         //it may not be correct, but it was the best we could do...
         return fullPath;
     }

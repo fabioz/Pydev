@@ -31,8 +31,8 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.python.pydev.editor.StyledTextForShowingCodeFactory;
 import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
-import org.python.pydev.editor.preferences.PyScopedPreferences;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.field_editors.BooleanFieldEditorCustom;
 import org.python.pydev.shared_ui.field_editors.ComboFieldEditor;
@@ -252,7 +252,7 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
         GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
         labelExample.setLayoutData(layoutData);
 
-        addField(new ScopedPreferencesFieldEditor(p, PydevPlugin.DEFAULT_PYDEV_SCOPE, this));
+        addField(new ScopedPreferencesFieldEditor(p, SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_SCOPE, this));
     }
 
     private void createTabs(Composite p) {

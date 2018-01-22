@@ -14,7 +14,7 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.rules.RuleBasedScanner;
 import org.eclipse.jface.text.rules.Token;
-import org.python.pydev.editor.preferences.PydevEditorPrefs;
+import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
 import org.python.pydev.ui.ColorAndStyleCache;
 
 /**
@@ -37,16 +37,16 @@ public class PyColoredScanner extends RuleBasedScanner {
 
     public void updateColorAndStyle() {
         TextAttribute attr;
-        if (PydevEditorPrefs.COMMENT_COLOR.equals(name)) {
+        if (PyDevEditorPreferences.COMMENT_COLOR.equals(name)) {
             attr = colorCache.getCommentTextAttribute();
 
-        } else if (PydevEditorPrefs.BACKQUOTES_COLOR.equals(name)) {
+        } else if (PyDevEditorPreferences.BACKQUOTES_COLOR.equals(name)) {
             attr = colorCache.getBackquotesTextAttribute();
 
-        } else if (PydevEditorPrefs.STRING_COLOR.equals(name)) {
+        } else if (PyDevEditorPreferences.STRING_COLOR.equals(name)) {
             attr = colorCache.getStringTextAttribute();
 
-        } else if (PydevEditorPrefs.UNICODE_COLOR.equals(name)) {
+        } else if (PyDevEditorPreferences.UNICODE_COLOR.equals(name)) {
             attr = colorCache.getUnicodeTextAttribute();
 
         } else {

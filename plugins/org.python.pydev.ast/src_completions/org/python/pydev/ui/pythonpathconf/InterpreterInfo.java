@@ -42,6 +42,7 @@ import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
+import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
@@ -51,7 +52,6 @@ import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.runners.SimpleRunner;
 import org.python.pydev.shared_core.SharedCorePlugin;
@@ -1641,11 +1641,11 @@ public class InterpreterInfo implements IInterpreterInfo {
 
                     if (PlatformUtils.isWindowsPlatform()) {
                         loadVarsPath = new Path("helpers/load-conda-vars.bat");
-                        relativePath = PydevPlugin.getBundleInfo().getRelativePath(loadVarsPath);
+                        relativePath = CorePlugin.getBundleInfo().getRelativePath(loadVarsPath);
                         cmdLine = new String[] { "cmd", "/c", relativePath.toString() };
                     } else {
                         loadVarsPath = new Path("helpers/load-conda-vars");
-                        relativePath = PydevPlugin.getBundleInfo().getRelativePath(loadVarsPath);
+                        relativePath = CorePlugin.getBundleInfo().getRelativePath(loadVarsPath);
                         cmdLine = new String[] { relativePath.toString() };
                     }
                     Map<String, String> initialEnv = new HashMap<>(computedMap);
@@ -1917,7 +1917,7 @@ public class InterpreterInfo implements IInterpreterInfo {
     }
 
     public File getIoDirectory() {
-        final File workspaceMetadataFile = PydevPlugin.getWorkspaceMetadataFile(this.getExeAsFileSystemValidPath());
+        final File workspaceMetadataFile = CorePlugin.getWorkspaceMetadataFile(this.getExeAsFileSystemValidPath());
         return workspaceMetadataFile;
     }
 

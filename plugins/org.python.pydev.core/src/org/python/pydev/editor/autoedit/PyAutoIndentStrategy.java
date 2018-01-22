@@ -36,7 +36,6 @@ import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.DocCmd;
-import org.python.pydev.shared_interactive_console.console.ui.internal.IHandleScriptAutoEditStrategy;
 
 /**
  * Class which implements the following behaviors:

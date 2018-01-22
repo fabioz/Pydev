@@ -335,7 +335,7 @@
       <page
             name="Typing"
             category="org.python.pydev.prefs.editor"
-            class="org.python.pydev.editor.preferences.PydevTypingPrefs"
+            class="org.python.pydev.editor.preferences.PydevTypingPreferencesPage"
             id="org.python.pydev.prefs2">
             <keywordReference id="org.python.pydev.typing"/>
       </page>

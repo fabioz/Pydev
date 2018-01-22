@@ -9,8 +9,8 @@ package org.python.pydev.editor.codecompletion;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 
 public class PyCodeCompletionImages {
@@ -22,7 +22,7 @@ public class PyCodeCompletionImages {
      */
     public static Image getImageForType(int type) {
         try {
-            ImageCache imageCache = PydevPlugin.getImageCache();
+            ImageCache imageCache = SharedUiPlugin.getImageCache();
             if (imageCache == null) {
                 return null;
             }

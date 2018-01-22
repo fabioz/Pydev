@@ -125,7 +125,6 @@ import org.python.pydev.editor.codefolding.PyEditProjection;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.editor.correctionassist.PythonCorrectionProcessor;
 import org.python.pydev.editor.model.ItemPointer;
-import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.editor.saveactions.PydevSaveActionsPrefPage;
 import org.python.pydev.editor.scripting.PyEditScripting;
@@ -147,6 +146,7 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.CheckDefaultPreferencesDialog;
 import org.python.pydev.plugin.preferences.FileTypesPreferences;
 import org.python.pydev.plugin.preferences.PyCodeFormatterPage;
+import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
@@ -625,14 +625,14 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                 try {
                     String property = event.getProperty();
                     //tab width
-                    if (property.equals(PydevEditorPrefs.TAB_WIDTH)) {
+                    if (property.equals(PyDevEditorPreferences.TAB_WIDTH)) {
                         onTabSettingsChanged(editor);
 
-                    } else if (property.equals(PydevEditorPrefs.SUBSTITUTE_TABS)) {
+                    } else if (property.equals(PyDevEditorPreferences.SUBSTITUTE_TABS)) {
                         onTabSettingsChanged(editor);
 
                         //auto adjust for file tabs
-                    } else if (property.equals(PydevEditorPrefs.GUESS_TAB_SUBSTITUTION)) {
+                    } else if (property.equals(PyDevEditorPreferences.GUESS_TAB_SUBSTITUTION)) {
                         onTabSettingsChanged(editor);
 
                         //colors and styles

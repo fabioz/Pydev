@@ -30,8 +30,8 @@ import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
-import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.ui.ColorAndStyleCache;
 
@@ -233,13 +233,13 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
                 // We need to cover all the content types from PyPartitionScanner
 
                 // Comments have uniform color
-                commentScanner = new PyColoredScanner(colorCache, PydevEditorPrefs.COMMENT_COLOR);
+                commentScanner = new PyColoredScanner(colorCache, PyDevEditorPreferences.COMMENT_COLOR);
                 dr = new DefaultDamagerRepairer(commentScanner);
                 reconciler.setDamager(dr, IPythonPartitions.PY_COMMENT);
                 reconciler.setRepairer(dr, IPythonPartitions.PY_COMMENT);
 
                 // Backquotes have uniform color
-                backquotesScanner = new PyColoredScanner(colorCache, PydevEditorPrefs.BACKQUOTES_COLOR);
+                backquotesScanner = new PyColoredScanner(colorCache, PyDevEditorPreferences.BACKQUOTES_COLOR);
                 dr = new DefaultDamagerRepairer(backquotesScanner);
                 reconciler.setDamager(dr, IPythonPartitions.PY_BACKQUOTES);
                 reconciler.setRepairer(dr, IPythonPartitions.PY_BACKQUOTES);

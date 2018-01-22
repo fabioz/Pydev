@@ -30,10 +30,10 @@ import org.eclipse.ui.texteditor.link.EditorLinkedModeUI;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
-import org.python.pydev.editor.hover.AbstractPyEditorTextHover;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionProposalExtension2 implements
@@ -141,7 +141,7 @@ public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionPr
                 SourceToken sourceToken = (SourceToken) element;
                 SimpleNode ast = sourceToken.getAst();
                 if (ast != null && (ast instanceof FunctionDef || ast instanceof ClassDef)) {
-                    computedInfo = addTipForApplyWithModifiers(AbstractPyEditorTextHover.printAst(null, ast));
+                    computedInfo = addTipForApplyWithModifiers(NodeUtils.printAst(null, ast));
                 }
                 if (computedInfo != null) {
                     return computedInfo;

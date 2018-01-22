@@ -14,10 +14,9 @@ package org.python.pydev.editor.autoedit;
 import org.eclipse.core.runtime.IAdaptable;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.ITabChangedListener;
-import org.python.pydev.editor.preferences.PyScopedPreferences;
-import org.python.pydev.editor.preferences.PydevEditorPrefs;
-import org.python.pydev.editor.preferences.PydevTypingPrefs;
-import org.python.pydev.plugin.preferences.AbstractPydevPrefs;
+import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
+import org.python.pydev.plugin.preferences.PyDevTypingPreferences;
+import org.python.pydev.plugin.preferences.PyScopedPreferences;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ListenerList;
 
@@ -77,13 +76,13 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
      */
     public DefaultIndentPrefs(IAdaptable projectAdaptable) {
         this.projectAdaptable = projectAdaptable;
-        lastUseSpaces = getBoolFromPreferences(PydevEditorPrefs.SUBSTITUTE_TABS);
+        lastUseSpaces = getBoolFromPreferences(PyDevEditorPreferences.SUBSTITUTE_TABS);
         regenerateIndentString();
     }
 
     @Override
     public boolean getUseSpaces(boolean considerForceTabs) {
-        boolean boolFromPreferences = getBoolFromPreferences(PydevEditorPrefs.SUBSTITUTE_TABS);
+        boolean boolFromPreferences = getBoolFromPreferences(PyDevEditorPreferences.SUBSTITUTE_TABS);
         if (lastUseSpaces != boolFromPreferences) {
             lastUseSpaces = boolFromPreferences;
             regenerateIndentString();
@@ -102,8 +101,8 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
 
     @Override
     public int getTabWidth() {
-        if (lastTabWidth != getIntFromPreferences(PydevEditorPrefs.TAB_WIDTH, 1)) {
-            lastTabWidth = getIntFromPreferences(PydevEditorPrefs.TAB_WIDTH, 1);
+        if (lastTabWidth != getIntFromPreferences(PyDevEditorPreferences.TAB_WIDTH, 1)) {
+            lastTabWidth = getIntFromPreferences(PyDevEditorPreferences.TAB_WIDTH, 1);
             regenerateIndentString();
         }
         return lastTabWidth;
@@ -113,7 +112,7 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
 
     @Override
     public boolean getGuessTabSubstitution() {
-        boolean curr = getBoolFromPreferences(PydevEditorPrefs.GUESS_TAB_SUBSTITUTION);
+        boolean curr = getBoolFromPreferences(PyDevEditorPreferences.GUESS_TAB_SUBSTITUTION);
         if (lastGuessTabSubstitution != null && lastGuessTabSubstitution != curr) {
             regenerateIndentString();
         }
@@ -149,72 +148,72 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
      */
     @Override
     public boolean getAutoParentesis() {
-        return getBoolFromPreferences(PydevTypingPrefs.AUTO_PAR);
+        return getBoolFromPreferences(PyDevTypingPreferences.AUTO_PAR);
     }
 
     @Override
     public boolean getAutoLink() {
-        return getBoolFromPreferences(PydevTypingPrefs.AUTO_LINK);
+        return getBoolFromPreferences(PyDevTypingPreferences.AUTO_LINK);
     }
 
     @Override
     public boolean getIndentToParLevel() {
-        return getBoolFromPreferences(PydevTypingPrefs.AUTO_INDENT_TO_PAR_LEVEL);
+        return getBoolFromPreferences(PyDevTypingPreferences.AUTO_INDENT_TO_PAR_LEVEL);
     }
 
     @Override
     public boolean getAutoColon() {
-        return getBoolFromPreferences(PydevTypingPrefs.AUTO_COLON);
+        return getBoolFromPreferences(PyDevTypingPreferences.AUTO_COLON);
     }
 
     @Override
     public boolean getAutoBraces() {
-        return getBoolFromPreferences(PydevTypingPrefs.AUTO_BRACES);
+        return getBoolFromPreferences(PyDevTypingPreferences.AUTO_BRACES);
     }
 
     @Override
     public boolean getAutoWriteImport() {
-        return getBoolFromPreferences(PydevTypingPrefs.AUTO_WRITE_IMPORT_STR);
+        return getBoolFromPreferences(PyDevTypingPreferences.AUTO_WRITE_IMPORT_STR);
     }
 
     @Override
     public boolean getSmartIndentPar() {
-        return getBoolFromPreferences(PydevTypingPrefs.SMART_INDENT_PAR);
+        return getBoolFromPreferences(PyDevTypingPreferences.SMART_INDENT_PAR);
     }
 
     @Override
     public boolean getIndentToParAsPep8() {
-        return getBoolFromPreferences(PydevTypingPrefs.INDENT_AFTER_PAR_AS_PEP8);
+        return getBoolFromPreferences(PyDevTypingPreferences.INDENT_AFTER_PAR_AS_PEP8);
     }
 
     @Override
     public boolean getAutoAddSelf() {
-        return getBoolFromPreferences(PydevTypingPrefs.AUTO_ADD_SELF);
+        return getBoolFromPreferences(PyDevTypingPreferences.AUTO_ADD_SELF);
     }
 
     @Override
     public boolean getAutoDedentElse() {
-        return getBoolFromPreferences(PydevTypingPrefs.AUTO_DEDENT_ELSE);
+        return getBoolFromPreferences(PyDevTypingPreferences.AUTO_DEDENT_ELSE);
     }
 
     @Override
     public int getIndentAfterParWidth() {
-        return getIntFromPreferences(PydevTypingPrefs.AUTO_INDENT_AFTER_PAR_WIDTH, 1);
+        return getIntFromPreferences(PyDevTypingPreferences.AUTO_INDENT_AFTER_PAR_WIDTH, 1);
     }
 
     @Override
     public boolean getSmartLineMove() {
-        return getBoolFromPreferences(PydevTypingPrefs.SMART_LINE_MOVE);
+        return getBoolFromPreferences(PyDevTypingPreferences.SMART_LINE_MOVE);
     }
 
     @Override
     public boolean getAutoLiterals() {
-        return getBoolFromPreferences(PydevTypingPrefs.AUTO_LITERALS);
+        return getBoolFromPreferences(PyDevTypingPreferences.AUTO_LITERALS);
     }
 
     @Override
     public boolean getTabStopInComment() {
-        return getBoolFromPreferences(AbstractPydevPrefs.TAB_STOP_IN_COMMENT);
+        return getBoolFromPreferences(PyDevEditorPreferences.TAB_STOP_IN_COMMENT);
     }
 
     private boolean getBoolFromPreferences(String pref) {

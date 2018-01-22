@@ -18,7 +18,7 @@ import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.swt.graphics.RGB;
 import org.python.pydev.editor.PyCodeScanner.NumberDetector;
-import org.python.pydev.editor.preferences.PydevEditorPrefs;
+import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
 import org.python.pydev.ui.ColorAndStyleCache;
 
 import junit.framework.TestCase;
@@ -80,15 +80,15 @@ public class PyCodeScannerTest extends TestCase {
 
     private PyCodeScanner createCodeScanner() {
         PreferenceStore store = new PreferenceStore();
-        store.putValue(PydevEditorPrefs.KEYWORD_COLOR, StringConverter.asString(new RGB(1, 0, 0)));
-        store.putValue(PydevEditorPrefs.SELF_COLOR, StringConverter.asString(new RGB(2, 0, 0)));
-        store.putValue(PydevEditorPrefs.CODE_COLOR, StringConverter.asString(new RGB(3, 0, 0)));
-        store.putValue(PydevEditorPrefs.DECORATOR_COLOR, StringConverter.asString(new RGB(4, 0, 0)));
-        store.putValue(PydevEditorPrefs.NUMBER_COLOR, StringConverter.asString(new RGB(5, 0, 0)));
-        store.putValue(PydevEditorPrefs.FUNC_NAME_COLOR, StringConverter.asString(new RGB(6, 0, 0)));
-        store.putValue(PydevEditorPrefs.CLASS_NAME_COLOR, StringConverter.asString(new RGB(7, 0, 0)));
-        store.putValue(PydevEditorPrefs.OPERATORS_COLOR, StringConverter.asString(new RGB(8, 0, 0)));
-        store.putValue(PydevEditorPrefs.PARENS_COLOR, StringConverter.asString(new RGB(9, 0, 0)));
+        store.putValue(PyDevEditorPreferences.KEYWORD_COLOR, StringConverter.asString(new RGB(1, 0, 0)));
+        store.putValue(PyDevEditorPreferences.SELF_COLOR, StringConverter.asString(new RGB(2, 0, 0)));
+        store.putValue(PyDevEditorPreferences.CODE_COLOR, StringConverter.asString(new RGB(3, 0, 0)));
+        store.putValue(PyDevEditorPreferences.DECORATOR_COLOR, StringConverter.asString(new RGB(4, 0, 0)));
+        store.putValue(PyDevEditorPreferences.NUMBER_COLOR, StringConverter.asString(new RGB(5, 0, 0)));
+        store.putValue(PyDevEditorPreferences.FUNC_NAME_COLOR, StringConverter.asString(new RGB(6, 0, 0)));
+        store.putValue(PyDevEditorPreferences.CLASS_NAME_COLOR, StringConverter.asString(new RGB(7, 0, 0)));
+        store.putValue(PyDevEditorPreferences.OPERATORS_COLOR, StringConverter.asString(new RGB(8, 0, 0)));
+        store.putValue(PyDevEditorPreferences.PARENS_COLOR, StringConverter.asString(new RGB(9, 0, 0)));
 
         this.colorCache = new ColorAndStyleCache(store);
         PyCodeScanner scanner = new PyCodeScanner(colorCache);

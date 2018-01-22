@@ -31,6 +31,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IModule;
@@ -59,7 +60,6 @@ import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.FileTypesPreferences;
 import org.python.pydev.shared_core.cache.LRUMap;
 import org.python.pydev.shared_core.callbacks.ICallback2;
@@ -1063,7 +1063,7 @@ public abstract class ModulesManager implements IModulesManager {
                         ClassDef classDef = (ClassDef) node;
                         stmtType[] newBody = null;
                         try {
-                            File managerBody = PydevPlugin.getBundleInfo().getRelativePath(
+                            File managerBody = CorePlugin.getBundleInfo().getRelativePath(
                                     new Path("pysrc/stubs/_django_manager_body.py"));
                             IDocument doc = FileUtilsFileBuffer.getDocFromFile(managerBody);
                             IGrammarVersionProvider provider = new IGrammarVersionProvider() {

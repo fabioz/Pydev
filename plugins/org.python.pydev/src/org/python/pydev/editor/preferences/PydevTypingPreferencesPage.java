@@ -19,6 +19,8 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.preferences.PyDevTypingPreferences;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.string.WrapAndCaseUtils;
 import org.python.pydev.shared_ui.bindings.KeyBindingHelper;
@@ -33,64 +35,9 @@ import org.python.pydev.shared_ui.field_editors.ScopedPreferencesFieldEditor;
  * 
  * @author Fabio
  */
-public class PydevTypingPrefs extends ScopedFieldEditorPreferencePage implements IWorkbenchPreferencePage {
+public class PydevTypingPreferencesPage extends ScopedFieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
-    public static final String AUTO_PAR = "AUTO_PAR";
-    public static final boolean DEFAULT_AUTO_PAR = true;
-
-    public static final String AUTO_LINK = "AUTO_LINK";
-    public static final boolean DEFAULT_AUTO_LINK = false;
-
-    public static final String AUTO_INDENT_TO_PAR_LEVEL = "AUTO_INDENT_TO_PAR_LEVEL";
-    public static final boolean DEFAULT_AUTO_INDENT_TO_PAR_LEVEL = true;
-
-    public static final String AUTO_INDENT_AFTER_PAR_WIDTH = "AUTO_INDENT_AFTER_PAR_WIDTH";
-    public static final int DEFAULT_AUTO_INDENT_AFTER_PAR_WIDTH = 1;
-
-    public static final String AUTO_DEDENT_ELSE = "AUTO_DEDENT_ELSE";
-    public static final boolean DEFAULT_AUTO_DEDENT_ELSE = true;
-
-    public static final String SMART_INDENT_PAR = "SMART_INDENT_PAR";
-    public static final boolean DEFAULT_SMART_INDENT_PAR = true;
-
-    public static final String INDENT_AFTER_PAR_AS_PEP8 = "INDENT_AFTER_PAR_AS_PEP8";
-    public static final boolean DEFAULT_INDENT_AFTER_PAR_AS_PEP8 = true;
-
-    public static final String SMART_LINE_MOVE = "SMART_LINE_MOVE";
-    //Disabled by default (doesn't seem as useful as I though because Python does not have the end
-    //braces and Java does (so, there are a number of cases where the indentation has to be hand-fixed
-    //anyways)
-    public static final boolean DEFAULT_SMART_LINE_MOVE = false;
-
-    /**
-     * fields for automatically replacing a colon
-     * @see  
-     */
-    public static final String AUTO_COLON = "AUTO_COLON";
-    public static final boolean DEFAULT_AUTO_COLON = true;
-
-    /**
-     * fields for automatically skipping braces
-     * @see  org.python.pydev.editor.autoedit.PyAutoIndentStrategy
-     */
-    public static final String AUTO_BRACES = "AUTO_BRACES";
-    public static final boolean DEFAULT_AUTO_BRACES = true;
-
-    /**
-     * Used if the 'import' should be written automatically in an from xxx import yyy
-     */
-    public static final String AUTO_WRITE_IMPORT_STR = "AUTO_WRITE_IMPORT_STR";
-    public static final boolean DEFAULT_AUTO_WRITE_IMPORT_STR = true;
-
-    public static final String AUTO_LITERALS = "AUTO_LITERALS";
-    public static final boolean DEFAULT_AUTO_LITERALS = true;
-
-    public static final String AUTO_ADD_SELF = "AUTO_ADD_SELF";
-    public static final boolean DEFAULT_AUTO_ADD_SELF = true;
-
-    public static final int TOOLTIP_WIDTH = 80;
-
-    public PydevTypingPrefs() {
+    public PydevTypingPreferencesPage() {
         super(GRID);
         setDescription("Editor");
         setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
@@ -101,7 +48,7 @@ public class PydevTypingPrefs extends ScopedFieldEditorPreferencePage implements
         final Composite initialParent = getFieldEditorParent();
         final Composite p = initialParent;
 
-        String preference = AUTO_LINK;
+        String preference = PyDevTypingPreferences.AUTO_LINK;
         String text = "Enable link on automatic parenthesis or literals closing?";
         String tooltip = "Enabling this option will enable the linking mode after a parenthesis or literal is auto-closed.";
 
@@ -110,17 +57,17 @@ public class PydevTypingPrefs extends ScopedFieldEditorPreferencePage implements
         //auto par
         addBooleanField(
                 p,
-                AUTO_PAR,
+                PyDevTypingPreferences.AUTO_PAR,
                 "Automatic parentheses insertion",
                 "Enabling this option will enable automatic insertion of parentheses.  "
                         + "Specifically, whenever you hit a brace such as '(', '{', or '[', its related peer will be inserted "
                         + "and your cursor will be placed between the two braces.");
 
         //smart indent?
-        final BooleanFieldEditorCustom useSmartIndent = addBooleanField(p, SMART_INDENT_PAR, "Use smart-indent?", "");
+        final BooleanFieldEditorCustom useSmartIndent = addBooleanField(p, PyDevTypingPreferences.SMART_INDENT_PAR, "Use smart-indent?", "");
 
         //pep-8 indent?
-        final BooleanFieldEditorCustom usePep8Indent = addBooleanField(p, INDENT_AFTER_PAR_AS_PEP8,
+        final BooleanFieldEditorCustom usePep8Indent = addBooleanField(p, PyDevTypingPreferences.INDENT_AFTER_PAR_AS_PEP8,
                 "    After {, [, ( indent as pep-8.\n", "");
 
         final LabelFieldEditor labelPep8_1 = new LabelFieldEditor("__UNUSED__00",
@@ -133,10 +80,10 @@ public class PydevTypingPrefs extends ScopedFieldEditorPreferencePage implements
         addField(labelPep8_3);
 
         // indent
-        final BooleanFieldEditorCustom autoIndentToParLevel = addBooleanField(p, AUTO_INDENT_TO_PAR_LEVEL,
+        final BooleanFieldEditorCustom autoIndentToParLevel = addBooleanField(p, PyDevTypingPreferences.AUTO_INDENT_TO_PAR_LEVEL,
                 "    After {, [, ( indent to its level (indents by tabs if unchecked)", "");
 
-        final IntegerFieldEditor indentationLevelsToAddField = new IntegerFieldEditor(AUTO_INDENT_AFTER_PAR_WIDTH,
+        final IntegerFieldEditor indentationLevelsToAddField = new IntegerFieldEditor(PyDevTypingPreferences.AUTO_INDENT_AFTER_PAR_WIDTH,
                 "        Number of indentation levels to add:", p, 1);
         addField(indentationLevelsToAddField);
         final Runnable fixEnablement = new Runnable() {
@@ -176,17 +123,17 @@ public class PydevTypingPrefs extends ScopedFieldEditorPreferencePage implements
 
         fixParensIndentEnablement(p, usePep8Indent, autoIndentToParLevel, indentationLevelsToAddField, labelPep8_1,
                 labelPep8_2, labelPep8_3,
-                getPreferenceStore().getBoolean(SMART_INDENT_PAR),
-                getPreferenceStore().getBoolean(INDENT_AFTER_PAR_AS_PEP8),
-                getPreferenceStore().getBoolean(AUTO_INDENT_TO_PAR_LEVEL));
+                getPreferenceStore().getBoolean(PyDevTypingPreferences.SMART_INDENT_PAR),
+                getPreferenceStore().getBoolean(PyDevTypingPreferences.INDENT_AFTER_PAR_AS_PEP8),
+                getPreferenceStore().getBoolean(PyDevTypingPreferences.AUTO_INDENT_TO_PAR_LEVEL));
 
         //auto dedent 'else:'
-        addBooleanField(p, AUTO_DEDENT_ELSE, "Automatic dedent of 'else:' and 'elif:'", "");
+        addBooleanField(p, PyDevTypingPreferences.AUTO_DEDENT_ELSE, "Automatic dedent of 'else:' and 'elif:'", "");
 
         //auto braces
         addBooleanField(
                 p,
-                AUTO_BRACES,
+                PyDevTypingPreferences.AUTO_BRACES,
                 "Automatically skip matching braces when typing",
                 "Enabling this option will enable automatically skipping matching braces "
                         + "if you try to insert them.  For example, if you have the following code:\n\n"
@@ -197,34 +144,34 @@ public class PydevTypingPrefs extends ScopedFieldEditorPreferencePage implements
         //auto colon
         addBooleanField(
                 p,
-                AUTO_COLON,
+                PyDevTypingPreferences.AUTO_COLON,
                 "Automatic colon detection",
                 "Enabling this feature will enable the editor to detect if you are trying "
                         + "to enter a colon which is already there.  Instead of inserting another colon, the editor will "
                         + "simply move your cursor to the next position after the colon.");
 
         //auto literals
-        addBooleanField(p, AUTO_LITERALS, "Automatic literal closing", "Automatically close literals "
+        addBooleanField(p, PyDevTypingPreferences.AUTO_LITERALS, "Automatic literal closing", "Automatically close literals "
                 + "(when ' or \" is added, another one is added to close it).");
 
         //auto import str
-        addBooleanField(p, AUTO_WRITE_IMPORT_STR, "Automatic insertion of the 'import' string on 'from xxx' ",
+        addBooleanField(p, PyDevTypingPreferences.AUTO_WRITE_IMPORT_STR, "Automatic insertion of the 'import' string on 'from xxx' ",
                 "Enabling this will allow the editor to automatically write the"
                         + "'import' string when you write a space after you've written 'from xxx '.");
 
-        addBooleanField(p, AUTO_ADD_SELF, "Add 'self' automatically when declaring methods?", "");
+        addBooleanField(p, PyDevTypingPreferences.AUTO_ADD_SELF, "Add 'self' automatically when declaring methods?", "");
 
         KeySequence down = KeyBindingHelper.getCommandKeyBinding(ITextEditorActionDefinitionIds.MOVE_LINES_DOWN);
         KeySequence up = KeyBindingHelper.getCommandKeyBinding(ITextEditorActionDefinitionIds.MOVE_LINES_UP);
         String downKey = down != null ? down.format() : "Alt+Down"; //set the default if not there
         String upKey = up != null ? up.format() : "Alt+Up"; //set the default if not there
-        addBooleanField(p, SMART_LINE_MOVE,
+        addBooleanField(p, PyDevTypingPreferences.SMART_LINE_MOVE,
                 StringUtils.format("Smart move for line up  (%s) and line down (%s)?.", upKey, downKey), "");
 
         addField(new LabelFieldEditor("__UNUSED__", "Note: smart move line up/down change applied on editor restart.",
                 p));
 
-        addField(new ScopedPreferencesFieldEditor(p, PydevPlugin.DEFAULT_PYDEV_SCOPE, this));
+        addField(new ScopedPreferencesFieldEditor(p, SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_SCOPE, this));
 
     }
 
@@ -232,7 +179,7 @@ public class PydevTypingPrefs extends ScopedFieldEditorPreferencePage implements
         BooleanFieldEditorCustom field = new BooleanFieldEditorCustom(preference, text,
                 BooleanFieldEditor.DEFAULT, p);
         addField(field);
-        field.setTooltip(p, WrapAndCaseUtils.wrap(tooltip, TOOLTIP_WIDTH));
+        field.setTooltip(p, WrapAndCaseUtils.wrap(tooltip, PyDevTypingPreferences.TOOLTIP_WIDTH));
         return field;
     }
 

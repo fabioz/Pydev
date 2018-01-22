@@ -29,12 +29,12 @@ import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.eclipse.ui.part.FileEditorInput;
+import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.IPyStackFrame;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.FileTypesPreferences;
 import org.python.pydev.shared_core.callbacks.ICallback;
@@ -370,7 +370,7 @@ public class PySourceLocatorBase {
                     String fileContents = pyStackFrame.getFileContents();
                     if (fileContents != null && fileContents.length() > 0) {
                         String lastSegment = path.lastSegment();
-                        File workspaceMetadataFile = PydevPlugin.getWorkspaceMetadataFile("temporary_files");
+                        File workspaceMetadataFile = CorePlugin.getWorkspaceMetadataFile("temporary_files");
                         if (!workspaceMetadataFile.exists()) {
                             workspaceMetadataFile.mkdirs();
                         }

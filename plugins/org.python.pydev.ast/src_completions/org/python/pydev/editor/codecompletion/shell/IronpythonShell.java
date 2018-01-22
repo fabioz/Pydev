@@ -13,11 +13,11 @@ import java.io.File;
 import java.io.IOException;
 
 import org.eclipse.core.runtime.CoreException;
+import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimpleIronpythonRunner;
 import org.python.pydev.runners.SimpleRunner;
 import org.python.pydev.shared_core.io.FileUtils;
@@ -34,7 +34,7 @@ public class IronpythonShell extends AbstractShell {
      * @throws CoreException
      */
     public IronpythonShell() throws IOException, CoreException {
-        super(PydevPlugin.getScriptWithinPySrc("pycompletionserver.py"));
+        super(CorePlugin.getScriptWithinPySrc("pycompletionserver.py"));
     }
 
     @Override

@@ -53,6 +53,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.TextConsoleViewer;
+import org.python.pydev.editor.autoedit.IHandleScriptAutoEditStrategy;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_interactive_console.console.ScriptConsoleHistory;

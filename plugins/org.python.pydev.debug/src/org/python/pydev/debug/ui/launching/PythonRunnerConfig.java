@@ -55,9 +55,9 @@ import org.python.pydev.debug.pyunit.PyUnitServer;
 import org.python.pydev.debug.ui.DebugPrefsPage;
 import org.python.pydev.debug.ui.RunPreferencesPage;
 import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks.CreatedCommandLineParams;
-import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.pyunit.preferences.PyUnitPrefsPage2;
 import org.python.pydev.runners.SimpleRunner;
@@ -408,7 +408,7 @@ public class PythonRunnerConfig {
         arguments = getArguments(conf, makeArgumentsVariableSubstitution);
         IPath workingPath = getWorkingDirectory(conf, pythonNature);
         workingDirectory = workingPath == null ? null : workingPath.toFile();
-        acceptTimeout = PydevPrefs.getPreferences().getInt(PydevEditorPrefs.CONNECT_TIMEOUT);
+        acceptTimeout = PydevPrefs.getPreferences().getInt(PyDevEditorPreferences.CONNECT_TIMEOUT);
 
         interpreterLocation = getInterpreterLocation(conf, pythonNature, this.getRelatedInterpreterManager());
         interpreter = getInterpreter(interpreterLocation, conf, pythonNature);

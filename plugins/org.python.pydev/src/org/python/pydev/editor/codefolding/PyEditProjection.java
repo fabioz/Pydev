@@ -25,7 +25,7 @@ import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 import org.python.pydev.core.docutils.PythonPairMatcher;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.preferences.PydevEditorPrefs;
+import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.parsing.IParserObserver;
 import org.python.pydev.shared_ui.editor.BaseEditor;
@@ -71,8 +71,8 @@ public abstract class PyEditProjection extends BaseEditor implements IParserObse
     protected void configureSourceViewerDecorationSupport(SourceViewerDecorationSupport support) {
         super.configureSourceViewerDecorationSupport(support);
         support.setCharacterPairMatcher(fBracketMatcher);
-        support.setMatchingCharacterPainterPreferenceKeys(PydevEditorPrefs.USE_MATCHING_BRACKETS,
-                PydevEditorPrefs.MATCHING_BRACKETS_COLOR);
+        support.setMatchingCharacterPainterPreferenceKeys(PyDevEditorPreferences.USE_MATCHING_BRACKETS,
+                PyDevEditorPreferences.MATCHING_BRACKETS_COLOR);
     }
 
     @Override

@@ -116,4 +116,17 @@ public class CorePlugin extends AbstractUIPlugin {
         IPath relative = new Path("pysrc").addTrailingSeparator().append(targetExec);
         return getBundleInfo().getRelativePath(relative);
     }
+
+    public static File pydevStatelocation;
+
+    /**
+     * Loads from the workspace metadata a given object (given the filename)
+     */
+    public static File getWorkspaceMetadataFile(String fileName) {
+        if (pydevStatelocation == null) {
+            throw new RuntimeException(
+                    "pydevStatelocation not set. If running in tests, call: setTestPlatformStateLocation");
+        }
+        return new File(pydevStatelocation, fileName);
+    }
 }

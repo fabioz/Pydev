@@ -171,7 +171,7 @@ public class PyDocstringTextHover extends AbstractPyEditorTextHover {
                     }
                 }
 
-                String str = printAst(edit, astToPrint);
+                String str = NodeUtils.printAst(edit, astToPrint);
 
                 if (str != null && str.trim().length() > 0) {
                     temp.append(PyInformationPresenter.LINE_DELIM);
