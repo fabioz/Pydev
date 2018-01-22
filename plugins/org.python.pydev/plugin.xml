@@ -33,9 +33,6 @@
       <initializer class="org.python.pydev.builder.pylint.PyLintPrefInitializer"/>
       <initializer class="org.python.pydev.plugin.preferences.PydevPrefsInitializer"/>
    </extension>
-   <extension point="org.eclipse.core.runtime.preferences">
-      <initializer class="org.python.pydev.editor.codecompletion.PyCodeCompletionInitializer"/>
-   </extension>
 
 <!-- document provider (even for the external files) -->
    <extension point="org.eclipse.ui.editors.documentProviders">
