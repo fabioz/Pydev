@@ -15,6 +15,7 @@ import java.io.IOException;
 import org.eclipse.core.runtime.CoreException;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimpleIronpythonRunner;
@@ -28,7 +29,7 @@ public class IronpythonShell extends AbstractShell {
 
     /**
      * Initialize with the default python server file.
-     * 
+     *
      * @throws IOException
      * @throws CoreException
      */
@@ -52,7 +53,7 @@ public class IronpythonShell extends AbstractShell {
                 new String[] { String.valueOf(port) },
                 true);
 
-        IInterpreterManager manager = PydevPlugin.getIronpythonInterpreterManager();
+        IInterpreterManager manager = InterpreterManagersAPI.getIronpythonInterpreterManager();
 
         String[] envp = null;
         try {

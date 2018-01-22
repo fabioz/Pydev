@@ -34,6 +34,7 @@ import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
@@ -42,7 +43,6 @@ import org.python.pydev.editor.codecompletion.revisited.modules.PredefinedSource
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.shared_core.cache.LRUCache;
 import org.python.pydev.shared_core.io.FileUtils;
@@ -122,13 +122,13 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
         int interpreterType = this.info.getInterpreterType();
         switch (interpreterType) {
             case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
-                return PydevPlugin.getJythonInterpreterManager();
+                return InterpreterManagersAPI.getJythonInterpreterManager();
 
             case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
-                return PydevPlugin.getPythonInterpreterManager();
+                return InterpreterManagersAPI.getPythonInterpreterManager();
 
             case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
-                return PydevPlugin.getIronpythonInterpreterManager();
+                return InterpreterManagersAPI.getIronpythonInterpreterManager();
 
             default:
                 throw new RuntimeException("Don't know how to handle: " + interpreterType);

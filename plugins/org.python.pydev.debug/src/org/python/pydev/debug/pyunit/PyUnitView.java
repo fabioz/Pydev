@@ -1040,7 +1040,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
             this.setCurrentRun(testRunRestored);
         } catch (Exception e) {
             Log.log(e);
-            Status status = PydevPlugin.makeStatus(IStatus.ERROR, e.getMessage(), e);
+            Status status = SharedCorePlugin.makeStatus(IStatus.ERROR, e.getMessage(), e);
             ErrorDialog.openError(EditorUtils.getShell(), "Error restoring tests from clipboard",
                     "Error restoring tests from clipboard", status);
         }

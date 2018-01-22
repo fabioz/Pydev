@@ -61,6 +61,7 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.pyunit.preferences.PyUnitPrefsPage2;
 import org.python.pydev.runners.SimpleRunner;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.net.LocalHost;
 import org.python.pydev.shared_core.process.ProcessUtils;
@@ -859,7 +860,7 @@ public class PythonRunnerConfig {
                             try {
                                 fileOutputStream.write(configurationFile.getBytes());
                             } catch (IOException e) {
-                                throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, "Error writing to: "
+                                throw new CoreException(SharedCorePlugin.makeStatus(IStatus.ERROR, "Error writing to: "
                                         + tempFile, e));
                             }
                         } finally {
@@ -869,7 +870,7 @@ public class PythonRunnerConfig {
                         if (e instanceof CoreException) {
                             throw (CoreException) e;
                         }
-                        throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, "Error writing to: " + tempFile,
+                        throw new CoreException(SharedCorePlugin.makeStatus(IStatus.ERROR, "Error writing to: " + tempFile,
                                 e));
                     }
                     cmdArgs.add(tempFile.toString());
@@ -978,7 +979,7 @@ public class PythonRunnerConfig {
                 try {
                     cmdArgs.add(Integer.toString(getDebuggerListenConnector().getLocalPort()));
                 } catch (IOException e) {
-                    throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, "Unable to get port", e));
+                    throw new CoreException(SharedCorePlugin.makeStatus(IStatus.ERROR, "Unable to get port", e));
                 }
             } else {
                 cmdArgs.add("0");

@@ -33,7 +33,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimpleJythonRunner;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -93,7 +92,7 @@ public class InterpreterConfigHelpers {
                     SimpleJythonRunner.JavaNotConfiguredException javaNotConfiguredException = (SimpleJythonRunner.JavaNotConfiguredException) operation.e;
                     if (displayErrors) {
                         ErrorDialog.openError(shell, errorTitle,
-                                javaNotConfiguredException.getMessage(), PydevPlugin.makeStatus(IStatus.ERROR,
+                                javaNotConfiguredException.getMessage(), SharedCorePlugin.makeStatus(IStatus.ERROR,
                                         "Java vm not configured.\n", javaNotConfiguredException));
                     }
                     throw new Exception(javaNotConfiguredException);
@@ -103,7 +102,7 @@ public class InterpreterConfigHelpers {
                     if (displayErrors) {
                         ErrorDialog.openError(shell, errorTitle,
                                 noJdtException.getMessage(),
-                                PydevPlugin.makeStatus(IStatus.ERROR, "JDT not available.\n", noJdtException));
+                                SharedCorePlugin.makeStatus(IStatus.ERROR, "JDT not available.\n", noJdtException));
                     }
                     throw new Exception(noJdtException);
 
@@ -117,7 +116,7 @@ public class InterpreterConfigHelpers {
                                 + "\n" + "- Specifying an invalid interpreter\n"
                                 + "  (usually a link to the actual interpreter on Mac or Linux)" + "";
                         ErrorDialog.openError(shell, errorTitle,
-                                errorMsg, PydevPlugin.makeStatus(IStatus.ERROR, "See error log for details.",
+                                errorMsg, SharedCorePlugin.makeStatus(IStatus.ERROR, "See error log for details.",
                                         operation.e));
                     }
                     throw new Exception(operation.e);
@@ -236,7 +235,7 @@ public class InterpreterConfigHelpers {
             if (shell != null) {
                 ErrorDialog.openError(shell, errorMsg,
                         "interpreterNameAndExecutable == null",
-                        PydevPlugin.makeStatus(IStatus.ERROR, "interpreterNameAndExecutable == null",
+                        SharedCorePlugin.makeStatus(IStatus.ERROR, "interpreterNameAndExecutable == null",
                                 new RuntimeException()));
             }
             foundError = true;
@@ -247,7 +246,7 @@ public class InterpreterConfigHelpers {
 
                 if (shell != null) {
                     ErrorDialog.openError(shell, errorMsg, "interpreterNameAndExecutable size == empty",
-                            PydevPlugin.makeStatus(IStatus.ERROR, "interpreterNameAndExecutable size == empty",
+                            SharedCorePlugin.makeStatus(IStatus.ERROR, "interpreterNameAndExecutable size == empty",
                                     new RuntimeException()));
                 }
                 foundError = true;
@@ -259,7 +258,7 @@ public class InterpreterConfigHelpers {
             if (error != null) {
                 logger.println("- Duplicated interpreter found.");
                 if (shell != null) {
-                    ErrorDialog.openError(shell, errorMsg, error, PydevPlugin.makeStatus(IStatus.ERROR,
+                    ErrorDialog.openError(shell, errorMsg, error, SharedCorePlugin.makeStatus(IStatus.ERROR,
                             "Duplicated interpreter information", new RuntimeException()));
                 }
                 foundError = true;

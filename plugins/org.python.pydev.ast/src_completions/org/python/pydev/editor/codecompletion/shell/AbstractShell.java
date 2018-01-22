@@ -37,7 +37,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledToken;
 import org.python.pydev.logging.DebugSettings;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.net.SocketUtil;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -289,7 +289,7 @@ public abstract class AbstractShell {
                                 + exitVal + ").\n" + process.getProcessLog();
                         dbg(msg, 1);
                         Log.log(msg);
-                        throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, msg, new Exception(msg)));
+                        throw new CoreException(SharedCorePlugin.makeStatus(IStatus.ERROR, msg, new Exception(msg)));
                     } catch (IllegalThreadStateException e2) { //this is ok
                     }
 

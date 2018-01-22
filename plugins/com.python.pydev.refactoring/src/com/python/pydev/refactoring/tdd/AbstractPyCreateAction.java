@@ -20,8 +20,8 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_ui.EditorUtils;
 
 
@@ -56,7 +56,7 @@ public abstract class AbstractPyCreateAction extends Action implements IEditorAc
     @Override
     public void run(IAction action) {
         if (targetEditor == null) {
-            Status status = PydevPlugin.makeStatus(IStatus.ERROR, "Unable to do refactoring.", null);
+            Status status = SharedCorePlugin.makeStatus(IStatus.ERROR, "Unable to do refactoring.", null);
             ErrorDialog.openError(EditorUtils.getShell(), "Unable to do refactoring.",
                     "Target editor is null (not PyEdit).", status);
             return;
@@ -72,7 +72,7 @@ public abstract class AbstractPyCreateAction extends Action implements IEditorAc
                 e = e.getCause();
             }
             //get the root cause
-            Status status = PydevPlugin.makeStatus(IStatus.ERROR, "Error making refactoring", initial);
+            Status status = SharedCorePlugin.makeStatus(IStatus.ERROR, "Error making refactoring", initial);
             ErrorDialog.openError(EditorUtils.getShell(), "Error making refactoring", e.getMessage(), status);
         }
     }

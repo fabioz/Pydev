@@ -146,6 +146,7 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.CheckDefaultPreferencesDialog;
 import org.python.pydev.plugin.preferences.PyCodeFormatterPage;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
@@ -1617,7 +1618,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             NotConfiguredInterpreterException e = new NotConfiguredInterpreterException();
             ErrorDialog.openError(EditorUtils.getShell(), "Error: no interpreter configured",
                     "Interpreter not configured\n(Please, Configure it under window->preferences->PyDev)",
-                    PydevPlugin.makeStatus(IStatus.ERROR, e.getMessage(), e));
+                    SharedCorePlugin.makeStatus(IStatus.ERROR, e.getMessage(), e));
             throw e;
 
         }

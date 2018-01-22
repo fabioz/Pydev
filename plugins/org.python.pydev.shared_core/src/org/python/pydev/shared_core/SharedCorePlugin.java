@@ -7,6 +7,7 @@
 package org.python.pydev.shared_core;
 
 import org.eclipse.core.runtime.Plugin;
+import org.eclipse.core.runtime.Status;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -43,6 +44,10 @@ public class SharedCorePlugin extends Plugin {
     @Override
     public void stop(BundleContext context) throws Exception {
         super.stop(context);
+    }
+
+    public static Status makeStatus(int errorLevel, String message, Throwable e) {
+        return new Status(errorLevel, PYDEV_PLUGIN_ID, errorLevel, message, e);
     }
 
     /**

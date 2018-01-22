@@ -286,10 +286,6 @@ public class PydevPlugin extends AbstractUIPlugin {
         return ResourcesPlugin.getWorkspace();
     }
 
-    public static Status makeStatus(int errorLevel, String message, Throwable e) {
-        return new Status(errorLevel, getPluginID(), errorLevel, message, e);
-    }
-
     /**
      * Returns the string from the plugin's resource bundle, or 'key' if not found.
      */
