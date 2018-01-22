@@ -36,13 +36,12 @@ import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.editor.BaseEditor;
 import org.python.pydev.shared_ui.editor.IPyEditListener;
+import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.utils.PyFileListing.PyFileInfo;
-
-import com.python.pydev.util.UIUtils;
 
 /**
  * Checks the integrity of the internal pydev caches.
- * 
+ *
  * @author Fabio
  */
 public class AdditionalInfoIntegrityChecker implements IPyEditListener {
@@ -109,7 +108,8 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener {
                         buffer.append(StringUtils.format("Found module: %s - %s\n",
                                 modName, moduleFile));
                     } else {
-                        if (PythonPathHelper.isValidModuleLastPart(StringUtils.stripExtension((moduleFile.getName())))) {
+                        if (PythonPathHelper
+                                .isValidModuleLastPart(StringUtils.stripExtension((moduleFile.getName())))) {
                             info.allOk = false;
                             buffer.append(StringUtils.format(
                                     "Unable to resolve module: %s (gotten null module name)\n", moduleFile));
@@ -129,7 +129,7 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener {
 
     /**
      * @param expectedModuleNames the modules that exist in the disk (an actual file is found and checked for the module it resolves to)
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     private static void check(HashSet<ModulesKey> expectedModuleNames, IntegrityInfo info, boolean fix)
             throws MisconfigurationException {
@@ -248,7 +248,7 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener {
                 } catch (MisconfigurationException e) {
                     buf.append(e.getMessage());
                 }
-                UIUtils.showString(buf.toString());
+                PyDialogHelpers.showString(buf.toString());
             }
         }, "Used just for testing (do not use).", true);
     }
