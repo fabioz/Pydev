@@ -9,6 +9,7 @@ package org.python.pydev.plugin;
 import java.io.File;
 import java.io.IOException;
 
+import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.shared_core.io.FileUtils;
 
@@ -19,8 +20,8 @@ import org.python.pydev.shared_core.io.FileUtils;
 public class PydevTestUtils {
 
     public static File setTestPlatformStateLocation() {
-        if (PydevPlugin.location != null) {
-            return PydevPlugin.location;
+        if (CorePlugin.pydevStatelocation != null) {
+            return CorePlugin.pydevStatelocation;
         }
         File baseDir = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC, "data_temporary_for_testing");
         try {
@@ -28,7 +29,7 @@ public class PydevTestUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        PydevPlugin.location = baseDir;
+        CorePlugin.pydevStatelocation = baseDir;
         return baseDir;
     }
 

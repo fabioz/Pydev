@@ -20,8 +20,8 @@ import org.eclipse.core.runtime.Path;
 import org.python.pydev.core.PropertiesHelper;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
-import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractJavaClassModule;
-import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaDefinition;
+import org.python.pydev.editor.codecompletion.revisited.modules.IAbstractJavaClassModule;
+import org.python.pydev.editor.codecompletion.revisited.modules.IJavaDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.preferences.FileTypesPreferences;
@@ -114,14 +114,14 @@ public class ItemPointer extends BaseItemPointer {
 
                 //Keep on going as we were going...
 
-            } else if (definition instanceof JavaDefinition) {
+            } else if (definition instanceof IJavaDefinition) {
                 Log.log(new RuntimeException("Not currently able to convert JavaDefinition to URI."));
                 return null;
 
             } else {
                 boolean giveError = true;
 
-                if (definition != null && definition.module instanceof AbstractJavaClassModule) {
+                if (definition != null && definition.module instanceof IAbstractJavaClassModule) {
                     Log.log(new RuntimeException("Not currently able to convert AbstractJavaClassModule to URI."));
                     return null;
 

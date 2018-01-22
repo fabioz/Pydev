@@ -19,8 +19,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -121,8 +121,7 @@ public class SimpleIronpythonRunner extends SimpleRunner {
             //in tests
             defaultVmArgs = IInterpreterManager.IRONPYTHON_DEFAULT_INTERNAL_SHELL_VM_ARGS;
         } else {
-            PydevPlugin plugin = PydevPlugin.getDefault();
-            IPreferenceStore preferenceStore = plugin.getPreferenceStore();
+            IPreferenceStore preferenceStore = PydevPrefs.getPreferenceStore();
             defaultVmArgs = preferenceStore.getString(IInterpreterManager.IRONPYTHON_INTERNAL_SHELL_VM_ARGS);
         }
         List<String> defaultVmArgsSplit = new ArrayList<String>();
