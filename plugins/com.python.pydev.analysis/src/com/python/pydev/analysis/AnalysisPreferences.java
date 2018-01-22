@@ -17,6 +17,7 @@ import java.util.Set;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.python.pydev.shared_core.preferences.IScopedPreferences;
+import org.python.pydev.shared_core.process.ProcessUtils;
 
 public class AnalysisPreferences extends AbstractAnalysisPreferences {
 
@@ -178,6 +179,25 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences {
             ret.add(string.replaceAll("\\*", ".*"));
         }
         return ret;
+    }
+
+    public static String[] getPep8CommandLine(IAdaptable projectAdaptable) {
+        return ProcessUtils.parseArguments(getPep8CommandLineAsStr(projectAdaptable));
+    }
+
+    public static String getPep8CommandLineAsStr(IAdaptable projectAdaptable) {
+        return PyAnalysisScopedPreferences.getString(AnalysisPreferenceInitializer.PEP8_COMMAND_LINE, projectAdaptable);
+    }
+
+    public static boolean useConsole(IAdaptable projectAdaptable) {
+        if (AnalysisPreferenceInitializer.SHOW_IN_PEP8_FEATURE_ENABLED) {
+            return PyAnalysisScopedPreferences.getBoolean(AnalysisPreferenceInitializer.USE_PEP8_CONSOLE, projectAdaptable);
+        }
+        return false;
+    }
+
+    public static boolean useSystemInterpreter(IAdaptable projectAdaptable) {
+        return PyAnalysisScopedPreferences.getBoolean(AnalysisPreferenceInitializer.PEP8_USE_SYSTEM, projectAdaptable);
     }
 
 }

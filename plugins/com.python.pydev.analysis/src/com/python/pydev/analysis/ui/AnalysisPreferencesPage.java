@@ -10,7 +10,6 @@
 package com.python.pydev.analysis.ui;
 
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.StringFieldEditor;
@@ -25,7 +24,6 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.python.pydev.shared_core.process.ProcessUtils;
 import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;
 import org.python.pydev.shared_ui.field_editors.LinkFieldEditor;
 import org.python.pydev.shared_ui.field_editors.RadioGroupFieldEditor;
@@ -37,15 +35,6 @@ import com.python.pydev.analysis.AnalysisPreferenceInitializer;
 import com.python.pydev.analysis.PyAnalysisScopedPreferences;
 
 public class AnalysisPreferencesPage extends ScopedFieldEditorPreferencePage implements IWorkbenchPreferencePage {
-
-    public static final String USE_PEP8_CONSOLE = "USE_PEP8_CONSOLE";
-    public static final boolean DEFAULT_USE_PEP8_CONSOLE = false;
-    public static final String PEP8_COMMAND_LINE = "PEP8_IGNORE_WARNINGS";
-    public static final String PEP8_USE_SYSTEM = "PEP8_USE_SYSTEM";
-    public static final boolean DEFAULT_PEP8_USE_SYSTEM = false;
-
-    //Disabled because we're running in a thread now.
-    public static final boolean SHOW_IN_PEP8_FEATURE_ENABLED = false;
 
     public AnalysisPreferencesPage() {
         super(FLAT);
@@ -147,8 +136,8 @@ public class AnalysisPreferencesPage extends ScopedFieldEditorPreferencePage imp
                         adjustForNumColumns(4);
                     }
                 });
-        if (SHOW_IN_PEP8_FEATURE_ENABLED) {
-            addField(new BooleanFieldEditor(USE_PEP8_CONSOLE, "Redirect pycodestyle output to console?", p) {
+        if (AnalysisPreferenceInitializer.SHOW_IN_PEP8_FEATURE_ENABLED) {
+            addField(new BooleanFieldEditor(AnalysisPreferenceInitializer.USE_PEP8_CONSOLE, "Redirect pycodestyle output to console?", p) {
                 @Override
                 protected void doFillIntoGrid(Composite parent, int numColumns) {
                     super.doFillIntoGrid(parent, 4);
@@ -156,7 +145,7 @@ public class AnalysisPreferencesPage extends ScopedFieldEditorPreferencePage imp
                 }
             });
         }
-        addField(new BooleanFieldEditor(PEP8_USE_SYSTEM, "Use system interpreter (may be faster than internal Jython)",
+        addField(new BooleanFieldEditor(AnalysisPreferenceInitializer.PEP8_USE_SYSTEM, "Use system interpreter (may be faster than internal Jython)",
                 p) {
             @Override
             protected void doFillIntoGrid(Composite parent, int numColumns) {
@@ -165,7 +154,7 @@ public class AnalysisPreferencesPage extends ScopedFieldEditorPreferencePage imp
             }
         });
 
-        addField(new LinkFieldEditor(PEP8_COMMAND_LINE,
+        addField(new LinkFieldEditor(AnalysisPreferenceInitializer.PEP8_COMMAND_LINE,
                 "Additional command line arguments (i.e.: --ignore=E5,W391). See <a>pycodestyle docs</a> for details.",
                 p,
                 new SelectionListener() {
@@ -194,7 +183,7 @@ public class AnalysisPreferencesPage extends ScopedFieldEditorPreferencePage imp
             }
         });
 
-        addField(new StringFieldEditor(PEP8_COMMAND_LINE, "Arguments: ", p) {
+        addField(new StringFieldEditor(AnalysisPreferenceInitializer.PEP8_COMMAND_LINE, "Arguments: ", p) {
             @Override
             protected void doFillIntoGrid(Composite parent, int numColumns) {
                 super.doFillIntoGrid(parent, 4);
@@ -220,24 +209,5 @@ public class AnalysisPreferencesPage extends ScopedFieldEditorPreferencePage imp
 
     @Override
     public void init(IWorkbench workbench) {
-    }
-
-    public static String[] getPep8CommandLine(IAdaptable projectAdaptable) {
-        return ProcessUtils.parseArguments(getPep8CommandLineAsStr(projectAdaptable));
-    }
-
-    public static String getPep8CommandLineAsStr(IAdaptable projectAdaptable) {
-        return PyAnalysisScopedPreferences.getString(PEP8_COMMAND_LINE, projectAdaptable);
-    }
-
-    public static boolean useConsole(IAdaptable projectAdaptable) {
-        if (SHOW_IN_PEP8_FEATURE_ENABLED) {
-            return PyAnalysisScopedPreferences.getBoolean(USE_PEP8_CONSOLE, projectAdaptable);
-        }
-        return false;
-    }
-
-    public static boolean useSystemInterpreter(IAdaptable projectAdaptable) {
-        return PyAnalysisScopedPreferences.getBoolean(PEP8_USE_SYSTEM, projectAdaptable);
     }
 }

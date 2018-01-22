@@ -28,10 +28,10 @@ import org.python.pydev.plugin.JythonModules;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 
+import com.python.pydev.analysis.AnalysisPreferences;
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.messages.IMessage;
 import com.python.pydev.analysis.messages.Message;
-import com.python.pydev.analysis.ui.AnalysisPreferencesPage;
 
 /**
  * @author Fabio
@@ -104,8 +104,8 @@ public class Pep8Visitor {
             }
 
             IAdaptable projectAdaptable = prefs.getProjectAdaptable();
-            if (AnalysisPreferencesPage.useSystemInterpreter(projectAdaptable)) {
-                String parameters = AnalysisPreferencesPage.getPep8CommandLineAsStr(projectAdaptable);
+            if (AnalysisPreferences.useSystemInterpreter(projectAdaptable)) {
+                String parameters = AnalysisPreferences.getPep8CommandLineAsStr(projectAdaptable);
                 String output = PyFormatStd.runWithPep8BaseScript(document, parameters, "pycodestyle.py");
                 if (output == null) {
                     output = "";
@@ -126,7 +126,7 @@ public class Pep8Visitor {
                 return messages;
             }
 
-            String[] pep8CommandLine = AnalysisPreferencesPage.getPep8CommandLine(projectAdaptable);
+            String[] pep8CommandLine = AnalysisPreferences.getPep8CommandLine(projectAdaptable);
             FastStringBuffer args = new FastStringBuffer(pep8CommandLine.length * 20);
             for (String string : pep8CommandLine) {
                 args.append(',').append("r'").append(string).append('\'');
@@ -134,7 +134,7 @@ public class Pep8Visitor {
 
             //It's important that the interpreter is created in the Thread and not outside the thread (otherwise
             //it may be that the output ends up being shared, which is not what we want.)
-            boolean useConsole = AnalysisPreferencesPage.useConsole(projectAdaptable);
+            boolean useConsole = AnalysisPreferences.useConsole(projectAdaptable);
             IPythonInterpreter interpreter = JythonPlugin.newPythonInterpreter(useConsole, false);
             String file = StringUtils.replaceAllSlashes(module.getFile().getAbsolutePath());
             interpreter.set("visitor", this);
