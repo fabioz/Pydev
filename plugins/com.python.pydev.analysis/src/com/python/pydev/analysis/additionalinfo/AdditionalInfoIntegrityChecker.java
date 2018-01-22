@@ -23,10 +23,10 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IModulesManager;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -235,7 +235,7 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener {
 
     @Override
     public void onCreateActions(ListResourceBundle resources, final BaseEditor baseEditor, IProgressMonitor monitor) {
-        PyEdit edit = (PyEdit) baseEditor;
+        IPyEdit edit = (IPyEdit) baseEditor;
         edit.addOfflineActionListener("--internal-test-modules", new Action() {
             @Override
             public void run() {

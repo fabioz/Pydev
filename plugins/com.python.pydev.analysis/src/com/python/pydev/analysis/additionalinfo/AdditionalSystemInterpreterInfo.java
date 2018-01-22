@@ -31,7 +31,6 @@ import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.shared_core.global_feedback.GlobalFeedback;
 import org.python.pydev.shared_core.global_feedback.GlobalFeedback.GlobalFeedbackReporter;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 import com.python.pydev.analysis.AnalysisPlugin;
@@ -143,7 +142,7 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithB
     /**
      * Should only be used in tests.
      */
-    public static void setAdditionalSystemInfo(PythonInterpreterManager manager, String executableOrJar,
+    public static void setAdditionalSystemInfo(IInterpreterManager manager, String executableOrJar,
             AdditionalSystemInterpreterInfo additionalInfo) {
         synchronized (additionalSystemInfoLock) {
             Tuple<String, String> key = new Tuple<String, String>(manager.getManagerRelatedName(), executableOrJar);

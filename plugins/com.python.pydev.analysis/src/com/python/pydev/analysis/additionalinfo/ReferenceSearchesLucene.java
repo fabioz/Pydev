@@ -33,7 +33,7 @@ import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.cache.CompleteIndexKey;
 import org.python.pydev.core.cache.DiskCache;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.revisited.javaintegration.ModulesKeyForJava;
+import org.python.pydev.editor.codecompletion.revisited.modules.IModulesKeyForJava;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.index.IndexApi;
 import org.python.pydev.shared_core.index.IndexApi.DocumentInfo;
@@ -86,7 +86,7 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
     @Override
     public synchronized List<ModulesKey> search(IProject project,
             final OrderedMap<String, Set<String>> fieldNameToValues, IProgressMonitor monitor)
-                    throws OperationCanceledException {
+            throws OperationCanceledException {
         try {
             if (!(monitor instanceof AsynchronousProgressMonitorWrapper)) {
                 monitor = new AsynchronousProgressMonitorWrapper(monitor);
@@ -101,7 +101,7 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
 
     private synchronized List<ModulesKey> internalSearch(IProject project,
             final OrderedMap<String, Set<String>> fieldNameToValues, IProgressMonitor monitor)
-                    throws OperationCanceledException {
+            throws OperationCanceledException {
 
         final List<ModulesKey> ret = new ArrayList<ModulesKey>();
         PythonNature nature = PythonNature.getPythonNature(project);
@@ -233,7 +233,7 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
                 CompleteIndexKey completeIndexKey = currentEntry.getValue();
                 if (!indexMap.containsKey(completeIndexKey.key)) {
                     ModulesKey modulesKey = completeIndexKey.key;
-                    if (modulesKey instanceof ModulesKeyForJava || modulesKey.file == null
+                    if (modulesKey instanceof IModulesKeyForJava || modulesKey.file == null
                             || !modulesKey.file.isFile()) {
                         //ignore this one (we can't do anything with it).
                         continue;

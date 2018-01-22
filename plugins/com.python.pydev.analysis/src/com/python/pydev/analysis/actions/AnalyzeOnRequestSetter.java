@@ -11,7 +11,7 @@ import java.util.ListResourceBundle;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.editor.PyEdit;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.editor.BaseEditor;
@@ -23,16 +23,17 @@ public class AnalyzeOnRequestSetter implements IPyEditListener {
 
     public static class AnalyzeOnRequestAction extends Action {
 
-        private PyEdit edit;
+        private IPyEdit edit;
 
-        public AnalyzeOnRequestAction(PyEdit edit) {
+        public AnalyzeOnRequestAction(IPyEdit edit) {
             this.edit = edit;
         }
 
         @Override
         public void run() {
-            PyParser parser = edit.getParser();
-            parser.forceReparse(new Tuple<String, Boolean>(AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE, true));
+            PyParser parser = (PyParser) edit.getParser();
+            parser.forceReparse(
+                    new Tuple<String, Boolean>(AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE, true));
         }
     }
 
@@ -42,7 +43,7 @@ public class AnalyzeOnRequestSetter implements IPyEditListener {
 
     @Override
     public void onCreateActions(ListResourceBundle resources, BaseEditor baseEditor, IProgressMonitor monitor) {
-        PyEdit edit = (PyEdit) baseEditor;
+        IPyEdit edit = (IPyEdit) baseEditor;
         AnalyzeOnRequestAction action = new AnalyzeOnRequestAction(edit);
         edit.addOfflineActionListener("c", action, "Code-analysis on request", false);
     }

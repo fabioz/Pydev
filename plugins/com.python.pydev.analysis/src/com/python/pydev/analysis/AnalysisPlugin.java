@@ -33,6 +33,7 @@ import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 
 import com.python.pydev.analysis.additionalinfo.IInfo;
@@ -235,7 +236,7 @@ public class AnalysisPlugin extends AbstractUIPlugin {
             case IInfo.CLASS_WITH_IMPORT_TYPE:
                 if (autoImportClassWithImportType == null) {
                     synchronized (lock) {
-                        ImageCache imageCache = org.python.pydev.plugin.PydevPlugin.getImageCache();
+                        ImageCache imageCache = SharedUiPlugin.getImageCache();
                         autoImportClassWithImportType = imageCache.getImageDecorated(UIConstants.CLASS_ICON,
                                 UIConstants.CTX_INSENSITIVE_DECORATION_ICON,
                                 ImageCache.DECORATION_LOCATION_BOTTOM_RIGHT);
@@ -246,7 +247,7 @@ public class AnalysisPlugin extends AbstractUIPlugin {
             case IInfo.METHOD_WITH_IMPORT_TYPE:
                 if (autoImportMethodWithImportType == null) {
                     synchronized (lock) {
-                        ImageCache imageCache = org.python.pydev.plugin.PydevPlugin.getImageCache();
+                        ImageCache imageCache = SharedUiPlugin.getImageCache();
                         autoImportMethodWithImportType = imageCache.getImageDecorated(UIConstants.METHOD_ICON,
                                 UIConstants.CTX_INSENSITIVE_DECORATION_ICON,
                                 ImageCache.DECORATION_LOCATION_BOTTOM_RIGHT);
@@ -257,7 +258,7 @@ public class AnalysisPlugin extends AbstractUIPlugin {
             case IInfo.ATTRIBUTE_WITH_IMPORT_TYPE:
                 if (autoImportAttributeWithImportType == null) {
                     synchronized (lock) {
-                        ImageCache imageCache = org.python.pydev.plugin.PydevPlugin.getImageCache();
+                        ImageCache imageCache = SharedUiPlugin.getImageCache();
                         autoImportAttributeWithImportType = imageCache.getImageDecorated(UIConstants.PUBLIC_ATTR_ICON,
                                 UIConstants.CTX_INSENSITIVE_DECORATION_ICON,
                                 ImageCache.DECORATION_LOCATION_BOTTOM_RIGHT);
@@ -268,7 +269,7 @@ public class AnalysisPlugin extends AbstractUIPlugin {
             case IInfo.MOD_IMPORT_TYPE:
                 if (autoImportModImportType == null) {
                     synchronized (lock) {
-                        ImageCache imageCache = org.python.pydev.plugin.PydevPlugin.getImageCache();
+                        ImageCache imageCache = SharedUiPlugin.getImageCache();
                         autoImportModImportType = imageCache.getImageDecorated(UIConstants.FOLDER_PACKAGE_ICON,
                                 UIConstants.CTX_INSENSITIVE_DECORATION_ICON,
                                 ImageCache.DECORATION_LOCATION_BOTTOM_RIGHT);
@@ -277,7 +278,7 @@ public class AnalysisPlugin extends AbstractUIPlugin {
                 return autoImportModImportType;
 
             case IInfo.USE_PACKAGE_ICON:
-                ImageCache imageCache = org.python.pydev.plugin.PydevPlugin.getImageCache();
+                ImageCache imageCache = SharedUiPlugin.getImageCache();
                 return imageCache.get(UIConstants.COMPLETION_PACKAGE_ICON);
 
             default:
@@ -297,7 +298,7 @@ public class AnalysisPlugin extends AbstractUIPlugin {
             case IInfo.CLASS_WITH_IMPORT_TYPE:
                 if (classWithImportType == null) {
                     synchronized (lock) {
-                        ImageCache imageCache = org.python.pydev.plugin.PydevPlugin.getImageCache();
+                        ImageCache imageCache = SharedUiPlugin.getImageCache();
                         classWithImportType = imageCache.get(UIConstants.CLASS_ICON);
                     }
                 }
@@ -306,7 +307,7 @@ public class AnalysisPlugin extends AbstractUIPlugin {
             case IInfo.METHOD_WITH_IMPORT_TYPE:
                 if (methodWithImportType == null) {
                     synchronized (lock) {
-                        ImageCache imageCache = org.python.pydev.plugin.PydevPlugin.getImageCache();
+                        ImageCache imageCache = SharedUiPlugin.getImageCache();
                         methodWithImportType = imageCache.get(UIConstants.METHOD_ICON);
                     }
                 }
@@ -315,7 +316,7 @@ public class AnalysisPlugin extends AbstractUIPlugin {
             case IInfo.ATTRIBUTE_WITH_IMPORT_TYPE:
                 if (attributeWithImportType == null) {
                     synchronized (lock) {
-                        ImageCache imageCache = org.python.pydev.plugin.PydevPlugin.getImageCache();
+                        ImageCache imageCache = SharedUiPlugin.getImageCache();
                         attributeWithImportType = imageCache.get(UIConstants.PUBLIC_ATTR_ICON);
                     }
                 }
@@ -324,7 +325,7 @@ public class AnalysisPlugin extends AbstractUIPlugin {
             case IInfo.MOD_IMPORT_TYPE:
                 if (modImportType == null) {
                     synchronized (lock) {
-                        ImageCache imageCache = org.python.pydev.plugin.PydevPlugin.getImageCache();
+                        ImageCache imageCache = SharedUiPlugin.getImageCache();
                         modImportType = imageCache.get(UIConstants.FOLDER_PACKAGE_ICON);
                     }
                 }

@@ -49,4 +49,6 @@ public interface IPyEdit extends IParserObserver, IBaseEditor, IPyFormatStdProvi
 
     boolean isCythonFile();
 
+    /* PyParser */ Object getParser();
+
 }

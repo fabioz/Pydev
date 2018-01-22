@@ -58,6 +58,11 @@ public class PyParserEditorIntegrationTest extends TestCase {
         }
 
         @Override
+        public Object getParser() {
+            throw new RuntimeException("Not implemented");
+        }
+
+        @Override
         public void parserChanged(ISimpleNode root, IAdaptable file, IDocument doc, long docModificationStamp) {
             this.parserChanged += 1;
         }

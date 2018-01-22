@@ -24,6 +24,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
+import org.python.pydev.core.IPyEdit;
+import org.python.pydev.core.IPySourceViewer;
 import org.python.pydev.core.docutils.ImportHandle;
 import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
 import org.python.pydev.core.docutils.ImportNotRecognizedException;
@@ -33,13 +35,10 @@ import org.python.pydev.core.docutils.PyImportsHandling;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.codecompletion.AbstractPyCompletionProposalExtension2;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal2;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
-import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -161,9 +160,9 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
     public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
         IDocument document = viewer.getDocument();
         IAdaptable projectAdaptable;
-        if (viewer instanceof PySourceViewer) {
-            PySourceViewer pySourceViewer = (PySourceViewer) viewer;
-            PyEdit pyEdit = pySourceViewer.getEdit();
+        if (viewer instanceof IPySourceViewer) {
+            IPySourceViewer pySourceViewer = (IPySourceViewer) viewer;
+            IPyEdit pyEdit = pySourceViewer.getEdit();
             this.indentString = pyEdit.getIndentPrefs().getIndentationString();
             projectAdaptable = pyEdit;
         } else {
@@ -288,7 +287,7 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
             } else {
                 lineToAddImport = -1;
             }
-            String delimiter = PyAction.getDelimiter(document);
+            String delimiter = PySelection.getDelimiter(document);
 
             appliedWithTrigger = trigger == '.' || trigger == '(';
             String appendForTrigger = "";

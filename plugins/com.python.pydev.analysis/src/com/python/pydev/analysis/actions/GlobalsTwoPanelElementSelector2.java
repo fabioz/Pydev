@@ -52,11 +52,11 @@ import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.utils.IViewWithControls;
 import org.python.pydev.ui.NotifyViewCreated;
 
@@ -115,7 +115,7 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
     @Override
     protected void updateStatus(IStatus status) {
         super.updateStatus(status);
-        PydevPlugin.fixSelectionStatusDialogStatusLineColor(this, this.getDialogArea()
+        SharedUiPlugin.fixSelectionStatusDialogStatusLineColor(this, this.getDialogArea()
                 .getBackground());
     }
 
@@ -133,7 +133,7 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
     @Override
     protected Control createContents(Composite parent) {
         Control ret = super.createContents(parent);
-        org.python.pydev.plugin.PydevPlugin.setCssId(parent, "py-globals-browser-dialog", true);
+        SharedUiPlugin.setCssId(parent, "py-globals-browser-dialog", true);
         return ret;
     }
 
@@ -345,7 +345,7 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
 
             /*
              * (non-Javadoc)
-             * 
+             *
              * @see java.util.Comparator#compare(java.lang.Object,
              *      java.lang.Object)
              */
@@ -477,7 +477,7 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
 
         public InfoFilter() {
             super();
-            //We have to get the actual text from the control, because the 
+            //We have to get the actual text from the control, because the
             Text pattern = (Text) getPatternControl();
             String stringPattern = ""; //$NON-NLS-1$
             if (pattern != null && !pattern.getText().equals("*")) { //$NON-NLS-1$

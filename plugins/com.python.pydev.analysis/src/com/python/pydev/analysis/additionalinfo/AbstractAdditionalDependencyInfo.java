@@ -39,7 +39,7 @@ import org.python.pydev.core.cache.DiskCache;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PyPublicTreeMap;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
-import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractJavaClassModule;
+import org.python.pydev.editor.codecompletion.revisited.modules.IAbstractJavaClassModule;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Name;
@@ -257,7 +257,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
                         IModule builtinModule = info.getModulesManager().getModule(newKey.name,
                                 info.getModulesManager().getNature(), true);
                         if (builtinModule != null) {
-                            if (builtinModule instanceof AbstractJavaClassModule) {
+                            if (builtinModule instanceof IAbstractJavaClassModule) {
                                 if (newKey.file != null) {
                                     ignoreFiles.add(newKey.file);
                                 } else {
