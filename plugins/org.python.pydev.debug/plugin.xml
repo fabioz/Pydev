@@ -13,6 +13,31 @@
    </consolePageParticipant>
 </extension>
 
+<!-- Have an instance observing all the PyEdit editors -->
+   <extension point="org.python.pydev.pydev_pyedit_listener">
+  		<pyedit_listener_participant class="com.python.pydev.interactiveconsole.EvaluateActionSetter"/>
+   </extension>
+
+<!-- command: activate interactive console-->
+   <extension point="org.eclipse.ui.commands">
+      <command
+            description="Activates the interactive console."
+            id="org.python.pydev.interactiveconsole.evaluateActionSetter"
+            categoryId="org.python.pydev.ui.category.source"
+            name="Interactive Console">
+      </command>
+   </extension>
+<!-- binding: activate interactive console-->
+   <extension point="org.eclipse.ui.bindings">
+      <key
+            sequence="M1+M3+Enter"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="org.python.pydev.interactiveconsole.evaluateActionSetter"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+   </extension>
+
+
 <!--- run keybindings -->
 <extension point="org.eclipse.ui.editorActions">
 <editorContribution

@@ -42,6 +42,7 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.DefinitionsASTIteratorVisitor;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.structure.DataAndImageTreeNode;
 import org.python.pydev.shared_core.structure.Location;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -49,8 +50,6 @@ import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.quick_outline.BaseQuickOutlineSelectionDialog;
 import org.python.pydev.shared_ui.quick_outline.DataAndImageTreeNodeContentProvider;
 import org.python.pydev.shared_ui.tree.LabelProviderWithDecoration;
-
-import com.python.pydev.PydevPlugin;
 
 /**
  * @author fabioz
@@ -142,7 +141,8 @@ public final class PyOutlineSelectionDialog extends BaseQuickOutlineSelectionDia
      * Constructor to be used if the pyedit is not available (info must be pre-calculated)
      */
     public PyOutlineSelectionDialog(Shell shell, SimpleNode ast, HashMap<SimpleNode, HierarchyNodeModel> nodeToModel) {
-        super(shell, PydevPlugin.PLUGIN_ID, createLabelProvider(), new DataAndImageTreeNodeContentProvider(), true);
+        super(shell, SharedCorePlugin.PYDEV_PLUGIN_ID, createLabelProvider(), new DataAndImageTreeNodeContentProvider(),
+                true);
         this.ast = ast;
         this.nodeToModel = nodeToModel;
         calculateHierarchy();
@@ -153,7 +153,8 @@ public final class PyOutlineSelectionDialog extends BaseQuickOutlineSelectionDia
      * Constructor to be used if the pyedit is available (in which case the info will be calculated on demand)
      */
     public PyOutlineSelectionDialog(Shell shell, PyEdit pyEdit) {
-        super(shell, PydevPlugin.PLUGIN_ID, createLabelProvider(), new DataAndImageTreeNodeContentProvider(), true);
+        super(shell, SharedCorePlugin.PYDEV_PLUGIN_ID, createLabelProvider(), new DataAndImageTreeNodeContentProvider(),
+                true);
         this.pyEdit = pyEdit;
         PySelection ps = this.pyEdit.createPySelection();
         startLineIndex = ps.getStartLineIndex() + 1; //+1 because the ast starts at 1

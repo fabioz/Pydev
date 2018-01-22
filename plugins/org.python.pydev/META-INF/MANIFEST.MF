@@ -39,7 +39,9 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.e4.ui.services;resolution:=optional,
  org.eclipse.ui.forms
 Bundle-ActivationPolicy: lazy
-Export-Package: org.python.copiedfromeclipsesrc,
+Export-Package: com.python.pydev.actions,
+ com.python.pydev.ui.hierarchy,
+ org.python.copiedfromeclipsesrc,
  org.python.pydev.builder,
  org.python.pydev.builder.pycremover,
  org.python.pydev.builder.pylint,

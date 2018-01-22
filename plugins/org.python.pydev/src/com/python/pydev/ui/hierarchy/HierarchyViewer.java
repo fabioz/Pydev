@@ -11,7 +11,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ILabelProvider;
@@ -43,6 +42,7 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.DefinitionsASTIteratorVisitor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.structure.DataAndImageTreeNode;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.quick_outline.DataAndImageTreeNodeContentProvider;
 import org.python.pydev.shared_ui.tree.LabelProviderWithDecoration;
@@ -167,10 +167,7 @@ public class HierarchyViewer {
         recursivelyAdd(model, base, true, new HashSet<HierarchyNodeModel>());
 
         if (parentsImage == null) {
-            ImageDescriptor imageDescriptor = com.python.pydev.PydevPlugin.getImageDescriptor("icons/class_hi.gif");
-            if (imageDescriptor != null) {
-                parentsImage = imageDescriptor.createImage();
-            }
+            parentsImage = SharedUiPlugin.getImageCache().get("icons/class_hi.gif");
         }
 
         DataAndImageTreeNode parents = new DataAndImageTreeNode(root, "Parents", parentsImage);
