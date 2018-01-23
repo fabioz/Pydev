@@ -4,8 +4,4 @@
 
    <extension-point id="org.python.pydev.pydev_completion" name="PyDev completion" schema="schema/org.python.pydev.pydev_completion.exsd"/>
 
-   <extension point="org.eclipse.core.runtime.preferences">
-      <initializer class="org.python.pydev.editor.codecompletion.PyCodeCompletionInitializer"/>
-   </extension>
-
 </plugin>
