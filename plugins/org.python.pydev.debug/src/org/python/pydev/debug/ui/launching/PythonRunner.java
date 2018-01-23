@@ -35,7 +35,6 @@ import org.eclipse.swt.widgets.Display;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.debug.console_actions.RelaunchConstants;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyDebugTarget;
@@ -49,6 +48,7 @@ import org.python.pydev.debug.pyunit.PyUnitView;
 import org.python.pydev.runners.SimpleRunner;
 import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 import org.python.pydev.shared_core.process.ProcessUtils;
+import org.python.pydev.shared_ui.debug.RelaunchConstants;
 
 /**
  * Launches Python process, and connects it to Eclipse's debugger.

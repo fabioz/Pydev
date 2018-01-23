@@ -13,6 +13,7 @@ import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.console.IConsolePageParticipant;
 import org.eclipse.ui.part.IPageBookViewPage;
 import org.python.pydev.shared_core.log.Log;
+import org.python.pydev.shared_ui.debug.RelaunchConstants;
 
 /**
  * Reference: ProcessConsolePageParticipant
