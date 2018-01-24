@@ -27,7 +27,6 @@ import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.utils.Reflection;
-import org.python.pydev.shared_ui.ImageCache;
 
 /**
  * This is the token that encapsulates a java element.
@@ -97,9 +96,9 @@ public class JavaElementToken extends CompiledToken {
     }
 
     @Override
-    public Image getImage() {
+    public IImageHandle getImage() {
         if (this.image != null) {
-            return ImageCache.asImage(this.image);
+            return this.image;
         }
         CompletionProposalLabelProvider provider = new CompletionProposalLabelProvider();
         CompletionProposal generatedProposal = CompletionProposal.create(completionProposalKind, 0);
@@ -112,7 +111,19 @@ public class JavaElementToken extends CompiledToken {
 
         //uses: kind, flags, signature to create an image.
         ImageDescriptor descriptor = provider.createImageDescriptor(generatedProposal);
-        return descriptor.createImage();
+        Image computed = descriptor.createImage();
+        return new IImageHandle() {
+
+            @Override
+            public Object getImageData() {
+                return computed.getImageData();
+            }
+
+            @Override
+            public Object getImage() {
+                return computed;
+            }
+        };
     }
 
     @Override

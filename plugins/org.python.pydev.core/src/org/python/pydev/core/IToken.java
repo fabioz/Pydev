@@ -13,7 +13,7 @@ package org.python.pydev.core;
 
 import java.io.Serializable;
 
-import org.eclipse.swt.graphics.Image;
+import org.python.pydev.shared_core.image.IImageHandle;
 
 /**
  * @author Fabio Zadrozny
@@ -67,12 +67,12 @@ public interface IToken extends Serializable, Comparable {
     /**
      * Type for local (used to decide the icon) -- so, this means that the token created results
      * as an interface from some object in a local scope.
-     * 
+     *
      * E.g.:
      * a = 10
      * a.foo = 20
      * a.bar = 30
-     * 
+     *
      * 'foo' and 'bar' would be generated with this type
      */
     public static final int TYPE_OBJECT_FOUND_INTERFACE = 10;
@@ -91,11 +91,11 @@ public interface IToken extends Serializable, Comparable {
     public int getType();
 
     /**
-     * 
+     *
      * @return the representation of this token.
-     * 
+     *
      * The following cases apply for imports:
-     * 
+     *
      * from x import testcase     (return testcase)
      * from x import testcase as t(return t)
      * import testcase            (return testcase)
@@ -113,23 +113,23 @@ public interface IToken extends Serializable, Comparable {
     public String getParentPackage();
 
     /**
-     * 
+     *
      * @return The complete path for the token.
-     * 
+     *
      * The following cases apply for imports:
-     * 
+     *
      * on module test decorating with module
      * from x import testcase     (return test.x.testcase)
      * from x import testcase as t(return test.x.testcase)
      * import testcase            (return test.testcase)
-     * 
+     *
      * if not decorating would return the same as above without 'test'
      */
     //    public String getOriginalRep(boolean decorateWithModule);
 
     /**
-     * @param baseModule this is the module base to discover from where should it be made relative 
-     * 
+     * @param baseModule this is the module base to discover from where should it be made relative
+     *
      * @return the representation as a relative import - this means that it return the original representation
      * plus the module it was defined within without its head.
      */
@@ -181,7 +181,7 @@ public interface IToken extends Serializable, Comparable {
      * @return the original representation without the actual representation (useful for imports, because
      * we have to look within __init__ to check if the token is defined before trying to gather modules, if
      * we have a name clash).
-     * 
+     *
      * e.g.: if it was import from coilib.test import Exceptions, it would return coilib.test
      */
     public String getOriginalWithoutRep();
@@ -196,7 +196,7 @@ public interface IToken extends Serializable, Comparable {
     /**
      * @return the image that should be used in the code-completion for this token.
      */
-    public Image getImage();
+    public IImageHandle getImage();
 
     public void setGeneratorType(ITypeInfo type);
 
