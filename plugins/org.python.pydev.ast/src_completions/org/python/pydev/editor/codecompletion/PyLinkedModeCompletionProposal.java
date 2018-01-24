@@ -30,6 +30,7 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.image.IImageHandle;
+import org.python.pydev.shared_ui.ImageCache;
 
 public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionProposalExtension2 implements
         ICompletionProposalExtension {
@@ -117,7 +118,7 @@ public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionPr
     @Override
     public Image getImage() {
         if (element != null) {
-            return element.getImage();
+            return ImageCache.asImage(element.getImage());
         } else {
             return super.getImage();
         }
