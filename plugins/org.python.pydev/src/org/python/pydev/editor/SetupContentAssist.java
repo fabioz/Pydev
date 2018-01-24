@@ -12,7 +12,7 @@ import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.editor.codecompletion.PythonCompletionProcessor;
 import org.python.pydev.editor.codecompletion.PythonStringCompletionProcessor;
-import org.python.pydev.editor.simpleassist.SimpleAssistProcessor;
+import org.python.pydev.editor.codecompletion.SimpleAssistProcessor;
 
 public class SetupContentAssist {
 

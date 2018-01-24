@@ -7,7 +7,7 @@
 /*
  * Created on 24/09/2005
  */
-package org.python.pydev.editor.simpleassist;
+package org.python.pydev.editor.codecompletion;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,9 +38,9 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.CompletionError;
 import org.python.pydev.editor.codecompletion.ProposalsComparator;
 import org.python.pydev.editor.codecompletion.ProposalsComparator.CompareContext;
+import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
-import org.python.pydev.editor.codecompletion.PythonCompletionProcessor;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 
 /**
