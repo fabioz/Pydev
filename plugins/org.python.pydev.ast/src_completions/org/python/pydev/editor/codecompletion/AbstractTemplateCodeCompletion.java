@@ -8,7 +8,6 @@ package org.python.pydev.editor.codecompletion;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.templates.DocumentTemplateContext;
 import org.eclipse.jface.text.templates.TemplateContext;
 import org.eclipse.jface.text.templates.TemplateContextType;
@@ -27,8 +26,8 @@ public abstract class AbstractTemplateCodeCompletion extends AbstractPyCodeCompl
      * @param region the region into <code>document</code> for which the context is created
      * @return a template context that can handle template insertion at the given location, or <code>null</code>
      */
-    protected TemplateContext createContext(ITextViewer viewer, IRegion region, IDocument document) {
-        TemplateContextType contextType = getContextType(viewer, region);
+    protected TemplateContext createContext(IRegion region, IDocument document) {
+        TemplateContextType contextType = getContextType(region);
         if (contextType != null) {
             return new DocumentTemplateContext(contextType, document, region.getOffset(), region.getLength());
         }
@@ -41,7 +40,7 @@ public abstract class AbstractTemplateCodeCompletion extends AbstractPyCodeCompl
      * @see org.eclipse.jface.text.templates.TemplateCompletionProcessor#getContextType(org.eclipse.jface.text.ITextViewer,
      *      org.eclipse.jface.text.IRegion)
      */
-    protected TemplateContextType getContextType(ITextViewer viewer, IRegion region) {
+    protected TemplateContextType getContextType(IRegion region) {
         if (getTemplateContextType != null) {
             return getTemplateContextType.call();
         }

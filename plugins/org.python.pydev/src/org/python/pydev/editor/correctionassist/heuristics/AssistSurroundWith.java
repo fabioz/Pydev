@@ -18,7 +18,6 @@ import java.util.List;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.CompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.templates.Template;
@@ -106,7 +105,7 @@ public class AssistSurroundWith extends AbstractTemplateCodeCompletion implement
         IRegion region = ps.getRegion();
         TemplateContext context = null;
         if (edit != null) {
-            context = createContext(edit.getPySourceViewer(), region, ps.getDoc());
+            context = createContext(region, ps.getDoc());
         }
 
         //not static because we need the actual code.
@@ -175,7 +174,8 @@ public class AssistSurroundWith extends AbstractTemplateCodeCompletion implement
     }
 
     @Override
-    public List<Object> getCodeCompletionProposals(ITextViewer viewer, CompletionRequest request) throws CoreException,
+    public List<Object> getCodeCompletionProposals(CompletionRequest request)
+            throws CoreException,
             BadLocationException {
         throw new RuntimeException("Not implemented: completions should be gotten from the IAssistProps interface.");
     }

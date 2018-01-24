@@ -166,7 +166,7 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
                 if (PyCodeCompletionPreferences.useCodeCompletion()) {
                     if (whatToShow == SHOW_ALL) {
                         try {
-                            pythonAndTemplateProposals.addAll(getPythonProposals(viewer, documentOffset, doc, request));
+                            pythonAndTemplateProposals.addAll(getPythonProposals(documentOffset, doc, request));
                         } catch (Throwable e) {
                             Log.log(e);
                             CompletionError completionError = new CompletionError(e);
@@ -222,7 +222,8 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
      * @throws IOException
      * @throws PythonNatureWithoutProjectException
      */
-    private List getPythonProposals(ITextViewer viewer, int documentOffset, IDocument doc, CompletionRequest request)
+    private List getPythonProposals(int documentOffset, IDocument doc,
+            CompletionRequest request)
             throws CoreException, BadLocationException, IOException, MisconfigurationException,
             PythonNatureWithoutProjectException {
         //if non empty string, we're in imports section.
@@ -232,7 +233,7 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
             request.showTemplates = false; //don't show templates if we are in the imports section or inside a calltip.
         }
 
-        List allProposals = request.codeCompletion.getCodeCompletionProposals(viewer, request);
+        List allProposals = request.codeCompletion.getCodeCompletionProposals(request);
         return allProposals;
     }
 

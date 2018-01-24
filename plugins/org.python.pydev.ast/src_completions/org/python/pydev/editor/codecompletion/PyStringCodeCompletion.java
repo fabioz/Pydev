@@ -13,7 +13,6 @@ import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.templates.Template;
@@ -155,11 +154,11 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
      */
     @Override
     @SuppressWarnings("unchecked")
-    public List getCodeCompletionProposals(ITextViewer viewer, CompletionRequest request) throws CoreException,
+    public List getCodeCompletionProposals(CompletionRequest request) throws CoreException,
             BadLocationException, MisconfigurationException {
         ArrayList ret = new ArrayList();
         request.showTemplates = false; //don't show templates in strings
-        fillWithEpydocFields(viewer, request, ret);
+        fillWithEpydocFields(request, ret);
 
         if (ret.size() == 0) {
             //if the size is not 0, it means that this is a place for the '@' stuff, and not for the 'default' context for a string.
@@ -174,14 +173,14 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
             //}
         }
 
-        fillWithParams(viewer, request, ret);
+        fillWithParams(request, ret);
         return ret;
     }
 
     /**
      * @param ret OUT: this is where the completions are stored
      */
-    private void fillWithParams(ITextViewer viewer, CompletionRequest request, ArrayList<ICompletionProposal> ret) {
+    private void fillWithParams(CompletionRequest request, ArrayList<ICompletionProposal> ret) {
         PySelection ps = new PySelection(request.doc, request.documentOffset);
         try {
             String lineContentsToCursor = ps.getLineContentsToCursor();
@@ -229,12 +228,12 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
     /**
      * @param ret OUT: this is where the completions are stored
      */
-    private void fillWithEpydocFields(ITextViewer viewer, CompletionRequest request,
+    private void fillWithEpydocFields(CompletionRequest request,
             ArrayList<ICompletionProposal> ret) {
         try {
             Region region = new Region(request.documentOffset - request.qlen, request.qlen);
             IImageHandle image = PyCodeCompletionImages.getImageForType(IToken.TYPE_EPYDOC);
-            TemplateContext context = createContext(viewer, region, request.doc);
+            TemplateContext context = createContext(region, request.doc);
 
             char c = request.doc.getChar(request.documentOffset - request.qualifier.length() - 1);
 

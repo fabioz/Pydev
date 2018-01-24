@@ -28,7 +28,7 @@ import com.python.pydev.codecompletion.ui.CodeCompletionPreferencesPage;
 
 /**
  * Auto completion for keywords:
- * 
+ *
  * import keyword
  * >>> for k in keyword.kwlist: print k
 and
@@ -152,7 +152,7 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant, ISimpleAs
 
     /**
      * Collects simple completions (keywords)
-     * 
+     *
      * @param activationToken activation token used
      * @param qualifier qualifier used
      * @param offset offset at which the completion was requested
@@ -171,7 +171,7 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant, ISimpleAs
 
         //get them
         int qlen = qualifier.length();
-        if (activationToken.equals("") && qualifier.equals("") == false) {
+        if (activationToken.isEmpty() && !qualifier.isEmpty()) {
             for (String keyw : CodeCompletionPreferencesPage.getKeywords()) {
                 if (keyw.startsWith(qualifier) && !keyw.equals(qualifier)) {
                     if (buildForConsole) {

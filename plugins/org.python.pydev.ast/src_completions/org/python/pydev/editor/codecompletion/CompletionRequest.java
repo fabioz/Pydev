@@ -13,6 +13,7 @@ package org.python.pydev.editor.codecompletion;
 
 import java.io.File;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -28,7 +29,7 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 
 /**
  * This class defines the information used for a code completion request.
- * 
+ *
  * @author Fabio Zadrozny
  */
 public final class CompletionRequest implements ICompletionRequest, ITokenCompletionRequest {
@@ -62,7 +63,7 @@ public final class CompletionRequest implements ICompletionRequest, ITokenComple
     /**
      * This is the constructor that should be usually used. It will set the
      * activation token and the qualifier based on the document and its offset
-     * 
+     *
      * @param editorFile
      * @param nature
      * @param doc
@@ -128,10 +129,10 @@ public final class CompletionRequest implements ICompletionRequest, ITokenComple
 
     /**
      * The activation token of this request.
-     * 
+     *
      * If it is requested at "m1.m2", the activationToken should be "m1" and the
      * qualifier should be "m2"
-     * 
+     *
      * If requested at "m3", the activationToken should be empty and the
      * qualifier should be "m3"
      */
@@ -166,7 +167,7 @@ public final class CompletionRequest implements ICompletionRequest, ITokenComple
 
     /**
      * Defines if we're getting the completions for a calltip
-     * This happens when we're after a '(' or ',' in a method call. 
+     * This happens when we're after a '(' or ',' in a method call.
      */
     public boolean isInCalltip;
 
@@ -241,9 +242,11 @@ public final class CompletionRequest implements ICompletionRequest, ITokenComple
 
     public final boolean useSubstringMatchInCodeCompletion;
 
+    private IProgressMonitor cancelMonitor;
+
     /**
      * @return the module name where the completion request took place (may be null if there is no editor file associated)
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     public String resolveModule() throws MisconfigurationException {
         if (initialModule == null && editorFile != null) {
@@ -253,10 +256,10 @@ public final class CompletionRequest implements ICompletionRequest, ITokenComple
     }
 
     /**
-     * @param state 
-     * @param astManager 
+     * @param state
+     * @param astManager
      * @return
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     @Override
     public IModule getModule() throws MisconfigurationException {
@@ -291,6 +294,14 @@ public final class CompletionRequest implements ICompletionRequest, ITokenComple
         IRegion region = doc.getLineInformationOfOffset(documentOffset);
         int col = documentOffset - region.getOffset();
         return col;
+    }
+
+    public IProgressMonitor getCancelMonitor() {
+        return this.cancelMonitor;
+    }
+
+    public void setCancelMonitor(IProgressMonitor monitor) {
+        this.cancelMonitor = monitor;
     }
 
 }

@@ -538,7 +538,7 @@ public class CodeCompletionTestsBase extends TestCase {
         IDocument doc = new Document(strDoc);
         CompletionRequest request = new CompletionRequest(file, nature, doc, documentOffset, codeCompletion, false);
 
-        List<Object> props = codeCompletion.getCodeCompletionProposals(null, request);
+        List<Object> props = codeCompletion.getCodeCompletionProposals(request);
         ICompletionProposal[] codeCompletionProposals = PyCodeCompletionUtils.onlyValid(props, request.qualifier,
                 request.isInCalltip, request.useSubstringMatchInCodeCompletion, null);
         PyCodeCompletionUtils.sort(codeCompletionProposals, request.qualifier, null);

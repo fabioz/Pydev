@@ -24,7 +24,6 @@ import java.util.List;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContext;
@@ -92,7 +91,7 @@ public class AssistPercentToFormat extends AbstractTemplateCodeCompletion implem
         }
 
         IRegion region = ps.getRegion();
-        TemplateContext context = createContext(edit.getPySourceViewer(), region, ps.getDoc());
+        TemplateContext context = createContext(region, ps.getDoc());
 
         Template t = new Template("Convert", "% to .format()", "", replacementString, false);
         l.add(new TemplateProposal(t, context, region,
@@ -110,7 +109,7 @@ public class AssistPercentToFormat extends AbstractTemplateCodeCompletion implem
     }
 
     @Override
-    public List<Object> getCodeCompletionProposals(ITextViewer viewer, CompletionRequest request)
+    public List<Object> getCodeCompletionProposals(CompletionRequest request)
             throws CoreException, BadLocationException {
         throw new RuntimeException("Not implemented: completions should be gotten from the IAssistProps interface.");
     }

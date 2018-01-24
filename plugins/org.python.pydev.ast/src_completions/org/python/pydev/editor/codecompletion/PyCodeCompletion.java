@@ -27,7 +27,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICodeCompletionASTManager;
@@ -97,11 +96,11 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
 
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public List getCodeCompletionProposals(ITextViewer viewer, CompletionRequest request) throws CoreException,
+    public List getCodeCompletionProposals(CompletionRequest request) throws CoreException,
             BadLocationException, IOException, MisconfigurationException, PythonNatureWithoutProjectException {
         if (request.getPySelection().getCursorLineContents().trim().startsWith("#")) {
             //this may happen if the context is still not correctly computed in python
-            return new PyStringCodeCompletion().getCodeCompletionProposals(viewer, request);
+            return new PyStringCodeCompletion().getCodeCompletionProposals(request);
         }
 
         if (PySelection.isCompletionForLiteralNumber(request.getActivationToken())) {
@@ -153,9 +152,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
 
             ICompletionState state = new CompletionState(line, request.documentOffset - region.getOffset(), null,
                     request.nature, request.qualifier);
-            if (viewer instanceof ITextEditorWithCodeCompletionCancelMonitor) {
-                state.setCancelMonitor(((ITextEditorWithCodeCompletionCancelMonitor) viewer).getCancelMonitor());
-            }
+            state.setCancelMonitor(request.getCancelMonitor());
             state.setIsInCalltip(request.isInCalltip);
 
             Map<String, IToken> alreadyChecked = new HashMap<String, IToken>();
