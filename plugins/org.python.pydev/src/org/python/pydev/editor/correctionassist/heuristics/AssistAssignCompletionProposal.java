@@ -14,11 +14,11 @@ import org.eclipse.jface.text.link.LinkedModeUI;
 import org.eclipse.jface.text.link.LinkedPositionGroup;
 import org.eclipse.jface.text.link.ProposalPosition;
 import org.eclipse.jface.text.source.ISourceViewer;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.texteditor.link.EditorLinkedModeUI;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 
@@ -35,7 +35,7 @@ public class AssistAssignCompletionProposal extends PyCompletionProposal {
     private ISourceViewer sourceViewer;
 
     public AssistAssignCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
-            int cursorPosition, Image image, String displayString, IContextInformation contextInformation,
+            int cursorPosition, IImageHandle image, String displayString, IContextInformation contextInformation,
             String additionalProposalInfo, int priority, ISourceViewer sourceViewer, ICompareContext compareContext) {
 
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
@@ -65,7 +65,7 @@ public class AssistAssignCompletionProposal extends PyCompletionProposal {
             LinkedPositionGroup group = new LinkedPositionGroup();
 
             //the len-3 is because of the end of the string: " = " because the replacement string is
-            //something like "xxx = " 
+            //something like "xxx = "
             ProposalPosition proposalPosition = new ProposalPosition(document, fReplacementOffset,
                     fReplacementString.length() - 3, 0, new ICompletionProposal[0]);
             group.addPosition(proposalPosition);

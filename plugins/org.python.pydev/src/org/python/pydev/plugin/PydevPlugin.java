@@ -306,7 +306,7 @@ public class PydevPlugin extends AbstractUIPlugin {
                         @Override
                         public org.eclipse.swt.graphics.Image getImage(Object element) {
                             DataAndImageTreeNode n = (DataAndImageTreeNode) element;
-                            return n.image;
+                            return ImageCache.asImage(n.image);
                         };
 
                         @Override
@@ -490,18 +490,6 @@ public class PydevPlugin extends AbstractUIPlugin {
 
     public ResourceBundle getResourceBundle() {
         return resourceBundle;
-    }
-
-    private static ImageCache imageCache = null;
-
-    /**
-     * @return the cache that should be used to access images within the pydev plugin.
-     */
-    public static ImageCache getImageCache() {
-        if (imageCache == null) {
-            imageCache = PydevPlugin.getBundleInfo().getImageCache();
-        }
-        return imageCache;
     }
 
     public ImageDescriptor getImageDescriptor(String key) {

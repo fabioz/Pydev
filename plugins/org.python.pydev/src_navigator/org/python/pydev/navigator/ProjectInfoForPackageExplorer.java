@@ -33,11 +33,11 @@ import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.navigator.elements.ProjectConfigError;
 import org.python.pydev.navigator.elements.PythonSourceFolder;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.utils.PyMarkerUtils;
 
@@ -137,7 +137,7 @@ public class ProjectInfoForPackageExplorer {
         interpreterInfoTreeRoot = null;
 
         try {
-            ImageCache imageCache = PydevPlugin.getImageCache();
+            IImageCache imageCache = SharedUiPlugin.getImageCache();
 
             //The root will create its children automatically.
             String nameForUI = interpreterInfo.getNameForUI();

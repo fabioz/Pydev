@@ -13,22 +13,22 @@ import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
-import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.outline.AbstractOutlineFilterAction;
 
 /**
  * Action that will hide the static methods in the outline
- * 
+ *
  * Note: This only works with the 'staticmethod' decorator.
- * 
+ *
  * @author laurent.dore
  */
 public class OutlineHideStaticMethodsAction extends AbstractOutlineFilterAction {
 
     private static final String PREF_HIDE_STATICMETHODS = "org.python.pydev.OUTLINE_HIDE_STATICMETHODS";
 
-    public OutlineHideStaticMethodsAction(PyOutlinePage page, ImageCache imageCache) {
+    public OutlineHideStaticMethodsAction(PyOutlinePage page, IImageCache imageCache) {
         super("Hide Static Methods", page, imageCache, PREF_HIDE_STATICMETHODS, UIConstants.STATIC_MEMBER_HIDE_ICON);
     }
 

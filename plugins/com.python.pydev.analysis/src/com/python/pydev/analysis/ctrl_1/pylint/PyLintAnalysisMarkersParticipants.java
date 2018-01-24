@@ -6,7 +6,7 @@
  */
 package com.python.pydev.analysis.ctrl_1.pylint;
 
-import org.python.pydev.core.IMiscConstants;
+import org.python.pydev.shared_core.IMiscConstants;
 
 import com.python.pydev.analysis.ctrl_1.AbstractAnalysisMarkersParticipants;
 

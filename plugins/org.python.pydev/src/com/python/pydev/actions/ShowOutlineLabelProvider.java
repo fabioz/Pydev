@@ -17,10 +17,10 @@ import org.python.pydev.outline.ParsedItem;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.DataAndImageTreeNode;
-import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 
 public final class ShowOutlineLabelProvider extends LabelProvider implements IStyledLabelProvider {
 
@@ -40,7 +40,7 @@ public final class ShowOutlineLabelProvider extends LabelProvider implements ISt
             n = ((ASTEntry) element).node;
         }
         if (n != null) {
-            ImageCache imageCache = PydevPlugin.getImageCache();
+            IImageCache imageCache = SharedUiPlugin.getImageCache();
             if (imageCache == null) {
                 return null;
             }

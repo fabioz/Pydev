@@ -20,7 +20,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_core.image.IImageCache;
 
 /**
  * @author Fabio Zadrozny
@@ -43,7 +43,7 @@ public interface IAssistProps {
      * @throws BadLocationException
      * @throws MisconfigurationException 
      */
-    List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature,
+    List<ICompletionProposal> getProps(PySelection ps, IImageCache imageCache, File f, IPythonNature nature,
             PyEdit edit, int offset) throws BadLocationException, MisconfigurationException;
 
     /**

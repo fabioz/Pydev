@@ -43,8 +43,8 @@ import org.python.pydev.editor.correctionassist.heuristics.AssistImport;
 import org.python.pydev.editor.correctionassist.heuristics.AssistPercentToFormat;
 import org.python.pydev.editor.correctionassist.heuristics.AssistSurroundWith;
 import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
-import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_core.image.IImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 
 /**
  * This class should be used to give context help
@@ -171,7 +171,7 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
         assists.add(new AssistPercentToFormat());
 
         assists.addAll(ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_CTRL_1));
-        ImageCache imageCache = PydevPlugin.getImageCache();
+        IImageCache imageCache = SharedUiPlugin.getImageCache();
         File editorFile = edit.getEditorFile();
         IPythonNature pythonNature = null;
         try {

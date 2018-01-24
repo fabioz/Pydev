@@ -27,6 +27,9 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
+import org.python.pydev.shared_core.image.IImageCache;
+import org.python.pydev.shared_core.image.IImageDescriptor;
+import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.structure.Tuple3;
 import org.python.pydev.shared_core.structure.Tuple4;
@@ -34,7 +37,7 @@ import org.python.pydev.shared_core.structure.Tuple4;
 /**
  * Caches images, releases all on dispose
  */
-public class ImageCache {
+public class ImageCache implements IImageCache {
 
     /**
      * Helper to decorate an image.
@@ -127,11 +130,11 @@ public class ImageCache {
         }
     }
 
-    /**
-     * @param key - relative path to the plugin directory
-     * @return the image
+    /* (non-Javadoc)
+     * @see org.python.pydev.shared_ui.IImageCache#get(java.lang.String)
      */
-    public Image get(String key) {
+    @Override
+    public IImageHandle get(String key) {
         Image image = getFromImageHash(key);
 
         if (image == null) {
@@ -141,7 +144,7 @@ public class ImageCache {
                 // creation which is the same one for the main thread, so, if this
                 // happens in a thread, the main thread could deadlock).
                 // #PyDev-527: Deadlock in ImageCache rendering debug completions
-                desc = getDescriptor(key);
+                desc = asImageDescriptor(getDescriptor(key));
                 image = desc.createImage();
                 image = putOnImageHash(key, image);
 
@@ -162,17 +165,29 @@ public class ImageCache {
                 image = m;
             }
         }
-        return image;
+
+        final Image computed = image;
+        return new IImageHandle() {
+
+            @Override
+            public Object getImage() {
+                return computed;
+            }
+
+            @Override
+            public Object getImageData() {
+                return computed.getImageData();
+            }
+        };
     }
 
-    public Image getImageDecorated(String key, String decoration) {
+    @Override
+    public IImageHandle getImageDecorated(String key, String decoration) {
         return getImageDecorated(key, decoration, DECORATION_LOCATION_TOP_RIGHT);
     }
 
-    public final static int DECORATION_LOCATION_TOP_RIGHT = 0;
-    public final static int DECORATION_LOCATION_BOTTOM_RIGHT = 1;
-
-    public Image getImageDecorated(String key, String decoration, int decorationLocation) {
+    @Override
+    public IImageHandle getImageDecorated(String key, String decoration, int decorationLocation) {
         return getImageDecorated(key, decoration, decorationLocation, null, -1);
     }
 
@@ -180,8 +195,10 @@ public class ImageCache {
      * @param key the key of the image that should be decorated (relative path to the plugin directory)
      * @param decoration the key of the image that should be decorated (relative path to the plugin directory)
      */
+    @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public Image getImageDecorated(String key, String decoration, int decorationLocation, String secondDecoration,
+    public IImageHandle getImageDecorated(String key, String decoration, int decorationLocation,
+            String secondDecoration,
             int secondDecorationLocation) {
         Display display = Display.getCurrent();
         if (display == null) {
@@ -197,20 +214,32 @@ public class ImageCache {
         Image image = getFromImageHash(cacheKey);
         if (image == null) {
             //Note that changing the image data gotten here won't affect the original image.
-            ImageData baseImageData = get(key).getImageData();
+            ImageData baseImageData = (ImageData) get(key).getImageData();
             image = decorateImage(decoration, decorationLocation, display, baseImageData);
             if (secondDecoration != null) {
                 image = decorateImage(secondDecoration, secondDecorationLocation, display, image.getImageData());
             }
             image = putOnImageHash(cacheKey, image);
         }
-        return image;
+        final Image computed = image;
+        return new IImageHandle() {
+
+            @Override
+            public Object getImageData() {
+                return computed.getImageData();
+            }
+
+            @Override
+            public Object getImage() {
+                return computed;
+            }
+        };
     }
 
     private Image decorateImage(String decoration, int decorationLocation, Display display, ImageData baseImageData)
             throws AssertionError {
         Image image;
-        ImageData decorationImageData = get(decoration).getImageData();
+        ImageData decorationImageData = (ImageData) get(decoration).getImageData();
         ImageData imageData;
         switch (decorationLocation) {
             case DECORATION_LOCATION_TOP_RIGHT:
@@ -235,7 +264,8 @@ public class ImageCache {
      * @param key the key of the image that should be decorated (relative path to the plugin directory)
      * @param stringToAddToDecoration the string that should be drawn over the image
      */
-    public Image getStringDecorated(String key, String stringToAddToDecoration) {
+    @Override
+    public IImageHandle getStringDecorated(String key, String stringToAddToDecoration) {
         Display display = Display.getCurrent();
         if (display == null) {
             Log.log("This method should only be called in a UI thread.");
@@ -246,7 +276,7 @@ public class ImageCache {
 
         Image image = getFromImageHash(cacheKey);
         if (image == null) {
-            image = new Image(display, get(key), SWT.IMAGE_COPY);
+            image = new Image(display, asImage(get(key)), SWT.IMAGE_COPY);
 
             GC gc = new GC(image);
 
@@ -286,17 +316,31 @@ public class ImageCache {
             image = putOnImageHash(cacheKey, image);
 
         }
-        return image;
+        Image computed = image;
+        return new IImageHandle() {
+
+            @Override
+            public Object getImageData() {
+                return computed.getImageData();
+            }
+
+            @Override
+            public Object getImage() {
+                return computed;
+            }
+        };
     }
 
     /**
      * like get, but returns ImageDescription instead of image
      */
-    public ImageDescriptor getDescriptor(String key) {
+    @Override
+    public IImageDescriptor getDescriptor(String key) {
+        ImageDescriptor desc;
         synchronized (descriptorLock) {
-            if (!descriptorHash.containsKey(key)) {
+            desc = descriptorHash.get(key);
+            if (desc == null) {
                 URL url;
-                ImageDescriptor desc;
                 try {
                     url = new URL(baseURL, key);
                     desc = ImageDescriptor.createFromURL(url);
@@ -305,9 +349,24 @@ public class ImageCache {
                     desc = ImageDescriptor.getMissingImageDescriptor();
                 }
                 descriptorHash.put(key, desc);
-                return desc;
             }
-            return descriptorHash.get(key);
         }
+        final ImageDescriptor computed = desc;
+        return new IImageDescriptor() {
+
+            @Override
+            public Object getImageDescriptor() {
+                return computed;
+            }
+        };
     }
+
+    public static ImageDescriptor asImageDescriptor(IImageDescriptor descriptor) {
+        return (ImageDescriptor) descriptor.getImageDescriptor();
+    }
+
+    public static Image asImage(IImageHandle imageHandle) {
+        return (Image) imageHandle.getImage();
+    }
+
 }

@@ -15,6 +15,7 @@ import org.python.pydev.core.IPyTemplateCompletionProcessor;
 import org.python.pydev.editor.codecompletion.templates.PyDocumentTemplateContext;
 import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.editor.templates.TemplateHelper;
+import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 
@@ -54,7 +55,7 @@ public class PyTemplateCompletionProcessor extends TemplateCompletionProcessor
      */
     @Override
     protected Image getImage(Template template) {
-        return SharedUiPlugin.getImageCache().get(UIConstants.COMPLETION_TEMPLATE);
+        return ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.COMPLETION_TEMPLATE));
     }
 
     /**

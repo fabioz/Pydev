@@ -46,9 +46,9 @@ import org.python.pydev.debug.pyunit.IPyUnitServer;
 import org.python.pydev.debug.pyunit.PyUnitServer;
 import org.python.pydev.debug.pyunit.PyUnitView;
 import org.python.pydev.runners.SimpleRunner;
+import org.python.pydev.shared_core.IMiscConstants;
 import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 import org.python.pydev.shared_core.process.ProcessUtils;
-import org.python.pydev.shared_ui.debug.RelaunchConstants;
 
 /**
  * Launches Python process, and connects it to Eclipse's debugger.
@@ -302,8 +302,8 @@ public class PythonRunner {
         processAttributes.put(IProcess.ATTR_PROCESS_TYPE, config.getProcessType());
         processAttributes.put(IProcess.ATTR_PROCESS_LABEL, label);
         processAttributes.put(Constants.PYDEV_CONFIG_RUN, config.run);
-        processAttributes.put(RelaunchConstants.PYDEV_ADD_RELAUNCH_IPROCESS_ATTR,
-                RelaunchConstants.PYDEV_ADD_RELAUNCH_IPROCESS_ATTR_TRUE);
+        processAttributes.put(IMiscConstants.PYDEV_ADD_RELAUNCH_IPROCESS_ATTR,
+                IMiscConstants.PYDEV_ADD_RELAUNCH_IPROCESS_ATTR_TRUE);
         processAttributes.put(DebugPlugin.ATTR_CAPTURE_OUTPUT, "true");
 
         ILaunchConfiguration launchConfiguration = launch.getLaunchConfiguration();

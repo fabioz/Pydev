@@ -19,8 +19,9 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 
 public class EnabledTreeDragReorder {
 
@@ -39,7 +40,7 @@ public class EnabledTreeDragReorder {
         public void update(TreeItem item) {
             item.setText(text);
             if (image != null) {
-                item.setImage(PydevPlugin.getImageCache().get(image));
+                item.setImage(ImageCache.asImage(SharedUiPlugin.getImageCache().get(image)));
                 item.setData(DRAG_IMAGE_DATA_KEY, image);
             }
         }

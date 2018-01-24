@@ -69,6 +69,7 @@ import org.python.pydev.shared_core.callbacks.ICallbackListener;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.EditorUtils;
+import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.dialogs.DialogMemento;
 import org.python.pydev.ui.dialogs.TreeSelectionDialog;
 
@@ -469,12 +470,12 @@ final class SelectTestLabelProvider extends LabelProvider {
     public Image getImage(Object element) {
         SimpleNode n = ((ASTEntry) element).node;
         if (n instanceof ClassDef) {
-            return PyCodeCompletionImages.getImageForType(IToken.TYPE_CLASS);
+            return ImageCache.asImage(PyCodeCompletionImages.getImageForType(IToken.TYPE_CLASS));
         }
         if (n instanceof FunctionDef) {
-            return PyCodeCompletionImages.getImageForType(IToken.TYPE_FUNCTION);
+            return ImageCache.asImage(PyCodeCompletionImages.getImageForType(IToken.TYPE_FUNCTION));
         }
-        return PyCodeCompletionImages.getImageForType(IToken.TYPE_ATTR);
+        return ImageCache.asImage(PyCodeCompletionImages.getImageForType(IToken.TYPE_ATTR));
     }
 
     @Override

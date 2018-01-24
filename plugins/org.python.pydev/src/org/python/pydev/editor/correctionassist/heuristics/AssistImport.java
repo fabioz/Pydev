@@ -24,7 +24,7 @@ import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.correctionassist.FixCompletionProposal;
 import org.python.pydev.editor.correctionassist.IgnoreCompletionProposal;
 import org.python.pydev.editor.correctionassist.IgnoreCompletionProposalInSameLine;
-import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
@@ -38,7 +38,7 @@ public class AssistImport implements IAssistProps {
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps(org.python.pydev.core.docutils.PySelection, org.python.pydev.shared_ui.ImageCache)
      */
     @Override
-    public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature,
+    public List<ICompletionProposal> getProps(PySelection ps, IImageCache imageCache, File f, IPythonNature nature,
             PyEdit edit, int offset) throws BadLocationException {
         ArrayList<ICompletionProposal> l = new ArrayList<ICompletionProposal>();
         String sel = PyAction.getLineWithoutComments(ps).trim();

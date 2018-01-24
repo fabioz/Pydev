@@ -22,8 +22,9 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.python.pydev.core.IInterpreterInfo;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.ui.pythonpathconf.package_manager.AbstractPackageManager;
@@ -49,9 +50,9 @@ public class PackageTab {
         GridData gd;
         TabItem tabItem = new TabItem(tabFolder, SWT.None);
         tabItem.setText("Packages");
-        ImageCache imageCache = PydevPlugin.getImageCache();
+        IImageCache imageCache = SharedUiPlugin.getImageCache();
 
-        tabItem.setImage(imageCache.get(UIConstants.FOLDER_PACKAGE_ICON));
+        tabItem.setImage(ImageCache.asImage(imageCache.get(UIConstants.FOLDER_PACKAGE_ICON)));
 
         Composite composite = new Composite(tabFolder, SWT.None);
         parent = composite;

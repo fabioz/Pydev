@@ -20,7 +20,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -35,9 +34,11 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.python.pydev.customizations.CustomizationsPlugin;
 import org.python.pydev.customizations.CustomizationsUIConstants;
 import org.python.pydev.customizations.app_engine.launching.AppEngineConstants;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.ui.pythonpathconf.PythonSelectionLibrariesDialog;
@@ -61,9 +62,9 @@ public class AppEngineConfigWizardPage extends WizardPage {
 
     private Tree tree;
 
-    private Image imageSystemLib;
+    private IImageHandle imageSystemLib;
 
-    private Image imageAppEngine;
+    private IImageHandle imageAppEngine;
 
     private final List<String> externalSourceFolders = new ArrayList<String>();
 
@@ -84,7 +85,7 @@ public class AppEngineConfigWizardPage extends WizardPage {
         customLocationFieldValue = "";
 
         imageAppEngine = CustomizationsPlugin.getImageCache().get(CustomizationsUIConstants.APP_ENGINE);
-        imageSystemLib = PydevPlugin.getImageCache().get(UIConstants.LIB_SYSTEM);
+        imageSystemLib = SharedUiPlugin.getImageCache().get(UIConstants.LIB_SYSTEM);
     }
 
     @Override
@@ -158,7 +159,8 @@ public class AppEngineConfigWizardPage extends WizardPage {
      */
     private void handleLocationBrowseButtonPressed() {
         DirectoryDialog dialog = new DirectoryDialog(locationPathField.getShell());
-        dialog.setMessage("Select the Google App Engine root directory (dir containing dev_appserver.py, appcfg.py, lib, etc).");
+        dialog.setMessage(
+                "Select the Google App Engine root directory (dir containing dev_appserver.py, appcfg.py, lib, etc).");
 
         String dirName = getAppEngineLocationFieldValue();
         if (!dirName.equals("")) { //$NON-NLS-1$
@@ -178,7 +180,7 @@ public class AppEngineConfigWizardPage extends WizardPage {
     /**
      * Returns the value of the app engine location field
      * with leading and trailing spaces removed.
-     * 
+     *
      * @return the app engine location directory in the field
      */
     private String getAppEngineLocationFieldValue() {
@@ -309,8 +311,8 @@ public class AppEngineConfigWizardPage extends WizardPage {
     /**
      * Given the app engine location, returns the folders paths that should be added to the pythonpath considering
      * the app engine variable.
-     * 
-     * E.g.: /lib/webob, /lib/yaml/lib, so that they complete with 
+     *
+     * E.g.: /lib/webob, /lib/yaml/lib, so that they complete with
      * "${"+AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE+"}"+"/lib/webob"
      */
     private List<String> gatherLibFoldersForPythonpath(File libDir, String currentPath) {
@@ -345,19 +347,19 @@ public class AppEngineConfigWizardPage extends WizardPage {
     }
 
     /**
-     * The tree/externalSourceFolders/varibleSubstitution  must be already empty at this point 
+     * The tree/externalSourceFolders/varibleSubstitution  must be already empty at this point
      */
     private void fillExternalSourceFolders(Map<String, String> variableSubstitution, String[] libFoldersForPythonpath) {
         TreeItem item = new TreeItem(tree, SWT.NONE);
 
         item.setText(AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE + ": "
                 + variableSubstitution.get(AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE));
-        item.setImage(imageAppEngine);
+        item.setImage(ImageCache.asImage(imageAppEngine));
 
         for (String file : libFoldersForPythonpath) {
             TreeItem subItem = new TreeItem(item, SWT.NONE);
             subItem.setText(file);
-            subItem.setImage(imageSystemLib);
+            subItem.setImage(ImageCache.asImage(imageSystemLib));
             item.setExpanded(true);
 
             externalSourceFolders.add(file);

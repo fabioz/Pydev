@@ -18,7 +18,6 @@ import java.util.List;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.source.ISourceViewer;
-import org.eclipse.swt.graphics.Image;
 import org.python.pydev.codingstd.ICodingStd;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.ParsingUtils;
@@ -30,9 +29,10 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.plugin.preferences.PyCodeStylePreferencesPage;
+import org.python.pydev.shared_core.image.IImageCache;
+import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
-import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
@@ -58,7 +58,7 @@ public class AssistAssign implements IAssistProps {
         this.std = std;
     }
 
-    private Image getImage(ImageCache imageCache, String c) {
+    private IImageHandle getImage(IImageCache imageCache, String c) {
         if (imageCache != null) {
             return imageCache.get(c);
         }
@@ -69,7 +69,7 @@ public class AssistAssign implements IAssistProps {
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps
      */
     @Override
-    public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature,
+    public List<ICompletionProposal> getProps(PySelection ps, IImageCache imageCache, File f, IPythonNature nature,
             PyEdit edit, int offset) throws BadLocationException {
         PySourceViewer viewer = null;
         if (edit != null) { //only in tests it's actually null
@@ -82,12 +82,12 @@ public class AssistAssign implements IAssistProps {
 
     /**
      * Actual implementation (receiving a source viewer and only the actually used parameters).
-     * 
+     *
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps
-     * 
+     *
      * @param lineWithoutComments the line that should be checked (without any comments)
      */
-    public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, ISourceViewer sourceViewer,
+    public List<ICompletionProposal> getProps(PySelection ps, IImageCache imageCache, ISourceViewer sourceViewer,
             int offset, String lineWithoutComments, int firstCharAbsolutePosition) throws BadLocationException {
 
         List<ICompletionProposal> l = new ArrayList<ICompletionProposal>();
@@ -167,7 +167,7 @@ public class AssistAssign implements IAssistProps {
     }
 
     /**
-     * @param selectionLength the length of the currently selected text 
+     * @param selectionLength the length of the currently selected text
      * @param lineContents the contents of the line
      * @param offset the offset of the cursor
      * @return true if an assign is available and false otherwise

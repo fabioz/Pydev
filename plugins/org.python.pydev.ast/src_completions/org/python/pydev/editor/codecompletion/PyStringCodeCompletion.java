@@ -19,7 +19,6 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContext;
 import org.eclipse.jface.text.templates.TemplateProposal;
-import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
@@ -28,13 +27,15 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.string.DocIterator;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
 /**
  * The code-completion engine that should be used inside strings
- * 
+ *
  * @author fabioz
  */
 public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
@@ -150,7 +151,7 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
 
     /**
      * Needed interface for adding the completions on a request
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     @Override
     @SuppressWarnings("unchecked")
@@ -232,7 +233,7 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
             ArrayList<ICompletionProposal> ret) {
         try {
             Region region = new Region(request.documentOffset - request.qlen, request.qlen);
-            Image image = PyCodeCompletionImages.getImageForType(IToken.TYPE_EPYDOC);
+            IImageHandle image = PyCodeCompletionImages.getImageForType(IToken.TYPE_EPYDOC);
             TemplateContext context = createContext(viewer, region, request.doc);
 
             char c = request.doc.getChar(request.documentOffset - request.qualifier.length() - 1);
@@ -252,7 +253,7 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
                     String f = EPYDOC_FIELDS[i];
                     if (f.startsWith(request.qualifier)) {
                         Template t = new Template(f, EPYDOC_FIELDS[i + 2], "", EPYDOC_FIELDS[i + 1], false);
-                        ret.add(new TemplateProposal(t, context, region, image, 5) {
+                        ret.add(new TemplateProposal(t, context, region, ImageCache.asImage(image), 5) {
                             @Override
                             public String getDisplayString() {
                                 if (SharedCorePlugin.inTestMode()) {
@@ -273,7 +274,7 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
 
     /**
      * @return completions added from contributors
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     private Collection getStringGlobalsFromParticipants(CompletionRequest request, ICompletionState state)
             throws MisconfigurationException {

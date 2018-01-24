@@ -14,7 +14,6 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.python.pydev.core.IMiscConstants;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
@@ -23,7 +22,8 @@ import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.editor.correctionassist.CheckAnalysisErrors;
 import org.python.pydev.editor.correctionassist.IgnoreCompletionProposal;
 import org.python.pydev.editor.correctionassist.IgnorePyLintCompletionProposalInSameLine;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.IMiscConstants;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
@@ -74,7 +74,7 @@ public class PyLintIgnoreErrorParticipant implements IAnalysisMarkersParticipant
         IgnoreCompletionProposal proposal = new IgnorePyLintCompletionProposalInSameLine(messageId,
                 ps.getEndLineOffset(), 0,
                 offset, //note: the cursor position is unchanged!
-                PydevPlugin.getImageCache().get(UIConstants.ASSIST_ANNOTATION),
+                SharedUiPlugin.getImageCache().get(UIConstants.ASSIST_ANNOTATION),
                 "pylint: disable=" + messageId, null, null,
                 PyCompletionProposal.PRIORITY_DEFAULT, edit, line, ps, format, m);
         props.add(proposal);

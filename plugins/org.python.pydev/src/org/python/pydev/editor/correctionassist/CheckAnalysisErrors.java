@@ -3,7 +3,7 @@ package org.python.pydev.editor.correctionassist;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.python.pydev.core.IMiscConstants;
+import org.python.pydev.shared_core.IMiscConstants;
 
 public class CheckAnalysisErrors {
 

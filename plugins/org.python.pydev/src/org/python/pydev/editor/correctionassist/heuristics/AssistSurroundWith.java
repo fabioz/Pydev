@@ -31,6 +31,7 @@ import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.codecompletion.AbstractTemplateCodeCompletion;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
+import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.ImageCache;
@@ -46,12 +47,13 @@ public class AssistSurroundWith extends AbstractTemplateCodeCompletion implement
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps(org.python.pydev.core.docutils.PySelection, org.python.pydev.shared_ui.ImageCache)
      */
     @Override
-    public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature,
+    public List<ICompletionProposal> getProps(PySelection ps, IImageCache imageCache, File f, IPythonNature nature,
             PyEdit edit, int offset) throws BadLocationException {
 
         ArrayList<ICompletionProposal> l = new ArrayList<ICompletionProposal>();
-        String indentation = edit != null ? edit.getIndentPrefs().getIndentationString() : DefaultIndentPrefs.get(
-                nature).getIndentationString();
+        String indentation = edit != null ? edit.getIndentPrefs().getIndentationString()
+                : DefaultIndentPrefs.get(
+                        nature).getIndentationString();
 
         ps.selectCompleteLine();
         String selectedText = ps.getSelectedText();
@@ -128,12 +130,12 @@ public class AssistSurroundWith extends AbstractTemplateCodeCompletion implement
         return l;
     }
 
-    private ICompletionProposal createProposal(PySelection ps, ImageCache imageCache, PyEdit edit,
+    private ICompletionProposal createProposal(PySelection ps, IImageCache imageCache, PyEdit edit,
             final String startIndent, IRegion region, int iComp, String comp, TemplateContext context) {
         Template t = new Template("Surround with", SURROUND_WITH_COMPLETIONS[iComp + 1], "", comp, false);
         if (context != null) {
             TemplateProposal proposal = new TemplateProposal(t, context, region,
-                    imageCache.get(UIConstants.COMPLETION_TEMPLATE), 5) {
+                    ImageCache.asImage(imageCache.get(UIConstants.COMPLETION_TEMPLATE)), 5) {
                 @Override
                 public String getAdditionalProposalInfo() {
                     return startIndent + super.getAdditionalProposalInfo();

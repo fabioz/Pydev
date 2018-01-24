@@ -24,6 +24,7 @@ import org.eclipse.ui.texteditor.IUpdate;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.core.PydevDebugPreferencesInitializer;
+import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.actions.BaseAction;
@@ -97,11 +98,13 @@ public class ShowPromptOverlayAction extends BaseAction implements IUpdate, IEdi
         }
         boolean show = preferences.getBoolean(PydevDebugPreferencesInitializer.SHOW_CONSOLE_PROMPT_ON_DEBUG);
         if (show) {
-            this.setImageDescriptor(SharedUiPlugin.getImageCache().getDescriptor(UIConstants.CONSOLE_ENABLED));
+            this.setImageDescriptor(ImageCache
+                    .asImageDescriptor(SharedUiPlugin.getImageCache().getDescriptor(UIConstants.CONSOLE_ENABLED)));
             this.setToolTipText("Hide console prompt");
 
         } else {
-            this.setImageDescriptor(SharedUiPlugin.getImageCache().getDescriptor(UIConstants.CONSOLE_DISABLED));
+            this.setImageDescriptor(ImageCache
+                    .asImageDescriptor(SharedUiPlugin.getImageCache().getDescriptor(UIConstants.CONSOLE_DISABLED)));
             this.setToolTipText("Show console prompt");
         }
         overlay.setOverlayVisible(show);

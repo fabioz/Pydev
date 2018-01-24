@@ -21,6 +21,7 @@ import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.debug.model.PyExceptionBreakPointManager;
 import org.python.pydev.shared_ui.EditorUtils;
+import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 
@@ -30,14 +31,16 @@ public class EditIgnoredCaughtExceptions extends Action {
 
     public EditIgnoredCaughtExceptions(CurrentExceptionView currentExceptionView) {
         this.currentExceptionView = new WeakReference<CurrentExceptionView>(currentExceptionView);
-        this.setImageDescriptor(SharedUiPlugin.getImageCache().getDescriptor(UIConstants.HISTORY));
+        this.setImageDescriptor(
+                ImageCache.asImageDescriptor(SharedUiPlugin.getImageCache().getDescriptor(UIConstants.HISTORY)));
         this.setToolTipText("Edit currently ignored caught exceptions.");
     }
 
     @Override
     public void run() {
-        IPath ignoreThrownExceptionsPath = PyExceptionBreakPointManager.getInstance().ignoreCaughtExceptionsWhenThrownFrom
-                .getIgnoreThrownExceptionsPath();
+        IPath ignoreThrownExceptionsPath = PyExceptionBreakPointManager
+                .getInstance().ignoreCaughtExceptionsWhenThrownFrom
+                        .getIgnoreThrownExceptionsPath();
         File file = ignoreThrownExceptionsPath.toFile();
         IEditorPart openFile = EditorUtils.openFile(file);
 

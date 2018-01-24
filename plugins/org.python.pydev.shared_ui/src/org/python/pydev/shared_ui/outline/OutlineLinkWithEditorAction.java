@@ -20,10 +20,10 @@ import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.ui.progress.UIJob;
+import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_ui.EditorUtils;
-import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.editor.BaseEditor;
 import org.python.pydev.shared_ui.editor.IPyEditListener;
@@ -32,13 +32,13 @@ import org.python.pydev.shared_ui.editor.IPyEditListener2;
 /**
  * This action keeps the outline synched with the text selected in the text
  * editor.
- * 
+ *
  * Design notes:
  * It's linked on the constructor and unlinked in the destructor.
- * 
+ *
  * It considers that it's always linked, even if the action is inactive, but before executing it, a
  * check is done to see if it's active or not.
- * 
+ *
  * @author Fabio
  */
 public class OutlineLinkWithEditorAction extends AbstractOutlineFilterAction implements IPyEditListener,
@@ -46,7 +46,7 @@ public class OutlineLinkWithEditorAction extends AbstractOutlineFilterAction imp
 
     private WeakReference<BaseEditor> pyEdit;
 
-    public OutlineLinkWithEditorAction(BaseOutlinePage page, ImageCache imageCache, String pluginId) {
+    public OutlineLinkWithEditorAction(BaseOutlinePage page, IImageCache imageCache, String pluginId) {
         super("Link With Editor", page, imageCache, pluginId + ".PREF_LINK_WITH_EDITOR", UIConstants.SYNC_WITH_EDITOR);
 
         pyEdit = new WeakReference<BaseEditor>(page.getEditor());

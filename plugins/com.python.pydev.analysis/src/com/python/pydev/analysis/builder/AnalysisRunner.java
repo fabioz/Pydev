@@ -17,9 +17,9 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.core.IMiscConstants;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.shared_core.IMiscConstants;
 import org.python.pydev.shared_ui.utils.PyMarkerUtils;
 import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
 

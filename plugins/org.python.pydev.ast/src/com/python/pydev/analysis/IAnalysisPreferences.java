@@ -12,7 +12,7 @@ package com.python.pydev.analysis;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IAdaptable;
-import org.python.pydev.core.IMiscConstants;
+import org.python.pydev.shared_core.IMiscConstants;
 
 public interface IAnalysisPreferences {
 

@@ -26,7 +26,6 @@ import java.util.regex.Pattern;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.DocstringInfo;
@@ -34,10 +33,11 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
+import org.python.pydev.shared_core.image.IImageCache;
+import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
@@ -62,7 +62,7 @@ public class AssistDocString implements IAssistProps {
      *      org.python.pydev.shared_ui.ImageCache)
      */
     @Override
-    public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature,
+    public List<ICompletionProposal> getProps(PySelection ps, IImageCache imageCache, File f, IPythonNature nature,
             PyEdit edit, int offset) throws BadLocationException {
         ArrayList<ICompletionProposal> l = new ArrayList<ICompletionProposal>();
 
@@ -80,8 +80,9 @@ public class AssistDocString implements IAssistProps {
         // Calculate only the initial part of the docstring here (everything else should be lazily computed on apply).
         String initial = PySelection.getIndentationFromLine(ps.getCursorLineContents());
         String delimiter = PyAction.getDelimiter(ps.getDoc());
-        String indentation = edit != null ? edit.getIndentPrefs().getIndentationString() : DefaultIndentPrefs.get(
-                nature).getIndentationString();
+        String indentation = edit != null ? edit.getIndentPrefs().getIndentationString()
+                : DefaultIndentPrefs.get(
+                        nature).getIndentationString();
         String delimiterAndIndent = delimiter + initial + indentation;
 
         FastStringBuffer buf = new FastStringBuffer();
@@ -92,7 +93,7 @@ public class AssistDocString implements IAssistProps {
         int newOffset = buf.length();
         int offsetPosToAdd = ps.getEndLineOffset(lineOfOffset);
 
-        Image image = null; //may be null (testing)
+        IImageHandle image = null; //may be null (testing)
         if (imageCache != null) {
             image = imageCache.get(UIConstants.ASSIST_DOCSTRING);
         }

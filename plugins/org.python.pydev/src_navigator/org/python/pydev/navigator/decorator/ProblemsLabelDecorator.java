@@ -18,13 +18,13 @@ import org.eclipse.jface.viewers.ILightweightLabelDecorator;
 import org.eclipse.jface.viewers.LabelProviderChangedEvent;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
-
 
 /**
  * Decorates problems.
- * 
+ *
  * Based on: org.eclipse.jdt.ui.ProblemsLabelDecorator
  */
 public class ProblemsLabelDecorator implements ILabelDecorator, ILightweightLabelDecorator {
@@ -60,7 +60,7 @@ public class ProblemsLabelDecorator implements ILabelDecorator, ILightweightLabe
             if (obj instanceof IResource) {
                 return getErrorTicksFromMarkers((IResource) obj, IResource.DEPTH_INFINITE);
             } else if (obj instanceof IAdaptable) {
-                IResource resource = (IResource) ((IAdaptable) obj).getAdapter(IResource.class);
+                IResource resource = ((IAdaptable) obj).getAdapter(IResource.class);
                 if (resource != null) {
                     return getErrorTicksFromMarkers(resource, IResource.DEPTH_INFINITE);
                 }
@@ -145,11 +145,15 @@ public class ProblemsLabelDecorator implements ILabelDecorator, ILightweightLabe
     public void decorate(Object element, IDecoration decoration) {
         int errorState = getErrorState(element);
         if (errorState == IMarker.SEVERITY_ERROR) {
-            decoration.addOverlay(PydevPlugin.getImageCache().getDescriptor(UIConstants.ERROR_DECORATION),
+            decoration.addOverlay(
+                    ImageCache.asImageDescriptor(
+                            SharedUiPlugin.getImageCache().getDescriptor(UIConstants.ERROR_DECORATION)),
                     IDecoration.BOTTOM_LEFT);
 
         } else if (errorState == IMarker.SEVERITY_WARNING) {
-            decoration.addOverlay(PydevPlugin.getImageCache().getDescriptor(UIConstants.WARNING_DECORATION),
+            decoration.addOverlay(
+                    ImageCache.asImageDescriptor(
+                            SharedUiPlugin.getImageCache().getDescriptor(UIConstants.WARNING_DECORATION)),
                     IDecoration.BOTTOM_LEFT);
         }
     }

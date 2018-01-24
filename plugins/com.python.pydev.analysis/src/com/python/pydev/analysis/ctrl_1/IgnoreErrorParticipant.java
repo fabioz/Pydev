@@ -26,7 +26,7 @@ import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.editor.correctionassist.CheckAnalysisErrors;
 import org.python.pydev.editor.correctionassist.IgnoreCompletionProposal;
 import org.python.pydev.editor.correctionassist.IgnoreCompletionProposalInSameLine;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
@@ -72,7 +72,7 @@ public class IgnoreErrorParticipant implements IAnalysisMarkersParticipant {
         IgnoreCompletionProposal proposal = new IgnoreCompletionProposalInSameLine(messageToIgnore,
                 ps.getEndLineOffset(), 0,
                 offset, //note: the cursor position is unchanged!
-                PydevPlugin.getImageCache().get(UIConstants.ASSIST_ANNOTATION),
+                SharedUiPlugin.getImageCache().get(UIConstants.ASSIST_ANNOTATION),
                 messageToIgnore.substring(1), null, null,
                 PyCompletionProposal.PRIORITY_DEFAULT, edit, line, ps, format);
         props.add(proposal);

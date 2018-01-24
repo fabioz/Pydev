@@ -8,11 +8,11 @@ package com.python.pydev.refactoring.tdd;
 
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension2;
 import org.eclipse.jface.text.contentassist.IContextInformation;
-import org.eclipse.swt.graphics.Image;
-import org.python.pydev.core.IMiscConstants;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.ProposalsComparator;
 import org.python.pydev.parser.PyParser;
+import org.python.pydev.shared_core.IMiscConstants;
+import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
@@ -32,14 +32,14 @@ public abstract class AbstractTddRefactorCompletion extends PyCompletionProposal
     }
 
     public AbstractTddRefactorCompletion(PyEdit edit, String replacementString, int replacementOffset,
-            int replacementLength, int cursorPosition, Image image, String displayString,
+            int replacementLength, int cursorPosition, IImageHandle image, String displayString,
             IContextInformation contextInformation, String additionalProposalInfo, int priority) {
         this(edit, replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
                 contextInformation, additionalProposalInfo, priority, ON_APPLY_DEFAULT, "");
     }
 
     public AbstractTddRefactorCompletion(PyEdit edit, String replacementString, int replacementOffset,
-            int replacementLength, int cursorPosition, Image image, String displayString,
+            int replacementLength, int cursorPosition, IImageHandle image, String displayString,
             IContextInformation contextInformation, String additionalProposalInfo, int priority, int onApplyAction,
             String args) {
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,

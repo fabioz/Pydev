@@ -11,20 +11,20 @@ import org.eclipse.jface.viewers.ViewerFilter;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
-import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.outline.AbstractOutlineFilterAction;
 
 /**
  * Action that will hide the non-public members in the outline
- * 
+ *
  * @author laurent.dore
  */
 public class OutlineHideNonPublicMembersAction extends AbstractOutlineFilterAction {
 
     private static final String PREF_HIDE_NONPUBLICMEMBERS = "org.python.pydev.OUTLINE_HIDE_NONPUBLICMEMBERS";
 
-    public OutlineHideNonPublicMembersAction(PyOutlinePage page, ImageCache imageCache) {
+    public OutlineHideNonPublicMembersAction(PyOutlinePage page, IImageCache imageCache) {
         super("Hide Non-Public Members", page, imageCache, PREF_HIDE_NONPUBLICMEMBERS, UIConstants.PUBLIC_ATTR_ICON);
     }
 

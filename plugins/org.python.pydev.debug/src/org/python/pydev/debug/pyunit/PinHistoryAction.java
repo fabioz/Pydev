@@ -63,13 +63,13 @@ public class PinHistoryAction extends Action {
         ImageCache imageCache = PydevDebugPlugin.getImageCache();
         if (currentPinned == null) {
             if (imageCache != null) {
-                this.setImageDescriptor(imageCache.getDescriptor("icons/pin.png"));
+                this.setImageDescriptor(ImageCache.asImageDescriptor(imageCache.getDescriptor("icons/pin.png")));
             }
             this.setInitialTooltipText();
             this.setChecked(false);
         } else {
             if (imageCache != null) {
-                this.setImageDescriptor(imageCache.getDescriptor("icons/pin_arrow.png"));
+                this.setImageDescriptor(ImageCache.asImageDescriptor(imageCache.getDescriptor("icons/pin_arrow.png")));
             }
             this.setToolTipText("Currently pin: " + currentPinned.name + ". Click again to unpin.");
             this.setChecked(true);

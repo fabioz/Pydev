@@ -9,7 +9,7 @@
 * Contributors:
 *     Jeremy Carroll <jjc@syapse.com> - initial API and implementation
 ******************************************************************************/
-package org.python.pydev.core;
+package org.python.pydev.shared_core;
 
 /**
  * This file is intended for constants that are shared
@@ -46,4 +46,7 @@ public interface IMiscConstants {
     int TYPE_ARGUMENTS_MISATCH = 16;
     int TYPE_FSTRING_SYNTAX_ERROR = 17;
     int TYPE_INVALID_ENCODING = 18;
+
+    public static final String PYDEV_ADD_RELAUNCH_IPROCESS_ATTR = "PYDEV_ADD_RELAUNCH_IPROCESS_ATTR";
+    public static final String PYDEV_ADD_RELAUNCH_IPROCESS_ATTR_TRUE = "true";
 }

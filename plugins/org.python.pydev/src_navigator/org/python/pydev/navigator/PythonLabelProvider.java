@@ -35,6 +35,7 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.FileTypesPreferences;
 import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 import org.python.pydev.shared_core.structure.TreeNode;
+import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 
@@ -61,10 +62,10 @@ public class PythonLabelProvider implements ILabelProvider {
     @Override
     public Image getImage(Object element) {
         if (element instanceof PythonProjectSourceFolder) {
-            return SharedUiPlugin.getImageCache().get(UIConstants.PROJECT_SOURCE_FOLDER_ICON);
+            return ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.PROJECT_SOURCE_FOLDER_ICON));
         }
         if (element instanceof PythonSourceFolder) {
-            return SharedUiPlugin.getImageCache().get(UIConstants.SOURCE_FOLDER_ICON);
+            return ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.SOURCE_FOLDER_ICON));
         }
         if (element instanceof PythonFolder) {
             PythonFolder folder = (PythonFolder) element;
@@ -75,7 +76,8 @@ public class PythonLabelProvider implements ILabelProvider {
                 for (String init : validInitFiles) {
                     if (actualObject.getFile(init).exists()) {
                         if (checkParentsHaveInit(folder, validInitFiles)) {
-                            return SharedUiPlugin.getImageCache().get(UIConstants.FOLDER_PACKAGE_ICON);
+                            return ImageCache
+                                    .asImage(SharedUiPlugin.getImageCache().get(UIConstants.FOLDER_PACKAGE_ICON));
                         } else {
                             break;
                         }
@@ -99,20 +101,21 @@ public class PythonLabelProvider implements ILabelProvider {
                     try {
                         if (PydevPlugin.markAsPyDevFileIfDetected(iFile)) {
                             if (FileTypesPreferences.isCythonFile(name)) {
-                                return SharedUiPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON);
+                                return ImageCache
+                                        .asImage(SharedUiPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON));
                             }
-                            return SharedUiPlugin.getImageCache().get(UIConstants.PY_FILE_ICON);
+                            return ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.PY_FILE_ICON));
                         }
                     } catch (Exception e) {
                         //Ignore
                     }
                 }
                 if (FileTypesPreferences.isCythonFile(name)) {
-                    return SharedUiPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON);
+                    return ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON));
                 }
 
                 if (name.startsWith("__init__.") && PythonPathHelper.isValidSourceFile(name)) {
-                    return PyTitlePreferencesPage.getInitIcon();
+                    return ImageCache.asImage(PyTitlePreferencesPage.getInitIcon());
                 } else {
                     IProject project = iFile.getProject();
                     try {
@@ -122,7 +125,7 @@ public class PythonLabelProvider implements ILabelProvider {
                                     || djangoModulesHandling == PyTitlePreferencesPage.TITLE_EDITOR_DJANGO_MODULES_DECORATE) {
 
                                 if (PyTitlePreferencesPage.isDjangoModuleToDecorate(name)) {
-                                    return PyTitlePreferencesPage.getDjangoModuleIcon(name);
+                                    return ImageCache.asImage(PyTitlePreferencesPage.getDjangoModuleIcon(name));
                                 }
                             }
                         }
@@ -134,18 +137,18 @@ public class PythonLabelProvider implements ILabelProvider {
             return provider.getImage(actualObject);
         }
         if (element instanceof ProjectConfigError) {
-            return SharedUiPlugin.getImageCache().get(UIConstants.ERROR);
+            return ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.ERROR));
         }
         if (element instanceof TreeNode<?>) {
             TreeNode<?> treeNode = (TreeNode<?>) element;
             LabelAndImage data = (LabelAndImage) treeNode.getData();
-            return data.image;
+            return ImageCache.asImage(data.image);
         }
         if (element instanceof IFile) {
             IFile iFile = (IFile) element;
             String name = iFile.getName();
             if (FileTypesPreferences.isCythonFile(name)) {
-                return SharedUiPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON);
+                return ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON));
             }
 
         }
@@ -176,8 +179,8 @@ public class PythonLabelProvider implements ILabelProvider {
                         Image image = provider.getImage(element);
                         try {
                             DecorationOverlayIcon decorationOverlayIcon = new DecorationOverlayIcon(image,
-                                    SharedUiPlugin
-                                            .getImageCache().getDescriptor(UIConstants.ERROR_SMALL),
+                                    ImageCache.asImageDescriptor(SharedUiPlugin
+                                            .getImageCache().getDescriptor(UIConstants.ERROR_SMALL)),
                                     IDecoration.BOTTOM_LEFT);
                             projectWithError = decorationOverlayIcon.createImage();
                         } catch (Exception e) {
@@ -192,7 +195,7 @@ public class PythonLabelProvider implements ILabelProvider {
         }
 
         if (element instanceof IWorkingSet) {
-            return SharedUiPlugin.getImageCache().get(UIConstants.WORKING_SET);
+            return ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.WORKING_SET));
         }
         return null;
     }

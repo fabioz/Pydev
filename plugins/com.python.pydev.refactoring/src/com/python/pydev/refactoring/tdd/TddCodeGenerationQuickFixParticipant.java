@@ -43,9 +43,9 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 import org.python.pydev.parser.visitors.scope.ReturnVisitor;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.string.StringUtils;
-import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
 import com.python.pydev.analysis.builder.AnalysisRunner;
@@ -67,14 +67,14 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
     }
 
     @Override
-    public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature,
+    public List<ICompletionProposal> getProps(PySelection ps, IImageCache imageCache, File f, IPythonNature nature,
             PyEdit edit, int offset) throws BadLocationException {
         List<ICompletionProposal> ret = super.getProps(ps, imageCache, f, nature, edit, offset);
         this.getTddProps(ps, imageCache, f, nature, edit, offset, ret);
         return ret;
     }
 
-    public List<ICompletionProposal> getTddProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature,
+    public List<ICompletionProposal> getTddProps(PySelection ps, IImageCache imageCache, File f, IPythonNature nature,
             PyEdit edit, int offset, List<ICompletionProposal> ret) {
         if (ret == null) {
             ret = new ArrayList<ICompletionProposal>();

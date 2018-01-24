@@ -9,7 +9,8 @@ package org.python.pydev.debug.pyunit;
 import java.lang.ref.WeakReference;
 
 import org.eclipse.jface.action.Action;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 
 public class RelaunchErrorsAction extends Action {
@@ -18,7 +19,8 @@ public class RelaunchErrorsAction extends Action {
 
     public RelaunchErrorsAction(PyUnitView pyUnitView) {
         this.view = new WeakReference<PyUnitView>(pyUnitView);
-        this.setImageDescriptor(PydevPlugin.getImageCache().getDescriptor(UIConstants.RELAUNCH_ERRORS));
+        this.setImageDescriptor(ImageCache
+                .asImageDescriptor(SharedUiPlugin.getImageCache().getDescriptor(UIConstants.RELAUNCH_ERRORS)));
         this.setToolTipText("Relaunches only the errors in the currently selected test run.");
     }
 

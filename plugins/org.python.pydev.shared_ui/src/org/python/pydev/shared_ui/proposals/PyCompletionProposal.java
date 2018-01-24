@@ -14,7 +14,9 @@ import org.eclipse.jface.text.contentassist.ICompletionProposalExtension4;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.log.Log;
+import org.python.pydev.shared_ui.ImageCache;
 
 /**
  * The standard implementation of the <code>ICompletionProposal</code> interface.
@@ -32,7 +34,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
     /** The cursor position after this proposal has been applied. */
     protected int fCursorPosition;
     /** The image to be displayed in the completion proposal popup. */
-    protected Image fImage;
+    protected IImageHandle fImage;
     /** The context information of this proposal. */
     protected IContextInformation fContextInformation;
     /** The additional info of this proposal. */
@@ -91,7 +93,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
     }
 
     public PyCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
-            int cursorPosition, Image image, String displayString, IContextInformation contextInformation,
+            int cursorPosition, IImageHandle image, String displayString, IContextInformation contextInformation,
             String additionalProposalInfo, int priority, ICompareContext compareContext) {
         this(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
                 contextInformation, additionalProposalInfo, priority, ON_APPLY_DEFAULT, "", compareContext);
@@ -99,7 +101,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
 
     // Backward-compatibility for jython scripts without compareContext.
     public PyCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
-            int cursorPosition, Image image, String displayString, IContextInformation contextInformation,
+            int cursorPosition, IImageHandle image, String displayString, IContextInformation contextInformation,
             String additionalProposalInfo, int priority) {
         this(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
                 contextInformation, additionalProposalInfo, priority, ON_APPLY_DEFAULT, "", null);
@@ -107,7 +109,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
 
     // Backward-compatibility for jython scripts without compareContext.
     public PyCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
-            int cursorPosition, Image image, String displayString, IContextInformation contextInformation,
+            int cursorPosition, IImageHandle image, String displayString, IContextInformation contextInformation,
             String additionalProposalInfo, int priority, int onApplyAction, String args) {
         this(replacementString, replacementOffset, replacementLength,
                 cursorPosition, image, displayString, contextInformation,
@@ -129,7 +131,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
      * @param onApplyAction if we should not actually apply the changes when the completion is applied
      */
     public PyCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
-            int cursorPosition, Image image, String displayString, IContextInformation contextInformation,
+            int cursorPosition, IImageHandle image, String displayString, IContextInformation contextInformation,
             String additionalProposalInfo, int priority, int onApplyAction, String args,
             ICompareContext compareContext) {
         Assert.isNotNull(replacementString);
@@ -223,7 +225,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
      */
     @Override
     public Image getImage() {
-        return fImage;
+        return ImageCache.asImage(fImage);
     }
 
     /*

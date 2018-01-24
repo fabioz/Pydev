@@ -15,7 +15,6 @@ import java.util.Map;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.python.pydev.core.ICodeCompletionASTManager;
@@ -32,7 +31,8 @@ import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.exprType;
-import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_core.image.IImageCache;
+import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 
@@ -222,24 +222,24 @@ public class AnalysisPlugin extends AbstractUIPlugin {
     }
 
     private static final Object lock = new Object();
-    public static Image autoImportClassWithImportType;
-    public static Image autoImportMethodWithImportType;
-    public static Image autoImportAttributeWithImportType;
-    public static Image autoImportModImportType;
+    public static IImageHandle autoImportClassWithImportType;
+    public static IImageHandle autoImportMethodWithImportType;
+    public static IImageHandle autoImportAttributeWithImportType;
+    public static IImageHandle autoImportModImportType;
 
-    public static Image getImageForAutoImportTypeInfo(IInfo info) {
+    public static IImageHandle getImageForAutoImportTypeInfo(IInfo info) {
         return getImageForAutoImportTypeInfo(info.getType());
     }
 
-    public static Image getImageForAutoImportTypeInfo(int infoType) {
+    public static IImageHandle getImageForAutoImportTypeInfo(int infoType) {
         switch (infoType) {
             case IInfo.CLASS_WITH_IMPORT_TYPE:
                 if (autoImportClassWithImportType == null) {
                     synchronized (lock) {
-                        ImageCache imageCache = SharedUiPlugin.getImageCache();
+                        IImageCache imageCache = SharedUiPlugin.getImageCache();
                         autoImportClassWithImportType = imageCache.getImageDecorated(UIConstants.CLASS_ICON,
                                 UIConstants.CTX_INSENSITIVE_DECORATION_ICON,
-                                ImageCache.DECORATION_LOCATION_BOTTOM_RIGHT);
+                                IImageCache.DECORATION_LOCATION_BOTTOM_RIGHT);
                     }
                 }
                 return autoImportClassWithImportType;
@@ -247,10 +247,10 @@ public class AnalysisPlugin extends AbstractUIPlugin {
             case IInfo.METHOD_WITH_IMPORT_TYPE:
                 if (autoImportMethodWithImportType == null) {
                     synchronized (lock) {
-                        ImageCache imageCache = SharedUiPlugin.getImageCache();
+                        IImageCache imageCache = SharedUiPlugin.getImageCache();
                         autoImportMethodWithImportType = imageCache.getImageDecorated(UIConstants.METHOD_ICON,
                                 UIConstants.CTX_INSENSITIVE_DECORATION_ICON,
-                                ImageCache.DECORATION_LOCATION_BOTTOM_RIGHT);
+                                IImageCache.DECORATION_LOCATION_BOTTOM_RIGHT);
                     }
                 }
                 return autoImportMethodWithImportType;
@@ -258,10 +258,10 @@ public class AnalysisPlugin extends AbstractUIPlugin {
             case IInfo.ATTRIBUTE_WITH_IMPORT_TYPE:
                 if (autoImportAttributeWithImportType == null) {
                     synchronized (lock) {
-                        ImageCache imageCache = SharedUiPlugin.getImageCache();
+                        IImageCache imageCache = SharedUiPlugin.getImageCache();
                         autoImportAttributeWithImportType = imageCache.getImageDecorated(UIConstants.PUBLIC_ATTR_ICON,
                                 UIConstants.CTX_INSENSITIVE_DECORATION_ICON,
-                                ImageCache.DECORATION_LOCATION_BOTTOM_RIGHT);
+                                IImageCache.DECORATION_LOCATION_BOTTOM_RIGHT);
                     }
                 }
                 return autoImportAttributeWithImportType;
@@ -269,16 +269,16 @@ public class AnalysisPlugin extends AbstractUIPlugin {
             case IInfo.MOD_IMPORT_TYPE:
                 if (autoImportModImportType == null) {
                     synchronized (lock) {
-                        ImageCache imageCache = SharedUiPlugin.getImageCache();
+                        IImageCache imageCache = SharedUiPlugin.getImageCache();
                         autoImportModImportType = imageCache.getImageDecorated(UIConstants.FOLDER_PACKAGE_ICON,
                                 UIConstants.CTX_INSENSITIVE_DECORATION_ICON,
-                                ImageCache.DECORATION_LOCATION_BOTTOM_RIGHT);
+                                IImageCache.DECORATION_LOCATION_BOTTOM_RIGHT);
                     }
                 }
                 return autoImportModImportType;
 
             case IInfo.USE_PACKAGE_ICON:
-                ImageCache imageCache = SharedUiPlugin.getImageCache();
+                IImageCache imageCache = SharedUiPlugin.getImageCache();
                 return imageCache.get(UIConstants.COMPLETION_PACKAGE_ICON);
 
             default:
@@ -288,17 +288,17 @@ public class AnalysisPlugin extends AbstractUIPlugin {
 
     }
 
-    public static Image classWithImportType;
-    public static Image methodWithImportType;
-    public static Image attributeWithImportType;
-    public static Image modImportType;
+    public static IImageHandle classWithImportType;
+    public static IImageHandle methodWithImportType;
+    public static IImageHandle attributeWithImportType;
+    public static IImageHandle modImportType;
 
-    public static Image getImageForTypeInfo(IInfo info) {
+    public static IImageHandle getImageForTypeInfo(IInfo info) {
         switch (info.getType()) {
             case IInfo.CLASS_WITH_IMPORT_TYPE:
                 if (classWithImportType == null) {
                     synchronized (lock) {
-                        ImageCache imageCache = SharedUiPlugin.getImageCache();
+                        IImageCache imageCache = SharedUiPlugin.getImageCache();
                         classWithImportType = imageCache.get(UIConstants.CLASS_ICON);
                     }
                 }
@@ -307,7 +307,7 @@ public class AnalysisPlugin extends AbstractUIPlugin {
             case IInfo.METHOD_WITH_IMPORT_TYPE:
                 if (methodWithImportType == null) {
                     synchronized (lock) {
-                        ImageCache imageCache = SharedUiPlugin.getImageCache();
+                        IImageCache imageCache = SharedUiPlugin.getImageCache();
                         methodWithImportType = imageCache.get(UIConstants.METHOD_ICON);
                     }
                 }
@@ -316,7 +316,7 @@ public class AnalysisPlugin extends AbstractUIPlugin {
             case IInfo.ATTRIBUTE_WITH_IMPORT_TYPE:
                 if (attributeWithImportType == null) {
                     synchronized (lock) {
-                        ImageCache imageCache = SharedUiPlugin.getImageCache();
+                        IImageCache imageCache = SharedUiPlugin.getImageCache();
                         attributeWithImportType = imageCache.get(UIConstants.PUBLIC_ATTR_ICON);
                     }
                 }
@@ -325,7 +325,7 @@ public class AnalysisPlugin extends AbstractUIPlugin {
             case IInfo.MOD_IMPORT_TYPE:
                 if (modImportType == null) {
                     synchronized (lock) {
-                        ImageCache imageCache = SharedUiPlugin.getImageCache();
+                        IImageCache imageCache = SharedUiPlugin.getImageCache();
                         modImportType = imageCache.get(UIConstants.FOLDER_PACKAGE_ICON);
                     }
                 }

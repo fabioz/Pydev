@@ -18,6 +18,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_ui.bundle.BundleInfo;
 import org.python.pydev.shared_ui.bundle.IBundleInfo;
@@ -83,12 +84,12 @@ public class SharedUiPlugin extends AbstractUIPlugin {
         return plugin;
     }
 
-    private static ImageCache imageCache = null;
+    private static IImageCache imageCache = null;
 
     /**
      * @return the cache that should be used to access images within the pydev plugin.
      */
-    public static ImageCache getImageCache() {
+    public static IImageCache getImageCache() {
         if (imageCache == null) {
             IBundleInfo bundleInfo = SharedUiPlugin.getBundleInfo();
             if (bundleInfo == null) {
@@ -106,8 +107,7 @@ public class SharedUiPlugin extends AbstractUIPlugin {
     @SuppressWarnings("restriction")
     public static void setCssId(Object control, String id, boolean applyToChildren) {
         try {
-            IStylingEngine engine = (IStylingEngine) UIUtils.getActiveWorkbenchWindow().
-                    getService(IStylingEngine.class);
+            IStylingEngine engine = UIUtils.getActiveWorkbenchWindow().getService(IStylingEngine.class);
             if (engine != null) {
                 engine.setId(control, id);
                 IThemeEngine themeEngine = (IThemeEngine) Display.getDefault().getData(

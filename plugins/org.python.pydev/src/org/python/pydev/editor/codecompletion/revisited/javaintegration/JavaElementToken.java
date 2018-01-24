@@ -23,9 +23,11 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledToken;
+import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.utils.Reflection;
+import org.python.pydev.shared_ui.ImageCache;
 
 /**
  * This is the token that encapsulates a java element.
@@ -47,7 +49,7 @@ public class JavaElementToken extends CompiledToken {
     /**
      * If not null, this image is returned (otherwise, the image is calculated)
      */
-    private Image image;
+    private IImageHandle image;
 
     /**
      * Used for backward compatibility to eclipse 3.2
@@ -88,7 +90,7 @@ public class JavaElementToken extends CompiledToken {
     }
 
     public JavaElementToken(String rep, String doc, String args, String parentPackage, int type,
-            IJavaElement javaElement, Image image) {
+            IJavaElement javaElement, IImageHandle image) {
         super(rep, doc, args, parentPackage, type, null);
         this.javaElement = javaElement;
         this.image = image;
@@ -97,7 +99,7 @@ public class JavaElementToken extends CompiledToken {
     @Override
     public Image getImage() {
         if (this.image != null) {
-            return this.image;
+            return ImageCache.asImage(this.image);
         }
         CompletionProposalLabelProvider provider = new CompletionProposalLabelProvider();
         CompletionProposal generatedProposal = CompletionProposal.create(completionProposalKind, 0);
@@ -108,7 +110,7 @@ public class JavaElementToken extends CompiledToken {
         generatedProposal.setDeclarationSignature(completionPropsoalSignature);
         generatedProposal.setSignature(completionPropsoalSignature);
 
-        //uses: kind, flags, signature to create an image. 
+        //uses: kind, flags, signature to create an image.
         ImageDescriptor descriptor = provider.createImageDescriptor(generatedProposal);
         return descriptor.createImage();
     }

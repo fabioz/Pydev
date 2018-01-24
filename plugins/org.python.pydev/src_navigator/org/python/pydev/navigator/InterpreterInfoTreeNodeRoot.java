@@ -18,9 +18,9 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.structure.TreeNode;
-import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 
 /**
@@ -46,7 +46,7 @@ public class InterpreterInfoTreeNodeRoot<X> extends InterpreterInfoTreeNode<X> {
         this.interpreterInfo = interpreterInfo;
         Assert.isNotNull(interpreterInfo);
         InterpreterInfoTreeNodeRoot root = this;
-        ImageCache imageCache = PydevPlugin.getImageCache();
+        IImageCache imageCache = SharedUiPlugin.getImageCache();
 
         String executableOrJar = interpreterInfo.getExecutableOrJar();
         File file = new File(executableOrJar);

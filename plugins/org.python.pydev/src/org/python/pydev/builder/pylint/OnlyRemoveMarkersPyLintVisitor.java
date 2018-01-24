@@ -10,8 +10,8 @@ import java.util.List;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.python.pydev.core.IMiscConstants;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.shared_core.IMiscConstants;
 import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
 
 public class OnlyRemoveMarkersPyLintVisitor implements IPyLintVisitor {

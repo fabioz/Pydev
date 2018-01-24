@@ -23,7 +23,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -40,8 +39,9 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.DefinitionsASTIteratorVisitor;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.structure.DataAndImageTreeNode;
+import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.quick_outline.DataAndImageTreeNodeContentProvider;
@@ -152,12 +152,12 @@ public class HierarchyViewer {
 
     }
 
-    private static Image parentsImage;
-    private static Image classImage;
+    private static IImageHandle parentsImage;
+    private static IImageHandle classImage;
 
     public void setHierarchy(HierarchyNodeModel model) {
         if (classImage == null) {
-            classImage = PydevPlugin.getImageCache().get(UIConstants.CLASS_ICON);
+            classImage = SharedUiPlugin.getImageCache().get(UIConstants.CLASS_ICON);
         }
 
         DataAndImageTreeNode root = new DataAndImageTreeNode(null, null, null);
@@ -236,7 +236,8 @@ public class HierarchyViewer {
                                 TreeItem item = null;
                                 if (entry.node instanceof FunctionDef) {
                                     item = createTreeItem(c, entry);
-                                    item.setImage(PydevPlugin.getImageCache().get(UIConstants.METHOD_ICON));
+                                    item.setImage(ImageCache
+                                            .asImage(SharedUiPlugin.getImageCache().get(UIConstants.METHOD_ICON)));
                                     if (model.module != null) {
                                         item.setData(new ItemPointer(model.module.getFile(),
                                                 ((FunctionDef) entry.node).name));
@@ -244,7 +245,8 @@ public class HierarchyViewer {
 
                                 } else if (entry.node instanceof ClassDef) {
                                     item = createTreeItem(c, entry);
-                                    item.setImage(PydevPlugin.getImageCache().get(UIConstants.CLASS_ICON));
+                                    item.setImage(ImageCache
+                                            .asImage(SharedUiPlugin.getImageCache().get(UIConstants.CLASS_ICON)));
                                     if (model.module != null) {
                                         item.setData(new ItemPointer(model.module.getFile(),
                                                 ((ClassDef) entry.node).name));
@@ -252,7 +254,8 @@ public class HierarchyViewer {
 
                                 } else {
                                     item = createTreeItem(c, entry);
-                                    item.setImage(PydevPlugin.getImageCache().get(UIConstants.PUBLIC_ATTR_ICON));
+                                    item.setImage(ImageCache
+                                            .asImage(SharedUiPlugin.getImageCache().get(UIConstants.PUBLIC_ATTR_ICON)));
                                     if (model.module != null) {
                                         item.setData(new ItemPointer(model.module.getFile(), entry.node));
                                     }

@@ -24,6 +24,7 @@ import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.FullRepIterable;
+import org.python.pydev.shared_ui.ImageCache;
 
 /**
  * @author Fabio Zadrozny
@@ -152,7 +153,7 @@ public abstract class AbstractToken implements IToken {
 
     @Override
     public Image getImage() {
-        return PyCodeCompletionImages.getImageForType(type);
+        return ImageCache.asImage(PyCodeCompletionImages.getImageForType(type));
     }
 
     /**

@@ -10,16 +10,17 @@ import java.io.File;
 
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
+import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 
 public class FileTreeLabelProvider extends LabelProvider {
 
-    private ImageCache imageCache;
+    private IImageCache imageCache;
 
     /**
-     * 
+     *
      */
     public FileTreeLabelProvider() {
         imageCache = SharedUiPlugin.getImageCache();
@@ -33,9 +34,9 @@ public class FileTreeLabelProvider extends LabelProvider {
     @Override
     public Image getImage(Object element) {
         if (((File) element).isDirectory()) {
-            return imageCache.get(UIConstants.FOLDER_ICON);
+            return ImageCache.asImage(imageCache.get(UIConstants.FOLDER_ICON));
         } else {
-            return imageCache.get(UIConstants.FILE_ICON);
+            return ImageCache.asImage(imageCache.get(UIConstants.FILE_ICON));
         }
     }
 }

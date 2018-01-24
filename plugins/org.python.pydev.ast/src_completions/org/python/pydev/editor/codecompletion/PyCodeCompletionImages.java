@@ -6,10 +6,10 @@
  */
 package org.python.pydev.editor.codecompletion;
 
-import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_core.image.IImageCache;
+import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 
@@ -20,9 +20,9 @@ public class PyCodeCompletionImages {
      * @param type
      * @return
      */
-    public static Image getImageForType(int type) {
+    public static IImageHandle getImageForType(int type) {
         try {
-            ImageCache imageCache = SharedUiPlugin.getImageCache();
+            IImageCache imageCache = SharedUiPlugin.getImageCache();
             if (imageCache == null) {
                 return null;
             }

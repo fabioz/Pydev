@@ -28,7 +28,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.preference.IPersistentPreferenceStore;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
@@ -36,6 +35,8 @@ import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.callbacks.ICallback2;
+import org.python.pydev.shared_core.image.IImageCache;
+import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.DataAndImageTreeNode;
 import org.python.pydev.shared_core.structure.OrderedSet;
@@ -235,12 +236,23 @@ public class SyncSystemModulesManager {
         if (monitor == null) {
             monitor = new NullProgressMonitor();
         }
-        ImageCache imageCache = SharedUiPlugin.getImageCache();
+        IImageCache imageCache = SharedUiPlugin.getImageCache();
         if (imageCache == null) {
             imageCache = new ImageCache(null) { //create dummy for tests
                 @Override
-                public Image get(String key) {
-                    return null;
+                public IImageHandle get(String key) {
+                    return new IImageHandle() {
+
+                        @Override
+                        public Object getImageData() {
+                            return null;
+                        }
+
+                        @Override
+                        public Object getImage() {
+                            return null;
+                        }
+                    };
                 }
             };
         }

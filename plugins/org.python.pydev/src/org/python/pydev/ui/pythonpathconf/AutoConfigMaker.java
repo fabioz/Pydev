@@ -46,6 +46,8 @@ import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
 import org.python.pydev.shared_ui.EditorUtils;
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorWrapper;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
@@ -330,7 +332,7 @@ public class AutoConfigMaker {
         listDialog.setLabelProvider(new LabelProvider() {
             @Override
             public Image getImage(Object element) {
-                return PydevPlugin.getImageCache().get(UIConstants.PY_INTERPRETER_ICON);
+                return ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.PY_INTERPRETER_ICON));
             }
 
             @Override

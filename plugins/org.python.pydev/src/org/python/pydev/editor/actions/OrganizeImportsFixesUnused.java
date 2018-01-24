@@ -25,13 +25,13 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.Position;
 import org.eclipse.ui.texteditor.MarkerAnnotation;
-import org.python.pydev.core.IMiscConstants;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.PyParser.IPostParserListener;
+import org.python.pydev.shared_core.IMiscConstants;
 import org.python.pydev.shared_core.model.ErrorDescription;
 import org.python.pydev.shared_core.structure.Tuple;
 

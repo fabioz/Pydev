@@ -29,6 +29,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.shared_core.image.IImageHandle;
 
 public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionProposalExtension2 implements
         ICompletionProposalExtension {
@@ -70,7 +71,7 @@ public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionPr
     }
 
     /**
-     * Constructor where the image and the docstring are lazily computed (initially added for the java integration).
+     * Constructor where the IImageHandle and the docstring are lazily computed (initially added for the java integration).
      */
     public PyLinkedModeCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
             int cursorPosition, IToken element, String displayString, IContextInformation contextInformation,
@@ -93,7 +94,7 @@ public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionPr
      * Constructor where all the info is passed.
      */
     public PyLinkedModeCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
-            int cursorPosition, Image image, String displayString, IContextInformation contextInformation,
+            int cursorPosition, IImageHandle image, String displayString, IContextInformation contextInformation,
             String additionalProposalInfo, int priority, int onApplyAction, String args,
             ICompareContext compareContext) {
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
@@ -104,7 +105,7 @@ public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionPr
      * Constructor where all the info is passed.
      */
     public PyLinkedModeCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
-            int cursorPosition, Image image, String displayString, IContextInformation contextInformation,
+            int cursorPosition, IImageHandle image, String displayString, IContextInformation contextInformation,
             String additionalProposalInfo, int priority, int onApplyAction, String args, boolean goToLinkedMode,
             ICompareContext compareContext) {
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,

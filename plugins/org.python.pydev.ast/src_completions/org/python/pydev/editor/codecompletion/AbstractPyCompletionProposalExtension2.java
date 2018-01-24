@@ -16,8 +16,8 @@ import org.eclipse.jface.text.contentassist.BoldStylerProvider;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension7;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.viewers.StyledString;
-import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.proposals.AbstractCompletionProposalExtension;
 
@@ -30,7 +30,7 @@ public abstract class AbstractPyCompletionProposalExtension2 extends AbstractCom
     }
 
     public AbstractPyCompletionProposalExtension2(String replacementString, int replacementOffset,
-            int replacementLength, int cursorPosition, Image image, String displayString,
+            int replacementLength, int cursorPosition, IImageHandle image, String displayString,
             IContextInformation contextInformation, String additionalProposalInfo, int priority, int onApplyAction,
             String args, ICompareContext compareContext) {
 

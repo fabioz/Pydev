@@ -40,8 +40,9 @@ import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.ui.dialogs.PythonPackageSelectionDialog;
 import org.python.pydev.ui.dialogs.SourceFolder;
@@ -181,9 +182,9 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
 
     /**
      * Decide whether a source folder must be selected to complete the dialog.
-     * 
+     *
      * Subclasses can override.
-     * 
+     *
      * @return true if a source folder should be selected and false if it shouldn't
      */
     protected boolean shouldCreateSourceFolderSelect() {
@@ -192,9 +193,9 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
 
     /**
      * Decide whether an external source folder must be selected to complete the dialog.
-     * 
+     *
      * Subclasses can override.
-     * 
+     *
      * @return true if an external source should be selected and false if it shouldn't
      */
     protected boolean shouldCreateExistingSourceFolderSelect() {
@@ -294,7 +295,7 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
 
     /**
      * @param topLevel
-     * @return 
+     * @return
      */
     private boolean createPackageSelect(Composite topLevel, boolean setFocus) {
         if (shouldCreatePackageSelect()) {
@@ -308,7 +309,8 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
 
             labelWarningImageWillCreate = new Label(topLevel, SWT.NONE);
             labelWarningImageWillCreate.setVisible(false);
-            labelWarningImageWillCreate.setImage(PydevPlugin.getImageCache().get(UIConstants.WARNING));
+            labelWarningImageWillCreate
+                    .setImage(ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.WARNING)));
 
             labelWarningWillCreate = new Label(topLevel, SWT.NONE);
             labelWarningWillCreate.setText("Note: package not found (will be created).");
@@ -329,7 +331,8 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
                     try {
                         PythonPackageSelectionDialog dialog = new PythonPackageSelectionDialog(getShell(), false);
                         dialog.setTitle("Package selection");
-                        dialog.setMessage("Select a package (or a source folder). You may also enter the\nname of a new package in the text bar on the previous page.");
+                        dialog.setMessage(
+                                "Select a package (or a source folder). You may also enter the\nname of a new package in the text bar on the previous page.");
                         dialog.open();
                         Object firstResult = dialog.getFirstResult();
                         if (firstResult instanceof SourceFolder) { //it is the default package
@@ -406,7 +409,7 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
 
     /**
      * @param topLevel
-     * @return 
+     * @return
      */
     private boolean createSourceFolderSelect(Composite topLevel) {
         Label label;

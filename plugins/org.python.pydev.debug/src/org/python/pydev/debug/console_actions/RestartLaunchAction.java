@@ -12,6 +12,7 @@ import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.part.IPageBookViewPage;
 import org.eclipse.ui.texteditor.IUpdate;
 import org.python.pydev.shared_core.log.Log;
+import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.actions.BaseAction;
@@ -51,11 +52,13 @@ public class RestartLaunchAction extends BaseAction implements IUpdate, IEditorA
                 .getCommandKeyBinding("org.python.pydev.debug.ui.actions.relaunchLastAction");
         String str = binding != null ? "(" + binding.format() + " with focus on editor)" : "(unbinded)";
         if (process.canTerminate()) {
-            this.setImageDescriptor(SharedUiPlugin.getImageCache().getDescriptor(UIConstants.RELAUNCH));
+            this.setImageDescriptor(
+                    ImageCache.asImageDescriptor(SharedUiPlugin.getImageCache().getDescriptor(UIConstants.RELAUNCH)));
             this.setToolTipText("Restart the current launch. " + str);
 
         } else {
-            this.setImageDescriptor(SharedUiPlugin.getImageCache().getDescriptor(UIConstants.RELAUNCH1));
+            this.setImageDescriptor(
+                    ImageCache.asImageDescriptor(SharedUiPlugin.getImageCache().getDescriptor(UIConstants.RELAUNCH1)));
             this.setToolTipText("Relaunch with the same configuration." + str);
         }
     }

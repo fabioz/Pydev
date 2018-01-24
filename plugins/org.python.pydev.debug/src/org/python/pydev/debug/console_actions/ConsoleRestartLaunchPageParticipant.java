@@ -12,8 +12,8 @@ import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.console.IConsolePageParticipant;
 import org.eclipse.ui.part.IPageBookViewPage;
+import org.python.pydev.shared_core.IMiscConstants;
 import org.python.pydev.shared_core.log.Log;
-import org.python.pydev.shared_ui.debug.RelaunchConstants;
 
 /**
  * Reference: ProcessConsolePageParticipant
@@ -36,8 +36,8 @@ public class ConsoleRestartLaunchPageParticipant implements IConsolePageParticip
             if (process == null) {
                 return;
             }
-            String attribute = process.getAttribute(RelaunchConstants.PYDEV_ADD_RELAUNCH_IPROCESS_ATTR);
-            if (!RelaunchConstants.PYDEV_ADD_RELAUNCH_IPROCESS_ATTR_TRUE.equals(attribute)) {
+            String attribute = process.getAttribute(IMiscConstants.PYDEV_ADD_RELAUNCH_IPROCESS_ATTR);
+            if (!IMiscConstants.PYDEV_ADD_RELAUNCH_IPROCESS_ATTR_TRUE.equals(attribute)) {
                 //Only provide relaunch if specified
                 return;
             }

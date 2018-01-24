@@ -13,14 +13,14 @@ import java.util.List;
 import java.util.zip.ZipFile;
 
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.navigator.elements.ISortedElement;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.FileTypesPreferences;
+import org.python.pydev.shared_core.image.IImageCache;
+import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.structure.TreeNode;
-import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 
 /**
@@ -73,7 +73,7 @@ public class PythonpathTreeNode extends TreeNode<LabelAndImage> implements ISort
         return null;
     }
 
-    public PythonpathTreeNode(TreeNode<LabelAndImage> parent, File file, Image icon, boolean isPythonpathRoot) {
+    public PythonpathTreeNode(TreeNode<LabelAndImage> parent, File file, IImageHandle icon, boolean isPythonpathRoot) {
         super(parent, null); //data will be set later
         try {
             this.file = file;
@@ -100,7 +100,7 @@ public class PythonpathTreeNode extends TreeNode<LabelAndImage> implements ISort
 
             //Update the icon if it wasn't received.
             if (icon == null) {
-                ImageCache imageCache = PydevPlugin.getImageCache();
+                IImageCache imageCache = SharedUiPlugin.getImageCache();
                 if (isDir) {
                     if (isPackage) {
                         icon = imageCache.get(UIConstants.FOLDER_PACKAGE_ICON);

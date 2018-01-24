@@ -14,10 +14,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.python.pydev.debug.core.PydevDebugPlugin;
+import org.python.pydev.shared_ui.ImageCache;
 
 /**
  * A panel with counters for the number of Runs, Errors and Failures.
- * 
+ *
  * Copied from org.eclipse.jdt.internal.junit.ui.CounterPanel (but without totals)
  */
 public class CounterPanel extends Composite {
@@ -31,8 +32,8 @@ public class CounterPanel extends Composite {
     public CounterPanel(Composite parent) {
         super(parent, SWT.WRAP);
         //Note: don't dispose of icons in the cache
-        fErrorIcon = PydevDebugPlugin.getImageCache().get("icons/ovr16/error_ovr.gif"); //$NON-NLS-1$
-        fFailureIcon = PydevDebugPlugin.getImageCache().get("icons/ovr16/failed_ovr.gif"); //$NON-NLS-1$
+        fErrorIcon = ImageCache.asImage(PydevDebugPlugin.getImageCache().get("icons/ovr16/error_ovr.gif")); //$NON-NLS-1$
+        fFailureIcon = ImageCache.asImage(PydevDebugPlugin.getImageCache().get("icons/ovr16/failed_ovr.gif")); //$NON-NLS-1$
 
         GridLayout gridLayout = new GridLayout();
         gridLayout.numColumns = 6;

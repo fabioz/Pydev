@@ -12,6 +12,7 @@ import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_ui.ConsoleColorCache;
+import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 
@@ -117,8 +118,9 @@ public class ToLogFile {
 
     public static IOConsoleOutputStream getConsoleOutputStream() {
         if (fConsole == null) {
-            fConsole = new MessageConsole("PyDev Logging", SharedUiPlugin.getImageCache().getDescriptor(
-                    "icons/python_logging.png"));
+            fConsole = new MessageConsole("PyDev Logging",
+                    ImageCache.asImageDescriptor(SharedUiPlugin.getImageCache().getDescriptor(
+                            "icons/python_logging.png")));
 
             fOutputStream = fConsole.newOutputStream();
 

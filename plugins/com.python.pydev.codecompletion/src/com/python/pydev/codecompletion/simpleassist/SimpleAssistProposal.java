@@ -16,10 +16,10 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension2;
 import org.eclipse.jface.text.contentassist.IContextInformation;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
+import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.DocCmd;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
@@ -73,7 +73,7 @@ public class SimpleAssistProposal extends PyCompletionProposal implements ICompl
     }
 
     public SimpleAssistProposal(String replacementString, int replacementOffset, int replacementLength,
-            int cursorPosition, Image image, String displayString, IContextInformation contextInformation,
+            int cursorPosition, IImageHandle image, String displayString, IContextInformation contextInformation,
             String additionalProposalInfo, int priority, ICompareContext compareContext) {
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
                 contextInformation, additionalProposalInfo, priority, compareContext);

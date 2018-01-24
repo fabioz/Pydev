@@ -11,7 +11,6 @@ import java.io.IOException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IIndentPrefs;
@@ -31,6 +30,7 @@ import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 import org.python.pydev.parser.prettyprinterv2.MakeAstValidForPrettyPrintingVisitor;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
+import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
@@ -45,7 +45,7 @@ public class OverrideMethodCompletionProposal extends AbstractPyCompletionPropos
     private String currentClassName;
 
     public OverrideMethodCompletionProposal(int replacementOffset, int replacementLength, int cursorPosition,
-            Image image, FunctionDef functionDef, String parentClassName, String currentClassName) {
+            IImageHandle image, FunctionDef functionDef, String parentClassName, String currentClassName) {
         super("", replacementOffset, replacementLength, cursorPosition, IPyCompletionProposal.PRIORITY_CREATE, null);
         this.fImage = image;
         this.functionDef = functionDef;

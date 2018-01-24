@@ -53,14 +53,15 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.parsing.IParserObserver;
 import org.python.pydev.shared_ui.EditorUtils;
+import org.python.pydev.shared_ui.ImageCache;
 
 /**
  * This is a refactoring action, but it does not follow the default cycle -- so, it overrides the run
  * and always uses the same cycle... because in this case, we do not need any additional information
- * before starting the refactoring... the go to definition always only depends upon the current 
+ * before starting the refactoring... the go to definition always only depends upon the current
  * selected text -- and if more than 1 match is found, it asks the user to select the one that
  * is more likely the match)
- * 
+ *
  * @author Fabio Zadrozny
  */
 public class PyGoToDefinition extends PyRefactorAction {
@@ -96,7 +97,7 @@ public class PyGoToDefinition extends PyRefactorAction {
         private Set<PyEdit> askReparse;
 
         /**
-         * This is the editor which this action is listening in the reparse (will remove it from 
+         * This is the editor which this action is listening in the reparse (will remove it from
          * askReparse and when empty, will proceed to do the find).
          */
         private PyEdit editToReparse;
@@ -156,9 +157,9 @@ public class PyGoToDefinition extends PyRefactorAction {
     }
 
     /**
-     * Overrides the run and calls -- and the whole default refactoring cycle from the beggining, 
+     * Overrides the run and calls -- and the whole default refactoring cycle from the beggining,
      * because unlike most refactoring operations, this one can work with dirty editors.
-     * @return 
+     * @return
      */
     @Override
     public void run(IAction action) {
@@ -232,10 +233,10 @@ public class PyGoToDefinition extends PyRefactorAction {
 
     /**
      * Opens a given definition directly or asks the user to choose one of the passed definitions
-     * 
+     *
      * @param defs item pointers with the definitions available for opening.
      * @param pyEdit pyedit where the action to open the definition was started
-     * @param shell the shell to be used to show dialogs 
+     * @param shell the shell to be used to show dialogs
      */
     public static void openDefinition(ItemPointer[] defs, final PyEdit pyEdit, final Shell shell) {
         if (defs == null) {
@@ -271,7 +272,7 @@ public class PyGoToDefinition extends PyRefactorAction {
 
                             @Override
                             public Image getImage(Object element) {
-                                return PyCodeCompletionImages.getImageForType(IToken.TYPE_PACKAGE);
+                                return ImageCache.asImage(PyCodeCompletionImages.getImageForType(IToken.TYPE_PACKAGE));
                             }
 
                             @Override
@@ -341,7 +342,7 @@ public class PyGoToDefinition extends PyRefactorAction {
     /**
      * @param itemPointer this is the item pointer that gives the location that should be opened
      * @param pyEdit the editor (so that we can gen the open action)
-     * @param shell 
+     * @param shell
      */
     private static void doOpen(ItemPointer itemPointer, PyEdit pyEdit, Shell shell) {
         new PyOpenAction().run(itemPointer, pyEdit.getProject(), pyEdit.getSite());
@@ -349,9 +350,9 @@ public class PyGoToDefinition extends PyRefactorAction {
 
     /**
      * @return an array of ItemPointer with the definitions found
-     * @throws MisconfigurationException 
-     * @throws TooManyMatchesException 
-     * @throws BadLocationException 
+     * @throws MisconfigurationException
+     * @throws TooManyMatchesException
+     * @throws BadLocationException
      */
     public ItemPointer[] findDefinition(PyEdit pyEdit)
             throws TooManyMatchesException, MisconfigurationException, BadLocationException {

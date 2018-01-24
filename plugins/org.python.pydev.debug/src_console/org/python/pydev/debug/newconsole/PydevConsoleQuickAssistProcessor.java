@@ -22,8 +22,8 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.correctionassist.PyCorrectionAssistant;
 import org.python.pydev.editor.correctionassist.heuristics.AssistAssign;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_interactive_console.console.ui.internal.ScriptConsoleViewer;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 
 
 /**
@@ -81,7 +81,7 @@ public class PydevConsoleQuickAssistProcessor implements IQuickAssistProcessor {
                                 break;
                             }
                         }
-                        props.addAll(assistAssign.getProps(ps, PydevPlugin.getImageCache(), sourceViewer, offset,
+                        props.addAll(assistAssign.getProps(ps, SharedUiPlugin.getImageCache(), sourceViewer, offset,
                                 commandLine, commandLineOffset));
 
                     } catch (BadLocationException e) {

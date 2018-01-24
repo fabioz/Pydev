@@ -17,7 +17,8 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 
 public class HistoryAction extends Action {
@@ -112,6 +113,7 @@ public class HistoryAction extends Action {
         this.view = new WeakReference<PyUnitView>(view);
         setMenuCreator(new HistoryMenuCreator());
         setToolTipText("Test Run History");
-        this.setImageDescriptor(PydevPlugin.getImageCache().getDescriptor(UIConstants.HISTORY));
+        this.setImageDescriptor(
+                ImageCache.asImageDescriptor(SharedUiPlugin.getImageCache().getDescriptor(UIConstants.HISTORY)));
     }
 }

@@ -43,6 +43,7 @@ import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 
 /**
@@ -124,7 +125,7 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
         if (fImage == null) {
             fImage = AnalysisPlugin.getImageForAutoImportTypeInfo(infoTypeForImage);
         }
-        return fImage;
+        return ImageCache.asImage(fImage);
     }
 
     public void setAddLocalImport(boolean b) {

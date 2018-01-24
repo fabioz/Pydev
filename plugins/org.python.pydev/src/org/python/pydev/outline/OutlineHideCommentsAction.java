@@ -9,20 +9,20 @@ package org.python.pydev.outline;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.python.pydev.parser.jython.ast.commentType;
-import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.outline.AbstractOutlineFilterAction;
 
 /**
  * Action that will hide comments in the outline
- * 
+ *
  * @author Fabio
  */
 public class OutlineHideCommentsAction extends AbstractOutlineFilterAction {
 
     private static final String PREF_HIDE_COMMENTS = "org.python.pydev.OUTLINE_HIDE_COMMENTS";
 
-    public OutlineHideCommentsAction(PyOutlinePage page, ImageCache imageCache) {
+    public OutlineHideCommentsAction(PyOutlinePage page, IImageCache imageCache) {
         super("Hide Comments", page, imageCache, PREF_HIDE_COMMENTS, UIConstants.COMMENT_BLACK);
     }
 

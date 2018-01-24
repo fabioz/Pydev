@@ -34,6 +34,7 @@ import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.IProcessInfo;
 import org.python.pydev.shared_core.utils.IProcessList;
 import org.python.pydev.shared_core.utils.PlatformUtils;
+import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.utils.UIUtils;
@@ -78,7 +79,7 @@ public class AttachToProcess implements IWorkbenchWindowActionDelegate {
                 return new TreeNodeLabelProvider() {
                     @Override
                     public Image getImage(Object element) {
-                        return SharedUiPlugin.getImageCache().get(UIConstants.PUBLIC_ATTR_ICON);
+                        return ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.PUBLIC_ATTR_ICON));
                     };
 
                     @SuppressWarnings("unchecked")

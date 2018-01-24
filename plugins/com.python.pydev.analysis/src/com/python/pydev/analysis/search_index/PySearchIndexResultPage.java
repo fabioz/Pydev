@@ -1,6 +1,7 @@
 package com.python.pydev.analysis.search_index;
 
 import org.eclipse.jface.viewers.TreeViewer;
+import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.structure.TreeNodeContentProvider;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
@@ -16,17 +17,20 @@ import org.python.pydev.shared_ui.search.GroupByAction;
 public class PySearchIndexResultPage extends AbstractSearchIndexResultPage {
 
     public PySearchIndexResultPage() {
-        ImageCache imageCache = SharedUiPlugin.getImageCache();
+        IImageCache imageCache = SharedUiPlugin.getImageCache();
 
         fGroupByActions = new GroupByAction[] {
                 new GroupByAction(this, PySearchIndexTreeContentProvider.GROUP_WITH_PROJECT,
-                        imageCache.getDescriptor(UIConstants.PROJECT_ICON), "Group: Projects"),
+                        ImageCache.asImageDescriptor(imageCache.getDescriptor(UIConstants.PROJECT_ICON)),
+                        "Group: Projects"),
 
                 new GroupByAction(this, PySearchIndexTreeContentProvider.GROUP_WITH_MODULES,
-                        imageCache.getDescriptor(UIConstants.FOLDER_PACKAGE_ICON), "Group: Packages"),
+                        ImageCache.asImageDescriptor(imageCache.getDescriptor(UIConstants.FOLDER_PACKAGE_ICON)),
+                        "Group: Packages"),
 
                 new GroupByAction(this, PySearchIndexTreeContentProvider.GROUP_WITH_FOLDERS,
-                        imageCache.getDescriptor(UIConstants.FOLDER_ICON), "Group: Folders"),
+                        ImageCache.asImageDescriptor(imageCache.getDescriptor(UIConstants.FOLDER_ICON)),
+                        "Group: Folders"),
 
         };
     }

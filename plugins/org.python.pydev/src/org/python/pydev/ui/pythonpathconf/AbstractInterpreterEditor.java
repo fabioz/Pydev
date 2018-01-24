@@ -46,7 +46,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -69,12 +68,14 @@ import org.python.pydev.core.PropertiesHelper;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.jython.IPythonInterpreter;
 import org.python.pydev.jython.JythonPlugin;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.FileTypesPreferences;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.image.IImageCache;
+import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorDialog;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
@@ -115,9 +116,9 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
     /**
      * Images
      */
-    private Image imageSystemLibRoot;
-    private Image imageSystemLib;
-    private Image environmentImage;
+    private IImageHandle imageSystemLibRoot;
+    private IImageHandle imageSystemLib;
+    private IImageHandle environmentImage;
 
     private Composite boxSystem;
 
@@ -212,7 +213,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
         }
 
         if (USE_ICONS) {
-            ImageCache imageCache = PydevPlugin.getImageCache();
+            IImageCache imageCache = SharedUiPlugin.getImageCache();
             imageSystemLibRoot = imageCache.get(UIConstants.LIB_SYSTEM_ROOT);
             imageSystemLib = imageCache.get(UIConstants.LIB_SYSTEM);
             environmentImage = imageCache.get(UIConstants.ENVIRONMENT_ICON);
@@ -645,7 +646,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
         Composite parent;
         TabItem tabItem = new TabItem(tabFolder, SWT.None);
         tabItem.setText("Environment");
-        tabItem.setImage(environmentImage);
+        tabItem.setImage(ImageCache.asImage(environmentImage));
 
         Composite composite = new Composite(tabFolder, SWT.None);
         parent = composite;
@@ -679,7 +680,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
         GridData gd;
         TabItem tabItem = new TabItem(tabFolder, SWT.None);
         tabItem.setText("Libraries");
-        tabItem.setImage(imageSystemLibRoot);
+        tabItem.setImage(ImageCache.asImage(imageSystemLibRoot));
 
         Composite composite = new Composite(tabFolder, SWT.None);
         parent = composite;
@@ -920,7 +921,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
         if (name != null) {
             TreeItem item = new TreeItem(treeWithLibs, SWT.NONE);
             item.setText("System libs");
-            item.setImage(imageSystemLibRoot);
+            item.setImage(ImageCache.asImage(imageSystemLibRoot));
 
             InterpreterInfo info = (InterpreterInfo) this.nameToInfo.get(name);
             if (info == null) {
@@ -929,7 +930,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
                 for (Iterator<String> iter = info.libs.iterator(); iter.hasNext();) {
                     TreeItem subItem = new TreeItem(item, SWT.NONE);
                     subItem.setText(iter.next());
-                    subItem.setImage(imageSystemLib);
+                    subItem.setImage(ImageCache.asImage(imageSystemLib));
                     subItem.setData(EnabledTreeDragReorder.DRAG_IMAGE_DATA_KEY, UIConstants.LIB_SYSTEM);
                 }
                 item.setExpanded(true);

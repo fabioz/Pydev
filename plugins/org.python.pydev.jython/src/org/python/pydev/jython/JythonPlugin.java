@@ -39,6 +39,7 @@ import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.ConsoleColorCache;
+import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.bundle.BundleInfo;
 import org.python.pydev.shared_ui.bundle.IBundleInfo;
 import org.python.util.PythonInterpreter;
@@ -580,8 +581,9 @@ public class JythonPlugin extends AbstractUIPlugin {
     private static MessageConsole getConsole() {
         try {
             if (fConsole == null) {
-                fConsole = new MessageConsole("PyDev Scripting", JythonPlugin.getBundleInfo().getImageCache()
-                        .getDescriptor("icons/python_scripting.png"));
+                fConsole = new MessageConsole("PyDev Scripting",
+                        ImageCache.asImageDescriptor(JythonPlugin.getBundleInfo().getImageCache()
+                                .getDescriptor("icons/python_scripting.png")));
 
                 fOutputStream = fConsole.newOutputStream();
                 fErrorStream = fConsole.newOutputStream();

@@ -31,6 +31,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.python.pydev.shared_core.structure.TreeNode;
+import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 
@@ -235,7 +236,7 @@ public class SearchIndexLabelProvider extends LabelProvider implements IStyledLa
             return fLineMatchImage;
         }
         if (element instanceof ICustomModule) {
-            return SharedUiPlugin.getImageCache().get(UIConstants.PY_FILE_ICON);
+            return ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.PY_FILE_ICON));
         }
         if (!(element instanceof IResource)) {
             return null;

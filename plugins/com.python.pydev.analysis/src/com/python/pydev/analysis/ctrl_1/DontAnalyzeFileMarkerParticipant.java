@@ -12,14 +12,14 @@ import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.correctionassist.IgnoreCompletionProposal;
 import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
-import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_core.image.IImageCache;
+import org.python.pydev.shared_core.image.IImageHandle;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
@@ -27,15 +27,15 @@ import com.python.pydev.analysis.builder.AnalysisRunner;
 
 public class DontAnalyzeFileMarkerParticipant implements IAssistProps {
 
-    private Image annotationImage;
+    private IImageHandle annotationImage;
 
     public DontAnalyzeFileMarkerParticipant() {
-        ImageCache analysisImageCache = PydevPlugin.getImageCache();
+        IImageCache analysisImageCache = SharedUiPlugin.getImageCache();
         annotationImage = analysisImageCache.get(UIConstants.ASSIST_ANNOTATION);
     }
 
     @Override
-    public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature,
+    public List<ICompletionProposal> getProps(PySelection ps, IImageCache imageCache, File f, IPythonNature nature,
             PyEdit edit, int offset) throws BadLocationException {
         List<ICompletionProposal> props = new ArrayList<ICompletionProposal>();
         if (ps.getCursorLine() == 0) {

@@ -29,7 +29,6 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
@@ -72,6 +71,8 @@ import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.image.IImageCache;
+import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.FastStack;
@@ -79,7 +80,6 @@ import org.python.pydev.shared_core.structure.ImmutableTuple;
 import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 import org.python.pydev.shared_core.structure.OrderedMap;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.log.ToLogFile;
@@ -413,8 +413,8 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
     private void createOverrideCodeCompletions(CompletionRequest request,
             ArrayList<ICompletionProposal> ret,
             PySelection ps) throws BadLocationException {
-        ImageCache imageCache = SharedUiPlugin.getImageCache();
-        Image imageOverride = imageCache != null ? imageCache.get(UIConstants.METHOD_ICON) : null;
+        IImageCache imageCache = SharedUiPlugin.getImageCache();
+        IImageHandle imageOverride = imageCache != null ? imageCache.get(UIConstants.METHOD_ICON) : null;
         String lineContentsToCursor = ps.getLineContentsToCursor();
         LineStartingScope scopeStart = ps.getPreviousLineThatStartsScope(PySelection.CLASS_TOKEN, false,
                 PySelection.getFirstCharPosition(lineContentsToCursor));

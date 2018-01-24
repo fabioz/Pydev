@@ -23,20 +23,20 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension2;
-import org.python.pydev.core.IMiscConstants;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
 import org.python.pydev.editorinput.PyOpenEditor;
 import org.python.pydev.parser.PyParser;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.IMiscConstants;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.callbacks.ICallbackListener;
 import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.parsing.IParserObserver;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 
 import com.python.pydev.analysis.AnalysisRequestsTestWorkbench;
 import com.python.pydev.analysis.builder.AnalysisRunner;
@@ -537,7 +537,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
         PySelection ps = new PySelection(editor.getDocument(), 0);
         assertTrue(quickFix.isValid(ps, "", editor, 0));
-        List<ICompletionProposal> props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(),
+        List<ICompletionProposal> props = quickFix.getProps(ps, SharedUiPlugin.getImageCache(), editor.getEditorFile(),
                 editor.getPythonNature(), editor, 0);
         try {
             findCompletion(props, "Create Foo method").apply(editor.getISourceViewer(), '\n', 0, 0);
@@ -926,7 +926,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
     private List<ICompletionProposal> waitForQuickFixProps(TddCodeGenerationQuickFixParticipant quickFix,
             PySelection ps, int offset) throws BadLocationException, MisconfigurationException {
         for (int i = 0; i < 10; i++) {
-            List<ICompletionProposal> props = quickFix.getProps(ps, PydevPlugin.getImageCache(),
+            List<ICompletionProposal> props = quickFix.getProps(ps, SharedUiPlugin.getImageCache(),
                     editor.getEditorFile(), editor.getPythonNature(), editor, offset);
             if (props.size() > 0) {
                 return props;
@@ -1090,7 +1090,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
         PySelection ps = new PySelection(editor.getDocument(), 0);
         assertTrue(quickFix.isValid(ps, "", editor, 0));
-        List<ICompletionProposal> props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(),
+        List<ICompletionProposal> props = quickFix.getProps(ps, SharedUiPlugin.getImageCache(), editor.getEditorFile(),
                 editor.getPythonNature(), editor, 0);
         try {
             findCompletion(props, "Create Foo class").apply(editor.getISourceViewer(), '\n', 0, 0);
@@ -1425,7 +1425,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         quickFix = new TddCodeGenerationQuickFixParticipant();
         ps = new PySelection(editor.getDocument(), 0);
         assertTrue(quickFix.isValid(ps, "", editor, 0));
-        props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(),
+        props = quickFix.getProps(ps, SharedUiPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(),
                 editor, 0);
         try {
             findCompletion(props, "Create Foo class").apply(editor.getISourceViewer(), '\n', 0, 0);
@@ -1455,7 +1455,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         quickFix = new TddCodeGenerationQuickFixParticipant();
         ps = new PySelection(editor.getDocument(), 0);
         assertTrue(quickFix.isValid(ps, "", editor, 0));
-        props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(),
+        props = quickFix.getProps(ps, SharedUiPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(),
                 editor, 0);
         try {
             findCompletion(props, "Create Foo class").apply(editor.getISourceViewer(), '\n', 0, 0);

@@ -43,7 +43,6 @@ import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.DeviceResourceException;
 import org.eclipse.jface.resource.FontDescriptor;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.text.BadLocationException;
@@ -141,7 +140,6 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.CheckDefaultPreferencesDialog;
 import org.python.pydev.plugin.preferences.FileTypesPreferences;
@@ -152,6 +150,8 @@ import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
+import org.python.pydev.shared_core.image.IImageCache;
+import org.python.pydev.shared_core.image.IImageDescriptor;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.model.ErrorDescription;
 import org.python.pydev.shared_core.model.ISimpleNode;
@@ -168,6 +168,7 @@ import org.python.pydev.shared_core.structure.Tuple3;
 import org.python.pydev.shared_interactive_console.console.ui.ScriptConsole;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.editor.IPyEditListener;
 import org.python.pydev.shared_ui.editor_input.PydevFileEditorInput;
@@ -480,8 +481,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
     public void updateForceTabsMessage() {
         boolean forceTabs = getIndentPrefs().getForceTabs();
-        ImageCache imageCache = PydevPlugin.getImageCache();
-        ImageDescriptor desc;
+        IImageCache imageCache = SharedUiPlugin.getImageCache();
+        IImageDescriptor desc;
         if (forceTabs) {
             desc = imageCache.getDescriptor(UIConstants.FORCE_TABS_ACTIVE);
         } else {
@@ -489,7 +490,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         }
         IEditorStatusLine statusLine = (IEditorStatusLine) getAdapter(IEditorStatusLine.class);
         if (statusLine != null) {
-            statusLine.setMessage(false, forceTabs ? "Forcing tabs" : "Not forcing tabs.", desc.createImage());
+            statusLine.setMessage(false, forceTabs ? "Forcing tabs" : "Not forcing tabs.",
+                    ImageCache.asImageDescriptor(desc).createImage());
         }
     }
 
@@ -794,7 +796,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
         try {
             if (this.isCythonFile()) {
-                this.setTitleImage(PydevPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON));
+                this.setTitleImage(ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON)));
                 this.getAutoEditStrategy().setCythonFile(true);
             } else {
                 this.getAutoEditStrategy().setCythonFile(false);

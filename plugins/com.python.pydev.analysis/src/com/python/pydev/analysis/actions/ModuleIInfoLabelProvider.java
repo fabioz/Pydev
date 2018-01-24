@@ -10,6 +10,7 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_ui.ImageCache;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
@@ -79,6 +80,6 @@ public final class ModuleIInfoLabelProvider extends LabelProvider {
         if (info == null) {
             return null;
         }
-        return AnalysisPlugin.getImageForTypeInfo(info);
+        return ImageCache.asImage(AnalysisPlugin.getImageForTypeInfo(info));
     }
 }

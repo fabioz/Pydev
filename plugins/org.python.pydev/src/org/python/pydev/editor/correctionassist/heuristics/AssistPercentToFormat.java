@@ -34,59 +34,60 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.AbstractTemplateCodeCompletion;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
-import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
+import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.UIConstants;
 
 public class AssistPercentToFormat extends AbstractTemplateCodeCompletion implements IAssistProps {
-    
+
     private static final boolean DEBUG = false;
-    
+
     /**
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps(org.python.pydev.core.docutils.PySelection,
      *      org.python.pydev.shared_ui.ImageCache)
      */
     @Override
-    public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature, PyEdit edit, int offset)
+    public List<ICompletionProposal> getProps(PySelection ps, IImageCache imageCache, File f, IPythonNature nature,
+            PyEdit edit, int offset)
             throws BadLocationException {
-        
+
         ArrayList<ICompletionProposal> l = new ArrayList<ICompletionProposal>();
-        
+
         String curSelection = ps.getSelectedText();
-        
+
         if (curSelection == null) {
             return l;
         }
-                
+
         curSelection = new String(curSelection);
-        
+
         boolean endsWithLineDelim = false;
         int unchangedLength = curSelection.length();
-        if (curSelection.substring(unchangedLength-1, unchangedLength).matches("\\r|\\n") ||
-            curSelection.substring(unchangedLength-2, unchangedLength).matches("\\r\\n")) {
+        if (curSelection.substring(unchangedLength - 1, unchangedLength).matches("\\r|\\n") ||
+                curSelection.substring(unchangedLength - 2, unchangedLength).matches("\\r\\n")) {
             endsWithLineDelim = true;
         }
-        
+
         PercentToBraceConverter ptbc = new PercentToBraceConverter(curSelection);
         String replacementString = ptbc.convert();
-        
+
         if (endsWithLineDelim) {
             replacementString += ps.getEndLineDelim();
         }
         int lenConverted = ptbc.getLength();
-        
+
         int replacementOffset = offset;
         int replacementLength = unchangedLength;
         int cursorPos = replacementOffset + lenConverted;
 
         if (DEBUG) {
             String sep = System.getProperty("line.separator");
-            
-            System.out.format(sep + 
-                    "Replacement String: %s" + sep + 
-                    "Replacement Offset: %d" + sep + 
-                    "Replacement Length: %d" + sep + 
-                    "Cursor Position:    %d", 
+
+            System.out.format(sep +
+                    "Replacement String: %s" + sep +
+                    "Replacement Offset: %d" + sep +
+                    "Replacement Length: %d" + sep +
+                    "Cursor Position:    %d",
                     replacementString, replacementOffset, replacementLength, cursorPos);
         }
 
@@ -94,10 +95,11 @@ public class AssistPercentToFormat extends AbstractTemplateCodeCompletion implem
         TemplateContext context = createContext(edit.getPySourceViewer(), region, ps.getDoc());
 
         Template t = new Template("Convert", "% to .format()", "", replacementString, false);
-        l.add(new TemplateProposal(t, context, region, imageCache.get(UIConstants.COMPLETION_TEMPLATE), 5));
+        l.add(new TemplateProposal(t, context, region,
+                ImageCache.asImage(imageCache.get(UIConstants.COMPLETION_TEMPLATE)), 5));
         return l;
     }
-    
+
     /**
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#isValid(org.python.pydev.core.docutils.PySelection,
      *      java.lang.String)
@@ -106,9 +108,10 @@ public class AssistPercentToFormat extends AbstractTemplateCodeCompletion implem
     public boolean isValid(PySelection ps, String sel, PyEdit edit, int offset) {
         return PercentToBraceConverter.isValidPercentFormatString(ps.getSelectedText(), true);
     }
-    
+
     @Override
-    public List<Object> getCodeCompletionProposals(ITextViewer viewer, CompletionRequest request) throws CoreException, BadLocationException {
+    public List<Object> getCodeCompletionProposals(ITextViewer viewer, CompletionRequest request)
+            throws CoreException, BadLocationException {
         throw new RuntimeException("Not implemented: completions should be gotten from the IAssistProps interface.");
     }
 }

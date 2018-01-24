@@ -13,8 +13,9 @@ import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.ui.console.MessageConsole;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_ui.ConsoleColorCache;
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 
 /**
  * Helper for classes that want to create a message console for writing to it in a stream later on.
@@ -47,7 +48,8 @@ public class MessageConsoles {
         synchronized (lock) {
             MessageConsole console = consoles.get(name);
             if (console == null) {
-                console = new MessageConsole(name, PydevPlugin.getImageCache().getDescriptor(iconPath));
+                console = new MessageConsole(name,
+                        ImageCache.asImageDescriptor(SharedUiPlugin.getImageCache().getDescriptor(iconPath)));
                 ConsoleColorCache.getDefault().keepConsoleColorsSynched(console);
                 ConsolePlugin.getDefault().getConsoleManager().addConsoles(new IConsole[] { console });
                 consoles.put(name, console);

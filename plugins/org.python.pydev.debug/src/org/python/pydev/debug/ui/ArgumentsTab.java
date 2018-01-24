@@ -24,13 +24,14 @@ import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.ui.blocks.ProgramArgumentsBlock;
 import org.python.pydev.debug.ui.blocks.VMArgumentsBlock;
 import org.python.pydev.debug.ui.blocks.WorkingDirectoryBlock;
+import org.python.pydev.shared_ui.ImageCache;
 
 /**
  * The main Python debug setup tab.
- * 
+ *
  * This tab contains:
  * <ul>
- *   <li>The program arguments block</li> 
+ *   <li>The program arguments block</li>
  *   <li>The VM Arguments block</li>
  *   <li>The Working directory block</li>
  * </ul>
@@ -111,7 +112,7 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
      */
     @Override
     public Image getImage() {
-        return PydevDebugPlugin.getImageCache().get(Constants.ARGUMENTS_ICON);
+        return ImageCache.asImage(PydevDebugPlugin.getImageCache().get(Constants.ARGUMENTS_ICON));
     }
 
     /* (non-Javadoc)
@@ -119,7 +120,7 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
      */
     @Override
     public void setDefaults(ILaunchConfigurationWorkingCopy arg0) {
-        // No defaults to set 
+        // No defaults to set
     }
 
     /* (non-Javadoc)

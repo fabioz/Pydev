@@ -26,9 +26,9 @@ import org.eclipse.jface.text.link.LinkedModeUI;
 import org.eclipse.jface.text.link.LinkedPositionGroup;
 import org.eclipse.jface.text.link.ProposalPosition;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.texteditor.link.EditorLinkedModeUI;
+import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
@@ -40,8 +40,8 @@ public abstract class AbstractLinkedModeCompletionProposal extends AbstractCompl
 
     /**
     * The number of positions that we should add to the original position.
-    * 
-    * Used so that when we enter '.', we add an additional position (because '.' will be added when applying the completion) 
+    *
+    * Used so that when we enter '.', we add an additional position (because '.' will be added when applying the completion)
     * or so that we can go back one position when the toggle mode (ctrl) is on and a completion with parameters is applied (and they
     * are removed)
     */
@@ -61,7 +61,7 @@ public abstract class AbstractLinkedModeCompletionProposal extends AbstractCompl
     * Constructor where all the info is passed.
     */
     public AbstractLinkedModeCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
-            int cursorPosition, Image image, String displayString, IContextInformation contextInformation,
+            int cursorPosition, IImageHandle image, String displayString, IContextInformation contextInformation,
             String additionalProposalInfo, int priority, int onApplyAction, String args,
             ICompareContext compareContext) {
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
@@ -72,7 +72,7 @@ public abstract class AbstractLinkedModeCompletionProposal extends AbstractCompl
     * Constructor where all the info is passed.
     */
     public AbstractLinkedModeCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
-            int cursorPosition, Image image, String displayString, IContextInformation contextInformation,
+            int cursorPosition, IImageHandle image, String displayString, IContextInformation contextInformation,
             String additionalProposalInfo, int priority, int onApplyAction, String args, boolean goToLinkedMode,
             ICompareContext compareContext) {
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
@@ -171,12 +171,12 @@ public abstract class AbstractLinkedModeCompletionProposal extends AbstractCompl
 
     /**
     * Applies the changes in the document (useful for testing)
-    * 
+    *
     * @param offset the offset where the change should be applied
     * @param eat whether we should 'eat' the selection (on toggle)
-    * @param doc the document where the changes should be applied 
-    * @param dif the difference between the offset and and the replacement offset  
-    * 
+    * @param doc the document where the changes should be applied
+    * @param dif the difference between the offset and and the replacement offset
+    *
     * @return whether we should return (and not keep on with the linking mode)
     * @throws BadLocationException
     */
@@ -189,7 +189,7 @@ public abstract class AbstractLinkedModeCompletionProposal extends AbstractCompl
 
         if (eat) {
 
-            //behavior change: when we have a parenthesis and we're in toggle (eat) mode, let's not add the 
+            //behavior change: when we have a parenthesis and we're in toggle (eat) mode, let's not add the
             //parenthesis anymore.
             if (/*fLastIsPar &&*/iPar != -1) {
                 rep = rep.substring(0, iPar);
@@ -316,10 +316,10 @@ public abstract class AbstractLinkedModeCompletionProposal extends AbstractCompl
 
     /**
     * We want to apply it on \n or on '.'
-    * 
+    *
     * When . is entered, the user will finish (and apply) the current completion
     * and request a new one with '.'
-    * 
+    *
     * If not added, it won't request the new one (and will just stop the current)
     */
     @Override

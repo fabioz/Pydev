@@ -10,6 +10,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.bindings.keys.KeySequence;
 import org.eclipse.ui.texteditor.IUpdate;
 import org.python.pydev.shared_core.log.Log;
+import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.actions.BaseAction;
@@ -22,7 +23,8 @@ public class TerminateAllLaunchesAction extends BaseAction implements IUpdate {
                 .getCommandKeyBinding("org.python.pydev.debug.ui.actions.terminateAllLaunchesAction");
         String str = binding != null ? "(" + binding.format() + " with focus on editor)" : "(unbinded)";
 
-        this.setImageDescriptor(SharedUiPlugin.getImageCache().getDescriptor(UIConstants.TERMINATE_ALL));
+        this.setImageDescriptor(
+                ImageCache.asImageDescriptor(SharedUiPlugin.getImageCache().getDescriptor(UIConstants.TERMINATE_ALL)));
         this.setToolTipText("Terminate ALL." + str);
 
         update();

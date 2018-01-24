@@ -32,12 +32,12 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.pyunit.HistoryAction.IActionsMenu;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
-import org.python.pydev.plugin.PydevPlugin;
-
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 
 /**
  * This action will take care of relaunching the current test suite whenever any file changes.
- * 
+ *
  * @author fabioz
  */
 public class RelaunchInBackgroundAction extends Action implements IResourceChangeListener {
@@ -157,7 +157,8 @@ public class RelaunchInBackgroundAction extends Action implements IResourceChang
         this.view = new WeakReference<PyUnitView>(pyUnitView);
         setMenuCreator(new RelaunchInBackgroundOptionsMenuCreator()); //Options for user
         this.listeningChanges = false;
-        this.setImageDescriptor(PydevPlugin.getImageCache().getDescriptor("icons/relaunch_background_disabled.png"));
+        this.setImageDescriptor(ImageCache.asImageDescriptor(
+                SharedUiPlugin.getImageCache().getDescriptor("icons/relaunch_background_disabled.png")));
         setInitialTooltipText();
     }
 
@@ -182,10 +183,12 @@ public class RelaunchInBackgroundAction extends Action implements IResourceChang
         this.listeningChanges = !this.listeningChanges;
 
         if (this.listeningChanges) {
-            this.setImageDescriptor(PydevPlugin.getImageCache().getDescriptor("icons/relaunch_background_enabled.png"));
+            this.setImageDescriptor(ImageCache.asImageDescriptor(
+                    SharedUiPlugin.getImageCache().getDescriptor("icons/relaunch_background_enabled.png")));
             startListening();
         } else {
-            this.setImageDescriptor(PydevPlugin.getImageCache().getDescriptor("icons/relaunch_background_disabled.png"));
+            this.setImageDescriptor(ImageCache.asImageDescriptor(
+                    SharedUiPlugin.getImageCache().getDescriptor("icons/relaunch_background_disabled.png")));
             stopListening();
         }
     }

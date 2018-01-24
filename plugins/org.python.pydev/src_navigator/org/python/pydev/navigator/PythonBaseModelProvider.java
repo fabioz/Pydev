@@ -48,7 +48,6 @@ import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.PlatformUI;
@@ -87,6 +86,7 @@ import org.python.pydev.plugin.preferences.FileTypesPreferences;
 import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.structure.TreeNode;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
@@ -571,7 +571,7 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
     }
 
     private TreeNode<LabelAndImage> createErrorWorkingSetWithoutChildren(IWorkingSet parentElement) {
-        Image img = SharedUiPlugin.getImageCache().get(UIConstants.WARNING);
+        IImageHandle img = SharedUiPlugin.getImageCache().get(UIConstants.WARNING);
         TreeNode<LabelAndImage> root = new TreeNode<LabelAndImage>(parentElement,
                 new LabelAndImage("Warning: working set: " + parentElement.getName() + " does not have any contents.",
                         img));
@@ -583,7 +583,7 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
     }
 
     public TreeNode<LabelAndImage> createErrorNoWorkingSetsDefined(Object parentElement) {
-        Image img = SharedUiPlugin.getImageCache().get(UIConstants.WARNING);
+        IImageHandle img = SharedUiPlugin.getImageCache().get(UIConstants.WARNING);
         TreeNode<LabelAndImage> root = new TreeNode<LabelAndImage>(parentElement,
                 new LabelAndImage("Warning: Top level elements set to working sets but no working sets are defined.",
                         img));
@@ -737,7 +737,8 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
                                     //ok, something strange happened... it shouldn't be null... maybe empty, but not null at this point
                                     //so, if it exists, let's try to create it...
                                     //TODO: This should be moved to somewhere else.
-                                    String resourceOSString = SharedCorePlugin.getIResourceOSString(file.getActualObject());
+                                    String resourceOSString = SharedCorePlugin
+                                            .getIResourceOSString(file.getActualObject());
                                     if (resourceOSString != null) {
                                         File f = new File(resourceOSString);
                                         if (f.exists()) {

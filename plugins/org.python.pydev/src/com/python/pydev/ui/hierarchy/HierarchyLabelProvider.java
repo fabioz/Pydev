@@ -12,13 +12,14 @@
 package com.python.pydev.ui.hierarchy;
 
 import org.eclipse.jface.preference.JFacePreferences;
+import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StyledString;
-import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
 import org.eclipse.jface.viewers.StyledString.Styler;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.editor.refactoring.HierarchyNodeModel;
 import org.python.pydev.shared_core.structure.DataAndImageTreeNode;
+import org.python.pydev.shared_ui.ImageCache;
 
 class HierarchyLabelProvider extends LabelProvider implements IStyledLabelProvider {
 
@@ -27,7 +28,7 @@ class HierarchyLabelProvider extends LabelProvider implements IStyledLabelProvid
         if (element instanceof DataAndImageTreeNode) {
             @SuppressWarnings("rawtypes")
             DataAndImageTreeNode treeNode = (DataAndImageTreeNode) element;
-            return treeNode.image;
+            return ImageCache.asImage(treeNode.image);
         }
         return super.getImage(element);
     }
