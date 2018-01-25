@@ -8,13 +8,12 @@ package org.python.pydev.editor.codecompletion.revisited.javaintegration;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
-
-import junit.framework.TestCase;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -59,12 +58,15 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.FileTypesPreferences;
 import org.python.pydev.plugin.preferences.InterpreterGeneralPreferences;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
+
+import junit.framework.TestCase;
 
 /**
  * This is a base class for doing test cases that require the workbench to be 'alive' and that want to test the integration
@@ -116,7 +118,7 @@ public class AbstractWorkbenchTestCase extends TestCase {
 
     /**
      * Create a project with the structure:
-     * 
+     *
      * /pydev_unit_test_project
      *     junit.jar   <-- set in pythonpath
      *     /src        <-- set in pythonpath
@@ -124,14 +126,14 @@ public class AbstractWorkbenchTestCase extends TestCase {
      *             __init__.py
      *             /pack2
      *                 __init__.py
-     *                 mod1.py 
-     *     
+     *                 mod1.py
+     *
      * /java_unit_test_project
      *     /src        <-- set in classpath
      *         JavaDefault.java (default package)
      *         /javamod1/JavaClass.java
      *             /javamod2/JavaClass.java
-     *             
+     *
      * Note: the initialization of the structure will happen only once and will be re-used in all the tests after it.
      */
     @Override
@@ -154,7 +156,8 @@ public class AbstractWorkbenchTestCase extends TestCase {
             NullProgressMonitor monitor = new NullProgressMonitor();
 
             IProject project = createProject(monitor, "pydev_unit_test_project");
-            IJavaProject javaProject = configureAsJavaProject(createProject(monitor, "java_unit_test_project"), monitor);
+            IJavaProject javaProject = configureAsJavaProject(createProject(monitor, "java_unit_test_project"),
+                    monitor);
             setProjectReference(monitor, project, javaProject);
 
             createJunitJar(monitor, project);
@@ -218,7 +221,8 @@ public class AbstractWorkbenchTestCase extends TestCase {
                 new ICallback<Boolean, Object>() {
                     @Override
                     public Boolean call(Object arg) {
-                        SortedMap<ModulesKey, ModulesKey> allDirectModulesStartingWith = modulesManager.getAllDirectModulesStartingWith("pack1");
+                        SortedMap<ModulesKey, ModulesKey> allDirectModulesStartingWith = modulesManager
+                                .getAllDirectModulesStartingWith("pack1");
                         Set<ModulesKey> keySet = allDirectModulesStartingWith.keySet();
                         HashSet<ModulesKey> expected = new HashSet<ModulesKey>();
                         expected.add(new ModulesKey("pack1.__init__", null));
@@ -242,9 +246,9 @@ public class AbstractWorkbenchTestCase extends TestCase {
     /**
      * Prints the display strings for the passed proposals.
      */
-    protected void printProps(ICompletionProposal[] props) {
+    protected void printProps(ICompletionProposalHandle[] props) {
         System.out.println("START Printing proposals -----------------------------");
-        for (ICompletionProposal prop : props) {
+        for (ICompletionProposalHandle prop : props) {
             System.out.println(prop.getDisplayString());
         }
         System.out.println("END Printing proposals -----------------------------");
@@ -268,12 +272,12 @@ public class AbstractWorkbenchTestCase extends TestCase {
     }
 
     /**
-     * 
+     *
      * @param callback a callback that'll receive null as a parameter and should return true if the condition seeked was
      * reached and false otherwise.
      * @param deltaToElapse the number of seconds that can be elapsed until the function returns if the condition
      * has not been satisfied.
-     * 
+     *
      * @throws AssertionError if the condition was not satisfied in the available amount of time
      */
     protected void goToIdleLoopUntilCondition(final ICallback<Boolean, Object> callback, long deltaToElapse,
@@ -405,7 +409,7 @@ public class AbstractWorkbenchTestCase extends TestCase {
 
     /**
      * Adds the java nature to a given project
-     * @return the java project (nature) that has been set. 
+     * @return the java project (nature) that has been set.
      */
     protected IJavaProject configureAsJavaProject(IProject project, IProgressMonitor monitor) throws CoreException {
         IProjectDescription description = project.getDescription();
@@ -439,7 +443,7 @@ public class AbstractWorkbenchTestCase extends TestCase {
         //create src/JavaDefault.java
         IFile javaClassFile = srcFolder.getFile("JavaDefault.java");
 
-        String javaClassContents = "public class JavaDefault {\n" + //default package        
+        String javaClassContents = "public class JavaDefault {\n" + //default package
                 "   private int testJavaDefault(String[] args) {\n" +
                 "       return 0;\n" +
                 "   }\n" +
@@ -511,10 +515,11 @@ public class AbstractWorkbenchTestCase extends TestCase {
 
     /**
      * Creates a source folder and configures the project to use it and the junit.jar
-     * 
+     *
      * @param addNature if false, no nature will be initially added to the project (if true, the nature will be added)
      */
-    protected IFolder createSourceFolder(IProgressMonitor monitor, IProject project, boolean addNature, boolean isJython)
+    protected IFolder createSourceFolder(IProgressMonitor monitor, IProject project, boolean addNature,
+            boolean isJython)
             throws CoreException {
         IFolder sourceFolder = project.getFolder(new Path("src"));
         if (!sourceFolder.exists()) {
@@ -626,7 +631,7 @@ public class AbstractWorkbenchTestCase extends TestCase {
     /**
      * Requests proposals in the last location of the given editor.
      */
-    protected ICompletionProposal[] requestProposals(String mod1Contents, PyEdit editor) {
+    protected ICompletionProposalHandle[] requestProposals(String mod1Contents, PyEdit editor) {
         editor.setSelection(mod1Contents.length(), 0);
         IContentAssistant contentAssistant = editor.getEditConfiguration().getContentAssistant(
                 editor.getPySourceViewer());
@@ -635,7 +640,12 @@ public class AbstractWorkbenchTestCase extends TestCase {
         processor.doCycle(); //we want to show the default completions in this case (not the simple ones)
         ICompletionProposal[] props = processor.computeCompletionProposals(editor.getPySourceViewer(),
                 mod1Contents.length());
-        return props;
+        ArrayList<ICompletionProposalHandle> lst = new ArrayList<>(props.length);
+        for (ICompletionProposal iCompletionProposal : props) {
+            lst.add((ICompletionProposalHandle) iCompletionProposal);
+        }
+
+        return lst.toArray(new ICompletionProposalHandle[0]);
     }
 
     /**

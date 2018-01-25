@@ -19,13 +19,14 @@ import org.eclipse.jface.text.contentassist.ICompletionProposalSorter;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal.ICompareContext;
 
 /**
  * @author Fabio Zadrozny
  */
-public final class ProposalsComparator implements Comparator<ICompletionProposal>, ICompletionProposalSorter {
+public final class ProposalsComparator implements Comparator<ICompletionProposalHandle>, ICompletionProposalSorter {
 
     public static class CompareContext implements ICompareContext {
         private IProject project;
@@ -246,6 +247,11 @@ public final class ProposalsComparator implements Comparator<ICompletionProposal
             }
         }
         return 0;
+    }
+
+    @Override
+    public int compare(ICompletionProposalHandle o1, ICompletionProposalHandle o2) {
+        return compare((ICompletionProposal) o1, (ICompletionProposal) o2);
     }
 
     @Override

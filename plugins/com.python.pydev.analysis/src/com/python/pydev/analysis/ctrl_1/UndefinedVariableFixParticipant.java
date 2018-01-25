@@ -31,6 +31,7 @@ import org.python.pydev.editor.codecompletion.ProposalsComparator.CompareContext
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.shared_core.IMiscConstants;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -73,7 +74,7 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
     @Override
     public void addProps(MarkerAnnotationAndPosition markerAnnotation, IAnalysisPreferences analysisPreferences,
             String line, PySelection ps, int offset, IPythonNature initialNature, PyEdit edit,
-            List<ICompletionProposal> props)
+            List<ICompletionProposalHandle> props)
             throws BadLocationException, CoreException {
         IMarker marker = markerAnnotation.markerAnnotation.getMarker();
         Integer id = (Integer) marker.getAttribute(AnalysisRunner.PYDEV_ANALYSIS_TYPE);

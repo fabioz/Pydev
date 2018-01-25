@@ -9,16 +9,15 @@ package com.python.pydev.refactoring.tdd;
 import java.util.List;
 
 import org.eclipse.jface.text.Document;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
 import com.python.pydev.refactoring.refactorer.Refactorer;
@@ -72,7 +71,8 @@ public class TddCodeGenerationQuickFixParticipantTest extends CodeCompletionTest
 
             @Override
             public Object call(CompletionRecursionException e) {
-                throw new RuntimeException("Recursion error:" + org.python.pydev.shared_core.log.Log.getExceptionStr(e));
+                throw new RuntimeException(
+                        "Recursion error:" + org.python.pydev.shared_core.log.Log.getExceptionStr(e));
             }
 
         };
@@ -108,10 +108,11 @@ public class TddCodeGenerationQuickFixParticipantTest extends CodeCompletionTest
                 "";
         TddCodeGenerationQuickFixParticipant participant = new TddCodeGenerationQuickFixParticipant();
         Document doc = new Document(s);
-        List<ICompletionProposal> props = participant.getTddProps(new PySelection(doc, s.length() - 1), null, null,
+        List<ICompletionProposalHandle> props = participant.getTddProps(new PySelection(doc, s.length() - 1), null,
+                null,
                 nature, null, s.length() - 1, null);
         assertContains("Create unimplementedFunction method at MyClass (__module_not_in_the_pythonpath__)",
-                props.toArray(new ICompletionProposal[0]));
+                props.toArray(new ICompletionProposalHandle[0]));
     }
 
     public void testCreate2() throws Exception {
@@ -124,11 +125,12 @@ public class TddCodeGenerationQuickFixParticipantTest extends CodeCompletionTest
                 "";
         TddCodeGenerationQuickFixParticipant participant = new TddCodeGenerationQuickFixParticipant();
         Document doc = new Document(s);
-        List<ICompletionProposal> props = participant.getTddProps(new PySelection(doc, s.length() - 1), null, null,
+        List<ICompletionProposalHandle> props = participant.getTddProps(new PySelection(doc, s.length() - 1), null,
+                null,
                 nature, null, s.length() - 1, null);
         TddRefactorCompletionInModule proposal = (TddRefactorCompletionInModule) assertContains(
                 "Create unimplementedFunction method at MyClass (__module_not_in_the_pythonpath__)",
-                props.toArray(new ICompletionProposal[0]));
+                props.toArray(new ICompletionProposalHandle[0]));
         //Todo: check result of apply as string is breaking!
         List<String> parametersAfterCall = proposal.getParametersAfterCall();
         FastStringBuffer createParametersList = AbstractPyCreateClassOrMethodOrField
@@ -158,9 +160,10 @@ public class TddCodeGenerationQuickFixParticipantTest extends CodeCompletionTest
                 "";
         TddCodeGenerationQuickFixParticipant participant = new TddCodeGenerationQuickFixParticipant();
         Document doc = new Document(s);
-        List<ICompletionProposal> props = participant.getTddProps(new PySelection(doc, s.length() - 1), null, null,
+        List<ICompletionProposalHandle> props = participant.getTddProps(new PySelection(doc, s.length() - 1), null,
+                null,
                 nature, null, s.length() - 1, null);
         assertNotContains("Create unimplementedFunction method at MyClass (__module_not_in_the_pythonpath__)",
-                props.toArray(new ICompletionProposal[0]));
+                props.toArray(new ICompletionProposalHandle[0]));
     }
 }

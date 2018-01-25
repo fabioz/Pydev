@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
@@ -19,6 +18,7 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.structure.OrderedSet;
 
@@ -38,7 +38,8 @@ public abstract class AbstractAnalysisMarkersParticipants implements IAssistProp
     protected abstract void fillParticipants();
 
     @Override
-    public List<ICompletionProposal> getProps(PySelection ps, IImageCache imageCache, File f, IPythonNature nature,
+    public List<ICompletionProposalHandle> getProps(PySelection ps, IImageCache imageCache, File f,
+            IPythonNature nature,
             PyEdit edit, int offset) throws BadLocationException {
         fillParticipants();
 
@@ -57,7 +58,7 @@ public abstract class AbstractAnalysisMarkersParticipants implements IAssistProp
         List<MarkerAnnotationAndPosition> markersAtLine2 = s.getMarkersAtLine(line, getMarkerType());
         markersAtLine.addAll(markersAtLine2);
 
-        ArrayList<ICompletionProposal> props = new ArrayList<ICompletionProposal>();
+        ArrayList<ICompletionProposalHandle> props = new ArrayList<ICompletionProposalHandle>();
 
         if (markersAtLine != null) {
             IAnalysisPreferences analysisPreferences = new AnalysisPreferences(edit);

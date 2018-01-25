@@ -10,37 +10,38 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.text.contentassist.CompletionProposal;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
 import junit.framework.TestCase;
 
 public class PyCodeCompletionUtilsTest extends TestCase {
 
     public void testSimpleCompare() throws Exception {
-        List<ICompletionProposal> props = new ArrayList<ICompletionProposal>();
+        List<ICompletionProposalHandle> props = new ArrayList<ICompletionProposalHandle>();
         props.add(new CompletionProposal("foo1(a, b)", 0, 0, 0));
         props.add(new CompletionProposal("foo1", 0, 0, 0));
         String qualifier = "foo";
         boolean onlyForCalltips = false;
 
-        ICompletionProposal[] proposals = PyCodeCompletionUtils.onlyValid(props, qualifier, onlyForCalltips,
+        ICompletionProposalHandle[] proposals = PyCodeCompletionUtils.onlyValid(props, qualifier, onlyForCalltips,
                 false, null);
         PyCodeCompletionUtils.sort(proposals, qualifier, null);
         compare(new String[] { "foo1", "foo1(a, b)" }, proposals);
     }
 
     public void testCompareWithUnder() throws Exception {
-        List<ICompletionProposal> props = new ArrayList<ICompletionProposal>();
-        props.add(new CompletionProposal("_foo1(a, b)", 0, 0, 0));
-        props.add(new CompletionProposal("__foo1__", 0, 0, 0));
-        props.add(new CompletionProposal("__foo1__()", 0, 0, 0));
-        props.add(new CompletionProposal("__foo1()", 0, 0, 0));
-        props.add(new CompletionProposal("__foo1 - __something__", 0, 0, 0));
+        List<ICompletionProposalHandle> props = new ArrayList<ICompletionProposalHandle>();
+        props.add(new PyCompletionProposal("_foo1(a, b)", 0, 0, 0, 0));
+        props.add(new PyCompletionProposal("__foo1__", 0, 0, 0, 0));
+        props.add(new PyCompletionProposal("__foo1__()", 0, 0, 0, 0));
+        props.add(new PyCompletionProposal("__foo1()", 0, 0, 0, 0));
+        props.add(new PyCompletionProposal("__foo1 - __something__", 0, 0, 0, 0));
         String qualifier = "_";
         boolean onlyForCalltips = false;
 
-        ICompletionProposal[] proposals = PyCodeCompletionUtils.onlyValid(props, qualifier, onlyForCalltips,
+        ICompletionProposalHandle[] proposals = PyCodeCompletionUtils.onlyValid(props, qualifier, onlyForCalltips,
                 false, null);
         PyCodeCompletionUtils.sort(proposals, qualifier, null);
         compare(new String[] { "_foo1(a, b)", "__foo1 - __something__", "__foo1()", "__foo1__", "__foo1__()", },
@@ -48,19 +49,19 @@ public class PyCodeCompletionUtilsTest extends TestCase {
     }
 
     public void testExactMatches() throws Exception {
-        List<ICompletionProposal> props = new ArrayList<ICompletionProposal>();
-        props.add(new CompletionProposal("SystemError", 0, 0, 0));
-        props.add(new CompletionProposal("system", 0, 0, 0));
+        List<ICompletionProposalHandle> props = new ArrayList<ICompletionProposalHandle>();
+        props.add(new PyCompletionProposal("SystemError", 0, 0, 0, 0));
+        props.add(new PyCompletionProposal("system", 0, 0, 0, 0));
         String qualifier = "sys";
         boolean onlyForCalltips = false;
 
-        ICompletionProposal[] proposals = PyCodeCompletionUtils.onlyValid(props, qualifier, onlyForCalltips,
+        ICompletionProposalHandle[] proposals = PyCodeCompletionUtils.onlyValid(props, qualifier, onlyForCalltips,
                 false, null);
         PyCodeCompletionUtils.sort(proposals, qualifier, null);
         compare(new String[] { "system", "SystemError", }, proposals);
     }
 
-    private void compare(String[] strings, ICompletionProposal[] proposals) {
+    private void compare(String[] strings, ICompletionProposalHandle[] proposals) {
         //        for (int i = 0; i < proposals.length; i++) {
         //            System.out.println(proposals[i].getDisplayString());
         //        }

@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IPythonNature;
@@ -43,6 +42,7 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 import org.python.pydev.parser.visitors.scope.ReturnVisitor;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -67,17 +67,19 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
     }
 
     @Override
-    public List<ICompletionProposal> getProps(PySelection ps, IImageCache imageCache, File f, IPythonNature nature,
+    public List<ICompletionProposalHandle> getProps(PySelection ps, IImageCache imageCache, File f,
+            IPythonNature nature,
             PyEdit edit, int offset) throws BadLocationException {
-        List<ICompletionProposal> ret = super.getProps(ps, imageCache, f, nature, edit, offset);
+        List<ICompletionProposalHandle> ret = super.getProps(ps, imageCache, f, nature, edit, offset);
         this.getTddProps(ps, imageCache, f, nature, edit, offset, ret);
         return ret;
     }
 
-    public List<ICompletionProposal> getTddProps(PySelection ps, IImageCache imageCache, File f, IPythonNature nature,
-            PyEdit edit, int offset, List<ICompletionProposal> ret) {
+    public List<ICompletionProposalHandle> getTddProps(PySelection ps, IImageCache imageCache, File f,
+            IPythonNature nature,
+            PyEdit edit, int offset, List<ICompletionProposalHandle> ret) {
         if (ret == null) {
-            ret = new ArrayList<ICompletionProposal>();
+            ret = new ArrayList<ICompletionProposalHandle>();
         }
         //Additional option: Generate markers for 'self.' accesses
         int lineOfOffset = ps.getLineOfOffset(offset);
@@ -208,7 +210,8 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
     public static ICallback<Boolean, Exception> onGetTddPropsError;
 
     private boolean checkMethodCreationAtClass(PyEdit edit, IPyRefactoring pyRefactoring, String callWithoutParens,
-            PySelection callPs, List<ICompletionProposal> ret, String lineContents, TddPossibleMatches possibleMatch,
+            PySelection callPs, List<ICompletionProposalHandle> ret, String lineContents,
+            TddPossibleMatches possibleMatch,
             File f, IPythonNature nature) throws MisconfigurationException, Exception {
         RefactoringRequest request;
         ItemPointer[] pointers;
@@ -325,7 +328,8 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
         return definition;
     }
 
-    public boolean checkCreationBasedOnFoundPointers(PyEdit edit, PySelection callPs, List<ICompletionProposal> ret,
+    public boolean checkCreationBasedOnFoundPointers(PyEdit edit, PySelection callPs,
+            List<ICompletionProposalHandle> ret,
             TddPossibleMatches possibleMatch, ItemPointer[] pointers, String methodToCreate, PySelection newSelection,
             IPythonNature nature) throws MisconfigurationException, Exception {
         CompletionCache completionCache = new CompletionCache();
@@ -389,7 +393,7 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
         return parametersAfterCall;
     }
 
-    private void addCreateMethodOption(PySelection ps, PyEdit edit, List<ICompletionProposal> props,
+    private void addCreateMethodOption(PySelection ps, PyEdit edit, List<ICompletionProposalHandle> props,
             String markerContents, List<String> parametersAfterCall, PyCreateMethodOrField pyCreateMethod,
             String classNameInLine) {
         String displayString = StringUtils.format("Create %s %s at %s",
@@ -402,7 +406,7 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
     }
 
     private boolean checkInitCreation(PyEdit edit, PySelection callPs, ItemPointer[] pointers,
-            List<ICompletionProposal> ret) {
+            List<ICompletionProposalHandle> ret) {
         for (ItemPointer pointer : pointers) {
             Definition definition = pointer.definition;
             if (definition != null && definition.ast instanceof ClassDef) {

@@ -16,9 +16,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.editor.codecompletion.ProposalsComparator.CompareContext;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
 public class PyCodeCompletionUtils {
@@ -30,18 +30,18 @@ public class PyCodeCompletionUtils {
      * @param onlyForCalltips if we should filter having in mind that we're going to show it for a calltip
      * @return the completions to show to the user
      */
-    public static ICompletionProposal[] onlyValid(List pythonAndTemplateProposals, String qualifier,
+    public static ICompletionProposalHandle[] onlyValid(List pythonAndTemplateProposals, String qualifier,
             boolean onlyForCalltips, boolean useSubstringMatchInCodeCompletion, IProject project) {
         //FOURTH: Now, we have all the proposals, only thing is deciding which ones are valid (depending on
         //qualifier) and sorting them correctly.
-        final Map<String, List<ICompletionProposal>> returnProposals = new HashMap<String, List<ICompletionProposal>>();
+        final Map<String, List<ICompletionProposalHandle>> returnProposals = new HashMap<String, List<ICompletionProposalHandle>>();
 
         int len = pythonAndTemplateProposals.size();
         IFilter nameFilter = getNameFilter(useSubstringMatchInCodeCompletion, qualifier);
         for (int i = 0; i < len; i++) {
             Object o = pythonAndTemplateProposals.get(i);
-            if (o instanceof ICompletionProposal) {
-                ICompletionProposal proposal = (ICompletionProposal) o;
+            if (o instanceof ICompletionProposalHandle) {
+                ICompletionProposalHandle proposal = (ICompletionProposalHandle) o;
 
                 String displayString;
                 if (proposal instanceof IPyCompletionProposal2) {
@@ -62,15 +62,15 @@ public class PyCodeCompletionUtils {
                         }
                     }
                 } else if (nameFilter.acceptName(displayString)) {
-                    List<ICompletionProposal> existing = returnProposals.get(displayString);
+                    List<ICompletionProposalHandle> existing = returnProposals.get(displayString);
                     if (existing != null) {
                         //a proposal with the same string is already there...
                         boolean addIt = true;
                         if (proposal instanceof PyCompletionProposal) {
                             PyCompletionProposal propP = (PyCompletionProposal) proposal;
 
-                            OUT: for (Iterator<ICompletionProposal> it = existing.iterator(); it.hasNext();) {
-                                ICompletionProposal curr = it.next();
+                            OUT: for (Iterator<ICompletionProposalHandle> it = existing.iterator(); it.hasNext();) {
+                                ICompletionProposalHandle curr = it.next();
                                 int overrideBehavior = propP.getOverrideBehavior(curr);
 
                                 switch (overrideBehavior) {
@@ -93,37 +93,38 @@ public class PyCodeCompletionUtils {
                         }
                     } else {
                         //it's null, so, 1st insertion...
-                        List<ICompletionProposal> lst = new ArrayList<ICompletionProposal>();
+                        List<ICompletionProposalHandle> lst = new ArrayList<ICompletionProposalHandle>();
                         lst.add(proposal);
                         returnProposals.put(displayString, lst);
                     }
                 }
             } else {
-                throw new RuntimeException("Error: expected instanceof ICompletionProposal and received: "
+                throw new RuntimeException("Error: expected instanceof ICompletionProposalHandle and received: "
                         + o.getClass().getName());
             }
         }
 
         // and fill with list elements
-        Collection<List<ICompletionProposal>> values = returnProposals.values();
-        ArrayList<ICompletionProposal> tproposals = new ArrayList<ICompletionProposal>();
-        for (List<ICompletionProposal> value : values) {
+        Collection<List<ICompletionProposalHandle>> values = returnProposals.values();
+        ArrayList<ICompletionProposalHandle> tproposals = new ArrayList<ICompletionProposalHandle>();
+        for (List<ICompletionProposalHandle> value : values) {
             tproposals.addAll(value);
         }
-        ICompletionProposal[] proposals = tproposals.toArray(new ICompletionProposal[returnProposals.size()]);
+        ICompletionProposalHandle[] proposals = tproposals
+                .toArray(new ICompletionProposalHandle[returnProposals.size()]);
 
         return proposals;
     }
 
-    public static void sort(ICompletionProposal[] proposals, String qualifier, IProject project) {
+    public static void sort(ICompletionProposalHandle[] proposals, String qualifier, IProject project) {
         Arrays.sort(proposals, new ProposalsComparator(qualifier, new CompareContext(project)));
     }
 
-    private static void addProposal(Map<String, List<ICompletionProposal>> returnProposals,
-            ICompletionProposal proposal, String displayString) {
-        List<ICompletionProposal> lst = returnProposals.get(displayString);
+    private static void addProposal(Map<String, List<ICompletionProposalHandle>> returnProposals,
+            ICompletionProposalHandle proposal, String displayString) {
+        List<ICompletionProposalHandle> lst = returnProposals.get(displayString);
         if (lst == null) {
-            lst = new ArrayList<ICompletionProposal>();
+            lst = new ArrayList<ICompletionProposalHandle>();
             returnProposals.put(displayString, lst);
         }
         lst.add(proposal);

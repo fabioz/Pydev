@@ -20,7 +20,6 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension2;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.window.Window;
@@ -40,6 +39,7 @@ import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.IMiscConstants;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.dialogs.ListContentProvider;
 import org.python.pydev.ui.dialogs.TreeSelectionDialog;
@@ -114,7 +114,7 @@ public class OrganizeImports implements IOrganizeImports {
 
                 if (start >= 0 && end > start) {
                     IDocument doc = ps.getDoc();
-                    ArrayList<ICompletionProposal> props = new ArrayList<ICompletionProposal>();
+                    ArrayList<ICompletionProposalHandle> props = new ArrayList<ICompletionProposalHandle>();
                     try {
                         String string = doc.get(start, end - start);
                         if (treatedVars.contains(string)) {

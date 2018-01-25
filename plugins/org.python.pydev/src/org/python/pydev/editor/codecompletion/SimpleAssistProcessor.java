@@ -35,13 +35,10 @@ import org.python.pydev.core.IPySyntaxHighlightingAndCodeCompletionEditor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.CompletionError;
-import org.python.pydev.editor.codecompletion.ProposalsComparator;
 import org.python.pydev.editor.codecompletion.ProposalsComparator.CompareContext;
 import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant;
-import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
-import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 
 /**
  * This processor controls the completion cycle (and also works as a 'delegator' to the processor that deals
@@ -266,7 +263,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
                 if (ps == null) {
                     ps = new PySelection(doc, offset);
                 }
-                List<ICompletionProposal> results = new ArrayList<ICompletionProposal>();
+                List<ICompletionProposalHandle> results = new ArrayList<ICompletionProposalHandle>();
 
                 for (ISimpleAssistParticipant participant : participants) {
                     results.addAll(

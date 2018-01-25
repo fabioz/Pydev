@@ -17,7 +17,6 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
@@ -26,6 +25,7 @@ import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.editor.correctionassist.CheckAnalysisErrors;
 import org.python.pydev.editor.correctionassist.IgnoreCompletionProposal;
 import org.python.pydev.editor.correctionassist.IgnoreCompletionProposalInSameLine;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
@@ -57,7 +57,7 @@ public class IgnoreErrorParticipant implements IAnalysisMarkersParticipant {
     @Override
     public void addProps(MarkerAnnotationAndPosition marker, IAnalysisPreferences analysisPreferences,
             final String line, final PySelection ps, int offset, IPythonNature nature, final PyEdit edit,
-            List<ICompletionProposal> props)
+            List<ICompletionProposalHandle> props)
             throws BadLocationException, CoreException {
         Integer id = (Integer) marker.markerAnnotation.getMarker().getAttribute(AnalysisRunner.PYDEV_ANALYSIS_TYPE);
         if (handled.contains(id)) {

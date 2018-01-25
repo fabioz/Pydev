@@ -13,9 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.text.Document;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 
 import com.python.pydev.analysis.AnalysisPreferencesStub;
 import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
@@ -35,7 +35,7 @@ public class UndefinedVariableFixParticipantTest extends AdditionalInfoTestsBase
     private PySelection ps;
     private String line;
     private int offset;
-    private ArrayList<ICompletionProposal> props;
+    private ArrayList<ICompletionProposalHandle> props;
 
     public static void main(String[] args) {
         try {
@@ -59,7 +59,7 @@ public class UndefinedVariableFixParticipantTest extends AdditionalInfoTestsBase
         super.restorePythonPath(false);
         prefs = new AnalysisPreferencesStub();
 
-        props = new ArrayList<ICompletionProposal>();
+        props = new ArrayList<ICompletionProposalHandle>();
 
     }
 
@@ -94,7 +94,7 @@ public class UndefinedVariableFixParticipantTest extends AdditionalInfoTestsBase
         line = s;
         offset = s.length();
 
-        props = new ArrayList<ICompletionProposal>();
+        props = new ArrayList<ICompletionProposalHandle>();
         participant.addProps(marker, prefs, line, ps, offset, nature, null, props);
         printProps(2, props);
         assertContains("Import testlib.unittest", props);
@@ -114,7 +114,7 @@ public class UndefinedVariableFixParticipantTest extends AdditionalInfoTestsBase
         line = s;
         offset = s.length();
 
-        props = new ArrayList<ICompletionProposal>();
+        props = new ArrayList<ICompletionProposalHandle>();
         participant.addProps(marker, prefs, line, ps, offset, nature, null, props);
         printProps(3, props);
         assertContains("Import testlib.unittest.anothertest", props);
@@ -135,7 +135,7 @@ public class UndefinedVariableFixParticipantTest extends AdditionalInfoTestsBase
         line = s;
         offset = s.length();
 
-        props = new ArrayList<ICompletionProposal>();
+        props = new ArrayList<ICompletionProposalHandle>();
         participant.addProps(marker, prefs, line, ps, offset, nature, null, props);
         printProps(3, props);
         assertContains("Import testlib.unittest.anothertest", props);
@@ -157,7 +157,7 @@ public class UndefinedVariableFixParticipantTest extends AdditionalInfoTestsBase
         line = s;
         offset = s.length();
 
-        props = new ArrayList<ICompletionProposal>();
+        props = new ArrayList<ICompletionProposalHandle>();
         participant.addProps(marker, prefs, line, ps, offset, nature, null, props);
         printProps(1, props);
         assertContains("Import AnotherTest (testlib.unittest.anothertest)", props);
@@ -177,7 +177,7 @@ public class UndefinedVariableFixParticipantTest extends AdditionalInfoTestsBase
         line = s;
         offset = s.length();
 
-        props = new ArrayList<ICompletionProposal>();
+        props = new ArrayList<ICompletionProposalHandle>();
         participant.addProps(marker, prefs, line, ps, offset, nature, null, props);
         printProps(1, props);
         //appears with __init__
@@ -203,7 +203,7 @@ public class UndefinedVariableFixParticipantTest extends AdditionalInfoTestsBase
             line = s;
             offset = s.length();
 
-            props = new ArrayList<ICompletionProposal>();
+            props = new ArrayList<ICompletionProposalHandle>();
             participant.addProps(marker, prefs, line, ps, offset, nature, null, props);
             printProps(1, props);
             //appears with _
@@ -229,7 +229,7 @@ public class UndefinedVariableFixParticipantTest extends AdditionalInfoTestsBase
         line = s;
         offset = s.length();
 
-        props = new ArrayList<ICompletionProposal>();
+        props = new ArrayList<ICompletionProposalHandle>();
         participant.addProps(marker, prefs, line, ps, offset, nature, null, props);
         printProps(1, props);
         //appears with _
@@ -240,9 +240,9 @@ public class UndefinedVariableFixParticipantTest extends AdditionalInfoTestsBase
         assertEquals("from relative.rel1._priv1._priv2.notpriv3 import NotPriv3", compl.realImportRep);
     }
 
-    private void assertContains(String expected, List<ICompletionProposal> props) {
+    private void assertContains(String expected, List<ICompletionProposalHandle> props) {
         StringBuffer buffer = new StringBuffer();
-        for (ICompletionProposal proposal : props) {
+        for (ICompletionProposalHandle proposal : props) {
             buffer.append("\n");
             buffer.append(proposal.getDisplayString());
             if (proposal.getDisplayString().equals(expected)) {
@@ -252,9 +252,9 @@ public class UndefinedVariableFixParticipantTest extends AdditionalInfoTestsBase
         fail("not found. Available:\n" + buffer);
     }
 
-    private void printProps(int i, List<ICompletionProposal> props) {
+    private void printProps(int i, List<ICompletionProposalHandle> props) {
         if (props.size() != i) {
-            for (ICompletionProposal proposal : props) {
+            for (ICompletionProposalHandle proposal : props) {
                 System.out.println(proposal.getDisplayString());
             }
         }

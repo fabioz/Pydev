@@ -20,7 +20,6 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.Position;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.ui.texteditor.MarkerAnnotation;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
@@ -37,6 +36,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 
 import com.python.pydev.analysis.AnalysisTestsBase;
 import com.python.pydev.analysis.MarkerStub;
@@ -50,7 +50,7 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
     protected ArrayList<IToken> imports;
 
     @Override
-    public ICompletionProposal[] requestCompl(File file, String strDoc, int documentOffset, int returned,
+    public ICompletionProposalHandle[] requestCompl(File file, String strDoc, int documentOffset, int returned,
             String[] retCompl, PythonNature nature) throws Exception {
         if (useOriginalRequestCompl) {
             return super.requestCompl(file, strDoc, documentOffset, returned, retCompl, nature);
@@ -68,7 +68,7 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
         ICompletionState state = CompletionStateFactory.getEmptyCompletionState(nature, new CompletionCache());
         state.setTokenImportedModules(imports);
         List<Object> props = new ArrayList<Object>(participant.getGlobalCompletions(request, state));
-        ICompletionProposal[] codeCompletionProposals = PyCodeCompletionUtils.onlyValid(props, request.qualifier,
+        ICompletionProposalHandle[] codeCompletionProposals = PyCodeCompletionUtils.onlyValid(props, request.qualifier,
                 request.isInCalltip, useSubstringMatchInCodeCompletion, null);
         PyCodeCompletionUtils.sort(codeCompletionProposals, request.qualifier, null);
 

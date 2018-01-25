@@ -13,10 +13,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.text.Document;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 
 import com.python.pydev.analysis.AnalysisPreferencesStub;
 import com.python.pydev.analysis.IAnalysisPreferences;
@@ -34,7 +34,7 @@ public class IgnoreErrorFixParticipantTest extends AdditionalInfoTestsBase {
     private PySelection ps;
     private String line;
     private int offset;
-    private ArrayList<ICompletionProposal> props;
+    private ArrayList<ICompletionProposalHandle> props;
     private FormatStd format;
 
     public static void main(String[] args) {
@@ -59,7 +59,7 @@ public class IgnoreErrorFixParticipantTest extends AdditionalInfoTestsBase {
         format.spacesBeforeComment = 2;
         participant = new IgnoreErrorParticipant(format);
         prefs = new AnalysisPreferencesStub();
-        props = new ArrayList<ICompletionProposal>();
+        props = new ArrayList<ICompletionProposalHandle>();
     }
 
     public void testFix() throws Exception {
@@ -162,9 +162,9 @@ public class IgnoreErrorFixParticipantTest extends AdditionalInfoTestsBase {
         assertEquals(" #@UndefinedVariable", ps.getDoc().get());
     }
 
-    private void printProps(int i, List<ICompletionProposal> props) {
+    private void printProps(int i, List<ICompletionProposalHandle> props) {
         if (props.size() != i) {
-            for (ICompletionProposal proposal : props) {
+            for (ICompletionProposalHandle proposal : props) {
                 System.out.println(proposal.getDisplayString());
             }
         }

@@ -17,7 +17,6 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.SWT;
@@ -41,6 +40,7 @@ import org.python.pydev.editor.codecompletion.IPyCompletionProposal2;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.ImageCache;
@@ -532,7 +532,7 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
      * both completions should coexist or if one of them should be removed.
      */
     @Override
-    public int getOverrideBehavior(ICompletionProposal curr) {
+    public int getOverrideBehavior(ICompletionProposalHandle curr) {
         if (curr instanceof CtxInsensitiveImportComplProposal) {
             if (curr.getDisplayString().equals(getDisplayString())) {
                 return BEHAVIOR_IS_OVERRIDEN;

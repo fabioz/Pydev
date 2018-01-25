@@ -13,11 +13,11 @@ import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
 
@@ -26,7 +26,7 @@ public interface IAnalysisMarkersParticipant {
     /**
      * This method must be overridden for any participant that returns suggestions when a ctrl 1 is executed
      * and there are analysis markers present at the line
-     * 
+     *
      * @param marker the marker annotation that should be analyzed for completions
      * @param analysisPreferences the analysis preferences that should be used
      * @param line the line where the analysis is happening
@@ -35,12 +35,13 @@ public interface IAnalysisMarkersParticipant {
      * @param nature this is the nature from the project that is being used
      * @param edit the edit where the completions where required
      * @param props OUT: the completions should be added to this list
-     * 
+     *
      * @throws BadLocationException
-     * @throws CoreException 
+     * @throws CoreException
      */
     public abstract void addProps(MarkerAnnotationAndPosition marker, IAnalysisPreferences analysisPreferences,
-            String line, PySelection ps, int offset, IPythonNature nature, PyEdit edit, List<ICompletionProposal> props)
+            String line, PySelection ps, int offset, IPythonNature nature, PyEdit edit,
+            List<ICompletionProposalHandle> props)
             throws BadLocationException, CoreException;
 
 }

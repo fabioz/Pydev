@@ -9,21 +9,20 @@ package org.python.pydev.editor.codecompletion;
 import java.io.File;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 /**
  * This tests the 'whole' code completion, passing through all modules.
- * 
+ *
  * @author Fabio Zadrozny
  */
 public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionTestsBase {
@@ -57,7 +56,8 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
 
             @Override
             public Object call(CompletionRecursionException e) {
-                throw new RuntimeException("Recursion error:" + org.python.pydev.shared_core.log.Log.getExceptionStr(e));
+                throw new RuntimeException(
+                        "Recursion error:" + org.python.pydev.shared_core.log.Log.getExceptionStr(e));
             }
 
         };
@@ -101,7 +101,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
     public void testGrammar3AbsoluteAndRelativeImports() throws Exception {
         String file = TestDependent.TEST_PYSRC_TESTING_LOC + "extendable/grammar3/sub1.py";
         String strDoc = "from relative import ";
-        ICompletionProposal[] codeCompletionProposals = requestCompl(new File(file), strDoc, strDoc.length(), -1,
+        ICompletionProposalHandle[] codeCompletionProposals = requestCompl(new File(file), strDoc, strDoc.length(), -1,
                 new String[] { "DTest" });
         assertNotContains("NotFound", codeCompletionProposals);
     }
@@ -116,9 +116,9 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
                 "    for key, val in stats.items():\n" +
                 "        key.";
 
-        ICompletionProposal[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
         assertEquals(1, proposals.length);
-        ICompletionProposal prop = proposals[0];
+        ICompletionProposalHandle prop = proposals[0];
         assertEquals("method()", prop.getDisplayString());
     }
 
@@ -131,9 +131,9 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
                 + "for p in primes:\n"
                 + "    p.";
 
-        ICompletionProposal[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
         assertEquals(1, proposals.length);
-        ICompletionProposal prop = proposals[0];
+        ICompletionProposalHandle prop = proposals[0];
         assertEquals("method()", prop.getDisplayString());
     }
 
@@ -145,9 +145,9 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
                 + "primes: List[A] = []\n"
                 + "primes[0].";
 
-        ICompletionProposal[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
         assertEquals(1, proposals.length);
-        ICompletionProposal prop = proposals[0];
+        ICompletionProposalHandle prop = proposals[0];
         assertEquals("method()", prop.getDisplayString());
     }
 }

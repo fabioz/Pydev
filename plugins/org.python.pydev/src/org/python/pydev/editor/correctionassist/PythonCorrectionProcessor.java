@@ -43,6 +43,7 @@ import org.python.pydev.editor.correctionassist.heuristics.AssistImport;
 import org.python.pydev.editor.correctionassist.heuristics.AssistPercentToFormat;
 import org.python.pydev.editor.correctionassist.heuristics.AssistSurroundWith;
 import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 
@@ -154,7 +155,7 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
         }
         PyEdit editor = (PyEdit) this.edit;
 
-        List<ICompletionProposal> results = new ArrayList<ICompletionProposal>();
+        List<ICompletionProposalHandle> results = new ArrayList<>();
         String sel = PyAction.getLineWithoutComments(base);
 
         List<IAssistProps> assists = new ArrayList<IAssistProps>();

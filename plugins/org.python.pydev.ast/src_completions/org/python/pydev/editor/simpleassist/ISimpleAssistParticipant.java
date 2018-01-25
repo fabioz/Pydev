@@ -11,24 +11,24 @@ package org.python.pydev.editor.simpleassist;
 
 import java.util.Collection;
 
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.IPySyntaxHighlightingAndCodeCompletionEditor;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 
 public interface ISimpleAssistParticipant {
 
     /**
      * This method should be overridden to compute the completions
-     * 
+     *
      * @param activationToken this is the activation token
      * @param qualifier this is the qualifier
-     * @param ps the selection in the editor 
-     * @param edit the edit 
+     * @param ps the selection in the editor
+     * @param edit the edit
      * @param offset the offset
-     * 
+     *
      * @return a list of completions
      */
-    Collection<ICompletionProposal> computeCompletionProposals(String activationToken, String qualifier,
+    Collection<ICompletionProposalHandle> computeCompletionProposals(String activationToken, String qualifier,
             PySelection ps, IPySyntaxHighlightingAndCodeCompletionEditor edit, int offset);
 
 }

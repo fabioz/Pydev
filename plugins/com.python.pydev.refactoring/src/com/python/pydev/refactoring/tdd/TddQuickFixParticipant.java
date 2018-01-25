@@ -41,6 +41,7 @@ import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.preferences.FileTypesPreferences;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.io.FileUtils;
@@ -75,7 +76,8 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
 
     @Override
     public void addProps(MarkerAnnotationAndPosition markerAnnotation, IAnalysisPreferences analysisPreferences,
-            String line, PySelection ps, int offset, IPythonNature nature, PyEdit edit, List<ICompletionProposal> props)
+            String line, PySelection ps, int offset, IPythonNature nature, PyEdit edit,
+            List<ICompletionProposalHandle> props)
             throws BadLocationException, CoreException {
         if (nature == null) {
             return;

@@ -7,12 +7,12 @@
 package org.python.pydev.editor.codecompletion.revisited.javaintegration;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 
 /**
  * Test that needs to run in the workbench to request a code-completion together with the java integration.
- * 
+ *
  * @author Fabio
  */
 public class JavaClassModuleTestWorkbench extends AbstractWorkbenchTestCase {
@@ -71,7 +71,7 @@ public class JavaClassModuleTestWorkbench extends AbstractWorkbenchTestCase {
         String mod1Contents = "" + "from net.grinder.script.Grinder import grinder\n" + "e = grinder.getLogger().";
         setFileContents(mod1Contents);
 
-        ICompletionProposal[] props = requestProposals(mod1Contents, editor);
+        ICompletionProposalHandle[] props = requestProposals(mod1Contents, editor);
         CodeCompletionTestsBase.assertContains("error(string)", props);
         CodeCompletionTestsBase.assertContains("getErrorLogWriter()", props);
     }
@@ -82,7 +82,7 @@ public class JavaClassModuleTestWorkbench extends AbstractWorkbenchTestCase {
     public void checkCase9() throws CoreException {
         String mod1Contents = "from java.lang.Boolean import TYPE\nTYPE.";
         setFileContents(mod1Contents);
-        ICompletionProposal[] props = requestProposals(mod1Contents, editor);
+        ICompletionProposalHandle[] props = requestProposals(mod1Contents, editor);
         CodeCompletionTestsBase.assertContains("fields", props); //getFields should generate a 'fields' entry.
     }
 
@@ -92,7 +92,7 @@ public class JavaClassModuleTestWorkbench extends AbstractWorkbenchTestCase {
     public void checkCase8() throws CoreException {
         String mod1Contents = "from javamod1 import javamod2\nprint javamod2.";
         setFileContents(mod1Contents);
-        ICompletionProposal[] props = requestProposals(mod1Contents, editor);
+        ICompletionProposalHandle[] props = requestProposals(mod1Contents, editor);
         CodeCompletionTestsBase.assertContains("JavaClass2", props);
     }
 
@@ -102,7 +102,7 @@ public class JavaClassModuleTestWorkbench extends AbstractWorkbenchTestCase {
     public void checkCase7() throws CoreException {
         String mod1Contents = "import ";
         setFileContents(mod1Contents);
-        ICompletionProposal[] props = requestProposals(mod1Contents, editor);
+        ICompletionProposalHandle[] props = requestProposals(mod1Contents, editor);
         CodeCompletionTestsBase.assertContains("javamod1", props);
         CodeCompletionTestsBase.assertContains("JavaDefault", props);
     }
@@ -113,7 +113,7 @@ public class JavaClassModuleTestWorkbench extends AbstractWorkbenchTestCase {
     public void checkCase6() throws CoreException {
         String mod1Contents = "import javamod1.javamod2.";
         setFileContents(mod1Contents);
-        ICompletionProposal[] props = requestProposals(mod1Contents, editor);
+        ICompletionProposalHandle[] props = requestProposals(mod1Contents, editor);
         CodeCompletionTestsBase.assertContains("JavaClass2", props);
     }
 
@@ -123,7 +123,7 @@ public class JavaClassModuleTestWorkbench extends AbstractWorkbenchTestCase {
     public void checkCase5() throws CoreException {
         String mod1Contents = "import javamod1.";
         setFileContents(mod1Contents);
-        ICompletionProposal[] props = requestProposals(mod1Contents, editor);
+        ICompletionProposalHandle[] props = requestProposals(mod1Contents, editor);
         CodeCompletionTestsBase.assertContains("javamod2", props);
     }
 
@@ -133,7 +133,7 @@ public class JavaClassModuleTestWorkbench extends AbstractWorkbenchTestCase {
     public void checkCase4() throws CoreException {
         String mod1Contents = "import javamod1.javamod2.JavaClass2\njavamod1.javamod2.JavaClass2.";
         setFileContents(mod1Contents);
-        ICompletionProposal[] props = requestProposals(mod1Contents, editor);
+        ICompletionProposalHandle[] props = requestProposals(mod1Contents, editor);
         CodeCompletionTestsBase.assertContains("JAVA_CLASS_CONSTANT_2", props);
         CodeCompletionTestsBase.assertContains("testJavaClass2(int)", props);
         CodeCompletionTestsBase.assertContains("main(str)", props);
@@ -146,7 +146,7 @@ public class JavaClassModuleTestWorkbench extends AbstractWorkbenchTestCase {
         String mod1Contents = "import javamod1.JavaClass\njavamod1.JavaClass.";
         setFileContents(mod1Contents);
 
-        ICompletionProposal[] props = requestProposals(mod1Contents, editor);
+        ICompletionProposalHandle[] props = requestProposals(mod1Contents, editor);
         CodeCompletionTestsBase.assertContains("JAVA_CLASS_CONSTANT", props);
         CodeCompletionTestsBase.assertContains("testJavaClass(int)", props);
         CodeCompletionTestsBase.assertContains("main(str)", props);
@@ -159,7 +159,7 @@ public class JavaClassModuleTestWorkbench extends AbstractWorkbenchTestCase {
         String mod1Contents = "import junit.framework.Assert\njunit.framework.Assert.";
         setFileContents(mod1Contents);
 
-        ICompletionProposal[] props = requestProposals(mod1Contents, editor);
+        ICompletionProposalHandle[] props = requestProposals(mod1Contents, editor);
         CodeCompletionTestsBase.assertContains("assertNotNull(obj)", props);
         CodeCompletionTestsBase.assertContains("assertEquals(obj, obj)", props);
     }
@@ -171,7 +171,7 @@ public class JavaClassModuleTestWorkbench extends AbstractWorkbenchTestCase {
         String mod1Contents = "import java.lang.Class\njava.lang.Class.";
         setFileContents(mod1Contents);
 
-        ICompletionProposal[] props = requestProposals(mod1Contents, editor);
+        ICompletionProposalHandle[] props = requestProposals(mod1Contents, editor);
         CodeCompletionTestsBase.assertContains("getDeclaredFields()", props);
         CodeCompletionTestsBase.assertContains("getPrimitiveClass(string)", props);
     }

@@ -6,7 +6,7 @@
  */
 /*
  * Created on 25/08/2005
- * 
+ *
  * @author Fabio Zadrozny
  */
 package com.python.pydev.codecompletion.participant;
@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.jface.text.Document;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.actions.PySelectionTest;
@@ -28,6 +27,7 @@ import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 
 import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
@@ -64,7 +64,8 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
 
     @Override
     protected String getSystemPythonpathPaths() {
-        return TestDependent.GetCompletePythonLib(true) + "|" + TestDependent.TEST_PYSRC_TESTING_LOC + "myzipmodule.zip" + "|"
+        return TestDependent.GetCompletePythonLib(true) + "|" + TestDependent.TEST_PYSRC_TESTING_LOC + "myzipmodule.zip"
+                + "|"
                 + TestDependent.TEST_PYSRC_TESTING_LOC + "myeggmodule.egg";
     }
 
@@ -72,13 +73,13 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
         participant = new ImportsCompletionParticipant();
 
         //check simple
-        ICompletionProposal[] proposals = requestCompl(
+        ICompletionProposalHandle[] proposals = requestCompl(
                 "unittest", -1, -1, new String[] { "unittest", "unittest - testlib" }); //the unittest module and testlib.unittest
 
         Document document = new Document("unittest");
-        ICompletionProposal p0 = null;
-        ICompletionProposal p1 = null;
-        for (ICompletionProposal p : proposals) {
+        ICompletionProposalHandle p0 = null;
+        ICompletionProposalHandle p1 = null;
+        for (ICompletionProposalHandle p : proposals) {
             String displayString = p.getDisplayString();
             if (displayString.equals("unittest")) {
                 p0 = p;
@@ -137,7 +138,8 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
         }
 
         //check on actual file
-        requestCompl(new File(TestDependent.TEST_PYSRC_TESTING_LOC + "/testlib/unittest/guitestcase.py"), "guite", -1, 0,
+        requestCompl(new File(TestDependent.TEST_PYSRC_TESTING_LOC + "/testlib/unittest/guitestcase.py"), "guite", -1,
+                0,
                 new String[] {});
 
         Import importTok = new Import(new aliasType[] { new aliasType(new NameTok("unittest", NameTok.ImportModule),
@@ -146,13 +148,13 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
         this.imports.add(new SourceToken(importTok, "unittest", "", "", "", null));
 
         requestCompl("import unittest\nunittest", new String[] {}); //none because the import for unittest is already there
-        requestCompl("import unittest\nunittes", new String[] {}); //the local import for unittest (won't actually show anything because we're only exercising the participant test) 
+        requestCompl("import unittest\nunittes", new String[] {}); //the local import for unittest (won't actually show anything because we're only exercising the participant test)
         this.imports = null;
     }
 
     public void testImportCompletionFromZip2() throws Exception {
         participant = new ImportsCompletionParticipant();
-        ICompletionProposal[] proposals = requestCompl("myzip", -1, -1, new String[] {});
+        ICompletionProposalHandle[] proposals = requestCompl("myzip", -1, -1, new String[] {});
         assertContains("myzipfile - myzipmodule", proposals);
         assertContains("myzipmodule", proposals);
 
@@ -163,7 +165,7 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
 
     public void testImportCompletionFromZip() throws Exception {
         participant = new CtxParticipant();
-        ICompletionProposal[] proposals = requestCompl("myzipc", -1, -1, new String[] {});
+        ICompletionProposalHandle[] proposals = requestCompl("myzipc", -1, -1, new String[] {});
         assertContains("MyZipClass - myzipmodule.myzipfile", proposals);
 
         proposals = requestCompl("myegg", -1, -1, new String[] {});
@@ -172,10 +174,11 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
 
     public void testImportCompletion2() throws Exception {
         participant = new CtxParticipant();
-        ICompletionProposal[] proposals = requestCompl("xml", -1, -1, new String[] {});
+        ICompletionProposalHandle[] proposals = requestCompl("xml", -1, -1, new String[] {});
         assertNotContains("xml - xmlrpclib", proposals);
 
-        requestCompl(new File(TestDependent.TEST_PYSRC_TESTING_LOC + "/testlib/unittest/guitestcase.py"), "guite", -1, 0,
+        requestCompl(new File(TestDependent.TEST_PYSRC_TESTING_LOC + "/testlib/unittest/guitestcase.py"), "guite", -1,
+                0,
                 new String[] {});
 
         //the behavior changes for tokens on modules

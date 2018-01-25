@@ -14,6 +14,7 @@ import org.eclipse.jface.text.contentassist.ICompletionProposalExtension4;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_ui.ImageCache;
@@ -21,7 +22,8 @@ import org.python.pydev.shared_ui.ImageCache;
 /**
  * The standard implementation of the <code>ICompletionProposal</code> interface.
  */
-public class PyCompletionProposal implements ICompletionProposal, IPyCompletionProposal, ICompletionProposalExtension4 {
+public class PyCompletionProposal implements ICompletionProposal, IPyCompletionProposal, ICompletionProposalExtension4,
+        ICompletionProposalHandle {
 
     /** The string to be displayed in the completion proposal popup. */
     protected String fDisplayString;
@@ -292,7 +294,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
      * @param curr another completion that has the same internal representation.
      * @return the behavior when faced with a given proposal (that has the same internal representation)
      */
-    public int getOverrideBehavior(ICompletionProposal curr) {
+    public int getOverrideBehavior(ICompletionProposalHandle curr) {
         return BEHAVIOR_OVERRIDES;
     }
 }

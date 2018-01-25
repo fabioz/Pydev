@@ -20,12 +20,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
 import com.python.pydev.codecompletion.ctxinsensitive.CtxParticipant;
@@ -97,7 +97,7 @@ public class CompletionParticipantBuiltinsTest extends AdditionalInfoTestsBase {
                     this.getManager().getNature());
 
             participant = new CtxParticipant();
-            ICompletionProposal[] proposals = requestCompl("Frame", -1, -1, new String[] {});
+            ICompletionProposalHandle[] proposals = requestCompl("Frame", -1, -1, new String[] {});
             assertContains("Frame - wx", proposals); //Expected to fail. See: com.python.pydev.analysis.additionalinfo.builders.AdditionalInfoModulesObserver.notifyCompiledModuleCreated(CompiledModule, IModulesManager)
         }
     }
@@ -111,7 +111,8 @@ public class CompletionParticipantBuiltinsTest extends AdditionalInfoTestsBase {
                 "        ':rtype testlib.unittest.GUITest'\n" +
                 "a = Foo()\n" +
                 "a.rara().";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "SetWidget(widget, show, wait)" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "SetWidget(widget, show, wait)" });
         assertTrue(comps.length > 30);
     }
 
@@ -124,7 +125,8 @@ public class CompletionParticipantBuiltinsTest extends AdditionalInfoTestsBase {
                 "        ':rtype GUITest'\n" +
                 "a = Foo()\n" +
                 "a.rara().";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "SetWidget(widget, show, wait)" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "SetWidget(widget, show, wait)" });
         assertTrue(comps.length > 30);
     }
 
@@ -137,7 +139,8 @@ public class CompletionParticipantBuiltinsTest extends AdditionalInfoTestsBase {
                 "        ':rtype :class:`GUITest`'\n" +
                 "a = Foo()\n" +
                 "a.rara().";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "SetWidget(widget, show, wait)" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "SetWidget(widget, show, wait)" });
         assertTrue(comps.length > 30);
     }
 
@@ -150,7 +153,8 @@ public class CompletionParticipantBuiltinsTest extends AdditionalInfoTestsBase {
                 "        ':rtype :class:`~GUITest`'\n" +
                 "a = Foo()\n" +
                 "a.rara().";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "SetWidget(widget, show, wait)" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "SetWidget(widget, show, wait)" });
         assertTrue(comps.length > 30);
     }
 
@@ -163,7 +167,8 @@ public class CompletionParticipantBuiltinsTest extends AdditionalInfoTestsBase {
                 "        ':rtype :class:`!GUITest`'\n" +
                 "a = Foo()\n" +
                 "a.rara().";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "SetWidget(widget, show, wait)" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "SetWidget(widget, show, wait)" });
         assertTrue(comps.length > 30);
     }
 
@@ -176,7 +181,8 @@ public class CompletionParticipantBuiltinsTest extends AdditionalInfoTestsBase {
                 "        ':rtype :function:`IgnoreTitle GUITest`'\n" +
                 "a = Foo()\n" +
                 "a.rara().";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "SetWidget(widget, show, wait)" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "SetWidget(widget, show, wait)" });
         assertTrue(comps.length > 30);
     }
 
@@ -188,7 +194,8 @@ public class CompletionParticipantBuiltinsTest extends AdditionalInfoTestsBase {
                 "    def rara(self, a):\n" +
                 "        ':type a: GUITest'\n" +
                 "        a.";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "SetWidget(widget, show, wait)" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "SetWidget(widget, show, wait)" });
         assertTrue(comps.length > 30);
     }
 
@@ -214,7 +221,8 @@ public class CompletionParticipantBuiltinsTest extends AdditionalInfoTestsBase {
                 "    def rara(self, lst):\n" +
                 "        for a in lst: #: :type a: GUITest\n" +
                 "            a.";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "SetWidget(widget, show, wait)" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "SetWidget(widget, show, wait)" });
         assertTrue(comps.length > 30);
     }
 
@@ -227,7 +235,8 @@ public class CompletionParticipantBuiltinsTest extends AdditionalInfoTestsBase {
                 "        #: :type a: GUITest\n" +
                 "        for a in lst:\n" +
                 "            a.";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "SetWidget(widget, show, wait)" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "SetWidget(widget, show, wait)" });
         assertTrue(comps.length > 30);
     }
 
@@ -240,7 +249,8 @@ public class CompletionParticipantBuiltinsTest extends AdditionalInfoTestsBase {
                 "        #@type a: GUITest\n" +
                 "        for a in lst:\n" +
                 "            a.";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "SetWidget(widget, show, wait)" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "SetWidget(widget, show, wait)" });
         assertTrue(comps.length > 30);
     }
 
@@ -253,7 +263,8 @@ public class CompletionParticipantBuiltinsTest extends AdditionalInfoTestsBase {
                 "        for a in lst:\n" +
                 "            ': :type a: GUITest'\n" +
                 "            a.";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "SetWidget(widget, show, wait)" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "SetWidget(widget, show, wait)" });
         assertTrue(comps.length > 30);
     }
 
@@ -263,7 +274,7 @@ public class CompletionParticipantBuiltinsTest extends AdditionalInfoTestsBase {
         s = "" +
                 "def test_it(my_fixture_b)\n" +
                 "    my_fixture_b.";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "method1()", "method2()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "method1()", "method2()" });
         // Only B completions (method1, method2, __repr__, __str__, etc.)
         assertTrue(comps.length < 20);
     }
@@ -274,7 +285,7 @@ public class CompletionParticipantBuiltinsTest extends AdditionalInfoTestsBase {
         s = "" +
                 "def test_it(my_fixture_c)\n" +
                 "    my_fixture_c.";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "method3()", "method4()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "method3()", "method4()" });
         // Only C completions (method3, method4, __repr__, __str__, etc.)
         assertTrue(comps.length < 20);
     }

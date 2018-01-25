@@ -25,7 +25,6 @@ import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
@@ -39,6 +38,7 @@ import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevTestUtils;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -493,23 +493,23 @@ public class CodeCompletionTestsBase extends TestCase {
 
     public IPyCodeCompletion codeCompletion;
 
-    public ICompletionProposal[] requestCompl(String strDoc, int documentOffset, int returned, String[] retCompl)
+    public ICompletionProposalHandle[] requestCompl(String strDoc, int documentOffset, int returned, String[] retCompl)
             throws Exception {
         return requestCompl(strDoc, documentOffset, returned, retCompl, nature);
     }
 
-    public ICompletionProposal[] requestCompl(String strDoc, int documentOffset, int returned, String[] retCompl,
+    public ICompletionProposalHandle[] requestCompl(String strDoc, int documentOffset, int returned, String[] retCompl,
             PythonNature nature) throws Exception {
         return requestCompl(null, strDoc, documentOffset, returned, retCompl, nature);
     }
 
-    public ICompletionProposal[] requestCompl(File file, int documentOffset, int returned, String[] retCompl)
+    public ICompletionProposalHandle[] requestCompl(File file, int documentOffset, int returned, String[] retCompl)
             throws Exception {
         String strDoc = FileUtils.getFileContents(file);
         return requestCompl(file, strDoc, documentOffset, returned, retCompl);
     }
 
-    public ICompletionProposal[] requestCompl(File file, String strDoc, int documentOffset, int returned,
+    public ICompletionProposalHandle[] requestCompl(File file, String strDoc, int documentOffset, int returned,
             String[] retCompl) throws Exception {
         return requestCompl(file, strDoc, documentOffset, returned, retCompl, nature);
     }
@@ -529,7 +529,7 @@ public class CodeCompletionTestsBase extends TestCase {
      * @throws BadLocationException
      * @throws MisconfigurationException
      */
-    public ICompletionProposal[] requestCompl(File file, String strDoc, int documentOffset, int returned,
+    public ICompletionProposalHandle[] requestCompl(File file, String strDoc, int documentOffset, int returned,
             String[] retCompl, PythonNature nature) throws Exception, MisconfigurationException {
         if (documentOffset == -1) {
             documentOffset = strDoc.length();
@@ -539,7 +539,7 @@ public class CodeCompletionTestsBase extends TestCase {
         CompletionRequest request = new CompletionRequest(file, nature, doc, documentOffset, codeCompletion, false);
 
         List<Object> props = codeCompletion.getCodeCompletionProposals(request);
-        ICompletionProposal[] codeCompletionProposals = PyCodeCompletionUtils.onlyValid(props, request.qualifier,
+        ICompletionProposalHandle[] codeCompletionProposals = PyCodeCompletionUtils.onlyValid(props, request.qualifier,
                 request.isInCalltip, request.useSubstringMatchInCodeCompletion, null);
         PyCodeCompletionUtils.sort(codeCompletionProposals, request.qualifier, null);
 
@@ -562,9 +562,10 @@ public class CodeCompletionTestsBase extends TestCase {
      * @param string the string we're looking for
      * @param codeCompletionProposals the proposals found
      */
-    public static ICompletionProposal assertContains(String string, ICompletionProposal[] codeCompletionProposals) {
+    public static ICompletionProposalHandle assertContains(String string,
+            ICompletionProposalHandle[] codeCompletionProposals) {
         for (int i = 0; i < codeCompletionProposals.length; i++) {
-            ICompletionProposal completionProposal = codeCompletionProposals[i];
+            ICompletionProposalHandle completionProposal = codeCompletionProposals[i];
             if (checkIfEquals(string, completionProposal)) {
                 return completionProposal;
             }
@@ -582,9 +583,9 @@ public class CodeCompletionTestsBase extends TestCase {
      * @param string the string we're looking for
      * @param codeCompletionProposals the proposals found
      */
-    protected void assertNotContains(String string, ICompletionProposal[] codeCompletionProposals) {
+    protected void assertNotContains(String string, ICompletionProposalHandle[] codeCompletionProposals) {
         for (int i = 0; i < codeCompletionProposals.length; i++) {
-            ICompletionProposal completionProposal = codeCompletionProposals[i];
+            ICompletionProposalHandle completionProposal = codeCompletionProposals[i];
             if (checkIfEquals(string, completionProposal)) {
                 fail("The string >>" + string
                         + "<< was found in the returned completions (was not expected to be found).");
@@ -599,14 +600,14 @@ public class CodeCompletionTestsBase extends TestCase {
      * @param completionProposal this is the completion proposal
      * @return if the completion we're looking for is the same completion we're checking
      */
-    protected static boolean checkIfEquals(String lookingFor, ICompletionProposal completionProposal) {
+    protected static boolean checkIfEquals(String lookingFor, ICompletionProposalHandle completionProposal) {
         return completionProposal.getDisplayString().equals(lookingFor);
     }
 
     /**
      * @return StringBuffer with a string representing the array of proposals found.
      */
-    protected static StringBuffer getAvailableAsStr(ICompletionProposal[] codeCompletionProposals) {
+    protected static StringBuffer getAvailableAsStr(ICompletionProposalHandle[] codeCompletionProposals) {
         StringBuffer buffer = new StringBuffer();
         for (int i = 0; i < codeCompletionProposals.length; i++) {
             buffer.append(codeCompletionProposals[i].getDisplayString());
@@ -615,16 +616,16 @@ public class CodeCompletionTestsBase extends TestCase {
         return buffer;
     }
 
-    public ICompletionProposal[] requestCompl(String strDoc, String[] retCompl) throws Exception {
+    public ICompletionProposalHandle[] requestCompl(String strDoc, String[] retCompl) throws Exception {
         return requestCompl(strDoc, -1, retCompl.length, retCompl);
     }
 
-    public ICompletionProposal[] requestCompl(String strDoc, int expectedCompletions, String[] retCompl)
+    public ICompletionProposalHandle[] requestCompl(String strDoc, int expectedCompletions, String[] retCompl)
             throws Exception {
         return requestCompl(strDoc, -1, expectedCompletions, retCompl);
     }
 
-    public ICompletionProposal[] requestCompl(String strDoc, String retCompl) throws Exception {
+    public ICompletionProposalHandle[] requestCompl(String strDoc, String retCompl) throws Exception {
         return requestCompl(strDoc, new String[] { retCompl });
     }
 
