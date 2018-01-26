@@ -11,7 +11,9 @@
 package org.python.pydev.debug.ui;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -181,6 +183,9 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
                 PydevDebugPlugin.log(IStatus.ERROR, "unexpected error", e);
                 return;
             }
+            if (text.contains("..\\..\\..\\etk\\coilib50\\source\\python\\coilib50")) {
+                System.out.println("here");
+            }
 
             Matcher m = regularPythonlinePattern.matcher(text);
             if (m.matches()) {
@@ -290,7 +295,7 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
             }
         }
         // Not a direct match, let's try some heuristics to get a match based on the working dir.
-        IPath path = Path.fromOSString(filename);
+        final IPath path = Path.fromOSString(filename);
 
         IProject project = getProject();
         try {
@@ -322,6 +327,11 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
                                 FileLink link = new FileLink(file2, null, -1, -1, lineNumberInt);
                                 linkContainer.addLink(link, lineOffset + matchStartCol, endCol - matchStartCol);
                             }
+                            IPath pathInDisk = iContainer.getLocation().append(path);
+                            if (createHyperlink(lineOffset, matchStartCol, endCol, pathInDisk.toOSString(),
+                                    lineNumberInt)) {
+                                return true;
+                            }
                         } catch (IllegalArgumentException e) {
                         } catch (Exception e) {
                             Log.log(e);
@@ -333,24 +343,31 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
         }
 
         try {
-            IPath workingDirectory = getWorkingDirectory();
-            if (workingDirectory != null) {
-                while (path.segmentCount() > 0) {
-                    IPath appended = workingDirectory.append(path);
-                    File checkFile = appended.toFile();
-                    if (checkFile.exists()) {
-                        if (createHyperlink(lineOffset,
-                                matchStartCol + (initialFilename.length() - path.toString().length()),
-                                endCol, checkFile.getAbsolutePath(), lineNumberInt)) {
-                            return true;
+            List<IPath> lst = new ArrayList<>();
+            lst.add(getWorkingDirectory());
+            lst.add(getProject().getLocation());
+
+            for (IPath workingDirectory : lst) {
+                if (workingDirectory != null) {
+                    IPath pathCopy = (IPath) path.clone();
+                    while (pathCopy.segmentCount() > 0) {
+                        IPath appended = workingDirectory.append(pathCopy);
+                        File checkFile = appended.toFile();
+                        if (checkFile.exists()) {
+                            if (createHyperlink(lineOffset,
+                                    matchStartCol + (initialFilename.length() - pathCopy.toString().length()),
+                                    endCol, checkFile.getAbsolutePath(), lineNumberInt)) {
+                                return true;
+                            }
                         }
+                        pathCopy = pathCopy.removeFirstSegments(1);
                     }
-                    path = path.removeFirstSegments(1);
                 }
             }
         } catch (Exception e) {
             Log.log(e);
         }
+
         return false;
     }
 
