@@ -19,6 +19,7 @@ import org.python.pydev.editor.codecompletion.ProposalsComparator.CompareContext
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal.ICompareContext;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
@@ -133,9 +134,11 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
                 String replacementString = name + makeArgsForDocumentReplacement(args, result, temp);
                 String displayString = name + args;
                 ICompareContext compareContext = new CompareContext(element);
-                PyCompletionProposal proposal = new PyLinkedModeCompletionProposal(replacementString,
-                        replacementOffset, request.qlen, l, element, displayString, pyContextInformation, priority,
-                        onApplyAction, args, compareContext);
+                ICompletionProposalHandle proposal = CompletionProposalFactory.get()
+                        .createPyLinkedModeCompletionProposal(
+                                replacementString, replacementOffset, request.qlen,
+                                l, element, displayString, pyContextInformation, priority, onApplyAction, args,
+                                compareContext);
 
                 convertedProposals.add(proposal);
 
@@ -154,9 +157,10 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
                     priority = IPyCompletionProposal.PRIORITY_LOCALS;
                 }
 
-                PyCompletionProposal proposal = new PyCompletionProposal(name, request.documentOffset - request.qlen,
-                        request.qlen, name.length(), PyCodeCompletionImages.getImageForType(type), null, null, docStr,
-                        priority, null);
+                ICompletionProposalHandle proposal = CompletionProposalFactory.get().createPyCompletionProposal(name,
+                        request.documentOffset - request.qlen, request.qlen,
+                        name.length(), PyCodeCompletionImages.getImageForType(type), null, null, docStr, priority,
+                        null);
 
                 convertedProposals.add(proposal);
 

@@ -40,7 +40,6 @@ import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
 import org.python.pydev.editor.codecompletion.AbstractPyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PyCalltipsContextInformation;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
-import org.python.pydev.editor.codecompletion.PyLinkedModeCompletionProposal;
 import org.python.pydev.editorinput.PyOpenEditor;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.callbacks.ICallback0;
@@ -55,6 +54,7 @@ import org.python.pydev.shared_interactive_console.console.IXmlRpcClient;
 import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
 import org.python.pydev.shared_interactive_console.console.ScriptXmlRpcClient;
 import org.python.pydev.shared_ui.EditorUtils;
+import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
@@ -521,7 +521,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
             filter = new IFilterCompletion() {
 
                 @Override
-                public boolean acceptCompletion(int type, PyLinkedModeCompletionProposal completion) {
+                public boolean acceptCompletion(int type, ICompletionProposalHandle completion) {
                     if (type == IToken.TYPE_IPYTHON) {
                         if (completion.getDisplayString().startsWith(".")) {
                             return false;
@@ -537,7 +537,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
     }
 
     public static interface IFilterCompletion {
-        boolean acceptCompletion(int type, PyLinkedModeCompletionProposal completion);
+        boolean acceptCompletion(int type, ICompletionProposalHandle completion);
     }
 
     private static void convertToICompletions(final String text, String actTok, int offset, Object fromServer,
@@ -641,10 +641,10 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                         }
                     }
 
-                    PyLinkedModeCompletionProposal completion = new PyLinkedModeCompletionProposal(nameAndArgs,
-                            replacementOffset, length, cursorPos,
-                            PyCodeCompletionImages.getImageForType(type), nameAndArgs, pyContextInformation, docStr,
-                            priority, PyCompletionProposal.ON_APPLY_DEFAULT, args, false, null);
+                    ICompletionProposalHandle completion = CompletionProposalFactory.get()
+                            .createPyLinkedModeCompletionProposal(nameAndArgs, replacementOffset, length, cursorPos,
+                                    PyCodeCompletionImages.getImageForType(type), nameAndArgs, pyContextInformation,
+                                    docStr, priority, PyCompletionProposal.ON_APPLY_DEFAULT, args, false, null);
                     if (filter == null || filter.acceptCompletion(type, completion)) {
                         ret.add(completion);
                     }

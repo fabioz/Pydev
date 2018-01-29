@@ -26,10 +26,12 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.string.DocIterator;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
 /**
@@ -180,7 +182,7 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
     /**
      * @param ret OUT: this is where the completions are stored
      */
-    private void fillWithParams(CompletionRequest request, ArrayList<ICompletionProposal> ret) {
+    private void fillWithParams(CompletionRequest request, ArrayList<ICompletionProposalHandle> ret) {
         PySelection ps = new PySelection(request.doc, request.documentOffset);
         try {
             String lineContentsToCursor = ps.getLineContentsToCursor();
@@ -209,8 +211,9 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
                         Tuple<List<String>, Integer> insideParentesisToks = selection.getInsideParentesisToks(false);
                         for (String str : insideParentesisToks.o1) {
                             if (str.startsWith(initial)) {
-                                ret.add(new PyLinkedModeCompletionProposal(str, request.documentOffset - request.qlen,
-                                        request.qlen, str.length(), PyCodeCompletionImages
+                                ret.add(CompletionProposalFactory.get().createPyLinkedModeCompletionProposal(str,
+                                        request.documentOffset - request.qlen, request.qlen, str.length(),
+                                        PyCodeCompletionImages
                                                 .getImageForType(IToken.TYPE_PARAM),
                                         null, null, "", 0,
                                         PyCompletionProposal.ON_APPLY_DEFAULT, "", null));

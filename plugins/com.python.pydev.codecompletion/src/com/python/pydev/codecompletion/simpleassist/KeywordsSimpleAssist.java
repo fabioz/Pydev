@@ -22,6 +22,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant;
 import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant2;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
+import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
 import com.python.pydev.codecompletion.ui.CodeCompletionPreferencesPage;
@@ -177,8 +178,9 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant, ISimpleAs
                 if (keyw.startsWith(qualifier) && !keyw.equals(qualifier)) {
                     if (buildForConsole) {
                         //In the console, only show the simple completions without any special treatment
-                        results.add(new PyCompletionProposal(keyw, offset - qlen, qlen, keyw.length(),
-                                PyCompletionProposal.PRIORITY_DEFAULT, null));
+                        results.add(
+                                CompletionProposalFactory.get().createPyCompletionProposal(keyw, offset - qlen, qlen,
+                                        keyw.length(), PyCompletionProposal.PRIORITY_DEFAULT, null));
 
                     } else {
                         //in the editor, we'll create a special proposal with more features

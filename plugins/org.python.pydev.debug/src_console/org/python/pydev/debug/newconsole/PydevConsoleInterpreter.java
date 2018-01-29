@@ -41,7 +41,6 @@ import org.python.pydev.debug.model.PyDebugTarget;
 import org.python.pydev.debug.model.PyStackFrame;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant2;
 import org.python.pydev.editor.codecompletion.ProposalsComparator;
-import org.python.pydev.editor.codecompletion.PyLinkedModeCompletionProposal;
 import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant2;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
@@ -53,6 +52,7 @@ import org.python.pydev.shared_interactive_console.console.IScriptConsoleInterpr
 import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
 import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
 import org.python.pydev.shared_ui.content_assist.AbstractCompletionProcessorWithCycling;
+import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
@@ -179,8 +179,10 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
                 int replacementOffset = offset - qlen;
                 String representation = t.getRepresentation();
                 if (representation.startsWith(tokenAndQual.qualifier)) {
-                    ret.add(new PyLinkedModeCompletionProposal(representation, replacementOffset, qlen, representation
-                            .length(), t, null, null, IPyCompletionProposal.PRIORITY_DEFAULT,
+                    ret.add(CompletionProposalFactory.get().createPyLinkedModeCompletionProposal(representation,
+                            replacementOffset, qlen, representation
+                                    .length(),
+                            t, null, null, IPyCompletionProposal.PRIORITY_DEFAULT,
                             PyCompletionProposal.ON_APPLY_DEFAULT, "", null));
                 }
             }

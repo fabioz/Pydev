@@ -34,7 +34,7 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.UIConstants;
-import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
+import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 
 /**
  * @author Fabio Zadrozny
@@ -144,7 +144,8 @@ public class AssistSurroundWith extends AbstractTemplateCodeCompletion implement
             return proposal;
         } else {
             //In tests
-            return new PyCompletionProposal(comp, region.getOffset(), region.getLength(), 0, 0);
+            return CompletionProposalFactory.get().createPyCompletionProposal(comp, region.getOffset(),
+                    region.getLength(), 0, 0);
         }
     }
 
