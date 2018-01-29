@@ -13,7 +13,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.ErrorDialog;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
@@ -22,8 +21,8 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_ui.EditorUtils;
-
 
 public abstract class AbstractPyCreateAction extends Action implements IEditorActionDelegate {
 
@@ -79,7 +78,7 @@ public abstract class AbstractPyCreateAction extends Action implements IEditorAc
 
     public abstract void execute(RefactoringInfo refactoringInfo, int locationStrategyBeforeCurrent);
 
-    public abstract ICompletionProposal createProposal(RefactoringInfo refactoringInfo, String actTok,
+    public abstract ICompletionProposalHandle createProposal(RefactoringInfo refactoringInfo, String actTok,
             int locationStrategy, List<String> parametersAfterCall);
 
 }

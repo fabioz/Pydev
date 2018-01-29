@@ -19,6 +19,7 @@ import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 
 /**
  * @author Fabio Zadrozny
@@ -90,7 +91,9 @@ public class PyTemplateCompletionProcessor extends TemplateCompletionProcessor
     @Override
     protected ICompletionProposal createProposal(Template template, TemplateContext context, IRegion region,
             int relevance) {
-        return new PyTemplateProposal(template, context, region, getImage(template), relevance);
+        return (ICompletionProposal) CompletionProposalFactory.get().createPyTemplateProposal(template, context, region,
+                getImage(template),
+                relevance);
     }
 
     /**

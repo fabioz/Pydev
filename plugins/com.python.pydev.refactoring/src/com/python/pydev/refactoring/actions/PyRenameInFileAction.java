@@ -120,7 +120,7 @@ public class PyRenameInFileAction extends Action {
     }
 
     /**
-     * This class adds an observer and triggers a reparse that this listener should listen to. 
+     * This class adds an observer and triggers a reparse that this listener should listen to.
      */
     private class RenameInFileJob extends Job {
 
@@ -153,16 +153,16 @@ public class PyRenameInFileAction extends Action {
 
     /**
      * Puts the found positions referente to the occurrences in the group
-     * 
-     * @param document the document that will contain this positions 
+     *
+     * @param document the document that will contain this positions
      * @param group the group that will contain this positions
      * @param ps the selection used
-     * @return 
-     * 
+     * @return
+     *
      * @throws BadLocationException
      * @throws OperationCanceledException
      * @throws CoreException
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     private boolean fillWithOccurrences(IDocument document, LinkedPositionGroup group, IProgressMonitor monitor,
             PySelection ps) throws BadLocationException, OperationCanceledException, CoreException,

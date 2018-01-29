@@ -22,6 +22,12 @@ public class CompletionProposalFactory {
         return new CompletionProposalFactory();
     }
 
+    public ICompletionProposalHandle createPyTemplateProposal(Template template, TemplateContext context,
+            IRegion region, Image image, int relevance) {
+        return null;
+        //        return new PyTemplateProposal(template, context, region, image, relevance);
+    }
+
     public ICompletionProposalHandle createIgnoreCompletionProposalInSameLine(String replacementString,
             int replacementOffset, int replacementLength, int cursorPosition, IImageHandle image, String displayString,
             IContextInformation contextInformation, String additionalProposalInfo, int priority, IPyEdit edit,

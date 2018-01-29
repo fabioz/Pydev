@@ -31,11 +31,11 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.AbstractTemplateCodeCompletion;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
-import org.python.pydev.editor.codecompletion.PyTemplateProposal;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 
 public class AssistPercentToFormat extends AbstractTemplateCodeCompletion implements IAssistProps {
 
@@ -95,7 +95,7 @@ public class AssistPercentToFormat extends AbstractTemplateCodeCompletion implem
         TemplateContext context = createContext(region, ps.getDoc());
 
         Template t = new Template("Convert", "% to .format()", "", replacementString, false);
-        l.add(new PyTemplateProposal(t, context, region,
+        l.add(CompletionProposalFactory.get().createPyTemplateProposal(t, context, region,
                 ImageCache.asImage(imageCache.get(UIConstants.COMPLETION_TEMPLATE)), 5));
         return l;
     }

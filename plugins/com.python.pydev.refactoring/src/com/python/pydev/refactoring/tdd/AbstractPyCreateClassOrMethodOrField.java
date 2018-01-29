@@ -13,13 +13,10 @@ import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Region;
-import org.eclipse.jface.text.contentassist.CompletionProposal;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension2;
 import org.eclipse.jface.text.templates.GlobalTemplateVariables;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContextType;
-import org.eclipse.jface.text.templates.TemplateProposal;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.docutils.PyStringUtils;
@@ -35,10 +32,12 @@ import org.python.pydev.refactoring.ast.adapters.offsetstrategy.BeginOffset;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.EndOffset;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.EditorUtils;
+import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 
 public abstract class AbstractPyCreateClassOrMethodOrField extends AbstractPyCreateAction {
 
@@ -90,7 +89,7 @@ public abstract class AbstractPyCreateClassOrMethodOrField extends AbstractPyCre
     /*default*/void execute(RefactoringInfo refactoringInfo, String actTok, List<String> parametersAfterCall,
             int locationStrategy) {
         try {
-            ICompletionProposal proposal = createProposal(refactoringInfo, actTok, locationStrategy,
+            ICompletionProposalHandle proposal = createProposal(refactoringInfo, actTok, locationStrategy,
                     parametersAfterCall);
             if (proposal != null) {
                 if (proposal instanceof ICompletionProposalExtension2) {
@@ -106,12 +105,12 @@ public abstract class AbstractPyCreateClassOrMethodOrField extends AbstractPyCre
         }
     }
 
-    protected ICompletionProposal createProposal(PySelection pySelection, String source,
+    protected ICompletionProposalHandle createProposal(PySelection pySelection, String source,
             Tuple<Integer, String> offsetAndIndent) {
         return createProposal(pySelection, source, offsetAndIndent, true, null);
     }
 
-    protected ICompletionProposal createProposal(PySelection pySelection, String source,
+    protected ICompletionProposalHandle createProposal(PySelection pySelection, String source,
             Tuple<Integer, String> offsetAndIndent, boolean requireEmptyLines, Pass replacePassStatement) {
         int offset;
         int len;
@@ -132,7 +131,7 @@ public abstract class AbstractPyCreateClassOrMethodOrField extends AbstractPyCre
                 }
 
                 if (checkLine >= 0) {
-                    //It'll be added to the current line, so, check the current line and the previous line to know about spaces. 
+                    //It'll be added to the current line, so, check the current line and the previous line to know about spaces.
                     String line = pySelection.getLine(checkLine);
                     if (line.trim().length() >= 1) {
                         source = "\n\n" + source;
@@ -182,13 +181,14 @@ public abstract class AbstractPyCreateClassOrMethodOrField extends AbstractPyCre
                     targetEditor.getPySourceViewer(), region, indent);
 
             Template template = new Template("Create " + creationStr, "Create " + creationStr, "", source, true);
-            TemplateProposal templateProposal = new TemplateProposal(template, context, region, null);
+            ICompletionProposalHandle templateProposal = CompletionProposalFactory.get()
+                    .createPyTemplateProposal(template, context, region, null, 0);
             return templateProposal;
 
         } else {
             //This should only happen in tests.
             source = StringUtils.indentTo(source, indent, false);
-            return new CompletionProposal(source, offset, len, 0);
+            return CompletionProposalFactory.get().createPyCompletionProposal(source, offset, len, 0, 0);
         }
     }
 
@@ -273,7 +273,7 @@ public abstract class AbstractPyCreateClassOrMethodOrField extends AbstractPyCre
                     try {
                         String trimmed = pySelection.getLine(line).trim();
                         if (trimmed.startsWith("class") || trimmed.startsWith("def")) {
-                            //if we'll add to a class or def line, let's see if there are comments just above it 
+                            //if we'll add to a class or def line, let's see if there are comments just above it
                             //(in this case, we'll go backwards in the file until the block comment ends)
                             //i.e.:
                             //#======================
