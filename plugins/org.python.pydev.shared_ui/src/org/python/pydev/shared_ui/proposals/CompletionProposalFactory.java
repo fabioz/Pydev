@@ -1,5 +1,6 @@
 package org.python.pydev.shared_ui.proposals;
 
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.source.ISourceViewer;
@@ -20,6 +21,17 @@ public class CompletionProposalFactory {
 
     public static CompletionProposalFactory get() {
         return new CompletionProposalFactory();
+    }
+
+    public ICompletionProposalHandle createIgnorePyLintCompletionProposalInSameLine(
+            String replacementString, int replacementOffset, int replacementLength, int cursorPosition,
+            IImageHandle image, String displayString, IContextInformation contextInformation,
+            String additionalProposalInfo, int priority, IPyEdit edit, String line, PySelection ps, FormatStd format,
+            IMarker marker) {
+        return null;
+        //        return new IgnorePyLintCompletionProposalInSameLine(replacementString, replacementOffset, replacementLength,
+        //                cursorPosition, image, displayString, contextInformation, additionalProposalInfo, priority, edit, line,
+        //                ps, format, marker);
     }
 
     public ICompletionProposalHandle createPyTemplateProposal(Template template, TemplateContext context,
