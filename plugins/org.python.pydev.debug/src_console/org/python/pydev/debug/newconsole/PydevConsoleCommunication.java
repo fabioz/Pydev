@@ -27,7 +27,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.ICompletionState;
@@ -45,6 +44,7 @@ import org.python.pydev.editor.codecompletion.PyLinkedModeCompletionProposal;
 import org.python.pydev.editorinput.PyOpenEditor;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.callbacks.ICallback0;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.io.ThreadStreamReader;
 import org.python.pydev.shared_core.process.ProcessUtils;
 import org.python.pydev.shared_core.string.FullRepIterable;
@@ -497,22 +497,23 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
      * @return completions from the client
      */
     @Override
-    public ICompletionProposal[] getCompletions(String text, String actTok, int offset, boolean showForTabCompletion)
+    public ICompletionProposalHandle[] getCompletions(String text, String actTok, int offset,
+            boolean showForTabCompletion)
             throws Exception {
         if (waitingForInput) {
-            return new ICompletionProposal[0];
+            return new ICompletionProposalHandle[0];
         }
         Object fromServer = client.execute("getCompletions", new Object[] { text, actTok });
-        List<ICompletionProposal> ret = new ArrayList<ICompletionProposal>();
+        List<ICompletionProposalHandle> ret = new ArrayList<ICompletionProposalHandle>();
 
         convertConsoleCompletionsToICompletions(text, actTok, offset, fromServer, ret, showForTabCompletion);
-        ICompletionProposal[] proposals = ret.toArray(new ICompletionProposal[ret.size()]);
+        ICompletionProposalHandle[] proposals = ret.toArray(new ICompletionProposalHandle[ret.size()]);
         return proposals;
     }
 
     public static void convertConsoleCompletionsToICompletions(final String text, String actTok, int offset,
             Object fromServer,
-            List<ICompletionProposal> ret, boolean showForTabCompletion) {
+            List<ICompletionProposalHandle> ret, boolean showForTabCompletion) {
         IFilterCompletion filter = null;
         if (actTok != null && actTok.indexOf("].") != -1) {
             // Fix issue: when we request a code-completion on a list position i.e.: "lst[0]." IPython is giving us completions from the
@@ -540,7 +541,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
     }
 
     private static void convertToICompletions(final String text, String actTok, int offset, Object fromServer,
-            List<ICompletionProposal> ret, boolean showForTabCompletion, IFilterCompletion filter) {
+            List<ICompletionProposalHandle> ret, boolean showForTabCompletion, IFilterCompletion filter) {
         if (fromServer instanceof Object[]) {
             Object[] objects = (Object[]) fromServer;
             fromServer = Arrays.asList(objects);

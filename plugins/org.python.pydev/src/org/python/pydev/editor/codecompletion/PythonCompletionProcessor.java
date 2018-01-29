@@ -39,6 +39,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.callbacks.ICallback0;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.content_assist.AbstractCompletionProcessorWithCycling;
 
@@ -131,14 +132,14 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
     @SuppressWarnings("unchecked")
     public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int documentOffset) {
         updateStatus();
-        ICompletionProposal[] proposals;
+        ICompletionProposalHandle[] proposals;
 
         try {
             //FIRST: discover activation token and qualifier.
             IDocument doc = viewer.getDocument();
 
             //list for storing the proposals
-            ArrayList<ICompletionProposal> pythonAndTemplateProposals = new ArrayList<ICompletionProposal>();
+            ArrayList<ICompletionProposalHandle> pythonAndTemplateProposals = new ArrayList<ICompletionProposalHandle>();
 
             IPythonNature nature = edit.getPythonNature();
 
@@ -185,7 +186,7 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
 
                 //THIRD: Get template proposals (if asked for)
                 if (request.showTemplates && (activationToken == null || activationToken.trim().length() == 0)) {
-                    List<ICompletionProposal> templateProposals = getTemplateProposals(viewer, documentOffset,
+                    List<ICompletionProposalHandle> templateProposals = getTemplateProposals(viewer, documentOffset,
                             activationToken, qualifier);
                     pythonAndTemplateProposals.addAll(templateProposals);
                 }
@@ -207,8 +208,7 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
         }
 
         doCycle();
-        // Return the proposals
-        return proposals;
+        return ConvertCompletionProposals.convertHandlesToProposals(proposals);
     }
 
     /**
@@ -240,10 +240,10 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
     /**
      * Returns the template proposals as a list.
      */
-    private List<ICompletionProposal> getTemplateProposals(ITextViewer viewer, int documentOffset,
+    private List<ICompletionProposalHandle> getTemplateProposals(ITextViewer viewer, int documentOffset,
             String activationToken,
             java.lang.String qualifier) {
-        List<ICompletionProposal> propList = new ArrayList<ICompletionProposal>();
+        List<ICompletionProposalHandle> propList = new ArrayList<ICompletionProposalHandle>();
         if (this.templatesCompletion != null) {
             this.templatesCompletion.addTemplateProposals(viewer, documentOffset, propList);
         }

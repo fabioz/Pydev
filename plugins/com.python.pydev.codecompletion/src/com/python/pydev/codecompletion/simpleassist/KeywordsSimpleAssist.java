@@ -14,7 +14,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPySyntaxHighlightingAndCodeCompletionEditor;
 import org.python.pydev.core.IPythonNature;
@@ -22,6 +21,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant;
 import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant2;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
 import com.python.pydev.codecompletion.ui.CodeCompletionPreferencesPage;
@@ -123,7 +123,7 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant, ISimpleAs
      * @see ISimpleAssistParticipant
      */
     @Override
-    public Collection<ICompletionProposal> computeCompletionProposals(String activationToken, String qualifier,
+    public Collection<ICompletionProposalHandle> computeCompletionProposals(String activationToken, String qualifier,
             PySelection ps, IPySyntaxHighlightingAndCodeCompletionEditor edit, int offset) {
         boolean isPy3Syntax = false;
         if (CodeCompletionPreferencesPage.forcePy3kPrintOnPy2()) {
@@ -145,7 +145,7 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant, ISimpleAs
      * @see ISimpleAssistParticipant2
      */
     @Override
-    public Collection<ICompletionProposal> computeConsoleProposals(String activationToken, String qualifier,
+    public Collection<ICompletionProposalHandle> computeConsoleProposals(String activationToken, String qualifier,
             int offset) {
         return innerComputeProposals(activationToken, qualifier, offset, true, false);
     }
@@ -160,10 +160,11 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant, ISimpleAs
      * @param isPy3Syntax if py 3 syntax we'll treat print differently.
      * @return a list with the completions available.
      */
-    private Collection<ICompletionProposal> innerComputeProposals(String activationToken, String qualifier, int offset,
+    private Collection<ICompletionProposalHandle> innerComputeProposals(String activationToken, String qualifier,
+            int offset,
             boolean buildForConsole, boolean isPy3Syntax) {
 
-        List<ICompletionProposal> results = new ArrayList<ICompletionProposal>();
+        List<ICompletionProposalHandle> results = new ArrayList<>();
         //check if we have to use it
         if (!CodeCompletionPreferencesPage.useKeywordsCodeCompletion()) {
             return results;

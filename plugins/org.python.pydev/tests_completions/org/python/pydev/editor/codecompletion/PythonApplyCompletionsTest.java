@@ -7,13 +7,12 @@
 package org.python.pydev.editor.codecompletion;
 
 import org.eclipse.jface.text.Document;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.swt.graphics.Point;
-import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.StringUtils;
 
 public class PythonApplyCompletionsTest extends CodeCompletionTestsBase {
@@ -49,7 +48,8 @@ public class PythonApplyCompletionsTest extends CodeCompletionTestsBase {
 
             @Override
             public Object call(CompletionRecursionException e) {
-                throw new RuntimeException("Recursion error:" + org.python.pydev.shared_core.log.Log.getExceptionStr(e));
+                throw new RuntimeException(
+                        "Recursion error:" + org.python.pydev.shared_core.log.Log.getExceptionStr(e));
             }
 
         };
@@ -72,7 +72,7 @@ public class PythonApplyCompletionsTest extends CodeCompletionTestsBase {
         String s = StringUtils.format(s0, "2");
 
         int offset = s.length() - 1;
-        ICompletionProposal[] proposals = requestCompl(s, offset, -1, new String[] {});
+        ICompletionProposalHandle[] proposals = requestCompl(s, offset, -1, new String[] {});
         assertEquals(1, proposals.length);
         PyLinkedModeCompletionProposal p = (PyLinkedModeCompletionProposal) proposals[0];
         Document d = new Document(s);
@@ -90,7 +90,7 @@ public class PythonApplyCompletionsTest extends CodeCompletionTestsBase {
                 "        self.metho";
 
         int offset = s.length();
-        ICompletionProposal[] proposals = requestCompl(s, offset, -1, new String[] {});
+        ICompletionProposalHandle[] proposals = requestCompl(s, offset, -1, new String[] {});
         assertEquals(1, proposals.length);
         PyLinkedModeCompletionProposal p = (PyLinkedModeCompletionProposal) proposals[0];
         Document d = new Document(s);
@@ -110,7 +110,7 @@ public class PythonApplyCompletionsTest extends CodeCompletionTestsBase {
                 "        self.metho";
 
         int offset = s.length() - 1;
-        ICompletionProposal[] proposals = requestCompl(s, offset, -1, new String[] {});
+        ICompletionProposalHandle[] proposals = requestCompl(s, offset, -1, new String[] {});
         assertEquals(1, proposals.length);
         PyLinkedModeCompletionProposal p = (PyLinkedModeCompletionProposal) proposals[0];
         p.fLen = 1;
@@ -131,7 +131,7 @@ public class PythonApplyCompletionsTest extends CodeCompletionTestsBase {
                 "        self.metho";
 
         int offset = s.length() - 1;
-        ICompletionProposal[] proposals = requestCompl(s, offset, -1, new String[] {});
+        ICompletionProposalHandle[] proposals = requestCompl(s, offset, -1, new String[] {});
         assertEquals(1, proposals.length);
         PyLinkedModeCompletionProposal p = (PyLinkedModeCompletionProposal) proposals[0];
         p.fLen = 1;
@@ -153,7 +153,7 @@ public class PythonApplyCompletionsTest extends CodeCompletionTestsBase {
                 "        self.meth";
 
         int offset = s.length();
-        ICompletionProposal[] proposals = requestCompl(s, offset, -1, new String[] {});
+        ICompletionProposalHandle[] proposals = requestCompl(s, offset, -1, new String[] {});
         assertEquals(1, proposals.length);
         PyLinkedModeCompletionProposal p = (PyLinkedModeCompletionProposal) proposals[0];
 
@@ -174,7 +174,7 @@ public class PythonApplyCompletionsTest extends CodeCompletionTestsBase {
                 "        self.meth";
 
         int offset = s.length();
-        ICompletionProposal[] proposals = requestCompl(s, offset, -1, new String[] {});
+        ICompletionProposalHandle[] proposals = requestCompl(s, offset, -1, new String[] {});
         assertEquals(1, proposals.length);
         PyLinkedModeCompletionProposal p = (PyLinkedModeCompletionProposal) proposals[0];
 

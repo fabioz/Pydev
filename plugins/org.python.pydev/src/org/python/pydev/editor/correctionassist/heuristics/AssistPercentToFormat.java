@@ -24,15 +24,15 @@ import java.util.List;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContext;
-import org.eclipse.jface.text.templates.TemplateProposal;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.AbstractTemplateCodeCompletion;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
+import org.python.pydev.editor.codecompletion.PyTemplateProposal;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.UIConstants;
@@ -46,11 +46,12 @@ public class AssistPercentToFormat extends AbstractTemplateCodeCompletion implem
      *      org.python.pydev.shared_ui.ImageCache)
      */
     @Override
-    public List<ICompletionProposal> getProps(PySelection ps, IImageCache imageCache, File f, IPythonNature nature,
+    public List<ICompletionProposalHandle> getProps(PySelection ps, IImageCache imageCache, File f,
+            IPythonNature nature,
             PyEdit edit, int offset)
             throws BadLocationException {
 
-        ArrayList<ICompletionProposal> l = new ArrayList<ICompletionProposal>();
+        ArrayList<ICompletionProposalHandle> l = new ArrayList<ICompletionProposalHandle>();
 
         String curSelection = ps.getSelectedText();
 
@@ -94,7 +95,7 @@ public class AssistPercentToFormat extends AbstractTemplateCodeCompletion implem
         TemplateContext context = createContext(region, ps.getDoc());
 
         Template t = new Template("Convert", "% to .format()", "", replacementString, false);
-        l.add(new TemplateProposal(t, context, region,
+        l.add(new PyTemplateProposal(t, context, region,
                 ImageCache.asImage(imageCache.get(UIConstants.COMPLETION_TEMPLATE)), 5));
         return l;
     }

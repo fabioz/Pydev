@@ -13,7 +13,6 @@ import java.io.IOException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.TestDependent;
@@ -27,6 +26,7 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.codecompletion.shell.IronpythonShell;
 import org.python.pydev.editor.codecompletion.shell.PythonShellTest;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.io.FileUtils;
 
 public class IronpythonCompletionWithBuiltinsTest extends IronPythonCodeCompletionTestsBase {
@@ -117,7 +117,7 @@ public class IronpythonCompletionWithBuiltinsTest extends IronPythonCodeCompleti
         //      fff,
         //      ccc )
         //so, for now the test just checks that we do not get in any sort of
-        //look... 
+        //look...
         s = "" +
 
                 "class bla(object):pass\n" +
@@ -285,7 +285,7 @@ public class IronpythonCompletionWithBuiltinsTest extends IronPythonCodeCompleti
                 "";
 
         //should keep the variables from the __builtins__ in this module
-        ICompletionProposal[] requestCompl = requestCompl(s, -1,
+        ICompletionProposalHandle[] requestCompl = requestCompl(s, -1,
                 new String[] { "sort(cmp: object, key: object, reverse: bool)" });
         assertEquals(1, requestCompl.length);
         IDocument doc = new Document(s);

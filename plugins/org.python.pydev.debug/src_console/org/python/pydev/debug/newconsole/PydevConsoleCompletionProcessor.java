@@ -14,17 +14,19 @@ import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.CompletionError;
+import org.python.pydev.editor.codecompletion.ConvertCompletionProposals;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.editor.codecompletion.PyContextInformationValidator;
 import org.python.pydev.editor.codecompletion.PythonCompletionProcessor;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_interactive_console.console.IScriptConsoleShell;
 import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
 import org.python.pydev.shared_ui.content_assist.AbstractCompletionProcessorWithCycling;
 
 /**
  * Gathers completions for the pydev console.
- * 
+ *
  * @author fabioz
  */
 public class PydevConsoleCompletionProcessor extends AbstractCompletionProcessorWithCycling implements
@@ -40,7 +42,8 @@ public class PydevConsoleCompletionProcessor extends AbstractCompletionProcessor
     private String errorMessage = null;
     private int lastActivationCount = -1;
 
-    public PydevConsoleCompletionProcessor(IScriptConsoleShell interpreterShell, PyContentAssistant pyContentAssistant) {
+    public PydevConsoleCompletionProcessor(IScriptConsoleShell interpreterShell,
+            PyContentAssistant pyContentAssistant) {
         super(pyContentAssistant);
         pyContentAssistant.addCompletionListener(this);
         this.interpreterShell = interpreterShell;
@@ -91,7 +94,9 @@ public class PydevConsoleCompletionProcessor extends AbstractCompletionProcessor
             String commandLine = viewer.getCommandLine();
             int cursorPosition = offset - viewer.getCommandLineOffset();
 
-            return interpreterShell.getCompletions(viewer, commandLine, cursorPosition, offset, this.whatToShow);
+            ICompletionProposalHandle[] completions = interpreterShell.getCompletions(viewer, commandLine,
+                    cursorPosition, offset, this.whatToShow);
+            return ConvertCompletionProposals.convertHandlesToProposals(completions);
         } catch (Exception e) {
             Log.log(e);
             CompletionError completionError = new CompletionError(e);

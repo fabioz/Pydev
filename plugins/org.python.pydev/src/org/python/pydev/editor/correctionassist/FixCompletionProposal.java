@@ -19,6 +19,7 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_ui.ImageCache;
 
@@ -28,7 +29,7 @@ import org.python.pydev.shared_ui.ImageCache;
  *
  * @author Fabio Zadrozny
  */
-public class FixCompletionProposal implements ICompletionProposal {
+public class FixCompletionProposal implements ICompletionProposal, ICompletionProposalHandle {
 
     /** The string to be displayed in the completion proposal popup. */
     private String fDisplayString;

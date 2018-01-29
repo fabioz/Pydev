@@ -16,7 +16,6 @@ import java.io.IOException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IInterpreterManager;
@@ -39,6 +38,7 @@ import org.python.pydev.editor.codecompletion.shell.PythonShell;
 import org.python.pydev.editor.codecompletion.shell.PythonShellTest;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.io.FileUtils;
 
 public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
@@ -96,7 +96,8 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
         if (shell == null && TestDependent.PYTHON_NUMPY_PACKAGES != null) {
             try {
                 FileUtils.copyFile(TestDependent.PYTHON_NUMPY_PACKAGES +
-                        "numpy/core/umath.pyd", TestDependent.TEST_PYSRC_TESTING_LOC
+                        "numpy/core/umath.pyd",
+                        TestDependent.TEST_PYSRC_TESTING_LOC
                                 +
                                 "extendable/bootstrap_dll/umath.pyd");
             } catch (RuntimeException e) {
@@ -476,7 +477,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
                 "";
 
         //should keep the variables from the __builtins__ in this module
-        ICompletionProposal[] codeCompletionProposals = requestCompl(s, -1,
+        ICompletionProposalHandle[] codeCompletionProposals = requestCompl(s, -1,
                 new String[] { "ThisGoes", "RuntimeError" });
         assertNotContains("ThisDoesnt", codeCompletionProposals);
     }
@@ -486,7 +487,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
                 "";
 
         //should keep the variables from the __builtins__ in this module
-        ICompletionProposal[] codeCompletionProposals = requestCompl(s, -1,
+        ICompletionProposalHandle[] codeCompletionProposals = requestCompl(s, -1,
                 new String[] { "ThisGoes", "RuntimeError" });
         assertNotContains("ThisDoesnt", codeCompletionProposals);
 
@@ -555,8 +556,8 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
     public void testKeywordCompletions() throws Exception {
         String s = "assert isinstance(lo";
 
-        ICompletionProposal[] requestCompl = requestCompl(s, -1, new String[] {});
-        for (ICompletionProposal iCompletionProposal : requestCompl) {
+        ICompletionProposalHandle[] requestCompl = requestCompl(s, -1, new String[] {});
+        for (ICompletionProposalHandle iCompletionProposal : requestCompl) {
             if (iCompletionProposal.getDisplayString().equals("locals={}=")) {
                 fail("A locals={}= should not be found.");
             }
@@ -568,7 +569,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
         s = "" +
                 "class Bar(object):\n" +
                 "    def __ha";//bring override completions!
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
                 new String[] { "__hash__ (Override method in object)" });
         assertEquals(1, comps.length);
         Document doc = new Document(s);
@@ -641,7 +642,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
                 + "    ':type a: list of F'\n"
                 + "    a."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "append(object)" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "append(object)" });
         assertTrue(comps.length > 10); //list completions
     }
 
@@ -652,7 +653,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
                 + "for a in x.splitlines()\n"
                 + "    a."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "title()", "upper()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "title()", "upper()" });
         assertTrue(comps.length > 10); //str completions
     }
 
@@ -662,7 +663,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
                 + "d = {i: str(i) for i in xrange(10)}\n"
                 + "d."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "items()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "items()" });
         assertTrue(comps.length > 10); //dict completions
     }
 

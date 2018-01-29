@@ -8,13 +8,13 @@ package org.python.pydev.editor.correctionassist.heuristics;
 
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.TestCaseUtils;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
+
+import junit.framework.TestCase;
 
 /**
  * @author fabioz
@@ -48,7 +48,7 @@ public class AssistSurroundWithTest extends TestCase {
                 "\n");
         PySelection ps = new PySelection(doc, 1, 0, 13);
         int offset = ps.getAbsoluteCursorOffset();
-        List<ICompletionProposal> props = assistSurroundWith.getProps(ps, null, null, null, null, offset);
+        List<ICompletionProposalHandle> props = assistSurroundWith.getProps(ps, null, null, null, null, offset);
         props.get(0).apply(doc);
         TestCaseUtils.assertContentsEqual("" +
                 "def m1():\n" +
@@ -75,7 +75,7 @@ public class AssistSurroundWithTest extends TestCase {
                 "\n");
         PySelection ps = new PySelection(doc, 1, 0, 14);
         int offset = ps.getAbsoluteCursorOffset();
-        List<ICompletionProposal> props = assistSurroundWith.getProps(ps, null, null, null, null, offset);
+        List<ICompletionProposalHandle> props = assistSurroundWith.getProps(ps, null, null, null, null, offset);
         props.get(0).apply(doc);
         TestCaseUtils.assertContentsEqual("" +
                 "def m1():\n" +
@@ -96,7 +96,7 @@ public class AssistSurroundWithTest extends TestCase {
         int offset = 0;
         IDocument doc = new Document("a = 10");
         PySelection ps = new PySelection(doc, 0, 0, 3);
-        List<ICompletionProposal> props = assistSurroundWith.getProps(ps, null, null, null, null, offset);
+        List<ICompletionProposalHandle> props = assistSurroundWith.getProps(ps, null, null, null, null, offset);
         props.get(0).apply(doc);
         TestCaseUtils.assertContentsEqual("" +
                 "try:\n" +

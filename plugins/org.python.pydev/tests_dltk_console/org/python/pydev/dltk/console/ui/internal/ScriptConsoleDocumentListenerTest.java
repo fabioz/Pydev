@@ -13,10 +13,10 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.debug.ui.console.IConsoleLineTracker;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.autoedit.TestIndentPrefs;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
@@ -105,7 +105,7 @@ public class ScriptConsoleDocumentListenerTest extends TestCase {
                     }
 
                     @Override
-                    public ICompletionProposal[] getTabCompletions(String commandLine, int cursorPosition) {
+                    public ICompletionProposalHandle[] getTabCompletions(String commandLine, int cursorPosition) {
                         return null;
                     }
 

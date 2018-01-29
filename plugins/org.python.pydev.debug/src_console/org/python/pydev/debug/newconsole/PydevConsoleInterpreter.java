@@ -21,7 +21,6 @@ import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
@@ -47,6 +46,7 @@ import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant2;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.callbacks.ICallback0;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_interactive_console.console.IScriptConsoleCommunication;
 import org.python.pydev.shared_interactive_console.console.IScriptConsoleInterpreter;
@@ -124,7 +124,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
 
     @Override
     @SuppressWarnings("unchecked")
-    public ICompletionProposal[] getCompletions(IScriptConsoleViewer viewer, String commandLine, int position,
+    public ICompletionProposalHandle[] getCompletions(IScriptConsoleViewer viewer, String commandLine, int position,
             int offset, int whatToShow) throws Exception {
 
         final String text = commandLine.substring(0, position);
@@ -135,7 +135,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
 
         if (PySelection.isCompletionForLiteralNumber(tokenAndQual.activationToken)) {
             // suppress completions that would be invalid
-            return new ICompletionProposal[0];
+            return new ICompletionProposalHandle[0];
         }
 
         //Code-completion for imports
@@ -172,7 +172,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
             }
 
             int qlen = tokenAndQual.qualifier.length();
-            List<ICompletionProposal> ret = new ArrayList<ICompletionProposal>(tokens.size());
+            List<ICompletionProposalHandle> ret = new ArrayList<ICompletionProposalHandle>(tokens.size());
             Iterator<IToken> it = tokens.iterator();
             for (int i = 0; i < tokens.size(); i++) {
                 IToken t = it.next();
@@ -184,7 +184,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
                             PyCompletionProposal.ON_APPLY_DEFAULT, "", null));
                 }
             }
-            return ret.toArray(new ICompletionProposal[ret.size()]);
+            return ret.toArray(new ICompletionProposalHandle[ret.size()]);
         }
         //END Code-completion for imports
 
@@ -200,7 +200,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
         boolean showForTabCompletion = whatToShow == AbstractCompletionProcessorWithCycling.SHOW_FOR_TAB_COMPLETIONS;
 
         //simple completions (clients)
-        ArrayList<ICompletionProposal> results = new ArrayList<ICompletionProposal>();
+        ArrayList<ICompletionProposalHandle> results = new ArrayList<ICompletionProposalHandle>();
 
         if (!showForTabCompletion) {
             for (ISimpleAssistParticipant2 participant : simpleParticipants) {
@@ -211,12 +211,12 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
         }
 
         ProposalsComparator proposalsComparator = new ProposalsComparator(tokenAndQual.qualifier, null);
-        ArrayList<ICompletionProposal> results2 = new ArrayList<ICompletionProposal>();
+        ArrayList<ICompletionProposalHandle> results2 = new ArrayList<ICompletionProposalHandle>();
 
         if (!showOnlyTemplates) {
             //shell completions
             if (consoleCommunication != null) {
-                ICompletionProposal[] consoleCompletions = consoleCommunication.getCompletions(text,
+                ICompletionProposalHandle[] consoleCompletions = consoleCommunication.getCompletions(text,
                         textForCompletionInConsole, offset,
                         showForTabCompletion);
                 // If we're only showing ipython completions, then short-circuit the rest
@@ -239,7 +239,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
 
         Collections.sort(results2, proposalsComparator);
 
-        ArrayList<ICompletionProposal> results3 = new ArrayList<ICompletionProposal>();
+        ArrayList<ICompletionProposalHandle> results3 = new ArrayList<ICompletionProposalHandle>();
         if (!showOnlyTemplates) {
             //other participants
             List<Object> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_COMPLETION);
@@ -256,7 +256,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
         results.addAll(results2);
         results.addAll(results3);
 
-        return results.toArray(new ICompletionProposal[results.size()]);
+        return results.toArray(new ICompletionProposalHandle[results.size()]);
     }
 
     /*

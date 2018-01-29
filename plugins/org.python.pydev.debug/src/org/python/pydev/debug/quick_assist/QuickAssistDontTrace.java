@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
@@ -14,6 +13,7 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.correctionassist.IgnoreCompletionProposal;
 import org.python.pydev.editor.correctionassist.IgnoreCompletionProposalInSameLine;
 import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
@@ -21,9 +21,10 @@ import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 public class QuickAssistDontTrace implements IAssistProps {
 
     @Override
-    public List<ICompletionProposal> getProps(PySelection ps, IImageCache imageCache, File f, IPythonNature nature,
+    public List<ICompletionProposalHandle> getProps(PySelection ps, IImageCache imageCache, File f,
+            IPythonNature nature,
             PyEdit edit, int offset) throws BadLocationException, MisconfigurationException {
-        List<ICompletionProposal> l = new ArrayList<>();
+        List<ICompletionProposalHandle> l = new ArrayList<>();
         String cursorLineContents = ps.getCursorLineContents();
         String messageToIgnore = "@DontTrace";
         if (!cursorLineContents.contains(messageToIgnore)) {

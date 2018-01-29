@@ -24,7 +24,6 @@ import java.util.Map;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.ILocalScope;
@@ -44,6 +43,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.CompiledToken;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
@@ -428,7 +428,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         s = "" +
                 "from testOtherImports.f3 import test\n" +
                 "tes";
-        ICompletionProposal[] p = requestCompl(s, s.length(), -1, new String[] { "test(a, b, c)" }, nature);
+        ICompletionProposalHandle[] p = requestCompl(s, s.length(), -1, new String[] { "test(a, b, c)" }, nature);
         assertTrue(StringUtils.removeNewLineChars(p[0].getAdditionalProposalInfo())
                 .startsWith("def test(a, b, c):    \"\"\"This is a docstring\"\"\""));
     }
@@ -438,7 +438,8 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         s = "" +
                 "from testOtherImports.f3 import test as AnotherTest\n" +
                 "t = AnotherTes";
-        ICompletionProposal[] p = requestCompl(s, s.length(), -1, new String[] { "AnotherTest(a, b, c)" }, nature);
+        ICompletionProposalHandle[] p = requestCompl(s, s.length(), -1, new String[] { "AnotherTest(a, b, c)" },
+                nature);
         assertTrue(StringUtils.removeNewLineChars(p[0].getAdditionalProposalInfo()).startsWith(
                 "def test(a, b, c):    \"\"\"This is a docstring\"\"\""));
     }
@@ -448,7 +449,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         s = "" +
                 "from testOtherImports.f3 import Foo\n" +
                 "t = Fo";
-        ICompletionProposal[] p = requestCompl(s, s.length(), -1, new String[] { "Foo" }, nature);
+        ICompletionProposalHandle[] p = requestCompl(s, s.length(), -1, new String[] { "Foo" }, nature);
         assertTrue(StringUtils.removeNewLineChars(p[0].getAdditionalProposalInfo()).startsWith(
                 "class SomeOtherTest(object):    '''SomeOtherTest'''    def __init__(self, a, b):        pass"));
     }
@@ -1026,7 +1027,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "\n" +
                 "Foo()." +
                 "";
-        ICompletionProposal[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
         assertEquals(1, proposals.length);
     }
 
@@ -1041,9 +1042,9 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "";
         s = StringUtils.format(original, "");
 
-        ICompletionProposal[] proposals = requestCompl(s, s.length() - 1, -1, new String[] {});
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length() - 1, -1, new String[] {});
         assertEquals(1, proposals.length);
-        ICompletionProposal prop = proposals[0];
+        ICompletionProposalHandle prop = proposals[0];
         assertEquals("Foo(a, b)", prop.getDisplayString());
 
         IPyCalltipsContextInformation contextInformation = (IPyCalltipsContextInformation) prop.getContextInformation();
@@ -1062,9 +1063,9 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "class Fooooo:\n" +
                 "    def __init__(self, a, b):pass\n\n" +
                 "Fooo\n";
-        ICompletionProposal[] proposals = requestCompl(s, s.length() - 1, -1, new String[] {});
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length() - 1, -1, new String[] {});
         assertEquals(1, proposals.length);
-        ICompletionProposal p = proposals[0];
+        ICompletionProposalHandle p = proposals[0];
         assertEquals("Fooooo", p.getDisplayString());
     }
 
@@ -1074,9 +1075,9 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "class Foo:\n" +
                 "    def __init__(self, a, b):pass\n\n" +
                 "Foo.__init__\n"; //we should only strip the self if we're in an instance (which is not the case)
-        ICompletionProposal[] proposals = requestCompl(s, s.length() - 1, -1, new String[] {});
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length() - 1, -1, new String[] {});
         assertEquals(1, proposals.length);
-        ICompletionProposal p = proposals[0];
+        ICompletionProposalHandle p = proposals[0];
         assertEquals("__init__(self, a, b)", p.getDisplayString());
     }
 
@@ -1087,7 +1088,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 +
                 "        self.attribute2 = 2";
 
-        ICompletionProposal[] proposals = requestCompl(s, s.length() - "ute2 = 2".length(), 1,
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length() - "ute2 = 2".length(), 1,
                 new String[] { "attribute" });
         assertEquals(1, proposals.length);
     }
@@ -1099,7 +1100,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 +
                 "        foofoo = 20";
         //locals work because it will only get the locals that are before the cursor line
-        ICompletionProposal[] proposals = requestCompl(s, s.length() - "foo = 20".length(), 1,
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length() - "foo = 20".length(), 1,
                 new String[] { "foobar" });
         assertEquals(1, proposals.length);
     }
@@ -1110,7 +1111,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "class F(object):\n" +
                 "    pass";
         //we don't want completions when we're declaring a class
-        ICompletionProposal[] proposals = requestCompl(s, s.length() - "(object):\n    pass".length(), 0,
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length() - "(object):\n    pass".length(), 0,
                 new String[] {});
         assertEquals(0, proposals.length);
     }
@@ -1125,7 +1126,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "Foo.met%s";
 
         String s = StringUtils.format(s0, "");
-        ICompletionProposal[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
         assertEquals(1, proposals.length);
         PyCompletionProposal p = (PyCompletionProposal) proposals[0];
         assertEquals("method1(a, b)", p.getDisplayString());
@@ -1142,7 +1143,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "        cls.m%s";
 
         String s = StringUtils.format(s0, "");
-        ICompletionProposal[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
         assertEquals(1, proposals.length);
         PyCompletionProposal p = (PyCompletionProposal) proposals[0];
         assertEquals("method1(a, b)", p.getDisplayString());
@@ -1173,7 +1174,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "        cls.m%s";
 
         String s = StringUtils.format(s0, "");
-        ICompletionProposal[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
         assertEquals(5, proposals.length);
         assertContains("method1(a, b)", proposals);
         assertContains("method2(a, b)", proposals);
@@ -1187,7 +1188,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "Foo.Class%s";
 
         String s = StringUtils.format(s0, "");
-        ICompletionProposal[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
         assertEquals(1, proposals.length);
         PyCompletionProposal p = (PyCompletionProposal) proposals[0];
         assertEquals("ClassMet()", p.getDisplayString());
@@ -1200,7 +1201,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     public void testRecursion() throws Exception {
         String s = "import testrec4\n" +
                 "testrec4.url_for.";
-        ICompletionProposal[] proposals = requestCompl(s, s.length(), 1, new String[] { "m1(self)" });
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), 1, new String[] { "m1(self)" });
         assertEquals(1, proposals.length);
     }
 
@@ -1218,7 +1219,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 +
                 "def otherFunction():\n" +
                 "    logger.";
-        ICompletionProposal[] proposals = requestCompl(s, s.length(), 1, new String[] { "method1()" });
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), 1, new String[] { "method1()" });
         assertEquals(1, proposals.length);
     }
 
@@ -1229,7 +1230,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "           pass\n"
                 +
                 "   Starter.";
-        ICompletionProposal[] proposals = requestCompl(s, s.length(), 1, new String[] { "m1(self)" });
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), 1, new String[] { "m1(self)" });
         assertEquals(1, proposals.length);
     }
 
@@ -1241,7 +1242,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 +
                 "    s = Starter()\n" +
                 "    s.";
-        ICompletionProposal[] proposals = requestCompl(s, s.length(), 1, new String[] { "m1()" });
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), 1, new String[] { "m1()" });
         assertEquals(1, proposals.length);
     }
 
@@ -1256,7 +1257,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "\n" +
                 "def foo():\n" +
                 "    s.";
-        ICompletionProposal[] proposals = requestCompl(s, s.length(), 1, new String[] { "m1()" });
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), 1, new String[] { "m1()" });
         assertEquals(1, proposals.length);
     }
 
@@ -1381,10 +1382,10 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 +
                 "        self.Compute()." +
                 "";
-        ICompletionProposal[] requestCompl = requestCompl(s, s.length(), -1, new String[] { "BB()",
+        ICompletionProposalHandle[] requestCompl = requestCompl(s, s.length(), -1, new String[] { "BB()",
                 "assertEquals(first, second, msg)" });
         boolean found = false;
-        for (ICompletionProposal p : requestCompl) {
+        for (ICompletionProposalHandle p : requestCompl) {
             if (p.getDisplayString().equals("assertEquals(first, second, msg)")) {
                 IToken element = ((PyLinkedModeCompletionProposal) p).getElement();
                 assertEquals(element.getType(), IToken.TYPE_FUNCTION);
@@ -1648,7 +1649,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "    def m1(self):\n" +
                 "        self." + //__foo should NOT be here!
                 "";
-        ICompletionProposal[] proposals = requestCompl(s, 3, new String[] { "m1()", "_bar()", "__foo__()" });
+        ICompletionProposalHandle[] proposals = requestCompl(s, 3, new String[] { "m1()", "_bar()", "__foo__()" });
         assertEquals(proposals[0].getDisplayString(), "m1()");
         assertEquals(proposals[1].getDisplayString(), "_bar()");
         assertEquals(proposals[2].getDisplayString(), "__foo__()");
@@ -1664,7 +1665,8 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "class Bar(Foo):\n"
                 +
                 "    def ";//bring override completions!
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "foo (Override method in Foo)" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "foo (Override method in Foo)" });
         assertEquals(1, comps.length);
         Document doc = new Document(s);
         OverrideMethodCompletionProposal comp = (OverrideMethodCompletionProposal) comps[0];
@@ -1690,7 +1692,8 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "class Bar(Foo):\n"
                 +
                 "    def fo";//bring override completions!
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "foo (Override method in Foo)" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "foo (Override method in Foo)" });
         assertEquals(1, comps.length);
         Document doc = new Document(s);
         OverrideMethodCompletionProposal comp = (OverrideMethodCompletionProposal) comps[0];
@@ -1717,7 +1720,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "import unittest\n" +
                 "class Bar(unittest.TestCase):\n" +
                 "    def tearDow";//bring override completions!
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
                 new String[] { "tearDown (Override method in unittest.TestCase)" });
         assertEquals(1, comps.length);
         Document doc = new Document(s);
@@ -1741,7 +1744,8 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 +
                 "class Bar(Foo):\n" +
                 "    def ra";//bring override completions!
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "rara (Override method in Foo)" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "rara (Override method in Foo)" });
         assertEquals(1, comps.length);
         Document doc = new Document(s);
         OverrideMethodCompletionProposal comp = (OverrideMethodCompletionProposal) comps[0];
@@ -1770,7 +1774,8 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 +
                 "class Bar(Foo):\n" +
                 "    def ra";//bring override completions!
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "rara (Override method in Foo)" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "rara (Override method in Foo)" });
         assertEquals(1, comps.length);
         Document doc = new Document(s);
         OverrideMethodCompletionProposal comp = (OverrideMethodCompletionProposal) comps[0];
@@ -1798,7 +1803,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 +
                 "f = Foo()\n" +
                 "f.wha";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "what(a, b)" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "what(a, b)" });
         assertEquals(1, comps.length);
 
     }
@@ -1815,7 +1820,8 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "class Bar(Foo):\n" +
                 "    def wh" +
                 "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "what (Override method in Foo)" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "what (Override method in Foo)" });
         assertEquals(1, comps.length);
         Document doc = new Document(s);
         OverrideMethodCompletionProposal comp = (OverrideMethodCompletionProposal) comps[0];
@@ -1837,7 +1843,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         String file = TestDependent.TEST_PYSRC_TESTING_LOC +
                 "extendable/grammar3/sub1.py";
         String strDoc = "from relative import ";
-        ICompletionProposal[] codeCompletionProposals = requestCompl(new File(file), strDoc, strDoc.length(), -1,
+        ICompletionProposalHandle[] codeCompletionProposals = requestCompl(new File(file), strDoc, strDoc.length(), -1,
                 new String[] { "NotFound" });
         assertNotContains("DTest", codeCompletionProposals);
     }
@@ -1855,7 +1861,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 
         //Must behave as Py3
         String strDoc = "from __future__ import absolute_import\nfrom relative import ";
-        ICompletionProposal[] codeCompletionProposals = requestCompl(new File(file), strDoc, strDoc.length(), -1,
+        ICompletionProposalHandle[] codeCompletionProposals = requestCompl(new File(file), strDoc, strDoc.length(), -1,
                 new String[] { "DTest" });
         assertNotContains("NotFound", codeCompletionProposals);
     }
@@ -1869,7 +1875,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "    def rara(self, a):\n" +
                 "        ':type a: Bar'\n" +
                 "        a.";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
 
@@ -1883,7 +1889,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "        ':rtype Bar'\n" +
                 "a = Foo()\n" +
                 "a.rara().";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
 
@@ -1901,7 +1907,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "\n" +
                 "        self.comp" +
                 "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "completion" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "completion" });
         assertEquals(1, comps.length);
     }
 
@@ -1917,7 +1923,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "  b = 20\n"
                 + "  n."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "bar()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "bar()" });
         assertEquals(1, comps.length);
     }
 
@@ -1929,7 +1935,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "    self.n #: :type self.n: F\n"
                 + "    self.n."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "bar()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "bar()" });
         assertEquals(1, comps.length);
     }
 
@@ -1969,7 +1975,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "a = [F()]\n"
                 + "a[0]."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
 
@@ -1983,7 +1989,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "for x in a:\n"
                 + "    x."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
 
@@ -1996,7 +2002,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "for x in [F()]:\n"
                 + "    x."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
 
@@ -2012,7 +2018,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "    for x in a:\n"
                 + "        x."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
 
@@ -2028,7 +2034,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "    for x in a:\n"
                 + "        x."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
 
@@ -2048,7 +2054,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "for a in x:\n"
                 + "    a."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
         assertEquals(1, comps.length);
     }
 
@@ -2070,7 +2076,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "for a in x:\n"
                 + "    a."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
         assertEquals(1, comps.length);
     }
 
@@ -2097,7 +2103,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "for a in x: #__iter__\n"
                 + "    a."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
         assertEquals(1, comps.length);
     }
 
@@ -2114,7 +2120,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "for a in MyMethod():\n"
                 + "    a."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
         assertEquals(1, comps.length);
     }
 
@@ -2131,7 +2137,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "for a in MyMethod():\n"
                 + "    a."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
         assertEquals(1, comps.length);
     }
 
@@ -2148,7 +2154,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "for a in MyMethod():\n"
                 + "    a."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
         assertEquals(1, comps.length);
     }
 
@@ -2167,7 +2173,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "for a in x:\n"
                 + "    a."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
         assertEquals(1, comps.length);
     }
 
@@ -2192,7 +2198,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "for a in MyClass(): #__iter__\n"
                 + "    a."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
         assertEquals(1, comps.length);
     }
 
@@ -2207,7 +2213,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "for a in {G():'', G():''}:\n" // Default is iterating through dict keys
                 + "    a."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
         assertEquals(1, comps.length);
     }
 
@@ -2222,7 +2228,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "for a in {G():'', G():''}.keys():\n"
                 + "    a."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
         assertEquals(1, comps.length);
     }
 
@@ -2237,7 +2243,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "for a, b in {'':G(), '':G()}.items():\n"
                 + "    b."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
         assertEquals(1, comps.length);
     }
 
@@ -2252,7 +2258,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "for a, b in {G():'', G():''}.items():\n"
                 + "    a."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
         assertEquals(1, comps.length);
     }
 
@@ -2269,7 +2275,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "    for a, b in x.items():\n"
                 + "        a."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
         assertEquals(1, comps.length);
     }
 
@@ -2286,7 +2292,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "    for a in x.keys():\n"
                 + "        a."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
         assertEquals(1, comps.length);
     }
 
@@ -2303,7 +2309,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "    for a in x.values():\n"
                 + "        a."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
         assertEquals(1, comps.length);
     }
 
@@ -2325,7 +2331,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "    for a, b in x.items():\n"
                 + "        b."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
         assertEquals(1, comps.length);
     }
 
@@ -2347,7 +2353,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "    for a, b in x.items():\n"
                 + "        b."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
         assertEquals(1, comps.length);
     }
 
@@ -2369,7 +2375,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "    for a, b in x.items():\n"
                 + "        b."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
         assertEquals(1, comps.length);
     }
 
@@ -2391,7 +2397,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "    a, b = x\n"
                 + "    b."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
         assertEquals(1, comps.length);
     }
 
@@ -2407,7 +2413,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "    for a, b in x:\n"
                 + "        a."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
         assertEquals(1, comps.length);
     }
 
@@ -2423,7 +2429,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "    for a, b in x:\n"
                 + "        a."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
         assertEquals(1, comps.length);
     }
 
@@ -2439,7 +2445,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "    for a, b in x:\n"
                 + "        a."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
         assertEquals(1, comps.length);
     }
 
@@ -2455,7 +2461,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "    for a, b in x:\n"
                 + "        a."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
         assertEquals(1, comps.length);
     }
 
@@ -2471,7 +2477,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "    for a, b in x:\n"
                 + "        a."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
         assertEquals(1, comps.length);
     }
 
@@ -2489,7 +2495,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "    for a, b in ra():\n"
                 + "        a."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
         assertEquals(1, comps.length);
     }
 
@@ -2502,7 +2508,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "for x in  [F(i) for i in range(10)]:\n"
                 + "    x."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
 
@@ -2515,7 +2521,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "for x in {F(i): str(i) for i in range(10)}:\n"
                 + "    x."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
 
@@ -2529,7 +2535,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "for x in d:\n"
                 + "    x."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
 
@@ -2543,7 +2549,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "for a, b in d.iteritems():\n"
                 + "    a."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
 
@@ -2557,7 +2563,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "for a, b in d.iteritems():\n"
                 + "    b."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
 
@@ -2571,7 +2577,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "for a, b in d.iteritems():\n"
                 + "    a."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
 
@@ -2585,7 +2591,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "for a, b in d.iteritems():\n"
                 + "    b."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
 
@@ -2599,7 +2605,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "for a, b in d.iteritems():\n"
                 + "    b."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
 
@@ -2614,7 +2620,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "for a, b in d:\n"
                 + "    b."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
 
@@ -2630,7 +2636,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "for a, b in d.a:\n"
                 + "    b."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
 
@@ -2645,7 +2651,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "for k in x:\n"
                 + "    k."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
 
@@ -2660,7 +2666,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "for k, v in x.iteritems():\n"
                 + "    k."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
 
@@ -2675,7 +2681,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "for k, v in x.iteritems():\n"
                 + "    k."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
 
@@ -2687,7 +2693,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "        pass\n"
                 + "x = [i. for i in [F()]]"
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length() - " for i in [F()]]".length(), -1,
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length() - " for i in [F()]]".length(), -1,
                 new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
@@ -2702,7 +2708,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "i = F()\n"
                 + "y = [i. for x in [10]]"
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length() - " for x in [10]]".length(), -1,
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length() - " for x in [10]]".length(), -1,
                 new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
@@ -2716,7 +2722,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "\n"
                 + "y = [(b. ,a) for (a, b) in [10, F()]]"
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length() - " ,a) for (a, b) in [10, F()]]".length(), -1,
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length() - " ,a) for (a, b) in [10, F()]]".length(), -1,
                 new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
@@ -2730,7 +2736,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "\n"
                 + "y = list((x. for x in [F()]))"
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length() - " for x in [F()]))".length(), -1,
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length() - " for x in [F()]))".length(), -1,
                 new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
@@ -2745,7 +2751,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "for a in x:\n"
                 + "    a."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
                 new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
@@ -2760,7 +2766,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "for a in x:\n"
                 + "    a."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
                 new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
@@ -2775,7 +2781,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "a = x[0]\n"
                 + "a."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
                 new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
@@ -2790,7 +2796,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "a = x[-1]\n"
                 + "a."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
                 new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
@@ -2805,7 +2811,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "a = x[50]\n" // The position shouldn't matter in this case...
                 + "a."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
                 new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
@@ -2820,7 +2826,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "a = x[1]\n" // The position matters here!
                 + "a."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
                 new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
@@ -2835,7 +2841,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "a = x[-1]\n" // The position matters here!
                 + "a."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
                 new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
@@ -2850,7 +2856,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "a = x[-2]\n" // The position matters here!
                 + "a."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
                 new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
@@ -2865,7 +2871,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "a = x[0]\n" // The position matters here!
                 + "a."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
                 new String[] {});
         assertEquals(0, comps.length);
     }
@@ -2880,7 +2886,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "a = x[-2]\n" // The position matters here!
                 + "a."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
                 new String[] {});
         assertEquals(0, comps.length);
     }
@@ -2895,7 +2901,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "for x in a:\n" +
                 "    x."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
                 new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
@@ -2909,7 +2915,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "  for x in a:\n" +
                 "      x."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
                 new String[] { "run()" });
         assertTrue(comps.length > 10);
     }
@@ -2924,7 +2930,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "  for x in a:\n" +
                 "      x."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
                 new String[] { "run()" });
         assertTrue(comps.length == 1);
     }
@@ -2939,7 +2945,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "  for x in a:\n" +
                 "      x."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
                 new String[] { "run()" });
         assertTrue(comps.length == 1);
     }
@@ -2953,7 +2959,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "  for x in a:\n" +
                 "      x."
                 + "";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
                 new String[] { "run()" });
         assertTrue(comps.length > 10);
     }
@@ -2972,7 +2978,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "        '''\n" +
                 "        self.foo = foo\n" +
                 "        self.foo.";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
                 new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
@@ -2988,7 +2994,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "    def __init__(self):\n" +
                 "        self.foo = foo #: :type foo: Foo\n" +
                 "        self.foo.";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
                 new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
@@ -3002,7 +3008,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "        pass\n" +
                 "\n" +
                 "Foo().";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
                 new String[] { "m1" });
         assertEquals(1, comps.length);
     }
@@ -3016,7 +3022,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "class Bar(Foo):\n" +
                 "    def m2(self):\n" +
                 "        super(usnth, snuteh).";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
                 new String[] { "m1()" });
         assertEquals(1, comps.length);
     }
@@ -3033,7 +3039,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "class Bar(Foo):\n" +
                 "    def m2(self):\n" +
                 "        super(usnth, snuteh).m1().";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
                 new String[] { "another()" });
         assertEquals(1, comps.length);
     }
@@ -3044,7 +3050,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "Point = namedtuple('Point', ['x', 'y'])\n" +
                 "a = Point()\n" +
                 "a.";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
                 new String[] { "x", "y" });
         assertEquals(2, comps.length);
     }
@@ -3055,7 +3061,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "Point = namedtuple('Point', 'x y'.split())\n" +
                 "a = Point()\n" +
                 "a.";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
                 new String[] { "x", "y" });
         assertEquals(2, comps.length);
     }
@@ -3065,7 +3071,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         s = "" +
                 "from import_as_aliased import Foo\n" +
                 "Foo.C";
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "ClassMet()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "ClassMet()" });
         assertEquals(1, comps.length);
     }
 
@@ -3153,9 +3159,9 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "";
         s = StringUtils.format(original, "");
 
-        ICompletionProposal[] proposals = requestCompl(s, s.length() - 1, -1, new String[] {});
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length() - 1, -1, new String[] {});
         assertEquals(1, proposals.length);
-        ICompletionProposal prop = proposals[0];
+        ICompletionProposalHandle prop = proposals[0];
         assertEquals("Bar(a, b)", prop.getDisplayString());
 
         IPyCalltipsContextInformation contextInformation = (IPyCalltipsContextInformation) prop.getContextInformation();
@@ -3181,9 +3187,9 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "";
         s = StringUtils.format(original, "");
 
-        ICompletionProposal[] proposals = requestCompl(s, s.length() - 1, -1, new String[] {});
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length() - 1, -1, new String[] {});
         assertEquals(1, proposals.length);
-        ICompletionProposal prop = proposals[0];
+        ICompletionProposalHandle prop = proposals[0];
         assertEquals("Bar(a, b)", prop.getDisplayString());
 
     }
@@ -3199,9 +3205,9 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "";
         s = StringUtils.format(original, "");
 
-        ICompletionProposal[] proposals = requestCompl(s, s.length() - 1, -1, new String[] {});
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length() - 1, -1, new String[] {});
         assertEquals(1, proposals.length);
-        ICompletionProposal prop = proposals[0];
+        ICompletionProposalHandle prop = proposals[0];
         assertEquals("m1()", prop.getDisplayString());
 
     }

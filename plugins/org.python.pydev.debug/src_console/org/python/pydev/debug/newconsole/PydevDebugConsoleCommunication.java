@@ -20,11 +20,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.model.PyStackFrame;
 import org.python.pydev.debug.model.XMLUtils;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_interactive_console.console.IScriptConsoleCommunication;
@@ -177,25 +177,27 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
     }
 
     @Override
-    public ICompletionProposal[] getCompletions(String text, String actTok, int offset, boolean showForTabCompletion)
+    public ICompletionProposalHandle[] getCompletions(String text, String actTok, int offset,
+            boolean showForTabCompletion)
             throws Exception {
-        ICompletionProposal[] receivedCompletions = {};
+        ICompletionProposalHandle[] receivedCompletions = {};
         if (waitingForInput) {
-            return new ICompletionProposal[0];
+            return new ICompletionProposalHandle[0];
         }
 
         PyStackFrame frame = consoleFrameProvider.getLastSelectedFrame();
         if (frame == null) {
-            return new ICompletionProposal[0];
+            return new ICompletionProposalHandle[0];
         }
 
         final EvaluateDebugConsoleExpression evaluateDebugConsoleExpression = new EvaluateDebugConsoleExpression(frame);
         String result = evaluateDebugConsoleExpression.getCompletions(actTok, offset);
         if (result.length() > 0) {
             List<Object[]> fromServer = XMLUtils.convertXMLcompletionsFromConsole(result);
-            List<ICompletionProposal> ret = new ArrayList<ICompletionProposal>();
-            PydevConsoleCommunication.convertConsoleCompletionsToICompletions(text, actTok, offset, fromServer, ret, false);
-            receivedCompletions = ret.toArray(new ICompletionProposal[ret.size()]);
+            List<ICompletionProposalHandle> ret = new ArrayList<ICompletionProposalHandle>();
+            PydevConsoleCommunication.convertConsoleCompletionsToICompletions(text, actTok, offset, fromServer, ret,
+                    false);
+            receivedCompletions = ret.toArray(new ICompletionProposalHandle[ret.size()]);
         }
         return receivedCompletions;
     }

@@ -15,6 +15,7 @@ import org.python.pydev.core.IPyTemplateCompletionProcessor;
 import org.python.pydev.editor.codecompletion.templates.PyDocumentTemplateContext;
 import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.editor.templates.TemplateHelper;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
@@ -65,7 +66,7 @@ public class PyTemplateCompletionProcessor extends TemplateCompletionProcessor
      *
      */
     @Override
-    public void addTemplateProposals(ITextViewer viewer, int documentOffset, List<ICompletionProposal> propList) {
+    public void addTemplateProposals(ITextViewer viewer, int documentOffset, List<ICompletionProposalHandle> propList) {
         IDocument doc = viewer.getDocument();
         if (doc.getLength() == 0) {
             this.currentContext = PyContextType.PY_MODULES_CONTEXT_TYPE;
@@ -81,10 +82,15 @@ public class PyTemplateCompletionProcessor extends TemplateCompletionProcessor
 
         for (int j = 0; j < templateProposals.length; j++) {
             if (templateProposals[j].getDisplayString().startsWith(str)) {
-                propList.add(templateProposals[j]);
+                propList.add((ICompletionProposalHandle) templateProposals[j]);
             }
         }
+    }
 
+    @Override
+    protected ICompletionProposal createProposal(Template template, TemplateContext context, IRegion region,
+            int relevance) {
+        return new PyTemplateProposal(template, context, region, getImage(template), relevance);
     }
 
     /**

@@ -7,10 +7,10 @@
 package com.python.pydev.codecompletion;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
 import org.python.pydev.editor.model.ItemPointer;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 
 import com.python.pydev.refactoring.actions.PyGoToDefinition;
 
@@ -53,7 +53,7 @@ public class JavaIntegrationPydevComTestWorkbench extends AbstractWorkbenchTestC
     public void checkCase2() throws CoreException {
         String mod1Contents = "JavaClas";
         setFileContents(mod1Contents);
-        ICompletionProposal[] proposals = this.requestProposals(mod1Contents, editor);
+        ICompletionProposalHandle[] proposals = this.requestProposals(mod1Contents, editor);
 
         CodeCompletionTestsBase.assertContains("JavaClass - javamod1", proposals);
         CodeCompletionTestsBase.assertContains("JavaClass2 - javamod1.javamod2", proposals);

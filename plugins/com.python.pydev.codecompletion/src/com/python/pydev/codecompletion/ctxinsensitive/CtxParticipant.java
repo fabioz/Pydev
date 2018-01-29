@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionCache;
@@ -47,6 +46,7 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.nature.SystemPythonNature;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.structure.FastStack;
@@ -77,9 +77,9 @@ public class CtxParticipant
      * IPyDevCompletionParticipant2
      */
     @Override
-    public Collection<ICompletionProposal> computeConsoleCompletions(ActivationTokenAndQual tokenAndQual,
+    public Collection<ICompletionProposalHandle> computeConsoleCompletions(ActivationTokenAndQual tokenAndQual,
             Set<IPythonNature> naturesUsed, IScriptConsoleViewer viewer, int requestOffset) {
-        List<ICompletionProposal> completions = new ArrayList<ICompletionProposal>();
+        List<ICompletionProposalHandle> completions = new ArrayList<ICompletionProposalHandle>();
         if (tokenAndQual.activationToken != null && tokenAndQual.activationToken.length() > 0) {
             //we only want
             return completions;
@@ -122,7 +122,8 @@ public class CtxParticipant
     }
 
     private void fillNatureCompletionsForConsole(IScriptConsoleViewer viewer, int requestOffset,
-            List<ICompletionProposal> completions, String qual, boolean addAutoImport, int qlen, IFilter nameFilter,
+            List<ICompletionProposalHandle> completions, String qual, boolean addAutoImport, int qlen,
+            IFilter nameFilter,
             IPythonNature nature, AbstractAdditionalTokensInfo additionalInfo,
             boolean useSubstringMatchInCodeCompletion) {
         Collection<IInfo> tokensStartingWith;

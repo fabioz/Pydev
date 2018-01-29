@@ -9,9 +9,9 @@ package org.python.pydev.editor.codecompletion;
 import java.util.Collection;
 import java.util.Set;
 
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
 
 /**
@@ -32,7 +32,7 @@ public interface IPyDevCompletionParticipant2 {
      * @param requestOffset the offset where the request for completions was issued
      * @return a list of completion proposals to be applied in the console
      */
-    Collection<ICompletionProposal> computeConsoleCompletions(ActivationTokenAndQual tokenAndQual,
+    Collection<ICompletionProposalHandle> computeConsoleCompletions(ActivationTokenAndQual tokenAndQual,
             Set<IPythonNature> naturesUsed, IScriptConsoleViewer viewer, int requestOffset);
 
 }

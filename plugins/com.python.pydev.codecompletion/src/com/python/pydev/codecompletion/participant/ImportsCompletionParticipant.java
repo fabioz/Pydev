@@ -16,7 +16,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
@@ -34,6 +33,7 @@ import org.python.pydev.editor.codecompletion.ProposalsComparator.CompareContext
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils.IFilter;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
@@ -56,9 +56,9 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
     // Console completions ---------------------------------------------------------------------------------------------
 
     @Override
-    public Collection<ICompletionProposal> computeConsoleCompletions(ActivationTokenAndQual tokenAndQual,
+    public Collection<ICompletionProposalHandle> computeConsoleCompletions(ActivationTokenAndQual tokenAndQual,
             Set<IPythonNature> naturesUsed, IScriptConsoleViewer viewer, int requestOffset) {
-        ArrayList<ICompletionProposal> completions = new ArrayList<ICompletionProposal>();
+        ArrayList<ICompletionProposalHandle> completions = new ArrayList<ICompletionProposalHandle>();
 
         if (tokenAndQual.activationToken != null && tokenAndQual.activationToken.length() > 0) {
             //we only want
@@ -80,7 +80,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
         return completions;
     }
 
-    private void fillCompletions(int requestOffset, ArrayList<ICompletionProposal> completions, String qual,
+    private void fillCompletions(int requestOffset, ArrayList<ICompletionProposalHandle> completions, String qual,
             IPythonNature nature, int qlen, boolean addAutoImport, IScriptConsoleViewer viewer) {
 
         ICodeCompletionASTManager astManager = nature.getAstManager();

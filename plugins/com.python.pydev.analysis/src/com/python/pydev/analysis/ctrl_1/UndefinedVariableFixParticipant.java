@@ -18,7 +18,6 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.ITextViewer;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.swt.SWT;
 import org.eclipse.ui.texteditor.MarkerAnnotation;
 import org.python.pydev.core.ICodeCompletionASTManager;
@@ -206,7 +205,7 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
         }
     }
 
-    private void addProp(List<ICompletionProposal> props, String importDeclaration, String displayImport,
+    private void addProp(List<ICompletionProposalHandle> props, String importDeclaration, String displayImport,
             int infoTypeForImage, int offset, Set<Tuple<String, String>> mods, ICompareContext compareContext) {
         Tuple<String, String> tuple = new Tuple<String, String>(importDeclaration, displayImport);
         if (mods.contains(tuple)) {

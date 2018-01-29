@@ -9,7 +9,6 @@ package org.python.pydev.editor.codecompletion;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jface.text.contentassist.CompletionProposal;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
@@ -20,8 +19,8 @@ public class PyCodeCompletionUtilsTest extends TestCase {
 
     public void testSimpleCompare() throws Exception {
         List<ICompletionProposalHandle> props = new ArrayList<ICompletionProposalHandle>();
-        props.add(new CompletionProposal("foo1(a, b)", 0, 0, 0));
-        props.add(new CompletionProposal("foo1", 0, 0, 0));
+        props.add(new PyCompletionProposal("foo1(a, b)", 0, 0, 0, 0));
+        props.add(new PyCompletionProposal("foo1", 0, 0, 0, 0));
         String qualifier = "foo";
         boolean onlyForCalltips = false;
 

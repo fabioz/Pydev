@@ -26,9 +26,9 @@ import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.editor.autoedit.IHandleScriptAutoEditStrategy;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -664,7 +664,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
 
             @Override
             protected IStatus run(IProgressMonitor monitor) {
-                ICompletionProposal[] completions = handler
+                ICompletionProposalHandle[] completions = handler
                         .getTabCompletions(commandLine, caretOffset - commandLineOffset);
                 if (completions.length == 0) {
                     return Status.OK_STATUS;
@@ -674,11 +674,11 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
                 final List<String> compList = new ArrayList<String>();
 
                 //%cd is a special case already handled when converting it in
-                //org.python.pydev.debug.newconsole.PydevConsoleCommunication.convertToICompletions(String, String, int, Object, List<ICompletionProposal>, boolean)
+                //org.python.pydev.debug.newconsole.PydevConsoleCommunication.convertToICompletions(String, String, int, Object, List<ICompletionProposalHandle>, boolean)
                 //So, don't consider it 'magic' in this case.
                 boolean magicCommand = commandLine.startsWith("%") && !commandLine.startsWith("%cd ");
 
-                for (ICompletionProposal completion : completions) {
+                for (ICompletionProposalHandle completion : completions) {
                     boolean magicCompletion = completion.getDisplayString().startsWith("%");
 
                     Document doc = new Document(commandLine.substring((magicCommand && magicCompletion) ? 1 : 0));

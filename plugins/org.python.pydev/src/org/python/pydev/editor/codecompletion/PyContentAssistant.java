@@ -12,7 +12,6 @@
 package org.python.pydev.editor.codecompletion;
 
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
-import org.python.pydev.shared_ui.content_assist.ContentAssistHackingAroundBugs;
 import org.python.pydev.shared_ui.content_assist.DefaultContentAssist;
 
 /**

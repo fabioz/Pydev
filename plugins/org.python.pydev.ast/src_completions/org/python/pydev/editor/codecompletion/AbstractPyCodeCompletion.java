@@ -10,7 +10,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.ICompletionState;
@@ -18,6 +17,7 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.docutils.ImportsSelection;
 import org.python.pydev.editor.codecompletion.ProposalsComparator.CompareContext;
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal.ICompareContext;
@@ -43,7 +43,7 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
      * @param lookingForInstance if looking for instance, we should not add the 'self' as parameter.
      */
     protected void changeItokenToCompletionPropostal(CompletionRequest request,
-            List<ICompletionProposal> convertedProposals, List<Object> iTokenList, boolean importsTip,
+            List<ICompletionProposalHandle> convertedProposals, List<Object> iTokenList, boolean importsTip,
             ICompletionState state) {
 
         FastStringBuffer result = new FastStringBuffer();
@@ -160,9 +160,9 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
 
                 convertedProposals.add(proposal);
 
-            } else if (obj instanceof ICompletionProposal) {
+            } else if (obj instanceof ICompletionProposalHandle) {
                 //no need to convert
-                convertedProposals.add((ICompletionProposal) obj);
+                convertedProposals.add((ICompletionProposalHandle) obj);
             }
         }
     }

@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.python.pydev.codingstd.ICodingStd;
 import org.python.pydev.core.IPythonNature;
@@ -29,6 +28,7 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.plugin.preferences.PyCodeStylePreferencesPage;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -69,7 +69,8 @@ public class AssistAssign implements IAssistProps {
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps
      */
     @Override
-    public List<ICompletionProposal> getProps(PySelection ps, IImageCache imageCache, File f, IPythonNature nature,
+    public List<ICompletionProposalHandle> getProps(PySelection ps, IImageCache imageCache, File f,
+            IPythonNature nature,
             PyEdit edit, int offset) throws BadLocationException {
         PySourceViewer viewer = null;
         if (edit != null) { //only in tests it's actually null
@@ -87,10 +88,10 @@ public class AssistAssign implements IAssistProps {
      *
      * @param lineWithoutComments the line that should be checked (without any comments)
      */
-    public List<ICompletionProposal> getProps(PySelection ps, IImageCache imageCache, ISourceViewer sourceViewer,
+    public List<ICompletionProposalHandle> getProps(PySelection ps, IImageCache imageCache, ISourceViewer sourceViewer,
             int offset, String lineWithoutComments, int firstCharAbsolutePosition) throws BadLocationException {
 
-        List<ICompletionProposal> l = new ArrayList<ICompletionProposal>();
+        List<ICompletionProposalHandle> l = new ArrayList<>();
         if (lineWithoutComments.trim().length() == 0) {
             return l;
         }

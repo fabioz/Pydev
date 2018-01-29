@@ -27,7 +27,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
@@ -70,6 +69,7 @@ import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.string.FullRepIterable;
@@ -114,7 +114,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             ToLogFile.toLogFile(this, "Request:" + request);
         }
 
-        ArrayList<ICompletionProposal> ret = new ArrayList<ICompletionProposal>();
+        ArrayList<ICompletionProposalHandle> ret = new ArrayList<ICompletionProposalHandle>();
 
         //let's see if we should do a code-completion in the current scope...
 
@@ -141,7 +141,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                 return ret;
             }
 
-            //list of Object[], IToken or ICompletionProposal
+            //list of Object[], IToken or ICompletionProposalHandle
             List<Object> tokensList = new ArrayList<Object>();
             String trimmed = request.activationToken.replace('.', ' ').trim();
 
@@ -408,7 +408,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
     }
 
     private void createOverrideCodeCompletions(CompletionRequest request,
-            ArrayList<ICompletionProposal> ret,
+            ArrayList<ICompletionProposalHandle> ret,
             PySelection ps) throws BadLocationException {
         IImageCache imageCache = SharedUiPlugin.getImageCache();
         IImageHandle imageOverride = imageCache != null ? imageCache.get(UIConstants.METHOD_ICON) : null;

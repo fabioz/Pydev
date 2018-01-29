@@ -12,11 +12,11 @@ import java.util.List;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.TextSelection;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.correctionassist.docstrings.AssistDocString;
 import org.python.pydev.editor.correctionassist.docstrings.DocstringsPrefPage;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.StringUtils;
 
 import junit.framework.TestCase;
@@ -220,7 +220,8 @@ public class AssistDocStringTest extends TestCase {
         Document doc = new Document(initial);
         PySelection ps = new PySelection(doc, 0, 0);
         AssistDocString assist = new AssistDocString("@");
-        List<ICompletionProposal> props = assist.getProps(ps, null, null, null, null, ps.getAbsoluteCursorOffset());
+        List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null,
+                ps.getAbsoluteCursorOffset());
         assertEquals(proposals, props.size());
         if (props.size() > 0) {
             props.get(0).apply(doc);
