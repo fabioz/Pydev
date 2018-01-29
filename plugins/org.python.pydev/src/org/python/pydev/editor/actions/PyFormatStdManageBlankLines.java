@@ -8,11 +8,11 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.FormatStd;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.FastStack;
@@ -99,7 +99,7 @@ public class PyFormatStdManageBlankLines {
      * changed lines, so, we create a temporary structure which tries to keep existing lines
      * as much as possible to know what can be actually changed).
      */
-    public static List<LineOffsetAndInfo> computeBlankLinesAmongMethodsAndClasses(PyFormatStd.FormatStd std,
+    public static List<LineOffsetAndInfo> computeBlankLinesAmongMethodsAndClasses(FormatStd std,
             FastStringBuffer initialFormatting, String delimiter) throws SyntaxErrorException {
         PyFormatStdManageBlankLines fmt = new PyFormatStdManageBlankLines(std, initialFormatting, delimiter);
         List<LineOffsetAndInfo> computed = fmt.computeBlankLinesAmongMethodsAndClassesInternal();

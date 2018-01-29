@@ -82,6 +82,7 @@ import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.log.ToLogFile;
+import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 
 /**
  * @author Dmoore
@@ -503,9 +504,9 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                         }
 
                         if (functionDef != null) {
-                            ret.add(new OverrideMethodCompletionProposal(ps.getAbsoluteCursorOffset(), 0, 0,
-                                    imageOverride, functionDef, tokenAndBaseClass.o2, //baseClass
-                                    className));
+                            ret.add(CompletionProposalFactory.get().createOverrideMethodCompletionProposal(
+                                    ps.getAbsoluteCursorOffset(), 0, 0, imageOverride,
+                                    functionDef, tokenAndBaseClass.o2, className));
                         }
                     }
 

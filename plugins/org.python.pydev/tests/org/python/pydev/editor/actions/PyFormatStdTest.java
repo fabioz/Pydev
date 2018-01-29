@@ -12,9 +12,9 @@
 package org.python.pydev.editor.actions;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.FormatStd;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
-import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.string.StringUtils;
 
@@ -50,7 +50,7 @@ public class PyFormatStdTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        std = new PyFormatStd.FormatStd();
+        std = new FormatStd();
         std.operatorsWithSpace = true;
     }
 

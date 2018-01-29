@@ -34,6 +34,7 @@ import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
 /**
@@ -140,13 +141,17 @@ public class AssistAssign implements IAssistProps {
         if (loc.startsWith("_")) {
             loc = loc.substring(1);
         }
-        l.add(new AssistAssignCompletionProposal(loc + " = ", firstCharAbsolutePosition, 0, 0, getImage(imageCache,
-                UIConstants.ASSIST_ASSIGN_TO_LOCAL), "Assign to local (" + loc + ")", null, null,
-                IPyCompletionProposal.PRIORITY_DEFAULT, sourceViewer, null));
+        l.add(CompletionProposalFactory.get().createAssistAssignCompletionProposal(loc + " = ",
+                firstCharAbsolutePosition, 0, 0, getImage(imageCache,
+                        UIConstants.ASSIST_ASSIGN_TO_LOCAL),
+                "Assign to local (" + loc + ")", null, null, IPyCompletionProposal.PRIORITY_DEFAULT, sourceViewer,
+                null));
 
-        l.add(new AssistAssignCompletionProposal("self." + callName + " = ", firstCharAbsolutePosition, 0, 5, getImage(
-                imageCache, UIConstants.ASSIST_ASSIGN_TO_CLASS), "Assign to field (self." + callName + ")", null, null,
-                IPyCompletionProposal.PRIORITY_DEFAULT, sourceViewer, null));
+        l.add(CompletionProposalFactory.get().createAssistAssignCompletionProposal("self." + callName + " = ",
+                firstCharAbsolutePosition, 0, 5, getImage(
+                        imageCache, UIConstants.ASSIST_ASSIGN_TO_CLASS),
+                "Assign to field (self." + callName + ")", null, null, IPyCompletionProposal.PRIORITY_DEFAULT,
+                sourceViewer, null));
         return l;
     }
 

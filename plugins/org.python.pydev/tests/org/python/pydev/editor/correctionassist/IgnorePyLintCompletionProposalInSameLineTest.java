@@ -1,8 +1,8 @@
 package org.python.pydev.editor.correctionassist;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.FormatStd;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 
 import junit.framework.TestCase;
 

@@ -9,8 +9,8 @@ package org.python.pydev.editor.actions;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.FormatStd;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 
 public class PyAddBlockCommentTest extends TestCase {
 

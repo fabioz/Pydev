@@ -17,8 +17,6 @@ import java.util.Set;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.ITextViewer;
-import org.eclipse.swt.SWT;
 import org.eclipse.ui.texteditor.MarkerAnnotation;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IModulesManager;
@@ -28,16 +26,14 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.ProposalsComparator.CompareContext;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
-import org.python.pydev.editor.codefolding.PySourceViewer;
-import org.python.pydev.shared_core.IMiscConstants;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal.ICompareContext;
 
-import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
@@ -214,36 +210,10 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
 
         mods.add(tuple);
 
-        props.add(new CtxInsensitiveImportComplProposal("", offset, 0, 0, infoTypeForImage, displayImport, null,
-                importDeclaration,
-                IPyCompletionProposal.PRIORITY_LOCALS, importDeclaration, compareContext) {
-
-            @Override
-            public void selected(ITextViewer viewer, boolean smartToggle) {
-                //Overridden to do nothing (i.e.: don't leave yellow when ctrl is pressed).
-            }
-
-            @Override
-            public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
-                if ((stateMask & SWT.SHIFT) != 0) {
-                    this.setAddLocalImport(true);
-                }
-                super.apply(viewer, trigger, stateMask, offset);
-                if (forceReparseOnApply) {
-                    //and after applying it, let's request a reanalysis
-                    if (viewer instanceof PySourceViewer) {
-                        PySourceViewer sourceViewer = (PySourceViewer) viewer;
-                        PyEdit edit = sourceViewer.getEdit();
-                        if (edit != null) {
-                            edit.getParser().forceReparse(
-                                    new Tuple<String, Boolean>(IMiscConstants.ANALYSIS_PARSER_OBSERVER_FORCE,
-                                            true));
-                        }
-                    }
-                }
-            }
-
-        });
+        props.add(CompletionProposalFactory.get().createCtxInsensitiveImportComplProposalReparseOnApply("", offset, 0,
+                0, infoTypeForImage,
+                displayImport, null, importDeclaration, IPyCompletionProposal.PRIORITY_LOCALS, importDeclaration,
+                compareContext, forceReparseOnApply));
     }
 
 }

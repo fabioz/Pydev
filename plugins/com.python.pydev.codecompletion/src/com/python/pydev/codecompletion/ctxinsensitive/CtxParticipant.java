@@ -52,10 +52,10 @@ import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.structure.FastStack;
 import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
+import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
 import com.python.pydev.analysis.AnalysisPlugin;
-import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;
@@ -173,12 +173,12 @@ public class CtxParticipant
             }
 
             String displayAsStr = displayString.toString();
-            PyConsoleCompletion proposal = new PyConsoleCompletion(rep, requestOffset - qlen, qlen,
-                    realImportRep.length(), info.getType(),
-                    displayAsStr, (IContextInformation) null, "",
-                    displayAsStr.equals(qual) ? IPyCompletionProposal.PRIORITY_GLOBALS_EXACT
-                            : IPyCompletionProposal.PRIORITY_GLOBALS,
-                    realImportRep.toString(), viewer, compareContext);
+            ICompletionProposalHandle proposal = CompletionProposalFactory.get()
+                    .createPyConsoleCompletion(rep, requestOffset - qlen, qlen, realImportRep.length(),
+                            info.getType(), displayAsStr, (IContextInformation) null, "",
+                            displayAsStr.equals(qual) ? IPyCompletionProposal.PRIORITY_GLOBALS_EXACT
+                                    : IPyCompletionProposal.PRIORITY_GLOBALS,
+                            realImportRep.toString(), viewer, compareContext);
 
             completions.add(proposal);
         }
@@ -186,10 +186,10 @@ public class CtxParticipant
 
     // Editor completions ----------------------------------------------------------------------------------------------
 
-    private Collection<CtxInsensitiveImportComplProposal> getThem(CompletionRequest request, ICompletionState state,
+    private Collection<ICompletionProposalHandle> getThem(CompletionRequest request, ICompletionState state,
             boolean addAutoImport) throws MisconfigurationException {
 
-        ArrayList<CtxInsensitiveImportComplProposal> completions = new ArrayList<CtxInsensitiveImportComplProposal>();
+        List<ICompletionProposalHandle> completions = new ArrayList<>();
         if (request.isInCalltip) {
             return completions;
         }
@@ -254,14 +254,13 @@ public class CtxParticipant
                 }
 
                 String displayAsStr = displayString.toString();
-                CtxInsensitiveImportComplProposal proposal = new CtxInsensitiveImportComplProposal(rep,
-                        request.documentOffset - request.qlen, request.qlen, realImportRep.length(),
-                        info.getType(), displayAsStr,
-                        (IContextInformation) null, "",
-                        displayAsStr.equals(qual) ? IPyCompletionProposal.PRIORITY_GLOBALS_EXACT
-                                : IPyCompletionProposal.PRIORITY_GLOBALS,
-                        realImportRep.toString(),
-                        new CompareContext(info.getNature()));
+                ICompletionProposalHandle proposal = CompletionProposalFactory.get()
+                        .createCtxInsensitiveImportComplProposal(rep, request.documentOffset - request.qlen,
+                                request.qlen, realImportRep.length(), info.getType(), displayAsStr,
+                                (IContextInformation) null, "",
+                                displayAsStr.equals(qual) ? IPyCompletionProposal.PRIORITY_GLOBALS_EXACT
+                                        : IPyCompletionProposal.PRIORITY_GLOBALS,
+                                realImportRep.toString(), new CompareContext(info.getNature()));
 
                 completions.add(proposal);
             }

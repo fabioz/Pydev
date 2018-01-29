@@ -37,13 +37,12 @@ import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
+import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal.ICompareContext;
 
-import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
 import com.python.pydev.analysis.additionalinfo.IInfo;
 import com.python.pydev.analysis.ui.AutoImportsPreferencesPage;
-import com.python.pydev.codecompletion.ctxinsensitive.PyConsoleCompletion;
 import com.python.pydev.codecompletion.ui.CodeCompletionPreferencesPage;
 
 /**
@@ -150,11 +149,14 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
                 alreadyFound.add(found);
 
                 String displayAsStr = realImportRep.toString();
-                PyConsoleCompletion proposal = new PyConsoleCompletion(importRep, requestOffset - qlen, qlen,
-                        realImportRep.length(), IInfo.USE_PACKAGE_ICON, found, (IContextInformation) null, "",
+                ICompletionProposalHandle proposal = CompletionProposalFactory.get().createPyConsoleCompletion(
+                        importRep,
+                        requestOffset - qlen, qlen, realImportRep.length(),
+                        IInfo.USE_PACKAGE_ICON, found, (IContextInformation) null, "",
                         displayAsStr.toLowerCase().equals(lowerQual) ? IPyCompletionProposal.PRIORITY_PACKAGES_EXACT
                                 : IPyCompletionProposal.PRIORITY_PACKAGES,
-                        displayAsStr, viewer, compareContext);
+                        displayAsStr, viewer,
+                        compareContext);
 
                 completions.add(proposal);
             }
@@ -163,9 +165,9 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
 
     // Editor completions ----------------------------------------------------------------------------------------------
 
-    private Collection<CtxInsensitiveImportComplProposal> getThem(CompletionRequest request, ICompletionState state,
+    private Collection<ICompletionProposalHandle> getThem(CompletionRequest request, ICompletionState state,
             boolean addAutoImport) throws MisconfigurationException {
-        ArrayList<CtxInsensitiveImportComplProposal> list = new ArrayList<CtxInsensitiveImportComplProposal>();
+        List<ICompletionProposalHandle> list = new ArrayList<>();
         if (request.isInCalltip) {
             return list;
         }
@@ -231,20 +233,15 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
                         }
 
                         String displayAsStr = displayString.toString();
-                        CtxInsensitiveImportComplProposal proposal = new CtxInsensitiveImportComplProposal(
-                                importRep,
-                                request.documentOffset - request.qlen,
-                                request.qlen,
-                                realImportRep.length(),
-                                IInfo.USE_PACKAGE_ICON,
-                                displayAsStr,
-                                (IContextInformation) null,
-                                "",
-                                displayAsStr.toLowerCase().equals(lowerQual)
-                                        ? IPyCompletionProposal.PRIORITY_PACKAGES_EXACT
-                                        : IPyCompletionProposal.PRIORITY_PACKAGES,
-                                realImportRep.toString(),
-                                new CompareContext(currentManager.getNature()));
+                        ICompletionProposalHandle proposal = CompletionProposalFactory.get()
+                                .createCtxInsensitiveImportComplProposal(importRep,
+                                        request.documentOffset - request.qlen,
+                                        request.qlen, realImportRep.length(), IInfo.USE_PACKAGE_ICON, displayAsStr,
+                                        (IContextInformation) null, "",
+                                        displayAsStr.toLowerCase().equals(lowerQual)
+                                                ? IPyCompletionProposal.PRIORITY_PACKAGES_EXACT
+                                                : IPyCompletionProposal.PRIORITY_PACKAGES,
+                                        realImportRep.toString(), new CompareContext(currentManager.getNature()));
 
                         list.add(proposal);
                     }

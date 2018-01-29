@@ -14,13 +14,13 @@ import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.correctionassist.IgnoreCompletionProposal;
 import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
 import com.python.pydev.analysis.builder.AnalysisRunner;
@@ -42,16 +42,9 @@ public class DontAnalyzeFileMarkerParticipant implements IAssistProps {
         if (ps.getCursorLine() == 0) {
             String replacementString = '#' + AnalysisRunner.PYDEV_CODE_ANALYSIS_IGNORE + ps.getEndLineDelim();
 
-            IgnoreCompletionProposal proposal = new IgnoreCompletionProposal(
-                    replacementString,
-                    0,
-                    0,
-                    offset + replacementString.length(),
-                    annotationImage,
-                    AnalysisRunner.PYDEV_CODE_ANALYSIS_IGNORE,
-                    null,
-                    null,
-                    IPyCompletionProposal.PRIORITY_DEFAULT,
+            ICompletionProposalHandle proposal = CompletionProposalFactory.get().createIgnoreCompletionProposal(
+                    replacementString, 0, 0, offset + replacementString.length(), annotationImage,
+                    AnalysisRunner.PYDEV_CODE_ANALYSIS_IGNORE, null, null, IPyCompletionProposal.PRIORITY_DEFAULT,
                     edit);
             props.add(proposal);
 

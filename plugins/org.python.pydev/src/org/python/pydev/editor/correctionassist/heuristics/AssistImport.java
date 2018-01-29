@@ -20,8 +20,6 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
-import org.python.pydev.editor.correctionassist.IgnoreCompletionProposal;
-import org.python.pydev.editor.correctionassist.IgnoreCompletionProposalInSameLine;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_ui.UIConstants;
@@ -78,11 +76,10 @@ public class AssistImport implements IAssistProps {
                 caption = messageToIgnore = "isort:skip";
             }
             if (!cursorLineContents.contains(messageToIgnore)) {
-                IgnoreCompletionProposal proposal = new IgnoreCompletionProposalInSameLine(messageToIgnore,
-                        ps.getEndLineOffset(), 0,
-                        offset, //note: the cursor position is unchanged!
-                        imageCache.get(UIConstants.ASSIST_ANNOTATION), caption, null, null,
-                        IPyCompletionProposal.PRIORITY_DEFAULT, edit, cursorLineContents, ps, null);
+                ICompletionProposalHandle proposal = CompletionProposalFactory.get()
+                        .createIgnoreCompletionProposalInSameLine(messageToIgnore, ps.getEndLineOffset(), 0, offset,
+                                imageCache.get(UIConstants.ASSIST_ANNOTATION), caption, null, null,
+                                IPyCompletionProposal.PRIORITY_DEFAULT, edit, cursorLineContents, ps, null);
 
                 l.add(proposal);
             }
