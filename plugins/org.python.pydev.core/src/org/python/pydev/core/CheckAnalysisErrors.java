@@ -1,4 +1,4 @@
-package org.python.pydev.editor.correctionassist;
+package org.python.pydev.core;
 
 import java.util.HashMap;
 import java.util.Map;
