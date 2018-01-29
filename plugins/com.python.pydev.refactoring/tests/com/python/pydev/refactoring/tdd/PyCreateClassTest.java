@@ -15,7 +15,9 @@ import org.eclipse.jface.text.TextSelection;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestCaseUtils;
+import org.python.pydev.editor.codecompletion.proposals.DefaultCompletionProposalFactory;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
+import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 
 public class PyCreateClassTest extends TestCaseUtils {
 
@@ -30,6 +32,18 @@ public class PyCreateClassTest extends TestCaseUtils {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        CompletionProposalFactory.set(new DefaultCompletionProposalFactory());
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        CompletionProposalFactory.set(null);
     }
 
     private static final IGrammarVersionProvider PY_27_ONLY_GRAMMAR_VERSION_PROVIDER = new IGrammarVersionProvider() {

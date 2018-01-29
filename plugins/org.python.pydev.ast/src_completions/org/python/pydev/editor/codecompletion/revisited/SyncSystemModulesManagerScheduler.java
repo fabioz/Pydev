@@ -245,7 +245,7 @@ public class SyncSystemModulesManagerScheduler implements IInterpreterManagerLis
                 List<TreeNode> initialSelection = new ArrayList<>(0);
                 if (root.hasChildren()) {
                     initialSelection = fSynchManager.createInitialSelectionForDialogConsideringPreviouslyIgnored(root,
-                            PydevPrefs.getPreferences());
+                            PydevPrefs.getEclipsePreferences());
                 }
 
                 if (root.hasChildren() && initialSelection.size() > 0) {

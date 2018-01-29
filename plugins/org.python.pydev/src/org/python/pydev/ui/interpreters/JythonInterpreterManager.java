@@ -6,7 +6,7 @@
  */
 /*
  * Created on 08/08/2005
- * 
+ *
  * @author Fabio Zadrozny
  */
 package org.python.pydev.ui.interpreters;
@@ -16,7 +16,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.runners.SimpleJythonRunner;
@@ -27,7 +27,7 @@ import org.python.pydev.utils.JavaVmLocationFinder;
 
 public class JythonInterpreterManager extends AbstractInterpreterManager {
 
-    public JythonInterpreterManager(IPreferenceStore preferences) {
+    public JythonInterpreterManager(IEclipsePreferences preferences) {
         super(preferences);
     }
 
@@ -54,11 +54,11 @@ public class JythonInterpreterManager extends AbstractInterpreterManager {
 
     /**
      * This is the method that creates the interpreter info for jython. It gets the info on the jython side and on the java side
-     * 
+     *
      * @param executable the jar that should be used to get the info
      * @param monitor a monitor, to keep track of what's happening
      * @return the interpreter info, with the default libraries and jars
-     * 
+     *
      * @throws CoreException
      */
     public static Tuple<InterpreterInfo, String> doCreateInterpreterInfo(String executable, IProgressMonitor monitor,
@@ -86,7 +86,7 @@ public class JythonInterpreterManager extends AbstractInterpreterManager {
         //the executable is the jar itself
         info.executableOrJar = executable;
 
-        //we have to find the jars before we restore the compiled libs 
+        //we have to find the jars before we restore the compiled libs
         List<File> jars = JavaVmLocationFinder.findDefaultJavaJars();
         for (File jar : jars) {
             info.libs.add(FileUtils.getFileAbsolutePath(jar));

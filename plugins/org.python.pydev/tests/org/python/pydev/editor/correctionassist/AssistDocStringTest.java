@@ -14,10 +14,12 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.TextSelection;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.editor.codecompletion.proposals.DefaultCompletionProposalFactory;
 import org.python.pydev.editor.correctionassist.docstrings.AssistDocString;
 import org.python.pydev.editor.correctionassist.docstrings.DocstringsPrefPage;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 
 import junit.framework.TestCase;
 
@@ -41,11 +43,13 @@ public class AssistDocStringTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         assist = new AssistDocString();
+        CompletionProposalFactory.set(new DefaultCompletionProposalFactory());
     }
 
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
+        CompletionProposalFactory.set(null);
     }
 
     /**

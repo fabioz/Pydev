@@ -29,6 +29,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.internal.launching.StandardVMType;
 import org.eclipse.jdt.launching.IVMInstall;
@@ -367,7 +368,7 @@ public class PydevPlugin extends AbstractUIPlugin {
         } catch (MissingResourceException x) {
             resourceBundle = null;
         }
-        final IPreferenceStore preferences = plugin.getPreferenceStore();
+        final IEclipsePreferences preferences = PydevPrefs.getEclipsePreferences();
 
         //set them temporarily
         //setPythonInterpreterManager(new StubInterpreterManager(true));

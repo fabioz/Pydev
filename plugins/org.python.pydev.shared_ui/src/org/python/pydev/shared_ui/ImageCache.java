@@ -362,10 +362,16 @@ public class ImageCache implements IImageCache {
     }
 
     public static ImageDescriptor asImageDescriptor(IImageDescriptor descriptor) {
+        if (descriptor == null) {
+            return null;
+        }
         return (ImageDescriptor) descriptor.getImageDescriptor();
     }
 
     public static Image asImage(IImageHandle imageHandle) {
+        if (imageHandle == null) {
+            return null;
+        }
         return (Image) imageHandle.getImage();
     }
 

@@ -29,8 +29,7 @@ import java.util.zip.ZipOutputStream;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.preference.PreferenceStore;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInfo;
 import org.python.pydev.core.IInterpreterInfo;
@@ -41,14 +40,15 @@ import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.editor.codecompletion.revisited.ManagerInfoToUpdate;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
+import org.python.pydev.editor.codecompletion.revisited.SyncSystemModulesManager;
+import org.python.pydev.editor.codecompletion.revisited.SyncSystemModulesManager.PythonpathChange;
 import org.python.pydev.editor.codecompletion.revisited.SyncSystemModulesManagerScheduler;
 import org.python.pydev.editor.codecompletion.revisited.SyncSystemModulesManagerScheduler.IInfoTrackerListener;
 import org.python.pydev.editor.codecompletion.revisited.SyncSystemModulesManagerScheduler.InfoTracker;
-import org.python.pydev.editor.codecompletion.revisited.SyncSystemModulesManager;
-import org.python.pydev.editor.codecompletion.revisited.SyncSystemModulesManager.PythonpathChange;
 import org.python.pydev.plugin.PydevTestUtils;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.preferences.InMemoryEclipsePreferences;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.DataAndImageTreeNode;
 import org.python.pydev.shared_core.structure.TreeNode;
@@ -136,7 +136,7 @@ public class SyncSystemModulesManagerTest extends TestCase {
 
         final InterpreterInfo info = new InterpreterInfo("2.6", TestDependent.PYTHON_EXE, pythonpath);
 
-        IPreferenceStore preferences = createPreferenceStore();
+        IEclipsePreferences preferences = createPreferenceStore();
         final PythonInterpreterManager manager = new PythonInterpreterManager(preferences);
         InterpreterManagersAPI.setPythonInterpreterManager(manager);
         manager.setInfos(new IInterpreterInfo[] { info }, null, null);
@@ -170,8 +170,8 @@ public class SyncSystemModulesManagerTest extends TestCase {
         }
     }
 
-    private PreferenceStore createPreferenceStore() {
-        return new PreferenceStore(new File(baseDir, "preferenceStore").toString());
+    private IEclipsePreferences createPreferenceStore() {
+        return new InMemoryEclipsePreferences();
     }
 
     public void testUpdateWhenEggIsAdded() throws Exception {
@@ -187,7 +187,8 @@ public class SyncSystemModulesManagerTest extends TestCase {
         checkSynchronize(synchManager, root, managerToNameToInfo);
 
         root.clear();
-        managerToNameToInfo = new ManagerInfoToUpdate(InterpreterManagersAPI.getInterpreterManagerToInterpreterNameToInfo());
+        managerToNameToInfo = new ManagerInfoToUpdate(
+                InterpreterManagersAPI.getInterpreterManagerToInterpreterNameToInfo());
         synchManager.updateStructures(null, root, managerToNameToInfo,
                 new SyncSystemModulesManager.CreateInterpreterInfoCallback() {
                     @Override
@@ -311,7 +312,8 @@ public class SyncSystemModulesManagerTest extends TestCase {
         //In this situation, the sync manager should ask the user if that path should actually be added
         //to this interpreter.
         root.clear();
-        managerToNameToInfo = new ManagerInfoToUpdate(InterpreterManagersAPI.getInterpreterManagerToInterpreterNameToInfo());
+        managerToNameToInfo = new ManagerInfoToUpdate(
+                InterpreterManagersAPI.getInterpreterManagerToInterpreterNameToInfo());
         synchManager.updateStructures(null, root, managerToNameToInfo,
                 new SyncSystemModulesManager.CreateInterpreterInfoCallback() {
                     @Override
@@ -376,7 +378,7 @@ public class SyncSystemModulesManagerTest extends TestCase {
     public void testSaveUserChoicesAfterSelection() throws Exception {
         setupEnv(false);
 
-        IPreferenceStore preferences = createPreferenceStore();
+        IEclipsePreferences preferences = createPreferenceStore();
         SyncSystemModulesManager synchManager = new SyncSystemModulesManager();
 
         final DataAndImageTreeNode root = new DataAndImageTreeNode(null, null, null);
@@ -414,7 +416,7 @@ public class SyncSystemModulesManagerTest extends TestCase {
         //Check that we ignored libDir3 and libZipFile
         String key = SyncSystemModulesManager.createKeyForInfo((IInterpreterInfo) ((TreeNode) root.getChildren()
                 .get(0)).getData());
-        String entry = preferences.getString(key);
+        String entry = preferences.get(key, "");
         List<String> entries = StringUtils.split(entry, "|||");
         assertEquals(2, entries.size());
         HashSet<String> entriesSet = new HashSet<>(entries);

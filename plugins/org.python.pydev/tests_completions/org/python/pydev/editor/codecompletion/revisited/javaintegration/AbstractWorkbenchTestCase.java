@@ -26,6 +26,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -57,6 +58,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.FileTypesPreferences;
 import org.python.pydev.plugin.preferences.InterpreterGeneralPreferences;
+import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.io.FileUtils;
@@ -102,10 +104,9 @@ public class AbstractWorkbenchTestCase extends TestCase {
                     return Boolean.TRUE;
                 }
             };
-            InterpreterManagersAPI.setJythonInterpreterManager(new JythonInterpreterManager(PydevPlugin.getDefault()
-                    .getPreferenceStore()));
-            InterpreterManagersAPI.setPythonInterpreterManager(new PythonInterpreterManager(PydevPlugin.getDefault()
-                    .getPreferenceStore()));
+            IEclipsePreferences node = PydevPrefs.getEclipsePreferences();
+            InterpreterManagersAPI.setJythonInterpreterManager(new JythonInterpreterManager(node));
+            InterpreterManagersAPI.setPythonInterpreterManager(new PythonInterpreterManager(node));
 
             ProjectModulesManager.IN_TESTS = true;
 

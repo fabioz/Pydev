@@ -19,7 +19,9 @@ import org.eclipse.jface.text.TextSelection;
 import org.python.pydev.codingstd.ICodingStd;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.editor.codecompletion.proposals.DefaultCompletionProposalFactory;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
+import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 
 import junit.framework.TestCase;
 
@@ -68,6 +70,7 @@ public class AssistAssignTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         assist = new AssistAssign(new CamelCodingStd());
+        CompletionProposalFactory.set(new DefaultCompletionProposalFactory());
     }
 
     /*
@@ -76,6 +79,7 @@ public class AssistAssignTest extends TestCase {
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
+        CompletionProposalFactory.set(null);
     }
 
     public void testSimple() throws BadLocationException {

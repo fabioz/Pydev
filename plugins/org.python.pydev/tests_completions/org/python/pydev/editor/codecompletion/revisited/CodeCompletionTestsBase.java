@@ -21,7 +21,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.jface.preference.PreferenceStore;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
@@ -35,13 +35,16 @@ import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils;
+import org.python.pydev.editor.codecompletion.proposals.DefaultCompletionProposalFactory;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevTestUtils;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.preferences.InMemoryEclipsePreferences;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 import org.python.pydev.ui.BundleInfoStub;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
@@ -93,11 +96,11 @@ public class CodeCompletionTestsBase extends TestCase {
      * python nature.
      */
     public static Class<?> restoredSystem;
-    private PreferenceStore preferences;
+    private IEclipsePreferences preferences;
 
-    public PreferenceStore getPreferences() {
+    public IEclipsePreferences getPreferences() {
         if (this.preferences == null) {
-            this.preferences = new PreferenceStore();
+            this.preferences = new InMemoryEclipsePreferences();
         }
         return this.preferences;
     }
@@ -116,6 +119,7 @@ public class CodeCompletionTestsBase extends TestCase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
+        CompletionProposalFactory.set(new DefaultCompletionProposalFactory());
         PydevPlugin.setBundleInfo(new BundleInfoStub());
         CorePlugin.setBundleInfo(new BundleInfoStub());
         ProjectModulesManager.IN_TESTS = true;
@@ -129,6 +133,7 @@ public class CodeCompletionTestsBase extends TestCase {
     @Override
     public void tearDown() throws Exception {
         super.tearDown();
+        CompletionProposalFactory.set(null);
         PydevPlugin.setBundleInfo(null);
         CorePlugin.setBundleInfo(null);
         ProjectModulesManager.IN_TESTS = false;

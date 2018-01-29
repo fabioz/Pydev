@@ -6,7 +6,7 @@
  */
 /*
  * Created on 28/07/2005
- * 
+ *
  * @author Fabio Zadrozny
  */
 package org.python.pydev.editor.codecompletion.revisited;
@@ -14,7 +14,7 @@ package org.python.pydev.editor.codecompletion.revisited;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.jface.preference.PreferenceStore;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
@@ -27,7 +27,7 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 public class PythonInterpreterManagerStub extends AbstractInterpreterManager implements IInterpreterManager {
 
-    public PythonInterpreterManagerStub(PreferenceStore prefs) {
+    public PythonInterpreterManagerStub(IEclipsePreferences prefs) {
         super(prefs);
     }
 
@@ -48,7 +48,7 @@ public class PythonInterpreterManagerStub extends AbstractInterpreterManager imp
     }
 
     /**
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      * @see org.python.pydev.core.IInterpreterManager#getInterpreterInfo(java.lang.String, org.eclipse.core.runtime.IProgressMonitor)
      */
     @Override

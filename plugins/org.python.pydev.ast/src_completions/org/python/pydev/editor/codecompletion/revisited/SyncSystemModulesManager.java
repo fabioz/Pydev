@@ -12,7 +12,6 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,8 +25,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.preference.IPersistentPreferenceStore;
-import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.osgi.service.prefs.BackingStoreException;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
@@ -427,7 +426,7 @@ public class SyncSystemModulesManager {
                     } else {
                         selectedElements = selectElementsInDialog.call(root, initialSelection);
                     }
-                    saveUnselected(root, selectedElements, PydevPrefs.getPreferences());
+                    saveUnselected(root, selectedElements, PydevPrefs.getEclipsePreferences());
                     if (selectedElements != null && selectedElements.size() > 0) {
                         jobApplyChanges.stack(root, selectedElements, managerToNameToInfo);
                     } else {
@@ -459,7 +458,7 @@ public class SyncSystemModulesManager {
      * @param iPreferenceStore this is the store where we'll keep the selected changes.
      */
     public void saveUnselected(DataAndImageTreeNode root, List<TreeNode> selectedElements,
-            IPreferenceStore iPreferenceStore) {
+            IEclipsePreferences iPreferenceStore) {
         //root has null data, level 1 has IInterpreterInfo and level 2 has PythonpathChange.
         HashSet<TreeNode> selectionSet = new HashSet<>();
         if (selectedElements != null && selectedElements.size() > 0) {
@@ -496,17 +495,14 @@ public class SyncSystemModulesManager {
                     System.out.println("Paths ignored: " + addToIgnorePaths);
                 }
                 changed = true;
-                iPreferenceStore.setValue(key, StringUtils.join("|||", addToIgnorePaths));
+                iPreferenceStore.put(key, StringUtils.join("|||", addToIgnorePaths));
             }
         }
         if (changed) {
-            if (iPreferenceStore instanceof IPersistentPreferenceStore) {
-                IPersistentPreferenceStore iPersistentPreferenceStore = (IPersistentPreferenceStore) iPreferenceStore;
-                try {
-                    iPersistentPreferenceStore.save();
-                } catch (IOException e) {
-                    Log.log(e);
-                }
+            try {
+                iPreferenceStore.flush();
+            } catch (BackingStoreException e) {
+                Log.log(e);
             }
         }
     }
@@ -517,7 +513,7 @@ public class SyncSystemModulesManager {
     }
 
     public List<TreeNode> createInitialSelectionForDialogConsideringPreviouslyIgnored(DataAndImageTreeNode root,
-            IPreferenceStore iPreferenceStore) {
+            IEclipsePreferences iPreferenceStore) {
         List<TreeNode> initialSelection = new ArrayList<>();
         for (DataAndImageTreeNode<IInterpreterInfo> interpreterNode : (List<DataAndImageTreeNode<IInterpreterInfo>>) root
                 .getChildren()) {
@@ -525,7 +521,7 @@ public class SyncSystemModulesManager {
             IInterpreterInfo info = interpreterNode.getData();
             String key = createKeyForInfo(info);
 
-            String ignoredValue = iPreferenceStore.getString(key);
+            String ignoredValue = iPreferenceStore.get(key, "");
             if (ignoredValue != null && ignoredValue.length() > 0) {
                 Set<String> previouslyIgnored = new HashSet(StringUtils.split(ignoredValue, "|||"));
 

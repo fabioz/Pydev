@@ -13,10 +13,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-import junit.framework.TestCase;
-
-import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.preference.PreferenceStore;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInfo;
 import org.python.pydev.core.IInterpreterInfo;
@@ -27,12 +24,15 @@ import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.plugin.PydevTestUtils;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.preferences.InMemoryEclipsePreferences;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;
+
+import junit.framework.TestCase;
 
 /**
  * @author fabioz
@@ -79,7 +79,7 @@ public class InterpreterInfoBuilderTest extends TestCase {
 
         final InterpreterInfo info = new InterpreterInfo("2.6", TestDependent.PYTHON_EXE, pythonpath);
 
-        IPreferenceStore preferences = new PreferenceStore();
+        IEclipsePreferences preferences = new InMemoryEclipsePreferences();
         final PythonInterpreterManager manager = new PythonInterpreterManager(preferences);
         InterpreterManagersAPI.setPythonInterpreterManager(manager);
         manager.setInfos(new IInterpreterInfo[] { info }, null, null);

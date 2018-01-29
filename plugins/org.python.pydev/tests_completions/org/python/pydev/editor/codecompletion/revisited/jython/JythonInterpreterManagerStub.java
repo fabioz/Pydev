@@ -11,7 +11,7 @@ package org.python.pydev.editor.codecompletion.revisited.jython;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.preference.PreferenceStore;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
@@ -22,7 +22,7 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 public class JythonInterpreterManagerStub extends PythonInterpreterManagerStub {
 
-    public JythonInterpreterManagerStub(PreferenceStore prefs) {
+    public JythonInterpreterManagerStub(IEclipsePreferences prefs) {
         super(prefs);
     }
 
@@ -36,7 +36,7 @@ public class JythonInterpreterManagerStub extends PythonInterpreterManagerStub {
     }
 
     /**
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      * @see org.python.pydev.core.IInterpreterManager#getInterpreterInfo(java.lang.String, org.eclipse.core.runtime.IProgressMonitor)
      */
     @Override

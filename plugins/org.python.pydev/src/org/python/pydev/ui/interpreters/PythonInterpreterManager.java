@@ -6,7 +6,7 @@
  */
 /*
  * Created on 08/08/2005
- * 
+ *
  * @author Fabio Zadrozny
  */
 package org.python.pydev.ui.interpreters;
@@ -15,7 +15,7 @@ import java.io.File;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.shared_core.io.FileUtils;
@@ -24,7 +24,7 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 public class PythonInterpreterManager extends AbstractInterpreterManager {
 
-    public PythonInterpreterManager(IPreferenceStore preferences) {
+    public PythonInterpreterManager(IEclipsePreferences preferences) {
         super(preferences);
     }
 
@@ -52,7 +52,7 @@ public class PythonInterpreterManager extends AbstractInterpreterManager {
     /**
      * @param executable the python interpreter from where we should create the info
      * @param monitor a monitor to see the progress
-     * 
+     *
      * @return the created interpreter info
      * @throws CoreException
      */

@@ -9,6 +9,7 @@ package org.python.pydev.editor.codecompletion;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.python.pydev.editor.codecompletion.proposals.DefaultCompletionProposalFactory;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
@@ -28,6 +29,18 @@ public class PyCodeCompletionUtilsTest extends TestCase {
                 false, null);
         PyCodeCompletionUtils.sort(proposals, qualifier, null);
         compare(new String[] { "foo1", "foo1(a, b)" }, proposals);
+    }
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        CompletionProposalFactory.set(new DefaultCompletionProposalFactory());
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        CompletionProposalFactory.set(null);
     }
 
     public void testCompareWithUnder() throws Exception {

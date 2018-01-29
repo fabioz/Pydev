@@ -27,14 +27,14 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.dialogs.ErrorDialog;
-import org.eclipse.jface.preference.IPersistentPreferenceStore;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.progress.UIJob;
+import org.osgi.service.prefs.BackingStoreException;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.ExtensionHelper;
@@ -79,7 +79,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      * This is the cache, that points from an interpreter to its information.
      */
     protected final Map<String, InterpreterInfo> exeToInfo = new HashMap<String, InterpreterInfo>();
-    private final IPreferenceStore prefs;
+    private final IEclipsePreferences prefs;
 
     //caches that are filled at runtime -------------------------------------------------------------------------------
     /**
@@ -178,9 +178,8 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      * Constructor
      */
     @SuppressWarnings("unchecked")
-    public AbstractInterpreterManager(IPreferenceStore prefs) {
+    public AbstractInterpreterManager(IEclipsePreferences prefs) {
         this.prefs = prefs;
-        prefs.setDefault(getPreferenceName(), "");
 
         //Just called to force the information to be recreated!
         this.getInterpreterInfos();
@@ -277,8 +276,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                         PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(null,
                                 m.getPreferencesPageId(), null, null);
                         dialog.open();
-                    }
-                    else if (ret != PyDialogHelpers.INTERPRETER_CANCEL_CONFIG) {
+                    } else if (ret != PyDialogHelpers.INTERPRETER_CANCEL_CONFIG) {
                         InterpreterType interpreterType;
                         switch (m.getInterpreterType()) {
                             case IPythonNature.INTERPRETER_TYPE_JYTHON:
@@ -620,7 +618,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     @Override
     public String getPersistedString() {
         if (persistedString == null) {
-            persistedString = prefs.getString(getPreferenceName());
+            persistedString = prefs.get(getPreferenceName(), "");
         }
         return persistedString;
     }
@@ -632,16 +630,13 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     public void setInfos(IInterpreterInfo[] infos, Set<String> interpreterNamesToRestore, IProgressMonitor monitor) {
         //Set the string to persist!
         String s = AbstractInterpreterManager.getStringToPersist(infos);
-        prefs.setValue(getPreferenceName(), s);
-        if (prefs instanceof IPersistentPreferenceStore) {
-            try {
-                //expected in tests: java.io.IOException: File name not specified
-                ((IPersistentPreferenceStore) prefs).save();
-            } catch (Exception e) {
-                String message = e.getMessage();
-                if (message == null || message.indexOf("File name not specified") == -1) {
-                    Log.log(e);
-                }
+        prefs.put(getPreferenceName(), s);
+        try {
+            prefs.flush();
+        } catch (BackingStoreException e) {
+            String message = e.getMessage();
+            if (message == null || message.indexOf("File name not specified") == -1) {
+                Log.log(e);
             }
         }
 

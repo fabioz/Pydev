@@ -9,6 +9,8 @@ package org.python.pydev.plugin.preferences;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.callbacks.ICallback0;
@@ -60,5 +62,9 @@ public class PydevPrefs {
     public static IPreferenceStore getPreferenceStore() {
         Assert.isNotNull(getPreferenceStore, "Callback must be set prior to use.");
         return getPreferenceStore.call();
+    }
+
+    public static IEclipsePreferences getEclipsePreferences() {
+        return InstanceScope.INSTANCE.getNode("org.python.pydev");
     }
 }

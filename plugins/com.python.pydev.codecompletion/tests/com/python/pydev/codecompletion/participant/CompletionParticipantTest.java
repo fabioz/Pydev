@@ -23,12 +23,14 @@ import org.python.pydev.editor.actions.PySelectionTest;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.editor.codecompletion.proposals.CtxInsensitiveImportComplProposal;
+import org.python.pydev.editor.codecompletion.proposals.DefaultCompletionProposalFactory;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
+import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
 import com.python.pydev.analysis.ui.AutoImportsPreferencesPage;
@@ -54,12 +56,14 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
         //        forceAdditionalInfoRecreation = true; -- just for testing purposes
         super.setUp();
         codeCompletion = new PyCodeCompletion();
+        CompletionProposalFactory.set(new DefaultCompletionProposalFactory());
     }
 
     @Override
     public void tearDown() throws Exception {
         super.tearDown();
         PyCodeCompletionPreferences.getPreferencesForTests = null;
+        CompletionProposalFactory.set(null);
     }
 
     @Override

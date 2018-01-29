@@ -11,6 +11,7 @@ import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.SWT;
 import org.python.pydev.core.IInfo;
 import org.python.pydev.editor.codecompletion.proposals.CtxInsensitiveImportComplProposal;
+import org.python.pydev.editor.codecompletion.proposals.DefaultCompletionProposalFactory;
 import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 
 import junit.framework.TestCase;
@@ -36,11 +37,13 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        CompletionProposalFactory.set(new DefaultCompletionProposalFactory());
     }
 
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
+        CompletionProposalFactory.set(null);
     }
 
     public void testCompletionDontAddFromImport() throws Exception {

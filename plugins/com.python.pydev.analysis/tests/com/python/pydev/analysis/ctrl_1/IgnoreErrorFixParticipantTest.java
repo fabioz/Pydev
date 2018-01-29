@@ -15,8 +15,10 @@ import java.util.List;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.FormatStd;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.editor.codecompletion.proposals.DefaultCompletionProposalFactory;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
+import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 
 import com.python.pydev.analysis.AnalysisPreferencesStub;
 import com.python.pydev.analysis.IAnalysisPreferences;
@@ -60,6 +62,13 @@ public class IgnoreErrorFixParticipantTest extends AdditionalInfoTestsBase {
         participant = new IgnoreErrorParticipant(format);
         prefs = new AnalysisPreferencesStub();
         props = new ArrayList<ICompletionProposalHandle>();
+        CompletionProposalFactory.set(new DefaultCompletionProposalFactory());
+    }
+
+    @Override
+    public void tearDown() throws Exception {
+        super.tearDown();
+        CompletionProposalFactory.set(null);
     }
 
     public void testFix() throws Exception {

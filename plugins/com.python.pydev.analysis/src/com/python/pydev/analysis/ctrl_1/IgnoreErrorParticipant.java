@@ -24,6 +24,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
+import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
@@ -68,9 +69,10 @@ public class IgnoreErrorParticipant implements IAnalysisMarkersParticipant {
             return;
         }
 
+        IImageCache imageCache = SharedUiPlugin.getImageCache();
         ICompletionProposalHandle proposal = CompletionProposalFactory.get().createIgnoreCompletionProposalInSameLine(
                 messageToIgnore, ps.getEndLineOffset(), 0, offset,
-                SharedUiPlugin.getImageCache().get(UIConstants.ASSIST_ANNOTATION),
+                imageCache != null ? imageCache.get(UIConstants.ASSIST_ANNOTATION) : null,
                 messageToIgnore.substring(1), null, null, IPyCompletionProposal.PRIORITY_DEFAULT, edit, line, ps,
                 format);
         props.add(proposal);
