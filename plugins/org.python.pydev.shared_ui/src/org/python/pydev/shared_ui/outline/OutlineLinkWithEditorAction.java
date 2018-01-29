@@ -14,7 +14,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeSelection;
@@ -22,6 +21,7 @@ import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.ui.progress.UIJob;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.log.Log;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.UIConstants;
@@ -138,7 +138,7 @@ public class OutlineLinkWithEditorAction extends AbstractOutlineFilterAction imp
         private WeakReference<IOutlineModel> outlineModel;
         private final Object lock = new Object();
         private WeakReference<BaseOutlinePage> outlinePage;
-        private ITextSelection ts;
+        private ICoreTextSelection ts;
 
         public UpdateSelection() {
             super("Link outline selection");
@@ -150,7 +150,7 @@ public class OutlineLinkWithEditorAction extends AbstractOutlineFilterAction imp
                 IOutlineModel model = null;
                 IParsedItem parsedItem = null;
                 BaseOutlinePage p = null;
-                ITextSelection localTextSelection = ts;
+                ICoreTextSelection localTextSelection = ts;
                 synchronized (lock) {
                     if (outlineModel != null) {
                         model = outlineModel.get();
@@ -179,7 +179,7 @@ public class OutlineLinkWithEditorAction extends AbstractOutlineFilterAction imp
             return Status.OK_STATUS;
         }
 
-        public void setOutline(IOutlineModel outlineModel, BaseOutlinePage p, ITextSelection ts) {
+        public void setOutline(IOutlineModel outlineModel, BaseOutlinePage p, ICoreTextSelection ts) {
             synchronized (lock) {
                 this.outlinePage = new WeakReference<BaseOutlinePage>(p);
                 this.ts = ts;
@@ -190,7 +190,7 @@ public class OutlineLinkWithEditorAction extends AbstractOutlineFilterAction imp
         /**
          * Convert the text selection to a model node in the outline (parsed item tree path).
          */
-        private StructuredSelection getSelectionPosition(IParsedItem r, ITextSelection t) {
+        private StructuredSelection getSelectionPosition(IParsedItem r, ICoreTextSelection t) {
             try {
                 ArrayList<IParsedItem> sel = new ArrayList<IParsedItem>();
 

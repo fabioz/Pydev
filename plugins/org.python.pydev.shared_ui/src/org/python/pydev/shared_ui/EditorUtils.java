@@ -53,6 +53,7 @@ import org.eclipse.ui.part.MultiPageEditorPart;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.shared_core.log.Log;
+import org.python.pydev.shared_core.string.CoreTextSelection;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Location;
 import org.python.pydev.shared_core.utils.Reflection;
@@ -152,18 +153,6 @@ public class EditorUtils {
         return actionBars.getStatusLineManager();
     }
 
-    public static ITextSelection getTextSelection(ITextEditor editor) {
-        ISelectionProvider selectionProvider = editor.getSelectionProvider();
-        if (selectionProvider == null) {
-            return null;
-        }
-        ISelection selection = selectionProvider.getSelection();
-        if (!(selection instanceof ITextSelection)) {
-            return null;
-        }
-        return (ITextSelection) selection;
-    }
-
     public static IDocument getDocument(ITextEditor editor) {
         IDocumentProvider documentProvider = editor.getDocumentProvider();
         if (documentProvider != null) {
@@ -173,7 +162,20 @@ public class EditorUtils {
     }
 
     public static TextSelectionUtils createTextSelectionUtils(ITextEditor editor) {
-        return new TextSelectionUtils(getDocument(editor), getTextSelection(editor));
+        IDocument document = getDocument(editor);
+        ISelectionProvider selectionProvider = editor.getSelectionProvider();
+        if (selectionProvider != null) {
+            ISelection selection = selectionProvider.getSelection();
+            if (selection instanceof ITextSelection) {
+                ITextSelection textSelection = (ITextSelection) selection;
+                CoreTextSelection coreTextSelection = new CoreTextSelection(document, textSelection.getOffset(),
+                        textSelection.getLength());
+                return new TextSelectionUtils(document, coreTextSelection);
+            }
+        }
+
+        Log.log("Unable to get selection provider from editor: " + editor);
+        return new TextSelectionUtils(document, 0);
     }
 
     public static void showInEditor(ITextEditor textEdit, Location start, Location end) {

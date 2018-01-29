@@ -288,9 +288,9 @@ public abstract class AbstractSearchIndexPage extends DialogPage implements ISea
 
             // As we have a checkbox for whole word now, the code below shouldn't be needed anymore.
 
-            // if (selection instanceof TextSelection) {
+            // if (selection instanceof CoreTextSelection) {
             //    // If we got a substring, add * as needed before/after.
-            //    TextSelection tx = (TextSelection) selection;
+            //    CoreTextSelection tx = (CoreTextSelection) selection;
             //    IDocument doc = getDocument(tx);
             //    if (doc != null) {
             //        int offset = tx.getOffset();

@@ -4,16 +4,17 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.shared_core.string;
+package org.python.pydev.editor.actions;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
 
 /**
- * This is a helper class to try to keep a given selection and re-apply it later based  
+ * This is a helper class to try to keep a given selection and re-apply it later based
  * on the actual lines and columns that were selected.
  */
 public class SelectionKeeper {
@@ -24,7 +25,7 @@ public class SelectionKeeper {
     private final int endCol;
 
     public SelectionKeeper(TextSelectionUtils ps) {
-        ITextSelection selection = ps.getTextSelection();
+        ICoreTextSelection selection = ps.getTextSelection();
         startLine = selection.getStartLine();
         endLine = selection.getEndLine();
         startCol = selection.getOffset() - ps.getLineOffset(startLine);

@@ -13,22 +13,22 @@ package org.python.pydev.shared_core.auto_edit;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextViewer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.python.pydev.shared_core.log.Log;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * @author Fabio Zadrozny
- * 
+ *
  * Makes a backspace happen...
- * 
+ *
  * We can:
  * - go to the indentation from some uncommented previous line (if we
  *   only have whitespaces in the current line).
@@ -46,7 +46,7 @@ public class AutoEditStrategyBackspaceHelper {
      * @param cursorOffset
      * @return position of the last character of the line (returned as an absolute
      *            offset)
-     * 
+     *
      * @throws BadLocationException
      */
     protected int getLastCharPosition(IDocument doc, int cursorOffset) throws BadLocationException {
@@ -74,7 +74,7 @@ public class AutoEditStrategyBackspaceHelper {
     public void perform(TextSelectionUtils ps) {
         // Perform the action
         try {
-            ITextSelection textSelection = ps.getTextSelection();
+            org.python.pydev.shared_core.string.ICoreTextSelection textSelection = ps.getTextSelection();
 
             if (textSelection.getLength() != 0) {
                 eraseSelection(ps);
@@ -143,7 +143,7 @@ public class AutoEditStrategyBackspaceHelper {
     /**
      * @param ps
      * @param hasOnlyWhitespaces
-     * @param lastCharRegion 
+     * @param lastCharRegion
      * @throws BadLocationException
      */
     private void eraseToPreviousIndentation(TextSelectionUtils ps, boolean hasOnlyWhitespaces, IRegion lastCharRegion)
@@ -176,7 +176,7 @@ public class AutoEditStrategyBackspaceHelper {
 
     private void eraseSingleChar(TextSelectionUtils ps) throws BadLocationException {
 
-        ITextSelection textSelection = ps.getTextSelection();
+        ICoreTextSelection textSelection = ps.getTextSelection();
 
         int replaceLength = 1;
         int replaceOffset = textSelection.getOffset() - replaceLength;
@@ -230,13 +230,13 @@ public class AutoEditStrategyBackspaceHelper {
     }
 
     /**
-     * 
+     *
      * @param ps
      * @throws BadLocationException
      */
     private void eraseLineDelimiter(TextSelectionUtils ps) throws BadLocationException {
 
-        ITextSelection textSelection = ps.getTextSelection();
+        ICoreTextSelection textSelection = ps.getTextSelection();
 
         int length = TextSelectionUtils.getDelimiter(ps.getDoc()).length();
         int offset = textSelection.getOffset() - length;
@@ -247,12 +247,12 @@ public class AutoEditStrategyBackspaceHelper {
     }
 
     /**
-     * 
+     *
      * @param ps
      * @throws BadLocationException
      */
     private void eraseSelection(TextSelectionUtils ps) throws BadLocationException {
-        ITextSelection textSelection = ps.getTextSelection();
+        ICoreTextSelection textSelection = ps.getTextSelection();
 
         makeDelete(ps.getDoc(), textSelection.getOffset(), textSelection.getLength());
     }
@@ -263,7 +263,7 @@ public class AutoEditStrategyBackspaceHelper {
      * @throws BadLocationException
      */
     private void eraseUntilLastChar(TextSelectionUtils ps, int lastCharPosition) throws BadLocationException {
-        ITextSelection textSelection = ps.getTextSelection();
+        ICoreTextSelection textSelection = ps.getTextSelection();
         int cursorOffset = textSelection.getOffset();
 
         int offset = lastCharPosition + 1;
@@ -276,7 +276,7 @@ public class AutoEditStrategyBackspaceHelper {
     /**
      * TODO: Make use of the indentation gotten previously. This implementation
      * just uses the indentation string and erases the number of chars from it.
-     * 
+     *
      * @param ps
      * @param indentation this is in number of characters.
      * @throws BadLocationException
@@ -384,12 +384,12 @@ public class AutoEditStrategyBackspaceHelper {
                     }
                     if (!blockSelection) {
                         ISelection selection = viewer.getSelection();
-                        if (selection instanceof ITextSelection) {
+                        if (selection instanceof ICoreTextSelection) {
                             //Only do our custom backspace if we're not in block selection mode.
                             AutoEditStrategyBackspaceHelper pyBackspace = new AutoEditStrategyBackspaceHelper();
                             pyBackspace.setIndentationStringProvider(indentationStringProvider);
                             TextSelectionUtils ps = new TextSelectionUtils(viewer.getDocument(),
-                                    (ITextSelection) selection);
+                                    (ICoreTextSelection) selection);
                             pyBackspace.perform(ps);
                             event.doit = false;
                         }

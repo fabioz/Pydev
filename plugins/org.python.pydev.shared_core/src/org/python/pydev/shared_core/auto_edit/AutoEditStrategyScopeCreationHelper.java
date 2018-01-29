@@ -25,6 +25,7 @@ import org.eclipse.swt.events.VerifyEvent;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.string.CoreTextSelection;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.DocCmd;
@@ -79,10 +80,12 @@ public class AutoEditStrategyScopeCreationHelper {
                         ISelection selection = viewer.getSelection();
                         if (selection instanceof ITextSelection) {
 
+                            ITextSelection iTextSelection = (ITextSelection) selection;
                             //Don't bother in getting the indent prefs from the editor: the default indent prefs are
                             //always global for the settings we want.
                             TextSelectionUtils ps = new TextSelectionUtils(viewer.getDocument(),
-                                    (ITextSelection) selection);
+                                    new CoreTextSelection(viewer.getDocument(), iTextSelection.getOffset(),
+                                            iTextSelection.getLength()));
 
                             int absoluteCursorOffset = ps.getAbsoluteCursorOffset();
                             String contentType = AutoEditStrategyHelper.getContentType(ps.getDoc(),
@@ -116,7 +119,8 @@ public class AutoEditStrategyScopeCreationHelper {
      * @param ps
      * @param provider
      */
-    public boolean perform(TextSelectionUtils ps, final char c, TextViewer viewer, IScopeCreatingCharsProvider provider) {
+    public boolean perform(TextSelectionUtils ps, final char c, TextViewer viewer,
+            IScopeCreatingCharsProvider provider) {
         linkOffset = -1;
         linkExitPos = -1;
         linkLen = 0;

@@ -19,7 +19,6 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Position;
-import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.text.TypedPosition;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.partitioner.PartitionCodeReader;
@@ -27,6 +26,7 @@ import org.python.pydev.shared_core.partitioner.PartitionMerger;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.NoPeerAvailableException;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.string.CoreTextSelection;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
@@ -58,7 +58,7 @@ public class AutoEditStrategyHelper {
      * Called right after a ' or "
      */
     public void handleAutoClose(IDocument document, DocumentCommand command, char start, char end) {
-        TextSelectionUtils ps = new TextSelectionUtils(document, new TextSelection(document, command.offset,
+        TextSelectionUtils ps = new TextSelectionUtils(document, new CoreTextSelection(document, command.offset,
                 command.length));
 
         try {
@@ -77,7 +77,7 @@ public class AutoEditStrategyHelper {
     }
 
     public void handleAutoSkip(IDocument document, DocumentCommand command, char c) {
-        TextSelectionUtils ps = new TextSelectionUtils(document, new TextSelection(document, command.offset,
+        TextSelectionUtils ps = new TextSelectionUtils(document, new CoreTextSelection(document, command.offset,
                 command.length));
 
         Tuple<String, String> beforeAndAfterMatchingChars = ps.getBeforeAndAfterMatchingChars(c);

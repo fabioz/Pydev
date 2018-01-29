@@ -18,7 +18,6 @@ import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.TextSelection;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.docutils.ImportsSelection;
 import org.python.pydev.core.docutils.ParsingUtils;
@@ -33,6 +32,7 @@ import org.python.pydev.shared_core.auto_edit.AutoEditStrategyNewLineHelper;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.NoPeerAvailableException;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.string.CoreTextSelection;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.DocCmd;
@@ -563,7 +563,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
         if (!prefs.getAutoLiterals()) {
             return;
         }
-        TextSelectionUtils ps = new TextSelectionUtils(document, new TextSelection(document, command.offset,
+        TextSelectionUtils ps = new TextSelectionUtils(document, new CoreTextSelection(document, command.offset,
                 command.length));
         if (command.length > 0) {
             try {

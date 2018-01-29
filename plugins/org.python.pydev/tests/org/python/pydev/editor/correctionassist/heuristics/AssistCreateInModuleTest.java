@@ -95,7 +95,7 @@ public class AssistCreateInModuleTest extends CodeCompletionTestsBase {
     //            offset = lineInformation.getOffset() + lineInformation.getLength();
     //        }
     //        
-    //        PySelection ps = new PySelection(doc, new TextSelection(doc, offset, 0));
+    //        PySelection ps = new PySelection(doc, new CoreTextSelection(doc, offset, 0));
     //        String sel = PyAction.getLineWithoutComments(ps);
     //
     //        assertEquals(isValid, assist.isValid(ps, sel, null, offset));
@@ -156,7 +156,7 @@ public class AssistCreateInModuleTest extends CodeCompletionTestsBase {
     //        if (selStart == -1)
     //            selStart = docStr.length();
     //        Document doc = new Document(docStr);
-    //        PySelection ps = new PySelection(doc, new TextSelection(doc, selStart, selLength));
+    //        PySelection ps = new PySelection(doc, new CoreTextSelection(doc, selStart, selLength));
     //        String sel = PyAction.getLineWithoutComments(ps);
     //
     //        assertEquals(true, assist.isValid(ps, sel, null, selStart));
@@ -197,7 +197,7 @@ public class AssistCreateInModuleTest extends CodeCompletionTestsBase {
     //        "ex.newMethod(c,d)";
     //
     //        Document doc = new Document(d);
-    //        PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
+    //        PySelection ps = new PySelection(doc, new CoreTextSelection(doc, d.length(), 0));
     //        String sel = PyAction.getLineWithoutComments(ps);
     //
     //        assertEquals(true, assist.isValid(ps, sel, null, d.length()));

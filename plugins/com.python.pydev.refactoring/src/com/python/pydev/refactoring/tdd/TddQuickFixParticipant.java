@@ -16,7 +16,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.TextSelection;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
@@ -44,6 +43,7 @@ import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.string.CoreTextSelection;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -422,7 +422,7 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
         ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
 
         RefactoringRequest request = new RefactoringRequest(edit.getEditorFile(), new PySelection(doc,
-                new TextSelection(doc, start, 0)), new NullProgressMonitor(), nature, edit);
+                new CoreTextSelection(doc, start, 0)), new NullProgressMonitor(), nature, edit);
 
         try {
             PyRefactoringFindDefinition.findActualDefinition(request, completionCache, selected);
