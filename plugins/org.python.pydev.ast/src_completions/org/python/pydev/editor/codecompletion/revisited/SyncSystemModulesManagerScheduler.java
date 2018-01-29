@@ -13,7 +13,6 @@ package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,8 +25,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.preference.IPersistentPreferenceStore;
-import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.osgi.service.prefs.BackingStoreException;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IInterpreterManagerListener;
@@ -94,11 +93,11 @@ public class SyncSystemModulesManagerScheduler implements IInterpreterManagerLis
 
         int timeout = 1000 * 30; //Default is waiting 30 seconds after startup
 
-        IPreferenceStore preferences = PydevPrefs.getPreferences();
-        boolean alreadyChecked = preferences.getBoolean("INTERPRETERS_CHECKED_ONCE"); //Now we add builtin indexing on our checks (so, force it at least once).
+        IEclipsePreferences preferences = PydevPrefs.getEclipsePreferences();
+        boolean alreadyChecked = preferences.getBoolean("INTERPRETERS_CHECKED_ONCE", false); //Now we add builtin indexing on our checks (so, force it at least once).
         boolean force = false;
         if (!alreadyChecked) {
-            preferences.setValue("INTERPRETERS_CHECKED_ONCE", true); //Now we add builtin indexing on our checks (so, force it at least once).
+            preferences.putBoolean("INTERPRETERS_CHECKED_ONCE", true); //Now we add builtin indexing on our checks (so, force it at least once).
             force = true;
             timeout = 1000 * 7; //In this case, wait only 7 seconds after startup
         }
@@ -129,21 +128,18 @@ public class SyncSystemModulesManagerScheduler implements IInterpreterManagerLis
 
         //remove from the preferences any ignore the user had set previously
         Set<Entry<IInterpreterManager, Map<String, IInterpreterInfo>>> entrySet = addedToTrack.entrySet();
-        IPreferenceStore preferences = PydevPrefs.getPreferences();
+        IEclipsePreferences preferences = PydevPrefs.getEclipsePreferences();
         for (Entry<IInterpreterManager, Map<String, IInterpreterInfo>> entry : entrySet) {
             Set<Entry<String, IInterpreterInfo>> entrySet2 = entry.getValue().entrySet();
             for (Entry<String, IInterpreterInfo> entry2 : entrySet2) {
                 String key = SyncSystemModulesManager.createKeyForInfo(entry2.getValue());
-                preferences.setValue(key, "");
+                preferences.put(key, "");
             }
         }
-        if (preferences instanceof IPersistentPreferenceStore) {
-            IPersistentPreferenceStore iPersistentPreferenceStore = (IPersistentPreferenceStore) preferences;
-            try {
-                iPersistentPreferenceStore.save();
-            } catch (IOException e) {
-                Log.log(e);
-            }
+        try {
+            preferences.flush();
+        } catch (BackingStoreException e) {
+            Log.log(e);
         }
 
         //schedule changes to be executed.

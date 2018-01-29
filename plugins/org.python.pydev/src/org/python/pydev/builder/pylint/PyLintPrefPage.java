@@ -14,10 +14,10 @@ package org.python.pydev.builder.pylint;
 import java.io.File;
 
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.FileFieldEditor;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -86,6 +86,7 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
     public static final String SEARCH_PYLINT_LOCATION = "SEARCH_PYLINT_LOCATION";
     private static final String LOCATION_SEARCH = "SEARCH";
     private static final String LOCATION_SPECIFY = "SPECIFY";
+    public static final String DEFAULT_SEARCH_PYLINT_LOCATION = LOCATION_SEARCH;
 
     public static final String[][] SEARCH_PYLINT_LOCATION_OPTIONS = new String[][] {
             { "Search in interpreter", LOCATION_SEARCH },
@@ -194,9 +195,9 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
     }
 
     public static File getPyLintLocation(IPythonNature pythonNature) {
-        IPreferenceStore preferences = PydevPrefs.getPreferences();
-        if (LOCATION_SPECIFY.equals(preferences.getString(SEARCH_PYLINT_LOCATION))) {
-            return new File(preferences.getString(PYLINT_FILE_LOCATION));
+        IEclipsePreferences preferences = PydevPrefs.getEclipsePreferences();
+        if (LOCATION_SPECIFY.equals(preferences.get(SEARCH_PYLINT_LOCATION, DEFAULT_SEARCH_PYLINT_LOCATION))) {
+            return new File(preferences.get(PYLINT_FILE_LOCATION, ""));
         }
         try {
             return pythonNature.getProjectInterpreter().searchExecutableForInterpreter("pylint", false);
@@ -212,35 +213,35 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
      * @return
      */
     public static boolean usePyLint() {
-        return PydevPrefs.getPreferences().getBoolean(USE_PYLINT);
+        return PydevPrefs.getEclipsePreferences().getBoolean(USE_PYLINT, DEFAULT_USE_PYLINT);
     }
 
     public static boolean useConsole() {
-        return PydevPrefs.getPreferences().getBoolean(USE_CONSOLE);
+        return PydevPrefs.getEclipsePreferences().getBoolean(USE_CONSOLE, DEFAULT_USE_CONSOLE);
     }
 
     public static String getPyLintArgs() {
-        return PydevPrefs.getPreferences().getString(PYLINT_ARGS);
+        return PydevPrefs.getEclipsePreferences().get(PYLINT_ARGS, DEFAULT_PYLINT_ARGS);
     }
 
     public static int wSeverity() {
-        return PydevPrefs.getPreferences().getInt(SEVERITY_WARNINGS);
+        return PydevPrefs.getEclipsePreferences().getInt(SEVERITY_WARNINGS, DEFAULT_SEVERITY_WARNINGS);
     }
 
     public static int eSeverity() {
-        return PydevPrefs.getPreferences().getInt(SEVERITY_ERRORS);
+        return PydevPrefs.getEclipsePreferences().getInt(SEVERITY_ERRORS, DEFAULT_SEVERITY_ERRORS);
     }
 
     public static int fSeverity() {
-        return PydevPrefs.getPreferences().getInt(SEVERITY_FATAL);
+        return PydevPrefs.getEclipsePreferences().getInt(SEVERITY_FATAL, DEFAULT_SEVERITY_FATAL);
     }
 
     public static int cSeverity() {
-        return PydevPrefs.getPreferences().getInt(SEVERITY_CODING_STANDARD);
+        return PydevPrefs.getEclipsePreferences().getInt(SEVERITY_CODING_STANDARD, DEFAULT_SEVERITY_CODING_STANDARD);
     }
 
     public static int rSeverity() {
-        return PydevPrefs.getPreferences().getInt(SEVERITY_REFACTOR);
+        return PydevPrefs.getEclipsePreferences().getInt(SEVERITY_REFACTOR, DEFAULT_SEVERITY_REFACTOR);
     }
 
 }

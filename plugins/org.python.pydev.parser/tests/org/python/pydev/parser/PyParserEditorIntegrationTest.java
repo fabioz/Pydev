@@ -13,8 +13,8 @@ import java.util.Map;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.IEditorInput;
@@ -27,6 +27,7 @@ import org.python.pydev.core.parser.IPyParser;
 import org.python.pydev.shared_core.editor.IBaseEditor;
 import org.python.pydev.shared_core.model.IModelListener;
 import org.python.pydev.shared_core.model.ISimpleNode;
+import org.python.pydev.shared_core.preferences.InMemoryEclipsePreferences;
 
 import junit.framework.TestCase;
 
@@ -207,7 +208,7 @@ public class PyParserEditorIntegrationTest extends TestCase {
     }
 
     public void testIntegration() throws Exception {
-        PreferenceStore preferences = new PreferenceStore();
+        IEclipsePreferences preferences = new InMemoryEclipsePreferences();
         PyParserManager pyParserManager = PyParserManager.getPyParserManager(preferences);
 
         Document doc = new Document();
@@ -233,7 +234,7 @@ public class PyParserEditorIntegrationTest extends TestCase {
     }
 
     public void testDifferentEditorsSameInput() throws Exception {
-        PreferenceStore preferences = new PreferenceStore();
+        IEclipsePreferences preferences = new InMemoryEclipsePreferences();
         PyParserManager pyParserManager = PyParserManager.getPyParserManager(preferences);
 
         Document doc = new Document();
@@ -280,7 +281,7 @@ public class PyParserEditorIntegrationTest extends TestCase {
     }
 
     public void testChangeInput() throws Exception {
-        PreferenceStore preferences = new PreferenceStore();
+        IEclipsePreferences preferences = new InMemoryEclipsePreferences();
         PyParserManager pyParserManager = PyParserManager.getPyParserManager(preferences);
 
         Document doc = new Document();

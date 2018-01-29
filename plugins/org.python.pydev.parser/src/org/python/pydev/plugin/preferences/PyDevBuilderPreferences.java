@@ -12,7 +12,7 @@ public class PyDevBuilderPreferences {
     }
 
     public static boolean useAnalysisOnlyOnDocSave() {
-        return PyParserManager.getPyParserManager(PydevPrefs.getPreferences()).useAnalysisOnlyOnDocSave();
+        return PyParserManager.getPyParserManager(PydevPrefs.getEclipsePreferences()).useAnalysisOnlyOnDocSave();
     }
 
     public static boolean getAnalyzeOnlyActiveEditor() {
@@ -28,7 +28,7 @@ public class PyDevBuilderPreferences {
     }
 
     public static int getElapseMillisBeforeAnalysis() {
-        return PyParserManager.getPyParserManager(PydevPrefs.getPreferences()).getElapseMillisBeforeAnalysis();
+        return PyParserManager.getPyParserManager(PydevPrefs.getEclipsePreferences()).getElapseMillisBeforeAnalysis();
     }
 
     public static int getPycDeleteHandling() {

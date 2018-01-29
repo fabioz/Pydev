@@ -24,7 +24,6 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
@@ -64,6 +63,7 @@ import org.python.pydev.shared_core.parsing.ErrorParserInfoForObservers;
 import org.python.pydev.shared_core.parsing.IParserObserver;
 import org.python.pydev.shared_core.parsing.IParserObserver2;
 import org.python.pydev.shared_core.parsing.IParserObserver3;
+import org.python.pydev.shared_core.preferences.InMemoryEclipsePreferences;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.LowMemoryArrayList;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -137,7 +137,7 @@ public class PyParser extends BaseParser implements IPyParser {
      * Should only be called for testing. Does not register as a thread.
      */
     public PyParser(IGrammarVersionProvider grammarVersionProvider) {
-        super(PyParserManager.getPyParserManager(new PreferenceStore()));
+        super(PyParserManager.getPyParserManager(new InMemoryEclipsePreferences()));
         if (grammarVersionProvider == null) {
             grammarVersionProvider = new IGrammarVersionProvider() {
                 @Override

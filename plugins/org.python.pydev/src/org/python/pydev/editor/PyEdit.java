@@ -777,7 +777,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                 //see if we have to change the encoding of the file on load
                 fixEncoding(input, document);
 
-                PyParserManager.getPyParserManager(PydevPrefs.getPreferences()).attachParserTo(this);
+                PyParserManager.getPyParserManager(PydevPrefs.getEclipsePreferences()).attachParserTo(this);
                 if (document != null) {
                     PyPartitionScanner.checkPartitionScanner(document, this.getGrammarVersionProvider());
                 }
@@ -796,7 +796,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
         try {
             if (this.isCythonFile()) {
-                this.setTitleImage(ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON)));
+                this.setTitleImage(
+                        ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON)));
                 this.getAutoEditStrategy().setCythonFile(true);
             } else {
                 this.getAutoEditStrategy().setCythonFile(false);
