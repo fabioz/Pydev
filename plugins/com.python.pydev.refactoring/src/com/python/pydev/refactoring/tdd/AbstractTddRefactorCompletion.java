@@ -14,6 +14,7 @@ import org.python.pydev.parser.PyParser;
 import org.python.pydev.shared_core.IMiscConstants;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
 /**
@@ -35,7 +36,7 @@ public abstract class AbstractTddRefactorCompletion extends PyCompletionProposal
             int replacementLength, int cursorPosition, IImageHandle image, String displayString,
             IContextInformation contextInformation, String additionalProposalInfo, int priority) {
         this(edit, replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
-                contextInformation, additionalProposalInfo, priority, ON_APPLY_DEFAULT, "");
+                contextInformation, additionalProposalInfo, priority, IPyCompletionProposal.ON_APPLY_DEFAULT, "");
     }
 
     public AbstractTddRefactorCompletion(PyEdit edit, String replacementString, int replacementOffset,

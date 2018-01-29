@@ -21,7 +21,7 @@ import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
-import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
+import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
 import com.python.pydev.analysis.builder.AnalysisRunner;
 
@@ -51,7 +51,7 @@ public class DontAnalyzeFileMarkerParticipant implements IAssistProps {
                     AnalysisRunner.PYDEV_CODE_ANALYSIS_IGNORE,
                     null,
                     null,
-                    PyCompletionProposal.PRIORITY_DEFAULT,
+                    IPyCompletionProposal.PRIORITY_DEFAULT,
                     edit);
             props.add(proposal);
 

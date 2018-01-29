@@ -16,7 +16,7 @@ import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_ui.UIConstants;
-import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
+import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
 public class QuickAssistDontTrace implements IAssistProps {
 
@@ -32,7 +32,7 @@ public class QuickAssistDontTrace implements IAssistProps {
                     ps.getEndLineOffset(), 0,
                     offset, //note: the cursor position is unchanged!
                     imageCache.get(UIConstants.ASSIST_ANNOTATION), messageToIgnore.substring(1), null, null,
-                    PyCompletionProposal.PRIORITY_DEFAULT, edit, cursorLineContents, ps, null);
+                    IPyCompletionProposal.PRIORITY_DEFAULT, edit, cursorLineContents, ps, null);
 
             l.add(proposal);
         }

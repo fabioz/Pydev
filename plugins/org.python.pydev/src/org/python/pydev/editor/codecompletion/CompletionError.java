@@ -12,6 +12,7 @@ import org.eclipse.jface.text.contentassist.ICompletionProposalExtension4;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
@@ -81,6 +82,11 @@ public class CompletionError implements ICompletionProposal, IPyCompletionPropos
     @Override
     public ICompareContext getCompareContext() {
         return null;
+    }
+
+    @Override
+    public int getOverrideBehavior(ICompletionProposalHandle curr) {
+        return IPyCompletionProposal.BEHAVIOR_OVERRIDES;
     }
 
 }

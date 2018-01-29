@@ -14,10 +14,8 @@ import java.util.List;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Region;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContext;
-import org.eclipse.jface.text.templates.TemplateProposal;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
@@ -25,14 +23,12 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
-import org.python.pydev.shared_core.SharedCorePlugin;
-import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.string.DocIterator;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
-import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
+import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
 /**
  * The code-completion engine that should be used inside strings
@@ -155,10 +151,9 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
      * @throws MisconfigurationException
      */
     @Override
-    @SuppressWarnings("unchecked")
-    public List getCodeCompletionProposals(CompletionRequest request) throws CoreException,
+    public List<Object> getCodeCompletionProposals(CompletionRequest request) throws CoreException,
             BadLocationException, MisconfigurationException {
-        ArrayList ret = new ArrayList();
+        List<Object> ret = new ArrayList<>();
         request.showTemplates = false; //don't show templates in strings
         fillWithEpydocFields(request, ret);
 
@@ -182,7 +177,7 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
     /**
      * @param ret OUT: this is where the completions are stored
      */
-    private void fillWithParams(CompletionRequest request, ArrayList<ICompletionProposalHandle> ret) {
+    private void fillWithParams(CompletionRequest request, List<Object> ret) {
         PySelection ps = new PySelection(request.doc, request.documentOffset);
         try {
             String lineContentsToCursor = ps.getLineContentsToCursor();
@@ -216,7 +211,7 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
                                         PyCodeCompletionImages
                                                 .getImageForType(IToken.TYPE_PARAM),
                                         null, null, "", 0,
-                                        PyCompletionProposal.ON_APPLY_DEFAULT, "", null));
+                                        IPyCompletionProposal.ON_APPLY_DEFAULT, "", null));
                             }
                         }
                         return;
@@ -232,7 +227,7 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
      * @param ret OUT: this is where the completions are stored
      */
     private void fillWithEpydocFields(CompletionRequest request,
-            ArrayList<ICompletionProposal> ret) {
+            List<Object> ret) {
         try {
             Region region = new Region(request.documentOffset - request.qlen, request.qlen);
             IImageHandle image = PyCodeCompletionImages.getImageForType(IToken.TYPE_EPYDOC);
@@ -255,16 +250,9 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
                     String f = EPYDOC_FIELDS[i];
                     if (f.startsWith(request.qualifier)) {
                         Template t = new Template(f, EPYDOC_FIELDS[i + 2], "", EPYDOC_FIELDS[i + 1], false);
-                        ret.add(new TemplateProposal(t, context, region, ImageCache.asImage(image), 5) {
-                            @Override
-                            public String getDisplayString() {
-                                if (SharedCorePlugin.inTestMode()) {
-                                    return this.getPrefixCompletionText(null, 0).toString();
-                                } else {
-                                    return super.getDisplayString();
-                                }
-                            }
-                        });
+                        ret.add(CompletionProposalFactory.get().createPyTemplateProposalForTests(t, context, region,
+                                ImageCache.asImage(image),
+                                5));
                     }
                     i += 2;
                 }
@@ -278,13 +266,15 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
      * @return completions added from contributors
      * @throws MisconfigurationException
      */
-    private Collection getStringGlobalsFromParticipants(CompletionRequest request, ICompletionState state)
+    private Collection<Object> getStringGlobalsFromParticipants(CompletionRequest request, ICompletionState state)
             throws MisconfigurationException {
-        ArrayList ret = new ArrayList();
+        List<Object> ret = new ArrayList<>();
 
-        List participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_COMPLETION);
-        for (Iterator iter = participants.iterator(); iter.hasNext();) {
-            IPyDevCompletionParticipant participant = (IPyDevCompletionParticipant) iter.next();
+        @SuppressWarnings("unchecked")
+        List<IPyDevCompletionParticipant> participants = ExtensionHelper
+                .getParticipants(ExtensionHelper.PYDEV_COMPLETION);
+        for (Iterator<IPyDevCompletionParticipant> iter = participants.iterator(); iter.hasNext();) {
+            IPyDevCompletionParticipant participant = iter.next();
             ret.addAll(participant.getStringGlobalCompletions(request, state));
         }
         return ret;

@@ -54,7 +54,6 @@ import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleView
 import org.python.pydev.shared_ui.content_assist.AbstractCompletionProcessorWithCycling;
 import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
-import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
 /**
  * Default implementation for the console interpreter.
@@ -183,7 +182,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
                             replacementOffset, qlen, representation
                                     .length(),
                             t, null, null, IPyCompletionProposal.PRIORITY_DEFAULT,
-                            PyCompletionProposal.ON_APPLY_DEFAULT, "", null));
+                            IPyCompletionProposal.ON_APPLY_DEFAULT, "", null));
                 }
             }
             return ret.toArray(new ICompletionProposalHandle[ret.size()]);

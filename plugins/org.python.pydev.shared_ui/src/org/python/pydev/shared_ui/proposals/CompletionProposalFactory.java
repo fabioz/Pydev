@@ -1,6 +1,10 @@
 package org.python.pydev.shared_ui.proposals;
 
+import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.contentassist.IContextInformation;
+import org.eclipse.jface.text.templates.Template;
+import org.eclipse.jface.text.templates.TemplateContext;
+import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.IToken;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.image.IImageHandle;
@@ -10,6 +14,20 @@ public class CompletionProposalFactory {
 
     public static CompletionProposalFactory get() {
         return new CompletionProposalFactory();
+    }
+
+    public ICompletionProposalHandle createPyTemplateProposalForTests(Template template,
+            TemplateContext context, IRegion region, Image image, int relevance) {
+        return null;
+        //        return new PyTemplateProposalForTests(template, context, region, image, relevance);
+    }
+
+    public ICompletionProposalHandle createFixCompletionProposal(String replacementString, int replacementOffset,
+            int replacementLength, int cursorPosition, IImageHandle image, String displayString,
+            IContextInformation contextInformation, String additionalProposalInfo, int lineToRemove) {
+        return null;
+        //        return new FixCompletionProposal(replacementString, replacementOffset, replacementLength, cursorPosition, image,
+        //                displayString, contextInformation, additionalProposalInfo, lineToRemove);
     }
 
     public ICompletionProposalHandle createPyCompletionProposal(String replacementString, int replacementOffset,

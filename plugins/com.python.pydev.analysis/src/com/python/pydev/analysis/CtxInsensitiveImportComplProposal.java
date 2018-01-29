@@ -44,6 +44,7 @@ import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 
 /**
@@ -115,7 +116,7 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
             String additionalProposalInfo, int priority, String realImportRep, ICompareContext compareContext) {
 
         super(replacementString, replacementOffset, replacementLength, cursorPosition, null, displayString,
-                contextInformation, additionalProposalInfo, priority, ON_APPLY_DEFAULT, "", compareContext);
+                contextInformation, additionalProposalInfo, priority, IPyCompletionProposal.ON_APPLY_DEFAULT, "", compareContext);
         this.infoTypeForImage = infoTypeForImage;
         this.realImportRep = realImportRep;
     }
@@ -535,12 +536,12 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
     public int getOverrideBehavior(ICompletionProposalHandle curr) {
         if (curr instanceof CtxInsensitiveImportComplProposal) {
             if (curr.getDisplayString().equals(getDisplayString())) {
-                return BEHAVIOR_IS_OVERRIDEN;
+                return IPyCompletionProposal.BEHAVIOR_IS_OVERRIDEN;
             } else {
-                return BEHAVIOR_COEXISTS;
+                return IPyCompletionProposal.BEHAVIOR_COEXISTS;
             }
         } else {
-            return BEHAVIOR_IS_OVERRIDEN;
+            return IPyCompletionProposal.BEHAVIOR_IS_OVERRIDEN;
         }
     }
 

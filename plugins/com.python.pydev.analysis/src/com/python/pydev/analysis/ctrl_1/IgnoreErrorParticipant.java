@@ -28,7 +28,7 @@ import org.python.pydev.editor.correctionassist.IgnoreCompletionProposalInSameLi
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
-import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
+import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.builder.AnalysisRunner;
@@ -74,7 +74,7 @@ public class IgnoreErrorParticipant implements IAnalysisMarkersParticipant {
                 offset, //note: the cursor position is unchanged!
                 SharedUiPlugin.getImageCache().get(UIConstants.ASSIST_ANNOTATION),
                 messageToIgnore.substring(1), null, null,
-                PyCompletionProposal.PRIORITY_DEFAULT, edit, line, ps, format);
+                IPyCompletionProposal.PRIORITY_DEFAULT, edit, line, ps, format);
         props.add(proposal);
     }
 }

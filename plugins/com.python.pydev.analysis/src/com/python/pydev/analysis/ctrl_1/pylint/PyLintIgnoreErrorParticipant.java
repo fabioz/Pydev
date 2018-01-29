@@ -25,7 +25,7 @@ import org.python.pydev.shared_core.IMiscConstants;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
-import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
+import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.ctrl_1.IAnalysisMarkersParticipant;
@@ -76,7 +76,7 @@ public class PyLintIgnoreErrorParticipant implements IAnalysisMarkersParticipant
                 offset, //note: the cursor position is unchanged!
                 SharedUiPlugin.getImageCache().get(UIConstants.ASSIST_ANNOTATION),
                 "pylint: disable=" + messageId, null, null,
-                PyCompletionProposal.PRIORITY_DEFAULT, edit, line, ps, format, m);
+                IPyCompletionProposal.PRIORITY_DEFAULT, edit, line, ps, format, m);
         props.add(proposal);
     }
 }

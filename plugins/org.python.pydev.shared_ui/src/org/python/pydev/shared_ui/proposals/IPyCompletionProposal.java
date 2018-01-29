@@ -11,6 +11,8 @@
  */
 package org.python.pydev.shared_ui.proposals;
 
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
+
 /**
  * @author Fabio Zadrozny
  */
@@ -33,6 +35,21 @@ public interface IPyCompletionProposal {
     int PRIORITY_PACKAGES = 100;
 
     /**
+     * Defines a 'regular' apply, in which we add the completion as usual
+     */
+    int ON_APPLY_DEFAULT = 1;
+
+    /**
+     * Defines that when applying the changes we should just show the context info and do no other change
+     */
+    int ON_APPLY_JUST_SHOW_CTX_INFO = 2;
+
+    /**
+     * Defines that we should add only the parameters on the apply and show the context info too
+     */
+    int ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS = 3;
+
+    /**
      * @return the priority for showing this completion proposal, so that lower priorities are
      * shown earlier in the list.
      */
@@ -52,5 +69,13 @@ public interface IPyCompletionProposal {
     }
 
     public ICompareContext getCompareContext();
+
+    int BEHAVIOR_OVERRIDES = 0;
+
+    int BEHAVIOR_COEXISTS = 1;
+
+    int BEHAVIOR_IS_OVERRIDEN = 2;
+
+    public int getOverrideBehavior(ICompletionProposalHandle curr);
 
 }

@@ -50,21 +50,6 @@ public class FixCompletionProposal implements ICompletionProposal, ICompletionPr
     private int lineToRemove;
 
     /**
-     * Creates a new completion proposal based on the provided information. The replacement string is
-     * considered being the display string too. All remaining fields are set to <code>null</code>.
-     *
-     * @param replacementString the actual string to be inserted into the document
-     * @param replacementOffset the offset of the text to be replaced
-     * @param replacementLength the length of the text to be replaced
-     * @param cursorPosition the position of the cursor following the insert relative to replacementOffset
-     */
-    public FixCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
-            int cursorPosition, int lineToRemove) {
-        this(replacementString, replacementOffset, replacementLength, cursorPosition, null, null, null, null,
-                lineToRemove);
-    }
-
-    /**
      * Creates a new completion proposal. All fields are initialized based on the provided information.
      *
      * @param replacementString the actual string to be inserted into the document

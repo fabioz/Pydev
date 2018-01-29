@@ -23,7 +23,7 @@ import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant;
 import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant2;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
-import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
+import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
 import com.python.pydev.codecompletion.ui.CodeCompletionPreferencesPage;
 
@@ -180,7 +180,7 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant, ISimpleAs
                         //In the console, only show the simple completions without any special treatment
                         results.add(
                                 CompletionProposalFactory.get().createPyCompletionProposal(keyw, offset - qlen, qlen,
-                                        keyw.length(), PyCompletionProposal.PRIORITY_DEFAULT, null));
+                                        keyw.length(), IPyCompletionProposal.PRIORITY_DEFAULT, null));
 
                     } else {
                         //in the editor, we'll create a special proposal with more features
@@ -190,7 +190,7 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant, ISimpleAs
                             }
                         }
                         results.add(new SimpleAssistProposal(keyw, offset - qlen, qlen, keyw.length(),
-                                PyCompletionProposal.PRIORITY_DEFAULT, null));
+                                IPyCompletionProposal.PRIORITY_DEFAULT, null));
                     }
                 }
             }

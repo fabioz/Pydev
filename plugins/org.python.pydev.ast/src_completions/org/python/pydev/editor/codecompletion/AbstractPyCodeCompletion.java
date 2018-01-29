@@ -22,7 +22,6 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal.ICompareContext;
-import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
 public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
 
@@ -56,15 +55,15 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
 
         //that's negated so that we can use it as an integer later on (to sum it)
         int notInCalltip = 1;
-        int onApplyAction = PyCompletionProposal.ON_APPLY_DEFAULT;
+        int onApplyAction = IPyCompletionProposal.ON_APPLY_DEFAULT;
         if (request.isInCalltip) {
             notInCalltip = 0; //when we're in the calltip, we don't have to add a char '(' to the start of the context information.
             if (request.alreadyHasParams) {
-                onApplyAction = PyCompletionProposal.ON_APPLY_JUST_SHOW_CTX_INFO;
+                onApplyAction = IPyCompletionProposal.ON_APPLY_JUST_SHOW_CTX_INFO;
                 forcedContextInformationOffset = request.calltipOffset;
 
             } else {
-                onApplyAction = PyCompletionProposal.ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS;
+                onApplyAction = IPyCompletionProposal.ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS;
             }
         }
 

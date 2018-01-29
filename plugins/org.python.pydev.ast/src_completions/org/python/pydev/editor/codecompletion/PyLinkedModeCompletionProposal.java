@@ -31,6 +31,7 @@ import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
 public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionProposalExtension2 implements
         ICompletionProposalExtension {
@@ -165,7 +166,7 @@ public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionPr
             return string;
         }
         String ret = string;
-        if (onApplyAction == ON_APPLY_DEFAULT) {
+        if (onApplyAction == IPyCompletionProposal.ON_APPLY_DEFAULT) {
             String msg;
             if (fReplacementString.indexOf('(') != -1) {
                 msg = MSG;
@@ -192,16 +193,16 @@ public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionPr
             return new Point(newForcedOffset, 0);
         }
 
-        if (onApplyAction == ON_APPLY_JUST_SHOW_CTX_INFO) {
+        if (onApplyAction == IPyCompletionProposal.ON_APPLY_JUST_SHOW_CTX_INFO) {
             return null;
         }
-        if (onApplyAction == ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS) {
+        if (onApplyAction == IPyCompletionProposal.ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS) {
             if (fArgs.length() > 0) {
                 return new Point(fReplacementOffset + fCursorPosition - 1, firstParameterLen); //the difference is the firstParameterLen here (instead of 0)
             }
             return null;
         }
-        if (onApplyAction == ON_APPLY_DEFAULT) {
+        if (onApplyAction == IPyCompletionProposal.ON_APPLY_DEFAULT) {
             return new Point(fReplacementOffset + fCursorPosition + nPositionsAdded, firstParameterLen); //the difference is the firstParameterLen here (instead of 0)
         }
         throw new RuntimeException("Unexpected apply mode:" + onApplyAction);
@@ -224,10 +225,10 @@ public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionPr
             return;
         }
 
-        if (onApplyAction == ON_APPLY_JUST_SHOW_CTX_INFO) {
+        if (onApplyAction == IPyCompletionProposal.ON_APPLY_JUST_SHOW_CTX_INFO) {
             return;
         }
-        if (onApplyAction == ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS) {
+        if (onApplyAction == IPyCompletionProposal.ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS) {
             try {
                 String args;
                 if (fArgs.length() > 0) {
@@ -251,7 +252,7 @@ public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionPr
             return;
         }
 
-        if (onApplyAction == ON_APPLY_DEFAULT) {
+        if (onApplyAction == IPyCompletionProposal.ON_APPLY_DEFAULT) {
             try {
                 int dif = offset - fReplacementOffset;
                 String strToAdd = fReplacementString.substring(dif);
@@ -436,7 +437,7 @@ public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionPr
      */
     @Override
     public char[] getTriggerCharacters() {
-        if (onApplyAction != ON_APPLY_DEFAULT) {
+        if (onApplyAction != IPyCompletionProposal.ON_APPLY_DEFAULT) {
             return null;
         }
         return super.getTriggerCharacters();

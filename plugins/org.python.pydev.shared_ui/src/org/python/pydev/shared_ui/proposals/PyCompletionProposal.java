@@ -52,24 +52,9 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
     }
 
     /**
-     * Defines a 'regular' apply, in which we add the completion as usual
-     */
-    public final static int ON_APPLY_DEFAULT = 1;
-
-    /**
-     * Defines that when applying the changes we should just show the context info and do no other change
-     */
-    public final static int ON_APPLY_JUST_SHOW_CTX_INFO = 2;
-
-    /**
-     * Defines that we should add only the parameters on the apply and show the context info too
-     */
-    public final static int ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS = 3;
-
-    /**
      * Defines how should the apply be treated
      */
-    public int onApplyAction = ON_APPLY_DEFAULT;
+    public int onApplyAction = IPyCompletionProposal.ON_APPLY_DEFAULT;
     public String fArgs;
 
     /**
@@ -98,7 +83,8 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
             int cursorPosition, IImageHandle image, String displayString, IContextInformation contextInformation,
             String additionalProposalInfo, int priority, ICompareContext compareContext) {
         this(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
-                contextInformation, additionalProposalInfo, priority, ON_APPLY_DEFAULT, "", compareContext);
+                contextInformation, additionalProposalInfo, priority, IPyCompletionProposal.ON_APPLY_DEFAULT, "",
+                compareContext);
     }
 
     // Backward-compatibility for jython scripts without compareContext.
@@ -106,7 +92,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
             int cursorPosition, IImageHandle image, String displayString, IContextInformation contextInformation,
             String additionalProposalInfo, int priority) {
         this(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
-                contextInformation, additionalProposalInfo, priority, ON_APPLY_DEFAULT, "", null);
+                contextInformation, additionalProposalInfo, priority, IPyCompletionProposal.ON_APPLY_DEFAULT, "", null);
     }
 
     // Backward-compatibility for jython scripts without compareContext.
@@ -164,10 +150,10 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
     @Override
     public void apply(IDocument document) {
         switch (onApplyAction) {
-            case ON_APPLY_JUST_SHOW_CTX_INFO:
+            case IPyCompletionProposal.ON_APPLY_JUST_SHOW_CTX_INFO:
                 break;
 
-            case ON_APPLY_DEFAULT:
+            case IPyCompletionProposal.ON_APPLY_DEFAULT:
                 try {
                     document.replace(fReplacementOffset, fReplacementLength, fReplacementString);
                 } catch (BadLocationException x) {
@@ -175,7 +161,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
                 }
                 break;
 
-            case ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS:
+            case IPyCompletionProposal.ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS:
                 try {
                     String args;
                     if (fArgs.length() > 0) {
@@ -202,13 +188,13 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
      */
     @Override
     public Point getSelection(IDocument document) {
-        if (onApplyAction == ON_APPLY_JUST_SHOW_CTX_INFO) {
+        if (onApplyAction == IPyCompletionProposal.ON_APPLY_JUST_SHOW_CTX_INFO) {
             return null;
         }
-        if (onApplyAction == ON_APPLY_DEFAULT) {
+        if (onApplyAction == IPyCompletionProposal.ON_APPLY_DEFAULT) {
             return new Point(fReplacementOffset + fCursorPosition, 0);
         }
-        if (onApplyAction == ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS) {
+        if (onApplyAction == IPyCompletionProposal.ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS) {
             return new Point(fReplacementOffset + fCursorPosition - 1, 0);
         }
         throw new RuntimeException("Unexpected apply mode:" + onApplyAction);
@@ -282,19 +268,16 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
 
     @Override
     public boolean isAutoInsertable() {
-        return onApplyAction == ON_APPLY_JUST_SHOW_CTX_INFO
-                || onApplyAction == ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS;
+        return onApplyAction == IPyCompletionProposal.ON_APPLY_JUST_SHOW_CTX_INFO
+                || onApplyAction == IPyCompletionProposal.ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS;
     }
-
-    public static final int BEHAVIOR_OVERRIDES = 0;
-    public static final int BEHAVIOR_COEXISTS = 1;
-    public static final int BEHAVIOR_IS_OVERRIDEN = 2;
 
     /**
      * @param curr another completion that has the same internal representation.
      * @return the behavior when faced with a given proposal (that has the same internal representation)
      */
+    @Override
     public int getOverrideBehavior(ICompletionProposalHandle curr) {
-        return BEHAVIOR_OVERRIDES;
+        return IPyCompletionProposal.BEHAVIOR_OVERRIDES;
     }
 }

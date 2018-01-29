@@ -19,7 +19,7 @@ import org.eclipse.core.resources.IProject;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.editor.codecompletion.ProposalsComparator.CompareContext;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
-import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
+import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
 public class PyCodeCompletionUtils {
 
@@ -66,22 +66,22 @@ public class PyCodeCompletionUtils {
                     if (existing != null) {
                         //a proposal with the same string is already there...
                         boolean addIt = true;
-                        if (proposal instanceof PyCompletionProposal) {
-                            PyCompletionProposal propP = (PyCompletionProposal) proposal;
+                        if (proposal instanceof IPyCompletionProposal) {
+                            IPyCompletionProposal propP = (IPyCompletionProposal) proposal;
 
                             OUT: for (Iterator<ICompletionProposalHandle> it = existing.iterator(); it.hasNext();) {
                                 ICompletionProposalHandle curr = it.next();
                                 int overrideBehavior = propP.getOverrideBehavior(curr);
 
                                 switch (overrideBehavior) {
-                                    case PyCompletionProposal.BEHAVIOR_COEXISTS:
+                                    case IPyCompletionProposal.BEHAVIOR_COEXISTS:
                                         //just go on (it will be added later)
                                         break;
-                                    case PyCompletionProposal.BEHAVIOR_OVERRIDES:
+                                    case IPyCompletionProposal.BEHAVIOR_OVERRIDES:
                                         it.remove();
                                         break;
 
-                                    case PyCompletionProposal.BEHAVIOR_IS_OVERRIDEN:
+                                    case IPyCompletionProposal.BEHAVIOR_IS_OVERRIDEN:
                                         addIt = false;
                                         break OUT;
 

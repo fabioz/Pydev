@@ -56,7 +56,6 @@ import org.python.pydev.shared_interactive_console.console.ScriptXmlRpcClient;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
-import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 /**
@@ -644,7 +643,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                     ICompletionProposalHandle completion = CompletionProposalFactory.get()
                             .createPyLinkedModeCompletionProposal(nameAndArgs, replacementOffset, length, cursorPos,
                                     PyCodeCompletionImages.getImageForType(type), nameAndArgs, pyContextInformation,
-                                    docStr, priority, PyCompletionProposal.ON_APPLY_DEFAULT, args, false, null);
+                                    docStr, priority, IPyCompletionProposal.ON_APPLY_DEFAULT, args, false, null);
                     if (filter == null || filter.acceptCompletion(type, completion)) {
                         ret.add(completion);
                     }

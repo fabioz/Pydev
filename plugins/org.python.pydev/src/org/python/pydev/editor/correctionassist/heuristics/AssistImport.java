@@ -20,13 +20,13 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
-import org.python.pydev.editor.correctionassist.FixCompletionProposal;
 import org.python.pydev.editor.correctionassist.IgnoreCompletionProposal;
 import org.python.pydev.editor.correctionassist.IgnoreCompletionProposalInSameLine;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_ui.UIConstants;
-import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
+import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
+import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 
 /**
@@ -58,7 +58,8 @@ public class AssistImport implements IAssistProps {
             int lineToMoveOffset = ps.getDoc().getLineOffset(lineToMoveImport);
 
             if (i >= 0) {
-                l.add(new FixCompletionProposal(sel + delimiter, lineToMoveOffset, 0, ps.getStartLine().getOffset(),
+                l.add(CompletionProposalFactory.get().createFixCompletionProposal(sel + delimiter, lineToMoveOffset, 0,
+                        ps.getStartLine().getOffset(),
                         imageCache
                                 .get(UIConstants.ASSIST_MOVE_IMPORT),
                         "Move import to global scope", null, null, ps
@@ -81,7 +82,7 @@ public class AssistImport implements IAssistProps {
                         ps.getEndLineOffset(), 0,
                         offset, //note: the cursor position is unchanged!
                         imageCache.get(UIConstants.ASSIST_ANNOTATION), caption, null, null,
-                        PyCompletionProposal.PRIORITY_DEFAULT, edit, cursorLineContents, ps, null);
+                        IPyCompletionProposal.PRIORITY_DEFAULT, edit, cursorLineContents, ps, null);
 
                 l.add(proposal);
             }

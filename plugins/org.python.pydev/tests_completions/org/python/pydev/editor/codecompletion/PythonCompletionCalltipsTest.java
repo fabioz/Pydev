@@ -14,6 +14,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
 public class PythonCompletionCalltipsTest extends CodeCompletionTestsBase {
@@ -89,7 +90,7 @@ public class PythonCompletionCalltipsTest extends CodeCompletionTestsBase {
         assertEquals("m1(a, b)", prop.getDisplayString());
         PyCompletionProposal p4 = (PyCompletionProposal) prop;
         assertTrue(p4.isAutoInsertable());
-        assertEquals(PyCompletionProposal.ON_APPLY_JUST_SHOW_CTX_INFO, p4.onApplyAction);
+        assertEquals(IPyCompletionProposal.ON_APPLY_JUST_SHOW_CTX_INFO, p4.onApplyAction);
 
         //the display string for the context 'context' and 'information' should be the same
         IPyCalltipsContextInformation contextInformation = (IPyCalltipsContextInformation) prop.getContextInformation();
