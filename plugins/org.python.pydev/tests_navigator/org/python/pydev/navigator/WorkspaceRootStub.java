@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.shared_core.resource_stubs;
+package org.python.pydev.navigator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +13,7 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.model.IWorkbenchAdapter;
+import org.python.pydev.shared_core.resource_stubs.AbstractIWorkspaceRootStub;
 
 public class WorkspaceRootStub extends AbstractIWorkspaceRootStub implements IWorkbenchAdapter {
 

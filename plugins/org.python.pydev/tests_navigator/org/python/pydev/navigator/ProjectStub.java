@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.shared_core.resource_stubs;
+package org.python.pydev.navigator;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -22,9 +22,15 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.ui.model.IWorkbenchAdapter;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.resource_stubs.AbstractIProjectStub;
+import org.python.pydev.shared_core.resource_stubs.FileStub;
+import org.python.pydev.shared_core.resource_stubs.FolderStub;
+import org.python.pydev.shared_core.resource_stubs.IProjectStub;
 
-public class ProjectStub extends AbstractIProjectStub implements IProjectStub {
+public class ProjectStub extends AbstractIProjectStub implements IWorkbenchAdapter, IProjectStub {
 
     public File projectRoot;
 
@@ -33,6 +39,10 @@ public class ProjectStub extends AbstractIProjectStub implements IProjectStub {
     private IProjectNature nature;
 
     private IContainer parent;
+
+    private boolean addNullChild;
+
+    private List<Object> additionalChildren;
 
     @Override
     public File getProjectRoot() {
@@ -51,6 +61,8 @@ public class ProjectStub extends AbstractIProjectStub implements IProjectStub {
         Assert.isTrue(file.exists() && file.isDirectory());
         this.projectRoot = file;
         this.nature = nature;
+        this.addNullChild = addNullChild;
+        this.additionalChildren = additionalChildren;
     }
 
     public IResource getResource(File parentFile) {
@@ -70,7 +82,6 @@ public class ProjectStub extends AbstractIProjectStub implements IProjectStub {
         return r;
     }
 
-    @Override
     public IContainer getFolder(File parentFile) {
         return (IContainer) getResource(parentFile);
     }
@@ -164,9 +175,64 @@ public class ProjectStub extends AbstractIProjectStub implements IProjectStub {
 
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T getAdapter(Class<T> adapter) {
-        return null;
+        if (adapter == IWorkbenchAdapter.class) {
+            return (T) this;
+        }
+        throw new RuntimeException("Not impl");
+
     }
 
+    private HashMap<Object, Object[]> stubsCache = new HashMap<Object, Object[]>();
+
+    //workbench adapter
+    @Override
+    public Object[] getChildren(Object o) {
+        Object[] found = stubsCache.get(o);
+        if (found != null) {
+            return found;
+        }
+
+        File folder = null;
+        if (o instanceof ProjectStub) {
+            ProjectStub projectStub = (ProjectStub) o;
+            folder = projectStub.projectRoot;
+        } else {
+            throw new RuntimeException("Shouldn't happen");
+        }
+        ArrayList<Object> ret = new ArrayList<Object>();
+        for (File file : folder.listFiles()) {
+            String lower = file.getName().toLowerCase();
+            if (lower.equals("cvs") || lower.equals(".svn")) {
+                continue;
+            }
+            if (file.isDirectory()) {
+                ret.add(new FolderStub(this, file));
+            } else {
+                ret.add(new FileStub(this, file));
+            }
+        }
+        if (addNullChild) {
+            ret.add(null);
+        }
+        ret.addAll(this.additionalChildren);
+        return ret.toArray();
+    }
+
+    @Override
+    public ImageDescriptor getImageDescriptor(Object object) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public String getLabel(Object o) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public Object getParent(Object o) {
+        throw new RuntimeException("Not implemented");
+    }
 }

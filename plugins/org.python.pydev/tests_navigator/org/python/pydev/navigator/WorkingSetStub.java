@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.shared_core.resource_stubs;
+package org.python.pydev.navigator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +13,7 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IWorkingSet;
+import org.python.pydev.shared_core.resource_stubs.ProjectStub;
 
 public class WorkingSetStub implements IWorkingSet {
 

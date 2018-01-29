@@ -15,8 +15,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.junit;bundle-version="4.0";resolution:=optional,
  org.eclipse.jface,
  org.eclipse.core.resources,
- org.eclipse.core.filebuffers,
- org.eclipse.ui.workbench
+ org.eclipse.core.filebuffers
 Bundle-ActivationPolicy: lazy
 Export-Package: org.apache.lucene,
  org.apache.lucene.analysis,
