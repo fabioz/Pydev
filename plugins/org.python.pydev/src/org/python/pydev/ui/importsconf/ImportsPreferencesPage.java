@@ -126,7 +126,7 @@ public class ImportsPreferencesPage extends ScopedFieldEditorPreferencePage impl
                 p);
         addField(breakImportsInMultilineMode);
 
-        updateEnablement(p, PydevPrefs.getPreferences().getString(IMPORT_ENGINE));
+        updateEnablement(p, PydevPrefs.getPreferenceStore().getString(IMPORT_ENGINE));
         Combo importEngineCombo = importEngineFieldEditor.getCombo();
         importEngineCombo.addSelectionListener(new SelectionListener() {
 

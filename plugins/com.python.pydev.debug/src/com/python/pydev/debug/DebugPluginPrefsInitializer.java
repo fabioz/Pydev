@@ -41,7 +41,7 @@ public class DebugPluginPrefsInitializer extends AbstractPreferenceInitializer {
     }
 
     public static int getRemoteDebuggerPort() {
-        return PydevPrefs.getPreferenceStore().getInt(PYDEV_REMOTE_DEBUGGER_PORT);
+        return PydevPrefs.getEclipsePreferences().getInt(PYDEV_REMOTE_DEBUGGER_PORT, DEFAULT_REMOTE_DEBUGGER_PORT);
     }
 
 }

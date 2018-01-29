@@ -193,7 +193,8 @@ public class PydevConsoleFactory implements IConsoleFactory {
                 PydevConsoleCommunication consoleCommunication = (PydevConsoleCommunication) interpreter
                         .getConsoleCommunication();
 
-                int acceptTimeout = PydevPrefs.getPreferences().getInt(PyDevEditorPreferences.CONNECT_TIMEOUT);
+                int acceptTimeout = PydevPrefs.getEclipsePreferences().getInt(PyDevEditorPreferences.CONNECT_TIMEOUT,
+                        PyDevEditorPreferences.DEFAULT_CONNECT_TIMEOUT);
                 PyDebugTargetConsole pyDebugTargetConsole = null;
                 ILaunch launch = interpreter.getLaunch();
                 IProcess eclipseProcess = launch.getProcesses()[0];
@@ -315,7 +316,8 @@ public class PydevConsoleFactory implements IConsoleFactory {
             return null;
         }
         if (launchAndProcess.interpreter != null) {
-            return createPydevInterpreter(launchAndProcess, iprocessFactory.getNaturesUsed(), launchAndProcess.encoding);
+            return createPydevInterpreter(launchAndProcess, iprocessFactory.getNaturesUsed(),
+                    launchAndProcess.encoding);
         } else {
             return createPydevDebugInterpreter(launchAndProcess, true, new AnyPyStackFrameSelected());
         }

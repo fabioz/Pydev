@@ -224,7 +224,7 @@ public class PyRenameRefactoringWizard extends RefactoringWizard {
                 final Button resourceRename = new Button(result, SWT.CHECK);
                 resourceRename.setText("&Simple Resource Rename / Change Extension?");
 
-                IPreferenceStore preferences = PydevPrefs.getPreferences();
+                IPreferenceStore preferences = PydevPrefs.getPreferenceStore();
                 preferences.setDefault(SIMPLE_RESOURCE_RENAME, false); //Default is always false to rename resources.
                 boolean simpleResourceRenameBool = preferences.getBoolean(SIMPLE_RESOURCE_RENAME);
                 resourceRename.setSelection(simpleResourceRenameBool);
@@ -232,7 +232,7 @@ public class PyRenameRefactoringWizard extends RefactoringWizard {
                 resourceRename.addSelectionListener(new SelectionAdapter() {
                     @Override
                     public void widgetSelected(SelectionEvent e) {
-                        IPreferenceStore preferences = PydevPrefs.getPreferences();
+                        IPreferenceStore preferences = PydevPrefs.getPreferenceStore();
                         boolean simpleResourceRenameBool = resourceRename.getSelection();
                         updateReferencesButton.setVisible(!simpleResourceRenameBool);
                         preferences.setValue(SIMPLE_RESOURCE_RENAME, simpleResourceRenameBool);
@@ -261,7 +261,7 @@ public class PyRenameRefactoringWizard extends RefactoringWizard {
                 final Button updateReferences = new Button(result, SWT.CHECK);
                 updateReferences.setText("&Update References?");
 
-                IPreferenceStore preferences = PydevPrefs.getPreferences();
+                IPreferenceStore preferences = PydevPrefs.getPreferenceStore();
                 preferences.setDefault(UPDATE_REFERENCES, true); //Default is always true to update references.
                 boolean updateRefs = preferences.getBoolean(UPDATE_REFERENCES);
                 updateReferences.setSelection(updateRefs);
@@ -269,7 +269,7 @@ public class PyRenameRefactoringWizard extends RefactoringWizard {
                 updateReferences.addSelectionListener(new SelectionAdapter() {
                     @Override
                     public void widgetSelected(SelectionEvent e) {
-                        IPreferenceStore preferences = PydevPrefs.getPreferences();
+                        IPreferenceStore preferences = PydevPrefs.getPreferenceStore();
                         boolean updateRefs = updateReferences.getSelection();
                         preferences.setValue(UPDATE_REFERENCES, updateRefs);
                         fRequest.setUpdateReferences(updateRefs);

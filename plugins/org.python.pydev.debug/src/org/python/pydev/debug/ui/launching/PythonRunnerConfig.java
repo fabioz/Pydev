@@ -393,7 +393,8 @@ public class PythonRunnerConfig {
         arguments = getArguments(conf, makeArgumentsVariableSubstitution);
         IPath workingPath = getWorkingDirectory(conf, pythonNature);
         workingDirectory = workingPath == null ? null : workingPath.toFile();
-        acceptTimeout = PydevPrefs.getPreferences().getInt(PyDevEditorPreferences.CONNECT_TIMEOUT);
+        acceptTimeout = PydevPrefs.getEclipsePreferences().getInt(PyDevEditorPreferences.CONNECT_TIMEOUT,
+                PyDevEditorPreferences.DEFAULT_CONNECT_TIMEOUT);
 
         interpreterLocation = getInterpreterLocation(conf, pythonNature, this.getRelatedInterpreterManager());
         interpreter = getInterpreter(interpreterLocation, conf, pythonNature);
@@ -923,7 +924,7 @@ public class PythonRunnerConfig {
 
             //Last thing: nose parameters or parameters the user configured.
             for (String s : ProcessUtils.parseArguments(PyUnitPrefsPage2.getTestRunnerParameters(this.configuration,
-            this.project))) {
+                    this.project))) {
                 cmdArgs.add(s);
             }
         }

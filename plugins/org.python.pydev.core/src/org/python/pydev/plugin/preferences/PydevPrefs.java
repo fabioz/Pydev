@@ -34,13 +34,6 @@ public class PydevPrefs {
     public static ICallback0<IPreferenceStore> getChainedPrefStore;
 
     /**
-     * @return the place where this plugin preferences are stored.
-     */
-    public static IPreferenceStore getPreferences() {
-        return getPreferenceStore();
-    }
-
-    /**
      * @return a preference store that has the pydev preference store and the default editors text store
      */
     public synchronized static IPreferenceStore getChainedPrefStore() {

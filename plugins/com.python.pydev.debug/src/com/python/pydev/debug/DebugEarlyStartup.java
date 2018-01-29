@@ -7,12 +7,13 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IDebugEventSetListener;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TaskBar;
@@ -36,7 +37,7 @@ public class DebugEarlyStartup implements IStartup {
         @Override
         protected IStatus run(IProgressMonitor monitor) {
             try {
-                checkAlwaysOn(PydevPrefs.getPreferenceStore());
+                checkAlwaysOn(PydevPrefs.getEclipsePreferences());
             } catch (NullPointerException e) {
                 // Ignore: it can happen during interpreter shutdown.
                 // java.lang.NullPointerException
@@ -53,12 +54,12 @@ public class DebugEarlyStartup implements IStartup {
     @Override
     public void earlyStartup() {
         //Note: preferences are in the PydevPlugin, not in the debug plugin.
-        IPreferenceStore preferenceStore = PydevPrefs.getPreferenceStore();
-        preferenceStore.addPropertyChangeListener(new IPropertyChangeListener() {
+        IEclipsePreferences preferenceStore = PydevPrefs.getEclipsePreferences();
+        preferenceStore.addPreferenceChangeListener(new IPreferenceChangeListener() {
 
             @Override
-            public void propertyChange(PropertyChangeEvent event) {
-                if (DebugPluginPrefsInitializer.DEBUG_SERVER_STARTUP.equals(event.getProperty())) {
+            public void preferenceChange(PreferenceChangeEvent event) {
+                if (DebugPluginPrefsInitializer.DEBUG_SERVER_STARTUP.equals(event.getKey())) {
                     //On a change in the preferences, re-check if it should be always on...
                     checkAlwaysOnJob.schedule(200);
                 }
@@ -249,8 +250,9 @@ public class DebugEarlyStartup implements IStartup {
 
     private static volatile boolean checkedOnOnce = false;
 
-    public void checkAlwaysOn(final IPreferenceStore preferenceStore) {
-        int debugServerStartup = preferenceStore.getInt(DebugPluginPrefsInitializer.DEBUG_SERVER_STARTUP);
+    public void checkAlwaysOn(final IEclipsePreferences preferenceStore) {
+        int debugServerStartup = preferenceStore.getInt(DebugPluginPrefsInitializer.DEBUG_SERVER_STARTUP,
+                DebugPluginPrefsInitializer.DEFAULT_DEBUG_SERVER_ALWAYS_ON);
         if (debugServerStartup != DebugPluginPrefsInitializer.DEBUG_SERVER_MANUAL) {
             boolean runNowIfInUiThread = true;
             Runnable r = new Runnable() {
@@ -259,7 +261,8 @@ public class DebugEarlyStartup implements IStartup {
                 public void run() {
 
                     //Check if it didn't change in the meanwhile...
-                    int debugServerStartup = preferenceStore.getInt(DebugPluginPrefsInitializer.DEBUG_SERVER_STARTUP);
+                    int debugServerStartup = preferenceStore.getInt(DebugPluginPrefsInitializer.DEBUG_SERVER_STARTUP,
+                            DebugPluginPrefsInitializer.DEFAULT_DEBUG_SERVER_ALWAYS_ON);
 
                     if (debugServerStartup == DebugPluginPrefsInitializer.DEBUG_SERVER_KEEY_ALWAYS_ON
                             && !PydevRemoteDebuggerServer.isRunning()) {

@@ -25,7 +25,8 @@ public class RunPreferencesPage extends FieldEditorPreferencePage implements IWo
     @Override
     protected void createFieldEditors() {
         Composite p = getFieldEditorParent();
-        BooleanFieldEditor editor = new BooleanFieldEditor(PyDevEditorPreferences.KILL_SUBPROCESSES_WHEN_TERMINATING_PROCESS,
+        BooleanFieldEditor editor = new BooleanFieldEditor(
+                PyDevEditorPreferences.KILL_SUBPROCESSES_WHEN_TERMINATING_PROCESS,
                 "When terminating process, kill subprocesses too?", BooleanFieldEditor.SEPARATE_LABEL,
                 p);
         Control c = editor.getDescriptionControl(p);
@@ -44,11 +45,14 @@ public class RunPreferencesPage extends FieldEditorPreferencePage implements IWo
     }
 
     public static boolean getKillSubprocessesWhenTerminatingProcess() {
-        return PydevPrefs.getPreferences().getBoolean(PyDevEditorPreferences.KILL_SUBPROCESSES_WHEN_TERMINATING_PROCESS);
+        return PydevPrefs.getEclipsePreferences().getBoolean(
+                PyDevEditorPreferences.KILL_SUBPROCESSES_WHEN_TERMINATING_PROCESS,
+                PyDevEditorPreferences.DEFAULT_KILL_SUBPROCESSES_WHEN_TERMINATING_PROCESS);
     }
 
     public static boolean getLaunchWithMFlag() {
-        return PydevPrefs.getPreferences().getBoolean(PyDevEditorPreferences.MAKE_LAUNCHES_WITH_M_FLAG);
+        return PydevPrefs.getEclipsePreferences().getBoolean(PyDevEditorPreferences.MAKE_LAUNCHES_WITH_M_FLAG,
+                PyDevEditorPreferences.DEFAULT_MAKE_LAUNCHES_WITH_M_FLAG);
     }
-    
+
 }

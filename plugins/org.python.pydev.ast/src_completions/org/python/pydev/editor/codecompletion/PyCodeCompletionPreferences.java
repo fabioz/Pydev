@@ -3,10 +3,10 @@ package org.python.pydev.editor.codecompletion;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
-import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.callbacks.ICallback0;
 
 public class PyCodeCompletionPreferences {
 
@@ -55,26 +55,28 @@ public class PyCodeCompletionPreferences {
     public static final String PUT_LOCAL_IMPORTS_IN_TOP_OF_METHOD = "PUT_LOCAL_IMPORTS_IN_TOP_OF_METHOD";
     public static final boolean DEFAULT_PUT_LOCAL_IMPORTS_IN_TOP_OF_METHOD = true;
 
-    public static ICallback<IPreferenceStore, Object> getPreferencesForTests;
+    public static ICallback0<IEclipsePreferences> getPreferencesForTests;
 
-    public static IPreferenceStore getPreferences() {
+    public static IEclipsePreferences getPreferences() {
         if (SharedCorePlugin.inTestMode()) {
             //always create a new one for tests.
-            return getPreferencesForTests.call(null);
+            return getPreferencesForTests.call();
         }
-        return PydevPrefs.getPreferenceStore();
+        return PydevPrefs.getEclipsePreferences();
     }
 
     public static boolean getPutLocalImportsOnTopOfMethod() {
-        return getPreferences().getBoolean(PUT_LOCAL_IMPORTS_IN_TOP_OF_METHOD);
+        return getPreferences().getBoolean(PUT_LOCAL_IMPORTS_IN_TOP_OF_METHOD,
+                DEFAULT_PUT_LOCAL_IMPORTS_IN_TOP_OF_METHOD);
     }
 
     public static boolean useCodeCompletion() {
-        return getPreferences().getBoolean(USE_CODECOMPLETION);
+        return getPreferences().getBoolean(USE_CODECOMPLETION, DEFAULT_USE_CODECOMPLETION);
     }
 
     public static boolean useCodeCompletionOnDebug() {
-        return getPreferences().getBoolean(USE_CODE_COMPLETION_ON_DEBUG_CONSOLES);
+        return getPreferences().getBoolean(USE_CODE_COMPLETION_ON_DEBUG_CONSOLES,
+                DEFAULT_USE_CODE_COMPLETION_ON_DEBUG_CONSOLES);
     }
 
     public static int getNumberOfConnectionAttempts() {
@@ -82,8 +84,7 @@ public class PyCodeCompletionPreferences {
             return 20;
         }
 
-        IPreferenceStore preferences = getPreferences();
-        int ret = preferences.getInt(ATTEMPTS_CODECOMPLETION);
+        int ret = getPreferences().getInt(ATTEMPTS_CODECOMPLETION, DEFAULT_ATTEMPTS_CODECOMPLETION);
         if (ret < 2) {
             ret = 2; // at least 2 attempts!
         }
@@ -91,7 +92,7 @@ public class PyCodeCompletionPreferences {
     }
 
     public static int getMaximumNumberOfMillisToCompleteCodeCompletionRequest() {
-        int val = getPreferences().getInt(MAX_MILLIS_FOR_COMPLETION);
+        int val = getPreferences().getInt(MAX_MILLIS_FOR_COMPLETION, DEFAULT_MAX_MILLIS_FOR_COMPLETION);
         if (val <= 200) {
             //Never less than 200 millis
             val = 200;
@@ -104,46 +105,47 @@ public class PyCodeCompletionPreferences {
     }
 
     public static boolean isToAutocompleteOnDot() {
-        return getPreferences().getBoolean(AUTOCOMPLETE_ON_DOT);
+        return getPreferences().getBoolean(AUTOCOMPLETE_ON_DOT, DEFAULT_AUTOCOMPLETE_ON_DOT);
     }
 
     public static boolean isToAutocompleteOnPar() {
-        return getPreferences().getBoolean(AUTOCOMPLETE_ON_PAR);
+        return getPreferences().getBoolean(AUTOCOMPLETE_ON_PAR, DEFAULT_AUTOCOMPLETE_ON_PAR);
     }
 
     public static boolean useAutocomplete() {
-        return getPreferences().getBoolean(USE_AUTOCOMPLETE);
+        return getPreferences().getBoolean(USE_AUTOCOMPLETE, DEFAULT_USE_AUTOCOMPLETE);
     }
 
     public static boolean useAutocompleteOnAllAsciiChars() {
-        return getPreferences().getBoolean(AUTOCOMPLETE_ON_ALL_ASCII_CHARS);
+        return getPreferences().getBoolean(AUTOCOMPLETE_ON_ALL_ASCII_CHARS, DEFAULT_AUTOCOMPLETE_ON_ALL_ASCII_CHARS);
     }
 
     public static int getAutocompleteDelay() {
-        return getPreferences().getInt(AUTOCOMPLETE_DELAY);
+        return getPreferences().getInt(AUTOCOMPLETE_DELAY, DEFAULT_AUTOCOMPLETE_DELAY);
     }
 
     public static int getArgumentsDeepAnalysisNChars() {
         if (SharedCorePlugin.inTestMode()) {
             return 0;
         }
-        return getPreferences().getInt(ARGUMENTS_DEEP_ANALYSIS_N_CHARS);
+        return getPreferences().getInt(ARGUMENTS_DEEP_ANALYSIS_N_CHARS, DEFAULT_ARGUMENTS_DEEP_ANALYSIS_N_CHARS);
     }
 
     public static boolean applyCompletionOnDot() {
-        return getPreferences().getBoolean(APPLY_COMPLETION_ON_DOT);
+        return getPreferences().getBoolean(APPLY_COMPLETION_ON_DOT, DEFAULT_APPLY_COMPLETION_ON_DOT);
     }
 
     public static boolean applyCompletionOnLParen() {
-        return getPreferences().getBoolean(APPLY_COMPLETION_ON_LPAREN);
+        return getPreferences().getBoolean(APPLY_COMPLETION_ON_LPAREN, DEFAULT_APPLY_COMPLETION_ON_LPAREN);
     }
 
     public static boolean applyCompletionOnRParen() {
-        return getPreferences().getBoolean(APPLY_COMPLETION_ON_RPAREN);
+        return getPreferences().getBoolean(APPLY_COMPLETION_ON_RPAREN, DEFAULT_APPLY_COMPLETION_ON_RPAREN);
     }
 
     public static boolean getUseSubstringMatchInCodeCompletion() {
-        return getPreferences().getBoolean(MATCH_BY_SUBSTRING_IN_CODE_COMPLETION);
+        return getPreferences().getBoolean(MATCH_BY_SUBSTRING_IN_CODE_COMPLETION,
+                DEFAULT_MATCH_BY_SUBSTRING_IN_CODE_COMPLETION);
     }
 
     public static final String USE_KEYWORDS_CODE_COMPLETION = "USE_KEYWORDS_CODE_COMPLETION";
@@ -153,8 +155,8 @@ public class PyCodeCompletionPreferences {
     public static final boolean DEFAULT_ADD_SPACES_WHEN_NEEDED = false; //Keep current behavior by default
 
     public static final String ADD_SPACE_AND_COLON_WHEN_NEEDED = "ADD_SPACE_AND_COLON_WHEN_NEEDED";
-    public static final boolean DEFAULT_ADD_SPACES_AND_COLON_WHEN_NEEDED = false; //Keep current behavior by default
 
+    public static final boolean DEFAULT_ADD_SPACES_AND_COLON_WHEN_NEEDED = false; //Keep current behavior by default
     public static final String FORCE_PY3K_PRINT_ON_PY2 = "FORCE_PY3K_PRINT_ON_PY2";
     public static final boolean DEFAULT_FORCE_PY3K_PRINT_ON_PY2 = false;
 
@@ -167,46 +169,46 @@ public class PyCodeCompletionPreferences {
     public static final String CHARS_FOR_CTX_INSENSITIVE_TOKENS_COMPLETION = "CHARS_FOR_CTX_INSENSITIVE_TOKENS_COMPLETION";
     public static final int DEFAULT_CHARS_FOR_CTX_INSENSITIVE_TOKENS_COMPLETION = 2;
 
-    public static int getIntFromPrefs(String prefName) {
+    public static int getIntFromPrefs(String prefName, int defaultVal) {
         if (SharedCorePlugin.inTestMode()) {
             return 1;
         }
-        return PydevPrefs.getPreferenceStore().getInt(prefName);
+        return PydevPrefs.getEclipsePreferences().getInt(prefName, defaultVal);
     }
 
     public static int getCharsForContextInsensitiveModulesCompletion() {
         String prefName = CHARS_FOR_CTX_INSENSITIVE_MODULES_COMPLETION;
-        return getIntFromPrefs(prefName);
+        return getIntFromPrefs(prefName, DEFAULT_CHARS_FOR_CTX_INSENSITIVE_MODULES_COMPLETION);
     }
 
     public static int getCharsForContextInsensitiveGlobalTokensCompletion() {
         String prefName = CHARS_FOR_CTX_INSENSITIVE_TOKENS_COMPLETION;
-        return getIntFromPrefs(prefName);
+        return getIntFromPrefs(prefName, DEFAULT_CHARS_FOR_CTX_INSENSITIVE_TOKENS_COMPLETION);
     }
 
     public static boolean useKeywordsCodeCompletion() {
-        return PydevPrefs.getPreferenceStore()
-                .getBoolean(USE_KEYWORDS_CODE_COMPLETION);
+        return PydevPrefs.getEclipsePreferences()
+                .getBoolean(USE_KEYWORDS_CODE_COMPLETION, DEFAULT_USE_KEYWORDS_CODE_COMPLETION);
     }
 
     public static boolean addSpaceWhenNeeded() {
-        return PydevPrefs.getPreferenceStore()
-                .getBoolean(ADD_SPACE_WHEN_NEEDED);
+        return PydevPrefs.getEclipsePreferences()
+                .getBoolean(ADD_SPACE_WHEN_NEEDED, DEFAULT_ADD_SPACES_WHEN_NEEDED);
     }
 
     public static boolean addSpaceAndColonWhenNeeded() {
-        return PydevPrefs.getPreferenceStore()
-                .getBoolean(ADD_SPACE_AND_COLON_WHEN_NEEDED);
+        return PydevPrefs.getEclipsePreferences()
+                .getBoolean(ADD_SPACE_AND_COLON_WHEN_NEEDED, DEFAULT_ADD_SPACES_AND_COLON_WHEN_NEEDED);
     }
 
     public static boolean forcePy3kPrintOnPy2() {
-        return PydevPrefs.getPreferenceStore()
-                .getBoolean(FORCE_PY3K_PRINT_ON_PY2);
+        return PydevPrefs.getEclipsePreferences()
+                .getBoolean(FORCE_PY3K_PRINT_ON_PY2, DEFAULT_FORCE_PY3K_PRINT_ON_PY2);
     }
 
     public static String[] getKeywords() {
-        String keywords = PydevPrefs.getPreferenceStore()
-                .getString(KEYWORDS_CODE_COMPLETION);
+        String keywords = PydevPrefs.getEclipsePreferences()
+                .get(KEYWORDS_CODE_COMPLETION, DEFAULT_KEYWORDS_CODE_COMPLETION);
         return stringAsWords(keywords);
     }
 

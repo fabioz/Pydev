@@ -29,7 +29,7 @@ import org.python.pydev.plugin.preferences.PydevPrefs;
 
 /**
  * Debug preferences.
- * 
+ *
  * <p>Simple 1 page debug preferences page.
  * <p>Prefeernce constants are defined in Constants.java
  */
@@ -54,7 +54,8 @@ public class DebugPrefsPage extends FieldEditorPreferencePage implements IWorkbe
     @SuppressWarnings("unchecked")
     protected void createFieldEditors() {
         Composite p = getFieldEditorParent();
-        addField(new IntegerFieldEditor(PyDevEditorPreferences.CONNECT_TIMEOUT, "Connect timeout for debugger (ms)", p, 10));
+        addField(new IntegerFieldEditor(PyDevEditorPreferences.CONNECT_TIMEOUT, "Connect timeout for debugger (ms)", p,
+                10));
 
         BooleanFieldEditor editor = new BooleanFieldEditor(PyDevEditorPreferences.RELOAD_MODULE_ON_CHANGE,
                 "When file is changed, automatically reload module?", BooleanFieldEditor.SEPARATE_LABEL, p);
@@ -111,27 +112,33 @@ public class DebugPrefsPage extends FieldEditorPreferencePage implements IWorkbe
     }
 
     public static boolean getReloadModuleOnChange() {
-        return PydevPrefs.getPreferences().getBoolean(PyDevEditorPreferences.RELOAD_MODULE_ON_CHANGE);
+        return PydevPrefs.getEclipsePreferences().getBoolean(PyDevEditorPreferences.RELOAD_MODULE_ON_CHANGE,
+                PyDevEditorPreferences.DEFAULT_RELOAD_MODULE_ON_CHANGE);
     }
 
     public static boolean getDontTraceEnabled() {
-        return PydevPrefs.getPreferences().getBoolean(PyDevEditorPreferences.DONT_TRACE_ENABLED);
+        return PydevPrefs.getEclipsePreferences().getBoolean(PyDevEditorPreferences.DONT_TRACE_ENABLED,
+                PyDevEditorPreferences.DEFAULT_DONT_TRACE_ENABLED);
     }
 
     public static boolean getShowReturnValuesEnabled() {
-        return PydevPrefs.getPreferences().getBoolean(PyDevEditorPreferences.SHOW_RETURN_VALUES);
+        return PydevPrefs.getEclipsePreferences().getBoolean(PyDevEditorPreferences.SHOW_RETURN_VALUES,
+                PyDevEditorPreferences.DEFAULT_SHOW_RETURN_VALUES);
     }
 
     public static boolean getDebugMultiprocessingEnabled() {
-        return PydevPrefs.getPreferences().getBoolean(PyDevEditorPreferences.DEBUG_MULTIPROCESSING_ENABLED);
+        return PydevPrefs.getEclipsePreferences().getBoolean(PyDevEditorPreferences.DEBUG_MULTIPROCESSING_ENABLED,
+                PyDevEditorPreferences.DEFAULT_DEBUG_MULTIPROCESSING_ENABLED);
     }
 
     public static boolean getGeventDebugging() {
-        return PydevPrefs.getPreferences().getBoolean(PyDevEditorPreferences.GEVENT_DEBUGGING);
+        return PydevPrefs.getEclipsePreferences().getBoolean(PyDevEditorPreferences.GEVENT_DEBUGGING,
+                PyDevEditorPreferences.DEFAULT_GEVENT_DEBUGGING);
     }
 
     public static String getQtThreadsDebugMode() {
-        return PydevPrefs.getPreferences().getString(PyDevEditorPreferences.QT_THREADS_DEBUG_MODE);
+        return PydevPrefs.getEclipsePreferences().get(PyDevEditorPreferences.QT_THREADS_DEBUG_MODE,
+                PyDevEditorPreferences.DEFAULT_QT_THREADS_DEBUG_MODE);
     }
 
     /**
