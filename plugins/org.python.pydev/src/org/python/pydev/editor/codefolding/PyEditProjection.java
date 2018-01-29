@@ -51,7 +51,8 @@ public abstract class PyEditProjection extends BaseEditor implements IParserObse
     @Override
     protected ISourceViewer createSourceViewer(Composite parent, IVerticalRuler ruler, int styles) {
         IOverviewRuler overviewRuler = getOverviewRuler();
-        PySourceViewer viewer = new PySourceViewer(parent, ruler, overviewRuler, isOverviewRulerVisible(), styles, this);
+        PySourceViewer viewer = new PySourceViewer(parent, ruler, overviewRuler, isOverviewRulerVisible(), styles,
+                this);
 
         //ensure decoration support has been created and configured.
         getSourceViewerDecorationSupport(viewer);
@@ -104,7 +105,8 @@ public abstract class PyEditProjection extends BaseEditor implements IParserObse
      * @return
      */
     public static boolean isFoldingEnabled() {
-        return PydevPrefs.getPreferences().getBoolean(PyDevCodeFoldingPrefPage.USE_CODE_FOLDING);
+        return PydevPrefs.getEclipsePreferences().getBoolean(PyDevCodeFoldingPrefPage.USE_CODE_FOLDING,
+                PyDevCodeFoldingPrefPage.DEFAULT_USE_CODE_FOLDING);
     }
 
     @Override

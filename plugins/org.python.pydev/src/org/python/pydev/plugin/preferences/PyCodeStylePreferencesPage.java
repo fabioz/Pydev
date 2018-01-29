@@ -37,7 +37,8 @@ public class PyCodeStylePreferencesPage extends FieldEditorPreferencePage implem
             { "camelCase() with first lower", String.valueOf(METHODS_FORMAT_CAMELCASE_FIRST_LOWER) }, };
 
     public static final String[][] LOCALS_LABEL_AND_VALUE = new String[][] {
-            { "underscore_separated", String.valueOf(false) }, { "camelCase with first lower", String.valueOf(true) }, };
+            { "underscore_separated", String.valueOf(false) },
+            { "camelCase with first lower", String.valueOf(true) }, };
 
     private Label labelLocalsFormat;
     private Label labelMethodsFormat;
@@ -108,14 +109,10 @@ public class PyCodeStylePreferencesPage extends FieldEditorPreferencePage implem
     public static int TESTING_METHOD_FORMAT = DEFAULT_USE_METHODS_FORMAT;
 
     public static int useMethodsCamelCase() {
-        try {
-            if (SharedCorePlugin.inTestMode()) {
-                return TESTING_METHOD_FORMAT;
-            }
-            return Integer.parseInt(PydevPrefs.getPreferences().getString(USE_METHODS_FORMAT));
-        } catch (NumberFormatException e) {
-            return DEFAULT_USE_METHODS_FORMAT;
+        if (SharedCorePlugin.inTestMode()) {
+            return TESTING_METHOD_FORMAT;
         }
+        return PydevPrefs.getEclipsePreferences().getInt(USE_METHODS_FORMAT, DEFAULT_USE_METHODS_FORMAT);
     }
 
     public static boolean TESTING_METHOD_LOCALS_AND_ATTRS_CAMEL_CASE = DEFAULT_USE_LOCALS_AND_ATTRS_CAMELCASE;
@@ -124,7 +121,8 @@ public class PyCodeStylePreferencesPage extends FieldEditorPreferencePage implem
         if (SharedCorePlugin.inTestMode()) {
             return TESTING_METHOD_LOCALS_AND_ATTRS_CAMEL_CASE;
         }
-        return PydevPrefs.getPreferences().getBoolean(USE_LOCALS_AND_ATTRS_CAMELCASE);
+        return PydevPrefs.getEclipsePreferences().getBoolean(USE_LOCALS_AND_ATTRS_CAMELCASE,
+                DEFAULT_USE_LOCALS_AND_ATTRS_CAMELCASE);
     }
 
     @Override

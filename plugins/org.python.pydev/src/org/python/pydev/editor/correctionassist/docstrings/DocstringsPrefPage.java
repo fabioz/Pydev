@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.RadioGroupFieldEditor;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.swt.layout.RowLayout;
@@ -74,8 +74,7 @@ public class DocstringsPrefPage extends FieldEditorPreferencePage implements IWo
             return "'";//testing...
 
         }
-        IPreferenceStore preferences = PydevPrefs.getPreferences();
-        return preferences.getString(P_DOCSTRINGCHARACTER);
+        return PydevPrefs.getEclipsePreferences().get(P_DOCSTRINGCHARACTER, DEFAULT_P_DOCSTRINGCHARACTER);
     }
 
     public static String getPreferredDocstringStyle() {
@@ -83,8 +82,7 @@ public class DocstringsPrefPage extends FieldEditorPreferencePage implements IWo
             return ":"; //testing
         }
 
-        IPreferenceStore preferences = PydevPrefs.getPreferences();
-        return preferences.getString(P_DOCSTRINGSTYLE);
+        return PydevPrefs.getEclipsePreferences().get(P_DOCSTRINGSTYLE, DEFAULT_P_DOCSTIRNGSTYLE);
     }
 
     private final static Map<String, String> strToMarker = new HashMap<String, String>();
@@ -121,13 +119,14 @@ public class DocstringsPrefPage extends FieldEditorPreferencePage implements IWo
         if (SharedCorePlugin.inTestMode()) {
             return GENERATE_TYPE_DOCSTRING_ON_TESTS;
         }
-        String preference = PydevPrefs.getPreferences().getString(P_TYPETAGGENERATION);
+        IEclipsePreferences preferences = PydevPrefs.getEclipsePreferences();
+        String preference = preferences.get(P_TYPETAGGENERATION, DEFAULT_P_TYPETAGGENERATION);
         if (preference.equals(TYPETAG_GENERATION_NEVER)) {
             return false;
         } else if (preference.equals(TYPETAG_GENERATION_ALWAYS)) {
             return true;
         } else {// TYPETAG_GENERATION_CUSTOM - check prefix.
-            String prefixesString = PydevPrefs.getPreferences().getString(P_DONT_GENERATE_TYPETAGS);
+            String prefixesString = preferences.get(P_DONT_GENERATE_TYPETAGS, DEFAULT_P_DONT_GENERATE_TYPETAGS);
             StringTokenizer st = new StringTokenizer(prefixesString, "\0"); // "\0" is the separator
 
             while (st.hasMoreTokens()) {

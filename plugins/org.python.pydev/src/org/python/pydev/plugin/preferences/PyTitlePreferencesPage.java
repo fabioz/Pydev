@@ -127,7 +127,8 @@ public class PyTitlePreferencesPage extends FieldEditorPreferencePage implements
     }
 
     public static boolean getEditorNamesUnique() {
-        return PydevPrefs.getPreferences().getBoolean(TITLE_EDITOR_NAMES_UNIQUE);
+        return PydevPrefs.getEclipsePreferences().getBoolean(TITLE_EDITOR_NAMES_UNIQUE,
+                DEFAULT_TITLE_EDITOR_NAMES_UNIQUE);
     }
 
     /**
@@ -138,7 +139,8 @@ public class PyTitlePreferencesPage extends FieldEditorPreferencePage implements
      * class (as it will return the actual constant and not what's set in the preferences).
      */
     public static String getInitHandling() {
-        String initHandling = PydevPrefs.getPreferences().getString(TITLE_EDITOR_INIT_HANDLING);
+        String initHandling = PydevPrefs.getEclipsePreferences().get(TITLE_EDITOR_INIT_HANDLING,
+                DEFAULT_TITLE_EDITOR_INIT_HANDLING);
         if (TITLE_EDITOR_INIT_HANDLING_IN_TITLE.equals(initHandling)) {
             return TITLE_EDITOR_INIT_HANDLING_IN_TITLE;
         }
@@ -146,7 +148,8 @@ public class PyTitlePreferencesPage extends FieldEditorPreferencePage implements
     }
 
     public static String getDjangoModulesHandling() {
-        String djangoHandling = PydevPrefs.getPreferences().getString(TITLE_EDITOR_DJANGO_MODULES_HANDLING);
+        String djangoHandling = PydevPrefs.getEclipsePreferences().get(TITLE_EDITOR_DJANGO_MODULES_HANDLING,
+                DEFAULT_TITLE_EDITOR_DJANGO_MODULES_HANDLING);
         if (TITLE_EDITOR_DJANGO_MODULES_DEFAULT_ICON.equals(djangoHandling)) {
             return TITLE_EDITOR_DJANGO_MODULES_DEFAULT_ICON;
         }
@@ -157,11 +160,13 @@ public class PyTitlePreferencesPage extends FieldEditorPreferencePage implements
     }
 
     public static boolean useCustomInitIcon() {
-        return PydevPrefs.getPreferences().getBoolean(TITLE_EDITOR_CUSTOM_INIT_ICON);
+        return PydevPrefs.getEclipsePreferences().getBoolean(TITLE_EDITOR_CUSTOM_INIT_ICON,
+                DEFAULT_TITLE_EDITOR_CUSTOM_INIT_ICON);
     }
 
     public static boolean getTitleShowExtension() {
-        return PydevPrefs.getPreferences().getBoolean(TITLE_EDITOR_SHOW_EXTENSION);
+        return PydevPrefs.getEclipsePreferences().getBoolean(TITLE_EDITOR_SHOW_EXTENSION,
+                DEFAULT_TITLE_EDITOR_SHOW_EXTENSION);
     }
 
     public static IImageHandle getInitIcon() {

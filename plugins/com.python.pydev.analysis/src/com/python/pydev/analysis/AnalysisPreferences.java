@@ -15,7 +15,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.preferences.IScopedPreferences;
 import org.python.pydev.shared_core.process.ProcessUtils;
 
@@ -89,12 +90,15 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences {
                 if (severityTypeMapCache == null) {
                     //Do it lazily as it's possible we don't need it...
                     HashMap<Integer, Integer> temp = new HashMap<Integer, Integer>();
-                    IPreferenceStore pluginPreferences = AnalysisPlugin.getDefault().getPreferenceStore();
+                    IEclipsePreferences analysisEclipsePreferences = PydevPrefs.getAnalysisEclipsePreferences();
+                    IEclipsePreferences defaultAnalysisEclipsePreferences = PydevPrefs
+                            .getDefaultAnalysisEclipsePreferences();
                     IScopedPreferences iScopedPreferences = PyAnalysisScopedPreferences.get();
 
                     for (int i = 0; i < completeSeverityMap.length; i++) {
                         Object[] s = completeSeverityMap[i];
-                        int v = iScopedPreferences.getInt(pluginPreferences, (String) s[1], projectAdaptable);
+                        int v = iScopedPreferences.getInt(analysisEclipsePreferences, defaultAnalysisEclipsePreferences,
+                                (String) s[1], projectAdaptable);
                         temp.put((Integer) s[0], v);
                     }
 
@@ -191,7 +195,8 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences {
 
     public static boolean useConsole(IAdaptable projectAdaptable) {
         if (AnalysisPreferenceInitializer.SHOW_IN_PEP8_FEATURE_ENABLED) {
-            return PyAnalysisScopedPreferences.getBoolean(AnalysisPreferenceInitializer.USE_PEP8_CONSOLE, projectAdaptable);
+            return PyAnalysisScopedPreferences.getBoolean(AnalysisPreferenceInitializer.USE_PEP8_CONSOLE,
+                    projectAdaptable);
         }
         return false;
     }

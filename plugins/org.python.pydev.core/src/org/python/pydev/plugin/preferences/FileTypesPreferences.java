@@ -2,8 +2,8 @@ package org.python.pydev.plugin.preferences;
 
 import java.util.List;
 
-import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.string.StringUtils;
 
@@ -20,7 +20,7 @@ public class FileTypesPreferences {
      *
      * @author Fabio
      */
-    private static class PreferencesCacheHelper implements IPropertyChangeListener {
+    private static class PreferencesCacheHelper implements IPreferenceChangeListener {
         private static PreferencesCacheHelper singleton;
 
         static synchronized PreferencesCacheHelper get() {
@@ -31,11 +31,11 @@ public class FileTypesPreferences {
         }
 
         public PreferencesCacheHelper() {
-            PydevPrefs.getPreferences().addPropertyChangeListener(this);
+            PydevPrefs.getEclipsePreferences().addPreferenceChangeListener(this);
         }
 
         @Override
-        public void propertyChange(PropertyChangeEvent event) {
+        public void preferenceChange(PreferenceChangeEvent event) {
             this.wildcaldValidSourceFiles = null;
             this.dottedValidSourceFiles = null;
             this.pythondValidSourceFiles = null;
@@ -100,7 +100,8 @@ public class FileTypesPreferences {
         public String[] getCacheValidSourceFiles() {
             String[] ret = pythondValidSourceFiles;
             if (ret == null) {
-                String validStr = PydevPrefs.getPreferences().getString(FileTypesPreferences.VALID_SOURCE_FILES);
+                String validStr = PydevPrefs.getEclipsePreferences().get(VALID_SOURCE_FILES,
+                        DEFAULT_VALID_SOURCE_FILES);
                 final List<String> temp = StringUtils.splitAndRemoveEmptyTrimmed(validStr, ',');
                 String[] s = temp.toArray(new String[temp.size()]);
                 for (int i = 0; i < s.length; i++) {
@@ -117,7 +118,7 @@ public class FileTypesPreferences {
         if (SharedCorePlugin.inTestMode()) {
             return new String[] { "*.py", "*.pyw", "*.pyx", "*.pxd", "*.pxi" };
         }
-    
+
         return PreferencesCacheHelper.get().getCacheWildcardValidSourceFiles();
     }
 
@@ -125,7 +126,7 @@ public class FileTypesPreferences {
         if (SharedCorePlugin.inTestMode()) {
             return new String[] { ".py", ".pyw", ".pyx", ".pxd", ".pxi" };
         }
-    
+
         return PreferencesCacheHelper.get().getCacheDottedValidSourceFiles();
     }
 
@@ -133,7 +134,7 @@ public class FileTypesPreferences {
         if (SharedCorePlugin.inTestMode()) {
             return new String[] { "py", "pyw", "pyx", "pxd", "pxi" };
         }
-    
+
         return PreferencesCacheHelper.get().getCacheValidSourceFiles();
     }
 
@@ -141,7 +142,7 @@ public class FileTypesPreferences {
         if (SharedCorePlugin.inTestMode()) {
             return new String[] { "__init__.py", "__init__.pyw", "__init__.pyx", "__init__.pxd", "__init__.pxi" };
         }
-    
+
         return PreferencesCacheHelper.get().getCacheValidInitFiles();
     }
 
@@ -175,7 +176,8 @@ public class FileTypesPreferences {
     }
 
     public final static String getDefaultDottedPythonExtension() {
-        return "." + PydevPrefs.getPreferences().getString(FIRST_CHOICE_PYTHON_SOURCE_FILE);
+        return "." + PydevPrefs.getEclipsePreferences().get(FIRST_CHOICE_PYTHON_SOURCE_FILE,
+                DEFAULT_FIRST_CHOICE_PYTHON_SOURCE_FILE);
     }
 
     public static String[] getWildcardJythonValidZipFiles() {

@@ -8,15 +8,18 @@ import org.python.pydev.shared_core.preferences.ScopedPreferences;
 public class PyScopedPreferences {
 
     public static boolean getBoolean(String setting, IAdaptable projectAdaptable) {
-        return get().getBoolean(PydevPrefs.getPreferences(), setting, projectAdaptable);
+        return get().getBoolean(PydevPrefs.getEclipsePreferences(), PydevPrefs.getDefaultEclipsePreferences(), setting,
+                projectAdaptable);
     }
 
     public static String getString(String setting, IAdaptable projectAdaptable) {
-        return get().getString(PydevPrefs.getPreferences(), setting, projectAdaptable);
+        return get().getString(PydevPrefs.getEclipsePreferences(), PydevPrefs.getDefaultEclipsePreferences(), setting,
+                projectAdaptable);
     }
 
     public static int getInt(String setting, IAdaptable projectAdaptable, int minVal) {
-        int ret = get().getInt(PydevPrefs.getPreferences(), setting, projectAdaptable);
+        int ret = get().getInt(PydevPrefs.getEclipsePreferences(), PydevPrefs.getDefaultEclipsePreferences(), setting,
+                projectAdaptable);
         if (ret < minVal) {
             return minVal;
         }

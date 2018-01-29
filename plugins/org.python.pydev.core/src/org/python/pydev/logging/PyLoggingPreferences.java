@@ -18,21 +18,22 @@ public class PyLoggingPreferences {
         if (SharedCorePlugin.inTestMode()) {
             return false;
         }
-        return PydevPrefs.getPreferences().getBoolean(DEBUG_CODE_COMPLETION);
+        return PydevPrefs.getEclipsePreferences().getBoolean(DEBUG_CODE_COMPLETION, DEFAULT_DEBUG_CODE_COMPLETION);
     }
 
     public static boolean isToDebugAnalysisRequests() {
         if (SharedCorePlugin.inTestMode()) {
             return false;
         }
-        return PydevPrefs.getPreferences().getBoolean(DEBUG_ANALYSIS_REQUESTS);
+        return PydevPrefs.getEclipsePreferences().getBoolean(DEBUG_ANALYSIS_REQUESTS, DEFAULT_DEBUG_ANALYSIS_REQUESTS);
     }
 
     public static boolean isToDebugInterpreterAutoUpdate() {
         if (SharedCorePlugin.inTestMode()) {
             return false;
         }
-        return PydevPrefs.getPreferences().getBoolean(DEBUG_INTERPRETER_AUTO_UPDATE);
+        return PydevPrefs.getEclipsePreferences().getBoolean(DEBUG_INTERPRETER_AUTO_UPDATE,
+                DEFAULT_DEBUG_INTERPRETER_AUTO_UPDATE);
     }
 
 }

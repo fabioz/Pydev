@@ -9,6 +9,7 @@ package org.python.pydev.plugin.preferences;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -66,5 +67,17 @@ public class PydevPrefs {
 
     public static IEclipsePreferences getEclipsePreferences() {
         return InstanceScope.INSTANCE.getNode("org.python.pydev");
+    }
+
+    public static IEclipsePreferences getDefaultEclipsePreferences() {
+        return DefaultScope.INSTANCE.getNode("org.python.pydev");
+    }
+
+    public static IEclipsePreferences getAnalysisEclipsePreferences() {
+        return InstanceScope.INSTANCE.getNode("com.python.pydev.analysis");
+    }
+
+    public static IEclipsePreferences getDefaultAnalysisEclipsePreferences() {
+        return DefaultScope.INSTANCE.getNode("com.python.pydev.analysis");
     }
 }

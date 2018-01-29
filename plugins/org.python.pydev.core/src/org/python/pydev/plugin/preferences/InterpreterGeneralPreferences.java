@@ -25,11 +25,13 @@ public class InterpreterGeneralPreferences {
     public final static boolean DEFAULT_UPDATE_INTERPRETER_INFO_ON_FILESYSTEM_CHANGES = true;
 
     public static boolean getCheckConsistentOnStartup() {
-        return PydevPrefs.getPreferences().getBoolean(CHECK_CONSISTENT_ON_STARTUP);
+        return PydevPrefs.getEclipsePreferences().getBoolean(CHECK_CONSISTENT_ON_STARTUP,
+                DEFAULT_CHECK_CONSISTENT_ON_STARTUP);
     }
 
     public static boolean getReCheckOnFilesystemChanges() {
-        return PydevPrefs.getPreferences().getBoolean(UPDATE_INTERPRETER_INFO_ON_FILESYSTEM_CHANGES);
+        return PydevPrefs.getEclipsePreferences().getBoolean(UPDATE_INTERPRETER_INFO_ON_FILESYSTEM_CHANGES,
+                DEFAULT_UPDATE_INTERPRETER_INFO_ON_FILESYSTEM_CHANGES);
     }
 
 }
