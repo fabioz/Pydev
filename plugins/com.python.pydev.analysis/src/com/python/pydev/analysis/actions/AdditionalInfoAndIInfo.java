@@ -6,8 +6,9 @@
  */
 package com.python.pydev.analysis.actions;
 
+import org.python.pydev.core.IInfo;
+
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
-import com.python.pydev.analysis.additionalinfo.IInfo;
 
 /**
  * Contains information about some IInfo and its related additional info.

@@ -1,3 +1,4 @@
+package org.python.pydev.core;
 /**
  * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
@@ -7,9 +8,6 @@
 /*
  * Created on 07/09/2005
  */
-package com.python.pydev.analysis.additionalinfo;
-
-import org.python.pydev.core.IPythonNature;
 
 public interface IInfo extends Comparable<IInfo> {
 

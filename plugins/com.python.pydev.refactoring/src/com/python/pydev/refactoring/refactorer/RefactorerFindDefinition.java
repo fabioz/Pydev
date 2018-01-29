@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IDefinition;
+import org.python.pydev.core.IInfo;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
@@ -32,7 +33,6 @@ import org.python.pydev.shared_core.string.StringUtils;
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
-import com.python.pydev.analysis.additionalinfo.IInfo;
 
 /**
  * Class used to find the definition for some refactoring request.

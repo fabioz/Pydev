@@ -9,6 +9,7 @@ package org.python.pydev.editor.codecompletion;
 import org.eclipse.jface.text.Document;
 import org.eclipse.swt.graphics.Point;
 import org.python.pydev.core.structure.CompletionRecursionException;
+import org.python.pydev.editor.codecompletion.proposals.PyLinkedModeCompletionProposal;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.shared_core.callbacks.ICallback;

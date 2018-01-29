@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.IInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
@@ -36,7 +37,6 @@ import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;
-import com.python.pydev.analysis.additionalinfo.IInfo;
 import com.python.pydev.analysis.additionalinfo.builders.InterpreterObserver;
 import com.python.pydev.analysis.messages.IMessage;
 

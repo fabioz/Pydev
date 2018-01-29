@@ -24,7 +24,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.DocstringInfo;
@@ -39,8 +38,8 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
-import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
 public class AssistDocString implements IAssistProps {
 
@@ -105,73 +104,18 @@ public class AssistDocString implements IAssistProps {
             docstringFromFunction = ps.getDocstringFromLine(currLine + 1);
         }
         final DocstringInfo finalDocstringFromFunction = docstringFromFunction;
+        String preferredDocstringStyle = AssistDocString.this.docStringStyle;
+        if (preferredDocstringStyle == null) {
+            preferredDocstringStyle = DocstringsPrefPage.getPreferredDocstringStyle();
+        }
 
-        l.add(new PyCompletionProposal("", offsetPosToAdd, 0, newOffset, image,
+        final String preferredDocstringStyle2 = preferredDocstringStyle;
+
+        l.add(CompletionProposalFactory.get().createAssistDocstringCompletionProposal("", offsetPosToAdd, 0, newOffset,
+                image,
                 finalDocstringFromFunction != null ? "Update docstring" : "Make docstring", null, null,
-                IPyCompletionProposal.PRIORITY_DEFAULT, null) {
-            @Override
-            public void apply(IDocument document) {
-                if (inFunctionLine) {
-                    String preferredDocstringStyle = AssistDocString.this.docStringStyle;
-                    if (preferredDocstringStyle == null) {
-                        preferredDocstringStyle = DocstringsPrefPage.getPreferredDocstringStyle();
-                    }
-
-                    // Let's check if this function already has a docstring (if it does, update the current docstring
-                    // instead of creating a new one).
-                    String updatedDocstring = null;
-                    if (finalDocstringFromFunction != null) {
-                        updatedDocstring = updatedDocstring(finalDocstringFromFunction.string, params, delimiter,
-                                initial + indentation,
-                                preferredDocstringStyle);
-                    }
-                    if (updatedDocstring != null) {
-                        fReplacementOffset = finalDocstringFromFunction.startLiteralOffset;
-                        fReplacementLength = finalDocstringFromFunction.endLiteralOffset
-                                - finalDocstringFromFunction.startLiteralOffset;
-                        int initialLen = buf.length();
-                        buf.clear();
-                        fCursorPosition -= initialLen - buf.length();
-                        buf.append(updatedDocstring);
-                    } else {
-                        // Create the docstrings
-                        for (String paramName : params) {
-                            if (!PySelection.isIdentifier(paramName)) {
-                                continue;
-                            }
-                            buf.append(delimiterAndIndent).append(preferredDocstringStyle).append("param ")
-                                    .append(paramName)
-                                    .append(":");
-                            if (DocstringsPrefPage.getTypeTagShouldBeGenerated(paramName)) {
-                                buf.append(delimiterAndIndent).append(preferredDocstringStyle).append("type ")
-                                        .append(paramName)
-                                        .append(":");
-                            }
-                        }
-                    }
-
-                } else {
-                    // It's a class declaration - do nothing.
-                }
-                if (finalDocstringFromFunction == null) {
-                    buf.append(delimiterAndIndent).append(docStringMarker);
-                }
-
-                String comp = buf.toString();
-                this.fReplacementString = comp;
-
-                //remove the next line if it is a pass...
-                if (finalDocstringFromFunction == null) {
-                    PySelection ps = new PySelection(document, fReplacementOffset);
-                    int iNextLine = ps.getCursorLine() + 1;
-                    String nextLine = ps.getLine(iNextLine);
-                    if (nextLine.trim().equals("pass")) {
-                        ps.deleteLine(iNextLine);
-                    }
-                }
-                super.apply(document);
-            }
-        });
+                IPyCompletionProposal.PRIORITY_DEFAULT, null, initial, delimiter, docStringMarker, delimiterAndIndent,
+                preferredDocstringStyle2, inFunctionLine, finalDocstringFromFunction, indentation, buf, params));
         return l;
     }
 

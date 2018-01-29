@@ -14,11 +14,11 @@ import java.util.List;
 
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.editor.codecompletion.proposals.CtxInsensitiveImportComplProposal;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 
 import com.python.pydev.analysis.AnalysisPreferencesStub;
-import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
 import com.python.pydev.analysis.ui.AutoImportsPreferencesPage;

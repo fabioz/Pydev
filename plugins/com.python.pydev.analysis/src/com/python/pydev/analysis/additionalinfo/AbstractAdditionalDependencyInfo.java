@@ -26,6 +26,7 @@ import java.util.concurrent.CountDownLatch;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.core.FastBufferedReader;
+import org.python.pydev.core.IInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;

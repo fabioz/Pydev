@@ -12,20 +12,18 @@ package com.python.pydev.codecompletion.simpleassist;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPySyntaxHighlightingAndCodeCompletionEditor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant;
 import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant2;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
-
-import com.python.pydev.codecompletion.ui.CodeCompletionPreferencesPage;
 
 /**
  * Auto completion for keywords:
@@ -65,61 +63,6 @@ yield
  */
 public class KeywordsSimpleAssist implements ISimpleAssistParticipant, ISimpleAssistParticipant2 {
 
-    public static String defaultKeywordsAsString() {
-        String[] KEYWORDS = new String[] { "and", "assert", "break", "class", "continue", "def", "del",
-                //                "elif", -- starting with 'e'
-                //                "else:", -- starting with 'e'
-                //                "except:",  -- ctrl+1 covers for try..except/ starting with 'e'
-                //                "exec", -- starting with 'e'
-                "finally:", "for", "from", "global",
-                //                "if", --too small
-                "import",
-                //                "in", --too small
-                //                "is", --too small
-                "lambda", "not",
-                //                "or", --too small
-                "pass", "print", "raise", "return",
-                //                "try:", -- ctrl+1 covers for try..except
-                "while", "with", "yield",
-
-                //the ones below were not in the initial list
-                "self", "__init__",
-                //                "as", --too small
-                "False", "None", "object", "True" };
-        return wordsAsString(KEYWORDS);
-    }
-
-    //very simple cache (this might be requested a lot).
-    private static String cache;
-    private static String[] cacheRet;
-
-    public static String[] stringAsWords(String keywords) {
-        if (cache != null && cache.equals(keywords)) {
-            return cacheRet;
-        }
-        StringTokenizer tokenizer = new StringTokenizer(keywords);
-        ArrayList<String> strs = new ArrayList<String>();
-        while (tokenizer.hasMoreTokens()) {
-            strs.add(tokenizer.nextToken());
-        }
-        cache = keywords;
-        cacheRet = strs.toArray(new String[0]);
-        return cacheRet;
-    }
-
-    /**
-     * @param keywords keywords to be gotten as string
-     * @return a string with all the passed words separated by '\n'
-     */
-    public static String wordsAsString(String[] keywords) {
-        StringBuffer buf = new StringBuffer();
-        for (String string : keywords) {
-            buf.append(string);
-            buf.append("\n");
-        }
-        return buf.toString();
-    }
-
     /**
      * @see ISimpleAssistParticipant
      */
@@ -127,7 +70,7 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant, ISimpleAs
     public Collection<ICompletionProposalHandle> computeCompletionProposals(String activationToken, String qualifier,
             PySelection ps, IPySyntaxHighlightingAndCodeCompletionEditor edit, int offset) {
         boolean isPy3Syntax = false;
-        if (CodeCompletionPreferencesPage.forcePy3kPrintOnPy2()) {
+        if (PyCodeCompletionPreferences.forcePy3kPrintOnPy2()) {
             isPy3Syntax = true;
 
         } else {
@@ -167,14 +110,14 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant, ISimpleAs
 
         List<ICompletionProposalHandle> results = new ArrayList<>();
         //check if we have to use it
-        if (!CodeCompletionPreferencesPage.useKeywordsCodeCompletion()) {
+        if (!PyCodeCompletionPreferences.useKeywordsCodeCompletion()) {
             return results;
         }
 
         //get them
         int qlen = qualifier.length();
         if (activationToken.isEmpty() && !qualifier.isEmpty()) {
-            for (String keyw : CodeCompletionPreferencesPage.getKeywords()) {
+            for (String keyw : PyCodeCompletionPreferences.getKeywords()) {
                 if (keyw.startsWith(qualifier) && !keyw.equals(qualifier)) {
                     if (buildForConsole) {
                         //In the console, only show the simple completions without any special treatment
@@ -189,8 +132,9 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant, ISimpleAs
                                 keyw = "print()";//Handling print in py3k.
                             }
                         }
-                        results.add(new SimpleAssistProposal(keyw, offset - qlen, qlen, keyw.length(),
-                                IPyCompletionProposal.PRIORITY_DEFAULT, null));
+                        results.add(
+                                CompletionProposalFactory.get().createSimpleAssistProposal(keyw, offset - qlen, qlen,
+                                        keyw.length(), IPyCompletionProposal.PRIORITY_DEFAULT, null));
                     }
                 }
             }

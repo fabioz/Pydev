@@ -17,6 +17,7 @@ import java.util.List;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceStore;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.IInfo;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
@@ -26,7 +27,6 @@ import org.python.pydev.shared_core.callbacks.ICallback;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
-import com.python.pydev.analysis.additionalinfo.IInfo;
 import com.python.pydev.codecompletion.ctxinsensitive.CtxParticipant;
 
 public class ParameterCompletionTest extends AdditionalInfoTestsBase {

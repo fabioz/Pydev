@@ -22,6 +22,7 @@ import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.actions.PySelectionTest;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
+import org.python.pydev.editor.codecompletion.proposals.CtxInsensitiveImportComplProposal;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.NameTok;
@@ -29,7 +30,6 @@ import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 
-import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
 import com.python.pydev.analysis.ui.AutoImportsPreferencesPage;
 import com.python.pydev.codecompletion.ctxinsensitive.CtxParticipant;

@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.python.pydev.codecompletion.ctxinsensitive;
+package org.python.pydev.editor.codecompletion.proposals;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.text.BadLocationException;
@@ -14,8 +14,6 @@ import org.eclipse.swt.graphics.Point;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
-
-import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
 
 /**
  * Extends the basic completion proposal to add a line with an import in the console.

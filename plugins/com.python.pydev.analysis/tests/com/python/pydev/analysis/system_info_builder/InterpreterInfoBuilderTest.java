@@ -18,6 +18,7 @@ import junit.framework.TestCase;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceStore;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.IInfo;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.MisconfigurationException;
@@ -32,7 +33,6 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;
-import com.python.pydev.analysis.additionalinfo.IInfo;
 
 /**
  * @author fabioz

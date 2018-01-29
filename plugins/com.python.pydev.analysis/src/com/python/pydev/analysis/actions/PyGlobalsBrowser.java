@@ -16,6 +16,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.ui.dialogs.SelectionDialog;
 import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.IInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
@@ -38,7 +39,6 @@ import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;
-import com.python.pydev.analysis.additionalinfo.IInfo;
 
 public class PyGlobalsBrowser extends PyAction {
 

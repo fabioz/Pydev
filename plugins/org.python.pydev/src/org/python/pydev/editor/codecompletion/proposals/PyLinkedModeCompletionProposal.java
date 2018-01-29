@@ -8,7 +8,7 @@
  * Created on Jul 1, 2006
  * @author Fabio
  */
-package org.python.pydev.editor.codecompletion;
+package org.python.pydev.editor.codecompletion.proposals;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -449,7 +449,7 @@ public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionPr
     }
 
     //testing
-    void setLen(int i) {
+    public void setLen(int i) {
         this.fLen = i;
     }
 

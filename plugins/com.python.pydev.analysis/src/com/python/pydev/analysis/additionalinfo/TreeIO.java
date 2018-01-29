@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.SortedMap;
 
 import org.python.pydev.core.FastBufferedReader;
+import org.python.pydev.core.IInfo;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ObjectsInternPool;
 import org.python.pydev.core.ObjectsInternPool.ObjectsPoolMap;

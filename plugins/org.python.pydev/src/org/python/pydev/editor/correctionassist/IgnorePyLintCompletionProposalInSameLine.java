@@ -5,6 +5,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.python.pydev.core.FormatStd;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
@@ -23,7 +24,7 @@ public class IgnorePyLintCompletionProposalInSameLine extends IgnoreCompletionPr
     public IgnorePyLintCompletionProposalInSameLine(String replacementString, int replacementOffset,
             int replacementLength,
             int cursorPosition, IImageHandle image, String displayString, IContextInformation contextInformation,
-            String additionalProposalInfo, int priority, PyEdit edit, String line, PySelection ps, FormatStd format,
+            String additionalProposalInfo, int priority, IPyEdit edit, String line, PySelection ps, FormatStd format,
             IMarker marker) {
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
                 contextInformation, additionalProposalInfo, priority, edit);
@@ -78,7 +79,7 @@ public class IgnorePyLintCompletionProposalInSameLine extends IgnoreCompletionPr
             FormatStd formatStd = this.format;
             if (formatStd == null) {
                 if (edit != null) {
-                    formatStd = edit.getFormatStd();
+                    formatStd = ((PyEdit) edit).getFormatStd();
                 } else {
                     // Shouldn't happen when not in test mode
                     Log.log("Error: using default format (not considering project preferences).");

@@ -10,12 +10,12 @@ import org.eclipse.jface.text.contentassist.ICompletionProposalExtension2;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.ProposalsComparator;
+import org.python.pydev.editor.codecompletion.proposals.PyCompletionProposal;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.shared_core.IMiscConstants;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
-import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
 /**
  * @author fabioz

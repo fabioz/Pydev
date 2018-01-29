@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.editor.codecompletion;
+package org.python.pydev.editor.codecompletion.proposals;
 
 import java.io.IOException;
 
@@ -31,6 +31,7 @@ import org.python.pydev.parser.prettyprinterv2.MakeAstValidForPrettyPrintingVisi
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 import org.python.pydev.shared_core.image.IImageHandle;
+import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
@@ -45,11 +46,11 @@ public class OverrideMethodCompletionProposal extends AbstractPyCompletionPropos
     private String currentClassName;
 
     public OverrideMethodCompletionProposal(int replacementOffset, int replacementLength, int cursorPosition,
-            IImageHandle image, FunctionDef functionDef, String parentClassName, String currentClassName) {
+            IImageHandle image, ISimpleNode functionDef, String parentClassName, String currentClassName) {
         super("", replacementOffset, replacementLength, cursorPosition, IPyCompletionProposal.PRIORITY_CREATE, null);
         this.fImage = image;
-        this.functionDef = functionDef;
-        this.fDisplayString = ((NameTok) functionDef.name).id + " (Override method in " + parentClassName + ")";
+        this.functionDef = (FunctionDef) functionDef;
+        this.fDisplayString = ((NameTok) this.functionDef.name).id + " (Override method in " + parentClassName + ")";
         this.parentClassName = parentClassName;
         this.currentClassName = currentClassName;
     }

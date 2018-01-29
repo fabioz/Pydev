@@ -47,6 +47,7 @@ import org.eclipse.ui.actions.WorkingSetFilterActionGroup;
 import org.eclipse.ui.dialogs.FilteredItemsSelectionDialog;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.IInfo;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
@@ -64,7 +65,6 @@ import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;
-import com.python.pydev.analysis.additionalinfo.IInfo;
 import com.python.pydev.analysis.additionalinfo.InfoFactory;
 import com.python.pydev.analysis.additionalinfo.ModInfo;
 

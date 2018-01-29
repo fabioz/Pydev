@@ -19,6 +19,7 @@ import java.util.Set;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.IInfo;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
@@ -41,9 +42,7 @@ import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal.ICompareContext;
 
-import com.python.pydev.analysis.additionalinfo.IInfo;
 import com.python.pydev.analysis.ui.AutoImportsPreferencesPage;
-import com.python.pydev.codecompletion.ui.CodeCompletionPreferencesPage;
 
 /**
  * Gathers completions from the modules available (for the editor or for the console).
@@ -65,7 +64,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
         }
 
         String qual = tokenAndQual.qualifier;
-        if (qual.length() >= CodeCompletionPreferencesPage.getCharsForContextInsensitiveModulesCompletion()
+        if (qual.length() >= PyCodeCompletionPreferences.getCharsForContextInsensitiveModulesCompletion()
                 && naturesUsed != null && naturesUsed.size() > 0) { //at least n characters required...
 
             int qlen = qual.length();
@@ -172,7 +171,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
             return list;
         }
 
-        if (request.qualifier.length() >= CodeCompletionPreferencesPage
+        if (request.qualifier.length() >= PyCodeCompletionPreferences
                 .getCharsForContextInsensitiveModulesCompletion()) { //at least n characters required...
 
             ICodeCompletionASTManager astManager = request.nature.getAstManager();

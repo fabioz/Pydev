@@ -1,5 +1,8 @@
 package org.python.pydev.editor.codecompletion;
 
+import java.util.ArrayList;
+import java.util.StringTokenizer;
+
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
@@ -141,6 +144,125 @@ public class PyCodeCompletionPreferences {
 
     public static boolean getUseSubstringMatchInCodeCompletion() {
         return getPreferences().getBoolean(MATCH_BY_SUBSTRING_IN_CODE_COMPLETION);
+    }
+
+    public static final String USE_KEYWORDS_CODE_COMPLETION = "USE_KEYWORDS_CODE_COMPLETION";
+    public static final boolean DEFAULT_USE_KEYWORDS_CODE_COMPLETION = true;
+
+    public static final String ADD_SPACE_WHEN_NEEDED = "ADD_SPACE_WHEN_NEEDED";
+    public static final boolean DEFAULT_ADD_SPACES_WHEN_NEEDED = false; //Keep current behavior by default
+
+    public static final String ADD_SPACE_AND_COLON_WHEN_NEEDED = "ADD_SPACE_AND_COLON_WHEN_NEEDED";
+    public static final boolean DEFAULT_ADD_SPACES_AND_COLON_WHEN_NEEDED = false; //Keep current behavior by default
+
+    public static final String FORCE_PY3K_PRINT_ON_PY2 = "FORCE_PY3K_PRINT_ON_PY2";
+    public static final boolean DEFAULT_FORCE_PY3K_PRINT_ON_PY2 = false;
+
+    public static final String KEYWORDS_CODE_COMPLETION = "KEYWORDS_CODE_COMPLETION";
+    public static final String DEFAULT_KEYWORDS_CODE_COMPLETION = defaultKeywordsAsString();
+
+    public static final String CHARS_FOR_CTX_INSENSITIVE_MODULES_COMPLETION = "CHARS_FOR_CTX_INSENSITIVE_MODULES_COMPLETION";
+    public static final int DEFAULT_CHARS_FOR_CTX_INSENSITIVE_MODULES_COMPLETION = 2;
+
+    public static final String CHARS_FOR_CTX_INSENSITIVE_TOKENS_COMPLETION = "CHARS_FOR_CTX_INSENSITIVE_TOKENS_COMPLETION";
+    public static final int DEFAULT_CHARS_FOR_CTX_INSENSITIVE_TOKENS_COMPLETION = 2;
+
+    public static int getIntFromPrefs(String prefName) {
+        if (SharedCorePlugin.inTestMode()) {
+            return 1;
+        }
+        return PydevPrefs.getPreferenceStore().getInt(prefName);
+    }
+
+    public static int getCharsForContextInsensitiveModulesCompletion() {
+        String prefName = CHARS_FOR_CTX_INSENSITIVE_MODULES_COMPLETION;
+        return getIntFromPrefs(prefName);
+    }
+
+    public static int getCharsForContextInsensitiveGlobalTokensCompletion() {
+        String prefName = CHARS_FOR_CTX_INSENSITIVE_TOKENS_COMPLETION;
+        return getIntFromPrefs(prefName);
+    }
+
+    public static boolean useKeywordsCodeCompletion() {
+        return PydevPrefs.getPreferenceStore()
+                .getBoolean(USE_KEYWORDS_CODE_COMPLETION);
+    }
+
+    public static boolean addSpaceWhenNeeded() {
+        return PydevPrefs.getPreferenceStore()
+                .getBoolean(ADD_SPACE_WHEN_NEEDED);
+    }
+
+    public static boolean addSpaceAndColonWhenNeeded() {
+        return PydevPrefs.getPreferenceStore()
+                .getBoolean(ADD_SPACE_AND_COLON_WHEN_NEEDED);
+    }
+
+    public static boolean forcePy3kPrintOnPy2() {
+        return PydevPrefs.getPreferenceStore()
+                .getBoolean(FORCE_PY3K_PRINT_ON_PY2);
+    }
+
+    public static String[] getKeywords() {
+        String keywords = PydevPrefs.getPreferenceStore()
+                .getString(KEYWORDS_CODE_COMPLETION);
+        return stringAsWords(keywords);
+    }
+
+    /**
+     * @param keywords keywords to be gotten as string
+     * @return a string with all the passed words separated by '\n'
+     */
+    public static String wordsAsString(String[] keywords) {
+        StringBuffer buf = new StringBuffer();
+        for (String string : keywords) {
+            buf.append(string);
+            buf.append("\n");
+        }
+        return buf.toString();
+    }
+
+    public static String defaultKeywordsAsString() {
+        String[] KEYWORDS = new String[] { "and", "assert", "break", "class", "continue", "def", "del",
+                //                "elif", -- starting with 'e'
+                //                "else:", -- starting with 'e'
+                //                "except:",  -- ctrl+1 covers for try..except/ starting with 'e'
+                //                "exec", -- starting with 'e'
+                "finally:", "for", "from", "global",
+                //                "if", --too small
+                "import",
+                //                "in", --too small
+                //                "is", --too small
+                "lambda", "not",
+                //                "or", --too small
+                "pass", "print", "raise", "return",
+                //                "try:", -- ctrl+1 covers for try..except
+                "while", "with", "yield",
+
+                //the ones below were not in the initial list
+                "self", "__init__",
+                //                "as", --too small
+                "False", "None", "object", "True" };
+        return wordsAsString(KEYWORDS);
+    }
+
+    //very simple cache (this might be requested a lot).
+    public static String cache;
+    public static String[] cacheRet;
+
+    public static String[] stringAsWords(String keywords) {
+        if (cache != null && cache.equals(keywords)) {
+            return cacheRet;
+        }
+        StringTokenizer tokenizer = new StringTokenizer(keywords);
+        ArrayList<String> strs = new ArrayList<String>();
+        while (tokenizer.hasMoreTokens()) {
+            strs.add(tokenizer.nextToken());
+        }
+        cache = keywords;
+        cacheRet = strs.toArray(new String[0]);
+        return cacheRet;
     }
 
 }

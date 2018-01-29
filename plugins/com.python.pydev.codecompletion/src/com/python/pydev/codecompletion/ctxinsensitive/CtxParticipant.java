@@ -22,6 +22,7 @@ import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
+import org.python.pydev.core.IInfo;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
@@ -59,9 +60,7 @@ import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;
-import com.python.pydev.analysis.additionalinfo.IInfo;
 import com.python.pydev.analysis.ui.AutoImportsPreferencesPage;
-import com.python.pydev.codecompletion.ui.CodeCompletionPreferencesPage;
 
 /**
  * Provides the completions in a context-insensitive way for classes and methods (both for the editor or the console).
@@ -86,7 +85,7 @@ public class CtxParticipant
         }
 
         String qual = tokenAndQual.qualifier;
-        if (qual.length() >= CodeCompletionPreferencesPage.getCharsForContextInsensitiveGlobalTokensCompletion()
+        if (qual.length() >= PyCodeCompletionPreferences.getCharsForContextInsensitiveGlobalTokensCompletion()
                 && naturesUsed != null && naturesUsed.size() > 0) { //at least n characters required...
             boolean addAutoImport = AutoImportsPreferencesPage.doAutoImport();
             int qlen = qual.length();
@@ -197,7 +196,7 @@ public class CtxParticipant
         HashSet<String> importedNames = getImportedNames(state);
 
         String qual = request.qualifier;
-        if (qual.length() >= CodeCompletionPreferencesPage.getCharsForContextInsensitiveGlobalTokensCompletion()) { //at least n characters required...
+        if (qual.length() >= PyCodeCompletionPreferences.getCharsForContextInsensitiveGlobalTokensCompletion()) { //at least n characters required...
 
             IFilter nameFilter = PyCodeCompletionUtils.getNameFilter(request.useSubstringMatchInCodeCompletion, qual);
             String initialModule = request.resolveModule();
@@ -388,7 +387,7 @@ public class CtxParticipant
             }
         }
 
-        if (qual.length() >= CodeCompletionPreferencesPage.getCharsForContextInsensitiveGlobalTokensCompletion()) { //at least n characters
+        if (qual.length() >= PyCodeCompletionPreferences.getCharsForContextInsensitiveGlobalTokensCompletion()) { //at least n characters
 
             // if we have a parameter, do code-completion with all available tokens, since we don't know what's the type which
             // may actually be received

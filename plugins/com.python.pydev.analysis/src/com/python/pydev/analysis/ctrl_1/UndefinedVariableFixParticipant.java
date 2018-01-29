@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.ui.texteditor.MarkerAnnotation;
 import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.IInfo;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
@@ -37,7 +38,6 @@ import org.python.pydev.shared_ui.proposals.IPyCompletionProposal.ICompareContex
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
-import com.python.pydev.analysis.additionalinfo.IInfo;
 import com.python.pydev.analysis.builder.AnalysisRunner;
 import com.python.pydev.analysis.ui.AutoImportsPreferencesPage;
 

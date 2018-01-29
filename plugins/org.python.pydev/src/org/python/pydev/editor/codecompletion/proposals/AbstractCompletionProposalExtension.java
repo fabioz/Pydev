@@ -10,7 +10,7 @@
 *     Fabio Zadrozny <fabiofz@gmail.com>    - initial API and implementation
 *     Jonah Graham <jonah@kichwacoders.com> - ongoing maintenance
 ******************************************************************************/
-package org.python.pydev.shared_ui.proposals;
+package org.python.pydev.editor.codecompletion.proposals;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
@@ -22,6 +22,7 @@ import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.custom.StyledText;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.log.Log;
+import org.python.pydev.shared_ui.proposals.PyCompletionPresentationUpdater;
 
 public abstract class AbstractCompletionProposalExtension extends PyCompletionProposal implements
         ICompletionProposalExtension2, ICompletionProposalExtension {

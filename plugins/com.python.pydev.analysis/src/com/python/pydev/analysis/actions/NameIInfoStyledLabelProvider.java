@@ -8,8 +8,7 @@ package com.python.pydev.analysis.actions;
 
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
-
-import com.python.pydev.analysis.additionalinfo.IInfo;
+import org.python.pydev.core.IInfo;
 
 /**
  * Just used to declare the interface (as it's not available in eclipse 3.2)

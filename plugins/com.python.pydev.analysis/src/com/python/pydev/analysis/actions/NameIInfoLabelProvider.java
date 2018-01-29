@@ -8,10 +8,9 @@ package com.python.pydev.analysis.actions;
 
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
+import org.python.pydev.core.IInfo;
+import org.python.pydev.editor.codecompletion.proposals.AnalysisImages;
 import org.python.pydev.shared_ui.ImageCache;
-
-import com.python.pydev.analysis.AnalysisPlugin;
-import com.python.pydev.analysis.additionalinfo.IInfo;
 
 /**
  * Provides the labels and images for the top panel
@@ -48,7 +47,7 @@ public class NameIInfoLabelProvider extends LabelProvider {
         if (info == null) {
             return null;
         }
-        return ImageCache.asImage(AnalysisPlugin.getImageForTypeInfo(info));
+        return ImageCache.asImage(AnalysisImages.getImageForTypeInfo(info));
     }
 
     /**

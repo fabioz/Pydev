@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.IInfo;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
@@ -22,7 +23,6 @@ import org.python.pydev.shared_core.utils.PlatformUtils;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
-import com.python.pydev.analysis.additionalinfo.IInfo;
 
 public class SearchTest extends AdditionalInfoTestsBase {
 

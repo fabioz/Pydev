@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.python.pydev.codecompletion.simpleassist;
+package org.python.pydev.editor.codecompletion.proposals;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -19,12 +19,10 @@ import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Point;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.DocCmd;
-import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
-
-import com.python.pydev.codecompletion.ui.CodeCompletionPreferencesPage;
 
 /**
  * by using this assist (with the extension), we are able to just validate it (without recomputing all completions each time).
@@ -142,7 +140,7 @@ public class SimpleAssistProposal extends PyCompletionProposal implements ICompl
                 return;
 
             } else if (ADD_SPACE_AFTER.contains(fReplacementString)
-                    && CodeCompletionPreferencesPage.addSpaceWhenNeeded()) {
+                    && PyCodeCompletionPreferences.addSpaceWhenNeeded()) {
                 doc.replace(offset, 0, fReplacementString.substring(dif));
 
                 doc.replace(offset + fReplacementString.length() - dif, 0, " ");
@@ -151,7 +149,7 @@ public class SimpleAssistProposal extends PyCompletionProposal implements ICompl
                 return;
 
             } else if (ADD_SPACE_AND_COLOR_AFTER.contains(fReplacementString)
-                    && CodeCompletionPreferencesPage.addSpaceAndColonWhenNeeded()) {
+                    && PyCodeCompletionPreferences.addSpaceAndColonWhenNeeded()) {
                 //it's something as 'class', 'for', etc, which will start a new block.
                 //create it as "class space colon" (if the colon is still not there)
                 doc.replace(offset, 0, fReplacementString.substring(dif));

@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.shared_ui.proposals;
+package org.python.pydev.editor.codecompletion.proposals;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
@@ -18,6 +18,8 @@ import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
+import org.python.pydev.shared_ui.proposals.IPyCompletionProposal.ICompareContext;
 
 /**
  * The standard implementation of the <code>ICompletionProposal</code> interface.
@@ -66,20 +68,20 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
      * @param replacementLength the length of the text to be replaced
      * @param cursorPosition the position of the cursor following the insert relative to replacementOffset
      */
-    protected PyCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
+    public PyCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
             int cursorPosition, int priority, ICompareContext compareContext) {
         this(replacementString, replacementOffset, replacementLength, cursorPosition, null, null, null, null, priority,
                 compareContext);
     }
 
     // Backward-compatibility for jython scripts without compareContext.
-    protected PyCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
+    public PyCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
             int cursorPosition, int priority) {
         this(replacementString, replacementOffset, replacementLength, cursorPosition, null, null, null, null, priority,
                 null);
     }
 
-    protected PyCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
+    public PyCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
             int cursorPosition, IImageHandle image, String displayString, IContextInformation contextInformation,
             String additionalProposalInfo, int priority, ICompareContext compareContext) {
         this(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
@@ -88,7 +90,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
     }
 
     // Backward-compatibility for jython scripts without compareContext.
-    protected PyCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
+    public PyCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
             int cursorPosition, IImageHandle image, String displayString, IContextInformation contextInformation,
             String additionalProposalInfo, int priority) {
         this(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
@@ -96,7 +98,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
     }
 
     // Backward-compatibility for jython scripts without compareContext.
-    protected PyCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
+    public PyCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
             int cursorPosition, IImageHandle image, String displayString, IContextInformation contextInformation,
             String additionalProposalInfo, int priority, int onApplyAction, String args) {
         this(replacementString, replacementOffset, replacementLength,

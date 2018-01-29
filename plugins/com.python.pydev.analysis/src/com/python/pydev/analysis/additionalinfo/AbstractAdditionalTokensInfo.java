@@ -30,6 +30,7 @@ import java.util.SortedMap;
 
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.FileUtilsFileBuffer;
+import org.python.pydev.core.IInfo;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;

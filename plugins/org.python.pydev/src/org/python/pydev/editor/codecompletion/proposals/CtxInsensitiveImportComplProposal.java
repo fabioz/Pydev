@@ -7,7 +7,7 @@
 /*
  * Created on 16/09/2005
  */
-package com.python.pydev.analysis;
+package org.python.pydev.editor.codecompletion.proposals;
 
 import java.util.List;
 
@@ -35,7 +35,6 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
-import org.python.pydev.editor.codecompletion.AbstractPyCompletionProposalExtension2;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal2;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.plugin.preferences.PydevPrefs;
@@ -116,7 +115,8 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
             String additionalProposalInfo, int priority, String realImportRep, ICompareContext compareContext) {
 
         super(replacementString, replacementOffset, replacementLength, cursorPosition, null, displayString,
-                contextInformation, additionalProposalInfo, priority, IPyCompletionProposal.ON_APPLY_DEFAULT, "", compareContext);
+                contextInformation, additionalProposalInfo, priority, IPyCompletionProposal.ON_APPLY_DEFAULT, "",
+                compareContext);
         this.infoTypeForImage = infoTypeForImage;
         this.realImportRep = realImportRep;
     }
@@ -124,7 +124,7 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
     @Override
     public Image getImage() {
         if (fImage == null) {
-            fImage = AnalysisPlugin.getImageForAutoImportTypeInfo(infoTypeForImage);
+            fImage = AnalysisImages.getImageForAutoImportTypeInfo(infoTypeForImage);
         }
         return ImageCache.asImage(fImage);
     }

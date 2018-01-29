@@ -8,7 +8,7 @@
  * Created on Jul 15, 2006
  * @author Fabio
  */
-package org.python.pydev.editor.codecompletion;
+package org.python.pydev.editor.codecompletion.proposals;
 
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
@@ -17,9 +17,10 @@ import org.eclipse.jface.text.contentassist.ICompletionProposalExtension7;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.viewers.StyledString;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.string.StringUtils;
-import org.python.pydev.shared_ui.proposals.AbstractCompletionProposalExtension;
 
 public abstract class AbstractPyCompletionProposalExtension2 extends AbstractCompletionProposalExtension
         implements ICompletionProposalExtension7 {

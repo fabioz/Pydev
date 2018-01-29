@@ -1,4 +1,4 @@
-package com.python.pydev.analysis.ctrl_1;
+package org.python.pydev.editor.codecompletion.proposals;
 
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.IContextInformation;
@@ -7,8 +7,6 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.shared_core.IMiscConstants;
 import org.python.pydev.shared_core.structure.Tuple;
-
-import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
 
 class CtxInsensitiveImportComplProposalReparseOnApply extends CtxInsensitiveImportComplProposal {
 

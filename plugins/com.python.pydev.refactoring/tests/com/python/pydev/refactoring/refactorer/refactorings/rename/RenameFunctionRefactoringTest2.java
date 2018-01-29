@@ -11,12 +11,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.python.pydev.core.IInfo;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.shared_core.structure.Tuple;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
-import com.python.pydev.analysis.additionalinfo.IInfo;
 
 public class RenameFunctionRefactoringTest2 extends RefactoringRenameTestBase {
 

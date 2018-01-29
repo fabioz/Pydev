@@ -11,10 +11,10 @@ import java.util.List;
 
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.SelectionDialog;
+import org.python.pydev.core.IInfo;
 import org.python.pydev.core.log.Log;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
-import com.python.pydev.analysis.additionalinfo.IInfo;
 
 /**
  * Creates the selection dialog to be used to select a token.

@@ -64,8 +64,9 @@ import org.python.pydev.core.PyTemplateCompletionProcessorCreator;
 import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.AbstractTemplateCodeCompletion;
-import org.python.pydev.editor.codecompletion.PyLinkedModeCompletionProposal;
 import org.python.pydev.editor.codecompletion.PyTemplateCompletionProcessor;
+import org.python.pydev.editor.codecompletion.proposals.DefaultCompletionProposalFactory;
+import org.python.pydev.editor.codecompletion.proposals.PyLinkedModeCompletionProposal;
 import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.SyncSystemModulesManager;
@@ -90,6 +91,7 @@ import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.bundle.BundleInfo;
 import org.python.pydev.shared_ui.bundle.IBundleInfo;
+import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.ui.dialogs.SelectNDialog;
 import org.python.pydev.ui.dialogs.TreeNodeLabelProvider;
@@ -205,6 +207,8 @@ public class PydevPlugin extends AbstractUIPlugin {
         // ease of implementation right now).
         AbstractTemplateCodeCompletion.getTemplateContextType = () -> TemplateHelper.getContextTypeRegistry()
                 .getContextType(PyContextType.PY_COMPLETIONS_CONTEXT_TYPE);
+
+        CompletionProposalFactory.set(new DefaultCompletionProposalFactory());
 
         PydevPrefs.getDefaultStores = (addEditorsUIStore) -> {
             List<IPreferenceStore> stores = new ArrayList<IPreferenceStore>();

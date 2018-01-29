@@ -34,6 +34,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.IOrganizeImports;
 import org.python.pydev.editor.codecompletion.ProposalsComparator;
+import org.python.pydev.editor.codecompletion.proposals.CtxInsensitiveImportComplProposal;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.parser.PyParser;
@@ -45,7 +46,6 @@ import org.python.pydev.ui.dialogs.ListContentProvider;
 import org.python.pydev.ui.dialogs.TreeSelectionDialog;
 
 import com.python.pydev.analysis.AnalysisPlugin;
-import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.builder.AnalysisRunner;
 import com.python.pydev.analysis.ctrl_1.UndefinedVariableFixParticipant;

@@ -9,6 +9,8 @@ package com.python.pydev.analysis.additionalinfo;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.python.pydev.core.IInfo;
+
 import junit.framework.TestCase;
 
 /**

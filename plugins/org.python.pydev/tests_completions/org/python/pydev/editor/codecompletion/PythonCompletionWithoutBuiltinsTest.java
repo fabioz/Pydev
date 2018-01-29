@@ -36,6 +36,9 @@ import org.python.pydev.core.docutils.ImportsSelection;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
 import org.python.pydev.core.structure.CompletionRecursionException;
+import org.python.pydev.editor.codecompletion.proposals.OverrideMethodCompletionProposal;
+import org.python.pydev.editor.codecompletion.proposals.PyCompletionProposal;
+import org.python.pydev.editor.codecompletion.proposals.PyLinkedModeCompletionProposal;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
@@ -46,7 +49,6 @@ import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.StringUtils;
-import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
 /**
  * This tests the 'whole' code completion, passing through all modules.

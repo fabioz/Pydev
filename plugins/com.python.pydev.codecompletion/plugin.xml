@@ -9,10 +9,6 @@
             name="Code Completion (ctx insensitive and common tokens)"/>
    </extension>
 
-   <extension point="org.eclipse.core.runtime.preferences">
-      <initializer class="com.python.pydev.codecompletion.CodeCompletionPreferencesInitializer"/>
-   </extension>
-
    <extension point="org.python.pydev.pydev_completion">
   		<completion_participant class="com.python.pydev.codecompletion.participant.ImportsCompletionParticipant"/>
    </extension>
@@ -20,10 +16,10 @@
    <extension point="org.python.pydev.pydev_completion">
   		<completion_participant class="com.python.pydev.codecompletion.ctxinsensitive.CtxParticipant"/>
    </extension>
-   
+
    <extension point="org.python.pydev.pydev_simpleassist">
   		<simpleassist_participant class="com.python.pydev.codecompletion.simpleassist.KeywordsSimpleAssist"/>
    </extension>
-   
+
 
 </plugin>
