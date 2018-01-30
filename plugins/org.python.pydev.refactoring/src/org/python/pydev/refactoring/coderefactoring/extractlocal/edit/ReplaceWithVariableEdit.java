@@ -24,16 +24,16 @@
 
 package org.python.pydev.refactoring.coderefactoring.extractlocal.edit;
 
-import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.expr_contextType;
 import org.python.pydev.refactoring.coderefactoring.extractlocal.request.ExtractLocalRequest;
 import org.python.pydev.refactoring.core.edit.AbstractReplaceEdit;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
 
 public class ReplaceWithVariableEdit extends AbstractReplaceEdit {
 
-    private ITextSelection selection;
+    private ICoreTextSelection selection;
     private String variableName;
 
     public ReplaceWithVariableEdit(ExtractLocalRequest req) {

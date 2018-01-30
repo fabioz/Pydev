@@ -28,7 +28,6 @@ import java.io.File;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
@@ -54,12 +53,14 @@ import org.python.pydev.refactoring.ast.visitors.selection.SelectionExtenderVisi
 import org.python.pydev.refactoring.ast.visitors.selection.SelectionValidationVisitor;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
 
 public final class VisitorFactory {
     private VisitorFactory() {
     }
 
-    public static ITextSelection createSelectionExtension(AbstractScopeNode<?> scope, ITextSelection selection) {
+    public static ICoreTextSelection createSelectionExtension(AbstractScopeNode<?> scope,
+            ICoreTextSelection selection) {
         SelectionExtenderVisitor visitor = null;
         try {
             visitor = new SelectionExtenderVisitor(scope.getModule(), selection);
@@ -186,7 +187,7 @@ public final class VisitorFactory {
     /**
      * Provides a way to find duplicates of a given expression.
      */
-    public static FindDuplicatesVisitor createDuplicatesVisitor(ITextSelection selection, SimpleNode nodeToVisit,
+    public static FindDuplicatesVisitor createDuplicatesVisitor(ICoreTextSelection selection, SimpleNode nodeToVisit,
             exprType expression, AbstractScopeNode node, IDocument doc) {
         FindDuplicatesVisitor visitor = new FindDuplicatesVisitor(selection, expression, doc);
         try {

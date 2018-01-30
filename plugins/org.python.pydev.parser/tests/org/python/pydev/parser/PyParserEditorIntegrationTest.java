@@ -28,6 +28,7 @@ import org.python.pydev.shared_core.editor.IBaseEditor;
 import org.python.pydev.shared_core.model.IModelListener;
 import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.preferences.InMemoryEclipsePreferences;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
 
 import junit.framework.TestCase;
 
@@ -181,6 +182,11 @@ public class PyParserEditorIntegrationTest extends TestCase {
         @Override
         public boolean isCythonFile() {
             return false;
+        }
+
+        @Override
+        public ICoreTextSelection getTextSelection() {
+            throw new RuntimeException("Not implemented");
         }
     }
 

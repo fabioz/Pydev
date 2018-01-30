@@ -26,7 +26,6 @@ package org.python.pydev.refactoring.ast.visitors.selection;
 
 import java.util.List;
 
-import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -49,19 +48,20 @@ import org.python.pydev.parser.jython.ast.keywordType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
 import org.python.pydev.shared_core.structure.FastStack;
 
 public class SelectionExtenderVisitor extends VisitorBase {
 
     private ModuleAdapter module;
 
-    private ITextSelection selection;
+    private ICoreTextSelection selection;
 
     private FastStack<SimpleNode> stmtExprStack;
 
     private SimpleNode extendNodeInSelection;
 
-    public SelectionExtenderVisitor(ModuleAdapter module, ITextSelection selection) {
+    public SelectionExtenderVisitor(ModuleAdapter module, ICoreTextSelection selection) {
         this.module = module;
         this.selection = selection;
         this.stmtExprStack = new FastStack<SimpleNode>(20);
@@ -357,7 +357,7 @@ public class SelectionExtenderVisitor extends VisitorBase {
         }
     }
 
-    public ITextSelection getSelection() {
+    public ICoreTextSelection getSelection() {
         return selection;
     }
 

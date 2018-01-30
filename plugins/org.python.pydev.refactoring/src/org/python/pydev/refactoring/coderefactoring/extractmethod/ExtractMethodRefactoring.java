@@ -29,7 +29,6 @@ import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
@@ -39,6 +38,7 @@ import org.python.pydev.refactoring.core.base.AbstractPythonRefactoring;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.change.IChangeProcessor;
 import org.python.pydev.refactoring.messages.Messages;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
 
 public class ExtractMethodRefactoring extends AbstractPythonRefactoring {
     private ExtractMethodRequestProcessor requestProcessor;
@@ -64,7 +64,7 @@ public class ExtractMethodRefactoring extends AbstractPythonRefactoring {
     }
 
     private void initWizard() throws Throwable {
-        ITextSelection standardSelection = info.getUserSelection();
+        ICoreTextSelection standardSelection = info.getUserSelection();
         ModuleAdapter standardModule = this.parsedUserSelection;
         if (standardModule == null) {
             standardSelection = info.getExtendedSelection();

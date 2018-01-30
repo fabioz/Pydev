@@ -15,6 +15,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.python.pydev.shared_core.editor.IBaseEditor;
 import org.python.pydev.shared_core.parsing.IParserObserver;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
 
 /**
  * @author Fabio
@@ -50,5 +51,7 @@ public interface IPyEdit extends IParserObserver, IBaseEditor, IPyFormatStdProvi
     boolean isCythonFile();
 
     /* PyParser */ Object getParser();
+
+    ICoreTextSelection getTextSelection();
 
 }

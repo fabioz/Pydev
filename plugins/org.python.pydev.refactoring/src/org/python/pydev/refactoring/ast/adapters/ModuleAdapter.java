@@ -38,8 +38,6 @@ import java.util.SortedMap;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.ITextSelection;
-import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.text.TextUtilities;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
@@ -71,6 +69,8 @@ import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.InitOffset;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.ast.visitors.info.ImportVisitor;
+import org.python.pydev.shared_core.string.CoreTextSelection;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
 
 public class ModuleAdapter extends AbstractScopeNode<Module> {
     private List<FQIdentifier> aliasToFQIdentifier;
@@ -234,7 +234,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
         return importedModules;
     }
 
-    public IClassDefAdapter getScopeClass(ITextSelection selection) {
+    public IClassDefAdapter getScopeClass(ICoreTextSelection selection) {
         IASTNodeAdapter<? extends SimpleNode> bestClassScope = null;
 
         for (IClassDefAdapter classScope : getClasses()) {
@@ -260,7 +260,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
         return getGlobalVariableNames().contains(name);
     }
 
-    private boolean isSelectionInAdapter(ITextSelection selection, IASTNodeAdapter<? extends SimpleNode> adapter) {
+    private boolean isSelectionInAdapter(ICoreTextSelection selection, IASTNodeAdapter<? extends SimpleNode> adapter) {
         int startOffSet = selection.getOffset();
         int endOffSet = selection.getOffset() + selection.getLength();
 
@@ -275,7 +275,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
         }
     }
 
-    private boolean isAdapterInSelection(ITextSelection selection, IASTNodeAdapter<? extends SimpleNode> adapter) {
+    private boolean isAdapterInSelection(ICoreTextSelection selection, IASTNodeAdapter<? extends SimpleNode> adapter) {
 
         int selectionStart = selection.getOffset();
         int selectionEnd = selection.getOffset() + selection.getLength();
@@ -310,7 +310,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
         return doc.getLineOffset(adapter.getNodeFirstLine(false) - 1) + adapter.getNodeIndent();
     }
 
-    public boolean isNodeInSelection(ITextSelection selection, SimpleNode node) {
+    public boolean isNodeInSelection(ICoreTextSelection selection, SimpleNode node) {
         return isAdapterInSelection(selection, new SimpleAdapter(this, this, node, getAdapterPrefs()));
     }
 
@@ -518,7 +518,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
         }
     }
 
-    public AbstractScopeNode<?> getScopeAdapter(ITextSelection selection) {
+    public AbstractScopeNode<?> getScopeAdapter(ICoreTextSelection selection) {
         AbstractScopeNode<?> bestScopeNode = null;
 
         bestScopeNode = getScopeFunction(selection);
@@ -536,7 +536,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
         return this;
     }
 
-    private AbstractScopeNode<?> getScopeFunction(ITextSelection selection) {
+    private AbstractScopeNode<?> getScopeFunction(ICoreTextSelection selection) {
         AbstractScopeNode<?> scopeAdapter = null;
 
         Iterator<FunctionDefAdapter> iter = getFunctions().iterator();
@@ -563,7 +563,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
         return 0;
     }
 
-    public List<SimpleAdapter> getWithinSelection(ITextSelection selection, List<SimpleAdapter> variables) {
+    public List<SimpleAdapter> getWithinSelection(ICoreTextSelection selection, List<SimpleAdapter> variables) {
 
         List<SimpleAdapter> withinOffsetAdapters = new ArrayList<SimpleAdapter>();
         for (SimpleAdapter adapter : variables) {
@@ -574,7 +574,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
         return withinOffsetAdapters;
     }
 
-    public ITextSelection extendSelection(ITextSelection selection, SimpleNode nodeStart, SimpleNode nodeEnd) {
+    public ICoreTextSelection extendSelection(ICoreTextSelection selection, SimpleNode nodeStart, SimpleNode nodeEnd) {
         if (this.doc != null) {
             try {
 
@@ -588,7 +588,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
                 if (endOffset < selection.getOffset() + selection.getLength()) {
                     endOffset = selection.getOffset() + selection.getLength();
                 }
-                selection = new TextSelection(doc, startOffset, endOffset - startOffset);
+                selection = new CoreTextSelection(doc, startOffset, endOffset - startOffset);
             } catch (BadLocationException e) {
                 Log.log(e);
             }
@@ -596,22 +596,23 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
         return normalizeSelection(selection);
     }
 
-    public ITextSelection normalizeSelection(ITextSelection userSelection) {
+    public ICoreTextSelection normalizeSelection(ICoreTextSelection userSelection) {
 
         String txt = userSelection.getText();
         while (txt != null && (txt.startsWith(" ") || txt.startsWith("\n") || txt.startsWith("\r"))) {
-            userSelection = new TextSelection(this.doc, userSelection.getOffset() + 1, userSelection.getLength() - 1);
+            userSelection = new CoreTextSelection(this.doc, userSelection.getOffset() + 1,
+                    userSelection.getLength() - 1);
             txt = userSelection.getText();
         }
         while (txt != null && (txt.endsWith(" ") || txt.endsWith("\n") || txt.endsWith("\r"))) {
-            userSelection = new TextSelection(this.doc, userSelection.getOffset(), userSelection.getLength() - 1);
+            userSelection = new CoreTextSelection(this.doc, userSelection.getOffset(), userSelection.getLength() - 1);
             txt = userSelection.getText();
         }
 
         return userSelection;
     }
 
-    public ITextSelection extendSelectionToEnd(ITextSelection selection, SimpleNode node) {
+    public ICoreTextSelection extendSelectionToEnd(ICoreTextSelection selection, SimpleNode node) {
         if (this.doc != null) {
             SimpleAdapter adapter = new SimpleAdapter(this, this, node, getAdapterPrefs());
             int lastLine = adapter.getNodeLastLine() - 1;
@@ -620,7 +621,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 
                 adapterEndOffset += doc.getLineLength(lastLine);
 
-                selection = new TextSelection(doc, selection.getOffset(), adapterEndOffset - selection.getOffset());
+                selection = new CoreTextSelection(doc, selection.getOffset(), adapterEndOffset - selection.getOffset());
             } catch (BadLocationException e) {
 
             }
@@ -628,7 +629,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
         return selection;
     }
 
-    public ITextSelection extendSelection(ITextSelection selection, SimpleNode node) {
+    public ICoreTextSelection extendSelection(ICoreTextSelection selection, SimpleNode node) {
         if (this.doc != null && (node instanceof Str)) {
             SimpleAdapter adapter = new SimpleAdapter(this, this, node, getAdapterPrefs());
             try {
@@ -641,7 +642,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
                     endOffset = selection.getOffset() + selection.getLength();
                 }
 
-                selection = new TextSelection(doc, startOffset, endOffset - startOffset);
+                selection = new CoreTextSelection(doc, startOffset, endOffset - startOffset);
             } catch (BadLocationException e) {
             }
 

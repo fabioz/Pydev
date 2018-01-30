@@ -162,7 +162,9 @@ import org.python.pydev.shared_core.parsing.ChangedParserInfoForObservers;
 import org.python.pydev.shared_core.parsing.ErrorParserInfoForObservers;
 import org.python.pydev.shared_core.parsing.IParserObserver3;
 import org.python.pydev.shared_core.parsing.IScopesParser;
+import org.python.pydev.shared_core.string.CoreTextSelection;
 import org.python.pydev.shared_core.string.ICharacterPairMatcher2;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
@@ -251,6 +253,12 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     @Override
     public TextSelectionUtils createTextSelectionUtils() {
         return PySelectionFromEditor.createPySelectionFromEditor(this);
+    }
+
+    @Override
+    public ICoreTextSelection getTextSelection() {
+        ITextSelection selection = (ITextSelection) this.getSelectionProvider().getSelection();
+        return new CoreTextSelection(getDocument(), selection.getOffset(), selection.getLength());
     }
 
     /**
