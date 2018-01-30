@@ -16,6 +16,7 @@ import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.actions.PyBackspace;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
+import org.python.pydev.shared_core.string.CoreTextSelection;
 import org.python.pydev.shared_interactive_console.console.ui.internal.actions.AbstractHandleBackspaceAction;
 
 /**
@@ -31,7 +32,7 @@ public class HandleBackspaceAction extends AbstractHandleBackspaceAction {
         PyBackspace pyBackspace = new PyBackspace();
         pyBackspace.setDontEraseMoreThan(commandLineOffset);
         pyBackspace.setIndentPrefs(DefaultIndentPrefs.get(null));
-        PySelection ps = new PySelection(doc, selection);
+        PySelection ps = new PySelection(doc, new CoreTextSelection(doc, selection.getOffset(), selection.getLength()));
 
         pyBackspace.perform(ps);
     }

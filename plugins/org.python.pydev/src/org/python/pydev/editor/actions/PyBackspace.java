@@ -15,6 +15,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextViewer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
@@ -408,7 +409,7 @@ public class PyBackspace extends PyAction {
                         }
 
                         ISelection selection = viewer.getSelection();
-                        if (selection instanceof ICoreTextSelection) {
+                        if (selection instanceof ITextSelection) {
                             //Only do our custom backspace if we're not in block selection mode.
                             PyBackspace pyBackspace = new PyBackspace();
                             if (edit != null) {
@@ -428,7 +429,8 @@ public class PyBackspace extends PyAction {
                                 }
                                 pyBackspace.setIndentPrefs(new DefaultIndentPrefs(adaptable));
                             }
-                            PySelection ps = new PySelection(viewer.getDocument(), (ICoreTextSelection) selection);
+                            PySelection ps = PySelectionFromEditor.createPySelectionFromEditor(viewer,
+                                    (ITextSelection) selection);
                             pyBackspace.perform(ps);
                             event.doit = false;
                         }

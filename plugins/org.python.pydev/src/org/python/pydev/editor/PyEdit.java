@@ -888,8 +888,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                     //Note: auto-format should only take place if we're always formatting everything or
                     //if we have some region to update (regionsForSave.length == 0 means that we only
                     //had deleted lines, in which case we can't really do anything).
-                    ITextSelection selection = (ITextSelection) this.getSelectionProvider().getSelection();
-                    PySelection ps = new PySelection(document, selection);
+                    PySelection ps = new PySelection(document, this.getTextSelection());
 
                     if (!hasSyntaxError(ps.getDoc())) {
                         PyFormatStd std = new PyFormatStd();

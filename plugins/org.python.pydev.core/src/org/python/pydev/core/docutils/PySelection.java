@@ -24,8 +24,6 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.ITextSelection;
-import org.eclipse.ui.PlatformUI;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.docutils.TabNannyDocIterator.IndentInfo;
@@ -130,10 +128,6 @@ public final class PySelection extends TextSelectionUtils {
         ALL_KEYWORD_TOKENS.add("with");
         ALL_KEYWORD_TOKENS.add("yield");
     };
-
-    public PySelection(IDocument doc, ITextSelection selection) {
-        super(doc, selection);
-    }
 
     /**
      * @param document the document we are using to make the selection
@@ -378,11 +372,6 @@ public final class PySelection extends TextSelectionUtils {
         } catch (SyntaxErrorException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    protected static void beep(Exception e) {
-        Log.log(e);
-        PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay().beep();
     }
 
     public static String getLineWithoutCommentsOrLiterals(String l) {

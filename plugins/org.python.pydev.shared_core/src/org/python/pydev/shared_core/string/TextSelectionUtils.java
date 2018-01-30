@@ -19,7 +19,6 @@ import org.eclipse.jface.text.FindReplaceDocumentAdapter;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
 import org.python.pydev.shared_core.log.Log;
@@ -29,11 +28,6 @@ public class TextSelectionUtils {
 
     protected IDocument doc;
     protected ICoreTextSelection textSelection;
-
-    public TextSelectionUtils(IDocument doc, ITextSelection selection) {
-        this.doc = doc;
-        this.textSelection = new CoreTextSelection(doc, selection.getOffset(), selection.getLength());
-    }
 
     /**
      * @param document the document we are using to make the selection

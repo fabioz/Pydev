@@ -18,6 +18,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.shared_core.string.CoreTextSelection;
 import org.python.pydev.shared_core.utils.Reflection;
 
 public class PyGlobalsBrowserWorkbench implements IWorkbenchWindowActionDelegate {
@@ -45,7 +46,9 @@ public class PyGlobalsBrowserWorkbench implements IWorkbenchWindowActionDelegate
                 Object document = Reflection.getAttrObj(textSelection, "fDocument");
                 //returns null if we couldn't get it.
                 if (document instanceof IDocument) { // document != null
-                    PySelection ps = new PySelection((IDocument) document, textSelection);
+                    PySelection ps = new PySelection((IDocument) document,
+                            new CoreTextSelection((IDocument) document, textSelection.getOffset(),
+                                    textSelection.getLength()));
                     try {
                         text = ps.getCurrToken().o1;
                     } catch (BadLocationException e) {

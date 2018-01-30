@@ -50,6 +50,7 @@ import org.python.pydev.core.partition.PyPartitionScanner;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.PyEditConfiguration;
 import org.python.pydev.editor.PyEditConfigurationWithoutEditor;
+import org.python.pydev.editor.PySelectionFromEditor;
 import org.python.pydev.editor.actions.FirstCharAction;
 import org.python.pydev.editor.actions.PyBackspace;
 import org.python.pydev.editor.actions.PyPeerLinker;
@@ -249,7 +250,7 @@ public class PyMergeViewer extends TextMergeViewer {
             public PySelection createPySelection() {
                 ISelection selection = sourceViewer.getSelection();
                 if (selection instanceof ITextSelection) {
-                    return new PySelection(sourceViewer.getDocument(), (ITextSelection) selection);
+                    return PySelectionFromEditor.createPySelectionFromEditor(sourceViewer, (ITextSelection) selection);
                 } else {
                     return null;
                 }

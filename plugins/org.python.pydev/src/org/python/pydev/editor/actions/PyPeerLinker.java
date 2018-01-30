@@ -28,6 +28,7 @@ import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.editor.PySelectionFromEditor;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -112,7 +113,8 @@ public class PyPeerLinker {
                             //Don't bother in getting the indent prefs from the editor: the default indent prefs are
                             //always global for the settings we want.
                             pyPeerLinker.setIndentPrefs(new DefaultIndentPrefs(adaptable));
-                            PySelection ps = new PySelection(viewer.getDocument(), (ITextSelection) selection);
+                            ITextSelection textSelection = (ITextSelection) selection;
+                            PySelection ps = PySelectionFromEditor.createPySelectionFromEditor(viewer, textSelection);
 
                             if (pyPeerLinker.perform(ps, event.character, viewer)) {
                                 event.doit = false;

@@ -1,7 +1,5 @@
 package org.python.pydev.shared_core.string;
 
-import org.eclipse.core.runtime.Assert;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 
@@ -14,41 +12,12 @@ import org.eclipse.jface.text.IDocument;
  */
 public class CoreTextSelection implements ICoreTextSelection {
 
-    /**
-     * Debug option for asserting valid offset and length.
-     *
-     * @since 3.5
-     */
-    private static final boolean ASSERT_INVLID_SELECTION_NULL = "true".equalsIgnoreCase( //$NON-NLS-1$
-            Platform.getDebugOption("org.eclipse.jface.text/assert/CoreTextSelection/validConstructorArguments")); //$NON-NLS-1$
-
-    /** Internal empty text selection */
-    private static final ICoreTextSelection NULL = new CoreTextSelection();
-
-    /**
-     * Returns the shared instance of the empty text selection.
-     *
-     * @return the shared instance of an empty text selection
-     */
-    public static ICoreTextSelection emptySelection() {
-        return NULL;
-    }
-
     /** Document which delivers the data of the selection, possibly <code>null</code>. */
     private final IDocument fDocument;
     /** Offset of the selection */
     private int fOffset;
     /** Length of the selection */
     private int fLength;
-
-    /**
-     * Creates an empty text selection.
-     */
-    private CoreTextSelection() {
-        fOffset = -1;
-        fLength = -1;
-        fDocument = null;
-    }
 
     /**
      * Creates a text selection for the given range. This
@@ -73,10 +42,6 @@ public class CoreTextSelection implements ICoreTextSelection {
      * @param length the length of the selected range, must not be negative
      */
     public CoreTextSelection(IDocument document, int offset, int length) {
-        if (ASSERT_INVLID_SELECTION_NULL) {
-            Assert.isLegal(offset >= 0);
-            Assert.isLegal(length >= 0);
-        }
         fDocument = document;
         fOffset = offset;
         fLength = length;

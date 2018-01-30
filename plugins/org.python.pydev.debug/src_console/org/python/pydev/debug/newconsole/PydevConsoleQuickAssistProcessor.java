@@ -20,6 +20,7 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.viewers.ISelection;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.editor.PySelectionFromEditor;
 import org.python.pydev.editor.codecompletion.ConvertCompletionProposals;
 import org.python.pydev.editor.correctionassist.PyCorrectionAssistant;
 import org.python.pydev.editor.correctionassist.heuristics.AssistAssign;
@@ -62,7 +63,8 @@ public class PydevConsoleQuickAssistProcessor implements IQuickAssistProcessor {
 
             ISelection selection = sourceViewer.getSelectionProvider().getSelection();
             if (selection instanceof ITextSelection) {
-                PySelection ps = new PySelection(sourceViewer.getDocument(), (ITextSelection) selection);
+                PySelection ps = PySelectionFromEditor.createPySelectionFromEditor(sourceViewer,
+                        (ITextSelection) selection);
                 int offset = viewer.getCaretOffset();
                 String commandLine = viewer.getCommandLine();
 

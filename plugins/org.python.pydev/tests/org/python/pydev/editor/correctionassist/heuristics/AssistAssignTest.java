@@ -15,7 +15,6 @@ import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
-import org.eclipse.jface.text.TextSelection;
 import org.python.pydev.codingstd.ICodingStd;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.actions.PyAction;
@@ -89,7 +88,7 @@ public class AssistAssignTest extends TestCase {
 
         Document doc = new Document(d);
 
-        PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
+        PySelection ps = new PySelection(doc, d.length());
         String sel = PyAction.getLineWithoutComments(ps);
 
         assertEquals(true, assist.isValid(ps, sel, null, d.length()));
@@ -105,7 +104,7 @@ public class AssistAssignTest extends TestCase {
 
         Document doc = new Document(d);
 
-        PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
+        PySelection ps = new PySelection(doc, d.length());
         String sel = PyAction.getLineWithoutComments(ps);
 
         assertEquals(true, assist.isValid(ps, sel, null, d.length()));
@@ -121,7 +120,7 @@ public class AssistAssignTest extends TestCase {
 
         Document doc = new Document(d);
 
-        PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
+        PySelection ps = new PySelection(doc, d.length());
         String sel = PyAction.getLineWithoutComments(ps);
 
         assertEquals(true, assist.isValid(ps, sel, null, d.length()));
@@ -137,7 +136,7 @@ public class AssistAssignTest extends TestCase {
 
         Document doc = new Document(d);
 
-        PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
+        PySelection ps = new PySelection(doc, d.length());
         String sel = PyAction.getLineWithoutComments(ps);
 
         assertEquals(false, assist.isValid(ps, sel, null, d.length()));
@@ -152,7 +151,7 @@ public class AssistAssignTest extends TestCase {
 
         Document doc = new Document(d);
 
-        PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
+        PySelection ps = new PySelection(doc, d.length());
         String sel = PyAction.getLineWithoutComments(ps);
 
         assertEquals(true, assist.isValid(ps, sel, null, d.length()));
@@ -169,7 +168,7 @@ public class AssistAssignTest extends TestCase {
 
         Document doc = new Document(d);
 
-        PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
+        PySelection ps = new PySelection(doc, d.length());
         String sel = PyAction.getLineWithoutComments(ps);
 
         assertEquals(true, assist.isValid(ps, sel, null, d.length()));
@@ -202,7 +201,7 @@ public class AssistAssignTest extends TestCase {
 
         Document doc = new Document(d);
 
-        PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
+        PySelection ps = new PySelection(doc, d.length());
         String sel = PyAction.getLineWithoutComments(ps);
 
         assertEquals(true, assist.isValid(ps, sel, null, d.length()));
@@ -218,7 +217,7 @@ public class AssistAssignTest extends TestCase {
 
         Document doc = new Document(d);
 
-        PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
+        PySelection ps = new PySelection(doc, d.length());
         String sel = PyAction.getLineWithoutComments(ps);
 
         assertEquals(true, assist.isValid(ps, sel, null, d.length()));
@@ -234,7 +233,7 @@ public class AssistAssignTest extends TestCase {
 
         Document doc = new Document(d);
 
-        PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
+        PySelection ps = new PySelection(doc, d.length());
         String sel = PyAction.getLineWithoutComments(ps);
 
         assertEquals(false, assist.isValid(ps, sel, null, d.length()));
@@ -247,7 +246,7 @@ public class AssistAssignTest extends TestCase {
 
         Document doc = new Document(d);
 
-        PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
+        PySelection ps = new PySelection(doc, d.length());
         String sel = PyAction.getLineWithoutComments(ps);
 
         assertEquals(true, assist.isValid(ps, sel, null, d.length()));
@@ -264,7 +263,7 @@ public class AssistAssignTest extends TestCase {
                 "   IKVMClass";
 
         Document doc = new Document(d);
-        PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
+        PySelection ps = new PySelection(doc, d.length());
         String sel = PyAction.getLineWithoutComments(ps);
 
         assertEquals(true, assist.isValid(ps, sel, null, d.length()));
@@ -281,7 +280,7 @@ public class AssistAssignTest extends TestCase {
                 "   IKVMClassBBBar";
 
         Document doc = new Document(d);
-        PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
+        PySelection ps = new PySelection(doc, d.length());
         String sel = PyAction.getLineWithoutComments(ps);
 
         assertEquals(true, assist.isValid(ps, sel, null, d.length()));
@@ -298,7 +297,7 @@ public class AssistAssignTest extends TestCase {
                 "   my.call().NewCall()";
 
         Document doc = new Document(d);
-        PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
+        PySelection ps = new PySelection(doc, d.length());
         String sel = PyAction.getLineWithoutComments(ps);
 
         assertEquals(true, assist.isValid(ps, sel, null, d.length()));
@@ -314,7 +313,7 @@ public class AssistAssignTest extends TestCase {
                 "CustomReportDocument(self.GetDataDirectory(),'custom_report_test')";
 
         Document doc = new Document(d);
-        PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
+        PySelection ps = new PySelection(doc, d.length());
         String sel = PyAction.getLineWithoutComments(ps);
 
         assertEquals(true, assist.isValid(ps, sel, null, d.length()));
@@ -330,7 +329,7 @@ public class AssistAssignTest extends TestCase {
                 "_callMe()";
 
         Document doc = new Document(d);
-        PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
+        PySelection ps = new PySelection(doc, d.length());
         String sel = PyAction.getLineWithoutComments(ps);
 
         assertEquals(true, assist.isValid(ps, sel, null, d.length()));
@@ -346,7 +345,7 @@ public class AssistAssignTest extends TestCase {
                 "My20Provider()";
 
         Document doc = new Document(d);
-        PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
+        PySelection ps = new PySelection(doc, d.length());
         String sel = PyAction.getLineWithoutComments(ps);
 
         assertEquals(true, assist.isValid(ps, sel, null, d.length()));
@@ -362,7 +361,7 @@ public class AssistAssignTest extends TestCase {
                 "_GetMyFoo()";
 
         Document doc = new Document(d);
-        PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
+        PySelection ps = new PySelection(doc, d.length());
         String sel = PyAction.getLineWithoutComments(ps);
 
         assertEquals(true, assist.isValid(ps, sel, null, d.length()));

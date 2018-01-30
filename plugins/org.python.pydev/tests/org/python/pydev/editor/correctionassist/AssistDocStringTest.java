@@ -11,7 +11,6 @@ import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
-import org.eclipse.jface.text.TextSelection;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.proposals.DefaultCompletionProposalFactory;
@@ -101,7 +100,7 @@ public class AssistDocStringTest extends TestCase {
                 selectionOffset = testEntry.selectionOffset;
             }
 
-            PySelection ps = new PySelection(d, new TextSelection(d, selectionOffset, 0));
+            PySelection ps = new PySelection(d, selectionOffset);
             String sel = PyAction.getLineWithoutComments(ps);
             boolean expected = testEntry.expectedResult;
             boolean isValid = assist.isValid(ps, sel, null, selectionOffset);
