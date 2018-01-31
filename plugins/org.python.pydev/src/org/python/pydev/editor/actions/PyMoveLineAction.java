@@ -11,7 +11,6 @@ import java.util.ResourceBundle;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.IRewriteTarget;
@@ -37,6 +36,7 @@ import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.shared_core.string.CoreTextSelection;
 import org.python.pydev.shared_core.string.ICoreTextSelection;
 import org.python.pydev.shared_core.utils.DocCmd;
+import org.python.pydev.shared_core.utils.IDocumentCommand;
 
 /**
  * Base class for actions that do a move action (Alt+Up or Alt+Down).
@@ -254,9 +254,9 @@ public abstract class PyMoveLineAction extends TextEditorAction {
             line2 = skippedPs.getLine(line);
         }
 
-        DocumentCommand command = new DocCmd(skippedPs.getEndLineOffset(line), 0, "\n");
+        IDocumentCommand command = new DocCmd(skippedPs.getEndLineOffset(line), 0, "\n");
         indentStrategy.customizeDocumentCommand(document, command);
-        return command.text.substring(1);
+        return command.getText().substring(1);
     }
 
     private ILineRange getLineRange(IDocument document, ICoreTextSelection selection) throws BadLocationException {

@@ -14,8 +14,6 @@ package org.python.pydev.editor.autoedit;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
-import org.eclipse.jface.text.DocumentCommand;
-import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.core.IIndentPrefs;
@@ -35,6 +33,7 @@ import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.DocCmd;
+import org.python.pydev.shared_core.utils.IDocumentCommand;
 
 /**
  * Class which implements the following behaviors:
@@ -44,7 +43,7 @@ import org.python.pydev.shared_core.utils.DocCmd;
  * This class uses the org.python.pydev.core.docutils.DocUtils class extensively
  * for some document-related operations.
  */
-public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScriptAutoEditStrategy {
+public final class PyAutoIndentStrategy implements IHandleScriptAutoEditStrategy {
 
     private IIndentPrefs prefs;
 
@@ -259,10 +258,10 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
         return end;
     }
 
-    private void autoIndentSameAsPrevious(IDocument d, DocumentCommand c) {
-        String txt = autoIndentSameAsPrevious(d, c.offset, c.text, true);
+    private void autoIndentSameAsPrevious(IDocument d, IDocumentCommand c) {
+        String txt = autoIndentSameAsPrevious(d, c.getOffset(), c.getText(), true);
         if (txt != null) {
-            c.text = txt;
+            c.setText(txt);
         }
     }
 
@@ -338,23 +337,22 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
     }
 
     /**
-     * @see org.eclipse.jface.text.IAutoEditStrategy#customizeDocumentCommand(IDocument, DocumentCommand)
+     * @see org.eclipse.jface.text.IAutoEditStrategy#customizeDocumentCommand(IDocument, IDocumentCommand)
      */
-    @Override
-    public void customizeDocumentCommand(IDocument document, DocumentCommand command) {
-        if (blockSelection || !command.doit) {
+    public void customizeDocumentCommand(IDocument document, IDocumentCommand command) {
+        if (blockSelection || !command.getDoIt()) {
             //in block selection, leave all as is and just change tabs/spaces.
             getIndentPrefs().convertToStd(document, command);
             return;
         }
         char c;
-        if (command.text.length() == 1) {
-            c = command.text.charAt(0);
+        if (command.getText().length() == 1) {
+            c = command.getText().charAt(0);
         } else {
             c = '\0';
         }
 
-        String contentType = ParsingUtils.getContentType(document, command.offset);
+        String contentType = ParsingUtils.getContentType(document, command.getOffset());
 
         switch (c) {
             case '"':
@@ -366,7 +364,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
         final boolean tabStopInComments = getIndentPrefs().getTabStopInComment();
 
         // super idents newlines the same amount as the previous line
-        final boolean isNewLine = isNewLineText(document, command.length, command.text);
+        final boolean isNewLine = isNewLineText(document, command.getLength(), command.getText());
 
         if (!contentType.equals(ParsingUtils.PY_DEFAULT)) {
             //the indentation is only valid for things in the code (comments should not be indented).
@@ -415,12 +413,12 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
                 case '[':
                 case '{':
                     if (prefs.getAutoParentesis()) {
-                        PySelection ps = new PySelection(document, command.offset);
+                        PySelection ps = new PySelection(document, command.getOffset());
                         char peer = StringUtils.getPeer(c);
                         if (shouldClose(ps, c, peer)) {
-                            command.shiftsCaret = false;
-                            command.text = c + "" + peer;
-                            command.caretOffset = command.offset + 1;
+                            command.setShiftsCaret(false);
+                            command.setText(c + "" + peer);
+                            command.setCaretOffset(command.getOffset() + 1);
                         }
                     }
                     return;
@@ -456,7 +454,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
                      * the import
                      */
                     if (prefs.getAutoWriteImport()) {
-                        PySelection ps = new PySelection(document, command.offset);
+                        PySelection ps = new PySelection(document, command.getOffset());
                         String completeLine = ps.getLineWithoutCommentsOrLiterals();
                         String lineToCursor = ps.getLineContentsToCursor().trim();
                         String lineContentsFromCursor = ps.getLineContentsFromCursor();
@@ -474,7 +472,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
                             if (importsTipperStr.length() > 0) {
                                 if (!isCython) {
                                     // On cython it could be a cimport, so, skip it.
-                                    command.text = " import ";
+                                    command.setText(" import ");
                                 }
                             }
                         }
@@ -497,8 +495,8 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
                     if (prefs.getAutoBraces()) {
                         // you can only do the replacement if the next character already there is what the user is trying to input
 
-                        if (command.offset < document.getLength()
-                                && document.get(command.offset, 1).equals(command.text)) {
+                        if (command.getOffset() < document.getLength()
+                                && document.get(command.getOffset(), 1).equals(command.getText())) {
                             // the following searches through each of the end braces and
                             // sees if the command has one of them
 
@@ -524,7 +522,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
          */
         catch (BadLocationException e) {
             // screw up command.text so unit tests can pick it up
-            command.text = "BadLocationException";
+            command.setText("BadLocationException");
             throw new RuntimeException(e);
         }
     }
@@ -536,7 +534,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
     /**
      * Called right after a '('
      */
-    public static void handleParens(IDocument document, DocumentCommand command, IIndentPrefs prefs,
+    public static void handleParens(IDocument document, IDocumentCommand command, IIndentPrefs prefs,
             boolean considerOnlyCurrentLine)
             throws BadLocationException {
         /*
@@ -561,19 +559,19 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
     /**
      * Called right after a ' or "
      */
-    private void handleLiteral(IDocument document, DocumentCommand command, boolean isDefaultContext,
+    private void handleLiteral(IDocument document, IDocumentCommand command, boolean isDefaultContext,
             char literalChar) {
         if (!prefs.getAutoLiterals()) {
             return;
         }
-        TextSelectionUtils ps = new TextSelectionUtils(document, new CoreTextSelection(document, command.offset,
-                command.length));
-        if (command.length > 0) {
+        TextSelectionUtils ps = new TextSelectionUtils(document, new CoreTextSelection(document, command.getOffset(),
+                command.getLength()));
+        if (command.getLength() > 0) {
             try {
                 //We have more contents selected. Delete it so that we can properly use the heuristics.
                 ps.deleteSelection();
-                command.length = 0;
-                ps.setSelection(command.offset, command.offset);
+                command.setLength(0);
+                ps.setSelection(command.getOffset(), command.getOffset());
             } catch (BadLocationException e) {
             }
         }
@@ -594,9 +592,9 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
                 //only add additional chars if on default context.
                 return;
             }
-            command.text = StringUtils.getWithClosedPeer(literalChar);
-            command.shiftsCaret = false;
-            command.caretOffset = command.offset + 1;
+            command.setText(StringUtils.getWithClosedPeer(literalChar));
+            command.setShiftsCaret(false);
+            command.setCaretOffset(command.getOffset() + 1);
             return;
         }
 
@@ -617,18 +615,18 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
                     //only add additional chars if on default context.
                     return;
                 }
-                command.text = StringUtils.getWithClosedPeer(literalChar);
-                command.shiftsCaret = false;
-                command.caretOffset = command.offset + 1;
+                command.setText(StringUtils.getWithClosedPeer(literalChar));
+                command.setShiftsCaret(false);
+                command.setCaretOffset(command.getOffset() + 1);
             }
         } else {
             //we're right after or before a " or '
 
             if (matchesAfter == 1) {
                 //just walk the caret
-                command.text = "";
-                command.shiftsCaret = false;
-                command.caretOffset = command.offset + 1;
+                command.setText("");
+                command.setShiftsCaret(false);
+                command.setCaretOffset(command.getOffset() + 1);
             }
         }
     }
@@ -660,8 +658,8 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
         return balanced;
     }
 
-    private void handleTab(IDocument document, DocumentCommand command) throws BadLocationException {
-        PySelection ps = new PySelection(document, command.offset);
+    private void handleTab(IDocument document, IDocumentCommand command) throws BadLocationException {
+        PySelection ps = new PySelection(document, command.getOffset());
         //it is a tab
         String lineContentsToCursor = ps.getLineContentsToCursor();
         int currSize = lineContentsToCursor.length();
@@ -685,7 +683,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
                 if (currSize < firstCharPosition) {
                     String txt = nextLine.substring(currSize, firstCharPosition);
                     //as it's the same indentation from the next line, we don't have to applyDefaultForTab.
-                    command.text = txt;
+                    command.setText(txt);
                     return;
                 }
             }
@@ -718,7 +716,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
                     if (prevLineTup.o2) {
                         int len = sizeApplied - sizeExpected;
                         if (prevExpectedIndent.length() > len) {
-                            command.text = prevExpectedIndent.substring(len);
+                            command.setText(prevExpectedIndent.substring(len));
                             applied = true;
                         }
                     }
@@ -728,13 +726,13 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
                     }
 
                 } else if (sizeExpected == sizeApplied) {
-                    if (command.length == 0) {
-                        ps.deleteSpacesAfter(command.offset);
+                    if (command.getLength() == 0) {
+                        ps.deleteSpacesAfter(command.getOffset());
                     }
-                    command.text = txt;
+                    command.setText(txt);
                 } else if (sizeApplied > sizeExpected) {
-                    ps.deleteSpacesAfter(command.offset);
-                    command.text = txt.substring(0, sizeExpected - currSize);
+                    ps.deleteSpacesAfter(command.getOffset());
+                    command.setText(txt.substring(0, sizeExpected - currSize));
                 }
             } else {
                 applyDefaultForTab(command, currSize);
@@ -745,10 +743,10 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
         }
     }
 
-    public static void customizeParenthesis(IDocument document, DocumentCommand command,
+    public static void customizeParenthesis(IDocument document, IDocumentCommand command,
             boolean considerOnlyCurrentLine, IIndentPrefs prefs) throws BadLocationException {
         if (prefs.getAutoParentesis()) {
-            PySelection ps = new PySelection(document, command.offset);
+            PySelection ps = new PySelection(document, command.getOffset());
 
             if (shouldClose(ps, '(', ')')) {
                 customizeParenthesis2(command, considerOnlyCurrentLine, prefs, ps);
@@ -756,7 +754,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
         }
     }
 
-    public static void customizeParenthesis2(DocumentCommand command, boolean considerOnlyCurrentLine,
+    public static void customizeParenthesis2(IDocumentCommand command, boolean considerOnlyCurrentLine,
             IIndentPrefs prefs,
             PySelection ps) {
         final String line = ps.getLine();
@@ -765,23 +763,23 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
         boolean hasMethodDef = line.indexOf("def ") != -1;
         boolean hasDoublePoint = line.indexOf(":") != -1;
 
-        command.shiftsCaret = false;
+        command.setShiftsCaret(false);
         if (!hasDoublePoint && (hasClass || hasClassMethodDef || hasMethodDef)) {
             if (hasClass) {
                 //command.text = "(object):"; //TODO: put some option in the interface for that
-                //command.caretOffset = command.offset + 7;
-                command.text = "():";
-                command.caretOffset = command.offset + 1;
+                //command.caretOffset = command.getOffset() + 7;
+                command.setText("():");
+                command.setCaretOffset(command.getOffset() + 1);
 
             } else if (hasClassMethodDef && prefs.getAutoAddSelf()) {
                 String prevLine = ps.getLine(ps.getCursorLine() - 1);
                 if (prevLine.indexOf("@classmethod") != -1) {
-                    command.text = "(cls):";
-                    command.caretOffset = command.offset + 4;
+                    command.setText("(cls):");
+                    command.setCaretOffset(command.getOffset() + 4);
 
                 } else if (prevLine.indexOf("@staticmethod") != -1) {
-                    command.text = "():";
-                    command.caretOffset = command.offset + 1;
+                    command.setText("():");
+                    command.setCaretOffset(command.getOffset() + 1);
 
                 } else {
 
@@ -832,42 +830,43 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
                         }
                     }
                     if (addRegular) {
-                        command.text = "(self):";
-                        command.caretOffset = command.offset + 5;
+                        command.setText("(self):");
+                        command.setCaretOffset(command.getOffset() + 5);
                     } else {
-                        command.text = "():";
-                        command.caretOffset = command.offset + 1;
+                        command.setText("():");
+                        command.setCaretOffset(command.getOffset() + 1);
                     }
                 }
             } else if (hasMethodDef) {
-                command.text = "():";
-                command.caretOffset = command.offset + 1;
+                command.setText("():");
+                command.setCaretOffset(command.getOffset() + 1);
             } else {
                 throw new RuntimeException(PyAutoIndentStrategy.class.toString()
                         + ": customizeDocumentCommand()");
             }
         } else {
-            command.text = "()";
-            command.caretOffset = command.offset + 1;
+            command.setText("()");
+            command.setCaretOffset(command.getOffset() + 1);
         }
     }
 
     @Override
-    public void customizeNewLine(IDocument document, DocumentCommand command) throws BadLocationException {
+    public void customizeNewLine(IDocument document, IDocumentCommand command) throws BadLocationException {
         prefs = getIndentPrefs();
         autoIndentSameAsPrevious(document, command);
         if (prefs.getSmartIndentPar()) {
-            PySelection selection = new PySelection(document, command.offset);
+            PySelection selection = new PySelection(document, command.getOffset());
             if (selection.getCursorLineContents().trim().length() > 0) {
-                command.text = autoIndentNewline(document, command.length, command.text, command.offset).o1;
+                command.setText(
+                        autoIndentNewline(document, command.getLength(), command.getText(), command.getOffset()).o1);
                 if (PySelection.containsOnlyWhitespaces(selection.getLineContentsToCursor())) {
-                    command.caretOffset = command.offset + selection.countSpacesAfter(command.offset);
+                    command.setCaretOffset(command.getOffset() + selection.countSpacesAfter(command.getOffset()));
                 }
             }
         } else {
-            TextSelectionUtils selection = new TextSelectionUtils(document, command.offset);
+            TextSelectionUtils selection = new TextSelectionUtils(document, command.getOffset());
             if (selection.getLineContentsToCursor().trim().endsWith(":")) {
-                command.text += prefs.getIndentationString();
+                command.setText(command.getText() + prefs.getIndentationString());
             }
         }
     }
@@ -877,20 +876,20 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
      * @param command the command to be edited
      * @param lineContentsToCursorLen the current cursor position at the current line
      */
-    private void applyDefaultForTab(DocumentCommand command, int lineContentsToCursorLen) {
+    private void applyDefaultForTab(IDocumentCommand command, int lineContentsToCursorLen) {
         IIndentPrefs prefs = getIndentPrefs();
         if (prefs.getUseSpaces(true)) {
             int tabWidth = getIndentPrefs().getTabWidth();
 
             int mod = (lineContentsToCursorLen + tabWidth) % tabWidth;
-            command.text = StringUtils.createSpaceString(tabWidth - mod);
+            command.setText(StringUtils.createSpaceString(tabWidth - mod));
         } else {
             //do nothing (a tab is already a tab)
         }
 
     }
 
-    public static Tuple<String, Integer> autoDedentStatement(IDocument document, DocumentCommand command, String tok,
+    public static Tuple<String, Integer> autoDedentStatement(IDocument document, IDocumentCommand command, String tok,
             String[] tokens, IIndentPrefs prefs) throws BadLocationException {
         return autoDedentStatement(document, command, tok, tokens, prefs, true);
     }
@@ -900,10 +899,10 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
      * @return the new indent and the number of chars it has been dedented (so, that has to be considered as a shift to the left
      * on subsequent things).
      */
-    public static Tuple<String, Integer> autoDedentStatement(IDocument document, DocumentCommand command, String tok,
+    public static Tuple<String, Integer> autoDedentStatement(IDocument document, IDocumentCommand command, String tok,
             String[] tokens, IIndentPrefs prefs, boolean applyDedentInDocument) throws BadLocationException {
-        if (prefs.getAutoDedentElse() && command.doit) {
-            PySelection ps = new PySelection(document, command.offset);
+        if (prefs.getAutoDedentElse() && command.getDoIt()) {
+            PySelection ps = new PySelection(document, command.getOffset());
             String lineContents = ps.getCursorLineContents();
             if (lineContents.trim().equals(tok)) {
                 String previousIfLine = ps.getPreviousLineThatStartsWithToken(tokens);
@@ -917,7 +916,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
                         if (applyDedentInDocument) {
                             ps.replaceLineContentsToSelection(dedented.o1);
                         }
-                        command.offset = command.offset - dedented.o2;
+                        command.setOffset(command.getOffset() - dedented.o2);
                         return dedented;
                     }
                 }
@@ -926,7 +925,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
         return null;
     }
 
-    public static Tuple<String, Integer> autoDedentAfterColon(IDocument document, DocumentCommand command,
+    public static Tuple<String, Integer> autoDedentAfterColon(IDocument document, IDocumentCommand command,
             IIndentPrefs prefs) throws BadLocationException {
         Tuple<String, Integer> ret = null;
         if ((ret = autoDedentStatement(document, command, "else", PySelection.TOKENS_BEFORE_ELSE, prefs)) != null) {
@@ -948,7 +947,8 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
      * @return the new indent and the number of chars it has been dedented (so, that has to be considered as a shift to the left
      * on subsequent things).
      */
-    public static Tuple<String, Integer> autoDedentElif(IDocument document, DocumentCommand command, IIndentPrefs prefs)
+    public static Tuple<String, Integer> autoDedentElif(IDocument document, IDocumentCommand command,
+            IIndentPrefs prefs)
             throws BadLocationException {
         return autoDedentStatement(document, command, "elif", PySelection.TOKENS_BEFORE_ELIF, prefs);
     }
@@ -1027,8 +1027,8 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
      * @param command
      * @throws BadLocationException
      */
-    private void performColonReplacement(IDocument document, DocumentCommand command) {
-        PySelection ps = new PySelection(document, command.offset);
+    private void performColonReplacement(IDocument document, IDocumentCommand command) {
+        PySelection ps = new PySelection(document, command.getOffset());
         int absoluteOffset = ps.getAbsoluteCursorOffset();
         int documentLength = ps.getDoc().getLength();
 
@@ -1038,8 +1038,8 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
                 char currentCharacter = document.getChar(absoluteOffset);
 
                 if (currentCharacter == ':') {
-                    command.text = "";
-                    command.caretOffset = command.offset + 1;
+                    command.setText("");
+                    command.setCaretOffset(command.getOffset() + 1);
                 }
 
             } catch (BadLocationException e) {
@@ -1064,12 +1064,12 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
      * @param command if the command does not contain a brace, this function does nothing.
      * @throws BadLocationException
      */
-    private void performPairReplacement(IDocument document, DocumentCommand command) throws BadLocationException {
+    private void performPairReplacement(IDocument document, IDocumentCommand command) throws BadLocationException {
         boolean skipChar = canSkipCloseParenthesis(document, command);
         if (skipChar) {
             //if we have the same number of peers, we want to eat the char
-            command.text = "";
-            command.caretOffset = command.offset + 1;
+            command.setText("");
+            command.setCaretOffset(command.getOffset() + 1);
         }
     }
 
@@ -1077,15 +1077,15 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
      * @return true if we should skip a ), ] or }
      */
     @Override
-    public boolean canSkipCloseParenthesis(IDocument document, DocumentCommand command) throws BadLocationException {
-        PySelection ps = new PySelection(document, command.offset);
+    public boolean canSkipCloseParenthesis(IDocument document, IDocumentCommand command) throws BadLocationException {
+        PySelection ps = new PySelection(document, command.getOffset());
 
         int absoluteCursorOffset = ps.getAbsoluteCursorOffset();
         if (absoluteCursorOffset >= document.getLength()) {
             return false;
         }
         char c = ps.getCharAtCurrentOffset();
-        if (command.text != null && command.text.length() == 1 && command.text.charAt(0) == c) {
+        if (command.getText() != null && command.getText().length() == 1 && command.getText().charAt(0) == c) {
             try {
                 char peer = StringUtils.getPeer(c);
 

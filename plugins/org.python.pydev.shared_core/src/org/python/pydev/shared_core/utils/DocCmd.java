@@ -10,7 +10,6 @@
 package org.python.pydev.shared_core.utils;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
@@ -18,7 +17,7 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
  * Mostly a DocumentCommand, but with a custom customizable constructor, a proper toString method
  * and a way to pass an IDocument and have it applied.
  */
-public class DocCmd extends DocumentCommand {
+public class DocCmd extends BaseDocumentCommand {
 
     public DocCmd(int offset, int length, String text) {
         this.offset = offset;

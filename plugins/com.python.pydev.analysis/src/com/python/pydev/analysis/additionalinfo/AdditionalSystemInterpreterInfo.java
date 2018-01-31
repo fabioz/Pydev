@@ -111,7 +111,7 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithB
 
         File base;
         try {
-            IPath stateLocation = AnalysisPlugin.getDefault().getStateLocation();
+            IPath stateLocation = AnalysisPlugin.stateLocation;
             base = stateLocation.toFile();
         } catch (Exception e) {
             //it may fail in tests... (save it in default folder in this cases)

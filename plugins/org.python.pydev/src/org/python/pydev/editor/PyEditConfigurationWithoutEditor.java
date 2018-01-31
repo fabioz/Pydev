@@ -10,6 +10,7 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IInformationControlCreator;
@@ -33,6 +34,7 @@ import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.utils.IDocumentCommand;
 import org.python.pydev.ui.ColorAndStyleCache;
 
 public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfiguration
@@ -63,6 +65,8 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
     private final Object lock = new Object();
 
     private IGrammarVersionProvider grammarVersionProvider;
+
+    private IAutoEditStrategy autoEditStrategyWrapper;
 
     public PyEditConfigurationWithoutEditor(ColorAndStyleCache colorManager, IPreferenceStore preferenceStore,
             IGrammarVersionProvider grammarVersionProvider) {
@@ -117,7 +121,64 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
      */
     @Override
     public IAutoEditStrategy[] getAutoEditStrategies(ISourceViewer sourceViewer, String contentType) {
-        return new IAutoEditStrategy[] { getPyAutoIndentStrategy(null) };
+        if (autoEditStrategyWrapper == null) {
+            final PyAutoIndentStrategy pyAutoEditStrategy = getPyAutoIndentStrategy(null);
+            autoEditStrategyWrapper = new IAutoEditStrategy() {
+
+                @Override
+                public void customizeDocumentCommand(IDocument document, final DocumentCommand command) {
+                    IDocumentCommand wrapper = new IDocumentCommand() {
+
+                        @Override
+                        public void setText(String string) {
+                            command.text = string;
+                        }
+
+                        @Override
+                        public void setShiftsCaret(boolean b) {
+                            command.shiftsCaret = b;
+                        }
+
+                        @Override
+                        public void setOffset(int i) {
+                            command.offset = i;
+                        }
+
+                        @Override
+                        public void setLength(int i) {
+                            command.length = i;
+                        }
+
+                        @Override
+                        public void setCaretOffset(int i) {
+                            command.caretOffset = i;
+                        }
+
+                        @Override
+                        public String getText() {
+                            return command.text;
+                        }
+
+                        @Override
+                        public int getOffset() {
+                            return command.offset;
+                        }
+
+                        @Override
+                        public int getLength() {
+                            return command.length;
+                        }
+
+                        @Override
+                        public boolean getDoIt() {
+                            return command.doit;
+                        }
+                    };
+                    pyAutoEditStrategy.customizeDocumentCommand(document, wrapper);
+                }
+            };
+        }
+        return new IAutoEditStrategy[] { autoEditStrategyWrapper };
     }
 
     @Override

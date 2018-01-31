@@ -11,8 +11,8 @@
  */
 package org.python.pydev.core;
 
-import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.shared_core.utils.IDocumentCommand;
 
 /**
  * @author Fabio Zadrozny
@@ -54,7 +54,7 @@ public interface IIndentPrefs {
     /**
      * Given the current settings, convert the current string to tabs or spaces.
      */
-    public void convertToStd(IDocument document, DocumentCommand command);
+    public void convertToStd(IDocument document, IDocumentCommand command);
 
     /**
      * @return whether we should auto-close parentesis
@@ -100,7 +100,7 @@ public interface IIndentPrefs {
 
     /**
      * @return pep-8 like smart indent:
-     * 
+     *
      * after a '(', indent an additional level and after a name (after a '('), indent to the parens level.
      */
     public boolean getIndentToParAsPep8();

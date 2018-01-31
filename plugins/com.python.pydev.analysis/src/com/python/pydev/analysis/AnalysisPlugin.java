@@ -42,6 +42,7 @@ public class AnalysisPlugin extends AbstractUIPlugin {
     //The shared instance.
     private static AnalysisPlugin plugin;
 
+    public static IPath stateLocation;
     //    private IWorkbenchWindow activeWorkbenchWindow;
 
     /**
@@ -57,6 +58,7 @@ public class AnalysisPlugin extends AbstractUIPlugin {
     @Override
     public void start(BundleContext context) throws Exception {
         super.start(context);
+        stateLocation = AnalysisPlugin.getDefault().getStateLocation();
 
         // Leaving code around to know when we get to the PyDev perspective in the active window (may be
         // useful in the future).
@@ -209,7 +211,7 @@ public class AnalysisPlugin extends AbstractUIPlugin {
      * Returns the directory that can be used to store things for some project
      */
     public static File getStorageDirForProject(IProject p) {
-        IPath location = p.getWorkingLocation(plugin.getBundle().getSymbolicName());
+        IPath location = p.getWorkingLocation("com.python.pydev.analysis");
         IPath path = location;
 
         File file = new File(path.toOSString());

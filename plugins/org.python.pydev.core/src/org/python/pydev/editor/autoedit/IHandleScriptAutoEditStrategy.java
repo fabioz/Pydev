@@ -12,15 +12,22 @@
 package org.python.pydev.editor.autoedit;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.DocumentCommand;
-import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.shared_core.utils.IDocumentCommand;
 
-public interface IHandleScriptAutoEditStrategy extends IAutoEditStrategy {
+public interface IHandleScriptAutoEditStrategy {
 
-    boolean canSkipCloseParenthesis(IDocument parenDoc, DocumentCommand docCmd) throws BadLocationException;
+    /**
+     * Allows the strategy to manipulate the document command.
+     *
+     * @param document the document that will be changed
+     * @param command the document command describing the change
+     */
+    void customizeDocumentCommand(IDocument document, IDocumentCommand command);
 
-    void customizeNewLine(IDocument historyDoc, DocumentCommand docCmd) throws BadLocationException;
+    boolean canSkipCloseParenthesis(IDocument parenDoc, IDocumentCommand docCmd) throws BadLocationException;
+
+    void customizeNewLine(IDocument historyDoc, IDocumentCommand docCmd) throws BadLocationException;
 
     String convertTabs(String cmd);
 

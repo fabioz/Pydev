@@ -12,12 +12,12 @@
 package org.python.pydev.editor.autoedit;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
+import org.python.pydev.shared_core.utils.IDocumentCommand;
 
 /**
  * @author Fabio Zadrozny
@@ -38,8 +38,8 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs {
 
     /**
      * Naive implementation. Always redoes the indentation string based in the
-     * spaces and tabs settings. 
-     * 
+     * spaces and tabs settings.
+     *
      * @see org.python.pydev.core.IIndentPrefs#getIndentationString()
      */
     @Override
@@ -55,14 +55,16 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs {
      * Converts spaces to tabs or vice-versa depending on the user preferences
      */
     @Override
-    public void convertToStd(IDocument document, DocumentCommand command) {
+    public void convertToStd(IDocument document, IDocumentCommand command) {
         try {
             if (getUseSpaces(true)) {
-                command.text = convertTabsToSpaces(document, command.text, command.offset, getIndentationString());
+                command.setText(
+                        convertTabsToSpaces(document, command.getText(), command.getOffset(), getIndentationString()));
             }
 
             else {
-                command.text = convertSpacesToTabs(document, command.text, command.offset, getIndentationString());
+                command.setText(
+                        convertSpacesToTabs(document, command.getText(), command.getOffset(), getIndentationString()));
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -75,7 +77,7 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs {
     /**
      * Replaces tabs if needed by indent string or just a space depending of the
      * tab location
-     * 
+     *
      */
     private String convertTabsToSpaces(IDocument document, String text, int offset, String indentString)
             throws BadLocationException {
@@ -135,8 +137,8 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs {
     }
 
     /**
-     * Checks if the string is solely composed of spaces 
-     * 
+     * Checks if the string is solely composed of spaces
+     *
      * @param s the string analyzed
      * @return true if it's only composed of spaces and false otherwise.
      */
