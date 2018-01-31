@@ -31,7 +31,6 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.ui.IFileEditorInput;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IGrammarVersionProvider.AdditionalGrammarVersionsToCheck;
@@ -294,7 +293,7 @@ public class PyParser extends BaseParser implements IPyParser {
             return obj;
         }
 
-        original = (input instanceof IFileEditorInput) ? ((IFileEditorInput) input).getFile() : null;
+        original = (input instanceof IAdaptable) ? ((IAdaptable) input).getAdapter(IFile.class) : null;
         if (original != null) {
             adaptable = original;
 
