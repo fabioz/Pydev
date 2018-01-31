@@ -17,9 +17,11 @@ import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.AssertionFailedException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
+import org.python.pydev.ast.AstPlugin;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
@@ -147,7 +149,15 @@ public class SimpleJythonRunner extends SimpleRunner {
         //may have the dir or be null
         String cacheDir = null;
         try {
-            cacheDir = PydevPrefs.getChainedPrefStore().getString(IInterpreterManager.JYTHON_CACHE_DIR);
+            AstPlugin plugin = AstPlugin.getDefault();
+            if (plugin != null) {
+                IPath stateLocation = plugin.getStateLocation();
+                File cacheDirFile = new File(stateLocation.toFile(), "jython_cache_dir");
+                cacheDirFile.mkdirs();
+
+                cacheDir = PydevPrefs.getEclipsePreferences().get(IInterpreterManager.JYTHON_CACHE_DIR,
+                        cacheDirFile.toString());
+            }
         } catch (AssertionFailedException e) {
             //this may happen while running the tests... it should be ok.
             cacheDir = null;

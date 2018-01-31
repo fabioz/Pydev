@@ -30,7 +30,7 @@ import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.partition.PyPartitionScanner;
 import org.python.pydev.editor.actions.PyFormatStd;
-import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.shared_core.partitioner.FastPartitioner;
 import org.python.pydev.shared_core.partitioner.IToken;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -76,7 +76,7 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener 
         }
         updateBackgroundColor();
 
-        PydevPrefs.getChainedPrefStore().addPropertyChangeListener(this);
+        PyDevUiPrefs.getChainedPrefStore().addPropertyChangeListener(this);
 
         return styledText;
     }
@@ -85,7 +85,7 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener 
      * Updates the color of the background.
      */
     private void updateBackgroundColor() {
-        IPreferenceStore chainedPrefStore = PydevPrefs.getChainedPrefStore();
+        IPreferenceStore chainedPrefStore = PyDevUiPrefs.getChainedPrefStore();
 
         Color backgroundColor = null;
         if (!chainedPrefStore.getBoolean(PyEdit.PREFERENCE_COLOR_BACKGROUND_SYSTEM_DEFAULT)) {
@@ -112,7 +112,7 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener 
      * It needs to be called so that we're properly garbage-collected and clear our caches.
      */
     public void dispose() {
-        PydevPrefs.getChainedPrefStore().removePropertyChangeListener(this);
+        PyDevUiPrefs.getChainedPrefStore().removePropertyChangeListener(this);
         this.backgroundColorCache.dispose();
         this.colorCache.dispose();
     }

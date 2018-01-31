@@ -31,6 +31,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.python.pydev.core.FormatStd;
 import org.python.pydev.editor.StyledTextForShowingCodeFactory;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -407,7 +408,7 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
                 "        return self.Call(param1=10)" +
                 "";
         Tuple<String, StyleRange[]> result = formatAndStyleRangeHelper.formatAndGetStyleRanges(formatStd, str,
-                PydevPrefs.getChainedPrefStore(), true);
+                PyDevUiPrefs.getChainedPrefStore(), true);
         labelExample.setText(result.o1);
         labelExample.setStyleRanges(result.o2);
     }

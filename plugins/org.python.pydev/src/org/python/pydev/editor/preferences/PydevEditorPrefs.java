@@ -37,11 +37,11 @@ import org.python.pydev.core.FormatStd;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.StyledTextForShowingCodeFactory;
 import org.python.pydev.editor.actions.PyFormatStd;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.AbstractPydevPrefs;
 import org.python.pydev.plugin.preferences.ColorEditor;
 import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
-import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.field_editors.LinkFieldEditor;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
@@ -151,7 +151,7 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
         gridData = new GridData(GridData.FILL_HORIZONTAL);
         gridData.grabExcessHorizontalSpace = true;
         labelExample.setLayoutData(gridData);
-        updateLabelExample(PyFormatStd.getFormat(null), PydevPrefs.getChainedPrefStore());
+        updateLabelExample(PyFormatStd.getFormat(null), PyDevUiPrefs.getChainedPrefStore());
 
         LinkFieldEditor tabsFieldEditor = new LinkFieldEditor("UNUSED",
                 "Other settings:\n\n<a>Tabs</a>: tab preferences for PyDev ...\n(note: 'Insert spaces for tabs' in the general settings is ignored).",
@@ -397,7 +397,7 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
             formatAndStyleRangeHelper = null;
         }
         if (updateLabelExampleOnPrefsChanges != null) {
-            PydevPrefs.getChainedPrefStore().removePropertyChangeListener(updateLabelExampleOnPrefsChanges);
+            PyDevUiPrefs.getChainedPrefStore().removePropertyChangeListener(updateLabelExampleOnPrefsChanges);
             updateLabelExampleOnPrefsChanges = null;
         }
         if (labelExample != null) {
@@ -419,12 +419,12 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
 
                     @Override
                     public void run() {
-                        updateLabelExample(PyFormatStd.getFormat(null), PydevPrefs.getChainedPrefStore());
+                        updateLabelExample(PyFormatStd.getFormat(null), PyDevUiPrefs.getChainedPrefStore());
                     }
                 });
             }
         };
-        PydevPrefs.getChainedPrefStore().addPropertyChangeListener(updateLabelExampleOnPrefsChanges);
+        PyDevUiPrefs.getChainedPrefStore().addPropertyChangeListener(updateLabelExampleOnPrefsChanges);
 
     }
 }

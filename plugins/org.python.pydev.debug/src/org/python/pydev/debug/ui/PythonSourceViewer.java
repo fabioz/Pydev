@@ -30,7 +30,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.codefolding.PyAbstractIndentGuidePreferencesProvider;
-import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.shared_ui.editor.BaseSourceViewer;
 
 /**
@@ -251,7 +251,7 @@ public class PythonSourceViewer extends BaseSourceViewer {
      * @return the Java UI preferences
      */
     protected IPreferenceStore getPreferenceStore() {
-        return PydevPrefs.getChainedPrefStore();
+        return PyDevUiPrefs.getChainedPrefStore();
     }
 
     /**

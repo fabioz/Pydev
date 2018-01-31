@@ -38,7 +38,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.ProposalsComparator.CompareContext;
 import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant;
-import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 
 /**
@@ -359,7 +359,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
      */
     public synchronized static char[] getStaticAutoActivationCharacters() {
         if (!listenerToClearAutoActivationAlreadySetup) {
-            PydevPrefs.getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
+            PyDevUiPrefs.getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
                 @Override
                 public void propertyChange(PropertyChangeEvent event) {
                     autoActivationCharsCache = null;

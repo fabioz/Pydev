@@ -14,7 +14,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.IEditorInput;
@@ -175,7 +174,7 @@ public class PyParserEditorIntegrationTest extends TestCase {
         }
 
         @Override
-        public void addOfflineActionListener(String key, IAction action, String description, boolean needsEnter) {
+        public void addOfflineActionListener(String key, Object action, String description, boolean needsEnter) {
             throw new RuntimeException("Not implemented");
         }
 

@@ -63,8 +63,8 @@ import org.python.pydev.debug.newconsole.prefs.ColorManager;
 import org.python.pydev.debug.pyunit.PyUnitViewTestsHolder.DummyPyUnitServer;
 import org.python.pydev.debug.ui.ILinkContainer;
 import org.python.pydev.debug.ui.PythonConsoleLineTracker;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -340,7 +340,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
         tree.setMenu(menu);
 
         if (PydevPlugin.getDefault() != null) {
-            colorAndStyleCache = new ColorAndStyleCache(PydevPrefs.getChainedPrefStore());
+            colorAndStyleCache = new ColorAndStyleCache(PyDevUiPrefs.getChainedPrefStore());
             prefListener = new IPropertyChangeListener() {
 
                 @Override
@@ -373,7 +373,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
                     }
                 }
             };
-            PydevPrefs.getChainedPrefStore().addPropertyChangeListener(prefListener);
+            PyDevUiPrefs.getChainedPrefStore().addPropertyChangeListener(prefListener);
         }
 
         StyledText text = new StyledText(sash, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.READ_ONLY);
@@ -468,7 +468,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
             this.fCounterPanel = null;
         }
         if (this.prefListener != null) {
-            PydevPrefs.getChainedPrefStore().removePropertyChangeListener(prefListener);
+            PyDevUiPrefs.getChainedPrefStore().removePropertyChangeListener(prefListener);
             this.prefListener = null;
         }
         super.dispose();

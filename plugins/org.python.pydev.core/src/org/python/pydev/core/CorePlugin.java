@@ -13,13 +13,13 @@ import java.util.ResourceBundle;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
 
 /**
  * The main plugin class to be used in the desktop.
  */
-public class CorePlugin extends AbstractUIPlugin {
+public class CorePlugin extends Plugin {
     //The shared instance.
     private static CorePlugin plugin;
     //Resource bundle.

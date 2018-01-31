@@ -11,9 +11,9 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
-import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_ui.ColorCache;
 import org.python.pydev.shared_ui.editor.IVerticalIndentGuidePreferencesProvider;
 
@@ -26,7 +26,7 @@ public abstract class PyAbstractIndentGuidePreferencesProvider implements IVerti
     private IPreferenceStore chainedPrefStore;
 
     public PyAbstractIndentGuidePreferencesProvider() {
-        chainedPrefStore = PydevPrefs.getChainedPrefStore();
+        chainedPrefStore = PyDevUiPrefs.getChainedPrefStore();
         showIndentGuide = chainedPrefStore.getBoolean(PyDevEditorPreferences.USE_VERTICAL_INDENT_GUIDE);
         useEditorForegroundColor = chainedPrefStore
                 .getBoolean(PyDevEditorPreferences.USE_VERTICAL_INDENT_COLOR_EDITOR_FOREGROUND);

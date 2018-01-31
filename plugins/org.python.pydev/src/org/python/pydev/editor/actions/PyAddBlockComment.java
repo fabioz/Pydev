@@ -18,7 +18,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.python.pydev.core.FormatStd;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
-import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -69,7 +69,7 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
             return defaultClassNameBehaviour;
         }
 
-        IPreferenceStore prefs = PydevPrefs.getPreferenceStore();
+        IPreferenceStore prefs = PyDevUiPrefs.getPreferenceStore();
         return prefs.getBoolean(CommentBlocksPreferences.MULTI_BLOCK_COMMENT_SHOW_ONLY_CLASS_NAME);
     }
 
@@ -78,7 +78,7 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
             return defaultFunctionNameBehaviour;
         }
 
-        IPreferenceStore prefs = PydevPrefs.getPreferenceStore();
+        IPreferenceStore prefs = PyDevUiPrefs.getPreferenceStore();
         return prefs.getBoolean(CommentBlocksPreferences.MULTI_BLOCK_COMMENT_SHOW_ONLY_FUNCTION_NAME);
     }
 

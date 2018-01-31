@@ -48,12 +48,10 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.forms.FormColors;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 import org.eclipse.ui.texteditor.link.EditorLinkedModeUI;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.prefs.BackingStoreException;
@@ -210,24 +208,6 @@ public class PydevPlugin extends AbstractUIPlugin {
                 .getContextType(PyContextType.PY_COMPLETIONS_CONTEXT_TYPE);
 
         CompletionProposalFactory.set(new DefaultCompletionProposalFactory());
-
-        PydevPrefs.getDefaultStores = (addEditorsUIStore) -> {
-            List<IPreferenceStore> stores = new ArrayList<IPreferenceStore>();
-            stores.add(PydevPlugin.getDefault().getPreferenceStore());
-            if (addEditorsUIStore) {
-                stores.add(EditorsUI.getPreferenceStore());
-            }
-            return stores;
-        };
-
-        PydevPrefs.getPreferenceStore = () -> PydevPlugin.getDefault().getPreferenceStore();
-
-        PydevPrefs.getChainedPrefStore = () -> {
-            List<IPreferenceStore> stores = PydevPrefs.getDefaultStores(true);
-            return new ChainedPreferenceStore(
-                    stores.toArray(new IPreferenceStore[stores.size()]));
-
-        };
 
         ProjectModulesManager.createJavaProjectModulesManagerIfPossible = (
                 IProject project) -> JavaProjectModulesManagerCreator
@@ -509,7 +489,7 @@ public class PydevPlugin extends AbstractUIPlugin {
     public static ColorCache getColorCache() {
         PydevPlugin plugin = getDefault();
         if (plugin.colorCache == null) {
-            final IPreferenceStore chainedPrefStore = PydevPrefs.getChainedPrefStore();
+            final IPreferenceStore chainedPrefStore = PyDevUiPrefs.getChainedPrefStore();
             plugin.colorCache = new ColorCache(chainedPrefStore) {
                 {
                     chainedPrefStore.addPropertyChangeListener(new IPropertyChangeListener() {
@@ -603,16 +583,16 @@ public class PydevPlugin extends AbstractUIPlugin {
     }
 
     private static void initializeDefaultCombiningHoverPreferences() {
-        PydevPrefs.getPreferenceStore().setDefault(
+        PyDevUiPrefs.getPreferenceStore().setDefault(
                 PyHoverPreferencesPage.KEY_TEXT_HOVER_MODIFIER + PydevPlugin.getCombiningHoverDescriptor().getId(),
                 PyEditorTextHoverDescriptor.NO_MODIFIER);
-        PydevPrefs.getPreferenceStore().setDefault(
+        PyDevUiPrefs.getPreferenceStore().setDefault(
                 PyHoverPreferencesPage.KEY_TEXT_HOVER_MODIFIER_MASK + PydevPlugin.getCombiningHoverDescriptor().getId(),
                 PyEditorTextHoverDescriptor.DEFAULT_MODIFIER_MASK);
-        PydevPrefs.getPreferenceStore().setDefault(
+        PyDevUiPrefs.getPreferenceStore().setDefault(
                 PyHoverPreferencesPage.KEY_TEXT_HOVER_PRIORITY + PydevPlugin.getCombiningHoverDescriptor().getId(),
                 PyEditorTextHoverDescriptor.HIGHEST_PRIORITY);
-        PydevPrefs.getPreferenceStore().setDefault(
+        PyDevUiPrefs.getPreferenceStore().setDefault(
                 PyHoverPreferencesPage.KEY_TEXT_HOVER_ENABLE + PydevPlugin.getCombiningHoverDescriptor().getId(),
                 true);
     }

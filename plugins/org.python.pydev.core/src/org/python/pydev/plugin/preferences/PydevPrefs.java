@@ -6,15 +6,9 @@
  */
 package org.python.pydev.plugin.preferences;
 
-import java.util.List;
-
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.jface.preference.IPreferenceStore;
-import org.python.pydev.shared_core.callbacks.ICallback;
-import org.python.pydev.shared_core.callbacks.ICallback0;
 
 /**
  * Helper to deal with the pydev preferences.
@@ -22,41 +16,6 @@ import org.python.pydev.shared_core.callbacks.ICallback0;
  * @author Fabio
  */
 public class PydevPrefs {
-
-    /**
-     * This is a preference store that combines the preferences for pydev with the general preferences for editors.
-     */
-    private static transient IPreferenceStore fChainedPrefStore;
-    private static final Object fChainedPrefStoreLock = new Object();
-
-    public static ICallback<List<IPreferenceStore>, Boolean> getDefaultStores;
-    public static ICallback0<IPreferenceStore> getPreferenceStore;
-    public static ICallback0<IPreferenceStore> getChainedPrefStore;
-
-    /**
-     * @return a preference store that has the pydev preference store and the default editors text store
-     */
-    public synchronized static IPreferenceStore getChainedPrefStore() {
-        if (PydevPrefs.fChainedPrefStore == null) {
-            synchronized (fChainedPrefStoreLock) {
-                if (PydevPrefs.fChainedPrefStore == null) {
-                    Assert.isNotNull(getChainedPrefStore, "Callback must be set prior to use.");
-                    PydevPrefs.fChainedPrefStore = getChainedPrefStore.call();
-                }
-            }
-        }
-        return PydevPrefs.fChainedPrefStore;
-    }
-
-    public static List<IPreferenceStore> getDefaultStores(boolean addEditorsUIStore) {
-        Assert.isNotNull(getDefaultStores, "Callback must be set prior to use.");
-        return getDefaultStores.call(addEditorsUIStore);
-    }
-
-    public static IPreferenceStore getPreferenceStore() {
-        Assert.isNotNull(getPreferenceStore, "Callback must be set prior to use.");
-        return getPreferenceStore.call();
-    }
 
     public static IEclipsePreferences getEclipsePreferences() {
         return InstanceScope.INSTANCE.getNode("org.python.pydev");

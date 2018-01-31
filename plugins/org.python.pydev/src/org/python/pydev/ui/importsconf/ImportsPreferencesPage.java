@@ -15,9 +15,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PyScopedPreferences;
-import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.string.WrapAndCaseUtils;
 import org.python.pydev.shared_ui.field_editors.ComboFieldEditor;
@@ -126,7 +126,7 @@ public class ImportsPreferencesPage extends ScopedFieldEditorPreferencePage impl
                 p);
         addField(breakImportsInMultilineMode);
 
-        updateEnablement(p, PydevPrefs.getPreferenceStore().getString(IMPORT_ENGINE));
+        updateEnablement(p, PyDevUiPrefs.getPreferenceStore().getString(IMPORT_ENGINE));
         Combo importEngineCombo = importEngineFieldEditor.getCombo();
         importEngineCombo.addSelectionListener(new SelectionListener() {
 

@@ -141,6 +141,7 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.CheckDefaultPreferencesDialog;
 import org.python.pydev.plugin.preferences.FileTypesPreferences;
@@ -355,9 +356,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             }
             notifier.notifyEditorCreated();
 
-            colorCache = new ColorAndStyleCache(PydevPrefs.getChainedPrefStore());
+            colorCache = new ColorAndStyleCache(PyDevUiPrefs.getChainedPrefStore());
 
-            editConfiguration = new PyEditConfiguration(colorCache, this, PydevPrefs.getChainedPrefStore());
+            editConfiguration = new PyEditConfiguration(colorCache, this, PyDevUiPrefs.getChainedPrefStore());
             setSourceViewerConfiguration(editConfiguration);
             indentStrategy = editConfiguration.getPyAutoIndentStrategy(this);
             setRangeIndicator(new DefaultRangeIndicator()); // enables standard
@@ -584,7 +585,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             prefListener = createPrefChangeListener(this);
             this.getIndentPrefs().addTabChangedListener(this);
             resetForceTabs();
-            PydevPrefs.getChainedPrefStore().addPropertyChangeListener(prefListener);
+            PyDevUiPrefs.getChainedPrefStore().addPropertyChangeListener(prefListener);
 
             Runnable runnable = new Runnable() {
 
@@ -1084,7 +1085,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
                 notifier.notifyOnDispose();
 
-                PydevPrefs.getChainedPrefStore().removePropertyChangeListener(prefListener);
+                PyDevUiPrefs.getChainedPrefStore().removePropertyChangeListener(prefListener);
                 PyParserManager.getPyParserManager(null).notifyEditorDisposed(this);
 
                 colorCache.dispose();
@@ -1639,7 +1640,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     protected void initializeEditor() {
         super.initializeEditor();
         try {
-            this.setPreferenceStore(PydevPrefs.getChainedPrefStore());
+            this.setPreferenceStore(PyDevUiPrefs.getChainedPrefStore());
             setEditorContextMenuId(PY_EDIT_CONTEXT);
             setRulerContextMenuId(PY_EDIT_RULER_CONTEXT);
             setDocumentProvider(PyDocumentProvider.instance);
@@ -1660,8 +1661,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     }
 
     @Override
-    public void addOfflineActionListener(String key, IAction action, String description, boolean needsEnter) {
-        offlineActionsManager.addOfflineActionListener(key, action, description, needsEnter);
+    public void addOfflineActionListener(String key, Object action, String description, boolean needsEnter) {
+        offlineActionsManager.addOfflineActionListener(key, (IAction) action, description, needsEnter);
     }
 
     public boolean activatesAutomaticallyOn(String key) {
@@ -1770,7 +1771,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      * Important: keep for scripting
      */
     public int getPrintMarginColums() {
-        return PydevPrefs.getChainedPrefStore()
+        return PyDevUiPrefs.getChainedPrefStore()
                 .getInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLUMN);
     }
 

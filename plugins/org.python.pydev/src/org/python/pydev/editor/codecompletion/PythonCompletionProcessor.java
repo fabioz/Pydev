@@ -36,8 +36,8 @@ import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.interpreter_managers.ChooseInterpreterManager;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.plugin.nature.SystemPythonNature;
-import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -288,7 +288,7 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
     public static char[] getStaticCompletionProposalAutoActivationCharacters() {
         if (!listenerToClearAutoActivationAlreadySetup) {
             //clears the cache when the preferences are changed.
-            IPreferenceStore preferenceStore = PydevPrefs.getPreferenceStore();
+            IPreferenceStore preferenceStore = PyDevUiPrefs.getPreferenceStore();
             preferenceStore.addPropertyChangeListener(new IPropertyChangeListener() {
 
                 @Override

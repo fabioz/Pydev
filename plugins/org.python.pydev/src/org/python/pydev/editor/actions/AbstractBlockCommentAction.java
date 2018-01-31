@@ -11,7 +11,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PySelectionFromEditor;
-import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.structure.Tuple;
 
@@ -71,10 +71,10 @@ public abstract class AbstractBlockCommentAction extends PyAction {
         if (SharedCorePlugin.inTestMode()) {
             // use defaults
         } else {
-            IPreferenceStore chainedPrefStore = PydevPrefs.getChainedPrefStore();
+            IPreferenceStore chainedPrefStore = PyDevUiPrefs.getChainedPrefStore();
             cols = chainedPrefStore.getInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLUMN);
 
-            IPreferenceStore prefs = PydevPrefs.getPreferenceStore();
+            IPreferenceStore prefs = PyDevUiPrefs.getPreferenceStore();
             c = prefs.getString(getPreferencesNameForChar()).charAt(0);
         }
         return new Tuple<Integer, Character>(cols, c);
@@ -88,7 +88,7 @@ public abstract class AbstractBlockCommentAction extends PyAction {
             return 4; //if not available, default is 4
         }
 
-        IPreferenceStore chainedPrefStore = PydevPrefs.getChainedPrefStore();
+        IPreferenceStore chainedPrefStore = PyDevUiPrefs.getChainedPrefStore();
         return chainedPrefStore.getInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_TAB_WIDTH);
     }
 

@@ -21,6 +21,7 @@ import org.eclipse.swt.widgets.TaskItem;
 import org.eclipse.ui.IStartup;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.model.PyThread;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.utils.PlatformUtils;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
@@ -86,7 +87,7 @@ public class DebugEarlyStartup implements IStartup {
                             if (debugEvent.getDetail() == DebugEvent.BREAKPOINT) {
                                 if (debugEvent.getSource() instanceof PyThread) {
 
-                                    IPreferenceStore preferenceStore2 = PydevPrefs.getPreferenceStore();
+                                    IPreferenceStore preferenceStore2 = PyDevUiPrefs.getPreferenceStore();
                                     final int forceOption = preferenceStore2
                                             .getInt(DebugPluginPrefsInitializer.FORCE_SHOW_SHELL_ON_BREAKPOINT);
 

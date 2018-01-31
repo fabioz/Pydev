@@ -28,7 +28,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
-import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.pyunit.preferences.PyUnitPrefsPage2;
 
 public class OverrideUnittestArgumentsBlock extends AbstractLaunchConfigurationTab {
@@ -123,7 +123,7 @@ public class OverrideUnittestArgumentsBlock extends AbstractLaunchConfigurationT
     public void initializeFrom(ILaunchConfiguration configuration) {
 
         //Override selection
-        IPreferenceStore prefs = PydevPrefs.getPreferenceStore();
+        IPreferenceStore prefs = PyDevUiPrefs.getPreferenceStore();
         try {
             buttonAskOverride.setSelection(configuration.getAttribute(
                     PyUnitPrefsPage2.LAUNCH_CONFIG_OVERRIDE_PYUNIT_RUN_PARAMS_CHOICE, false));

@@ -55,8 +55,8 @@ import org.python.pydev.editor.actions.FirstCharAction;
 import org.python.pydev.editor.actions.PyBackspace;
 import org.python.pydev.editor.actions.PyPeerLinker;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.ui.ColorAndStyleCache;
 
@@ -203,7 +203,7 @@ public class PyMergeViewer extends TextMergeViewer {
         //Hack to provide the source viewer configuration that'll only be created later (there's a cycle there).
         final WeakReference<PyEditConfigurationWithoutEditor>[] sourceViewerConfigurationObj = new WeakReference[1];
 
-        IPreferenceStore chainedPrefStore = PydevPrefs.getChainedPrefStore();
+        IPreferenceStore chainedPrefStore = PyDevUiPrefs.getChainedPrefStore();
         final ColorAndStyleCache c = new ColorAndStyleCache(chainedPrefStore);
         this.getColorCache().add(c); //add for it to be disposed later.
 
@@ -336,7 +336,7 @@ public class PyMergeViewer extends TextMergeViewer {
 
         List<IPropertyChangeListener> prefChangeListeners = getPrefChangeListeners();
         for (IPropertyChangeListener l : prefChangeListeners) {
-            PydevPrefs.getChainedPrefStore().removePropertyChangeListener(l);
+            PyDevUiPrefs.getChainedPrefStore().removePropertyChangeListener(l);
         }
         prefChangeListeners.clear();
     }

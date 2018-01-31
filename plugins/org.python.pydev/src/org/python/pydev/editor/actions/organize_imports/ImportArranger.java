@@ -27,7 +27,7 @@ import org.python.pydev.core.docutils.PyImportsHandling;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyFormatStd;
-import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -190,7 +190,7 @@ public class ImportArranger {
             if (SharedCorePlugin.inTestMode()) {
                 maxCols = 80;
             } else {
-                IPreferenceStore chainedPrefStore = PydevPrefs.getChainedPrefStore();
+                IPreferenceStore chainedPrefStore = PyDevUiPrefs.getChainedPrefStore();
                 maxCols = chainedPrefStore
                         .getInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLUMN);
             }

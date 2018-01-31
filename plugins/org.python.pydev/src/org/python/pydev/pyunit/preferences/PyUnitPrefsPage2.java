@@ -27,10 +27,10 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PyScopedPreferences;
-import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_ui.field_editors.ComboFieldEditor;
@@ -412,7 +412,7 @@ public class PyUnitPrefsPage2 extends ScopedFieldEditorPreferencePage implements
     }
 
     public static boolean getUsePyUnitView(IAdaptable projectAdaptable) {
-        return PydevPrefs.getPreferenceStore().getBoolean(USE_PYUNIT_VIEW);
+        return PyDevUiPrefs.getPreferenceStore().getBoolean(USE_PYUNIT_VIEW);
     }
 
     public static void showPage() {

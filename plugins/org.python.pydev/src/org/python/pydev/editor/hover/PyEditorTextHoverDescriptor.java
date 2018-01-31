@@ -25,8 +25,8 @@ import org.osgi.framework.Bundle;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.preferences.PydevPrefs;
 
 /**
  * Describes a PyDev editor text hover.
@@ -255,10 +255,10 @@ public class PyEditorTextHoverDescriptor {
             String id = element.getAttribute(PyEditorTextHoverDescriptor.ATT_PYDEV_HOVER_ID);
 
             //modifier
-            PydevPrefs.getPreferenceStore().setDefault(
+            PyDevUiPrefs.getPreferenceStore().setDefault(
                     PyHoverPreferencesPage.KEY_TEXT_HOVER_MODIFIER + id, PyEditorTextHoverDescriptor.NO_MODIFIER);
             //state mask
-            PydevPrefs.getPreferenceStore().setDefault(
+            PyDevUiPrefs.getPreferenceStore().setDefault(
                     PyHoverPreferencesPage.KEY_TEXT_HOVER_MODIFIER_MASK + id,
                     PyEditorTextHoverDescriptor.DEFAULT_MODIFIER_MASK);
 
@@ -306,7 +306,7 @@ public class PyEditorTextHoverDescriptor {
             }
 
             //modifier
-            String modifierString = PydevPrefs.getPreferenceStore()
+            String modifierString = PyDevUiPrefs.getPreferenceStore()
                     .getString(PyHoverPreferencesPage.KEY_TEXT_HOVER_MODIFIER + hovers[i].getId());
             if (modifierString == null || modifierString.equals(PyEditorTextHoverDescriptor.NO_MODIFIER)) {
                 modifierString = ""; //$NON-NLS-1$
@@ -318,7 +318,7 @@ public class PyEditorTextHoverDescriptor {
             if (hovers[i].fStateMask == -1) {
                 // Fallback: use stored modifier masks
                 try {
-                    hovers[i].fStateMask = Integer.parseInt(PydevPrefs.getPreferenceStore().getString(
+                    hovers[i].fStateMask = Integer.parseInt(PyDevUiPrefs.getPreferenceStore().getString(
                             PyHoverPreferencesPage.KEY_TEXT_HOVER_MODIFIER_MASK + hovers[i].getId()));
                 } catch (NumberFormatException ex) {
                     hovers[i].fStateMask = -1;

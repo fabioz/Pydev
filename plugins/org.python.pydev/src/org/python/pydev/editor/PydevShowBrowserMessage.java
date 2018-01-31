@@ -32,7 +32,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
-import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.string.WrapAndCaseUtils;
 import org.python.pydev.shared_ui.ImageCache;
@@ -220,7 +220,7 @@ final class DialogNotifier extends Dialog {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 doClose();
-                IPreferenceStore preferenceStore = PydevPrefs.getPreferenceStore();
+                IPreferenceStore preferenceStore = PyDevUiPrefs.getPreferenceStore();
                 //Show it again only after a full year has elapsed.
                 preferenceStore.setValue(PydevShowBrowserMessage.PYDEV_FUNDING_SHOW_AT_TIME,
                         System.currentTimeMillis() + (PydevShowBrowserMessage.ONE_DAY_IN_MILLIS * 365));
@@ -281,7 +281,7 @@ public class PydevShowBrowserMessage {
         if (hide != null && (hide.equals("1") || hide.equals("true"))) {
             return;
         }
-        IPreferenceStore preferenceStore = PydevPrefs.getPreferenceStore();
+        IPreferenceStore preferenceStore = PyDevUiPrefs.getPreferenceStore();
         long showAtTime = preferenceStore.getLong(PYDEV_FUNDING_SHOW_AT_TIME);
         boolean show;
         if (showAtTime == 0) {

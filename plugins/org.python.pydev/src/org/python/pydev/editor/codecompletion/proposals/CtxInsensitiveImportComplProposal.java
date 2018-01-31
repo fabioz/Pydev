@@ -37,7 +37,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal2;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
-import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -321,7 +321,7 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
                 if (SharedCorePlugin.inTestMode()) {
                     maxCols = 80;
                 } else {
-                    IPreferenceStore chainedPrefStore = PydevPrefs.getChainedPrefStore();
+                    IPreferenceStore chainedPrefStore = PyDevUiPrefs.getChainedPrefStore();
                     maxCols = chainedPrefStore
                             .getInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLUMN);
                 }

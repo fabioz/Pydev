@@ -46,9 +46,9 @@ import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.dialogs.WorkingSetConfigurationBlock;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.plugin.PyStructureConfigHelpers;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.ui.PyProjectPythonDetails;
 import org.python.pydev.ui.wizards.gettingstarted.AbstractNewProjectPage;
 import org.python.pydev.utils.ICallback;
@@ -204,7 +204,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
         noSrcFolder = new Button(composite, SWT.RADIO);
         noSrcFolder.setText("Don't configure PYTHONPATH (to be done &manually later on)");
 
-        IPreferenceStore preferences = PydevPrefs.getPreferenceStore();
+        IPreferenceStore preferences = PyDevUiPrefs.getPreferenceStore();
         int srcFolderCreate = preferences
                 .getInt(IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PREFERENCES);
         switch (srcFolderCreate) {
@@ -230,7 +230,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
             @Override
             public void widgetSelected(SelectionEvent e) {
                 if (e.widget == checkSrcFolder) {
-                    IPreferenceStore preferences = PydevPrefs.getPreferenceStore();
+                    IPreferenceStore preferences = PyDevUiPrefs.getPreferenceStore();
                     if (checkSrcFolder.getSelection()) {
                         preferences.setValue(IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PREFERENCES,
                                 PYDEV_NEW_PROJECT_CREATE_SRC_FOLDER);
@@ -249,7 +249,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
             @Override
             public void widgetSelected(SelectionEvent e) {
                 if (e.widget == projectAsSrcFolder) {
-                    IPreferenceStore preferences = PydevPrefs.getPreferenceStore();
+                    IPreferenceStore preferences = PyDevUiPrefs.getPreferenceStore();
                     if (projectAsSrcFolder.getSelection()) {
                         preferences.setValue(IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PREFERENCES,
                                 PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER);
@@ -269,7 +269,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
             @Override
             public void widgetSelected(SelectionEvent e) {
                 if (e.widget == exSrcFolder) {
-                    IPreferenceStore preferences = PydevPrefs.getPreferenceStore();
+                    IPreferenceStore preferences = PyDevUiPrefs.getPreferenceStore();
                     if (exSrcFolder.getSelection()) {
                         preferences.setValue(IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PREFERENCES,
                                 PYDEV_NEW_PROJECT_EXISTING_SOURCES);
@@ -288,7 +288,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
             @Override
             public void widgetSelected(SelectionEvent e) {
                 if (e.widget == noSrcFolder) {
-                    IPreferenceStore preferences = PydevPrefs.getPreferenceStore();
+                    IPreferenceStore preferences = PyDevUiPrefs.getPreferenceStore();
                     if (noSrcFolder.getSelection()) {
                         preferences.setValue(IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PREFERENCES,
                                 PYDEV_NEW_PROJECT_NO_PYTHONPATH);
@@ -752,7 +752,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
 
     @Override
     public int getSourceFolderConfigurationStyle() {
-        IPreferenceStore preferences = PydevPrefs.getPreferenceStore();
+        IPreferenceStore preferences = PyDevUiPrefs.getPreferenceStore();
         int srcFolderCreate = preferences
                 .getInt(IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PREFERENCES);
         switch (srcFolderCreate) {
