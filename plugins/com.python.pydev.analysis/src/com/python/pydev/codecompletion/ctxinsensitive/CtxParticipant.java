@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.ICompletionState;
@@ -57,10 +56,10 @@ import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
 import com.python.pydev.analysis.AnalysisPlugin;
+import com.python.pydev.analysis.AnalysisPreferences;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;
-import com.python.pydev.analysis.ui.AutoImportsPreferencesPage;
 
 /**
  * Provides the completions in a context-insensitive way for classes and methods (both for the editor or the console).
@@ -87,7 +86,7 @@ public class CtxParticipant
         String qual = tokenAndQual.qualifier;
         if (qual.length() >= PyCodeCompletionPreferences.getCharsForContextInsensitiveGlobalTokensCompletion()
                 && naturesUsed != null && naturesUsed.size() > 0) { //at least n characters required...
-            boolean addAutoImport = AutoImportsPreferencesPage.doAutoImport();
+            boolean addAutoImport = AnalysisPreferences.doAutoImport();
             int qlen = qual.length();
             boolean useSubstringMatchInCodeCompletion = PyCodeCompletionPreferences
                     .getUseSubstringMatchInCodeCompletion();
@@ -138,7 +137,7 @@ public class CtxParticipant
         FastStringBuffer realImportRep = new FastStringBuffer();
         FastStringBuffer displayString = new FastStringBuffer();
         FastStringBuffer tempBuf = new FastStringBuffer();
-        boolean doIgnoreImportsStartingWithUnder = AutoImportsPreferencesPage.doIgnoreImportsStartingWithUnder();
+        boolean doIgnoreImportsStartingWithUnder = AnalysisPreferences.doIgnoreImportsStartingWithUnder();
         CompareContext compareContext = new CompareContext(nature);
         for (IInfo info : tokensStartingWith) {
             //there always must be a declaringModuleName
@@ -157,7 +156,7 @@ public class CtxParticipant
             if (addAutoImport) {
                 realImportRep.clear();
                 realImportRep.append("from ");
-                realImportRep.append(AutoImportsPreferencesPage.removeImportsStartingWithUnderIfNeeded(
+                realImportRep.append(AnalysisPreferences.removeImportsStartingWithUnderIfNeeded(
                         declaringModuleName, tempBuf, doIgnoreImportsStartingWithUnder));
                 realImportRep.append(" import ");
                 realImportRep.append(rep);
@@ -174,7 +173,7 @@ public class CtxParticipant
             String displayAsStr = displayString.toString();
             ICompletionProposalHandle proposal = CompletionProposalFactory.get()
                     .createPyConsoleCompletion(rep, requestOffset - qlen, qlen, realImportRep.length(),
-                            info.getType(), displayAsStr, (IContextInformation) null, "",
+                            info.getType(), displayAsStr, null, "",
                             displayAsStr.equals(qual) ? IPyCompletionProposal.PRIORITY_GLOBALS_EXACT
                                     : IPyCompletionProposal.PRIORITY_GLOBALS,
                             realImportRep.toString(), viewer, compareContext);
@@ -214,7 +213,7 @@ public class CtxParticipant
             FastStringBuffer displayString = new FastStringBuffer();
             FastStringBuffer tempBuf = new FastStringBuffer();
 
-            boolean doIgnoreImportsStartingWithUnder = AutoImportsPreferencesPage.doIgnoreImportsStartingWithUnder();
+            boolean doIgnoreImportsStartingWithUnder = AnalysisPreferences.doIgnoreImportsStartingWithUnder();
 
             for (IInfo info : tokensStartingWith) {
                 //there always must be a declaringModuleName
@@ -238,7 +237,7 @@ public class CtxParticipant
                 if (addAutoImport) {
                     realImportRep.clear();
                     realImportRep.append("from ");
-                    realImportRep.append(AutoImportsPreferencesPage.removeImportsStartingWithUnderIfNeeded(
+                    realImportRep.append(AnalysisPreferences.removeImportsStartingWithUnderIfNeeded(
                             declaringModuleName, tempBuf, doIgnoreImportsStartingWithUnder));
                     realImportRep.append(" import ");
                     realImportRep.append(rep);
@@ -256,7 +255,7 @@ public class CtxParticipant
                 ICompletionProposalHandle proposal = CompletionProposalFactory.get()
                         .createCtxInsensitiveImportComplProposal(rep, request.documentOffset - request.qlen,
                                 request.qlen, realImportRep.length(), info.getType(), displayAsStr,
-                                (IContextInformation) null, "",
+                                null, "",
                                 displayAsStr.equals(qual) ? IPyCompletionProposal.PRIORITY_GLOBALS_EXACT
                                         : IPyCompletionProposal.PRIORITY_GLOBALS,
                                 realImportRep.toString(), new CompareContext(info.getNature()));
@@ -286,7 +285,7 @@ public class CtxParticipant
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Collection getGlobalCompletions(CompletionRequest request, ICompletionState state)
             throws MisconfigurationException {
-        return getThem(request, state, AutoImportsPreferencesPage.doAutoImport());
+        return getThem(request, state, AnalysisPreferences.doAutoImport());
     }
 
     @Override

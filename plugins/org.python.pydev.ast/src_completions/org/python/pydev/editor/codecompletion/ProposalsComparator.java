@@ -15,7 +15,6 @@ import java.util.Comparator;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.eclipse.jface.text.contentassist.ICompletionProposalSorter;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
@@ -26,7 +25,7 @@ import org.python.pydev.shared_ui.proposals.IPyCompletionProposal.ICompareContex
 /**
  * @author Fabio Zadrozny
  */
-public final class ProposalsComparator implements Comparator<ICompletionProposalHandle>, ICompletionProposalSorter {
+public final class ProposalsComparator implements Comparator<ICompletionProposalHandle> {
 
     public static class CompareContext implements ICompareContext {
         private IProject project;
@@ -254,7 +253,6 @@ public final class ProposalsComparator implements Comparator<ICompletionProposal
         return compare((ICompletionProposal) o1, (ICompletionProposal) o2);
     }
 
-    @Override
     public int compare(ICompletionProposal o1, ICompletionProposal o2) {
         String o1Str = o1.getDisplayString();
         String o2Str = o2.getDisplayString();

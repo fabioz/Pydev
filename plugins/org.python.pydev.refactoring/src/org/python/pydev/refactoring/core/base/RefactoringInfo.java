@@ -14,12 +14,12 @@
 * Contributors:
 *     Fabio Zadrozny <fabiofz@gmail.com> - initial implementation
 ******************************************************************************/
-/* 
+/*
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
  * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
  * IFS Institute for Software, HSR Rapperswil, Switzerland
- * 
+ *
  */
 
 package org.python.pydev.refactoring.core.base;
@@ -36,11 +36,11 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IIndentPrefs;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.autoedit.TestIndentPrefs;
 import org.python.pydev.parser.jython.ParseException;
@@ -70,7 +70,7 @@ public class RefactoringInfo {
     private IProject project;
     private File realFile;
 
-    public RefactoringInfo(PyEdit edit) throws MisconfigurationException {
+    public RefactoringInfo(IPyEdit edit) throws MisconfigurationException {
         this(edit, edit.getTextSelection());
     };
 
@@ -92,8 +92,8 @@ public class RefactoringInfo {
         initInfo(selection);
     }
 
-    public RefactoringInfo(PyEdit edit, ICoreTextSelection selection) throws MisconfigurationException {
-        IEditorInput input = edit.getEditorInput();
+    public RefactoringInfo(IPyEdit edit, ICoreTextSelection selection) throws MisconfigurationException {
+        IEditorInput input = (IEditorInput) edit.getEditorInput();
         this.indentPrefs = edit.getIndentPrefs();
         IPythonNature localNature = edit.getPythonNature();
 
@@ -348,7 +348,7 @@ public class RefactoringInfo {
     //
     //    /**
     //     * Returns the NameUse of the currently selected variable
-    //     * 
+    //     *
     //     * @return the currently selected nameUse
     //     */
     //    public Use findSelectedUse() {

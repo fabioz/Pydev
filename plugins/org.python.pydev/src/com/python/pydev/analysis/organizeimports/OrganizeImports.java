@@ -45,11 +45,11 @@ import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.dialogs.ListContentProvider;
 import org.python.pydev.ui.dialogs.TreeSelectionDialog;
 
+import com.python.pydev.analysis.AnalysisPreferences;
 import com.python.pydev.analysis.AnalysisUiPlugin;
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.builder.AnalysisRunner;
 import com.python.pydev.analysis.ctrl_1.UndefinedVariableFixParticipant;
-import com.python.pydev.analysis.ui.AutoImportsPreferencesPage;
 
 /**
  * Used to present the user a way to add imports for the undefined variables.
@@ -70,7 +70,7 @@ public class OrganizeImports implements IOrganizeImports {
      */
     @Override
     public boolean beforePerformArrangeImports(final PySelection ps, final PyEdit edit, IFile f) {
-        if ((!AutoImportsPreferencesPage.doAutoImportOnOrganizeImports()) || edit == null) {
+        if ((!AnalysisPreferences.doAutoImportOnOrganizeImports()) || edit == null) {
             return true;
         }
         didChange = false;
@@ -274,7 +274,7 @@ public class OrganizeImports implements IOrganizeImports {
      */
     @Override
     public void afterPerformArrangeImports(PySelection ps, PyEdit pyEdit) {
-        if (!AutoImportsPreferencesPage.doAutoImportOnOrganizeImports() || !didChange) {
+        if (!AnalysisPreferences.doAutoImportOnOrganizeImports() || !didChange) {
             return;
         }
         if (pyEdit != null) {

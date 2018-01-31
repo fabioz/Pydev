@@ -35,11 +35,11 @@ import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal.ICompareContext;
 
+import com.python.pydev.analysis.AnalysisPreferences;
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.builder.AnalysisRunner;
-import com.python.pydev.analysis.ui.AutoImportsPreferencesPage;
 
 /**
  * Class that'll create proposals for fixing an undefined variable found.
@@ -95,7 +95,7 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
 
         IModulesManager projectModulesManager = astManager.getModulesManager();
         IModulesManager[] managersInvolved = projectModulesManager.getManagersInvolved(true);
-        boolean doIgnoreImportsStartingWithUnder = AutoImportsPreferencesPage.doIgnoreImportsStartingWithUnder();
+        boolean doIgnoreImportsStartingWithUnder = AnalysisPreferences.doIgnoreImportsStartingWithUnder();
 
         // Use a single buffer to create all the strings
         FastStringBuffer buffer = new FastStringBuffer();
@@ -183,7 +183,7 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
                             declPackageWithoutInit.length() - 9);
                 }
 
-                declPackageWithoutInit = AutoImportsPreferencesPage.removeImportsStartingWithUnderIfNeeded(
+                declPackageWithoutInit = AnalysisPreferences.removeImportsStartingWithUnderIfNeeded(
                         declPackageWithoutInit, tempBuf, doIgnoreImportsStartingWithUnder);
 
                 buffer.clear();

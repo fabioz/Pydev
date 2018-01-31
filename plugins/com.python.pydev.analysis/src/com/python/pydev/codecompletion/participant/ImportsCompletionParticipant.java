@@ -16,7 +16,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IInfo;
@@ -42,7 +41,7 @@ import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal.ICompareContext;
 
-import com.python.pydev.analysis.ui.AutoImportsPreferencesPage;
+import com.python.pydev.analysis.AnalysisPreferences;
 
 /**
  * Gathers completions from the modules available (for the editor or for the console).
@@ -68,7 +67,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
                 && naturesUsed != null && naturesUsed.size() > 0) { //at least n characters required...
 
             int qlen = qual.length();
-            boolean addAutoImport = AutoImportsPreferencesPage.doAutoImport();
+            boolean addAutoImport = AnalysisPreferences.doAutoImport();
 
             for (IPythonNature nature : naturesUsed) {
                 fillCompletions(requestOffset, completions, qual, nature, qlen, addAutoImport, viewer);
@@ -151,7 +150,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
                 ICompletionProposalHandle proposal = CompletionProposalFactory.get().createPyConsoleCompletion(
                         importRep,
                         requestOffset - qlen, qlen, realImportRep.length(),
-                        IInfo.USE_PACKAGE_ICON, found, (IContextInformation) null, "",
+                        IInfo.USE_PACKAGE_ICON, found, null, "",
                         displayAsStr.toLowerCase().equals(lowerQual) ? IPyCompletionProposal.PRIORITY_PACKAGES_EXACT
                                 : IPyCompletionProposal.PRIORITY_PACKAGES,
                         displayAsStr, viewer,
@@ -236,7 +235,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
                                 .createCtxInsensitiveImportComplProposal(importRep,
                                         request.documentOffset - request.qlen,
                                         request.qlen, realImportRep.length(), IInfo.USE_PACKAGE_ICON, displayAsStr,
-                                        (IContextInformation) null, "",
+                                        null, "",
                                         displayAsStr.toLowerCase().equals(lowerQual)
                                                 ? IPyCompletionProposal.PRIORITY_PACKAGES_EXACT
                                                 : IPyCompletionProposal.PRIORITY_PACKAGES,
@@ -265,7 +264,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Collection getGlobalCompletions(CompletionRequest request, ICompletionState state)
             throws MisconfigurationException {
-        return getThem(request, state, AutoImportsPreferencesPage.doAutoImport());
+        return getThem(request, state, AnalysisPreferences.doAutoImport());
     }
 
     @Override

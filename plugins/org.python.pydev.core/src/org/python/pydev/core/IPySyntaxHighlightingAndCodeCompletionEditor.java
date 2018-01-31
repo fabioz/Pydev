@@ -9,7 +9,6 @@ package org.python.pydev.core;
 import java.io.File;
 
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.jface.text.source.ISourceViewer;
 import org.python.pydev.core.docutils.PySelection;
 
 /**
@@ -20,7 +19,7 @@ public interface IPySyntaxHighlightingAndCodeCompletionEditor extends IAdaptable
 
     IIndentPrefs getIndentPrefs();
 
-    ISourceViewer getEditorSourceViewer();
+    /* ISourceViewer*/ Object getEditorSourceViewer();
 
     void resetForceTabs();
 

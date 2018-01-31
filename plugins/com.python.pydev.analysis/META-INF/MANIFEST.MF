@@ -8,16 +8,15 @@ Bundle-Vendor: Brainwy Software Ltda
 Bundle-Localization: plugin
 Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.core.runtime,
- org.eclipse.jface.text,
  org.junit;bundle-version="4.0";resolution:=optional,
  org.python.pydev.shared_ui;bundle-version="[6.3.0,6.3.1)",
  org.python.pydev.jython;bundle-version="[6.3.0,6.3.1)",
  org.eclipse.search,
+ org.eclipse.text,
  org.python.pydev.ast;bundle-version="[6.3.0,6.3.1)",
  org.python.pydev.core;bundle-version="[6.3.0,6.3.1)",
  org.python.pydev.parser;bundle-version="[6.3.0,6.3.1)",
- org.eclipse.core.resources,
- org.eclipse.ui.editors
+ org.eclipse.core.resources
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: analysis.jar
 Export-Package: com.python.pydev.analysis,
@@ -28,6 +27,9 @@ Export-Package: com.python.pydev.analysis,
  com.python.pydev.analysis.system_info_builder,
  com.python.pydev.analysis.tabnanny,
  com.python.pydev.analysis.visitors,
+ com.python.pydev.codecompletion.ctxinsensitive,
+ com.python.pydev.codecompletion.participant,
+ com.python.pydev.codecompletion.simpleassist,
  org.python.pydev.builder.pep8,
  org.python.pydev.editor.correctionassist.heuristics
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

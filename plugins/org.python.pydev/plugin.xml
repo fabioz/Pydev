@@ -3124,4 +3124,12 @@ The related image showing the error is at: http://i.stack.imgur.com/IfNFY.png
         id="com.python.pydev.analysis.indexview.PyIndexView"/>
 </extension>
 
+   <extension point="org.eclipse.ui.preferencePages">
+      <page
+            class="com.python.pydev.codecompletion.ui.CodeCompletionPreferencesPage"
+            category="org.python.pydev.prefs.editor"
+            id="org.python.pydev.prefs.extensions.codecompletion"
+            name="Code Completion (ctx insensitive and common tokens)"/>
+   </extension>
+
  </plugin>

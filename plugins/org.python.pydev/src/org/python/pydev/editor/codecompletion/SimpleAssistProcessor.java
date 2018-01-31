@@ -21,6 +21,7 @@ import org.eclipse.jface.text.TextPresentation;
 import org.eclipse.jface.text.contentassist.ContentAssistEvent;
 import org.eclipse.jface.text.contentassist.ICompletionListener;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.jface.text.contentassist.ICompletionProposalSorter;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationPresenter;
@@ -154,7 +155,13 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
         this.edit = edit;
         this.defaultPythonProcessor = defaultPythonProcessor;
         this.assistant = assistant;
-        this.assistant.setSorter(this.sorter);
+        this.assistant.setSorter(new ICompletionProposalSorter() {
+
+            @Override
+            public int compare(ICompletionProposal p1, ICompletionProposal p2) {
+                return sorter.compare(p1, p2);
+            }
+        });
 
         //Note: in practice, we'll always have at least one participart (for the keywords)
         this.participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_SIMPLE_ASSIST);

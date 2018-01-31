@@ -615,7 +615,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     }
 
     private static void onTabSettingsChanged(final IPySyntaxHighlightingAndCodeCompletionEditor editor) {
-        ISourceViewer sourceViewer = editor.getEditorSourceViewer();
+        ISourceViewer sourceViewer = (ISourceViewer) editor.getEditorSourceViewer();
         if (sourceViewer == null) {
             return;
         }
@@ -649,7 +649,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                     } else if (ColorAndStyleCache.isColorOrStyleProperty(property)) {
                         editor.getColorCache().reloadProperty(property); //all reference this cache
                         editor.getEditConfiguration().updateSyntaxColorAndStyle(); //the style needs no reloading
-                        editor.getEditorSourceViewer().invalidateTextPresentation();
+                        ((ISourceViewer) editor.getEditorSourceViewer()).invalidateTextPresentation();
                     }
                 } catch (Exception e) {
                     Log.log(e);

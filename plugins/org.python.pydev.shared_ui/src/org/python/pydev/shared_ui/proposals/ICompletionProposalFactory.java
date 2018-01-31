@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContext;
@@ -25,14 +24,14 @@ public interface ICompletionProposalFactory {
 
     ICompletionProposalHandle createAssistDocstringCompletionProposal(String replacementString,
             int replacementOffset, int replacementLength, int cursorPosition, IImageHandle image, String displayString,
-            IContextInformation contextInformation, String additionalProposalInfo, int priority,
+            Object contextInformation, String additionalProposalInfo, int priority,
             ICompareContext compareContext, String initial, String delimiter, String docStringMarker,
             String delimiterAndIndent, String preferredDocstringStyle2, boolean inFunctionLine,
             DocstringInfo finalDocstringFromFunction, String indentation, FastStringBuffer buf, List<String> params);
 
     ICompletionProposalHandle createIgnorePyLintCompletionProposalInSameLine(
             String replacementString, int replacementOffset, int replacementLength, int cursorPosition,
-            IImageHandle image, String displayString, IContextInformation contextInformation,
+            IImageHandle image, String displayString, Object contextInformation,
             String additionalProposalInfo, int priority, IPyEdit edit, String line, PySelection ps, FormatStd format,
             IMarker marker);
 
@@ -41,16 +40,16 @@ public interface ICompletionProposalFactory {
 
     ICompletionProposalHandle createIgnoreCompletionProposalInSameLine(String replacementString,
             int replacementOffset, int replacementLength, int cursorPosition, IImageHandle image, String displayString,
-            IContextInformation contextInformation, String additionalProposalInfo, int priority, IPyEdit edit,
+            Object contextInformation, String additionalProposalInfo, int priority, IPyEdit edit,
             String line, PySelection ps, FormatStd format);
 
     ICompletionProposalHandle createIgnoreCompletionProposal(String replacementString,
             int replacementOffset, int replacementLength, int cursorPosition, IImageHandle image, String displayString,
-            IContextInformation contextInformation, String additionalProposalInfo, int priority, IPyEdit edit);
+            Object contextInformation, String additionalProposalInfo, int priority, IPyEdit edit);
 
     ICompletionProposalHandle createAssistAssignCompletionProposal(String replacementString,
             int replacementOffset, int replacementLength, int cursorPosition, IImageHandle image, String displayString,
-            IContextInformation contextInformation, String additionalProposalInfo, int priority,
+            Object contextInformation, String additionalProposalInfo, int priority,
             ISourceViewer sourceViewer, ICompareContext compareContext);
 
     ICompletionProposalHandle createOverrideMethodCompletionProposal(int replacementOffset,
@@ -59,18 +58,18 @@ public interface ICompletionProposalFactory {
 
     ICompletionProposalHandle createCtxInsensitiveImportComplProposalReparseOnApply(
             String replacementString, int replacementOffset, int replacementLength, int cursorPosition,
-            int infoTypeForImage, String displayString, IContextInformation contextInformation,
+            int infoTypeForImage, String displayString, Object contextInformation,
             String additionalProposalInfo, int priority, String realImportRep, ICompareContext compareContext,
             boolean forceReparseOnApply);
 
     ICompletionProposalHandle createPyConsoleCompletion(String replacementString, int replacementOffset,
             int replacementLength, int cursorPosition, int infoTypeForImage, String displayString,
-            IContextInformation contextInformation, String additionalProposalInfo, int priority, String realImportRep,
+            Object contextInformation, String additionalProposalInfo, int priority, String realImportRep,
             IScriptConsoleViewer viewer, ICompareContext compareContext);
 
     ICompletionProposalHandle createCtxInsensitiveImportComplProposal(String replacementString,
             int replacementOffset, int replacementLength, int cursorPosition, int infoTypeForImage,
-            String displayString, IContextInformation contextInformation, String additionalProposalInfo, int priority,
+            String displayString, Object contextInformation, String additionalProposalInfo, int priority,
             String realImportRep, ICompareContext compareContext);
 
     ICompletionProposalHandle createPyTemplateProposalForTests(Template template,
@@ -78,7 +77,7 @@ public interface ICompletionProposalFactory {
 
     ICompletionProposalHandle createFixCompletionProposal(String replacementString, int replacementOffset,
             int replacementLength, int cursorPosition, IImageHandle image, String displayString,
-            IContextInformation contextInformation, String additionalProposalInfo, int lineToRemove);
+            Object contextInformation, String additionalProposalInfo, int lineToRemove);
 
     ICompletionProposalHandle createPyCompletionProposal(String replacementString, int replacementOffset,
             int replacementLength, int cursorPosition, int priority, ICompareContext compareContext);
@@ -88,31 +87,31 @@ public interface ICompletionProposalFactory {
 
     ICompletionProposalHandle createPyCompletionProposal(String replacementString, int replacementOffset,
             int replacementLength, int cursorPosition, IImageHandle image, String displayString,
-            IContextInformation contextInformation, String additionalProposalInfo, int priority,
+            Object contextInformation, String additionalProposalInfo, int priority,
             ICompareContext compareContext);
 
     ICompletionProposalHandle createPyCompletionProposal(String replacementString, int replacementOffset,
             int replacementLength, int cursorPosition, IImageHandle image, String displayString,
-            IContextInformation contextInformation, String additionalProposalInfo, int priority);
+            Object contextInformation, String additionalProposalInfo, int priority);
 
     ICompletionProposalHandle createPyCompletionProposal(String replacementString, int replacementOffset,
             int replacementLength, int cursorPosition, IImageHandle image, String displayString,
-            IContextInformation contextInformation, String additionalProposalInfo, int priority, int onApplyAction,
+            Object contextInformation, String additionalProposalInfo, int priority, int onApplyAction,
             String args);
 
     ICompletionProposalHandle createPyLinkedModeCompletionProposal(String replacementString,
             int replacementOffset, int replacementLength, int cursorPosition, IToken element, String displayString,
-            IContextInformation contextInformation, int priority, int onApplyAction, String args,
+            Object contextInformation, int priority, int onApplyAction, String args,
             ICompareContext compareContext);
 
     ICompletionProposalHandle createPyLinkedModeCompletionProposal(String replacementString,
             int replacementOffset, int replacementLength, int cursorPosition, IImageHandle image, String displayString,
-            IContextInformation contextInformation, String additionalProposalInfo, int priority, int onApplyAction,
+            Object contextInformation, String additionalProposalInfo, int priority, int onApplyAction,
             String args, ICompareContext compareContext);
 
     ICompletionProposalHandle createPyLinkedModeCompletionProposal(String replacementString,
             int replacementOffset, int replacementLength, int cursorPosition, IImageHandle image, String displayString,
-            IContextInformation contextInformation, String additionalProposalInfo, int priority, int onApplyAction,
+            Object contextInformation, String additionalProposalInfo, int priority, int onApplyAction,
             String args, boolean goToLinkedMode, ICompareContext compareContext);
 
     ICompletionProposalHandle createSimpleAssistProposal(String replacementString, int replacementOffset,

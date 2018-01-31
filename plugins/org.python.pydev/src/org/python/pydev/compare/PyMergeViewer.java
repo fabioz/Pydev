@@ -140,7 +140,7 @@ public class PyMergeViewer extends TextMergeViewer {
         viewer.appendVerifyKeyListener(PyBackspace.createVerifyKeyListener(viewer, null));
         IWorkbenchPart workbenchPart = getCompareConfiguration().getContainer().getWorkbenchPart();
 
-        //Note that any site should be OK as it's just to know if a keybinding is active. 
+        //Note that any site should be OK as it's just to know if a keybinding is active.
         IWorkbenchPartSite site = null;
         if (workbenchPart != null) {
             site = workbenchPart.getSite();

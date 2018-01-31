@@ -11,14 +11,18 @@ package com.python.pydev.analysis;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.preferences.IScopedPreferences;
 import org.python.pydev.shared_core.process.ProcessUtils;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 
 public class AnalysisPreferences extends AbstractAnalysisPreferences {
 
@@ -205,4 +209,70 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences {
         return PyAnalysisScopedPreferences.getBoolean(AnalysisPreferenceInitializer.PEP8_USE_SYSTEM, projectAdaptable);
     }
 
+    public static boolean TESTS_DO_AUTO_IMPORT = true;
+
+    public static boolean doAutoImport() {
+        if (SharedCorePlugin.inTestMode()) {
+            return TESTS_DO_AUTO_IMPORT;
+        }
+
+        return PydevPrefs.getAnalysisEclipsePreferences().getBoolean(
+                AnalysisPreferenceInitializer.DO_AUTO_IMPORT,
+                AnalysisPreferenceInitializer.DEFAULT_DO_AUT_IMPORT);
+    }
+
+    public static boolean TESTS_DO_AUTO_IMPORT_ON_ORGANIZE_IMPORTS = true;
+
+    public static boolean doAutoImportOnOrganizeImports() {
+        if (SharedCorePlugin.inTestMode()) {
+            return TESTS_DO_AUTO_IMPORT_ON_ORGANIZE_IMPORTS;
+        }
+        return PydevPrefs.getAnalysisEclipsePreferences().getBoolean(
+                AnalysisPreferenceInitializer.DO_AUTO_IMPORT_ON_ORGANIZE_IMPORTS,
+                AnalysisPreferenceInitializer.DEFAULT_DO_AUTO_IMPORT_ON_ORGANIZE_IMPORTS);
+    }
+
+    public static boolean TESTS_DO_IGNORE_IMPORT_STARTING_WITH_UNDER = false;
+
+    public static boolean doIgnoreImportsStartingWithUnder() {
+        if (SharedCorePlugin.inTestMode()) {
+            return TESTS_DO_IGNORE_IMPORT_STARTING_WITH_UNDER;
+        }
+
+        return PydevPrefs.getAnalysisEclipsePreferences().getBoolean(
+                AnalysisPreferenceInitializer.DO_IGNORE_IMPORTS_STARTING_WITH_UNDER,
+                AnalysisPreferenceInitializer.DEFAULT_DO_IGNORE_FIELDS_WITH_UNDER);
+    }
+
+    /**
+    *
+    * @param doIgnoreImportsStartingWithUnder: result from the doIgnoreImportsStartingWithUnder() method
+    * (but should be called before so that it does not get into a loop which call this method as that method
+    * may be slow).
+    */
+    public static String removeImportsStartingWithUnderIfNeeded(String declPackageWithoutInit, FastStringBuffer buf,
+            boolean doIgnoreImportsStartingWithUnder) {
+        if (doIgnoreImportsStartingWithUnder) {
+            List<String> splitted = StringUtils.dotSplit(declPackageWithoutInit);
+
+            boolean foundStartingWithoutUnder = false;
+            buf.clear();
+            int len = splitted.size();
+            for (int i = len - 1; i >= 0; i--) {
+                String s = splitted.get(i);
+                if (!foundStartingWithoutUnder) {
+                    if (s.charAt(0) == '_') {
+                        continue;
+                    }
+                    foundStartingWithoutUnder = true;
+                }
+                buf.insert(0, s);
+                if (i != 0) {
+                    buf.insert(0, '.');
+                }
+            }
+            declPackageWithoutInit = buf.toString();
+        }
+        return declPackageWithoutInit;
+    }
 }

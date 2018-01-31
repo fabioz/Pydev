@@ -17,8 +17,8 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.texteditor.ITextEditor;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
@@ -30,13 +30,13 @@ public abstract class AbstractPyCreateAction extends Action implements IEditorAc
     public static final int LOCATION_STRATEGY_END = 1; //end of file or end of class
     public static final int LOCATION_STRATEGY_FIRST_METHOD = 2; //In a class as the first method
 
-    protected PyEdit targetEditor;
+    protected IPyEdit targetEditor;
 
     @Override
     public void setActiveEditor(IAction action, IEditorPart targetEditor) {
         if (targetEditor instanceof ITextEditor) {
-            if (targetEditor instanceof PyEdit) {
-                this.targetEditor = (PyEdit) targetEditor;
+            if (targetEditor instanceof IPyEdit) {
+                this.targetEditor = (IPyEdit) targetEditor;
             } else {
                 this.targetEditor = null;
                 Log.log(new RuntimeException("Editor not a PyEdit."));

@@ -21,6 +21,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.templates.PyDocumentTemplateContext;
 import org.python.pydev.editor.correctionassist.heuristics.AssistAssign;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -94,7 +95,7 @@ public abstract class AbstractPyCreateClassOrMethodOrField extends AbstractPyCre
             if (proposal != null) {
                 if (proposal instanceof ICompletionProposalExtension2) {
                     ICompletionProposalExtension2 extension2 = (ICompletionProposalExtension2) proposal;
-                    extension2.apply(targetEditor.getPySourceViewer(), '\n', 0, 0);
+                    extension2.apply(((PyEdit) targetEditor).getPySourceViewer(), '\n', 0, 0);
                 } else {
                     proposal.apply(refactoringInfo.getDocument());
                 }
@@ -178,7 +179,7 @@ public abstract class AbstractPyCreateClassOrMethodOrField extends AbstractPyCre
             TemplateContextType contextType = new TemplateContextType();
             contextType.addResolver(new GlobalTemplateVariables.Cursor()); //We do want the cursor thought.
             PyDocumentTemplateContext context = PyDocumentTemplateContext.createContext(contextType,
-                    targetEditor.getPySourceViewer(), region, indent);
+                    ((PyEdit) targetEditor).getPySourceViewer(), region, indent);
 
             Template template = new Template("Create " + creationStr, "Create " + creationStr, "", source, true);
             ICompletionProposalHandle templateProposal = CompletionProposalFactory.get()

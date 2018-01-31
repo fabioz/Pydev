@@ -29,7 +29,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.jdt.ui;resolution:=optional
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: refactoring.jar
-Export-Package: com.python.pydev.refactoring.actions,
+Export-Package: com.python.pydev.codecompletion,
+ com.python.pydev.refactoring.actions,
  com.python.pydev.refactoring.changes,
  com.python.pydev.refactoring.hyperlink,
  com.python.pydev.refactoring.markoccurrences,

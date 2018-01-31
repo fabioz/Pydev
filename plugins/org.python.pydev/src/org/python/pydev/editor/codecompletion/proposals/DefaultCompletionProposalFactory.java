@@ -35,12 +35,13 @@ public class DefaultCompletionProposalFactory implements ICompletionProposalFact
     @Override
     public ICompletionProposalHandle createAssistDocstringCompletionProposal(String replacementString,
             int replacementOffset, int replacementLength, int cursorPosition, IImageHandle image, String displayString,
-            IContextInformation contextInformation, String additionalProposalInfo, int priority,
+            Object contextInformation, String additionalProposalInfo, int priority,
             ICompareContext compareContext, String initial, String delimiter, String docStringMarker,
             String delimiterAndIndent, String preferredDocstringStyle2, boolean inFunctionLine,
             DocstringInfo finalDocstringFromFunction, String indentation, FastStringBuffer buf, List<String> params) {
         return new AssistDocstringCompletionProposal(replacementString, replacementOffset, replacementLength,
-                cursorPosition, image, displayString, contextInformation, additionalProposalInfo, priority,
+                cursorPosition, image, displayString, (IContextInformation) contextInformation, additionalProposalInfo,
+                priority,
                 compareContext, initial, delimiter, docStringMarker, delimiterAndIndent, preferredDocstringStyle2,
                 inFunctionLine, finalDocstringFromFunction, indentation, buf, params);
     }
@@ -48,11 +49,12 @@ public class DefaultCompletionProposalFactory implements ICompletionProposalFact
     @Override
     public ICompletionProposalHandle createIgnorePyLintCompletionProposalInSameLine(
             String replacementString, int replacementOffset, int replacementLength, int cursorPosition,
-            IImageHandle image, String displayString, IContextInformation contextInformation,
+            IImageHandle image, String displayString, Object contextInformation,
             String additionalProposalInfo, int priority, IPyEdit edit, String line, PySelection ps, FormatStd format,
             IMarker marker) {
         return new IgnorePyLintCompletionProposalInSameLine(replacementString, replacementOffset, replacementLength,
-                cursorPosition, image, displayString, contextInformation, additionalProposalInfo, priority, edit, line,
+                cursorPosition, image, displayString, (IContextInformation) contextInformation, additionalProposalInfo,
+                priority, edit, line,
                 ps, format, marker);
     }
 
@@ -65,28 +67,30 @@ public class DefaultCompletionProposalFactory implements ICompletionProposalFact
     @Override
     public ICompletionProposalHandle createIgnoreCompletionProposalInSameLine(String replacementString,
             int replacementOffset, int replacementLength, int cursorPosition, IImageHandle image, String displayString,
-            IContextInformation contextInformation, String additionalProposalInfo, int priority, IPyEdit edit,
+            Object contextInformation, String additionalProposalInfo, int priority, IPyEdit edit,
             String line, PySelection ps, FormatStd format) {
         return new IgnoreCompletionProposalInSameLine(replacementString, replacementOffset, replacementLength,
-                cursorPosition, image, displayString, contextInformation, additionalProposalInfo, priority, edit, line,
+                cursorPosition, image, displayString, (IContextInformation) contextInformation, additionalProposalInfo,
+                priority, edit, line,
                 ps, format);
     }
 
     @Override
     public ICompletionProposalHandle createIgnoreCompletionProposal(String replacementString,
             int replacementOffset, int replacementLength, int cursorPosition, IImageHandle image, String displayString,
-            IContextInformation contextInformation, String additionalProposalInfo, int priority, IPyEdit edit) {
+            Object contextInformation, String additionalProposalInfo, int priority, IPyEdit edit) {
         return new IgnoreCompletionProposal(replacementString, replacementOffset, replacementLength, cursorPosition,
-                image, displayString, contextInformation, additionalProposalInfo, priority, edit);
+                image, displayString, (IContextInformation) contextInformation, additionalProposalInfo, priority, edit);
     }
 
     @Override
     public ICompletionProposalHandle createAssistAssignCompletionProposal(String replacementString,
             int replacementOffset, int replacementLength, int cursorPosition, IImageHandle image, String displayString,
-            IContextInformation contextInformation, String additionalProposalInfo, int priority,
+            Object contextInformation, String additionalProposalInfo, int priority,
             ISourceViewer sourceViewer, ICompareContext compareContext) {
         return new AssistAssignCompletionProposal(replacementString, replacementOffset, replacementLength,
-                cursorPosition, image, displayString, contextInformation, additionalProposalInfo, priority,
+                cursorPosition, image, displayString, (IContextInformation) contextInformation, additionalProposalInfo,
+                priority,
                 sourceViewer, compareContext);
     }
 
@@ -101,31 +105,34 @@ public class DefaultCompletionProposalFactory implements ICompletionProposalFact
     @Override
     public ICompletionProposalHandle createCtxInsensitiveImportComplProposalReparseOnApply(
             String replacementString, int replacementOffset, int replacementLength, int cursorPosition,
-            int infoTypeForImage, String displayString, IContextInformation contextInformation,
+            int infoTypeForImage, String displayString, Object contextInformation,
             String additionalProposalInfo, int priority, String realImportRep, ICompareContext compareContext,
             boolean forceReparseOnApply) {
         return new CtxInsensitiveImportComplProposalReparseOnApply(replacementString, replacementOffset,
-                replacementLength, cursorPosition, infoTypeForImage, displayString, contextInformation,
+                replacementLength, cursorPosition, infoTypeForImage, displayString,
+                (IContextInformation) contextInformation,
                 additionalProposalInfo, priority, realImportRep, compareContext, forceReparseOnApply);
     }
 
     @Override
     public ICompletionProposalHandle createPyConsoleCompletion(String replacementString, int replacementOffset,
             int replacementLength, int cursorPosition, int infoTypeForImage, String displayString,
-            IContextInformation contextInformation, String additionalProposalInfo, int priority, String realImportRep,
+            Object contextInformation, String additionalProposalInfo, int priority, String realImportRep,
             IScriptConsoleViewer viewer, ICompareContext compareContext) {
         return new PyConsoleCompletion(replacementString, replacementOffset, replacementLength, cursorPosition,
-                infoTypeForImage, displayString, contextInformation, additionalProposalInfo, priority, realImportRep,
+                infoTypeForImage, displayString, (IContextInformation) contextInformation, additionalProposalInfo,
+                priority, realImportRep,
                 viewer, compareContext);
     }
 
     @Override
     public ICompletionProposalHandle createCtxInsensitiveImportComplProposal(String replacementString,
             int replacementOffset, int replacementLength, int cursorPosition, int infoTypeForImage,
-            String displayString, IContextInformation contextInformation, String additionalProposalInfo, int priority,
+            String displayString, Object contextInformation, String additionalProposalInfo, int priority,
             String realImportRep, ICompareContext compareContext) {
         return new CtxInsensitiveImportComplProposal(replacementString, replacementOffset, replacementLength,
-                cursorPosition, infoTypeForImage, displayString, contextInformation, additionalProposalInfo, priority,
+                cursorPosition, infoTypeForImage, displayString, (IContextInformation) contextInformation,
+                additionalProposalInfo, priority,
                 realImportRep, compareContext);
     }
 
@@ -138,9 +145,9 @@ public class DefaultCompletionProposalFactory implements ICompletionProposalFact
     @Override
     public ICompletionProposalHandle createFixCompletionProposal(String replacementString, int replacementOffset,
             int replacementLength, int cursorPosition, IImageHandle image, String displayString,
-            IContextInformation contextInformation, String additionalProposalInfo, int lineToRemove) {
+            Object contextInformation, String additionalProposalInfo, int lineToRemove) {
         return new FixCompletionProposal(replacementString, replacementOffset, replacementLength, cursorPosition, image,
-                displayString, contextInformation, additionalProposalInfo, lineToRemove);
+                displayString, (IContextInformation) contextInformation, additionalProposalInfo, lineToRemove);
     }
 
     @Override
@@ -160,56 +167,61 @@ public class DefaultCompletionProposalFactory implements ICompletionProposalFact
     @Override
     public ICompletionProposalHandle createPyCompletionProposal(String replacementString, int replacementOffset,
             int replacementLength, int cursorPosition, IImageHandle image, String displayString,
-            IContextInformation contextInformation, String additionalProposalInfo, int priority,
+            Object contextInformation, String additionalProposalInfo, int priority,
             ICompareContext compareContext) {
         return new PyCompletionProposal(replacementString, replacementOffset, replacementLength, cursorPosition, image,
-                displayString, contextInformation, additionalProposalInfo, priority, compareContext);
+                displayString, (IContextInformation) contextInformation, additionalProposalInfo, priority,
+                compareContext);
     }
 
     @Override
     public ICompletionProposalHandle createPyCompletionProposal(String replacementString, int replacementOffset,
             int replacementLength, int cursorPosition, IImageHandle image, String displayString,
-            IContextInformation contextInformation, String additionalProposalInfo, int priority) {
+            Object contextInformation, String additionalProposalInfo, int priority) {
         return new PyCompletionProposal(replacementString, replacementOffset, replacementLength, cursorPosition, image,
-                displayString, contextInformation, additionalProposalInfo, priority);
+                displayString, (IContextInformation) contextInformation, additionalProposalInfo, priority);
     }
 
     @Override
     public ICompletionProposalHandle createPyCompletionProposal(String replacementString, int replacementOffset,
             int replacementLength, int cursorPosition, IImageHandle image, String displayString,
-            IContextInformation contextInformation, String additionalProposalInfo, int priority, int onApplyAction,
+            Object contextInformation, String additionalProposalInfo, int priority, int onApplyAction,
             String args) {
         return new PyCompletionProposal(replacementString, replacementOffset, replacementLength, cursorPosition, image,
-                displayString, contextInformation, additionalProposalInfo, priority, onApplyAction, args);
+                displayString, (IContextInformation) contextInformation, additionalProposalInfo, priority,
+                onApplyAction, args);
     }
 
     @Override
     public ICompletionProposalHandle createPyLinkedModeCompletionProposal(String replacementString,
             int replacementOffset, int replacementLength, int cursorPosition, IToken element, String displayString,
-            IContextInformation contextInformation, int priority, int onApplyAction, String args,
+            Object contextInformation, int priority, int onApplyAction, String args,
             ICompareContext compareContext) {
         return new PyLinkedModeCompletionProposal(replacementString, replacementOffset, replacementLength,
-                cursorPosition, element, displayString, contextInformation, priority, onApplyAction, args,
+                cursorPosition, element, displayString, (IContextInformation) contextInformation, priority,
+                onApplyAction, args,
                 compareContext);
     }
 
     @Override
     public ICompletionProposalHandle createPyLinkedModeCompletionProposal(String replacementString,
             int replacementOffset, int replacementLength, int cursorPosition, IImageHandle image, String displayString,
-            IContextInformation contextInformation, String additionalProposalInfo, int priority, int onApplyAction,
+            Object contextInformation, String additionalProposalInfo, int priority, int onApplyAction,
             String args, ICompareContext compareContext) {
         return new PyLinkedModeCompletionProposal(replacementString, replacementOffset, replacementLength,
-                cursorPosition, image, displayString, contextInformation, additionalProposalInfo, priority,
+                cursorPosition, image, displayString, (IContextInformation) contextInformation, additionalProposalInfo,
+                priority,
                 onApplyAction, args, compareContext);
     }
 
     @Override
     public ICompletionProposalHandle createPyLinkedModeCompletionProposal(String replacementString,
             int replacementOffset, int replacementLength, int cursorPosition, IImageHandle image, String displayString,
-            IContextInformation contextInformation, String additionalProposalInfo, int priority, int onApplyAction,
+            Object contextInformation, String additionalProposalInfo, int priority, int onApplyAction,
             String args, boolean goToLinkedMode, ICompareContext compareContext) {
         return new PyLinkedModeCompletionProposal(replacementString, replacementOffset, replacementLength,
-                cursorPosition, image, displayString, contextInformation, additionalProposalInfo, priority,
+                cursorPosition, image, displayString, (IContextInformation) contextInformation, additionalProposalInfo,
+                priority,
                 onApplyAction, args, goToLinkedMode, compareContext);
     }
 

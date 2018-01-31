@@ -31,8 +31,8 @@ import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.preferences.InMemoryEclipsePreferences;
 import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 
+import com.python.pydev.analysis.AnalysisPreferences;
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
-import com.python.pydev.analysis.ui.AutoImportsPreferencesPage;
 import com.python.pydev.codecompletion.ctxinsensitive.CtxParticipant;
 
 public class CompletionParticipantTest extends AdditionalInfoTestsBase {
@@ -122,7 +122,7 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
         PySelectionTest.checkStrEquals("from testlib import unittest\r\nunittest.", document.get());
 
         //for imports, the behavior never changes
-        AutoImportsPreferencesPage.TESTS_DO_IGNORE_IMPORT_STARTING_WITH_UNDER = true;
+        AnalysisPreferences.TESTS_DO_IGNORE_IMPORT_STARTING_WITH_UNDER = true;
         try {
             proposals = requestCompl("_priv3", new String[] { "_priv3 - relative.rel1._priv1._priv2" });
             document = new Document("_priv3");
@@ -130,7 +130,7 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
             ((CtxInsensitiveImportComplProposal) proposals[0]).apply(document, ' ', 0, 6);
             PySelectionTest.checkStrEquals("from relative.rel1._priv1._priv2 import _priv3\r\n_priv3", document.get());
         } finally {
-            AutoImportsPreferencesPage.TESTS_DO_IGNORE_IMPORT_STARTING_WITH_UNDER = false;
+            AnalysisPreferences.TESTS_DO_IGNORE_IMPORT_STARTING_WITH_UNDER = false;
         }
 
         //check on actual file
@@ -178,7 +178,7 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
                 new String[] {});
 
         //the behavior changes for tokens on modules
-        AutoImportsPreferencesPage.TESTS_DO_IGNORE_IMPORT_STARTING_WITH_UNDER = true;
+        AnalysisPreferences.TESTS_DO_IGNORE_IMPORT_STARTING_WITH_UNDER = true;
         try {
             proposals = requestCompl("Priv3", new String[] { "Priv3 - relative.rel1._priv1._priv2._priv3" });
             Document document = new Document("Priv3");
@@ -186,7 +186,7 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
             ((CtxInsensitiveImportComplProposal) proposals[0]).apply(document, ' ', 0, 5);
             PySelectionTest.checkStrEquals("from relative.rel1 import Priv3\r\nPriv3", document.get());
         } finally {
-            AutoImportsPreferencesPage.TESTS_DO_IGNORE_IMPORT_STARTING_WITH_UNDER = false;
+            AnalysisPreferences.TESTS_DO_IGNORE_IMPORT_STARTING_WITH_UNDER = false;
         }
 
     }

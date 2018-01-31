@@ -18,10 +18,10 @@ import org.python.pydev.editor.codecompletion.proposals.CtxInsensitiveImportComp
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 
+import com.python.pydev.analysis.AnalysisPreferences;
 import com.python.pydev.analysis.AnalysisPreferencesStub;
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
-import com.python.pydev.analysis.ui.AutoImportsPreferencesPage;
 
 public class UndefinedVariableFixParticipantTest extends AdditionalInfoTestsBase {
 
@@ -190,7 +190,7 @@ public class UndefinedVariableFixParticipantTest extends AdditionalInfoTestsBase
     }
 
     public void testFix7() throws Exception {
-        AutoImportsPreferencesPage.TESTS_DO_IGNORE_IMPORT_STARTING_WITH_UNDER = true;
+        AnalysisPreferences.TESTS_DO_IGNORE_IMPORT_STARTING_WITH_UNDER = true;
         try {
             start = 6;
             end = 11;
@@ -213,7 +213,7 @@ public class UndefinedVariableFixParticipantTest extends AdditionalInfoTestsBase
             //but applies without it
             assertEquals("from relative.rel1 import Priv3", compl.realImportRep);
         } finally {
-            AutoImportsPreferencesPage.TESTS_DO_IGNORE_IMPORT_STARTING_WITH_UNDER = false;
+            AnalysisPreferences.TESTS_DO_IGNORE_IMPORT_STARTING_WITH_UNDER = false;
         }
     }
 
