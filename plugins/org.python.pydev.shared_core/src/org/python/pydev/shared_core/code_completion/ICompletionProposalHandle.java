@@ -1,7 +1,6 @@
 package org.python.pydev.shared_core.code_completion;
 
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.contentassist.BoldStylerProvider;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension5;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension6;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension7;
@@ -25,8 +24,8 @@ public interface ICompletionProposalHandle {
      *
      * @return the string to be displayed
      *
-     * @see ICompletionProposalExtension6#getStyledDisplayString()
-     * @see ICompletionProposalExtension7#getStyledDisplayString(IDocument, int, BoldStylerProvider)
+     * @see ICompletionProposalExtension6 getStyledDisplayString()
+     * @see ICompletionProposalExtension7 getStyledDisplayString(IDocument, int, BoldStylerProvider)
      */
     String getDisplayString();
 

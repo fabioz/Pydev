@@ -13,7 +13,6 @@ Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.jface.text,
  org.junit;bundle-version="4.0";resolution:=optional,
- org.eclipse.jface,
  org.eclipse.core.resources,
  org.eclipse.core.filebuffers,
  org.eclipse.text

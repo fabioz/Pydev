@@ -17,7 +17,7 @@ import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import org.eclipse.search.ui.text.Match;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.structure.TreeNode;
-import org.python.pydev.shared_core.structure.TreeNodeContentProvider;
+import org.python.pydev.shared_ui.tree.TreeNodeContentProvider;
 
 public abstract class AbstractSearchIndexTreeContentProvider extends TreeNodeContentProvider
         implements ITreeContentProvider, ISearchIndexContentProvider {

@@ -9,10 +9,11 @@
 * Contributors:
 *     Fabio Zadrozny <fabiofz@gmail.com> - initial API and implementation
 ******************************************************************************/
-package org.python.pydev.shared_core.structure;
+package org.python.pydev.shared_ui.tree;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
+import org.python.pydev.shared_core.structure.TreeNode;
 
 @SuppressWarnings("rawtypes")
 public class TreeNodeContentProvider implements ITreeContentProvider {
@@ -36,7 +37,7 @@ public class TreeNodeContentProvider implements ITreeContentProvider {
             return new Object[0];
         }
         TreeNode m = (TreeNode) parentElement;
-        return m.children.toArray();
+        return m.getChildren().toArray();
     }
 
     @Override
@@ -48,7 +49,7 @@ public class TreeNodeContentProvider implements ITreeContentProvider {
     @Override
     public boolean hasChildren(Object element) {
         TreeNode m = (TreeNode) element;
-        return m.children.size() > 0;
+        return m.getChildren().size() > 0;
     }
 
 }

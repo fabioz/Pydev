@@ -72,11 +72,11 @@ import org.eclipse.ui.views.navigator.NavigatorDragAdapter;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.structure.TreeNode;
-import org.python.pydev.shared_core.structure.TreeNodeContentProvider;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.dialogs.DialogHelpers;
 import org.python.pydev.shared_ui.search.replace.ReplaceAction;
 import org.python.pydev.shared_ui.swt.StyledLink.MultiStyledLink;
+import org.python.pydev.shared_ui.tree.TreeNodeContentProvider;
 
 public abstract class AbstractSearchIndexResultPage extends AbstractTextSearchViewPage {
 
