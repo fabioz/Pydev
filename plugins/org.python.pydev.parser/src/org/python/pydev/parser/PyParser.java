@@ -22,14 +22,16 @@ import org.eclipse.core.internal.resources.ResourceException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.ui.IFileEditorInput;
-import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IGrammarVersionProvider.AdditionalGrammarVersionsToCheck;
@@ -685,7 +687,7 @@ public class PyParser extends BaseParser implements IPyParser {
                     map.put(IMarker.CHAR_START, errDesc.errorStart);
                     map.put(IMarker.CHAR_END, errDesc.errorEnd);
                     map.put(IMarker.TRANSIENT, true);
-                    MarkerUtilities.createMarker(fileAdapter, map, IMarker.PROBLEM);
+                    createMarker(fileAdapter, map, IMarker.PROBLEM);
                 } catch (Exception e) {
                     Log.log(e);
                 }
@@ -693,6 +695,31 @@ public class PyParser extends BaseParser implements IPyParser {
         }
 
         return errDesc;
+    }
+
+    /**
+     * Creates a marker on the given resource with the given type and attributes.
+     * <p>
+     * This method modifies the workspace (progress is not reported to the user).</p>
+     *
+     * @param resource the resource
+     * @param attributes the attribute map
+     * @param markerType the type of marker
+     * @throws CoreException if this method fails
+     * @see IResource#createMarker(java.lang.String)
+     */
+    public static void createMarker(final IResource resource, final Map<String, Object> attributes,
+            final String markerType) throws CoreException {
+
+        IWorkspaceRunnable r = new IWorkspaceRunnable() {
+            @Override
+            public void run(IProgressMonitor monitor) throws CoreException {
+                IMarker marker = resource.createMarker(markerType);
+                marker.setAttributes(attributes);
+            }
+        };
+
+        resource.getWorkspace().run(r, null, IWorkspace.AVOID_UPDATE, null);
     }
 
     /**
