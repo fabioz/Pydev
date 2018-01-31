@@ -9,13 +9,11 @@ package com.python.pydev.analysis.scopeanalysis;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import junit.framework.TestCase;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.search.core.text.TextSearchMatchAccess;
-import org.eclipse.search.core.text.TextSearchRequestor;
 import org.python.pydev.shared_core.string.StringUtils;
+
+import junit.framework.TestCase;
 
 public class TokenMatchingTest extends TestCase {
 
