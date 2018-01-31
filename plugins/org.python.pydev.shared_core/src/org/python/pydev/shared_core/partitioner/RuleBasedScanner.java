@@ -1,19 +1,8 @@
-/*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *     IBM Corporation - initial API and implementation
- *******************************************************************************/
 package org.python.pydev.shared_core.partitioner;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.shared_core.log.Log;
 
 /**
  * A generic scanner which can be "programmed" with a sequence of rules.
@@ -27,7 +16,7 @@ import org.python.pydev.shared_core.log.Log;
  *
  * @see IRule
  */
-public abstract class AbstractCustomRuleBasedScanner implements ICharacterScanner, ITokenScanner, IDocumentScanner {
+public class RuleBasedScanner implements ICharacterScanner, ITokenScanner {
 
     /** The list of rules of this scanner */
     protected IRule[] fRules;
@@ -51,18 +40,21 @@ public abstract class AbstractCustomRuleBasedScanner implements ICharacterScanne
     /**
      * Creates a new rule based scanner which does not have any rule.
      */
-    public AbstractCustomRuleBasedScanner() {
+    public RuleBasedScanner() {
     }
 
     /**
      * Configures the scanner with the given sequence of rules.
      *
-     * @param rules the sequence of rules controlling this scanner (can be null).
-     * @note the rules may be null and a reference to them will be kept (i.e.: the
-     * passed array should not be modified outside of this method).
+     * @param rules the sequence of rules controlling this scanner
      */
     public void setRules(IRule[] rules) {
-        fRules = rules;
+        if (rules != null) {
+            fRules = new IRule[rules.length];
+            System.arraycopy(rules, 0, fRules, 0, rules.length);
+        } else {
+            fRules = null;
+        }
     }
 
     /**
@@ -76,15 +68,8 @@ public abstract class AbstractCustomRuleBasedScanner implements ICharacterScanne
     public void setDefaultReturnToken(IToken defaultReturnToken) {
         Assert.isNotNull(defaultReturnToken.getData());
         fDefaultReturnToken = defaultReturnToken;
-        if (IDocument.DEFAULT_CONTENT_TYPE.equals(fDefaultReturnToken.getData())) {
-            fDefaultReturnToken = new Token(null);
-            Log.log("Not sure why setting the default is not good... we should not set anything in this case and return a Token with null data.");
-        }
     }
 
-    /*
-     * @see ITokenScanner#setRange(IDocument, int, int)
-     */
     @Override
     public void setRange(final IDocument document, int offset, int length) {
         Assert.isLegal(document != null);
@@ -122,17 +107,11 @@ public abstract class AbstractCustomRuleBasedScanner implements ICharacterScanne
         Assert.isLegal(offset + length <= documentLength);
     }
 
-    /*
-     * @see ITokenScanner#getTokenOffset()
-     */
     @Override
     public int getTokenOffset() {
         return fTokenOffset;
     }
 
-    /*
-     * @see ITokenScanner#getTokenLength()
-     */
     @Override
     public int getTokenLength() {
         if (fOffset < fRangeEnd) {
@@ -141,9 +120,6 @@ public abstract class AbstractCustomRuleBasedScanner implements ICharacterScanne
         return fRangeEnd - getTokenOffset();
     }
 
-    /*
-     * @see ICharacterScanner#getColumn()
-     */
     @Override
     public int getColumn() {
         if (fColumn == UNDEFINED) {
@@ -159,78 +135,55 @@ public abstract class AbstractCustomRuleBasedScanner implements ICharacterScanne
         return fColumn;
     }
 
-    /*
-     * @see ICharacterScanner#getLegalLineDelimiters()
-     */
     @Override
     public char[][] getLegalLineDelimiters() {
         return fDelimiters;
     }
 
-    /*
-     * @see ITokenScanner#nextToken()
-     *
-     * Important: subclasses must do as the first thing:
-     *  lastToken = null; //reset the last token
-     *
-     *  //Check if we looked ahead and already resolved something.
-     *  if (lookAhead != null) {
-     *      lastToken = lookAhead;
-     *      lookAhead = null;
-     *      return lastToken.token;
-     *  }
-     *
-     */
     @Override
     public IToken nextToken() {
-        //Treat case where we have no rules (read to the end).
-        if (fRules == null) {
-            int c;
-            if ((c = read()) == EOF) {
-                return Token.EOF;
-            } else {
-                while (true) {
-                    c = read();
-                    if (c == EOF) {
-                        unread();
-                        return fDefaultReturnToken;
-                    }
-                }
-            }
-        }
 
         fTokenOffset = fOffset;
         fColumn = UNDEFINED;
 
-        int length = fRules.length;
-        for (int i = 0; i < length; i++) {
-            IToken token = (fRules[i].evaluate(this));
-            if (token == null) {
-                Log.log("Error: rule " + fRules[i] + " returned a null token.");
-                continue;
-            }
-            if (!token.isUndefined()) {
-                return token;
+        if (fRules != null) {
+            for (IRule fRule : fRules) {
+                IToken token = (fRule.evaluate(this));
+                if (!token.isUndefined()) {
+                    return token;
+                }
             }
         }
 
-        int c = read();
-        if (c == EOF) {
+        if (read() == EOF) {
             return Token.EOF;
         }
-
         return fDefaultReturnToken;
     }
 
-    /*
-     * @see ICharacterScanner#read()
-     */
     @Override
-    public abstract int read();
+    public int read() {
 
-    /*
-     * @see ICharacterScanner#unread()
-     */
+        try {
+
+            if (fOffset < fRangeEnd) {
+                try {
+                    return fDocument.getChar(fOffset);
+                } catch (BadLocationException e) {
+                }
+            }
+
+            return EOF;
+
+        } finally {
+            ++fOffset;
+            fColumn = UNDEFINED;
+        }
+    }
+
     @Override
-    public abstract void unread();
+    public void unread() {
+        --fOffset;
+        fColumn = UNDEFINED;
+    }
 }

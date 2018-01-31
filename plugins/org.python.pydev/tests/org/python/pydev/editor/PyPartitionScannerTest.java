@@ -12,10 +12,10 @@ package org.python.pydev.editor;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentPartitioner;
-import org.eclipse.jface.text.rules.IToken;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.partition.PyPartitionScanner;
 import org.python.pydev.core.partition.PyPartitioner;
+import org.python.pydev.shared_core.partitioner.IToken;
 import org.python.pydev.shared_core.testutils.TestUtils;
 
 import junit.framework.TestCase;

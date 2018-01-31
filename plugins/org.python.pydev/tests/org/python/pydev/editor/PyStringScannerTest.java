@@ -12,8 +12,8 @@
 package org.python.pydev.editor;
 
 import org.eclipse.jface.text.Document;
-import org.eclipse.jface.text.rules.IToken;
 import org.python.pydev.editor.ColorCacheAndStyleForTesting.TextAttr;
+import org.python.pydev.shared_core.partitioner.IToken;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
 import junit.framework.TestCase;

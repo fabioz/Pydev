@@ -6,16 +6,16 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.rules.IToken;
-import org.eclipse.jface.text.rules.ITokenScanner;
-import org.eclipse.jface.text.rules.Token;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.parser.fastparser.grammar_fstrings_common.FStringsAST;
 import org.python.pydev.parser.fastparser.grammar_fstrings_common.SimpleNode;
 import org.python.pydev.parser.grammar_fstrings.FStringsGrammar;
 import org.python.pydev.parser.jython.FastCharStream;
+import org.python.pydev.shared_core.partitioner.IToken;
+import org.python.pydev.shared_core.partitioner.ITokenScanner;
 import org.python.pydev.shared_core.partitioner.SubRuleToken;
+import org.python.pydev.shared_core.partitioner.Token;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 import org.python.pydev.ui.ColorAndStyleCache;
@@ -176,7 +176,7 @@ public class PyFStringScanner implements ITokenScanner {
                     }
                     break;
                 } catch (SyntaxErrorException e) {
-                    return null; // Something went wrong... 
+                    return null; // Something went wrong...
                 }
             }
         }

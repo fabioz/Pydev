@@ -12,13 +12,13 @@ package org.python.pydev.editor;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.TextAttribute;
-import org.eclipse.jface.text.rules.RuleBasedScanner;
-import org.eclipse.jface.text.rules.Token;
 import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
+import org.python.pydev.shared_core.partitioner.RuleBasedScanner;
+import org.python.pydev.shared_core.partitioner.Token;
 import org.python.pydev.ui.ColorAndStyleCache;
 
 /**
- * 
+ *
  * PyColoredScanner is a simple modification to RuleBasedScanner
  * that supports updating the defaultToken color based on a named
  * color in the colorCache

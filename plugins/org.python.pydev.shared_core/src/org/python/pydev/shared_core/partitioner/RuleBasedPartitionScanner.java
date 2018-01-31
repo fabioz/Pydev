@@ -1,17 +1,6 @@
-/*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *     IBM Corporation - initial API and implementation
- *******************************************************************************/
 package org.python.pydev.shared_core.partitioner;
 
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.shared_core.log.Log;
 
 /**
  * Scanner that exclusively uses predicate rules.
@@ -23,22 +12,12 @@ import org.python.pydev.shared_core.log.Log;
  *
  * @since 2.0
  */
-public class CustomRuleBasedPartitionScanner extends AbstractCustomBufferedRuleBasedScanner implements
-        IPartitionTokenScanner {
+public class RuleBasedPartitionScanner extends BufferedRuleBasedScanner implements IPartitionTokenScanner {
 
     /** The content type of the partition in which to resume scanning. */
     protected String fContentType;
     /** The offset of the partition inside which to resume. */
     protected int fPartitionOffset;
-
-    /*
-     * (non-Javadoc)
-     * @see org.brainwy.liclipsetext.shared_core.partitioner.IDocumentScanner#getDocument()
-     */
-    @Override
-    public IDocument getDocument() {
-        return fDocument;
-    }
 
     /**
      * Disallow setting the rules since this scanner
@@ -58,9 +37,6 @@ public class CustomRuleBasedPartitionScanner extends AbstractCustomBufferedRuleB
         super.setRules(rules);
     }
 
-    /*
-     * @see ITokenScanner#setRange(IDocument, int, int)
-     */
     @Override
     public void setRange(IDocument document, int offset, int length) {
         setPartialRange(document, offset, length, null, -1);
@@ -88,17 +64,16 @@ public class CustomRuleBasedPartitionScanner extends AbstractCustomBufferedRuleB
         super.setRange(document, offset, length);
     }
 
-    /*
-     * @see ITokenScanner#nextToken()
-     */
     @Override
     public IToken nextToken() {
+
         if (fContentType == null || fRules == null) {
             //don't try to resume
             return super.nextToken();
         }
 
         // inside a partition
+
         fColumn = UNDEFINED;
         boolean resume = (fPartitionOffset > -1 && fPartitionOffset < fOffset);
         fTokenOffset = resume ? fPartitionOffset : fOffset;
@@ -106,13 +81,9 @@ public class CustomRuleBasedPartitionScanner extends AbstractCustomBufferedRuleB
         IPredicateRule rule;
         IToken token;
 
-        for (int i = 0; i < fRules.length; i++) {
-            rule = (IPredicateRule) fRules[i];
+        for (IRule fRule : fRules) {
+            rule = (IPredicateRule) fRule;
             token = rule.getSuccessToken();
-            if (token == null) {
-                Log.log("Rule: " + rule + " returned null as getSuccessToken.");
-                continue;
-            }
             if (fContentType.equals(token.getData())) {
                 token = rule.evaluate(this, resume);
                 if (!token.isUndefined()) {

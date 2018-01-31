@@ -1,7 +1,7 @@
 package org.python.pydev.editor;
 
-import org.eclipse.jface.text.rules.IToken;
-import org.eclipse.jface.text.rules.Token;
+import org.python.pydev.shared_core.partitioner.IToken;
+import org.python.pydev.shared_core.partitioner.Token;
 import org.python.pydev.ui.ColorAndStyleCache;
 
 public abstract class AbstractStringScanner extends AbstractTokenScanner {

@@ -1,10 +1,10 @@
 package org.python.pydev.editor;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.rules.ICharacterScanner;
-import org.eclipse.jface.text.rules.IRule;
-import org.eclipse.jface.text.rules.IToken;
-import org.eclipse.jface.text.rules.Token;
+import org.python.pydev.shared_core.partitioner.ICharacterScanner;
+import org.python.pydev.shared_core.partitioner.IRule;
+import org.python.pydev.shared_core.partitioner.IToken;
+import org.python.pydev.shared_core.partitioner.Token;
 
 public class PyDecoratorRule implements IRule {
 

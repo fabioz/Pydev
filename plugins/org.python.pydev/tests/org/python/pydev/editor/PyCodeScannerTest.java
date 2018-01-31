@@ -15,10 +15,10 @@ import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.jface.resource.StringConverter;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.TextAttribute;
-import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.swt.graphics.RGB;
 import org.python.pydev.editor.PyCodeScanner.NumberDetector;
 import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
+import org.python.pydev.shared_core.partitioner.IToken;
 import org.python.pydev.ui.ColorAndStyleCache;
 
 import junit.framework.TestCase;
@@ -124,8 +124,8 @@ public class PyCodeScannerTest extends TestCase {
         scanner.setRange(new Document(str), 0, str.length());
         assertToken(scanner, 0, 3, colorCache.getKeywordTextAttribute());//def
         assertToken(scanner, 3, 1, colorCache.getCodeTextAttribute()); //whitespace
-        assertToken(scanner, 4, 6, colorCache.getFuncNameTextAttribute()); //Method 
-        assertToken(scanner, 10, 1, colorCache.getParensTextAttribute()); //( 
+        assertToken(scanner, 4, 6, colorCache.getFuncNameTextAttribute()); //Method
+        assertToken(scanner, 10, 1, colorCache.getParensTextAttribute()); //(
         assertToken(scanner, 11, 1, colorCache.getParensTextAttribute()); //)
         assertToken(scanner, 12, 1, colorCache.getCodeTextAttribute()); //:
         assertToken(scanner, 13, 4, colorCache.getKeywordTextAttribute()); //pass
@@ -137,7 +137,7 @@ public class PyCodeScannerTest extends TestCase {
         scanner.setRange(new Document(str), 0, str.length());
         assertToken(scanner, 0, 1, colorCache.getCodeTextAttribute());//a
         assertToken(scanner, 1, 1, colorCache.getOperatorsTextAttribute()); //=
-        assertToken(scanner, 2, 1, colorCache.getNumberTextAttribute()); //1 
+        assertToken(scanner, 2, 1, colorCache.getNumberTextAttribute()); //1
         assertToken(scanner, 3, 1, colorCache.getOperatorsTextAttribute()); //+
         assertToken(scanner, 4, 1, colorCache.getNumberTextAttribute()); //2
     }
@@ -148,8 +148,8 @@ public class PyCodeScannerTest extends TestCase {
         scanner.setRange(new Document(str), 0, str.length());
         assertToken(scanner, 0, 5, colorCache.getKeywordTextAttribute());//class
         assertToken(scanner, 5, 1, colorCache.getCodeTextAttribute()); //whitespace
-        assertToken(scanner, 6, 4, colorCache.getClassNameTextAttribute()); //Class1 
-        assertToken(scanner, 10, 1, colorCache.getParensTextAttribute()); //( 
+        assertToken(scanner, 6, 4, colorCache.getClassNameTextAttribute()); //Class1
+        assertToken(scanner, 10, 1, colorCache.getParensTextAttribute()); //(
         assertToken(scanner, 11, 1, colorCache.getParensTextAttribute()); //)
         assertToken(scanner, 12, 1, colorCache.getCodeTextAttribute()); //:
         assertToken(scanner, 13, 4, colorCache.getKeywordTextAttribute()); //pass
@@ -164,7 +164,7 @@ public class PyCodeScannerTest extends TestCase {
         assertToken(scanner, 2, 1, colorCache.getCodeTextAttribute()); //'
         assertToken(scanner, 3, 1, colorCache.getCodeTextAttribute()); //'
         assertToken(scanner, 4, 1, colorCache.getCodeTextAttribute()); //;
-        assertToken(scanner, 5, 1, colorCache.getCodeTextAttribute()); // 
+        assertToken(scanner, 5, 1, colorCache.getCodeTextAttribute()); //
         assertToken(scanner, 6, 1, colorCache.getCodeTextAttribute()); //b
         assertToken(scanner, 7, 0, colorCache.getCodeTextAttribute()); //EOF
     }

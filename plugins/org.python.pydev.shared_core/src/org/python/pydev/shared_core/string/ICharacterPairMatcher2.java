@@ -12,9 +12,8 @@
 package org.python.pydev.shared_core.string;
 
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.source.ICharacterPairMatcher;
 
-public interface ICharacterPairMatcher2 extends ICharacterPairMatcher {
+public interface ICharacterPairMatcher2 {
 
     public int searchForAnyOpeningPeer(int offset, IDocument document);
 

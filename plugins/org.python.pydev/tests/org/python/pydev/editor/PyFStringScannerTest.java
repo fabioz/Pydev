@@ -1,8 +1,8 @@
 package org.python.pydev.editor;
 
 import org.eclipse.jface.text.Document;
-import org.eclipse.jface.text.rules.IToken;
 import org.python.pydev.editor.ColorCacheAndStyleForTesting.TextAttr;
+import org.python.pydev.shared_core.partitioner.IToken;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
 import junit.framework.TestCase;
@@ -21,8 +21,8 @@ public class PyFStringScannerTest extends TestCase {
                         "");
     }
 
-    //It's possible that the damage comes from a non-full damager 
-    //if the damage was done in another partition, so, we need to 
+    //It's possible that the damage comes from a non-full damager
+    //if the damage was done in another partition, so, we need to
     //cover for this situation.
     public void testFStringTokenScanner1a() {
         check(

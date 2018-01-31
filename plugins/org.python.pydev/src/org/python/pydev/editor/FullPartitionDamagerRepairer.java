@@ -3,10 +3,9 @@ package org.python.pydev.editor;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITypedRegion;
-import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
-import org.eclipse.jface.text.rules.ITokenScanner;
+import org.python.pydev.shared_core.partitioner.ITokenScanner;
 
-public class FullPartitionDamagerRepairer extends DefaultDamagerRepairer {
+public class FullPartitionDamagerRepairer extends PyDefaultDamagerRepairer {
 
     public FullPartitionDamagerRepairer(ITokenScanner scanner) {
         super(scanner);
