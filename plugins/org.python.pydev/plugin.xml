@@ -3132,4 +3132,27 @@ The related image showing the error is at: http://i.stack.imgur.com/IfNFY.png
             name="Code Completion (ctx insensitive and common tokens)"/>
    </extension>
 
+
+    <extension point="org.eclipse.ui.keywords" name="Analysis Preferences">
+        <keyword id="com.python.pydev.analysis.keywords"  label="pep8 pycodestyle builtins globals tokens"/>
+    </extension>
+
+   <extension point="org.eclipse.ui.preferencePages">
+      <page
+            class="com.python.pydev.analysis.ui.AnalysisPreferencesPage"
+            category="org.python.pydev.prefs.editor"
+            id="org.python.pydev.prefs.extensions.analysis"
+            name="Code Analysis">
+            <keywordReference id="com.python.pydev.analysis.keywords"/>
+      </page>
+   </extension>
+
+   <extension point="org.eclipse.ui.preferencePages">
+      <page
+            class="com.python.pydev.analysis.ui.AutoImportsPreferencesPage"
+            category="org.python.pydev.prefs.editor"
+            id="org.python.pydev.prefs.extensions.autoimports"
+            name="Auto Imports"/>
+   </extension>
+
  </plugin>
