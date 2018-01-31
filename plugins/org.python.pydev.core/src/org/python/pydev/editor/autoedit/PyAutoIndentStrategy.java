@@ -28,11 +28,10 @@ import org.python.pydev.core.docutils.PythonPairMatcher;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.SharedCorePlugin;
-import org.python.pydev.shared_core.auto_edit.AutoEditStrategyNewLineHelper;
+import org.python.pydev.shared_core.string.CoreTextSelection;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.NoPeerAvailableException;
 import org.python.pydev.shared_core.string.StringUtils;
-import org.python.pydev.shared_core.string.CoreTextSelection;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.DocCmd;
@@ -367,7 +366,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
         final boolean tabStopInComments = getIndentPrefs().getTabStopInComment();
 
         // super idents newlines the same amount as the previous line
-        final boolean isNewLine = AutoEditStrategyNewLineHelper.isNewLineText(document, command.length, command.text);
+        final boolean isNewLine = isNewLineText(document, command.length, command.text);
 
         if (!contentType.equals(ParsingUtils.PY_DEFAULT)) {
             //the indentation is only valid for things in the code (comments should not be indented).
@@ -528,6 +527,10 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScr
             command.text = "BadLocationException";
             throw new RuntimeException(e);
         }
+    }
+
+    public static boolean isNewLineText(IDocument document, int length, String text) {
+        return length == 0 && text != null && TextSelectionUtils.endsWithNewline(document, text) && text.length() < 3; //could be \r\n
     }
 
     /**
