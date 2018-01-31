@@ -345,7 +345,9 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
         try {
             List<IPath> lst = new ArrayList<>();
             lst.add(getWorkingDirectory());
-            lst.add(getProject().getLocation());
+            if (getProject() != null) {
+                lst.add(getProject().getLocation());
+            }
 
             for (IPath workingDirectory : lst) {
                 if (workingDirectory != null) {

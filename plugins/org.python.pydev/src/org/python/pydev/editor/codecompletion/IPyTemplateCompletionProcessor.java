@@ -1,4 +1,4 @@
-package org.python.pydev.core;
+package org.python.pydev.editor.codecompletion;
 
 import java.util.List;
 

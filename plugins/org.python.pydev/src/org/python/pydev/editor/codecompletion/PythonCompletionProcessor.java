@@ -28,17 +28,14 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPySyntaxHighlightingAndCodeCompletionEditor;
-import org.python.pydev.core.IPyTemplateCompletionProcessor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.PyTemplateCompletionProcessorCreator;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.interpreter_managers.ChooseInterpreterManager;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.plugin.nature.SystemPythonNature;
-import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.content_assist.AbstractCompletionProcessorWithCycling;
@@ -89,10 +86,7 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
     public PythonCompletionProcessor(IPySyntaxHighlightingAndCodeCompletionEditor edit,
             PyContentAssistant pyContentAssistant) {
         super(pyContentAssistant);
-        ICallback0<IPyTemplateCompletionProcessor> createPyTemplateCompletionProcessorCreator = PyTemplateCompletionProcessorCreator.createPyTemplateCompletionProcessorCreator;
-        if (createPyTemplateCompletionProcessorCreator != null) {
-            templatesCompletion = createPyTemplateCompletionProcessorCreator.call();
-        }
+        this.templatesCompletion = new PyTemplateCompletionProcessor();
         this.edit = edit;
         this.contentAssistant = pyContentAssistant;
         this.codeCompletion = getCodeCompletionEngine();

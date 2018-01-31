@@ -59,11 +59,9 @@ import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.PyTemplateCompletionProcessorCreator;
 import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.AbstractTemplateCodeCompletion;
-import org.python.pydev.editor.codecompletion.PyTemplateCompletionProcessor;
 import org.python.pydev.editor.codecompletion.proposals.DefaultCompletionProposalFactory;
 import org.python.pydev.editor.codecompletion.proposals.PyLinkedModeCompletionProposal;
 import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
@@ -336,8 +334,6 @@ public class PydevPlugin extends AbstractUIPlugin {
                 return runnable.getSelection();
             }
         };
-
-        PyTemplateCompletionProcessorCreator.createPyTemplateCompletionProcessorCreator = () -> new PyTemplateCompletionProcessor();
 
         // End setup extension in dependencies
         // End setup extension in dependencies
