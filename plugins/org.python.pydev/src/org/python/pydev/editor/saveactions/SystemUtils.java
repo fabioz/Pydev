@@ -10,7 +10,7 @@
 *     André Berg <andre.bergmedia@googlemail.com> - initial API and implementation
 *     Fabio Zadrozny <fabiofz@gmail.com>           - ongoing maintenance
 ******************************************************************************/
-package org.python.pydev.core;
+package org.python.pydev.editor.saveactions;
 
 import java.net.URL;
 

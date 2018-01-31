@@ -32,4 +32,8 @@ public class PydevPrefs {
     public static IEclipsePreferences getDefaultAnalysisEclipsePreferences() {
         return DefaultScope.INSTANCE.getNode("com.python.pydev.analysis");
     }
+
+    public static IEclipsePreferences getComRefactoringEclipsePreferences() {
+        return InstanceScope.INSTANCE.getNode("com.python.pydev.refactoring");
+    }
 }

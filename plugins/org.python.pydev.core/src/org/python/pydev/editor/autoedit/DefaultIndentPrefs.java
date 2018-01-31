@@ -14,7 +14,7 @@ package org.python.pydev.editor.autoedit;
 import org.eclipse.core.runtime.IAdaptable;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.ITabChangedListener;
-import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
+import org.python.pydev.plugin.preferences.PyDevCoreEditorPreferences;
 import org.python.pydev.plugin.preferences.PyDevTypingPreferences;
 import org.python.pydev.plugin.preferences.PyScopedPreferences;
 import org.python.pydev.shared_core.SharedCorePlugin;
@@ -76,13 +76,13 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
      */
     public DefaultIndentPrefs(IAdaptable projectAdaptable) {
         this.projectAdaptable = projectAdaptable;
-        lastUseSpaces = getBoolFromPreferences(PyDevEditorPreferences.SUBSTITUTE_TABS);
+        lastUseSpaces = getBoolFromPreferences(PyDevCoreEditorPreferences.SUBSTITUTE_TABS);
         regenerateIndentString();
     }
 
     @Override
     public boolean getUseSpaces(boolean considerForceTabs) {
-        boolean boolFromPreferences = getBoolFromPreferences(PyDevEditorPreferences.SUBSTITUTE_TABS);
+        boolean boolFromPreferences = getBoolFromPreferences(PyDevCoreEditorPreferences.SUBSTITUTE_TABS);
         if (lastUseSpaces != boolFromPreferences) {
             lastUseSpaces = boolFromPreferences;
             regenerateIndentString();
@@ -101,8 +101,8 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
 
     @Override
     public int getTabWidth() {
-        if (lastTabWidth != getIntFromPreferences(PyDevEditorPreferences.TAB_WIDTH, 1)) {
-            lastTabWidth = getIntFromPreferences(PyDevEditorPreferences.TAB_WIDTH, 1);
+        if (lastTabWidth != getIntFromPreferences(PyDevCoreEditorPreferences.TAB_WIDTH, 1)) {
+            lastTabWidth = getIntFromPreferences(PyDevCoreEditorPreferences.TAB_WIDTH, 1);
             regenerateIndentString();
         }
         return lastTabWidth;
@@ -112,7 +112,7 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
 
     @Override
     public boolean getGuessTabSubstitution() {
-        boolean curr = getBoolFromPreferences(PyDevEditorPreferences.GUESS_TAB_SUBSTITUTION);
+        boolean curr = getBoolFromPreferences(PyDevCoreEditorPreferences.GUESS_TAB_SUBSTITUTION);
         if (lastGuessTabSubstitution != null && lastGuessTabSubstitution != curr) {
             regenerateIndentString();
         }
@@ -213,7 +213,7 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
 
     @Override
     public boolean getTabStopInComment() {
-        return getBoolFromPreferences(PyDevEditorPreferences.TAB_STOP_IN_COMMENT);
+        return getBoolFromPreferences(PyDevCoreEditorPreferences.TAB_STOP_IN_COMMENT);
     }
 
     private boolean getBoolFromPreferences(String pref) {

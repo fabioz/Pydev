@@ -52,7 +52,7 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.putBoolean(PyDevTypingPreferences.AUTO_LITERALS, PyDevTypingPreferences.DEFAULT_AUTO_LITERALS);
         node.putBoolean(PyDevTypingPreferences.SMART_LINE_MOVE, PyDevTypingPreferences.DEFAULT_SMART_LINE_MOVE);
 
-        node.putInt(PyDevEditorPreferences.TAB_WIDTH, PyDevEditorPreferences.DEFAULT_TAB_WIDTH);
+        node.putInt(PyDevCoreEditorPreferences.TAB_WIDTH, PyDevCoreEditorPreferences.DEFAULT_TAB_WIDTH);
         node.putInt(IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PREFERENCES,
                 IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER);
 
@@ -69,9 +69,9 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
                 CommentBlocksPreferences.DEFAULT_SINGLE_BLOCK_COMMENT_ALIGN_RIGHT);
 
         //checkboxes
-        node.putBoolean(PyDevEditorPreferences.SUBSTITUTE_TABS, PyDevEditorPreferences.DEFAULT_SUBSTITUTE_TABS);
+        node.putBoolean(PyDevCoreEditorPreferences.SUBSTITUTE_TABS, PyDevCoreEditorPreferences.DEFAULT_SUBSTITUTE_TABS);
         node.putBoolean(PyDevTypingPreferences.AUTO_ADD_SELF, PyDevTypingPreferences.DEFAULT_AUTO_ADD_SELF);
-        node.putBoolean(PyDevEditorPreferences.GUESS_TAB_SUBSTITUTION, PyDevEditorPreferences.DEFAULT_GUESS_TAB_SUBSTITUTION);
+        node.putBoolean(PyDevCoreEditorPreferences.GUESS_TAB_SUBSTITUTION, PyDevCoreEditorPreferences.DEFAULT_GUESS_TAB_SUBSTITUTION);
         node.putBoolean(PyDevEditorPreferences.USE_VERTICAL_INDENT_GUIDE, PyDevEditorPreferences.DEFAULT_USE_VERTICAL_INDENT_GUIDE);
         node.putBoolean(PyDevEditorPreferences.USE_VERTICAL_INDENT_COLOR_EDITOR_FOREGROUND,
                 PyDevEditorPreferences.DEFAULT_USE_VERTICAL_INDENT_COLOR_EDITOR_FOREGROUND);

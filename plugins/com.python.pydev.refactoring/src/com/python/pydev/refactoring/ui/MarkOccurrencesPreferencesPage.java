@@ -6,6 +6,7 @@
  */
 package com.python.pydev.refactoring.ui;
 
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -15,7 +16,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
-import org.python.pydev.core.cache.PyPreferencesCache;
+import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_ui.field_editors.LinkFieldEditor;
 
 import com.python.pydev.refactoring.RefactoringPlugin;
@@ -28,8 +29,6 @@ public class MarkOccurrencesPreferencesPage extends FieldEditorPreferencePage im
     public static final String USE_MARK_OCCURRENCES_IN_STRINGS = "USE_MARK_OCCURRENCES_IN_STRINGS";
     public static final boolean DEFAULT_USE_MARK_OCCURRENCES_IN_STRINGS = true;
 
-    private static PyPreferencesCache cache;
-
     public MarkOccurrencesPreferencesPage() {
         super(FLAT);
         IPreferenceStore prefs = RefactoringPlugin.getDefault().getPreferenceStore();
@@ -41,7 +40,8 @@ public class MarkOccurrencesPreferencesPage extends FieldEditorPreferencePage im
         Composite p = getFieldEditorParent();
 
         addField(new BooleanFieldEditor(USE_MARK_OCCURRENCES, "Mark Occurrences?", p));
-        addField(new BooleanFieldEditor(USE_MARK_OCCURRENCES_IN_STRINGS, "Mark Occurrences in strings and comments?", p));
+        addField(new BooleanFieldEditor(USE_MARK_OCCURRENCES_IN_STRINGS, "Mark Occurrences in strings and comments?",
+                p));
 
         LinkFieldEditor colorsAndFontsLinkFieldEditor = new LinkFieldEditor("UNUSED",
                 "Color of the occurences may be changed at\n" + "<a>Annotations</a>: Occurrences (Pydev)", p,
@@ -66,16 +66,12 @@ public class MarkOccurrencesPreferencesPage extends FieldEditorPreferencePage im
     }
 
     public static boolean useMarkOccurrences() {
-        if (cache == null) {
-            cache = new PyPreferencesCache(RefactoringPlugin.getDefault().getPreferenceStore());
-        }
-        return cache.getBoolean(USE_MARK_OCCURRENCES);
+        IEclipsePreferences preferences = PydevPrefs.getComRefactoringEclipsePreferences();
+        return preferences.getBoolean(USE_MARK_OCCURRENCES, DEFAULT_USE_MARK_OCCURRENCES);
     }
 
     public static boolean useMarkOccurrencesInStrings() {
-        if (cache == null) {
-            cache = new PyPreferencesCache(RefactoringPlugin.getDefault().getPreferenceStore());
-        }
-        return cache.getBoolean(USE_MARK_OCCURRENCES_IN_STRINGS);
+        IEclipsePreferences preferences = PydevPrefs.getComRefactoringEclipsePreferences();
+        return preferences.getBoolean(USE_MARK_OCCURRENCES_IN_STRINGS, DEFAULT_USE_MARK_OCCURRENCES_IN_STRINGS);
     }
 }
