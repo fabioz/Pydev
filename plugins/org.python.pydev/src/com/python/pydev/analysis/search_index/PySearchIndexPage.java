@@ -19,12 +19,12 @@ import org.python.pydev.shared_ui.search.AbstractSearchIndexPage;
 import org.python.pydev.shared_ui.search.ScopeAndData;
 import org.python.pydev.shared_ui.search.SearchIndexData;
 
-import com.python.pydev.analysis.AnalysisPlugin;
+import com.python.pydev.analysis.AnalysisUiPlugin;
 
 public class PySearchIndexPage extends AbstractSearchIndexPage {
 
     public PySearchIndexPage() {
-        super(AnalysisPlugin.getDefault());
+        super(AnalysisUiPlugin.getDialogSettings());
     }
 
     @Override

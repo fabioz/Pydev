@@ -20,10 +20,11 @@ import org.python.pydev.shared_core.string.StringUtils;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.AnalysisPreferenceInitializer;
+import com.python.pydev.analysis.AnalysisUiPlugin;
 
 /**
  * Preferences page indicating auto-import preferences
- * 
+ *
  * @author Fabio
  */
 public class AutoImportsPreferencesPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
@@ -40,7 +41,7 @@ public class AutoImportsPreferencesPage extends FieldEditorPreferencePage implem
 
     @Override
     protected IPreferenceStore doGetPreferenceStore() {
-        return getPlugin().getPreferenceStore();
+        return AnalysisUiPlugin.getPreferenceStore();
     }
 
     @Override
@@ -59,7 +60,7 @@ public class AutoImportsPreferencesPage extends FieldEditorPreferencePage implem
     }
 
     /**
-     * 
+     *
      * @param doIgnoreImportsStartingWithUnder: result from the doIgnoreImportsStartingWithUnder() method
      * (but should be called before so that it does not get into a loop which call this method as that method
      * may be slow).
@@ -101,8 +102,7 @@ public class AutoImportsPreferencesPage extends FieldEditorPreferencePage implem
             return TESTS_DO_AUTO_IMPORT;
         }
 
-        AnalysisPlugin plugin = getPlugin();
-        return plugin.getPreferenceStore().getBoolean(AnalysisPreferenceInitializer.DO_AUTO_IMPORT);
+        return AnalysisUiPlugin.getPreferenceStore().getBoolean(AnalysisPreferenceInitializer.DO_AUTO_IMPORT);
     }
 
     public static boolean TESTS_DO_AUTO_IMPORT_ON_ORGANIZE_IMPORTS = true;
@@ -111,8 +111,7 @@ public class AutoImportsPreferencesPage extends FieldEditorPreferencePage implem
         if (SharedCorePlugin.inTestMode()) {
             return TESTS_DO_AUTO_IMPORT_ON_ORGANIZE_IMPORTS;
         }
-        AnalysisPlugin plugin = getPlugin();
-        return plugin.getPreferenceStore().getBoolean(
+        return AnalysisUiPlugin.getPreferenceStore().getBoolean(
                 AnalysisPreferenceInitializer.DO_AUTO_IMPORT_ON_ORGANIZE_IMPORTS);
     }
 
@@ -123,8 +122,7 @@ public class AutoImportsPreferencesPage extends FieldEditorPreferencePage implem
             return TESTS_DO_IGNORE_IMPORT_STARTING_WITH_UNDER;
         }
 
-        AnalysisPlugin plugin = getPlugin();
-        return plugin.getPreferenceStore().getBoolean(
+        return AnalysisUiPlugin.getPreferenceStore().getBoolean(
                 AnalysisPreferenceInitializer.DO_IGNORE_IMPORTS_STARTING_WITH_UNDER);
     }
 

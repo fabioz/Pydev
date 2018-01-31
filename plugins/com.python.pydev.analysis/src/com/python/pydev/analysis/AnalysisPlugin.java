@@ -14,7 +14,7 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionCache;
@@ -37,7 +37,7 @@ import com.python.pydev.analysis.additionalinfo.ReferenceSearchesLucene;
 /**
  * The main plugin class to be used in the desktop.
  */
-public class AnalysisPlugin extends AbstractUIPlugin {
+public class AnalysisPlugin extends Plugin {
 
     //The shared instance.
     private static AnalysisPlugin plugin;

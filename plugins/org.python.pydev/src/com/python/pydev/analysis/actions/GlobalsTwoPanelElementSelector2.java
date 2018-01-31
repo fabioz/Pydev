@@ -62,6 +62,7 @@ import org.python.pydev.shared_ui.utils.IViewWithControls;
 import org.python.pydev.ui.NotifyViewCreated;
 
 import com.python.pydev.analysis.AnalysisPlugin;
+import com.python.pydev.analysis.AnalysisUiPlugin;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoAndIInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
@@ -151,10 +152,10 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
 
     @Override
     protected IDialogSettings getDialogSettings() {
-        IDialogSettings settings = AnalysisPlugin.getDefault().getDialogSettings().getSection(DIALOG_SETTINGS);
+        IDialogSettings settings = AnalysisUiPlugin.getDialogSettings().getSection(DIALOG_SETTINGS);
 
         if (settings == null) {
-            settings = AnalysisPlugin.getDefault().getDialogSettings().addNewSection(DIALOG_SETTINGS);
+            settings = AnalysisUiPlugin.getDialogSettings().addNewSection(DIALOG_SETTINGS);
         }
 
         return settings;

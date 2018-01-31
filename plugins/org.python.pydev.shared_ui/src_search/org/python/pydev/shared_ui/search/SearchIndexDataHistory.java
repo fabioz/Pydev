@@ -9,7 +9,6 @@ package org.python.pydev.shared_ui.search;
 import java.util.Iterator;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.python.pydev.shared_core.structure.OrderedSet;
 
 public class SearchIndexDataHistory {
@@ -31,8 +30,7 @@ public class SearchIndexDataHistory {
 
     private IDialogSettings settings;
 
-    public SearchIndexDataHistory(AbstractUIPlugin plugin) {
-        IDialogSettings dialogSettings = plugin.getDialogSettings();
+    public SearchIndexDataHistory(IDialogSettings dialogSettings) {
         IDialogSettings section = dialogSettings.getSection(PAGE_NAME);
         if (section == null) {
             section = dialogSettings.addNewSection(PAGE_NAME);

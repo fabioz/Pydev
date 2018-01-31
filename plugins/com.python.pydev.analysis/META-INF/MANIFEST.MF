@@ -7,8 +7,7 @@ Bundle-Activator: com.python.pydev.analysis.AnalysisPlugin
 Bundle-Vendor: Brainwy Software Ltda
 Bundle-Localization: plugin
 Eclipse-BundleShape: dir
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime,
+Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.jface.text,
  org.junit;bundle-version="4.0";resolution:=optional,
  org.python.pydev.shared_ui;bundle-version="[6.3.0,6.3.1)",
@@ -28,7 +27,6 @@ Export-Package: com.python.pydev.analysis,
  com.python.pydev.analysis.scopeanalysis,
  com.python.pydev.analysis.system_info_builder,
  com.python.pydev.analysis.tabnanny,
- com.python.pydev.analysis.ui,
  com.python.pydev.analysis.visitors,
  org.python.pydev.builder.pep8,
  org.python.pydev.editor.correctionassist.heuristics

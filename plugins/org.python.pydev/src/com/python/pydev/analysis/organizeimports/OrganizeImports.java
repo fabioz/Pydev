@@ -45,7 +45,7 @@ import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.dialogs.ListContentProvider;
 import org.python.pydev.ui.dialogs.TreeSelectionDialog;
 
-import com.python.pydev.analysis.AnalysisPlugin;
+import com.python.pydev.analysis.AnalysisUiPlugin;
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.builder.AnalysisRunner;
 import com.python.pydev.analysis.ctrl_1.UndefinedVariableFixParticipant;
@@ -100,7 +100,7 @@ public class OrganizeImports implements IOrganizeImports {
         //variable to hold whether we should keep on choosing the imports
         final Boolean[] keepGoing = new Boolean[] { true };
 
-        final IDialogSettings dialogSettings = AnalysisPlugin.getDefault().getDialogSettings();
+        final IDialogSettings dialogSettings = AnalysisUiPlugin.getDialogSettings();
 
         //analyse the markers (one by one)
         for (final MarkerAnnotationAndPosition marker : map.values()) {

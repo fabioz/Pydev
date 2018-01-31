@@ -30,8 +30,8 @@ import org.python.pydev.shared_ui.field_editors.RadioGroupFieldEditor;
 import org.python.pydev.shared_ui.field_editors.ScopedFieldEditorPreferencePage;
 import org.python.pydev.shared_ui.field_editors.ScopedPreferencesFieldEditor;
 
-import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.AnalysisPreferenceInitializer;
+import com.python.pydev.analysis.AnalysisUiPlugin;
 import com.python.pydev.analysis.PyAnalysisScopedPreferences;
 
 public class AnalysisPreferencesPage extends ScopedFieldEditorPreferencePage implements IWorkbenchPreferencePage {
@@ -44,7 +44,7 @@ public class AnalysisPreferencesPage extends ScopedFieldEditorPreferencePage imp
 
     @Override
     protected IPreferenceStore doGetPreferenceStore() {
-        return AnalysisPlugin.getDefault().getPreferenceStore();
+        return AnalysisUiPlugin.getPreferenceStore();
     }
 
     @Override
@@ -137,7 +137,8 @@ public class AnalysisPreferencesPage extends ScopedFieldEditorPreferencePage imp
                     }
                 });
         if (AnalysisPreferenceInitializer.SHOW_IN_PEP8_FEATURE_ENABLED) {
-            addField(new BooleanFieldEditor(AnalysisPreferenceInitializer.USE_PEP8_CONSOLE, "Redirect pycodestyle output to console?", p) {
+            addField(new BooleanFieldEditor(AnalysisPreferenceInitializer.USE_PEP8_CONSOLE,
+                    "Redirect pycodestyle output to console?", p) {
                 @Override
                 protected void doFillIntoGrid(Composite parent, int numColumns) {
                     super.doFillIntoGrid(parent, 4);
@@ -145,7 +146,8 @@ public class AnalysisPreferencesPage extends ScopedFieldEditorPreferencePage imp
                 }
             });
         }
-        addField(new BooleanFieldEditor(AnalysisPreferenceInitializer.PEP8_USE_SYSTEM, "Use system interpreter (may be faster than internal Jython)",
+        addField(new BooleanFieldEditor(AnalysisPreferenceInitializer.PEP8_USE_SYSTEM,
+                "Use system interpreter (may be faster than internal Jython)",
                 p) {
             @Override
             protected void doFillIntoGrid(Composite parent, int numColumns) {
