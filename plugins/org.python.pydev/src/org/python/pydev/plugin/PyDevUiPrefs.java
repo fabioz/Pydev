@@ -34,9 +34,11 @@ public class PyDevUiPrefs {
     public synchronized static IPreferenceStore getChainedPrefStore() {
         if (fChainedPrefStore == null) {
             synchronized (fChainedPrefStoreLock) {
-                List<IPreferenceStore> stores = PyDevUiPrefs.getDefaultStores(true);
-                fChainedPrefStore = new ChainedPreferenceStore(
-                        stores.toArray(new IPreferenceStore[stores.size()]));
+                if (fChainedPrefStore == null) {
+                    List<IPreferenceStore> stores = PyDevUiPrefs.getDefaultStores(true);
+                    fChainedPrefStore = new ChainedPreferenceStore(
+                            stores.toArray(new IPreferenceStore[stores.size()]));
+                }
             }
         }
         return fChainedPrefStore;
