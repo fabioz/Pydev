@@ -12,27 +12,24 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.jface.text,
  org.junit;bundle-version="4.0";resolution:=optional,
  org.python.pydev.shared_ui;bundle-version="[6.3.0,6.3.1)",
+ org.python.pydev.jython;bundle-version="[6.3.0,6.3.1)",
+ org.eclipse.search,
  org.python.pydev.ast;bundle-version="[6.3.0,6.3.1)",
  org.python.pydev.core;bundle-version="[6.3.0,6.3.1)",
  org.python.pydev.parser;bundle-version="[6.3.0,6.3.1)",
- org.python.pydev;bundle-version="[6.3.0,6.3.1)",
  org.eclipse.core.resources,
- org.eclipse.ui.editors,
- org.eclipse.search,
- org.eclipse.ui.ide,
- org.python.pydev.jython;bundle-version="[6.3.0,6.3.1)"
+ org.eclipse.ui.editors
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: analysis.jar
 Export-Package: com.python.pydev.analysis,
- com.python.pydev.analysis.actions,
  com.python.pydev.analysis.additionalinfo,
  com.python.pydev.analysis.additionalinfo.builders,
  com.python.pydev.analysis.additionalinfo.dependencies,
- com.python.pydev.analysis.builder,
- com.python.pydev.analysis.ctrl_1,
- com.python.pydev.analysis.organizeimports,
  com.python.pydev.analysis.scopeanalysis,
+ com.python.pydev.analysis.system_info_builder,
  com.python.pydev.analysis.tabnanny,
  com.python.pydev.analysis.ui,
- com.python.pydev.analysis.visitors
+ com.python.pydev.analysis.visitors,
+ org.python.pydev.builder.pep8,
+ org.python.pydev.editor.correctionassist.heuristics
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

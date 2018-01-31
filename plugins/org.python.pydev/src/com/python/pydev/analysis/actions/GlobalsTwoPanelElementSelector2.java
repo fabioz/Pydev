@@ -63,6 +63,7 @@ import org.python.pydev.ui.NotifyViewCreated;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
+import com.python.pydev.analysis.additionalinfo.AdditionalInfoAndIInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.InfoFactory;

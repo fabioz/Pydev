@@ -211,6 +211,9 @@ public class AnalysisPlugin extends AbstractUIPlugin {
      * Returns the directory that can be used to store things for some project
      */
     public static File getStorageDirForProject(IProject p) {
+        if (AnalysisPlugin.getDefault() == null) {
+            return new File(".");
+        }
         IPath location = p.getWorkingLocation("com.python.pydev.analysis");
         IPath path = location;
 

@@ -5,11 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.debug.ui.DebugPrefsPage;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.image.IImageCache;
@@ -22,7 +22,7 @@ public class QuickAssistDontTrace implements IAssistProps {
     @Override
     public List<ICompletionProposalHandle> getProps(PySelection ps, IImageCache imageCache, File f,
             IPythonNature nature,
-            PyEdit edit, int offset) throws BadLocationException, MisconfigurationException {
+            IPyEdit edit, int offset) throws BadLocationException, MisconfigurationException {
         List<ICompletionProposalHandle> l = new ArrayList<>();
         String cursorLineContents = ps.getCursorLineContents();
         String messageToIgnore = "@DontTrace";
@@ -38,7 +38,7 @@ public class QuickAssistDontTrace implements IAssistProps {
     }
 
     @Override
-    public boolean isValid(PySelection ps, String sel, PyEdit edit, int offset) {
+    public boolean isValid(PySelection ps, String sel, IPyEdit edit, int offset) {
         return ps.isInFunctionLine(false) && DebugPrefsPage.getDontTraceEnabled();
     }
 

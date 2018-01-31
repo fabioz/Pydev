@@ -4,11 +4,9 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.python.pydev.analysis.actions;
+package com.python.pydev.analysis.additionalinfo;
 
 import org.python.pydev.core.IInfo;
-
-import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 
 /**
  * Contains information about some IInfo and its related additional info.

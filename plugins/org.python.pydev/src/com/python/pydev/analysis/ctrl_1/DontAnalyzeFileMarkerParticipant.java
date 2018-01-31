@@ -11,9 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.image.IImageCache;
@@ -37,7 +37,7 @@ public class DontAnalyzeFileMarkerParticipant implements IAssistProps {
     @Override
     public List<ICompletionProposalHandle> getProps(PySelection ps, IImageCache imageCache, File f,
             IPythonNature nature,
-            PyEdit edit, int offset) throws BadLocationException {
+            IPyEdit edit, int offset) throws BadLocationException {
         List<ICompletionProposalHandle> props = new ArrayList<ICompletionProposalHandle>();
         if (ps.getCursorLine() == 0) {
             String replacementString = '#' + AnalysisRunner.PYDEV_CODE_ANALYSIS_IGNORE + ps.getEndLineDelim();
@@ -53,7 +53,7 @@ public class DontAnalyzeFileMarkerParticipant implements IAssistProps {
     }
 
     @Override
-    public boolean isValid(PySelection ps, String sel, PyEdit edit, int offset) {
+    public boolean isValid(PySelection ps, String sel, IPyEdit edit, int offset) {
         return ps.getCursorLine() == 0
                 && ps.getCursorLineContents().indexOf(AnalysisRunner.PYDEV_CODE_ANALYSIS_IGNORE) == -1;
     }

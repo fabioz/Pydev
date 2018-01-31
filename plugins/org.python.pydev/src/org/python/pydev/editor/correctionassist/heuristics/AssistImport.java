@@ -16,9 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.image.IImageCache;
@@ -38,7 +38,7 @@ public class AssistImport implements IAssistProps {
     @Override
     public List<ICompletionProposalHandle> getProps(PySelection ps, IImageCache imageCache, File f,
             IPythonNature nature,
-            PyEdit edit, int offset) throws BadLocationException {
+            IPyEdit edit, int offset) throws BadLocationException {
         ArrayList<ICompletionProposalHandle> l = new ArrayList<>();
         String sel = PyAction.getLineWithoutComments(ps).trim();
 
@@ -91,7 +91,7 @@ public class AssistImport implements IAssistProps {
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#isValid(org.python.pydev.core.docutils.PySelection)
      */
     @Override
-    public boolean isValid(PySelection ps, String sel, PyEdit edit, int offset) {
+    public boolean isValid(PySelection ps, String sel, IPyEdit edit, int offset) {
         return sel.indexOf("import ") != -1;
     }
 

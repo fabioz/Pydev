@@ -14,8 +14,6 @@ import org.eclipse.ui.XMLMemento;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.python.pydev.analysis.actions.AdditionalInfoAndIInfo;
-
 import junit.framework.TestCase;
 
 public class InfoFactoryTest extends TestCase {

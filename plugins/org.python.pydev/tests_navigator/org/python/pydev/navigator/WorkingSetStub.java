@@ -13,7 +13,6 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IWorkingSet;
-import org.python.pydev.shared_core.resource_stubs.ProjectStub;
 
 public class WorkingSetStub implements IWorkingSet {
 

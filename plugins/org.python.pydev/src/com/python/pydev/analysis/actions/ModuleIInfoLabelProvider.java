@@ -14,6 +14,7 @@ import org.python.pydev.editor.codecompletion.proposals.AnalysisImages;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_ui.ImageCache;
 
+import com.python.pydev.analysis.additionalinfo.AdditionalInfoAndIInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;
 

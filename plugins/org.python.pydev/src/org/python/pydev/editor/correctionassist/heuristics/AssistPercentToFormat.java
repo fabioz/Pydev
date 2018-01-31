@@ -26,9 +26,9 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContext;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.AbstractTemplateCodeCompletion;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
@@ -48,7 +48,7 @@ public class AssistPercentToFormat extends AbstractTemplateCodeCompletion implem
     @Override
     public List<ICompletionProposalHandle> getProps(PySelection ps, IImageCache imageCache, File f,
             IPythonNature nature,
-            PyEdit edit, int offset)
+            IPyEdit edit, int offset)
             throws BadLocationException {
 
         ArrayList<ICompletionProposalHandle> l = new ArrayList<ICompletionProposalHandle>();
@@ -105,7 +105,7 @@ public class AssistPercentToFormat extends AbstractTemplateCodeCompletion implem
      *      java.lang.String)
      */
     @Override
-    public boolean isValid(PySelection ps, String sel, PyEdit edit, int offset) {
+    public boolean isValid(PySelection ps, String sel, IPyEdit edit, int offset) {
         return PercentToBraceConverter.isValidPercentFormatString(ps.getSelectedText(), true);
     }
 

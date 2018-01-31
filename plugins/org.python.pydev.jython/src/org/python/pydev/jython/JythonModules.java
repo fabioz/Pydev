@@ -1,4 +1,4 @@
-package org.python.pydev.plugin;
+package org.python.pydev.jython;
 
 import java.io.File;
 import java.util.Set;
@@ -9,8 +9,6 @@ import org.python.core.PyList;
 import org.python.core.PyObject;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.jython.IPythonInterpreter;
-import org.python.pydev.jython.JythonPlugin;
 import org.python.pydev.shared_core.string.StringUtils;
 
 public class JythonModules {

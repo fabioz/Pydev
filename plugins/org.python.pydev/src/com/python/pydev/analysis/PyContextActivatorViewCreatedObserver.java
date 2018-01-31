@@ -19,7 +19,6 @@ import org.python.pydev.shared_core.callbacks.ICallbackListener;
 import org.python.pydev.shared_ui.utils.IViewWithControls;
 import org.python.pydev.ui.IViewCreatedObserver;
 
-
 /**
  * @author fabioz
  */
@@ -32,7 +31,7 @@ public class PyContextActivatorViewCreatedObserver implements IViewCreatedObserv
         private boolean active = false;
         private Widget currWidget = null;
 
-        /*default*/PyContextObserver() {
+        /*default*/ PyContextObserver() {
             PyContextActivator.getSingleton().registerPyContextObserver(this);
         }
 

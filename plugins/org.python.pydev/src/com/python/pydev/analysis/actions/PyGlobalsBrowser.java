@@ -37,6 +37,7 @@ import org.python.pydev.shared_ui.EditorUtils;
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
+import com.python.pydev.analysis.additionalinfo.AdditionalInfoAndIInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;
 

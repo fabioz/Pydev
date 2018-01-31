@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
@@ -40,10 +41,10 @@ public abstract class AbstractAnalysisMarkersParticipants implements IAssistProp
     @Override
     public List<ICompletionProposalHandle> getProps(PySelection ps, IImageCache imageCache, File f,
             IPythonNature nature,
-            PyEdit edit, int offset) throws BadLocationException {
+            IPyEdit edit, int offset) throws BadLocationException {
         fillParticipants();
 
-        PySourceViewer s = edit.getPySourceViewer();
+        PySourceViewer s = ((PyEdit) edit).getPySourceViewer();
 
         int line = ps.getLineOfOffset(offset);
         OrderedSet<MarkerAnnotationAndPosition> markersAtLine = new OrderedSet<MarkerAnnotationAndPosition>();
@@ -66,7 +67,8 @@ public abstract class AbstractAnalysisMarkersParticipants implements IAssistProp
             for (MarkerAnnotationAndPosition marker : markersAtLine) {
                 for (IAnalysisMarkersParticipant participant : participants) {
                     try {
-                        participant.addProps(marker, analysisPreferences, currLine, ps, offset, nature, edit, props);
+                        participant.addProps(marker, analysisPreferences, currLine, ps, offset, nature, (PyEdit) edit,
+                                props);
                     } catch (Exception e) {
                         Log.log("Error when getting proposals.", e);
                     }
@@ -82,7 +84,7 @@ public abstract class AbstractAnalysisMarkersParticipants implements IAssistProp
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#isValid(org.python.pydev.core.docutils.PySelection, java.lang.String, org.python.pydev.editor.PyEdit, int)
      */
     @Override
-    public boolean isValid(PySelection ps, String sel, PyEdit edit, int offset) {
+    public boolean isValid(PySelection ps, String sel, IPyEdit edit, int offset) {
         return ps.getSelLength() == 0;
     }
 

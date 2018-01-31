@@ -20,9 +20,9 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContext;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.codecompletion.AbstractTemplateCodeCompletion;
@@ -48,7 +48,7 @@ public class AssistSurroundWith extends AbstractTemplateCodeCompletion implement
     @Override
     public List<ICompletionProposalHandle> getProps(PySelection ps, IImageCache imageCache, File f,
             IPythonNature nature,
-            PyEdit edit, int offset) throws BadLocationException {
+            IPyEdit edit, int offset) throws BadLocationException {
 
         ArrayList<ICompletionProposalHandle> l = new ArrayList<ICompletionProposalHandle>();
         String indentation = edit != null ? edit.getIndentPrefs().getIndentationString()
@@ -130,7 +130,7 @@ public class AssistSurroundWith extends AbstractTemplateCodeCompletion implement
         return l;
     }
 
-    private ICompletionProposalHandle createProposal(PySelection ps, IImageCache imageCache, PyEdit edit,
+    private ICompletionProposalHandle createProposal(PySelection ps, IImageCache imageCache, IPyEdit edit,
             final String startIndent, IRegion region, int iComp, String comp, TemplateContext context) {
         Template t = new Template("Surround with", SURROUND_WITH_COMPLETIONS[iComp + 1], "", comp, false);
         if (context != null) {
@@ -171,7 +171,7 @@ public class AssistSurroundWith extends AbstractTemplateCodeCompletion implement
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#isValid(org.python.pydev.core.docutils.PySelection)
      */
     @Override
-    public boolean isValid(PySelection ps, String sel, PyEdit edit, int offset) {
+    public boolean isValid(PySelection ps, String sel, IPyEdit edit, int offset) {
         return ps.getTextSelection().getLength() > 0;
     }
 

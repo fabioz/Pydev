@@ -13,8 +13,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.TestCase;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -34,7 +32,8 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.resource_stubs.FileStub;
 import org.python.pydev.shared_core.resource_stubs.FolderStub;
-import org.python.pydev.shared_core.resource_stubs.ProjectStub;
+
+import junit.framework.TestCase;
 
 @SuppressWarnings("unchecked")
 public class PythonModelProviderTest extends TestCase {
@@ -72,7 +71,7 @@ public class PythonModelProviderTest extends TestCase {
 
     /**
      * Test if intercepting an add deep within the pythonpath structure will correctly return an object
-     * from the python model. 
+     * from the python model.
      */
     public void testInterceptAdd() throws Exception {
         PythonNature nature = createNature(TestDependent.TEST_PYSRC_NAVIGATOR_LOC + "projroot/source/python");
@@ -95,7 +94,7 @@ public class PythonModelProviderTest extends TestCase {
     }
 
     /**
-     * Test if intercepting an object that does not have a parent works. 
+     * Test if intercepting an object that does not have a parent works.
      */
     public void testInterceptRefresh() throws Exception {
         PythonNature nature = createNature(TestDependent.TEST_PYSRC_NAVIGATOR_LOC + "projroot/source/python");

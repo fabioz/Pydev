@@ -15,10 +15,10 @@ import java.io.File;
 import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.image.IImageCache;
 
@@ -44,7 +44,7 @@ public interface IAssistProps {
      * @throws MisconfigurationException
      */
     List<ICompletionProposalHandle> getProps(PySelection ps, IImageCache imageCache, File f, IPythonNature nature,
-            PyEdit edit, int offset) throws BadLocationException, MisconfigurationException;
+            IPyEdit edit, int offset) throws BadLocationException, MisconfigurationException;
 
     /**
      * Gets whether this assist proposal is valid to be applied at the current line
@@ -56,5 +56,5 @@ public interface IAssistProps {
      *
      * @return whether the assist can be applied at the current line
      */
-    boolean isValid(PySelection ps, String sel, PyEdit edit, int offset);
+    boolean isValid(PySelection ps, String sel, IPyEdit edit, int offset);
 }

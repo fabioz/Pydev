@@ -18,6 +18,7 @@ import java.util.List;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.python.pydev.codingstd.ICodingStd;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
@@ -72,10 +73,10 @@ public class AssistAssign implements IAssistProps {
     @Override
     public List<ICompletionProposalHandle> getProps(PySelection ps, IImageCache imageCache, File f,
             IPythonNature nature,
-            PyEdit edit, int offset) throws BadLocationException {
+            IPyEdit edit, int offset) throws BadLocationException {
         PySourceViewer viewer = null;
         if (edit != null) { //only in tests it's actually null
-            viewer = edit.getPySourceViewer();
+            viewer = ((PyEdit) edit).getPySourceViewer();
         }
 
         return this.getProps(ps, imageCache, viewer, offset, PyAction.getLineWithoutComments(ps),
@@ -168,7 +169,7 @@ public class AssistAssign implements IAssistProps {
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#isValid
      */
     @Override
-    public boolean isValid(PySelection ps, String sel, PyEdit edit, int offset) {
+    public boolean isValid(PySelection ps, String sel, IPyEdit edit, int offset) {
         return isValid(ps.getTextSelection().getLength(), sel, offset);
     }
 

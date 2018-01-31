@@ -24,10 +24,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.jface.text.BadLocationException;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.DocstringInfo;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
@@ -63,7 +63,7 @@ public class AssistDocString implements IAssistProps {
     @Override
     public List<ICompletionProposalHandle> getProps(PySelection ps, IImageCache imageCache, File f,
             IPythonNature nature,
-            PyEdit edit, int offset) throws BadLocationException {
+            IPyEdit edit, int offset) throws BadLocationException {
         ArrayList<ICompletionProposalHandle> l = new ArrayList<>();
 
         Tuple<List<String>, Integer> tuple = ps.getInsideParentesisToks(false);
@@ -134,7 +134,7 @@ public class AssistDocString implements IAssistProps {
      *      java.lang.String)
      */
     @Override
-    public boolean isValid(PySelection ps, String sel, PyEdit edit, int offset) {
+    public boolean isValid(PySelection ps, String sel, IPyEdit edit, int offset) {
         return ps.isInFunctionLine(true) || ps.isInClassLine();
     }
 

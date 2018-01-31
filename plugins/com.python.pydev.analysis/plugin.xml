@@ -31,32 +31,11 @@
 	   <persistent value="true"/>
 	</extension>
 
-<!-- Adds ctrl+2+ - - d -->
-   <extension point="org.python.pydev.pydev_pyedit_listener">
-  		<pyedit_listener_participant class="com.python.pydev.analysis.additionalinfo.AdditionalInfoIntegrityChecker"/>
-   </extension>
-   <extension point="org.python.pydev.pydev_pyedit_listener">
-  		<pyedit_listener_participant class="com.python.pydev.analysis.builder.ClearAnalysisMarkersPyEditListener"/>
-   </extension>
-   <extension point="org.python.pydev.pydev_pyedit_listener">
-  		<pyedit_listener_participant class="com.python.pydev.analysis.builder.PreloadAdditionalInfoPyEditListener"/>
-   </extension>
-   <extension point="org.python.pydev.pydev_pyedit_listener">
-  		<pyedit_listener_participant class="com.python.pydev.analysis.builder.MarkEditorOnSave"/>
-   </extension>
-
-   <extension point="org.python.pydev.pydev_builder">
-   		<!--Also does the ctx insensitive builder part (which was removed)-->
-   		<builder_participant class="com.python.pydev.analysis.builder.AnalysisBuilderVisitor"/>
-   </extension>
 
    <extension point="org.eclipse.core.runtime.preferences">
       <initializer class="com.python.pydev.analysis.AnalysisPreferenceInitializer"/>
    </extension>
 
-   <extension point="org.python.pydev.parser.pydev_parser_observer">
-   		<parser_observer class="com.python.pydev.analysis.builder.AnalysisParserObserver"/>
-   </extension>
 
    <extension point="org.python.pydev.pydev_interpreter_info_builder">
   		<interpreter_info_builder_participant class="com.python.pydev.analysis.system_info_builder.InterpreterInfoBuilder"/>
@@ -66,72 +45,9 @@
   		<interpreter_observer class="com.python.pydev.analysis.additionalinfo.builders.InterpreterObserver"/>
    </extension>
 
-   <extension point="org.python.pydev.pydev_ctrl_1">
-		<ctrl_1_participant class="com.python.pydev.analysis.ctrl_1.AnalysisMarkersParticipants"/>
-   </extension>
-
-   <extension point="org.python.pydev.pydev_ctrl_1">
-		<ctrl_1_participant class="com.python.pydev.analysis.ctrl_1.pylint.PyLintAnalysisMarkersParticipants"/>
-   </extension>
-
-   <extension point="org.python.pydev.pydev_ctrl_1">
-		<ctrl_1_participant class="com.python.pydev.analysis.ctrl_1.DontAnalyzeFileMarkerParticipant"/>
-   </extension>
-   <extension point="org.python.pydev.pydev_globals_browser">
-   		<globals_browser_participant class="com.python.pydev.analysis.actions.PyGlobalsBrowser"/>
-   </extension>
-
-<!-- organize imports participant -->
-   <extension point="org.python.pydev.pydev_organize_imports">
-		<organize_imports_participant class="com.python.pydev.analysis.organizeimports.OrganizeImports"/>
-   </extension>
-
-<!-- search page-->
-   <extension
-         point="org.eclipse.search.searchPages">
-      <page
-            canSearchEnclosingProjects="false"
-            class="com.python.pydev.analysis.search_index.PySearchIndexPage"
-            extensions="py:90, pyw:90"
-            icon="icons/python_file.gif"
-            id="com.python.pydev.analysis.search_index.PySearchIndexPage"
-            label="PyDev Search"
-            showScopeSection="false"/>
-   </extension>
-   <extension
-         id="com.python.pydev.analysis.search_index.SearchIndexResultPage"
-         point="org.eclipse.search.searchResultViewPages">
-      <viewPage
-            class="com.python.pydev.analysis.search_index.PySearchIndexResultPage"
-            id="com.python.pydev.analysis.search_index.SearchIndexResultPage"
-            label="PyDev Search Result"
-            searchResultClass="com.python.pydev.analysis.search_index.PySearchResult"/>
-   </extension>
 
 
-<extension point="org.eclipse.ui.actionSets">
-  <actionSet
-        label="PyDev Navigate"
-        visible="false"
-        id="com.python.pydev.navigate.actionSet">
-     <menu
-           label="P&amp;ydev"
-           id="pyGeneralMenu">
-        <separator name="pyNavigateGroup"/>
-     </menu>
-     <action
-           label="&amp;Globals Browser"
-           icon="icons/opentype.gif"
-           class="com.python.pydev.analysis.actions.PyGlobalsBrowserWorkbench"
-           tooltip="PyDev: Globals Browser"
-           menubarPath="pyGeneralMenu/pyNavigateGroup"
-           toolbarPath="pyNavigateGroup"
-           id="com.python.pydev.analysis.actions.pyGlobalsBrowserWorkbench"
-           definitionId="com.python.pydev.analysis.actions.pyGlobalsBrowserWorkbench"
-           >
-     </action>
-  </actionSet>
-</extension>
+
 <extension point="org.eclipse.ui.perspectiveExtensions">
     <perspectiveExtension targetID="org.python.pydev.ui.PythonPerspective">
         <actionSet id="com.python.pydev.navigate.actionSet"/>
@@ -169,43 +85,9 @@
 </extension>
 
 
-<extension point="org.python.pydev.pydev_view_created_observer">
-      <view_created_observer
-            class="com.python.pydev.analysis.PyContextActivatorViewCreatedObserver">
-      </view_created_observer>
-</extension>
 
 
-<!-- view: indexing info -->
-<extension point="org.eclipse.ui.views">
-   <view
-        class="com.python.pydev.analysis.indexview.PyIndexView"
-        icon="icons/opentype.gif"
-        category="org.python.pydev"
-        name="Index View"
-        id="com.python.pydev.analysis.indexview.PyIndexView"/>
-</extension>
 
 
-<!-- PyDev nature/project related actions -->
-   <extension point="org.eclipse.ui.popupMenus">
-
-      <!-- Force analysis of tree -->
-      <objectContribution
-            adaptable="true"
-            id="com.python.pydev.analysis.actions.forceCodeAnalysisOnTree"
-            objectClass="org.eclipse.core.resources.IResource">
-         <menu id="org.python.pydev.ui.actions.menu" label="PyDev"/>
-         <action
-               class="com.python.pydev.analysis.actions.ForceCodeAnalysisOnTree"
-               enablesFor="+"
-               id="com.python.pydev.analysis.actions.forceCodeAnalysisOnTree"
-               label="Code analysis"
-               menubarPath="org.python.pydev.ui.actions.menu/pydev"
-               tooltip="Force a code analysis for the selected elements (recursive)">
-         </action>
-         <visibility><objectState name="projectNature" value="org.python.pydev.pythonNature"/></visibility>
-      </objectContribution>
-   </extension>
 
 </plugin>

@@ -16,6 +16,7 @@ import java.util.Map;
 import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.IDefinition;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
@@ -69,9 +70,9 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
     @Override
     public List<ICompletionProposalHandle> getProps(PySelection ps, IImageCache imageCache, File f,
             IPythonNature nature,
-            PyEdit edit, int offset) throws BadLocationException {
+            IPyEdit edit, int offset) throws BadLocationException {
         List<ICompletionProposalHandle> ret = super.getProps(ps, imageCache, f, nature, edit, offset);
-        this.getTddProps(ps, imageCache, f, nature, edit, offset, ret);
+        this.getTddProps(ps, imageCache, f, nature, (PyEdit) edit, offset, ret);
         return ret;
     }
 

@@ -19,8 +19,6 @@ import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
 
-import com.python.pydev.analysis.actions.AdditionalInfoAndIInfo;
-
 /**
  * The InfoFactory is used to save and recreate an AdditionalInfoAndIInfo object.
  *
