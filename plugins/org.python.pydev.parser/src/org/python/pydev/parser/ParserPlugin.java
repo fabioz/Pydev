@@ -9,13 +9,13 @@ package org.python.pydev.parser;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
 
 /**
  * The main plugin class to be used in the desktop.
  */
-public class ParserPlugin extends AbstractUIPlugin {
+public class ParserPlugin extends Plugin {
     //The shared instance.
     private static ParserPlugin plugin;
     //Resource bundle.
