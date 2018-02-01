@@ -31,6 +31,7 @@ Export-Package: org.python.copiedfromeclipsesrc,
  org.python.pydev.plugin.nature,
  org.python.pydev.plugin.preferences,
  org.python.pydev.shared_interactive_console.console.ui,
+ org.python.pydev.shared_ui.proposals,
  org.python.pydev.ui.interpreters,
  org.python.pydev.ui.pythonpathconf
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

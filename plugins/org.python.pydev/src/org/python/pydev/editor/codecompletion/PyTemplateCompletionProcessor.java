@@ -15,6 +15,7 @@ import org.python.pydev.editor.codecompletion.templates.PyDocumentTemplateContex
 import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.editor.templates.TemplateHelper;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
+import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
@@ -56,7 +57,11 @@ public class PyTemplateCompletionProcessor extends TemplateCompletionProcessor
      */
     @Override
     protected Image getImage(Template template) {
-        return ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.COMPLETION_TEMPLATE));
+        return ImageCache.asImage(getImageHandle());
+    }
+
+    private IImageHandle getImageHandle() {
+        return SharedUiPlugin.getImageCache().get(UIConstants.COMPLETION_TEMPLATE);
     }
 
     /**
@@ -90,9 +95,8 @@ public class PyTemplateCompletionProcessor extends TemplateCompletionProcessor
     @Override
     protected ICompletionProposal createProposal(Template template, TemplateContext context, IRegion region,
             int relevance) {
-        return (ICompletionProposal) CompletionProposalFactory.get().createPyTemplateProposal(template, context, region,
-                getImage(template),
-                relevance);
+        return (ICompletionProposal) CompletionProposalFactory.get().createPyTemplateProposal(
+                template, context, region, getImageHandle(), relevance);
     }
 
     /**

@@ -49,9 +49,9 @@ import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.UIConstants;
-import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorWrapper;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.pythonpathconf.IInterpreterProviderFactory.InterpreterType;
+import org.python.pydev.utils.AsynchronousProgressMonitorWrapper;
 
 /**
  * This class uses code based from {@link AbstractInterpreterEditor} and

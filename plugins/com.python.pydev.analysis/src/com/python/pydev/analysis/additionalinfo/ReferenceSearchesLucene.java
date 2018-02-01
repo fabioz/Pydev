@@ -41,7 +41,7 @@ import org.python.pydev.shared_core.index.IndexApi.IDocumentsVisitor;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.OrderedMap;
 import org.python.pydev.shared_core.utils.Timer;
-import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorWrapper;
+import org.python.pydev.utils.AsynchronousProgressMonitorWrapper;
 
 import com.python.pydev.analysis.system_info_builder.InterpreterInfoBuilder;
 

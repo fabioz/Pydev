@@ -8,7 +8,6 @@ import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContext;
-import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.FormatStd;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IToken;
@@ -27,6 +26,7 @@ import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
+import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.proposals.ICompletionProposalFactory;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal.ICompareContext;
 
@@ -60,8 +60,8 @@ public class DefaultCompletionProposalFactory implements ICompletionProposalFact
 
     @Override
     public ICompletionProposalHandle createPyTemplateProposal(Template template, TemplateContext context,
-            IRegion region, Image image, int relevance) {
-        return new PyTemplateProposal(template, context, region, image, relevance);
+            IRegion region, IImageHandle image, int relevance) {
+        return new PyTemplateProposal(template, context, region, ImageCache.asImage(image), relevance);
     }
 
     @Override
@@ -87,11 +87,11 @@ public class DefaultCompletionProposalFactory implements ICompletionProposalFact
     public ICompletionProposalHandle createAssistAssignCompletionProposal(String replacementString,
             int replacementOffset, int replacementLength, int cursorPosition, IImageHandle image, String displayString,
             Object contextInformation, String additionalProposalInfo, int priority,
-            ISourceViewer sourceViewer, ICompareContext compareContext) {
+            Object sourceViewer, ICompareContext compareContext) {
         return new AssistAssignCompletionProposal(replacementString, replacementOffset, replacementLength,
                 cursorPosition, image, displayString, (IContextInformation) contextInformation, additionalProposalInfo,
                 priority,
-                sourceViewer, compareContext);
+                (ISourceViewer) sourceViewer, compareContext);
     }
 
     @Override
@@ -138,8 +138,8 @@ public class DefaultCompletionProposalFactory implements ICompletionProposalFact
 
     @Override
     public ICompletionProposalHandle createPyTemplateProposalForTests(Template template,
-            TemplateContext context, IRegion region, Image image, int relevance) {
-        return new PyTemplateProposalForTests(template, context, region, image, relevance);
+            TemplateContext context, IRegion region, IImageHandle image, int relevance) {
+        return new PyTemplateProposalForTests(template, context, region, ImageCache.asImage(image), relevance);
     }
 
     @Override

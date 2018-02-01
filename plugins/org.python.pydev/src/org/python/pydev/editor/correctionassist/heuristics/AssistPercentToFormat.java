@@ -33,7 +33,6 @@ import org.python.pydev.editor.codecompletion.AbstractTemplateCodeCompletion;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.image.IImageCache;
-import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 
@@ -96,7 +95,7 @@ public class AssistPercentToFormat extends AbstractTemplateCodeCompletion implem
 
         Template t = new Template("Convert", "% to .format()", "", replacementString, false);
         l.add(CompletionProposalFactory.get().createPyTemplateProposal(t, context, region,
-                ImageCache.asImage(imageCache.get(UIConstants.COMPLETION_TEMPLATE)), 5));
+                imageCache.get(UIConstants.COMPLETION_TEMPLATE), 5));
         return l;
     }
 

@@ -14,6 +14,7 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.shared_core.log.Log;
+import org.python.pydev.utils.AsynchronousProgressMonitorWrapper;
 
 /**
  * This class overrides the ProgressMonitorDialog to limit the
@@ -23,7 +24,6 @@ import org.python.pydev.shared_core.log.Log;
  */
 public class AsynchronousProgressMonitorDialog extends ProgressMonitorDialog {
 
-    public static final int UPDATE_INTERVAL_MS = 300;
     private volatile Runnable updateStatus;
     private volatile String lastTaskName = null;
 
@@ -60,7 +60,7 @@ public class AsynchronousProgressMonitorDialog extends ProgressMonitorDialog {
                     display = Display.getDefault();
                 }
                 if (display != null) {
-                    display.timerExec(UPDATE_INTERVAL_MS, updateStatus);
+                    display.timerExec(AsynchronousProgressMonitorWrapper.UPDATE_INTERVAL_MS, updateStatus);
                 } else {
                     Log.log("AsynchronousProgressMonitorDialog: No display available!");
                 }

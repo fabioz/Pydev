@@ -26,7 +26,6 @@ import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.string.DocIterator;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
@@ -250,9 +249,9 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
                     String f = EPYDOC_FIELDS[i];
                     if (f.startsWith(request.qualifier)) {
                         Template t = new Template(f, EPYDOC_FIELDS[i + 2], "", EPYDOC_FIELDS[i + 1], false);
-                        ret.add(CompletionProposalFactory.get().createPyTemplateProposalForTests(t, context, region,
-                                ImageCache.asImage(image),
-                                5));
+                        ret.add(
+                                CompletionProposalFactory.get().createPyTemplateProposalForTests(
+                                        t, context, region, image, 5));
                     }
                     i += 2;
                 }

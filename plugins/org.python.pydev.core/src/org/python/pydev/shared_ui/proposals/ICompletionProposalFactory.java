@@ -4,10 +4,8 @@ import java.util.List;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContext;
-import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.FormatStd;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IToken;
@@ -36,7 +34,7 @@ public interface ICompletionProposalFactory {
             IMarker marker);
 
     ICompletionProposalHandle createPyTemplateProposal(Template template, TemplateContext context,
-            IRegion region, Image image, int relevance);
+            IRegion region, IImageHandle image, int relevance);
 
     ICompletionProposalHandle createIgnoreCompletionProposalInSameLine(String replacementString,
             int replacementOffset, int replacementLength, int cursorPosition, IImageHandle image, String displayString,
@@ -50,7 +48,7 @@ public interface ICompletionProposalFactory {
     ICompletionProposalHandle createAssistAssignCompletionProposal(String replacementString,
             int replacementOffset, int replacementLength, int cursorPosition, IImageHandle image, String displayString,
             Object contextInformation, String additionalProposalInfo, int priority,
-            ISourceViewer sourceViewer, ICompareContext compareContext);
+            /*ISourceViewer*/ Object sourceViewer, ICompareContext compareContext);
 
     ICompletionProposalHandle createOverrideMethodCompletionProposal(int replacementOffset,
             int replacementLength, int cursorPosition, IImageHandle image, /*FunctionDef*/ ISimpleNode functionDef,
@@ -73,7 +71,7 @@ public interface ICompletionProposalFactory {
             String realImportRep, ICompareContext compareContext);
 
     ICompletionProposalHandle createPyTemplateProposalForTests(Template template,
-            TemplateContext context, IRegion region, Image image, int relevance);
+            TemplateContext context, IRegion region, IImageHandle image, int relevance);
 
     ICompletionProposalHandle createFixCompletionProposal(String replacementString, int replacementOffset,
             int replacementLength, int cursorPosition, IImageHandle image, String displayString,

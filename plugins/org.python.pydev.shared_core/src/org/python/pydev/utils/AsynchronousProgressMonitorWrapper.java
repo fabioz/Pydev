@@ -9,7 +9,7 @@
 * Contributors:
 *     Fabio Zadrozny <fabiofz@gmail.com> - initial API and implementation
 ******************************************************************************/
-package org.python.pydev.shared_ui.utils;
+package org.python.pydev.utils;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.ProgressMonitorWrapper;
@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.ProgressMonitorWrapper;
 public class AsynchronousProgressMonitorWrapper extends ProgressMonitorWrapper {
 
     private long lastChange;
+    public static final int UPDATE_INTERVAL_MS = 300;
 
     public AsynchronousProgressMonitorWrapper(IProgressMonitor monitor) {
         super(monitor);
@@ -25,7 +26,7 @@ public class AsynchronousProgressMonitorWrapper extends ProgressMonitorWrapper {
     @Override
     public void setTaskName(String name) {
         long curr = System.currentTimeMillis();
-        if (curr - lastChange > AsynchronousProgressMonitorDialog.UPDATE_INTERVAL_MS) {
+        if (curr - lastChange > AsynchronousProgressMonitorWrapper.UPDATE_INTERVAL_MS) {
             this.lastChange = curr;
             super.setTaskName(name);
         }
