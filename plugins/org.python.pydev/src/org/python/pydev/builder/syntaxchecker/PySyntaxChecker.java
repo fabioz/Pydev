@@ -37,13 +37,13 @@ public class PySyntaxChecker extends PyDevBuilderVisitor {
 
         if (PyDevBuilderPreferences.getAnalyzeOnlyActiveEditor()) {
             if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                ToLogFile.toLogFile(this, "PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()");
+                org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()");
             }
             return; //not analyzed with this builder... always from parser changes.
         }
 
         if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-            ToLogFile.toLogFile(this, "Checking!");
+            org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "Checking!");
         }
 
         IDocument doc = document.call();

@@ -103,7 +103,7 @@ public class PyTodoVisitor extends PyDevBuilderVisitor {
             }
 
             if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                ToLogFile.toLogFile(this, "Adding todo markers");
+                org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "Adding todo markers");
             }
         }
         return lst;

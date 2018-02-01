@@ -108,7 +108,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor {
 
                 } else if (arg == IAnalysisBuilderRunnable.DEFINITIONS_MODULE) {
                     if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                        ToLogFile.toLogFile(this, "PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()");
+                        org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()");
                     }
                     IFile f = (IFile) resource;
                     String file = f.getRawLocation().toOSString();

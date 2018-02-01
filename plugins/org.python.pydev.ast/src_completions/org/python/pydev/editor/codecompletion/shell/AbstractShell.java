@@ -108,7 +108,7 @@ public abstract class AbstractShell {
             System.out.println(string);
         }
         if (DebugSettings.DEBUG_CODE_COMPLETION) {
-            ToLogFile.toLogFile(string, AbstractShell.class);
+            org.python.pydev.shared_core.log.ToLogFile.toLogFile(string, AbstractShell.class);
         }
     }
 

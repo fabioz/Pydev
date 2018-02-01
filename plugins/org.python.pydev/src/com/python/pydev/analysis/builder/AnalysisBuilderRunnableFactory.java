@@ -65,14 +65,14 @@ public class AnalysisBuilderRunnableFactory {
 
     private static void logCreate(String moduleName, IAnalysisBuilderRunnable analysisBuilderThread, String factory) {
         if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-            ToLogFile.toLogFile(analysisBuilderThread, "Created new builder: " + analysisBuilderThread + " for:" + moduleName
+            org.python.pydev.shared_core.log.ToLogFile.toLogFile(analysisBuilderThread, "Created new builder: " + analysisBuilderThread + " for:" + moduleName
                     + " -- " + analysisBuilderThread.getAnalysisCauseStr() + " -- " + factory);
         }
     }
 
     private static void logStop(IAnalysisBuilderRunnable oldAnalysisBuilderThread, String creation) {
         if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-            ToLogFile.toLogFile(
+            org.python.pydev.shared_core.log.ToLogFile.toLogFile(
                     oldAnalysisBuilderThread,
                     "Stopping previous builder: " + oldAnalysisBuilderThread + " ("
                             + oldAnalysisBuilderThread.getModuleName() + " -- "
@@ -155,7 +155,7 @@ public class AnalysisBuilderRunnableFactory {
                 }
             }
             if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                ToLogFile.toLogFile(oldAnalysisBuilderThread,
+                org.python.pydev.shared_core.log.ToLogFile.toLogFile(oldAnalysisBuilderThread,
                         createExistinTimeHigherMessage(oldDocTime, documentTime, oldResourceStamp, resourceStamp));
             }
 
@@ -203,7 +203,7 @@ public class AnalysisBuilderRunnableFactory {
                     forceAnalysis = oldAnalysisBuilderThread.getForceAnalysis();
                     if (forceAnalysis) {
                         if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                            ToLogFile.toLogFile(oldAnalysisBuilderThread,
+                            org.python.pydev.shared_core.log.ToLogFile.toLogFile(oldAnalysisBuilderThread,
                                     "Now forcing analysis because old one, which didn't finish was forced!");
                         }
                     }

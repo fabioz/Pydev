@@ -64,7 +64,7 @@ public class ClearSyntaxMarkersPyeditListener implements IPyEditListener, IPyEdi
     private void removeMarkersFromInput(IEditorInput input) {
         if (input != null && PyDevBuilderPreferences.getAnalyzeOnlyActiveEditor()) {
             if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                ToLogFile.toLogFile(this, "removing syntax error markers from editor.");
+                org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "removing syntax error markers from editor.");
             }
             IFile relatedFile = (IFile) input.getAdapter(IFile.class);
 

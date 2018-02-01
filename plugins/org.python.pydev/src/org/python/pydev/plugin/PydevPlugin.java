@@ -48,6 +48,7 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.ui.forms.FormColors;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.ide.IDE;
@@ -333,6 +334,29 @@ public class PydevPlugin extends AbstractUIPlugin {
                 }
                 return runnable.getSelection();
             }
+        };
+
+        org.python.pydev.shared_core.log.ToLogFile.afterOnToLogFile = (final String buffer) -> {
+            final Runnable r = new Runnable() {
+
+                @Override
+                public void run() {
+                    synchronized (org.python.pydev.shared_core.log.ToLogFile.lock) {
+                        try {
+                            //Print to console view (must be in UI thread).
+                            IOConsoleOutputStream c = org.python.pydev.shared_ui.log.ToLogFile.getConsoleOutputStream();
+                            c.write(buffer.toString());
+                            c.write(System.lineSeparator());
+                        } catch (Throwable e) {
+                            Log.log(e);
+                        }
+                    }
+
+                }
+            };
+
+            RunInUiThread.async(r, true);
+            return null;
         };
 
         // End setup extension in dependencies

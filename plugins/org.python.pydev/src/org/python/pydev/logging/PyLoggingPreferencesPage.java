@@ -51,7 +51,7 @@ public class PyLoggingPreferencesPage extends FieldEditorPreferencePage implemen
 
         addField(new BooleanFieldEditor(PyLoggingPreferences.DEBUG_INTERPRETER_AUTO_UPDATE, "Enable logging for interpreter auto update?", p));
 
-        String logOutputFile = ToLogFile.getLogOutputFile();
+        String logOutputFile = org.python.pydev.shared_core.log.ToLogFile.getLogOutputFile();
         if (logOutputFile != null) {
             final File f = new File(logOutputFile);
             addField(new LinkFieldEditor("UNUSED 2",

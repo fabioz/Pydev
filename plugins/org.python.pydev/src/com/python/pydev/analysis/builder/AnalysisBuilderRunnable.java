@@ -114,7 +114,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
                 key, resourceModificationStamp);
 
         if (resource == null) {
-            ToLogFile.toLogFile(this, "Unexpected null resource for: " + moduleName);
+            org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "Unexpected null resource for: " + moduleName);
             return;
         }
         this.document = document;
@@ -188,17 +188,17 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
         try {
 
             if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                ToLogFile.toLogFile(this, "doAnalysis() - " + moduleName + " " + this.getAnalysisCauseStr());
+                org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "doAnalysis() - " + moduleName + " " + this.getAnalysisCauseStr());
             }
             //if the resource is not open, there's not much we can do...
             final IResource r = resource;
             if (r == null) {
-                ToLogFile.toLogFile(this, "Finished analysis -- resource null -- " + moduleName);
+                org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "Finished analysis -- resource null -- " + moduleName);
                 return;
             }
 
             if (!r.getProject().isOpen()) {
-                ToLogFile.toLogFile(this, "Finished analysis -- project closed -- " + moduleName);
+                org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "Finished analysis -- project closed -- " + moduleName);
                 return;
             }
 
@@ -214,14 +214,14 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
                 //let's see if we should do code analysis
                 AnalysisRunner.deleteMarkers(r);
                 if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                    ToLogFile.toLogFile(this, "Skipping: !makeAnalysis -- " + moduleName);
+                    org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "Skipping: !makeAnalysis -- " + moduleName);
                 }
                 return;
             }
 
             if (onlyRecreateCtxInsensitiveInfo) {
                 if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                    ToLogFile.toLogFile(this, "Skipping: !forceAnalysis && analysisCause == ANALYSIS_CAUSE_BUILDER && "
+                    org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "Skipping: !forceAnalysis && analysisCause == ANALYSIS_CAUSE_BUILDER && "
                             + "PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor() -- " + moduleName);
                 }
                 return;
@@ -239,7 +239,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
             }
 
             if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                ToLogFile.toLogFile(this, "makeAnalysis:" + makeAnalysis + " " + "analysisCause: " + getAnalysisCauseStr()
+                org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "makeAnalysis:" + makeAnalysis + " " + "analysisCause: " + getAnalysisCauseStr()
                         + " -- " + moduleName);
             }
 
@@ -247,7 +247,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
 
             if (isHierarchicallyDerived(r)) {
                 if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                    ToLogFile.toLogFile(this, "Resource marked as derived not analyzed: " + r + " -- " + moduleName);
+                    org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "Resource marked as derived not analyzed: " + r + " -- " + moduleName);
                 }
                 //We don't want to check derived resources (but we want to remove any analysis messages that
                 //might be already there)
@@ -274,7 +274,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
 
             checkStop();
             if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                ToLogFile.toLogFile(this, "Adding markers for module: " + moduleName);
+                org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "Adding markers for module: " + moduleName);
                 //for (IMessage message : messages) {
                 //    Log.toLogFile(this, message.toString());
                 //}
@@ -296,7 +296,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
                     markersFromCodeAnalysis = runner.setMarkers(r, document, messages, this.internalCancelMonitor);
                 } else {
                     if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                        ToLogFile.toLogFile(this, "Skipped adding markers for module: " + moduleName
+                        org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "Skipped adding markers for module: " + moduleName
                                 + " (editor not opened).");
                     }
                 }

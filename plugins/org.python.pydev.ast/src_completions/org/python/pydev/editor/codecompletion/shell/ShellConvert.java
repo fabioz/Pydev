@@ -71,15 +71,15 @@ import org.python.pydev.shared_ui.log.ToLogFile;
                     list.add(new String[] { token, description, args, type });
                 } else {
                     if (DebugSettings.DEBUG_CODE_COMPLETION) {
-                        ToLogFile.addLogLevel();
+                        org.python.pydev.shared_core.log.ToLogFile.addLogLevel();
                         try {
-                            ToLogFile.toLogFile("Code completion shell error:", AbstractShell.class);
-                            ToLogFile.toLogFile(token, AbstractShell.class);
-                            ToLogFile.toLogFile(description, AbstractShell.class);
-                            ToLogFile.toLogFile(args, AbstractShell.class);
-                            ToLogFile.toLogFile(type, AbstractShell.class);
+                            org.python.pydev.shared_core.log.ToLogFile.toLogFile("Code completion shell error:", AbstractShell.class);
+                            org.python.pydev.shared_core.log.ToLogFile.toLogFile(token, AbstractShell.class);
+                            org.python.pydev.shared_core.log.ToLogFile.toLogFile(description, AbstractShell.class);
+                            org.python.pydev.shared_core.log.ToLogFile.toLogFile(args, AbstractShell.class);
+                            org.python.pydev.shared_core.log.ToLogFile.toLogFile(type, AbstractShell.class);
                         } finally {
-                            ToLogFile.remLogLevel();
+                            org.python.pydev.shared_core.log.ToLogFile.remLogLevel();
                         }
                     }
                 }

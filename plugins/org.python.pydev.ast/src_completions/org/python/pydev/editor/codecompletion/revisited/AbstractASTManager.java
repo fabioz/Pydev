@@ -726,7 +726,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         } else {
             name = module.getName();
         }
-        ToLogFile.toLogFile(this, message + ": " + name + " -- " + state.getActivationToken());
+        org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, message + ": " + name + " -- " + state.getActivationToken());
     }
 
     /**
@@ -1768,12 +1768,12 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         if (!state.getBuiltinsGotten()) {
             state.setBuiltinsGotten(true);
             if (DebugSettings.DEBUG_CODE_COMPLETION) {
-                ToLogFile.toLogFile(this, "getBuiltinCompletions");
+                org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "getBuiltinCompletions");
             }
             //last thing: get completions from module __builtin__
             getBuiltinCompletions(state, completions);
             if (DebugSettings.DEBUG_CODE_COMPLETION) {
-                ToLogFile.toLogFile(this, "END getBuiltinCompletions");
+                org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "END getBuiltinCompletions");
             }
         }
 

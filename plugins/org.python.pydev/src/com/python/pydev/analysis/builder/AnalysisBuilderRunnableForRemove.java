@@ -37,7 +37,7 @@ public class AnalysisBuilderRunnableForRemove extends AbstractAnalysisBuilderRun
                 key, resourceModificationStamp);
 
         if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-            ToLogFile.toLogFile(this, "Removing additional info from: " + moduleName);
+            org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "Removing additional info from: " + moduleName);
         }
         removeInfoForModule(moduleName, nature, isFullBuild);
     }
@@ -70,7 +70,7 @@ public class AnalysisBuilderRunnableForRemove extends AbstractAnalysisBuilderRun
             info.removeInfoFromModule(moduleName, generateDelta);
         } else {
             if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                ToLogFile.toLogFile("Unable to remove info. name: " + moduleName + " or nature:" + nature + " is null.",
+                org.python.pydev.shared_core.log.ToLogFile.toLogFile("Unable to remove info. name: " + moduleName + " or nature:" + nature + " is null.",
                         AnalysisBuilderRunnableForRemove.class);
             }
         }

@@ -110,9 +110,9 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
         }
 
         if (DebugSettings.DEBUG_CODE_COMPLETION) {
-            ToLogFile.toLogFile(this, "Starting getCodeCompletionProposals");
-            ToLogFile.addLogLevel();
-            ToLogFile.toLogFile(this, "Request:" + request);
+            org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "Starting getCodeCompletionProposals");
+            org.python.pydev.shared_core.log.ToLogFile.addLogLevel();
+            org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "Request:" + request);
         }
 
         ArrayList<ICompletionProposalHandle> ret = new ArrayList<ICompletionProposalHandle>();
@@ -351,15 +351,15 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                 onCompletionRecursionException.call(e);
             }
             if (DebugSettings.DEBUG_CODE_COMPLETION) {
-                ToLogFile.toLogFile(e);
+                org.python.pydev.shared_core.log.ToLogFile.toLogFile(e);
             }
             //PydevPlugin.log(e);
             //ret.add(new CompletionProposal("",request.documentOffset,0,0,null,e.getMessage(), null,null));
         }
 
         if (DebugSettings.DEBUG_CODE_COMPLETION) {
-            ToLogFile.remLogLevel();
-            ToLogFile.toLogFile(this, "Finished completion. Returned:" + ret.size() + " completions.\r\n");
+            org.python.pydev.shared_core.log.ToLogFile.remLogLevel();
+            org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "Finished completion. Returned:" + ret.size() + " completions.\r\n");
         }
 
         return ret;
@@ -604,20 +604,20 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             MisconfigurationException {
         state.setActivationToken(request.activationToken);
         if (DebugSettings.DEBUG_CODE_COMPLETION) {
-            ToLogFile.toLogFile(this, "astManager.getCompletionsForToken");
-            ToLogFile.addLogLevel();
+            org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "astManager.getCompletionsForToken");
+            org.python.pydev.shared_core.log.ToLogFile.addLogLevel();
         }
 
         IModule module = request.getModule();
         if (module == null) {
-            ToLogFile.remLogLevel();
-            ToLogFile.toLogFile(this, "END astManager.getCompletionsForToken: null module");
+            org.python.pydev.shared_core.log.ToLogFile.remLogLevel();
+            org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "END astManager.getCompletionsForToken: null module");
             return;
         }
         IToken[] comps = astManager.getCompletionsForModule(module, state, true, true);
         if (DebugSettings.DEBUG_CODE_COMPLETION) {
-            ToLogFile.remLogLevel();
-            ToLogFile.toLogFile(this, "END astManager.getCompletionsForToken");
+            org.python.pydev.shared_core.log.ToLogFile.remLogLevel();
+            org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "END astManager.getCompletionsForToken");
         }
 
         for (int i = 0; i < comps.length; i++) {

@@ -58,7 +58,7 @@ public class ShellsContainer {
     public static void shutdownAllShells() {
         synchronized (shells) {
             if (DebugSettings.DEBUG_CODE_COMPLETION) {
-                ToLogFile.toLogFile("Shutting down all shells (for good)...", AbstractShell.class);
+                org.python.pydev.shared_core.log.ToLogFile.toLogFile("Shutting down all shells (for good)...", AbstractShell.class);
             }
 
             for (Iterator<Map<Integer, AbstractShell>> iter = shells.values().iterator(); iter.hasNext();) {
@@ -92,7 +92,7 @@ public class ShellsContainer {
         synchronized (shells) {
             try {
                 if (DebugSettings.DEBUG_CODE_COMPLETION) {
-                    ToLogFile.toLogFile("Restarting all shells and clearing caches...", AbstractShell.class);
+                    org.python.pydev.shared_core.log.ToLogFile.toLogFile("Restarting all shells and clearing caches...", AbstractShell.class);
                 }
 
                 for (Map<Integer, AbstractShell> val : shells.values()) {
@@ -188,7 +188,7 @@ public class ShellsContainer {
         AbstractShell pythonShell = null;
         synchronized (shells) {
             if (DebugSettings.DEBUG_CODE_COMPLETION) {
-                ToLogFile.toLogFile("Synchronizing on shells...", AbstractShell.class);
+                org.python.pydev.shared_core.log.ToLogFile.toLogFile("Synchronizing on shells...", AbstractShell.class);
             }
             if (DebugSettings.DEBUG_CODE_COMPLETION) {
                 String flavor;
@@ -203,7 +203,7 @@ public class ShellsContainer {
                         flavor = "Python";
                 }
                 ;
-                ToLogFile.toLogFile(
+                org.python.pydev.shared_core.log.ToLogFile.toLogFile(
                         "Getting shell related to:" + flavor + " id:" + id + " interpreter: "
                                 + interpreter.getExecutableOrJar(),
                         AbstractShell.class);
@@ -213,7 +213,7 @@ public class ShellsContainer {
 
             if (pythonShell == null) {
                 if (DebugSettings.DEBUG_CODE_COMPLETION) {
-                    ToLogFile.toLogFile("pythonShell == null", AbstractShell.class);
+                    org.python.pydev.shared_core.log.ToLogFile.toLogFile("pythonShell == null", AbstractShell.class);
                 }
                 if (relatedTo == IPythonNature.INTERPRETER_TYPE_PYTHON) {
                     pythonShell = new PythonShell();
@@ -228,13 +228,13 @@ public class ShellsContainer {
                     throw new RuntimeException("unknown related id");
                 }
                 if (DebugSettings.DEBUG_CODE_COMPLETION) {
-                    ToLogFile.toLogFile("pythonShell.startIt()", AbstractShell.class);
-                    ToLogFile.addLogLevel();
+                    org.python.pydev.shared_core.log.ToLogFile.toLogFile("pythonShell.startIt()", AbstractShell.class);
+                    org.python.pydev.shared_core.log.ToLogFile.addLogLevel();
                 }
                 pythonShell.startIt(interpreter); //first start it
                 if (DebugSettings.DEBUG_CODE_COMPLETION) {
-                    ToLogFile.remLogLevel();
-                    ToLogFile.toLogFile("Finished pythonShell.startIt()", AbstractShell.class);
+                    org.python.pydev.shared_core.log.ToLogFile.remLogLevel();
+                    org.python.pydev.shared_core.log.ToLogFile.toLogFile("Finished pythonShell.startIt()", AbstractShell.class);
                 }
 
                 //then make it accessible

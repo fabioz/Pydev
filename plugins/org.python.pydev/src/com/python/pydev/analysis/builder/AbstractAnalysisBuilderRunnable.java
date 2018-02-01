@@ -119,7 +119,7 @@ public abstract class AbstractAnalysisBuilderRunnable implements IAnalysisBuilde
 
     protected void logOperationCancelled() {
         if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-            ToLogFile.toLogFile(this, "OperationCanceledException: cancelled by new runnable -- " + moduleName
+            org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "OperationCanceledException: cancelled by new runnable -- " + moduleName
                     + ". Cancelled was from: " + getAnalysisCauseStr());
         }
     }
@@ -135,7 +135,7 @@ public abstract class AbstractAnalysisBuilderRunnable implements IAnalysisBuilde
             try {
                 if (oldAnalysisBuilderThread != null) {
                     if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                        ToLogFile.toLogFile(this, "Waiting for other to be finished...");
+                        org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "Waiting for other to be finished...");
                     }
 
                     //just to make sure that the analysis of the existing runnable had a request for stopping already
@@ -153,7 +153,7 @@ public abstract class AbstractAnalysisBuilderRunnable implements IAnalysisBuilde
                         }
                     }
                     if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                        ToLogFile.toLogFile(this, "Starting analysis after attempts: " + attempts);
+                        org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "Starting analysis after attempts: " + attempts);
                     }
                 }
                 //that's all we need it for... we can already dispose of it.
