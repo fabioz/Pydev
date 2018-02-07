@@ -24,9 +24,9 @@ import org.eclipse.ui.texteditor.IUpdate;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.core.PydevDebugPreferencesInitializer;
+import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
-import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.actions.BaseAction;
 
 public class ShowPromptOverlayAction extends BaseAction implements IUpdate, IEditorActionDelegate,

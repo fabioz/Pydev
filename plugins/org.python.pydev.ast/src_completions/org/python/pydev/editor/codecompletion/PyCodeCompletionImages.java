@@ -10,8 +10,8 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.image.IImageHandle;
+import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_ui.SharedUiPlugin;
-import org.python.pydev.shared_ui.UIConstants;
 
 public class PyCodeCompletionImages {
 

@@ -19,9 +19,9 @@ import org.python.pydev.navigator.elements.ISortedElement;
 import org.python.pydev.plugin.preferences.FileTypesPreferences;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.image.IImageHandle;
+import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_core.structure.TreeNode;
 import org.python.pydev.shared_ui.SharedUiPlugin;
-import org.python.pydev.shared_ui.UIConstants;
 
 /**
  * This class represents nodes in the tree that are below the interpreter pythonpath information

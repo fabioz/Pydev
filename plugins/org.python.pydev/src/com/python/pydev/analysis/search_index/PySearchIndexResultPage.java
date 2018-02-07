@@ -2,9 +2,9 @@ package com.python.pydev.analysis.search_index;
 
 import org.eclipse.jface.viewers.TreeViewer;
 import org.python.pydev.shared_core.image.IImageCache;
+import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
-import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.search.AbstractSearchIndexResultPage;
 import org.python.pydev.shared_ui.search.AbstractSearchResultsViewerFilter;
 import org.python.pydev.shared_ui.search.GroupByAction;

@@ -20,10 +20,10 @@ import org.eclipse.ui.editors.text.IStorageDocumentProvider;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.debug.model.PyExceptionBreakPointManager;
+import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
-import org.python.pydev.shared_ui.UIConstants;
 
 public class EditIgnoredCaughtExceptions extends Action {
 

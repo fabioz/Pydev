@@ -3,8 +3,8 @@ package org.python.pydev.editor.codecompletion.proposals;
 import org.python.pydev.core.IInfo;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.image.IImageHandle;
+import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_ui.SharedUiPlugin;
-import org.python.pydev.shared_ui.UIConstants;
 
 public class AnalysisImages {
 

@@ -8,7 +8,7 @@
  * Author: atotic
  * Created: Jul 29, 2003
  */
-package org.python.pydev.shared_ui;
+package org.python.pydev.shared_core.image;
 
 /**
  * Miscellaneous UI strings

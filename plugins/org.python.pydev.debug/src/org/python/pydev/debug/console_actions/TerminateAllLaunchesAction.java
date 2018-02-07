@@ -9,10 +9,10 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.bindings.keys.KeySequence;
 import org.eclipse.ui.texteditor.IUpdate;
+import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
-import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.actions.BaseAction;
 import org.python.pydev.shared_ui.bindings.KeyBindingHelper;
 

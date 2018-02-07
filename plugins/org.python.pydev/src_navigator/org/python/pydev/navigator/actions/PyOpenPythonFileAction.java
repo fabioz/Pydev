@@ -34,10 +34,10 @@ import org.python.pydev.navigator.elements.PythonNode;
 import org.python.pydev.outline.ParsedItem;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
+import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_core.structure.Location;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
-import org.python.pydev.shared_ui.UIConstants;
 
 /**
  * This action will try to open a given file or node in the pydev editor (if a file or node is selected).

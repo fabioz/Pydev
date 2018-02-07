@@ -9,9 +9,9 @@ package org.python.pydev.debug.pyunit;
 import java.lang.ref.WeakReference;
 
 import org.eclipse.jface.action.Action;
+import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
-import org.python.pydev.shared_ui.UIConstants;
 
 public class StopAction extends Action {
 
