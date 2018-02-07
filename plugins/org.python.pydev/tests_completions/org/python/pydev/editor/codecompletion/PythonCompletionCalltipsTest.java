@@ -13,6 +13,7 @@ import org.python.pydev.editor.codecompletion.proposals.PyCompletionProposal;
 import org.python.pydev.editor.codecompletion.proposals.PyLinkedModeCompletionProposal;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
+import org.python.pydev.editor.codefolding.IPyCalltipsContextInformation;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;

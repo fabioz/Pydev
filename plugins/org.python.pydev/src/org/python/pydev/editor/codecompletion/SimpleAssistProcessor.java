@@ -159,7 +159,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
 
             @Override
             public int compare(ICompletionProposal p1, ICompletionProposal p2) {
-                return sorter.compare(p1, p2);
+                return sorter.compare((ICompletionProposalHandle) p1, (ICompletionProposalHandle) p2);
             }
         });
 

@@ -11,7 +11,6 @@
 package org.python.pydev.editor.codefolding;
 
 import org.eclipse.swt.graphics.Image;
-import org.python.pydev.editor.codecompletion.IPyCalltipsContextInformation;
 
 public class PyCalltipsContextInformation implements IPyCalltipsContextInformation {
 

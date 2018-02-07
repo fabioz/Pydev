@@ -14,7 +14,6 @@ package org.python.pydev.editor.codecompletion;
 import java.util.Comparator;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
@@ -250,10 +249,6 @@ public final class ProposalsComparator implements Comparator<ICompletionProposal
 
     @Override
     public int compare(ICompletionProposalHandle o1, ICompletionProposalHandle o2) {
-        return compare((ICompletionProposal) o1, (ICompletionProposal) o2);
-    }
-
-    public int compare(ICompletionProposal o1, ICompletionProposal o2) {
         String o1Str = o1.getDisplayString();
         String o2Str = o2.getDisplayString();
 

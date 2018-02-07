@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.editor.codecompletion;
+package org.python.pydev.editor.codefolding;
 
 import org.eclipse.jface.text.contentassist.IContextInformation;
 
