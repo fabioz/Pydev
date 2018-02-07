@@ -8,27 +8,22 @@
  * Created on Jul 1, 2006
  * @author Fabio
  */
-package org.python.pydev.editor.codecompletion;
+package org.python.pydev.editor.codefolding;
 
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.swt.graphics.Image;
+import org.python.pydev.editor.codecompletion.IPyCalltipsContextInformation;
 
 public class PyCalltipsContextInformation implements IPyCalltipsContextInformation {
 
-    /** 
-     * The arguments to be displayed. 
+    /**
+     * The arguments to be displayed.
      */
     private final String argumentsWithParens;
 
-    /** 
+    /**
      * The information to be displayed (calculated when requested)
      */
     private String argumentsWithoutParens;
-
-    /** 
-     * The image to be displayed.
-     */
-    private final Image fImage;
 
     /**
      * The place where the replacement started.
@@ -43,21 +38,7 @@ public class PyCalltipsContextInformation implements IPyCalltipsContextInformati
      * parenthesis start)
      */
     public PyCalltipsContextInformation(String arguments, int replacementOffset) {
-        this(null, arguments, replacementOffset);
-    }
-
-    /**
-     * Creates a new context information with an image.
-     *
-     * @param image the image to display when presenting the context information
-     * @param argumentsWithParens the arguments available.
-     * @param replacementOffset the offset where the replacement started
-     */
-    private PyCalltipsContextInformation(Image image, String argumentsWithParens, int replacementOffset) {
-        Assert.isNotNull(argumentsWithParens);
-
-        fImage = image;
-        this.argumentsWithParens = argumentsWithParens;
+        this.argumentsWithParens = arguments;
         fReplacementOffset = replacementOffset;
     }
 
@@ -98,7 +79,7 @@ public class PyCalltipsContextInformation implements IPyCalltipsContextInformati
      */
     @Override
     public Image getImage() {
-        return fImage;
+        return null;
     }
 
     /*

@@ -115,4 +115,9 @@ public interface ICompletionProposalFactory {
     ICompletionProposalHandle createSimpleAssistProposal(String replacementString, int replacementOffset,
             int replacementLength, int cursorPosition, int priority, ICompareContext compareContext);
 
+    /* IContextInformation */ Object createPyCalltipsContextInformationFromIToken(IToken element, String args,
+            int contextInformationOffset);
+
+    int getShellId();
+
 }

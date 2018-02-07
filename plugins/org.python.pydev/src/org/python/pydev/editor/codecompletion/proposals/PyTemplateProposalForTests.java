@@ -1,4 +1,4 @@
-package org.python.pydev.editor.codecompletion;
+package org.python.pydev.editor.codecompletion.proposals;
 
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.templates.Template;

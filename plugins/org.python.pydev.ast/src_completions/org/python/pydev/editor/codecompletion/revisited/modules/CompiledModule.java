@@ -57,6 +57,7 @@ import org.python.pydev.shared_core.cache.LRUCache;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 
 /**
  * @author Fabio Zadrozny
@@ -144,7 +145,7 @@ public class CompiledModule extends AbstractModule {
     }
 
     /**
-     * 
+     *
      * @param module - module from where to get completions.
      */
     @SuppressWarnings("unchecked")
@@ -306,7 +307,7 @@ public class CompiledModule extends AbstractModule {
                         try (ObjectInputStream stream = new ObjectInputStream(in)) {
                             ObjectsInternPool.ObjectsPoolMap map = new ObjectsInternPool.ObjectsPoolMap();
                             @SuppressWarnings("unused")
-                            Object _name = stream.readObject(); //we already have the name set (so, it's only there for completeness). 
+                            Object _name = stream.readObject(); //we already have the name set (so, it's only there for completeness).
                             file = (File) stream.readObject();
                             int size = stream.readInt();
 
@@ -338,7 +339,7 @@ public class CompiledModule extends AbstractModule {
             String act,
             String tokenToCompletion) throws Exception, MisconfigurationException, PythonNatureWithoutProjectException {
         IToken[] toks;
-        AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.getShellId());
+        AbstractShell shell = AbstractShell.getServerShell(nature, CompletionProposalFactory.get().getShellId());
         List<String[]> completions = shell.getImportCompletions(tokenToCompletion,
                 getCompletePythonpath(manager.getModulesManager(), nature)).o2;
 
@@ -444,10 +445,10 @@ public class CompiledModule extends AbstractModule {
 
     /**
      * Adds tokens to the internal HashMap
-     * 
+     *
      * @param array The array of tokens to be added (maps representation -> token), so, existing tokens with the
      * same representation will be replaced.
-     * @return 
+     * @return
      */
     private static Map<String, IToken> asMap(IToken[] array) {
         Map<String, IToken> tokens = new HashMap<String, IToken>();
@@ -584,7 +585,7 @@ public class CompiledModule extends AbstractModule {
     }
 
     /**
-     * @param findInfo 
+     * @param findInfo
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#findDefinition(java.lang.String, int, int)
      */
     @Override

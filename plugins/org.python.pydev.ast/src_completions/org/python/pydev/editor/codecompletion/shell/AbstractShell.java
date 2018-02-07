@@ -25,7 +25,6 @@ import java.util.List;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.swt.widgets.Display;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IPythonNature;
@@ -44,7 +43,7 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.Timer;
-import org.python.pydev.shared_ui.log.ToLogFile;
+import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 
 /**
  * This is the shell that 'talks' to the python / jython process (it is intended to be subclassed so that
@@ -59,16 +58,16 @@ public abstract class AbstractShell {
 
     public static final int BUFFER_SIZE = 1024 * 20; //When it was just 1024 it was 8 times slower for numpy completions!
 
-    private static final int MAIN_THREAD_SHELL = 1;
+    public static final int MAIN_THREAD_SHELL = 1;
 
-    private static final int OTHER_THREADS_SHELL = 2;
+    public static final int OTHER_THREADS_SHELL = 2;
 
     public static int[] getAllShellIds() {
         return new int[] { MAIN_THREAD_SHELL, OTHER_THREADS_SHELL };
     }
 
-    public static final int getShellId() {
-        return Display.getCurrent() != null ? MAIN_THREAD_SHELL : OTHER_THREADS_SHELL;
+    public static int getShellId() {
+        return CompletionProposalFactory.get().getShellId();
     }
 
     protected static final int DEFAULT_SLEEP_BETWEEN_ATTEMPTS = 1000; //1sec, so we can make the number of attempts be shown as elapsed in secs

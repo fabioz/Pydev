@@ -10,7 +10,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
@@ -118,7 +117,7 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
                     priority = IPyCompletionProposal.PRIORITY_LOCALS;
                 }
 
-                IContextInformation pyContextInformation = null;
+                Object pyContextInformation = null;
                 if (args.length() > 2) {
                     int contextInformationOffset;
                     if (forcedContextInformationOffset < 0) {
@@ -126,7 +125,8 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
                     } else {
                         contextInformationOffset = forcedContextInformationOffset;
                     }
-                    pyContextInformation = new PyCalltipsContextInformationFromIToken(element, args,
+                    pyContextInformation = CompletionProposalFactory.get().createPyCalltipsContextInformationFromIToken(
+                            element, args,
                             contextInformationOffset); //just after the parenthesis
                 }
 

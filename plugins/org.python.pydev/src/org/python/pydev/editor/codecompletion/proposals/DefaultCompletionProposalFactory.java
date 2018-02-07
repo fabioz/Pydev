@@ -8,13 +8,15 @@ import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContext;
+import org.eclipse.swt.widgets.Display;
 import org.python.pydev.core.FormatStd;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.DocstringInfo;
 import org.python.pydev.editor.codecompletion.PyTemplateProposal;
-import org.python.pydev.editor.codecompletion.PyTemplateProposalForTests;
+import org.python.pydev.editor.codecompletion.shell.AbstractShell;
+import org.python.pydev.editor.codefolding.PyCalltipsContextInformationFromIToken;
 import org.python.pydev.editor.correctionassist.FixCompletionProposal;
 import org.python.pydev.editor.correctionassist.IgnoreCompletionProposal;
 import org.python.pydev.editor.correctionassist.IgnoreCompletionProposalInSameLine;
@@ -231,4 +233,16 @@ public class DefaultCompletionProposalFactory implements ICompletionProposalFact
         return new SimpleAssistProposal(replacementString, replacementOffset, replacementLength, cursorPosition,
                 priority, compareContext);
     }
+
+    @Override
+    public Object createPyCalltipsContextInformationFromIToken(IToken element, String args,
+            int contextInformationOffset) {
+        return new PyCalltipsContextInformationFromIToken(element, args, contextInformationOffset);
+    }
+
+    @Override
+    public int getShellId() {
+        return Display.getCurrent() != null ? AbstractShell.MAIN_THREAD_SHELL : AbstractShell.OTHER_THREADS_SHELL;
+    }
+
 }

@@ -35,14 +35,10 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
-import org.eclipse.jface.util.SafeRunnable;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.MessageBox;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInterpreterInfo;
@@ -62,8 +58,6 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.PlatformUtils;
-import org.python.pydev.shared_ui.EditorUtils;
-import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.utils.CancelException;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -526,11 +520,8 @@ public class InterpreterInfo implements IInterpreterInfo {
         public Collection<String> getAdditionalLibraries() {
             final Collection<String> additions = new ArrayList<String>();
             for (final IInterpreterNewCustomEntries newEntriesProvider : fParticipants) {
-                SafeRunner.run(new SafeRunnable() {
-                    @Override
-                    public void run() {
-                        additions.addAll(newEntriesProvider.getAdditionalLibraries());
-                    }
+                SafeRunner.run(() -> {
+                    additions.addAll(newEntriesProvider.getAdditionalLibraries());
                 });
             }
             return additions;
@@ -540,11 +531,8 @@ public class InterpreterInfo implements IInterpreterInfo {
         public Collection<String> getAdditionalEnvVariables() {
             final Collection<String> additions = new ArrayList<String>();
             for (final IInterpreterNewCustomEntries newEntriesProvider : fParticipants) {
-                SafeRunner.run(new SafeRunnable() {
-                    @Override
-                    public void run() {
-                        additions.addAll(newEntriesProvider.getAdditionalEnvVariables());
-                    }
+                SafeRunner.run(() -> {
+                    additions.addAll(newEntriesProvider.getAdditionalEnvVariables());
                 });
             }
             return additions;
@@ -554,11 +542,8 @@ public class InterpreterInfo implements IInterpreterInfo {
         public Collection<String> getAdditionalBuiltins() {
             final Collection<String> additions = new ArrayList<String>();
             for (final IInterpreterNewCustomEntries newEntriesProvider : fParticipants) {
-                SafeRunner.run(new SafeRunnable() {
-                    @Override
-                    public void run() {
-                        additions.addAll(newEntriesProvider.getAdditionalBuiltins());
-                    }
+                SafeRunner.run(() -> {
+                    additions.addAll(newEntriesProvider.getAdditionalBuiltins());
                 });
             }
             return additions;
@@ -568,11 +553,8 @@ public class InterpreterInfo implements IInterpreterInfo {
         public Map<String, String> getAdditionalStringSubstitutionVariables() {
             final Map<String, String> additions = new HashMap<String, String>();
             for (final IInterpreterNewCustomEntries newEntriesProvider : fParticipants) {
-                SafeRunner.run(new SafeRunnable() {
-                    @Override
-                    public void run() {
-                        additions.putAll(newEntriesProvider.getAdditionalStringSubstitutionVariables());
-                    }
+                SafeRunner.run(() -> {
+                    additions.putAll(newEntriesProvider.getAdditionalStringSubstitutionVariables());
                 });
             }
             return additions;
@@ -1762,21 +1744,7 @@ public class InterpreterInfo implements IInterpreterInfo {
                     + keyPlatformDependent
                     + " specified in the interpreter info.\n"
                     + "It's managed depending on the project and other configurations and cannot be directly specified in the interpreter.";
-            try {
-                RunInUiThread.async(new Runnable() {
-                    @Override
-                    public void run() {
-                        MessageBox message = new MessageBox(EditorUtils.getShell(), SWT.OK | SWT.ICON_INFORMATION);
-                        message.setText("Ignoring " + keyPlatformDependent);
-                        message.setMessage(msg);
-                        message.open();
-                    }
-                });
-            } catch (Throwable e) {
-                // ignore error communication error
-            }
-
-            Log.log(IStatus.WARNING, msg, null);
+            Log.logWarn("Ignoring " + keyPlatformDependent + "\n\n" + msg);
             isPythonPath = true;
         }
         return isPythonPath;

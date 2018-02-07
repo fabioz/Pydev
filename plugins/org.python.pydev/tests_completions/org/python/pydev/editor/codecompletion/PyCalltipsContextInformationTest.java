@@ -7,6 +7,7 @@
 package org.python.pydev.editor.codecompletion;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.editor.codefolding.PyCalltipsContextInformation;
 
 import junit.framework.TestCase;
 
