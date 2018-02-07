@@ -18,10 +18,12 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_ui.bundle.BundleInfo;
 import org.python.pydev.shared_ui.bundle.IBundleInfo;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.shared_ui.utils.UIUtils;
 
 /**
@@ -67,6 +69,12 @@ public class SharedUiPlugin extends AbstractUIPlugin {
     @Override
     public void start(BundleContext context) throws Exception {
         super.start(context);
+
+        SharedCorePlugin.setImageCache(getImageCache());
+        SharedCorePlugin.onRunInUiThread = (runnable) -> {
+            RunInUiThread.async(runnable);
+            return null;
+        };
     }
 
     /**

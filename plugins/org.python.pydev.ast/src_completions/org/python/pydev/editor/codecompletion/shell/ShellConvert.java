@@ -12,7 +12,6 @@ import org.python.pydev.core.ObjectsInternPool.ObjectsPoolMap;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.shared_ui.log.ToLogFile;
 
 /*default*/class ShellConvert {
 
@@ -47,7 +46,8 @@ import org.python.pydev.shared_ui.log.ToLogFile;
             file = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
 
             while (tokenizer.hasMoreTokens()) {
-                String token = ObjectsInternPool.internLocal(map, URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8));
+                String token = ObjectsInternPool.internLocal(map,
+                        URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8));
                 if (!tokenizer.hasMoreTokens()) {
                     return new Tuple<String, List<String[]>>(file, list);
                 }
@@ -73,7 +73,8 @@ import org.python.pydev.shared_ui.log.ToLogFile;
                     if (DebugSettings.DEBUG_CODE_COMPLETION) {
                         org.python.pydev.shared_core.log.ToLogFile.addLogLevel();
                         try {
-                            org.python.pydev.shared_core.log.ToLogFile.toLogFile("Code completion shell error:", AbstractShell.class);
+                            org.python.pydev.shared_core.log.ToLogFile.toLogFile("Code completion shell error:",
+                                    AbstractShell.class);
                             org.python.pydev.shared_core.log.ToLogFile.toLogFile(token, AbstractShell.class);
                             org.python.pydev.shared_core.log.ToLogFile.toLogFile(description, AbstractShell.class);
                             org.python.pydev.shared_core.log.ToLogFile.toLogFile(args, AbstractShell.class);

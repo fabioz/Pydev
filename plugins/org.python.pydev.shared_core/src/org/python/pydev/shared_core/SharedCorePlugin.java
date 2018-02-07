@@ -15,6 +15,8 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
 import org.osgi.framework.BundleContext;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.io.FileUtils;
 
 /**
@@ -30,6 +32,16 @@ public class SharedCorePlugin extends Plugin {
 
     //The shared instance.
     private static SharedCorePlugin plugin;
+
+    private static IImageCache imageCache;
+
+    public static void setImageCache(IImageCache imageCache) {
+        SharedCorePlugin.imageCache = imageCache;
+    }
+
+    public static IImageCache getImageCache() {
+        return SharedCorePlugin.imageCache;
+    }
 
     /**
      * The constructor.
@@ -160,4 +172,11 @@ public class SharedCorePlugin extends Plugin {
     public static boolean skipKnownFailures() {
         return true;
     }
+
+    public static ICallback<Object, Runnable> onRunInUiThread;
+
+    public static void runInUiThread(Runnable runnable) {
+        onRunInUiThread.call(runnable);
+    }
+
 }

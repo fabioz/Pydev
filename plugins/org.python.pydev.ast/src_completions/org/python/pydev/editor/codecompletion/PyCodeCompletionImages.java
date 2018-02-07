@@ -8,10 +8,10 @@ package org.python.pydev.editor.codecompletion;
 
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.image.UIConstants;
-import org.python.pydev.shared_ui.SharedUiPlugin;
 
 public class PyCodeCompletionImages {
 
@@ -22,7 +22,7 @@ public class PyCodeCompletionImages {
      */
     public static IImageHandle getImageForType(int type) {
         try {
-            IImageCache imageCache = SharedUiPlugin.getImageCache();
+            IImageCache imageCache = SharedCorePlugin.getImageCache();
             if (imageCache == null) {
                 return null;
             }

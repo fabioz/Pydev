@@ -16,7 +16,6 @@ import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
 import org.python.pydev.logging.DebugSettings;
-import org.python.pydev.shared_ui.log.ToLogFile;
 
 public class ShellsContainer {
 
@@ -58,7 +57,8 @@ public class ShellsContainer {
     public static void shutdownAllShells() {
         synchronized (shells) {
             if (DebugSettings.DEBUG_CODE_COMPLETION) {
-                org.python.pydev.shared_core.log.ToLogFile.toLogFile("Shutting down all shells (for good)...", AbstractShell.class);
+                org.python.pydev.shared_core.log.ToLogFile.toLogFile("Shutting down all shells (for good)...",
+                        AbstractShell.class);
             }
 
             for (Iterator<Map<Integer, AbstractShell>> iter = shells.values().iterator(); iter.hasNext();) {
@@ -92,7 +92,8 @@ public class ShellsContainer {
         synchronized (shells) {
             try {
                 if (DebugSettings.DEBUG_CODE_COMPLETION) {
-                    org.python.pydev.shared_core.log.ToLogFile.toLogFile("Restarting all shells and clearing caches...", AbstractShell.class);
+                    org.python.pydev.shared_core.log.ToLogFile.toLogFile("Restarting all shells and clearing caches...",
+                            AbstractShell.class);
                 }
 
                 for (Map<Integer, AbstractShell> val : shells.values()) {
@@ -234,7 +235,8 @@ public class ShellsContainer {
                 pythonShell.startIt(interpreter); //first start it
                 if (DebugSettings.DEBUG_CODE_COMPLETION) {
                     org.python.pydev.shared_core.log.ToLogFile.remLogLevel();
-                    org.python.pydev.shared_core.log.ToLogFile.toLogFile("Finished pythonShell.startIt()", AbstractShell.class);
+                    org.python.pydev.shared_core.log.ToLogFile.toLogFile("Finished pythonShell.startIt()",
+                            AbstractShell.class);
                 }
 
                 //then make it accessible

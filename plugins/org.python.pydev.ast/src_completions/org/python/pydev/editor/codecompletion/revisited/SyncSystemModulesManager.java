@@ -33,8 +33,10 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallback2;
 import org.python.pydev.shared_core.image.IImageCache;
+import org.python.pydev.shared_core.image.IImageDescriptor;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -43,9 +45,6 @@ import org.python.pydev.shared_core.structure.OrderedSet;
 import org.python.pydev.shared_core.structure.TreeNode;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.ThreadPriorityHelper;
-import org.python.pydev.shared_ui.ImageCache;
-import org.python.pydev.shared_ui.SharedUiPlugin;
-import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.ui.pythonpathconf.DefaultPathsForInterpreterInfo;
 import org.python.pydev.ui.pythonpathconf.IInterpreterInfoBuilder;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
@@ -235,23 +234,39 @@ public class SyncSystemModulesManager {
         if (monitor == null) {
             monitor = new NullProgressMonitor();
         }
-        IImageCache imageCache = SharedUiPlugin.getImageCache();
+        IImageCache imageCache = SharedCorePlugin.getImageCache();
         if (imageCache == null) {
-            imageCache = new ImageCache(null) { //create dummy for tests
+            imageCache = new IImageCache() {
+
+                @Override
+                public IImageHandle getStringDecorated(String key, String stringToAddToDecoration) {
+                    return null;
+                }
+
+                @Override
+                public IImageHandle getImageDecorated(String key, String decoration, int decorationLocation,
+                        String secondDecoration, int secondDecorationLocation) {
+                    return null;
+                }
+
+                @Override
+                public IImageHandle getImageDecorated(String key, String decoration, int decorationLocation) {
+                    return null;
+                }
+
+                @Override
+                public IImageHandle getImageDecorated(String key, String decoration) {
+                    return null;
+                }
+
+                @Override
+                public IImageDescriptor getDescriptor(String projectIcon) {
+                    return null;
+                }
+
                 @Override
                 public IImageHandle get(String key) {
-                    return new IImageHandle() {
-
-                        @Override
-                        public Object getImageData() {
-                            return null;
-                        }
-
-                        @Override
-                        public Object getImage() {
-                            return null;
-                        }
-                    };
+                    return null;
                 }
             };
         }
@@ -443,7 +458,7 @@ public class SyncSystemModulesManager {
         if (ALWAYS_APPLY_ALL_CHANGES_WITHOUT_ASKING) {
             runnable.run();
         } else {
-            RunInUiThread.async(runnable);
+            SharedCorePlugin.runInUiThread(runnable);
         }
     }
 

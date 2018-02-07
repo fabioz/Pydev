@@ -87,7 +87,6 @@ import org.python.pydev.shared_core.structure.ImmutableTuple;
 import org.python.pydev.shared_core.structure.LowMemoryArrayList;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
-import org.python.pydev.shared_ui.log.ToLogFile;
 
 public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
@@ -726,7 +725,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         } else {
             name = module.getName();
         }
-        org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, message + ": " + name + " -- " + state.getActivationToken());
+        org.python.pydev.shared_core.log.ToLogFile.toLogFile(this,
+                message + ": " + name + " -- " + state.getActivationToken());
     }
 
     /**

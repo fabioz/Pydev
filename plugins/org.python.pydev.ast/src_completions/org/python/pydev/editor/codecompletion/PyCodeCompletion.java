@@ -68,6 +68,7 @@ import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.image.IImageCache;
@@ -80,8 +81,6 @@ import org.python.pydev.shared_core.structure.ImmutableTuple;
 import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 import org.python.pydev.shared_core.structure.OrderedMap;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.shared_ui.SharedUiPlugin;
-import org.python.pydev.shared_ui.log.ToLogFile;
 import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 
 /**
@@ -359,7 +358,8 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
 
         if (DebugSettings.DEBUG_CODE_COMPLETION) {
             org.python.pydev.shared_core.log.ToLogFile.remLogLevel();
-            org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "Finished completion. Returned:" + ret.size() + " completions.\r\n");
+            org.python.pydev.shared_core.log.ToLogFile.toLogFile(this,
+                    "Finished completion. Returned:" + ret.size() + " completions.\r\n");
         }
 
         return ret;
@@ -411,7 +411,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
     private void createOverrideCodeCompletions(CompletionRequest request,
             ArrayList<ICompletionProposalHandle> ret,
             PySelection ps) throws BadLocationException {
-        IImageCache imageCache = SharedUiPlugin.getImageCache();
+        IImageCache imageCache = SharedCorePlugin.getImageCache();
         IImageHandle imageOverride = imageCache != null ? imageCache.get(UIConstants.METHOD_ICON) : null;
         String lineContentsToCursor = ps.getLineContentsToCursor();
         LineStartingScope scopeStart = ps.getPreviousLineThatStartsScope(PySelection.CLASS_TOKEN, false,
@@ -611,7 +611,8 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
         IModule module = request.getModule();
         if (module == null) {
             org.python.pydev.shared_core.log.ToLogFile.remLogLevel();
-            org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "END astManager.getCompletionsForToken: null module");
+            org.python.pydev.shared_core.log.ToLogFile.toLogFile(this,
+                    "END astManager.getCompletionsForToken: null module");
             return;
         }
         IToken[] comps = astManager.getCompletionsForModule(module, state, true, true);
