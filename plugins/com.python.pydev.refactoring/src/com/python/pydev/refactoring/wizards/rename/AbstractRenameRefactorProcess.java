@@ -125,9 +125,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
         }
     }
 
-    public static int getOffset(IDocument doc, ASTEntry entry) {
-        int beginLine;
-        int beginCol;
+    public static SimpleNode getActualNode(ASTEntry entry) {
         SimpleNode node = entry.node;
         if (node instanceof ClassDef) {
             ClassDef def = (ClassDef) node;
@@ -144,8 +142,13 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
                 node = c.func;
             }
         }
-        beginLine = node.beginLine;
-        beginCol = node.beginColumn;
+        return node;
+    }
+
+    public static int getOffset(IDocument doc, ASTEntry entry) {
+        SimpleNode node = getActualNode(entry);
+        int beginLine = node.beginLine;
+        int beginCol = node.beginColumn;
         int offset = PySelection.getAbsoluteCursorOffset(doc, beginLine - 1, beginCol - 1);
         return offset;
     }
