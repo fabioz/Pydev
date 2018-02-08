@@ -16,6 +16,12 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
+import org.python.pydev.ast.codecompletion.revisited.CompletionStateFactory;
+import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
+import org.python.pydev.ast.codecompletion.revisited.visitors.HeuristicFindAttrs;
+import org.python.pydev.ast.item_pointer.ItemPointer;
+import org.python.pydev.ast.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.IDefinition;
@@ -23,12 +29,6 @@ import org.python.pydev.core.IInfo;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
-import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
-import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
-import org.python.pydev.editor.codecompletion.revisited.visitors.HeuristicFindAttrs;
-import org.python.pydev.editor.model.ItemPointer;
-import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.exprType;
 
@@ -214,7 +214,7 @@ public class AnalysisPlugin extends Plugin {
         if (AnalysisPlugin.getDefault() == null) {
             return new File(".");
         }
-        IPath location = p.getWorkingLocation("com.python.pydev.analysis");
+        IPath location = p.getWorkingLocation("org.python.pydev.ast.analysis");
         IPath path = location;
 
         File file = new File(path.toOSString());

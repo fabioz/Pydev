@@ -9,9 +9,9 @@ package com.python.pydev.analysis.indexview;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.ISystemModulesManager;
-import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 public class InterpreterGroup extends ElementWithChildren {
 

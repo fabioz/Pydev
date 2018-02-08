@@ -7,10 +7,12 @@
 package org.python.pydev.runners;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.python.pydev.ast.codecompletion.IronPythonCodeCompletionTestsBase;
+import org.python.pydev.ast.runners.SimpleRunner;
+import org.python.pydev.ast.runners.UniversalRunner;
+import org.python.pydev.ast.runners.UniversalRunner.AbstractRunner;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.editor.codecompletion.IronPythonCodeCompletionTestsBase;
-import org.python.pydev.runners.UniversalRunner.AbstractRunner;
 import org.python.pydev.shared_core.structure.Tuple;
 
 public class IronPythonUniversalRunnerTest extends IronPythonCodeCompletionTestsBase {

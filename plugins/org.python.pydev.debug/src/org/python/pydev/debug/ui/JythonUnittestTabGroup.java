@@ -12,7 +12,7 @@ import org.eclipse.debug.ui.EnvironmentTab;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.debug.ui.RefreshTab;
-import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
+import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 
 /**
  * Special launch configuration for Jython

@@ -8,8 +8,8 @@ package com.python.pydev.refactoring.tdd;
 
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension2;
 import org.eclipse.jface.text.contentassist.IContextInformation;
+import org.python.pydev.ast.codecompletion.ProposalsComparator;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.codecompletion.ProposalsComparator;
 import org.python.pydev.editor.codecompletion.proposals.PyCompletionProposal;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.shared_core.IMiscConstants;

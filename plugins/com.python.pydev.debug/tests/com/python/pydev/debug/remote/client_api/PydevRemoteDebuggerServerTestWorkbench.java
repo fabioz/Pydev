@@ -6,7 +6,7 @@
  */
 package com.python.pydev.debug.remote.client_api;
 
-import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
+import org.python.pydev.ast.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
 
 import com.python.pydev.debug.remote.RemoteDebuggerServer;
 

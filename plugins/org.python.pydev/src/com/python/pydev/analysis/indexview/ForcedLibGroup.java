@@ -10,11 +10,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import org.python.pydev.ast.codecompletion.revisited.SystemModulesManager;
+import org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule;
+import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
-import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
-import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 public class ForcedLibGroup extends ElementWithChildren {
 

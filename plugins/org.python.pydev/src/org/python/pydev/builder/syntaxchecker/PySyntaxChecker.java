@@ -10,14 +10,14 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.builder.PyDevBuilderVisitor;
+import org.python.pydev.ast.builder.PyDevBuilderVisitor;
+import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.logging.DebugSettings;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.PyParser;
+import org.python.pydev.parser.preferences.PyDevBuilderPreferences;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.plugin.preferences.PyDevBuilderPreferences;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_ui.log.ToLogFile;
 

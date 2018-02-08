@@ -21,6 +21,11 @@ import org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal;
 import org.eclipse.jdt.ui.text.java.CompletionProposalCollector;
 import org.eclipse.jdt.ui.text.java.IJavaCompletionProposal;
 import org.eclipse.swt.widgets.Display;
+import org.python.pydev.ast.codecompletion.PyCodeCompletionImages;
+import org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule;
+import org.python.pydev.ast.codecompletion.revisited.modules.CompiledToken;
+import org.python.pydev.ast.codecompletion.revisited.modules.IAbstractJavaClassModule;
+import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.ICompletionState;
@@ -30,11 +35,6 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.JavaElementToken;
-import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
-import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
-import org.python.pydev.editor.codecompletion.revisited.modules.CompiledToken;
-import org.python.pydev.editor.codecompletion.revisited.modules.IAbstractJavaClassModule;
-import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -263,7 +263,7 @@ public abstract class AbstractJavaClassModule extends AbstractModule implements 
     }
 
     /**
-     * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#getGlobalTokens(java.lang.String)
+     * @see org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule#getGlobalTokens(java.lang.String)
      */
     @Override
     public IToken[] getGlobalTokens(ICompletionState state, ICodeCompletionASTManager manager) {
@@ -323,7 +323,7 @@ public abstract class AbstractJavaClassModule extends AbstractModule implements 
 
     /**
      * @param findInfo
-     * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#findDefinition(java.lang.String, int, int)
+     * @see org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule#findDefinition(java.lang.String, int, int)
      */
     @Override
     public Definition[] findDefinition(ICompletionState state, int line, int col, IPythonNature nature)

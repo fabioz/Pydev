@@ -11,15 +11,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.python.pydev.ast.codecompletion.revisited.ProjectModulesManager;
+import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.plugin.PydevTestUtils;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.preferences.InMemoryEclipsePreferences;
-import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 import junit.framework.TestCase;
 

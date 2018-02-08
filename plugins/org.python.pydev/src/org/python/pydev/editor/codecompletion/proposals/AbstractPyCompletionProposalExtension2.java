@@ -16,9 +16,9 @@ import org.eclipse.jface.text.contentassist.BoldStylerProvider;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension7;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.viewers.StyledString;
+import org.python.pydev.ast.codecompletion.PyCodeCompletionPreferences;
+import org.python.pydev.ast.codecompletion.PyCodeCompletionUtils;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
-import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.string.StringUtils;
 

@@ -17,6 +17,7 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.python.pydev.ast.analysis.IAnalysisPreferences;
 import org.python.pydev.core.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.preferences.IScopedPreferences;
@@ -118,7 +119,7 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences {
     /**
      * return the severity based on the user-set values
      *
-     * @see com.python.pydev.analysis.IAnalysisPreferences#getSeverityForType(int)
+     * @see org.python.pydev.ast.analysis.IAnalysisPreferences#getSeverityForType(int)
      */
     @Override
     public int getSeverityForType(int type) {
@@ -133,7 +134,7 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences {
     /**
      * yeah, we always do code analysis...
      *
-     * @see com.python.pydev.analysis.IAnalysisPreferences#makeCodeAnalysis()
+     * @see org.python.pydev.ast.analysis.IAnalysisPreferences#makeCodeAnalysis()
      */
     @Override
     public boolean makeCodeAnalysis() {
@@ -146,7 +147,7 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences {
     }
 
     /**
-     * @see com.python.pydev.analysis.IAnalysisPreferences#getNamesIgnoredByUnusedVariable()
+     * @see org.python.pydev.ast.analysis.IAnalysisPreferences#getNamesIgnoredByUnusedVariable()
      */
     @Override
     public Set<String> getNamesIgnoredByUnusedVariable() {
@@ -176,7 +177,7 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences {
     }
 
     /**
-     * @see com.python.pydev.analysis.IAnalysisPreferences#getModuleNamePatternsToBeIgnored()
+     * @see org.python.pydev.ast.analysis.IAnalysisPreferences#getModuleNamePatternsToBeIgnored()
      */
     @Override
     public Set<String> getModuleNamePatternsToBeIgnored() {

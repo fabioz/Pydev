@@ -8,7 +8,7 @@ package org.python.pydev.navigator;
 
 import java.util.List;
 
-import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.navigator.elements.ISortedElement;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.image.IImageHandle;

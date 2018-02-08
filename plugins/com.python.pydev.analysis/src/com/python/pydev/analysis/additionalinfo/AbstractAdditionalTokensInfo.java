@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.SortedMap;
 
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.ast.codecompletion.revisited.PyPublicTreeMap;
 import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.IInfo;
 import org.python.pydev.core.IPythonNature;
@@ -38,7 +39,6 @@ import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.ObjectsInternPool;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.logging.DebugSettings;
-import org.python.pydev.editor.codecompletion.revisited.PyPublicTreeMap;
 import org.python.pydev.parser.fastparser.FastDefinitionsParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;

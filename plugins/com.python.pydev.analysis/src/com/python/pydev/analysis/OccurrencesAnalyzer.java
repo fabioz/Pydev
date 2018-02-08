@@ -16,17 +16,18 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.ast.analysis.IAnalysisPreferences;
+import org.python.pydev.ast.analysis.messages.IMessage;
+import org.python.pydev.ast.analysis.messages.Message;
+import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.builder.pep8.Pep8Visitor;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.io.PyUnsupportedEncodingException;
 
-import com.python.pydev.analysis.messages.IMessage;
-import com.python.pydev.analysis.messages.Message;
 import com.python.pydev.analysis.tabnanny.TabNanny;
 import com.python.pydev.analysis.visitors.OccurrencesVisitor;
 

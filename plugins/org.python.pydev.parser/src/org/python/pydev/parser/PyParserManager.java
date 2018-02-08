@@ -10,7 +10,7 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.python.pydev.core.IPyEdit;
-import org.python.pydev.plugin.preferences.PyDevBuilderPreferences;
+import org.python.pydev.parser.preferences.PyDevBuilderPreferences;
 import org.python.pydev.shared_core.editor.IBaseEditor;
 import org.python.pydev.shared_core.parsing.BaseParserManager;
 import org.python.pydev.shared_core.parsing.IParser;

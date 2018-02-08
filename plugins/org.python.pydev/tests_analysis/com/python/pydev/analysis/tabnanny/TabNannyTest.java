@@ -12,10 +12,10 @@ import junit.framework.TestCase;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
+import org.python.pydev.ast.analysis.messages.IMessage;
 import org.python.pydev.core.autoedit.TestIndentPrefs;
 
 import com.python.pydev.analysis.AnalysisPreferencesStub;
-import com.python.pydev.analysis.messages.IMessage;
 
 public class TabNannyTest extends TestCase {
 

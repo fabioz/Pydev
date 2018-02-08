@@ -15,7 +15,7 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.logging.DebugSettings;
-import org.python.pydev.plugin.preferences.PyDevBuilderPreferences;
+import org.python.pydev.parser.preferences.PyDevBuilderPreferences;
 import org.python.pydev.shared_core.cache.LRUCache;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.structure.Tuple;

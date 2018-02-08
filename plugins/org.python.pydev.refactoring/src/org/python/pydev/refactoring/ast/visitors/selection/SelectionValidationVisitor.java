@@ -24,7 +24,7 @@
 
 package org.python.pydev.refactoring.ast.visitors.selection;
 
-import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
+import org.python.pydev.ast.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Break;
 import org.python.pydev.parser.jython.ast.ClassDef;

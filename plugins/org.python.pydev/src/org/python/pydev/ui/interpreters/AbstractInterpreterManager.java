@@ -36,6 +36,11 @@ import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.progress.UIJob;
 import org.osgi.service.prefs.BackingStoreException;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
+import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.ast.codecompletion.revisited.SyncSystemModulesManagerScheduler;
+import org.python.pydev.ast.codecompletion.shell.AbstractShell;
+import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
+import org.python.pydev.ast.interpreter_managers.IInterpreterProviderFactory.InterpreterType;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInterpreterInfo;
@@ -48,10 +53,8 @@ import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.NotConfiguredInterpreterException;
+import org.python.pydev.core.interpreters.IInterpreterObserver;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
-import org.python.pydev.editor.codecompletion.revisited.SyncSystemModulesManagerScheduler;
-import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.PythonNatureListenersManager;
@@ -62,9 +65,7 @@ import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.pythonpathconf.AutoConfigMaker;
-import org.python.pydev.ui.pythonpathconf.IInterpreterProviderFactory.InterpreterType;
 import org.python.pydev.ui.pythonpathconf.InterpreterConfigHelpers;
-import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 /**
  * Does not write directly in INTERPRETER_PATH, just loads from it and works with it.

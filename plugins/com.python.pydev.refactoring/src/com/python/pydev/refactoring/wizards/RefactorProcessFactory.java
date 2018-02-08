@@ -9,11 +9,11 @@
  */
 package com.python.pydev.refactoring.wizards;
 
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
-import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
-import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
-import org.python.pydev.editor.codecompletion.revisited.visitors.KeywordParameterDefinition;
-import org.python.pydev.editor.refactoring.RefactoringRequest;
+import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.ast.codecompletion.revisited.visitors.AssignDefinition;
+import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
+import org.python.pydev.ast.codecompletion.revisited.visitors.KeywordParameterDefinition;
+import org.python.pydev.ast.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;

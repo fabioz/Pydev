@@ -181,7 +181,7 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
 
                     @Override
                     public void widgetSelected(SelectionEvent e) {
-                        String id = "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPagePython";
+                        String id = "org.python.pydev.ast.interpreter_managers.interpreterPreferencesPagePython";
                         IWorkbenchPreferenceContainer workbenchPreferenceContainer = ((IWorkbenchPreferenceContainer) getContainer());
                         workbenchPreferenceContainer.openPage(id, null);
                     }

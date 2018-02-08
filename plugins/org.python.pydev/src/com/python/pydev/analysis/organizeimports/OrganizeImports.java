@@ -29,11 +29,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.python.pydev.ast.analysis.IAnalysisPreferences;
+import org.python.pydev.ast.codecompletion.ProposalsComparator;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.IOrganizeImports;
-import org.python.pydev.editor.codecompletion.ProposalsComparator;
 import org.python.pydev.editor.codecompletion.proposals.CtxInsensitiveImportComplProposal;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.editor.codefolding.PySourceViewer;
@@ -47,7 +48,6 @@ import org.python.pydev.ui.dialogs.TreeSelectionDialog;
 
 import com.python.pydev.analysis.AnalysisPreferences;
 import com.python.pydev.analysis.AnalysisUiPlugin;
-import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.builder.AnalysisRunner;
 import com.python.pydev.analysis.ctrl_1.UndefinedVariableFixParticipant;
 
@@ -58,7 +58,7 @@ import com.python.pydev.analysis.ctrl_1.UndefinedVariableFixParticipant;
  */
 public class OrganizeImports implements IOrganizeImports {
 
-    private static final String DIALOG_SETTINGS = "com.python.pydev.analysis.ORGANIZE_IMPORTS_DIALOG"; //$NON-NLS-1$;
+    private static final String DIALOG_SETTINGS = "org.python.pydev.ast.analysis.ORGANIZE_IMPORTS_DIALOG"; //$NON-NLS-1$;
 
     private boolean didChange = false;
 

@@ -17,13 +17,12 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.ast.analysis.messages.IMessage;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.IMiscConstants;
 import org.python.pydev.shared_ui.utils.PyMarkerUtils;
 import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
-
-import com.python.pydev.analysis.messages.IMessage;
 
 public class AnalysisRunner {
 
@@ -31,7 +30,7 @@ public class AnalysisRunner {
     public static final String PYDEV_CODE_ANALYSIS_IGNORE2 = "flake8: noqa"; // Also ignore if there's a flake8: noqa.
 
     /**
-     * Indicates the type of the message given the constants in com.python.pydev.analysis.IAnalysisPreferences (unused import,
+     * Indicates the type of the message given the constants in org.python.pydev.ast.analysis.IAnalysisPreferences (unused import,
      * undefined variable...)
      */
     public static final String PYDEV_ANALYSIS_TYPE = IMiscConstants.PYDEV_ANALYSIS_TYPE;

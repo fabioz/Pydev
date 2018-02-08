@@ -17,12 +17,12 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.RefactoringStatusEntry;
+import org.python.pydev.ast.codecompletion.revisited.CodeCompletionTestsBase;
+import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
+import org.python.pydev.ast.refactoring.AbstractPyRefactoring;
+import org.python.pydev.ast.refactoring.PyRefactoringRequest;
+import org.python.pydev.ast.refactoring.RefactoringRequest;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
-import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
-import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
-import org.python.pydev.editor.refactoring.PyRefactoringRequest;
-import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.shared_core.string.StringUtils;
 
 import com.python.pydev.refactoring.refactorer.Refactorer;

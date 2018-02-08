@@ -61,6 +61,8 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
 import org.python.copiedfromeclipsesrc.PythonListEditor;
+import org.python.pydev.ast.interpreter_managers.IInterpreterProviderFactory;
+import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IInterpreterManagerListener;

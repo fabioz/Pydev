@@ -13,6 +13,7 @@ import java.util.Set;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
+import org.python.pydev.ast.analysis.IAnalysisPreferences;
 import org.python.pydev.core.CheckAnalysisErrors;
 import org.python.pydev.core.FormatStd;
 import org.python.pydev.core.IPythonNature;
@@ -26,7 +27,6 @@ import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
 import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 
-import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.ctrl_1.IAnalysisMarkersParticipant;
 
 public class PyLintIgnoreErrorParticipant implements IAnalysisMarkersParticipant {
@@ -48,7 +48,7 @@ public class PyLintIgnoreErrorParticipant implements IAnalysisMarkersParticipant
 
     /**
      * @throws CoreException
-     * @see com.python.pydev.analysis.ctrl_1.IAnalysisMarkersParticipant#addProps(org.eclipse.core.resources.IMarker, com.python.pydev.analysis.IAnalysisPreferences, java.lang.String, org.python.pydev.core.docutils.PySelection, int, org.python.pydev.editor.PyEdit, java.util.List)
+     * @see org.python.pydev.ast.analysis.ctrl_1.IAnalysisMarkersParticipant#addProps(org.eclipse.core.resources.IMarker, org.python.pydev.ast.analysis.IAnalysisPreferences, java.lang.String, org.python.pydev.core.docutils.PySelection, int, org.python.pydev.editor.PyEdit, java.util.List)
      */
     @Override
     public void addProps(MarkerAnnotationAndPosition marker, IAnalysisPreferences analysisPreferences,

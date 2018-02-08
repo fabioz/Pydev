@@ -53,7 +53,7 @@ public final class PyDevDeltaCounter extends PydevInternalResourceDeltaVisitor {
     }
 
     /**
-     * @see org.python.pydev.builder.PyDevBuilderVisitor#visitChangedResource(org.eclipse.core.resources.IResource, org.eclipse.jface.text.IDocument)
+     * @see org.python.pydev.ast.builder.PyDevBuilderVisitor#visitChangedResource(org.eclipse.core.resources.IResource, org.eclipse.jface.text.IDocument)
      */
     @Override
     public void visitChangedResource(IResource resource, ICallback0<IDocument> document, IProgressMonitor monitor) {
@@ -61,7 +61,7 @@ public final class PyDevDeltaCounter extends PydevInternalResourceDeltaVisitor {
     }
 
     /**
-     * @see org.python.pydev.builder.PyDevBuilderVisitor#visitRemovedResource(org.eclipse.core.resources.IResource, org.eclipse.jface.text.IDocument)
+     * @see org.python.pydev.ast.builder.PyDevBuilderVisitor#visitRemovedResource(org.eclipse.core.resources.IResource, org.eclipse.jface.text.IDocument)
      */
     @Override
     public void visitRemovedResource(IResource resource, ICallback0<IDocument> document, IProgressMonitor monitor) {

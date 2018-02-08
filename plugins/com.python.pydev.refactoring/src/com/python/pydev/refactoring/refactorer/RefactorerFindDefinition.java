@@ -15,6 +15,12 @@ import java.util.List;
 
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.text.BadLocationException;
+import org.python.pydev.ast.codecompletion.revisited.CompletionCache;
+import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
+import org.python.pydev.ast.item_pointer.ItemPointer;
+import org.python.pydev.ast.refactoring.PyRefactoringFindDefinition;
+import org.python.pydev.ast.refactoring.RefactoringRequest;
+import org.python.pydev.ast.refactoring.TooManyMatchesException;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IInfo;
@@ -22,12 +28,6 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
-import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
-import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
-import org.python.pydev.editor.model.ItemPointer;
-import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
-import org.python.pydev.editor.refactoring.RefactoringRequest;
-import org.python.pydev.editor.refactoring.TooManyMatchesException;
 import org.python.pydev.shared_core.string.StringUtils;
 
 import com.python.pydev.analysis.AnalysisPlugin;
@@ -49,7 +49,7 @@ public class RefactorerFindDefinition {
      * choose the best match).
      * @throws BadLocationException 
      *
-     * @see org.python.pydev.editor.refactoring.IPyRefactoring#findDefinition(org.python.pydev.editor.refactoring.RefactoringRequest)
+     * @see org.python.pydev.ast.refactoring.IPyRefactoring#findDefinition(org.python.pydev.ast.refactoring.RefactoringRequest)
      */
     public ItemPointer[] findDefinition(RefactoringRequest request) throws BadLocationException {
         try {

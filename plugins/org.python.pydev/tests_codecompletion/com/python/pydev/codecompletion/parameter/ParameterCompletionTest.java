@@ -15,12 +15,12 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.python.pydev.ast.codecompletion.PyCodeCompletion;
+import org.python.pydev.ast.codecompletion.PyCodeCompletionPreferences;
+import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInfo;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.editor.codecompletion.PyCodeCompletion;
-import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
-import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.shared_core.preferences.InMemoryEclipsePreferences;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;

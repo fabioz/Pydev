@@ -31,13 +31,15 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.python.pydev.ast.codecompletion.ProposalsComparator;
+import org.python.pydev.ast.codecompletion.PyCodeCompletionPreferences;
+import org.python.pydev.ast.codecompletion.ProposalsComparator.CompareContext;
+import org.python.pydev.ast.simpleassist.ISimpleAssistParticipant;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPySyntaxHighlightingAndCodeCompletionEditor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.ProposalsComparator.CompareContext;
-import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant;
 import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 

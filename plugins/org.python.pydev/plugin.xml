@@ -374,27 +374,27 @@
       <page
             name="Interpreters"
             category="org.python.pydev.prefs"
-            class="org.python.pydev.ui.pythonpathconf.InterpreterGeneralPreferencesPage"
+            class="org.python.pydev.ast.interpreter_managers.InterpreterGeneralPreferencesPage"
             id="org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageGeneral">
       </page>
       <page
             name="Python Interpreter"
             category="org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageGeneral"
-            class="org.python.pydev.ui.pythonpathconf.PythonInterpreterPreferencesPage"
+            class="org.python.pydev.ast.interpreter_managers.PythonInterpreterPreferencesPage"
             id="org.python.pydev.ui.pythonpathconf.interpreterPreferencesPagePython">
             <keywordReference id="org.python.pydev.interpreter.keywords"/>
       </page>
       <page
             name="Jython Interpreter"
             category="org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageGeneral"
-            class="org.python.pydev.ui.pythonpathconf.JythonInterpreterPreferencesPage"
+            class="org.python.pydev.ast.interpreter_managers.JythonInterpreterPreferencesPage"
             id="org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageJython">
 	        <keywordReference id="org.python.pydev.interpreter.keywords"/>
       </page>
       <page
             name="IronPython Interpreter"
             category="org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageGeneral"
-            class="org.python.pydev.ui.pythonpathconf.IronpythonInterpreterPreferencesPage"
+            class="org.python.pydev.ast.interpreter_managers.IronpythonInterpreterPreferencesPage"
             id="org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageIronpython">
 	        <keywordReference
 	            id="org.python.pydev.interpreter.keywords">
@@ -455,7 +455,7 @@
 
       <page
             name="Code Completion"
-            class="org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage"
+            class="org.python.pydev.ast.codecompletion.PyCodeCompletionPreferencesPage"
             category="org.python.pydev.prefs.editor"
             id="org.python.pydev.prefs.PyCodeCompletionPage"/>
       <page

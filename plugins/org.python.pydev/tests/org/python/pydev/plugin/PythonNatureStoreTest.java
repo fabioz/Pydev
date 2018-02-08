@@ -13,9 +13,9 @@ package org.python.pydev.plugin;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.python.pydev.ast.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.editor.actions.PySelectionTest;
-import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNatureStore;
 import org.python.pydev.plugin.nature.PythonPathNature;

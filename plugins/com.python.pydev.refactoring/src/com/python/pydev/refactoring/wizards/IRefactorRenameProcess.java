@@ -14,7 +14,7 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.python.pydev.editor.refactoring.RefactoringRequest;
+import org.python.pydev.ast.refactoring.RefactoringRequest;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.shared_core.structure.Tuple;
 

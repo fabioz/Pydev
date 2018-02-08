@@ -8,8 +8,8 @@ package org.python.pydev.editor.codecompletion.revisited.javaintegration;
 
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.python.pydev.ast.codecompletion.revisited.modules.IModulesKeyForJava;
 import org.python.pydev.core.ModulesKey;
-import org.python.pydev.editor.codecompletion.revisited.modules.IModulesKeyForJava;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
 /**

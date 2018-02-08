@@ -11,12 +11,12 @@ import java.util.List;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
+import org.python.pydev.ast.item_pointer.ItemPointer;
+import org.python.pydev.ast.refactoring.RefactoringRequest;
 import org.python.pydev.core.IInfo;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
-import org.python.pydev.editor.model.ItemPointer;
-import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.utils.PlatformUtils;
 

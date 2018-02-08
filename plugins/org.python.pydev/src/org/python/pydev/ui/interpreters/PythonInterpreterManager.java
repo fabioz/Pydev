@@ -16,11 +16,11 @@ import java.io.File;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
+import org.python.pydev.ast.runners.SimplePythonRunner;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 public class PythonInterpreterManager extends AbstractInterpreterManager {
 
@@ -46,7 +46,7 @@ public class PythonInterpreterManager extends AbstractInterpreterManager {
 
     @Override
     protected String getPreferencesPageId() {
-        return "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPagePython";
+        return "org.python.pydev.ast.interpreter_managers.interpreterPreferencesPagePython";
     }
 
     /**

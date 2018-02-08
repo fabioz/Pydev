@@ -7,8 +7,8 @@
 package org.python.pydev.debug.ui.launching;
 
 import org.eclipse.core.resources.IProject;
+import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.debug.core.Constants;
 
 public class IronpythonLaunchShortcut extends AbstractLaunchShortcut {

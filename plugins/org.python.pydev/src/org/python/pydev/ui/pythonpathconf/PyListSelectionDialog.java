@@ -29,6 +29,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.dialogs.SelectionDialog;
+import org.python.pydev.ast.interpreter_managers.DefaultPathsForInterpreterInfo;
 
 public class PyListSelectionDialog extends SelectionDialog {
     // the root element to populate the viewer with

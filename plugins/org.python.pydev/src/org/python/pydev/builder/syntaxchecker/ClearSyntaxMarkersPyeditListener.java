@@ -17,7 +17,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.core.logging.DebugSettings;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.PyParser;
-import org.python.pydev.plugin.preferences.PyDevBuilderPreferences;
+import org.python.pydev.parser.preferences.PyDevBuilderPreferences;
 import org.python.pydev.shared_ui.editor.BaseEditor;
 import org.python.pydev.shared_ui.editor.IPyEditListener;
 import org.python.pydev.shared_ui.editor.IPyEditListener3;

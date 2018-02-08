@@ -13,9 +13,9 @@ package com.python.pydev.refactoring.actions;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
+import org.python.pydev.ast.refactoring.AbstractPyRefactoring;
+import org.python.pydev.ast.refactoring.PyRefactoringRequest;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
-import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
-import org.python.pydev.editor.refactoring.PyRefactoringRequest;
 
 /**
  * @author Fabio Zadrozny

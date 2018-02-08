@@ -35,10 +35,13 @@ import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.dialogs.ListDialog;
+import org.python.pydev.ast.interpreter_managers.IInterpreterProvider;
+import org.python.pydev.ast.interpreter_managers.IInterpreterProviderFactory;
+import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
+import org.python.pydev.ast.interpreter_managers.IInterpreterProviderFactory.InterpreterType;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.SharedCorePlugin;
@@ -51,7 +54,6 @@ import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
-import org.python.pydev.ui.pythonpathconf.IInterpreterProviderFactory.InterpreterType;
 
 /**
  * This class uses code based from {@link AbstractInterpreterEditor} and

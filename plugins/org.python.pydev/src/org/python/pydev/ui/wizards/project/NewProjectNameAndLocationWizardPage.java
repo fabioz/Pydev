@@ -44,16 +44,16 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.dialogs.WorkingSetConfigurationBlock;
+import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.ast.listing_utils.PyFileListing;
+import org.python.pydev.ast.listing_utils.PyFileListing.PyFileInfo;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.plugin.PyStructureConfigHelpers;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.PyProjectPythonDetails;
 import org.python.pydev.ui.wizards.gettingstarted.AbstractNewProjectPage;
 import org.python.pydev.utils.ICallback;
-import org.python.pydev.utils.PyFileListing;
-import org.python.pydev.utils.PyFileListing.PyFileInfo;
 
 /**
  * First page for the new project creation wizard. This page

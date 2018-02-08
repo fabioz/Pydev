@@ -18,12 +18,12 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
+import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
+import org.python.pydev.ast.listing_utils.JavaVmLocationFinder;
+import org.python.pydev.ast.runners.SimpleJythonRunner;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.runners.SimpleJythonRunner;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
-import org.python.pydev.utils.JavaVmLocationFinder;
 
 public class JythonInterpreterManager extends AbstractInterpreterManager {
 
@@ -49,7 +49,7 @@ public class JythonInterpreterManager extends AbstractInterpreterManager {
 
     @Override
     protected String getPreferencesPageId() {
-        return "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageJython";
+        return "org.python.pydev.ast.interpreter_managers.interpreterPreferencesPageJython";
     }
 
     /**

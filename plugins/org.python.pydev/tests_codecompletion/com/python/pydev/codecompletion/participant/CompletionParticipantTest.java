@@ -16,15 +16,15 @@ import java.util.ArrayList;
 
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.text.Document;
+import org.python.pydev.ast.codecompletion.PyCodeCompletion;
+import org.python.pydev.ast.codecompletion.PyCodeCompletionPreferences;
+import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.editor.actions.PySelectionTest;
-import org.python.pydev.editor.codecompletion.PyCodeCompletion;
-import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.editor.codecompletion.proposals.CtxInsensitiveImportComplProposal;
 import org.python.pydev.editor.codecompletion.proposals.DefaultCompletionProposalFactory;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.aliasType;

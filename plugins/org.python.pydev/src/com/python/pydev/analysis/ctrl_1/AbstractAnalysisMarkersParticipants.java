@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
+import org.python.pydev.ast.analysis.IAnalysisPreferences;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
@@ -24,7 +25,6 @@ import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.structure.OrderedSet;
 
 import com.python.pydev.analysis.AnalysisPreferences;
-import com.python.pydev.analysis.IAnalysisPreferences;
 
 public abstract class AbstractAnalysisMarkersParticipants implements IAssistProps {
 

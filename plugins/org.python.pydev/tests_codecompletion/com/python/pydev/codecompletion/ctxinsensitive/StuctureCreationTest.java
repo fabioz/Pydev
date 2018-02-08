@@ -11,9 +11,9 @@ package com.python.pydev.codecompletion.ctxinsensitive;
 
 import java.util.Collection;
 
+import org.python.pydev.ast.codecompletion.PyCodeCompletion;
 import org.python.pydev.core.IInfo;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.shared_core.SharedCorePlugin;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;

@@ -9,13 +9,13 @@ package com.python.pydev.refactoring.tdd;
 import java.util.List;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.ast.codecompletion.PyCodeCompletion;
+import org.python.pydev.ast.codecompletion.revisited.CodeCompletionTestsBase;
+import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
+import org.python.pydev.ast.refactoring.AbstractPyRefactoring;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.structure.CompletionRecursionException;
-import org.python.pydev.editor.codecompletion.PyCodeCompletion;
-import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
-import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
-import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.FastStringBuffer;

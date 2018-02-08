@@ -18,15 +18,19 @@ import java.util.Set;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.ast.analysis.IAnalysisPreferences;
+import org.python.pydev.ast.analysis.messages.CompositeMessage;
+import org.python.pydev.ast.analysis.messages.IMessage;
+import org.python.pydev.ast.analysis.messages.Message;
+import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.ast.codecompletion.revisited.visitors.AbstractVisitor;
+import org.python.pydev.ast.codecompletion.revisited.visitors.AbstractVisitor.ImportPartSourceToken;
 import org.python.pydev.core.CheckAnalysisErrors;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
-import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
-import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor.ImportPartSourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.Expr;
@@ -42,11 +46,6 @@ import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.structure.Tuple;
-
-import com.python.pydev.analysis.IAnalysisPreferences;
-import com.python.pydev.analysis.messages.CompositeMessage;
-import com.python.pydev.analysis.messages.IMessage;
-import com.python.pydev.analysis.messages.Message;
 
 public final class MessagesManager {
 

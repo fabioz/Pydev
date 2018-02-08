@@ -115,7 +115,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener, IPy
     /*
      * (non-Javadoc)
      *
-     * @see org.python.pydev.editor.model.IModelListener#modelChanged(org.python.pydev.editor.model.AbstractNode)
+     * @see org.python.pydev.ast.item_pointer.IModelListener#modelChanged(org.python.pydev.ast.item_pointer.AbstractNode)
      */
     @Override
     public synchronized void modelChanged(final ISimpleNode ast) {

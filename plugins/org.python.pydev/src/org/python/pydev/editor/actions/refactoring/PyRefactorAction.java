@@ -25,6 +25,9 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.progress.UIJob;
+import org.python.pydev.ast.refactoring.AbstractPyRefactoring;
+import org.python.pydev.ast.refactoring.IPyRefactoring;
+import org.python.pydev.ast.refactoring.RefactoringRequest;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
@@ -32,9 +35,6 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.PySelectionFromEditor;
 import org.python.pydev.editor.actions.PyAction;
-import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
-import org.python.pydev.editor.refactoring.IPyRefactoring;
-import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
 
 /**

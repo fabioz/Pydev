@@ -27,10 +27,10 @@ package org.python.pydev.refactoring.coderefactoring.extractlocal.edit;
 
 import java.util.List;
 
+import org.python.pydev.ast.codecompletion.revisited.visitors.FindScopeVisitor;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.revisited.visitors.FindScopeVisitor;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Visitor;
 import org.python.pydev.parser.jython.ast.Assign;

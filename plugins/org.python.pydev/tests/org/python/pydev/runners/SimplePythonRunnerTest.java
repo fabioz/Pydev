@@ -16,6 +16,7 @@ import java.io.IOException;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
+import org.python.pydev.ast.runners.SimplePythonRunner;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.plugin.PydevPlugin;

@@ -12,9 +12,9 @@ package com.python.pydev.ui.hierarchy;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.python.pydev.ast.refactoring.HierarchyNodeModel;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.editor.refactoring.HierarchyNodeModel;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.BundleInfoStub;
 

@@ -20,7 +20,10 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.builder.PyDevBuilderVisitor;
+import org.python.pydev.ast.analysis.IAnalysisPreferences;
+import org.python.pydev.ast.analysis.messages.IMessage;
+import org.python.pydev.ast.builder.PyDevBuilderVisitor;
+import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.builder.pylint.IPyLintVisitor;
 import org.python.pydev.builder.pylint.PyLintVisitorFactory;
 import org.python.pydev.core.CheckAnalysisErrors;
@@ -31,8 +34,7 @@ import org.python.pydev.core.autoedit.DefaultIndentPrefs;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.logging.DebugSettings;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
-import org.python.pydev.plugin.preferences.PyDevBuilderPreferences;
+import org.python.pydev.parser.preferences.PyDevBuilderPreferences;
 import org.python.pydev.shared_core.IMiscConstants;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_ui.log.ToLogFile;
@@ -40,11 +42,9 @@ import org.python.pydev.shared_ui.utils.PyMarkerUtils;
 import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
 
 import com.python.pydev.analysis.AnalysisPreferences;
-import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.OccurrencesAnalyzer;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
-import com.python.pydev.analysis.messages.IMessage;
 
 /**
  * This class is used to do analysis on a thread, so that if an analysis is asked for some analysis that

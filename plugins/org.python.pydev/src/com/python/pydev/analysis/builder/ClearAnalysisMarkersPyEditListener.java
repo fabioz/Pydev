@@ -13,7 +13,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.IEditorInput;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.plugin.preferences.PyDevBuilderPreferences;
+import org.python.pydev.parser.preferences.PyDevBuilderPreferences;
 import org.python.pydev.shared_ui.editor.BaseEditor;
 import org.python.pydev.shared_ui.editor.IPyEditListener;
 import org.python.pydev.shared_ui.editor.IPyEditListener3;

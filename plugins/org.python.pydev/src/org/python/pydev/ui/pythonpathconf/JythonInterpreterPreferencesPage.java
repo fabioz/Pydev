@@ -13,8 +13,8 @@ package org.python.pydev.ui.pythonpathconf;
 
 import org.eclipse.jface.preference.DirectoryFieldEditor;
 import org.eclipse.swt.widgets.Composite;
+import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 
 public class JythonInterpreterPreferencesPage extends AbstractInterpreterPreferencesPage {
 

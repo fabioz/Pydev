@@ -10,7 +10,7 @@ import java.io.File;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.ui.IEditorInput;
-import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
+import org.python.pydev.ast.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
 import org.python.pydev.editorinput.EditorInputFactory;
 import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.editorinput.PySourceLocatorPrefs;

@@ -5,10 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.widgets.Shell;
+import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
+import org.python.pydev.ast.runners.SimpleRunner;
 import org.python.pydev.core.IInterpreterInfo.UnableToFindExecutableException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.process_window.ProcessWindow;
-import org.python.pydev.runners.SimpleRunner;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.OrderedSet;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -16,7 +17,6 @@ import org.python.pydev.shared_core.utils.ArrayUtils;
 import org.python.pydev.shared_core.utils.PlatformUtils;
 import org.python.pydev.shared_ui.utils.UIUtils;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
-import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.python.pydev.ui.pythonpathconf.PythonInterpreterProviderFactory;
 
 import com.eclipsesource.json.JsonArray;

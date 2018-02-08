@@ -13,13 +13,12 @@ import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
+import org.python.pydev.ast.analysis.IAnalysisPreferences;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
-
-import com.python.pydev.analysis.IAnalysisPreferences;
 
 public interface IAnalysisMarkersParticipant {
 

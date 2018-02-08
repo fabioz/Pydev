@@ -20,10 +20,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.python.pydev.ast.codecompletion.PyCodeCompletion;
+import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.editor.codecompletion.PyCodeCompletion;
-import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 
@@ -98,7 +98,7 @@ public class CompletionParticipantBuiltinsTest extends AdditionalInfoTestsBase {
 
             participant = new CtxParticipant();
             ICompletionProposalHandle[] proposals = requestCompl("Frame", -1, -1, new String[] {});
-            assertContains("Frame - wx", proposals); //Expected to fail. See: com.python.pydev.analysis.additionalinfo.builders.AdditionalInfoModulesObserver.notifyCompiledModuleCreated(CompiledModule, IModulesManager)
+            assertContains("Frame - wx", proposals); //Expected to fail. See: org.python.pydev.ast.analysis.additionalinfo.builders.AdditionalInfoModulesObserver.notifyCompiledModuleCreated(CompiledModule, IModulesManager)
         }
     }
 

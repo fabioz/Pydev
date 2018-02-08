@@ -34,6 +34,10 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
+import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
+import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
+import org.python.pydev.ast.listing_utils.JavaVmLocationFinder;
+import org.python.pydev.ast.runners.SimpleRunner;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
@@ -41,7 +45,6 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.docutils.StringSubstitution;
-import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.preferences.PydevPrefs;
 import org.python.pydev.debug.codecoverage.PyCodeCoverageView;
@@ -59,7 +62,6 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
 import org.python.pydev.pyunit.preferences.PyUnitPrefsPage2;
-import org.python.pydev.runners.SimpleRunner;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.net.LocalHost;
@@ -70,8 +72,6 @@ import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.PlatformUtils;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
-import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
-import org.python.pydev.utils.JavaVmLocationFinder;
 
 /**
  * Holds configuration for PythonRunner.

@@ -7,9 +7,9 @@
 package com.python.pydev.codecompletion;
 
 import org.eclipse.core.runtime.CoreException;
-import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
-import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
-import org.python.pydev.editor.model.ItemPointer;
+import org.python.pydev.ast.codecompletion.revisited.CodeCompletionTestsBase;
+import org.python.pydev.ast.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
+import org.python.pydev.ast.item_pointer.ItemPointer;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 
 import com.python.pydev.refactoring.actions.PyGoToDefinition;

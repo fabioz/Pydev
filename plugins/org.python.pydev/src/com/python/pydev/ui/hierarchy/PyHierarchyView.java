@@ -9,7 +9,7 @@ package com.python.pydev.ui.hierarchy;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IActionBars;
-import org.python.pydev.editor.refactoring.HierarchyNodeModel;
+import org.python.pydev.ast.refactoring.HierarchyNodeModel;
 import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
 import org.python.pydev.shared_ui.utils.IViewWithControls;
 import org.python.pydev.ui.NotifyViewCreated;

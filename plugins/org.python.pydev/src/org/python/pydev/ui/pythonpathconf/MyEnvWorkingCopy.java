@@ -23,6 +23,7 @@ import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchDelegate;
 import org.eclipse.debug.core.ILaunchManager;
+import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
 
 @SuppressWarnings("unchecked")
 public class MyEnvWorkingCopy implements ILaunchConfigurationWorkingCopy {

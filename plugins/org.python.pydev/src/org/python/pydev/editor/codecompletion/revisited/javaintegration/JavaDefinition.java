@@ -7,9 +7,9 @@
 package org.python.pydev.editor.codecompletion.revisited.javaintegration;
 
 import org.eclipse.jdt.core.IJavaElement;
+import org.python.pydev.ast.codecompletion.revisited.modules.IJavaDefinition;
+import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.core.IModule;
-import org.python.pydev.editor.codecompletion.revisited.modules.IJavaDefinition;
-import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 
 public class JavaDefinition extends Definition implements IJavaDefinition {
 

@@ -21,7 +21,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
+import org.python.pydev.ast.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;
 

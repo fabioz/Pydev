@@ -13,6 +13,7 @@ import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateBuffer;
 import org.eclipse.jface.text.templates.TemplateContextType;
 import org.python.pydev.core.autoedit.TestIndentPrefs;
+import org.python.pydev.editor.codecompletion.templates.PyDocumentTemplateContext;
 
 public class PyDocumentTemplateContextTest extends TestCase {
 

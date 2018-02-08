@@ -30,7 +30,7 @@ public class GlobalsTwoPaneElementSelector extends TwoPaneElementSelector {
     public GlobalsTwoPaneElementSelector(Shell parent) {
         super(parent, new NameIInfoLabelProvider(false), new ModuleIInfoLabelProvider());
         setTitle("PyDev: Globals Browser");
-        memento = new DialogMemento(getShell(), "com.python.pydev.analysis.actions.GlobalsTwoPaneElementSelector");
+        memento = new DialogMemento(getShell(), "org.python.pydev.ast.analysis.actions.GlobalsTwoPaneElementSelector");
     }
 
     @Override

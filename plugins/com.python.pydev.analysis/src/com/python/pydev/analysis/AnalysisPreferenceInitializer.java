@@ -16,7 +16,7 @@ import org.osgi.service.prefs.Preferences;
 
 public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer {
 
-    public static final String DEFAULT_SCOPE = "com.python.pydev.analysis";
+    public static final String DEFAULT_SCOPE = "org.python.pydev.ast.analysis";
 
     public static final String SEVERITY_UNUSED_PARAMETER = "SEVERITY_UNUSED_PARAMETER";
     public static final int DEFAULT_SEVERITY_UNUSED_PARAMETER = IMarker.SEVERITY_INFO;

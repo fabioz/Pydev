@@ -1,10 +1,9 @@
 package com.python.pydev.analysis;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.ast.analysis.messages.IMessage;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.parser.jython.ParseException;
-
-import com.python.pydev.analysis.messages.IMessage;
 
 public class OccurrencesAnalyzerPy36Test extends AnalysisTestsBase {
 

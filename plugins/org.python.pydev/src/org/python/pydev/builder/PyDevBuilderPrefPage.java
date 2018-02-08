@@ -21,8 +21,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.parser.PyParserManager;
+import org.python.pydev.parser.preferences.PyDevBuilderPreferences;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.preferences.PyDevBuilderPreferences;
 import org.python.pydev.shared_ui.field_editors.ComboFieldEditor;
 import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;
 

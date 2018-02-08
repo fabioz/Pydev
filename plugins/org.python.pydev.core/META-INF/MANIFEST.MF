@@ -23,6 +23,7 @@ Export-Package: org.python.copiedfromeclipsesrc,
  org.python.pydev.core.concurrency,
  org.python.pydev.core.docutils,
  org.python.pydev.core.interactive_console,
+ org.python.pydev.core.interpreters,
  org.python.pydev.core.log,
  org.python.pydev.core.logging,
  org.python.pydev.core.nature,
@@ -31,7 +32,5 @@ Export-Package: org.python.copiedfromeclipsesrc,
  org.python.pydev.core.performanceeval,
  org.python.pydev.core.preferences,
  org.python.pydev.core.proposals,
- org.python.pydev.core.structure,
- org.python.pydev.ui.interpreters,
- org.python.pydev.ui.pythonpathconf
+ org.python.pydev.core.structure
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

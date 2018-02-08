@@ -11,10 +11,10 @@ import java.io.FileFilter;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.python.pydev.ast.runners.SimpleIronpythonRunner;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.pythontests.AbstractBasicRunTestCase;
-import org.python.pydev.runners.SimpleIronpythonRunner;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;

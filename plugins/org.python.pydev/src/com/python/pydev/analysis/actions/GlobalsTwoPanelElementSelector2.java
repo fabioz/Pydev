@@ -76,7 +76,7 @@ import com.python.pydev.analysis.additionalinfo.ModInfo;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialog implements IViewWithControls {
 
-    private static final String DIALOG_SETTINGS = "com.python.pydev.analysis.actions.GlobalsTwoPanelElementSelector2"; //$NON-NLS-1$
+    private static final String DIALOG_SETTINGS = "org.python.pydev.ast.analysis.actions.GlobalsTwoPanelElementSelector2"; //$NON-NLS-1$
 
     private static final String WORKINGS_SET_SETTINGS = "WorkingSet"; //$NON-NLS-1$
 

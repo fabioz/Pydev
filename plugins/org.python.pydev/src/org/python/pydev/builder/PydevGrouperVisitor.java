@@ -16,6 +16,8 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.ast.builder.PyDevBuilderVisitor;
+import org.python.pydev.ast.builder.VisitorMemo;
 import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.log.Log;

@@ -28,10 +28,10 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
+import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.pyunit.HistoryAction.IActionsMenu;
-import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 

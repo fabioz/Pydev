@@ -9,6 +9,8 @@ package com.python.pydev.analysis;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.python.pydev.ast.analysis.IAnalysisPreferences;
+
 public abstract class AbstractAnalysisPreferences implements IAnalysisPreferences {
 
     private static final Map<Integer, String> typeToIgnoreMessage = new HashMap<Integer, String>();

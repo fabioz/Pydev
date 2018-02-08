@@ -25,6 +25,10 @@ import java.util.concurrent.CountDownLatch;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.python.pydev.ast.codecompletion.revisited.PyPublicTreeMap;
+import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.ast.codecompletion.revisited.modules.IAbstractJavaClassModule;
+import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
 import org.python.pydev.core.FastBufferedReader;
 import org.python.pydev.core.IInfo;
 import org.python.pydev.core.IInterpreterManager;
@@ -39,9 +43,6 @@ import org.python.pydev.core.cache.CompleteIndexKey;
 import org.python.pydev.core.cache.DiskCache;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.logging.DebugSettings;
-import org.python.pydev.editor.codecompletion.revisited.PyPublicTreeMap;
-import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
-import org.python.pydev.editor.codecompletion.revisited.modules.IAbstractJavaClassModule;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.stmtType;
@@ -53,7 +54,6 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
-import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 /**
  * Adds information on the modules being tracked.

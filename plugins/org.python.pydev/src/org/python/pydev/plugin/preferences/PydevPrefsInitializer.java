@@ -26,6 +26,7 @@ import org.python.pydev.editor.hover.PyHoverPreferencesPage;
 import org.python.pydev.editor.saveactions.PydevSaveActionsPrefPage;
 import org.python.pydev.editorinput.PySourceLocatorPrefs;
 import org.python.pydev.parser.PyParserManager;
+import org.python.pydev.parser.preferences.PyDevBuilderPreferences;
 import org.python.pydev.pyunit.preferences.PyUnitPrefsPage2;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_ui.word_boundaries.SubWordPreferences;

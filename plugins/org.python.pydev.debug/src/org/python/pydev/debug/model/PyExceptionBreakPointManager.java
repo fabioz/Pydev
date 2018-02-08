@@ -11,10 +11,10 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.runtime.IPath;
+import org.python.pydev.ast.interpreter_managers.ChooseInterpreterManager;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.interpreter_managers.ChooseInterpreterManager;
 import org.python.pydev.debug.core.ConfigureExceptionsFileUtils;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.core.PydevDebugPreferencesInitializer;

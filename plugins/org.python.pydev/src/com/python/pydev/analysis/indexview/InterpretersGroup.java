@@ -6,9 +6,9 @@
  */
 package com.python.pydev.analysis.indexview;
 
+import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 
 public class InterpretersGroup extends ElementWithChildren {
 

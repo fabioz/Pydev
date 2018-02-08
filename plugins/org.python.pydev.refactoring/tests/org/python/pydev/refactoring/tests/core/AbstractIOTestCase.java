@@ -25,17 +25,17 @@ package org.python.pydev.refactoring.tests.core;
 import java.util.ArrayList;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.ast.codecompletion.revisited.CodeCompletionTestsBase;
+import org.python.pydev.ast.codecompletion.revisited.SystemModulesManager;
+import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
-import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.refactoring.ast.PythonModuleManager;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.StringUtils;
-import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 import junit.framework.TestCase;
 

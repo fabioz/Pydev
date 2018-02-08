@@ -9,10 +9,10 @@
  */
 package com.python.pydev.analysis;
 
-import static com.python.pydev.analysis.IAnalysisPreferences.TYPE_DUPLICATED_SIGNATURE;
-import static com.python.pydev.analysis.IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE;
-import static com.python.pydev.analysis.IAnalysisPreferences.TYPE_UNUSED_IMPORT;
-import static com.python.pydev.analysis.IAnalysisPreferences.TYPE_UNUSED_VARIABLE;
+import static org.python.pydev.ast.analysis.IAnalysisPreferences.TYPE_DUPLICATED_SIGNATURE;
+import static org.python.pydev.ast.analysis.IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE;
+import static org.python.pydev.ast.analysis.IAnalysisPreferences.TYPE_UNUSED_IMPORT;
+import static org.python.pydev.ast.analysis.IAnalysisPreferences.TYPE_UNUSED_VARIABLE;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,16 +21,15 @@ import java.util.HashSet;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
+import org.python.pydev.ast.analysis.messages.CompositeMessage;
+import org.python.pydev.ast.analysis.messages.IMessage;
+import org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule;
+import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.autoedit.TestIndentPrefs;
-import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.shared_core.io.FileUtils;
-
-import com.python.pydev.analysis.messages.CompositeMessage;
-import com.python.pydev.analysis.messages.IMessage;
 
 public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 

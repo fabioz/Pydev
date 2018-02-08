@@ -56,7 +56,7 @@ public class OverrideMethodCompletionProposal extends AbstractPyCompletionPropos
     }
 
     /* (non-Javadoc)
-     * @see org.python.pydev.editor.codecompletion.PyCompletionProposal#apply(org.eclipse.jface.text.IDocument)
+     * @see org.python.pydev.ast.codecompletion.PyCompletionProposal#apply(org.eclipse.jface.text.IDocument)
      */
     @Override
     public void apply(IDocument document) {
@@ -163,7 +163,7 @@ public class OverrideMethodCompletionProposal extends AbstractPyCompletionPropos
     }
 
     /* (non-Javadoc)
-     * @see org.python.pydev.editor.codecompletion.AbstractPyCompletionProposalExtension2#getTriggerCharacters()
+     * @see org.python.pydev.ast.codecompletion.AbstractPyCompletionProposalExtension2#getTriggerCharacters()
      */
     @Override
     public char[] getTriggerCharacters() {

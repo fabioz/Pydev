@@ -12,8 +12,8 @@ package org.python.pydev.editor.codefolding;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.swt.graphics.Image;
+import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.core.IToken;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.NodeUtils;
 

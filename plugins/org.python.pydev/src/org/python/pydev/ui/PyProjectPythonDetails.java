@@ -40,13 +40,14 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.dialogs.PropertyPage;
+import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
+import org.python.pydev.ast.interpreter_managers.IInterpreterProviderFactory.InterpreterType;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IGrammarVersionProvider.AdditionalGrammarVersionsToCheck;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -55,7 +56,6 @@ import org.python.pydev.shared_core.utils.ArrayUtils;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.dialogs.SelectNDialog;
 import org.python.pydev.ui.pythonpathconf.AutoConfigMaker;
-import org.python.pydev.ui.pythonpathconf.IInterpreterProviderFactory.InterpreterType;
 import org.python.pydev.ui.pythonpathconf.InterpreterConfigHelpers;
 import org.python.pydev.utils.ICallback;
 
@@ -151,7 +151,7 @@ public class PyProjectPythonDetails extends PropertyPage {
 
             //interpreter configured in the project
             final String[] idToConfig = new String[] {
-                    "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPagePython" };
+                    "org.python.pydev.ast.interpreter_managers.interpreterPreferencesPagePython" };
             interpretersChoice = new Combo(topComp, SWT.READ_ONLY);
             selectionListener = new SelectionListener() {
 
@@ -206,15 +206,15 @@ public class PyProjectPythonDetails extends PropertyPage {
                     //config which preferences page should be opened!
                     switch (interpreterManager.getInterpreterType()) {
                         case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
-                            idToConfig[0] = "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPagePython";
+                            idToConfig[0] = "org.python.pydev.ast.interpreter_managers.interpreterPreferencesPagePython";
                             break;
 
                         case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
-                            idToConfig[0] = "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageJython";
+                            idToConfig[0] = "org.python.pydev.ast.interpreter_managers.interpreterPreferencesPageJython";
                             break;
 
                         case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
-                            idToConfig[0] = "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageIronpython";
+                            idToConfig[0] = "org.python.pydev.ast.interpreter_managers.interpreterPreferencesPageIronpython";
                             break;
 
                         default:

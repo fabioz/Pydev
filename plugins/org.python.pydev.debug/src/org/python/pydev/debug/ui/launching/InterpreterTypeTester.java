@@ -7,9 +7,9 @@
 package org.python.pydev.debug.ui.launching;
 
 import org.eclipse.core.expressions.PropertyTester;
+import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
 
 

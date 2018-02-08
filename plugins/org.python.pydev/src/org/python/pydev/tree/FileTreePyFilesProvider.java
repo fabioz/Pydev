@@ -13,7 +13,7 @@ package org.python.pydev.tree;
 
 import java.io.File;
 
-import org.python.pydev.utils.PyFileListing;
+import org.python.pydev.ast.listing_utils.PyFileListing;
 
 /**
  * @author Fabio Zadrozny

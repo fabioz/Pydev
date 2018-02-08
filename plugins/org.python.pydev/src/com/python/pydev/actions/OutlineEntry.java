@@ -6,7 +6,7 @@
  */
 package com.python.pydev.actions;
 
-import org.python.pydev.editor.refactoring.HierarchyNodeModel;
+import org.python.pydev.ast.refactoring.HierarchyNodeModel;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.visitors.NodeUtils;

@@ -25,9 +25,9 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.python.pydev.ast.refactoring.IPyRefactoringRequest;
+import org.python.pydev.ast.refactoring.MultiModuleMoveRefactoringRequest;
 import org.python.pydev.core.docutils.PyStringUtils;
-import org.python.pydev.editor.refactoring.IPyRefactoringRequest;
-import org.python.pydev.editor.refactoring.MultiModuleMoveRefactoringRequest;
 import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.shared_core.string.StringUtils;
 

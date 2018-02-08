@@ -12,12 +12,11 @@ package com.python.pydev.analysis;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
+import org.python.pydev.ast.analysis.messages.IMessage;
+import org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule;
+import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.autoedit.TestIndentPrefs;
-import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
-
-import com.python.pydev.analysis.messages.IMessage;
 
 public class OccurrencesAnalyzerListCompTest extends AnalysisTestsBase {
 

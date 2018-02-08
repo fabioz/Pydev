@@ -13,17 +13,17 @@ import java.util.List;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
+import org.python.pydev.ast.analysis.messages.AbstractMessage;
+import org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule;
+import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.string.StringUtils;
 
 import com.python.pydev.analysis.AnalysisTestsBase;
-import com.python.pydev.analysis.messages.AbstractMessage;
 
 public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
 

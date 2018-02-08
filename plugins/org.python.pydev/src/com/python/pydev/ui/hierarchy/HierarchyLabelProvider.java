@@ -17,7 +17,7 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.StyledString.Styler;
 import org.eclipse.swt.graphics.Image;
-import org.python.pydev.editor.refactoring.HierarchyNodeModel;
+import org.python.pydev.ast.refactoring.HierarchyNodeModel;
 import org.python.pydev.shared_core.structure.DataAndImageTreeNode;
 import org.python.pydev.shared_ui.ImageCache;
 

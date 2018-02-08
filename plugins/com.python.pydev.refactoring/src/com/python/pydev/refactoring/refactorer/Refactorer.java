@@ -19,20 +19,20 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.ltk.core.refactoring.participants.RenameRefactoring;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizardOpenOperation;
+import org.python.pydev.ast.codecompletion.revisited.visitors.AssignDefinition;
+import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
+import org.python.pydev.ast.item_pointer.ItemPointer;
+import org.python.pydev.ast.refactoring.AbstractPyRefactoring;
+import org.python.pydev.ast.refactoring.HierarchyNodeModel;
+import org.python.pydev.ast.refactoring.IPyRefactoring;
+import org.python.pydev.ast.refactoring.IPyRefactoring2;
+import org.python.pydev.ast.refactoring.IPyRefactoringRequest;
+import org.python.pydev.ast.refactoring.ModuleRenameRefactoringRequest;
+import org.python.pydev.ast.refactoring.MultiModuleMoveRefactoringRequest;
+import org.python.pydev.ast.refactoring.PyRefactoringRequest;
+import org.python.pydev.ast.refactoring.RefactoringRequest;
+import org.python.pydev.ast.refactoring.TooManyMatchesException;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
-import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
-import org.python.pydev.editor.model.ItemPointer;
-import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
-import org.python.pydev.editor.refactoring.HierarchyNodeModel;
-import org.python.pydev.editor.refactoring.IPyRefactoring;
-import org.python.pydev.editor.refactoring.IPyRefactoring2;
-import org.python.pydev.editor.refactoring.IPyRefactoringRequest;
-import org.python.pydev.editor.refactoring.ModuleRenameRefactoringRequest;
-import org.python.pydev.editor.refactoring.MultiModuleMoveRefactoringRequest;
-import org.python.pydev.editor.refactoring.PyRefactoringRequest;
-import org.python.pydev.editor.refactoring.RefactoringRequest;
-import org.python.pydev.editor.refactoring.TooManyMatchesException;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.EditorUtils;
@@ -59,7 +59,7 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
      *
      * Basically passes things to the rename processor (it will choose the kind of rename that will happen).
      *
-     * @see org.python.pydev.editor.refactoring.IPyRefactoring#rename(org.python.pydev.editor.refactoring.RefactoringRequest)
+     * @see org.python.pydev.ast.refactoring.IPyRefactoring#rename(org.python.pydev.ast.refactoring.RefactoringRequest)
      */
     @Override
     public String rename(IPyRefactoringRequest request) {
