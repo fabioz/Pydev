@@ -15,8 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.python.pydev.core.FormatStd;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.formatter.FormatStd;
 import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
 import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;

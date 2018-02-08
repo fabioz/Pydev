@@ -1,4 +1,4 @@
-package org.python.pydev.core;
+package org.python.pydev.core.formatter;
 
 /**
  * Class that defines the format standard to be used

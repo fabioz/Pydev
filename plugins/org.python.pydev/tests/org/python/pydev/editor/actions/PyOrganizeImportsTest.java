@@ -12,13 +12,13 @@
 package org.python.pydev.editor.actions;
 
 import org.eclipse.jface.text.Document;
-import org.python.pydev.core.FormatStd;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IPyFormatStdProvider;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.formatter.FormatStd;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 
 import junit.framework.TestCase;

@@ -33,7 +33,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
-import org.python.pydev.core.FormatStd;
+import org.python.pydev.core.formatter.FormatStd;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.StyledTextForShowingCodeFactory;
 import org.python.pydev.editor.actions.PyFormatStd;

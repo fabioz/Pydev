@@ -29,7 +29,7 @@ import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
-import org.python.pydev.core.FormatStd;
+import org.python.pydev.core.formatter.FormatStd;
 import org.python.pydev.core.preferences.PyScopedPreferences;
 import org.python.pydev.editor.StyledTextForShowingCodeFactory;
 import org.python.pydev.plugin.PyDevUiPrefs;

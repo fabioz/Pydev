@@ -30,11 +30,11 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.python.pydev.builder.pep8.Pep8Visitor;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.FormatStd;
 import org.python.pydev.core.IPyFormatStdProvider;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
+import org.python.pydev.core.formatter.FormatStd;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.PySelectionFromEditor;
@@ -160,7 +160,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @param regionsForSave lines to be formatted (0-based).
      * @see IFormatter
      */
-    public void formatSelection(IDocument doc, int[] regionsForSave, IPyFormatStdProvider edit, PySelection ps,
+    public static void formatSelection(IDocument doc, int[] regionsForSave, IPyFormatStdProvider edit, PySelection ps,
             FormatStd formatStd) {
         //        Formatter formatter = new Formatter();
         //        formatter.formatSelection(doc, startLine, endLineIndex, edit, ps);
@@ -296,7 +296,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
 
     }
 
-    public void formatAll(IDocument doc, IPyFormatStdProvider edit, boolean isOpenedFile, FormatStd formatStd,
+    public static void formatAll(IDocument doc, IPyFormatStdProvider edit, boolean isOpenedFile, FormatStd formatStd,
             boolean throwSyntaxError, boolean allowChangingLines) throws SyntaxErrorException {
         String delimiter = PySelection.getDelimiter(doc);
         String formatted = formatStrAutopep8OrPyDev(formatStd, throwSyntaxError, doc, delimiter, allowChangingLines);
@@ -313,7 +313,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
         }
     }
 
-    private String formatStrAutopep8OrPyDev(FormatStd formatStd, boolean throwSyntaxError, IDocument doc,
+    private static String formatStrAutopep8OrPyDev(FormatStd formatStd, boolean throwSyntaxError, IDocument doc,
             String delimiter, boolean allowChangingBlankLines)
             throws SyntaxErrorException {
         String formatted = formatStrAutopep8OrPyDev(doc, formatStd, delimiter, throwSyntaxError,
@@ -368,7 +368,8 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @return a new (formatted) string
      * @throws SyntaxErrorException
      */
-    /*default*/String formatStrAutopep8OrPyDev(IDocument doc, FormatStd std, String delimiter, boolean throwSyntaxError,
+    /*default*/static String formatStrAutopep8OrPyDev(IDocument doc, FormatStd std, String delimiter,
+            boolean throwSyntaxError,
             boolean allowChangingBlankLines) throws SyntaxErrorException {
         if (std.formatWithAutopep8) {
             String parameters = std.autopep8Parameters;
@@ -402,7 +403,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @return a new (formatted) string
      * @throws SyntaxErrorException
      */
-    private FastStringBuffer formatStr(String doc, FormatStd std, int parensLevel, String delimiter,
+    private static FastStringBuffer formatStr(String doc, FormatStd std, int parensLevel, String delimiter,
             boolean throwSyntaxError)
             throws SyntaxErrorException {
         final char[] cs = doc.toCharArray();
@@ -615,7 +616,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
     /**
      * Handles the case where we found a '#' in the code.
      */
-    private int handleComment(FormatStd std, char[] cs, FastStringBuffer buf, FastStringBuffer tempBuf,
+    private static int handleComment(FormatStd std, char[] cs, FastStringBuffer buf, FastStringBuffer tempBuf,
             ParsingUtils parsingUtils, int i) {
         if (std.spacesBeforeComment != FormatStd.DONT_HANDLE_SPACES) {
             for (int j = i - 1; j >= 0; j--) {
@@ -758,7 +759,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @param c current char
      * @return the new index after handling the operator
      */
-    private int handleOperator(FormatStd std, char[] cs, FastStringBuffer buf, ParsingUtils parsingUtils, int i,
+    private static int handleOperator(FormatStd std, char[] cs, FastStringBuffer buf, ParsingUtils parsingUtils, int i,
             char c) {
         //let's discover if it's an unary operator (~ + -)
         boolean isUnaryWithContents = true;
@@ -872,7 +873,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @param prev
      * @return true if the passed char is part of an operator
      */
-    private boolean isOperatorPart(char c, char prev) {
+    private static boolean isOperatorPart(char c, char prev) {
         switch (c) {
             case '+':
             case '-':
@@ -906,7 +907,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @param throwSyntaxError
      * @throws SyntaxErrorException
      */
-    private int formatForPar(final ParsingUtils parsingUtils, final char[] cs, final int i, final FormatStd std,
+    private static int formatForPar(final ParsingUtils parsingUtils, final char[] cs, final int i, final FormatStd std,
             final FastStringBuffer buf, final int parensLevel, final String delimiter, boolean throwSyntaxError)
             throws SyntaxErrorException {
         char c = ' ';
@@ -1005,7 +1006,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @param locBuf the buffer to be trimmed
      * @return the same buffer passed as a parameter
      */
-    private FastStringBuffer trim(FastStringBuffer locBuf) {
+    private static FastStringBuffer trim(FastStringBuffer locBuf) {
         while (locBuf.length() > 0 && (locBuf.firstChar() == ' ' || locBuf.firstChar() == '\t')) {
             locBuf.deleteCharAt(0);
         }
@@ -1018,7 +1019,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @param locBuf the buffer to be trimmed
      * @return the same buffer passed as a parameter
      */
-    private FastStringBuffer rtrim(FastStringBuffer locBuf) {
+    private static FastStringBuffer rtrim(FastStringBuffer locBuf) {
         while (locBuf.length() > 0 && (locBuf.lastChar() == ' ' || locBuf.lastChar() == '\t')) {
             locBuf.deleteLast();
         }
@@ -1034,7 +1035,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @param i the current index
      * @return the new index on the original doc.
      */
-    private int formatForComma(FormatStd std, char[] cs, FastStringBuffer buf, int i,
+    private static int formatForComma(FormatStd std, char[] cs, FastStringBuffer buf, int i,
             FastStringBuffer formatForCommaTempBuf) {
         formatForCommaTempBuf.clear();
         char c = '\0';

@@ -14,8 +14,8 @@ import java.util.List;
 
 import org.eclipse.jface.text.Document;
 import org.python.pydev.ast.analysis.IAnalysisPreferences;
-import org.python.pydev.core.FormatStd;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.formatter.FormatStd;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.editor.codecompletion.proposals.DefaultCompletionProposalFactory;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;

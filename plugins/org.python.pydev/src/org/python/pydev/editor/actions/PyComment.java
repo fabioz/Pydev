@@ -13,7 +13,7 @@ package org.python.pydev.editor.actions;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
-import org.python.pydev.core.FormatStd;
+import org.python.pydev.core.formatter.FormatStd;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.shared_core.actions.LineCommentAction;
 import org.python.pydev.shared_core.string.TextSelectionUtils;

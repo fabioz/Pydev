@@ -8,10 +8,10 @@ package org.python.pydev.editor.correctionassist;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.IContextInformation;
-import org.python.pydev.core.FormatStd;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.formatter.FormatStd;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyFormatStd;
