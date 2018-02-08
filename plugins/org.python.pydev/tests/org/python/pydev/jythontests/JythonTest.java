@@ -21,10 +21,10 @@ import java.util.List;
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.jython.IPythonInterpreter;
 import org.python.pydev.jython.JythonPlugin;
 import org.python.pydev.runners.SimpleJythonRunner;
 import org.python.pydev.runners.SimpleRunner;
+import org.python.pydev.shared_core.jython.IPythonInterpreter;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 

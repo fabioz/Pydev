@@ -7,6 +7,7 @@
 package org.python.pydev.jython;
 
 import org.python.core.PySystemState;
+import org.python.pydev.shared_core.jython.IPythonInterpreter;
 import org.python.util.PythonInterpreter;
 
 public class PythonInterpreterWrapperNotShared extends PythonInterpreter implements IPythonInterpreter {

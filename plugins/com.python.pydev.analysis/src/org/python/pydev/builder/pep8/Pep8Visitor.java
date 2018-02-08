@@ -30,11 +30,11 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
-import org.python.pydev.jython.JythonPep8;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.jython.JythonPep8Core;
 import org.python.pydev.shared_core.process.ProcessUtils;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -73,7 +73,7 @@ public class Pep8Visitor {
             }
 
             IAdaptable projectAdaptable = prefs.getProjectAdaptable();
-            if (AnalysisPreferences.useSystemInterpreter(projectAdaptable)) {
+            if (AnalysisPreferences.useSystemInterpreter(projectAdaptable) || !JythonPep8Core.isAnalyzeCallbackSet()) {
                 String parameters = AnalysisPreferences.getPep8CommandLineAsStr(projectAdaptable);
                 String output = runWithPep8BaseScript(document, parameters, "pycodestyle.py");
                 if (output == null) {
@@ -97,8 +97,8 @@ public class Pep8Visitor {
 
             String[] pep8CommandLine = AnalysisPreferences.getPep8CommandLine(projectAdaptable);
             boolean useConsole = AnalysisPreferences.useConsole(projectAdaptable);
-            JythonPep8.analyzePep8WithJython(module.getFile().getAbsolutePath(), document, useConsole, this,
-                    pep8CommandLine);
+            new JythonPep8Core(module.getFile().getAbsolutePath(), document, useConsole, this,
+                    pep8CommandLine).analyze();
 
         } catch (Exception e) {
             Log.log("Error analyzing: " + module, e);

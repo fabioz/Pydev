@@ -15,8 +15,8 @@ import java.util.HashMap;
 
 import org.eclipse.jface.text.templates.GlobalTemplateVariables;
 import org.eclipse.jface.text.templates.TemplateContextType;
-import org.python.pydev.jython.IPythonInterpreter;
 import org.python.pydev.jython.JythonPlugin;
+import org.python.pydev.shared_core.jython.IPythonInterpreter;
 
 /**
  * @author Fabio Zadrozny

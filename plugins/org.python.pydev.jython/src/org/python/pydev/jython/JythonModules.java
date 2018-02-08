@@ -9,6 +9,7 @@ import org.python.core.PyList;
 import org.python.core.PyObject;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.shared_core.jython.IPythonInterpreter;
 import org.python.pydev.shared_core.string.StringUtils;
 
 public class JythonModules {
@@ -42,7 +43,7 @@ public class JythonModules {
             }
             s = StringUtils.format(s, StringUtils.replaceAllSlashes(pepModuleLoc.getParentFile().getAbsolutePath()));
             interpreter.exec(s);
-            return interpreter.get(module);
+            return (PyObject) interpreter.get(module);
         }
     }
 
@@ -110,7 +111,7 @@ public class JythonModules {
                             + outputLine);
         }
 
-        PyObject pyObject = interpreter.get("output");
+        PyObject pyObject = (PyObject) interpreter.get("output");
         if (pyObject != null && pyObject.__nonzero__()) {
             return pyObject.toString();
         }
