@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
+import org.python.pydev.core.log.Log;
 
 /**
  * The main plugin class to be used in the desktop.
@@ -96,6 +97,30 @@ public class CorePlugin extends Plugin {
      */
     public ResourceBundle getResourceBundle() {
         return resourceBundle;
+    }
+
+    public static File getPep8Location() {
+        return getPepModuleLocation("pycodestyle.py");
+    }
+
+    /**
+     * @param moduleFilename: i.e.: pycodestyle.py, autopep8.py
+     * @return
+     */
+    public static File getPepModuleLocation(String moduleFilename) {
+        try {
+            String pep8Location = getScriptWithinPySrc(
+                    new Path("third_party").append("pep8").append(moduleFilename).toString()).toString();
+            File pep8Loc = new File(pep8Location);
+            if (!pep8Loc.exists()) {
+                Log.log("Specified location for " + moduleFilename + " does not exist (" + pep8Location + ").");
+                return null;
+            }
+            return pep8Loc;
+        } catch (CoreException e) {
+            Log.log("Error getting " + moduleFilename + " location", e);
+            return null;
+        }
     }
 
     /**

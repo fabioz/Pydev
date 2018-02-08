@@ -23,10 +23,6 @@ public class JythonModules {
         return pep8Module;
     }
 
-    public static File getPep8Location() {
-        return getPepModuleLocation("pycodestyle.py");
-    }
-
     /**
      * @param module: The name of the module (i.e.: pycodestyle, autopep8)
      * @return null if it was not able to get the pycodestyle module.
@@ -40,33 +36,13 @@ public class JythonModules {
                     + "    sys.path.append(add_to_pythonpath)\n"
                     + "import " + module + "\n";
             //put the parent dir of pycodestyle.py in the pythonpath.
-            File pepModuleLoc = getPepModuleLocation(module + ".py");
+            File pepModuleLoc = CorePlugin.getPepModuleLocation(module + ".py");
             if (pepModuleLoc == null) {
                 return null;
             }
             s = StringUtils.format(s, StringUtils.replaceAllSlashes(pepModuleLoc.getParentFile().getAbsolutePath()));
             interpreter.exec(s);
             return interpreter.get(module);
-        }
-    }
-
-    /**
-     * @param moduleFilename: i.e.: pycodestyle.py, autopep8.py
-     * @return
-     */
-    private static File getPepModuleLocation(String moduleFilename) {
-        try {
-            String pep8Location = CorePlugin.getScriptWithinPySrc(
-                    new Path("third_party").append("pep8").append(moduleFilename).toString()).toString();
-            File pep8Loc = new File(pep8Location);
-            if (!pep8Loc.exists()) {
-                Log.log("Specified location for " + moduleFilename + " does not exist (" + pep8Location + ").");
-                return null;
-            }
-            return pep8Loc;
-        } catch (CoreException e) {
-            Log.log("Error getting " + moduleFilename + " location", e);
-            return null;
         }
     }
 

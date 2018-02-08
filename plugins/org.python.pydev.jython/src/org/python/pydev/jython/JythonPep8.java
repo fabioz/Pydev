@@ -1,0 +1,90 @@
+package org.python.pydev.jython;
+
+import java.util.List;
+
+import org.eclipse.jface.text.IDocument;
+import org.python.core.Py;
+import org.python.core.PyObject;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
+
+public class JythonPep8 {
+
+    public static final String EXECUTE_PEP8 = "import sys\n"
+    + "argv = ['pycodestyle.py', r'%s'%s]\n"
+    + "sys.argv=argv\n"
+    //It always accesses sys.argv[0] in process_options, so, it must be set.
+    + "\n"
+    + "\n"
+    + "pep8style = pycodestyle.StyleGuide(parse_argv=True, config_file=False)\n"
+    + "\n"
+    + "checker = pycodestyle.Checker(options=pep8style.options, filename='%s', lines=lines)\n"
+    + "\n"
+    + "if ReportError is None: #Only redefine if it wasn't defined already\n"
+    + "    class ReportError:\n"
+    + "\n"
+    + "        def __init__(self, checker, pep8style, visitor):\n"
+    + "            self.checker = checker\n"
+    + "            self.pep8style = pep8style\n"
+    + "            self.visitor = visitor\n"
+    + "            self.original = checker.report_error\n"
+    + "            checker.report_error = self\n"
+    + "            if not self.pep8style.excluded(self.checker.filename):\n"
+    + "                checker.check_all()\n"
+    + "            #Clear references\n"
+    + "            self.original = None\n"
+    + "            self.checker = None\n"
+    + "            self.pep8style = None\n"
+    + "            self.visitor = None\n"
+    + "            checker.report_error = None\n"
+    + "        \n"
+    + "        def __call__(self, line_number, offset, text, check):\n"
+    + "            code = text[:4]\n"
+    + "            if self.pep8style.options.ignore_code(code):\n"
+    + "                return\n"
+    + "            self.visitor.reportError(line_number, offset, text, check)\n"
+    + "            return self.original(line_number, offset, text, check)\n"
+    + "\n"
+    + "ReportError(checker, pep8style, visitor)\n"
+    + "checker = None #Release checker\n"
+    + "pep8style = None #Release pep8style\n"
+    + "";
+    public static final Object lock = new Object();
+    public volatile static PyObject reportError;
+    public static void analyzePep8WithJython(String absolutePath, IDocument document, boolean useConsole,
+            Object visitor, String[] pep8CommandLine) {
+        FastStringBuffer args = new FastStringBuffer(pep8CommandLine.length * 20);
+        for (String string : pep8CommandLine) {
+            args.append(',').append("r'").append(string).append('\'');
+        }
+    
+        //It's important that the interpreter is created in the Thread and not outside the thread (otherwise
+        //it may be that the output ends up being shared, which is not what we want.)
+        IPythonInterpreter interpreter = JythonPlugin.newPythonInterpreter(useConsole, false);
+        String file = StringUtils.replaceAllSlashes(absolutePath);
+        interpreter.set("visitor", visitor);
+    
+        List<String> splitInLines = StringUtils.splitInLines(document.get());
+        interpreter.set("lines", splitInLines);
+        PyObject tempReportError = reportError;
+        if (tempReportError != null) {
+            interpreter.set("ReportError", tempReportError);
+        } else {
+            interpreter.set("ReportError", Py.None);
+        }
+        PyObject pep8Module = JythonModules.getPep8Module(interpreter);
+        interpreter.set("pycodestyle", pep8Module);
+    
+        String formatted = StringUtils.format(EXECUTE_PEP8, file,
+                args.toString(), file);
+        interpreter.exec(formatted);
+        if (reportError == null) {
+            synchronized (lock) {
+                if (reportError == null) {
+                    reportError = interpreter.get("ReportError");
+                }
+            }
+        }
+    }
+
+}
