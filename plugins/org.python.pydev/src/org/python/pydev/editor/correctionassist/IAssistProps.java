@@ -9,7 +9,7 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.editor.correctionassist.heuristics;
+package org.python.pydev.editor.correctionassist;
 
 import java.io.File;
 import java.util.List;

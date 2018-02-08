@@ -26,7 +26,7 @@ import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
 import org.python.pydev.core.docutils.PyImportsHandling;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.actions.PyFormatStd;
+import org.python.pydev.editor.actions.PyFormatAction;
 import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -301,7 +301,7 @@ public class ImportArranger {
         }
 
         try {
-            PyFormatStd std = new PyFormatStd();
+            PyFormatAction std = new PyFormatAction();
             boolean throwSyntaxError = false;
             ISelectionProvider selectionProvider = null;
             int[] regionsToFormat = null;

@@ -17,6 +17,7 @@ import java.util.List;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.formatter.FormatStd;
+import org.python.pydev.core.formatter.PyFormatterPreferences;
 import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
 import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
@@ -185,7 +186,7 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
                 strbuf.append(strBefore).append("#").append(fullCommentLine).append(endLineDelim);
 
                 String spacesInStartComment = null;
-                FormatStd std = this.std != null ? this.std : PyFormatStd.getFormat(getPyEdit());
+                FormatStd std = this.std != null ? this.std : PyFormatterPreferences.getFormatStd(getPyEdit());
                 if (std.spacesInStartComment != 0) {
                     if (std.spacesInStartComment < 0) {
                         //Negative means that we manage it manually!

@@ -42,7 +42,6 @@ import org.python.pydev.editor.correctionassist.heuristics.AssistAssign;
 import org.python.pydev.editor.correctionassist.heuristics.AssistImport;
 import org.python.pydev.editor.correctionassist.heuristics.AssistPercentToFormat;
 import org.python.pydev.editor.correctionassist.heuristics.AssistSurroundWith;
-import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;

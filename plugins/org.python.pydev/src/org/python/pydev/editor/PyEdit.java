@@ -108,6 +108,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PythonPairMatcher;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.formatter.FormatStd;
+import org.python.pydev.core.formatter.PyFormatterPreferences;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.partition.PyPartitionScanner;
 import org.python.pydev.core.preferences.FileTypesPreferences;
@@ -118,7 +119,7 @@ import org.python.pydev.editor.actions.IExecuteLineAction;
 import org.python.pydev.editor.actions.OfflineAction;
 import org.python.pydev.editor.actions.OfflineActionTarget;
 import org.python.pydev.editor.actions.PyBackspace;
-import org.python.pydev.editor.actions.PyFormatStd;
+import org.python.pydev.editor.actions.PyFormatAction;
 import org.python.pydev.editor.actions.PyMoveLineDownAction;
 import org.python.pydev.editor.actions.PyMoveLineUpAction;
 import org.python.pydev.editor.actions.PyOpenAction;
@@ -147,7 +148,6 @@ import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.CheckDefaultPreferencesDialog;
-import org.python.pydev.plugin.preferences.PyCodeFormatterPage;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 import org.python.pydev.shared_core.callbacks.ICallback;
@@ -872,7 +872,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                 IDocumentProvider documentProvider = getDocumentProvider();
                 int[] regionsForSave = null;
 
-                if (PyCodeFormatterPage.getFormatOnlyChangedLines(this)) {
+                if (PyFormatterPreferences.getFormatOnlyChangedLines(this)) {
                     if (documentProvider instanceof PyDocumentProvider) {
                         PyDocumentProvider pyDocumentProvider = (PyDocumentProvider) documentProvider;
                         ITextFileBuffer fileBuffer = pyDocumentProvider.getFileBuffer(getEditorInput());
@@ -892,7 +892,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                     PySelection ps = new PySelection(document, this.getTextSelection());
 
                     if (!hasSyntaxError(ps.getDoc())) {
-                        PyFormatStd std = new PyFormatStd();
+                        PyFormatAction std = new PyFormatAction();
                         boolean throwSyntaxError = true;
                         try {
                             std.applyFormatAction(this, ps, regionsForSave, throwSyntaxError,
@@ -1749,7 +1749,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
     @Override
     public FormatStd getFormatStd() {
-        return PyFormatStd.getFormat(this);
+        return PyFormatterPreferences.getFormatStd(this);
     }
 
     /**

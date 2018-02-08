@@ -6,7 +6,7 @@
  */
 package org.python.pydev.ui.actions.container;
 
-import org.python.pydev.editor.actions.PyFormatStd;
+import org.python.pydev.editor.actions.PyFormatAction;
 import org.python.pydev.parser.prettyprinterv2.IFormatter;
 
 /**
@@ -22,7 +22,7 @@ public class PySourceFormatAction extends PyContainerFormatterAction {
 
     @Override
     IFormatter createFormatter() {
-        return new PyFormatStd().getFormatter();
+        return new PyFormatAction().getFormatter();
     }
 
 }

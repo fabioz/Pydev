@@ -12,6 +12,7 @@
 package org.python.pydev.editor.correctionassist.heuristics;
 
 import org.python.pydev.ast.codecompletion.revisited.CodeCompletionTestsBase;
+import org.python.pydev.editor.correctionassist.IAssistProps;
 
 /**
  * Might be useful when a decent implementation is given

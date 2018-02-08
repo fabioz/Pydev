@@ -20,13 +20,12 @@ Export-Package: com.python.pydev.analysis,
  com.python.pydev.analysis.additionalinfo,
  com.python.pydev.analysis.additionalinfo.builders,
  com.python.pydev.analysis.additionalinfo.dependencies,
+ com.python.pydev.analysis.pep8,
  com.python.pydev.analysis.scopeanalysis,
  com.python.pydev.analysis.system_info_builder,
  com.python.pydev.analysis.tabnanny,
  com.python.pydev.analysis.visitors,
  com.python.pydev.codecompletion.ctxinsensitive,
  com.python.pydev.codecompletion.participant,
- com.python.pydev.codecompletion.simpleassist,
- org.python.pydev.builder.pep8,
- org.python.pydev.editor.correctionassist.heuristics
+ com.python.pydev.codecompletion.simpleassist
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

@@ -8,14 +8,14 @@ package org.python.pydev.editor.correctionassist;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.IContextInformation;
+import org.python.pydev.ast.formatter.PyFormatter;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.formatter.FormatStd;
-import org.python.pydev.core.formatter.PyFormatter;
+import org.python.pydev.core.formatter.PyFormatterPreferences;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.actions.PyFormatStd;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
@@ -68,7 +68,7 @@ public class IgnoreCompletionProposalInSameLine extends IgnoreCompletionProposal
                 } else {
                     // Shouldn't happen when not in test mode
                     Log.log("Error: using default format (not considering project preferences).");
-                    formatStd = PyFormatStd.getFormat(null);
+                    formatStd = PyFormatterPreferences.getFormatStd(null);
                 }
             }
 

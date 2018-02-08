@@ -25,11 +25,12 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
+import org.python.pydev.ast.formatter.PyFormatter;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.formatter.FormatStd;
 import org.python.pydev.core.partition.PyPartitionScanner;
-import org.python.pydev.editor.actions.PyFormatStd;
+import org.python.pydev.editor.actions.PyFormatAction;
 import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.shared_core.partitioner.FastPartitioner;
 import org.python.pydev.shared_core.partitioner.IToken;
@@ -133,10 +134,10 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener 
         //cleared because the colors are gotten from the rgb and not from the names).
         this.colorCache.setPreferences(prefs);
 
-        PyFormatStd formatter = new PyFormatStd();
+        PyFormatAction formatter = new PyFormatAction();
         try {
             Document doc = new Document(str);
-            formatter.formatAll(doc, null, false, formatStd, false, true);
+            PyFormatter.formatAll(doc, null, false, formatStd, false, true);
             str = doc.get();
         } catch (SyntaxErrorException e) {
         }

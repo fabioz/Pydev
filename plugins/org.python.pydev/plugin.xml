@@ -661,7 +661,7 @@
          <action
                definitionId="org.python.pydev.editor.actions.pyFormatStd"
                label="Format Code"
-               class="org.python.pydev.editor.actions.PyFormatStd"
+               class="org.python.pydev.editor.actions.PyFormatAction"
                menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
                id="org.python.pydev.editor.actions.navigation.pyFormatStd">
          </action>

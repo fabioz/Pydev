@@ -32,6 +32,7 @@ import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
+import org.python.pydev.editor.correctionassist.IAssistProps;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.image.UIConstants;
@@ -41,7 +42,7 @@ public class AssistPercentToFormat extends AbstractTemplateCodeCompletion implem
     private static final boolean DEBUG = false;
 
     /**
-     * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps(org.python.pydev.core.docutils.PySelection,
+     * @see org.python.pydev.editor.correctionassist.IAssistProps#getProps(org.python.pydev.core.docutils.PySelection,
      *      org.python.pydev.shared_ui.ImageCache)
      */
     @Override
@@ -100,7 +101,7 @@ public class AssistPercentToFormat extends AbstractTemplateCodeCompletion implem
     }
 
     /**
-     * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#isValid(org.python.pydev.core.docutils.PySelection,
+     * @see org.python.pydev.editor.correctionassist.IAssistProps#isValid(org.python.pydev.core.docutils.PySelection,
      *      java.lang.String)
      */
     @Override

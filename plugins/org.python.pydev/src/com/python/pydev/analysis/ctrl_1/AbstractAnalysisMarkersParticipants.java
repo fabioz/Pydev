@@ -19,7 +19,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.editor.codefolding.PySourceViewer;
-import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
+import org.python.pydev.editor.correctionassist.IAssistProps;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.structure.OrderedSet;
@@ -81,7 +81,7 @@ public abstract class AbstractAnalysisMarkersParticipants implements IAssistProp
     /**
      * It is valid if any marker generated from the analysis is found
      *
-     * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#isValid(org.python.pydev.core.docutils.PySelection, java.lang.String, org.python.pydev.editor.PyEdit, int)
+     * @see org.python.pydev.editor.correctionassist.IAssistProps#isValid(org.python.pydev.core.docutils.PySelection, java.lang.String, org.python.pydev.editor.PyEdit, int)
      */
     @Override
     public boolean isValid(PySelection ps, String sel, IPyEdit edit, int offset) {

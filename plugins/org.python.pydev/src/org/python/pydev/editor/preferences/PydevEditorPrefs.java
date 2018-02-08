@@ -34,9 +34,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.python.pydev.core.formatter.FormatStd;
+import org.python.pydev.core.formatter.PyFormatterPreferences;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.StyledTextForShowingCodeFactory;
-import org.python.pydev.editor.actions.PyFormatStd;
 import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.AbstractPydevPrefs;
@@ -151,7 +151,7 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
         gridData = new GridData(GridData.FILL_HORIZONTAL);
         gridData.grabExcessHorizontalSpace = true;
         labelExample.setLayoutData(gridData);
-        updateLabelExample(PyFormatStd.getFormat(null), PyDevUiPrefs.getChainedPrefStore());
+        updateLabelExample(PyFormatterPreferences.getFormatStd(null), PyDevUiPrefs.getChainedPrefStore());
 
         LinkFieldEditor tabsFieldEditor = new LinkFieldEditor("UNUSED",
                 "Other settings:\n\n<a>Tabs</a>: tab preferences for PyDev ...\n(note: 'Insert spaces for tabs' in the general settings is ignored).",
@@ -386,7 +386,7 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
         localStore.setValue(PyDevEditorPreferences.OPERATORS_STYLE, fOverlayStore.getInt(PyDevEditorPreferences.OPERATORS_STYLE));
         localStore.setValue(PyDevEditorPreferences.DOCSTRING_MARKUP_STYLE, fOverlayStore.getInt(PyDevEditorPreferences.DOCSTRING_MARKUP_STYLE));
 
-        this.updateLabelExample(PyFormatStd.getFormat(null), localStore);
+        this.updateLabelExample(PyFormatterPreferences.getFormatStd(null), localStore);
     }
 
     @Override
@@ -419,7 +419,7 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
 
                     @Override
                     public void run() {
-                        updateLabelExample(PyFormatStd.getFormat(null), PyDevUiPrefs.getChainedPrefStore());
+                        updateLabelExample(PyFormatterPreferences.getFormatStd(null), PyDevUiPrefs.getChainedPrefStore());
                     }
                 });
             }

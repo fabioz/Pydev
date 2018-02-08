@@ -15,6 +15,7 @@ import org.eclipse.jface.resource.StringConverter;
 import org.osgi.service.prefs.Preferences;
 import org.python.pydev.builder.todo.PyTodoPrefPage;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.formatter.PyFormatterPreferences;
 import org.python.pydev.core.preferences.FileTypesPreferences;
 import org.python.pydev.core.preferences.InterpreterGeneralPreferences;
 import org.python.pydev.core.preferences.PyDevCoreEditorPreferences;
@@ -244,33 +245,33 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
                 PyTitlePreferencesPage.DEFAULT_TITLE_EDITOR_DJANGO_MODULES_HANDLING);
 
         //code formatting
-        node.putBoolean(PyCodeFormatterPage.USE_ASSIGN_WITH_PACES_INSIDER_PARENTESIS,
-                PyCodeFormatterPage.DEFAULT_USE_ASSIGN_WITH_PACES_INSIDE_PARENTESIS);
-        node.putBoolean(PyCodeFormatterPage.USE_OPERATORS_WITH_SPACE,
-                PyCodeFormatterPage.DEFAULT_USE_OPERATORS_WITH_SPACE);
-        node.putBoolean(PyCodeFormatterPage.USE_SPACE_AFTER_COMMA, PyCodeFormatterPage.DEFAULT_USE_SPACE_AFTER_COMMA);
-        node.putBoolean(PyCodeFormatterPage.ADD_NEW_LINE_AT_END_OF_FILE,
-                PyCodeFormatterPage.DEFAULT_ADD_NEW_LINE_AT_END_OF_FILE);
+        node.putBoolean(PyFormatterPreferences.USE_ASSIGN_WITH_PACES_INSIDER_PARENTESIS,
+                PyFormatterPreferences.DEFAULT_USE_ASSIGN_WITH_PACES_INSIDE_PARENTESIS);
+        node.putBoolean(PyFormatterPreferences.USE_OPERATORS_WITH_SPACE,
+                PyFormatterPreferences.DEFAULT_USE_OPERATORS_WITH_SPACE);
+        node.putBoolean(PyFormatterPreferences.USE_SPACE_AFTER_COMMA, PyFormatterPreferences.DEFAULT_USE_SPACE_AFTER_COMMA);
+        node.putBoolean(PyFormatterPreferences.ADD_NEW_LINE_AT_END_OF_FILE,
+                PyFormatterPreferences.DEFAULT_ADD_NEW_LINE_AT_END_OF_FILE);
         node.putBoolean(PydevSaveActionsPrefPage.FORMAT_BEFORE_SAVING,
                 PydevSaveActionsPrefPage.DEFAULT_FORMAT_BEFORE_SAVING);
         node.putBoolean(PydevSaveActionsPrefPage.SAVE_ACTIONS_ONLY_ON_WORKSPACE_FILES,
                 PydevSaveActionsPrefPage.DEFAULT_SAVE_ACTIONS_ONLY_ON_WORKSPACE_FILES);
-        node.putBoolean(PyCodeFormatterPage.FORMAT_WITH_AUTOPEP8, PyCodeFormatterPage.DEFAULT_FORMAT_WITH_AUTOPEP8);
-        node.putBoolean(PyCodeFormatterPage.FORMAT_ONLY_CHANGED_LINES,
-                PyCodeFormatterPage.DEFAULT_FORMAT_ONLY_CHANGED_LINES);
-        node.putBoolean(PyCodeFormatterPage.TRIM_LINES, PyCodeFormatterPage.DEFAULT_TRIM_LINES);
-        node.putBoolean(PyCodeFormatterPage.USE_SPACE_FOR_PARENTESIS,
-                PyCodeFormatterPage.DEFAULT_USE_SPACE_FOR_PARENTESIS);
-        node.putInt(PyCodeFormatterPage.SPACES_BEFORE_COMMENT,
-                PyCodeFormatterPage.DEFAULT_SPACES_BEFORE_COMMENT);
-        node.putInt(PyCodeFormatterPage.SPACES_IN_START_COMMENT,
-                PyCodeFormatterPage.DEFAULT_SPACES_IN_START_COMMENT);
-        node.putBoolean(PyCodeFormatterPage.MANAGE_BLANK_LINES,
-                PyCodeFormatterPage.DEFAULT_MANAGE_BLANK_LINES);
-        node.putInt(PyCodeFormatterPage.BLANK_LINES_TOP_LEVEL,
-                PyCodeFormatterPage.DEFAULT_BLANK_LINES_TOP_LEVEL);
-        node.putInt(PyCodeFormatterPage.BLANK_LINES_INNER,
-                PyCodeFormatterPage.DEFAULT_BLANK_LINES_INNER);
+        node.putBoolean(PyFormatterPreferences.FORMAT_WITH_AUTOPEP8, PyFormatterPreferences.DEFAULT_FORMAT_WITH_AUTOPEP8);
+        node.putBoolean(PyFormatterPreferences.FORMAT_ONLY_CHANGED_LINES,
+                PyFormatterPreferences.DEFAULT_FORMAT_ONLY_CHANGED_LINES);
+        node.putBoolean(PyFormatterPreferences.TRIM_LINES, PyFormatterPreferences.DEFAULT_TRIM_LINES);
+        node.putBoolean(PyFormatterPreferences.USE_SPACE_FOR_PARENTESIS,
+                PyFormatterPreferences.DEFAULT_USE_SPACE_FOR_PARENTESIS);
+        node.putInt(PyFormatterPreferences.SPACES_BEFORE_COMMENT,
+                PyFormatterPreferences.DEFAULT_SPACES_BEFORE_COMMENT);
+        node.putInt(PyFormatterPreferences.SPACES_IN_START_COMMENT,
+                PyFormatterPreferences.DEFAULT_SPACES_IN_START_COMMENT);
+        node.putBoolean(PyFormatterPreferences.MANAGE_BLANK_LINES,
+                PyFormatterPreferences.DEFAULT_MANAGE_BLANK_LINES);
+        node.putInt(PyFormatterPreferences.BLANK_LINES_TOP_LEVEL,
+                PyFormatterPreferences.DEFAULT_BLANK_LINES_TOP_LEVEL);
+        node.putInt(PyFormatterPreferences.BLANK_LINES_INNER,
+                PyFormatterPreferences.DEFAULT_BLANK_LINES_INNER);
 
         //initialize pyunit prefs
         node.putInt(PyUnitPrefsPage2.TEST_RUNNER, PyUnitPrefsPage2.DEFAULT_TEST_RUNNER);
