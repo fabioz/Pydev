@@ -1,40 +1,18 @@
 package org.python.pydev.editor;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.python.pydev.ast.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.core.IPySyntaxHighlightingAndCodeCompletionEditor;
 import org.python.pydev.core.IPythonPartitions;
+import org.python.pydev.core.PythonPartitions;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.editor.codecompletion.PythonCompletionProcessor;
 import org.python.pydev.editor.codecompletion.PythonStringCompletionProcessor;
 import org.python.pydev.editor.codecompletion.SimpleAssistProcessor;
 
 public class SetupContentAssist {
-
-    public static Set<String> STRING_PROCESSOR_PARTITIONS = new HashSet<>();
-    static {
-        STRING_PROCESSOR_PARTITIONS.add(IPythonPartitions.PY_SINGLELINE_BYTES1);
-        STRING_PROCESSOR_PARTITIONS.add(IPythonPartitions.PY_SINGLELINE_BYTES2);
-        STRING_PROCESSOR_PARTITIONS.add(IPythonPartitions.PY_MULTILINE_BYTES1);
-        STRING_PROCESSOR_PARTITIONS.add(IPythonPartitions.PY_MULTILINE_BYTES2);
-
-        STRING_PROCESSOR_PARTITIONS.add(IPythonPartitions.PY_SINGLELINE_UNICODE1);
-        STRING_PROCESSOR_PARTITIONS.add(IPythonPartitions.PY_SINGLELINE_UNICODE2);
-        STRING_PROCESSOR_PARTITIONS.add(IPythonPartitions.PY_MULTILINE_UNICODE1);
-        STRING_PROCESSOR_PARTITIONS.add(IPythonPartitions.PY_MULTILINE_UNICODE2);
-
-        STRING_PROCESSOR_PARTITIONS.add(IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE1);
-        STRING_PROCESSOR_PARTITIONS.add(IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE2);
-        STRING_PROCESSOR_PARTITIONS.add(IPythonPartitions.PY_MULTILINE_BYTES_OR_UNICODE1);
-        STRING_PROCESSOR_PARTITIONS.add(IPythonPartitions.PY_MULTILINE_BYTES_OR_UNICODE2);
-
-        STRING_PROCESSOR_PARTITIONS.add(IPythonPartitions.PY_COMMENT);
-    }
 
     public static IContentAssistant configContentAssistant(IPySyntaxHighlightingAndCodeCompletionEditor edit,
             PyContentAssistant pyContentAssistant) {
@@ -45,7 +23,7 @@ public class SetupContentAssist {
         PythonStringCompletionProcessor stringProcessor = new PythonStringCompletionProcessor(edit, pyContentAssistant);
 
         // No code completion in comments and strings
-        for (String s : STRING_PROCESSOR_PARTITIONS) {
+        for (String s : PythonPartitions.STRING_PROCESSOR_PARTITIONS) {
             pyContentAssistant.setContentAssistProcessor(stringProcessor, s);
         }
 

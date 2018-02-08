@@ -24,6 +24,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -374,34 +375,9 @@ public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionPr
             return;
         }
         List<Integer> offsetsAndLens = new ArrayList<Integer>();
-        computeOffsetsAndLens(newStr, offsetsAndLens);
+        PySelection.computeArgsOffsetsAndLens(newStr, offsetsAndLens);
 
         goToLinkedMode(viewer, offset, doc, exitPos, iPar, offsetsAndLens);
-    }
-
-    public static void computeOffsetsAndLens(String args, List<Integer> offsetsAndLens) {
-        int bufferLen = 0;
-        int len = args.length();
-        for (int i = 0; i < len; i++) {
-            char c = args.charAt(i);
-
-            if (Character.isJavaIdentifierPart(c)) {
-                if (bufferLen == 0) {
-                    offsetsAndLens.add(i);
-                    bufferLen += 1;
-                } else {
-                    bufferLen += 1;
-                }
-            } else {
-                if (bufferLen > 0) {
-                    offsetsAndLens.add(bufferLen);
-                    bufferLen = 0;
-                }
-            }
-        }
-        if (bufferLen > 0) {
-            offsetsAndLens.add(bufferLen);
-        }
     }
 
     private void goToLinkedMode(ITextViewer viewer, int offset, IDocument doc, int exitPos, int iPar,

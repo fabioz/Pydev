@@ -44,11 +44,11 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.preferences.InMemoryEclipsePreferences;
+import org.python.pydev.shared_core.progress.PrintProgressMonitor;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.ui.BundleInfoStub;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
-import org.python.pydev.utils.PrintProgressMonitor;
 
 import junit.framework.TestCase;
 

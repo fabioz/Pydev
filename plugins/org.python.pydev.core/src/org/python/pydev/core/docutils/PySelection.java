@@ -1554,4 +1554,29 @@ public final class PySelection extends TextSelectionUtils {
 
     }
 
+    public static void computeArgsOffsetsAndLens(String args, List<Integer> offsetsAndLens) {
+        int bufferLen = 0;
+        int len = args.length();
+        for (int i = 0; i < len; i++) {
+            char c = args.charAt(i);
+    
+            if (Character.isJavaIdentifierPart(c)) {
+                if (bufferLen == 0) {
+                    offsetsAndLens.add(i);
+                    bufferLen += 1;
+                } else {
+                    bufferLen += 1;
+                }
+            } else {
+                if (bufferLen > 0) {
+                    offsetsAndLens.add(bufferLen);
+                    bufferLen = 0;
+                }
+            }
+        }
+        if (bufferLen > 0) {
+            offsetsAndLens.add(bufferLen);
+        }
+    }
+
 }
