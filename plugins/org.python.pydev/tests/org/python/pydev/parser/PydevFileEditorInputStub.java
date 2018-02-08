@@ -39,7 +39,7 @@ public class PydevFileEditorInputStub implements IEditorInput {
 
     @Override
     public <T> T getAdapter(Class<T> adapter) {
-        throw new RuntimeException("Not implemented");
+        return null;
     }
 
 }

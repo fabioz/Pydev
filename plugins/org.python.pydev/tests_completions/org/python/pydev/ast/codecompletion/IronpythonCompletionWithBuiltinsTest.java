@@ -13,7 +13,6 @@ import java.io.IOException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.ast.codecompletion.PyCodeCompletion;
 import org.python.pydev.ast.codecompletion.revisited.AbstractASTManager;
 import org.python.pydev.ast.codecompletion.revisited.CompletionCache;
 import org.python.pydev.ast.codecompletion.revisited.CompletionStateFactory;
@@ -72,8 +71,8 @@ public class IronpythonCompletionWithBuiltinsTest extends IronPythonCodeCompleti
      */
     @Override
     public void tearDown() throws Exception {
-        super.tearDown();
         AbstractShell.putServerShell(nature, AbstractShell.getShellId(), null);
+        super.tearDown();
     }
 
     public void testRecursion() throws FileNotFoundException, Exception, CompletionRecursionException {

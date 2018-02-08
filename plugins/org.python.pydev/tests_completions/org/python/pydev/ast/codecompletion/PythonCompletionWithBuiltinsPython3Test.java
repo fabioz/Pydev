@@ -10,7 +10,6 @@ package org.python.pydev.ast.codecompletion;
 import java.io.File;
 
 import org.eclipse.core.runtime.CoreException;
-import org.python.pydev.ast.codecompletion.PyCodeCompletion;
 import org.python.pydev.ast.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.ast.codecompletion.shell.AbstractShell;
@@ -104,8 +103,8 @@ public class PythonCompletionWithBuiltinsPython3Test extends CodeCompletionTests
     @Override
     public void tearDown() throws Exception {
         CompiledModule.COMPILED_MODULES_ENABLED = false;
-        super.tearDown();
         AbstractShell.putServerShell(nature, AbstractShell.getShellId(), null);
+        super.tearDown();
     }
 
     public void testCodeCompletionPep484Str() throws Exception {

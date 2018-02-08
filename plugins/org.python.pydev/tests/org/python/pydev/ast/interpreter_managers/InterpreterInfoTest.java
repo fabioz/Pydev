@@ -20,7 +20,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 
-import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.shared_core.io.FileUtils;
 
@@ -291,7 +290,7 @@ public class InterpreterInfoTest extends TestCase {
         //"d:\instaçao âo\Python27\python.exe"  W:\pydev\plugins\org.python.pydev\pysrc\interpreterInfo.py > InterpreterInfoOutput.txt
 
         String contents = FileUtils.getFileContentsCustom(new File(TestDependent.TEST_PYDEV_PLUGIN_LOC
-                + "tests/org/python/pydev/ui/pythonpathconf/InterpreterInfoOutput.txt"), "utf-8", String.class);
+                + "tests/org/python/pydev/ast/interpreter_managers/InterpreterInfoOutput.txt"), "utf-8", String.class);
         InterpreterInfo i1 = InterpreterInfo.fromString(contents, false);
         InterpreterInfo i2 = i1.makeCopy();
         assertEquals(i1, i2);
@@ -304,7 +303,7 @@ public class InterpreterInfoTest extends TestCase {
         //"d:\instaçao âo\Python27\python.exe"  W:\pydev\plugins\org.python.pydev\pysrc\interpreterInfo.py > InterpreterInfoOutput.txt
 
         String contents = FileUtils.getFileContentsCustom(new File(TestDependent.TEST_PYDEV_PLUGIN_LOC
-                + "tests/org/python/pydev/ui/pythonpathconf/InterpreterInfoOutput.txt"), "utf-8", String.class);
+                + "tests/org/python/pydev/ast/interpreter_managers/InterpreterInfoOutput.txt"), "utf-8", String.class);
         InterpreterInfo i1 = InterpreterInfo
                 .fromString("Some random string before" + contents + " random after", false);
         InterpreterInfo i2 = InterpreterInfo.fromString(contents, false);

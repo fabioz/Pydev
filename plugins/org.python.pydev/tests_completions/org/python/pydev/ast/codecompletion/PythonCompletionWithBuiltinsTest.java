@@ -16,7 +16,6 @@ import java.io.IOException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
-import org.python.pydev.ast.codecompletion.PyCodeCompletion;
 import org.python.pydev.ast.codecompletion.revisited.AbstractASTManager;
 import org.python.pydev.ast.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.ast.codecompletion.revisited.CompletionCache;
@@ -135,8 +134,8 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
     @Override
     public void tearDown() throws Exception {
         CompiledModule.COMPILED_MODULES_ENABLED = false;
-        super.tearDown();
         AbstractShell.putServerShell(nature, AbstractShell.getShellId(), null);
+        super.tearDown();
     }
 
     public void testRecursion() throws FileNotFoundException, Exception, CompletionRecursionException {

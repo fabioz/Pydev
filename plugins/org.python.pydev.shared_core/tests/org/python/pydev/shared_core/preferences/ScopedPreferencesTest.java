@@ -51,10 +51,10 @@ public class ScopedPreferencesTest extends TestCase {
     }
 
     public void testUserSettingsScopedPreferences() throws Exception {
-        IScopedPreferences iScopedPreferences = ScopedPreferences.get("my.test");
+        IScopedPreferences iScopedPreferences = ScopedPreferences.get("my.test1");
         File eclipsePrefs = new File(baseDir, ".eclipse");
         assertTrue(eclipsePrefs.exists());
-        File userSettingsYamlFile = new File(eclipsePrefs, "my.test.yaml");
+        File userSettingsYamlFile = new File(eclipsePrefs, "my.test1.yaml");
         assertTrue(!userSettingsYamlFile.exists());
         Map<String, Object> saveData = new HashMap<String, Object>();
         saveData.put("foo", 1);
@@ -95,17 +95,17 @@ public class ScopedPreferencesTest extends TestCase {
     }
 
     public void testProjectSettingsScopedPreferences() throws Exception {
-        IScopedPreferences iScopedPreferences = ScopedPreferences.get("my.test");
+        IScopedPreferences iScopedPreferences = ScopedPreferences.get("my.test2");
         File eclipsePrefs = new File(baseDir, ".eclipse");
         File projectDir = new File(baseDir, "project");
         File projectDirSettings = new File(projectDir, ".settings");
-        File projectDirYAMLFile = new File(projectDirSettings, "my.test.yaml");
+        File projectDirYAMLFile = new File(projectDirSettings, "my.test2.yaml");
         eclipsePrefs.mkdirs();
         projectDir.mkdirs();
         projectDirSettings.mkdirs();
         FileUtils.writeStrToFile("", projectDirYAMLFile);
         assertTrue(eclipsePrefs.exists());
-        File userSettingsYamlFile = new File(eclipsePrefs, "my.test.yaml");
+        File userSettingsYamlFile = new File(eclipsePrefs, "my.test2.yaml");
         assertTrue(!userSettingsYamlFile.exists());
         final IProject project = new ProjectStub(projectDir, null);
         Map<String, Object> saveData = new HashMap<String, Object>();

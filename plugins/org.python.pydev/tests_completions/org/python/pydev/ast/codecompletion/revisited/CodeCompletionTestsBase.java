@@ -28,9 +28,6 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.ast.codecompletion.CompletionRequest;
 import org.python.pydev.ast.codecompletion.IPyCodeCompletion;
 import org.python.pydev.ast.codecompletion.PyCodeCompletionUtils;
-import org.python.pydev.ast.codecompletion.revisited.ASTManager;
-import org.python.pydev.ast.codecompletion.revisited.ProjectModulesManager;
-import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
 import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.CorePlugin;
@@ -135,12 +132,12 @@ public class CodeCompletionTestsBase extends TestCase {
      */
     @Override
     public void tearDown() throws Exception {
-        super.tearDown();
         CompletionProposalFactory.set(null);
         PydevPlugin.setBundleInfo(null);
         CorePlugin.setBundleInfo(null);
         ProjectModulesManager.IN_TESTS = false;
         FileUtils.IN_TESTS = false;
+        super.tearDown();
     }
 
     /**
