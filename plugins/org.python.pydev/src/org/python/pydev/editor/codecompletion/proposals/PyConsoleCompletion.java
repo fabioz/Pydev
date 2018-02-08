@@ -11,9 +11,9 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Point;
+import org.python.pydev.core.interactive_console.IScriptConsoleViewer;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
-import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
 
 /**
  * Extends the basic completion proposal to add a line with an import in the console.

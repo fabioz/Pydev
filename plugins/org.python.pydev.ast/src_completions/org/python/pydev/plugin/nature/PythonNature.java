@@ -54,6 +54,7 @@ import org.python.pydev.core.ProjectMisconfiguredException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.nature.AbstractPythonNature;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
@@ -62,11 +63,11 @@ import org.python.pydev.plugin.preferences.PyDevBuilderPreferences;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.global_feedback.GlobalFeedback;
 import org.python.pydev.shared_core.global_feedback.GlobalFeedback.GlobalFeedbackReporter;
+import org.python.pydev.shared_core.progress.JobProgressComunicator;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.interpreters.IInterpreterObserver;
-import org.python.pydev.utils.JobProgressComunicator;
 
 /**
  * PythonNature is currently used as a marker class.

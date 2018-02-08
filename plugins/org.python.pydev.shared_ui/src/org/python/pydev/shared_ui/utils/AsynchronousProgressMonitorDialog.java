@@ -14,7 +14,7 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.shared_core.log.Log;
-import org.python.pydev.utils.AsynchronousProgressMonitorWrapper;
+import org.python.pydev.shared_core.progress.AsynchronousProgressMonitorWrapper;
 
 /**
  * This class overrides the ProgressMonitorDialog to limit the

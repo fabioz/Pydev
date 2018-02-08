@@ -1,4 +1,4 @@
-package org.python.pydev.shared_ui.proposals;
+package org.python.pydev.core.proposals;
 
 import java.util.List;
 
@@ -11,12 +11,12 @@ import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.DocstringInfo;
+import org.python.pydev.core.interactive_console.IScriptConsoleViewer;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
+import org.python.pydev.shared_core.code_completion.IPyCompletionProposal.ICompareContext;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.string.FastStringBuffer;
-import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
-import org.python.pydev.shared_ui.proposals.IPyCompletionProposal.ICompareContext;
 
 public interface ICompletionProposalFactory {
 

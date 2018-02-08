@@ -9,7 +9,7 @@ import java.util.StringTokenizer;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.ObjectsInternPool;
 import org.python.pydev.core.ObjectsInternPool.ObjectsPoolMap;
-import org.python.pydev.logging.DebugSettings;
+import org.python.pydev.core.logging.DebugSettings;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
 

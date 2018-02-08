@@ -21,13 +21,13 @@ import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPySourceViewer;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.autoedit.DefaultIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
+import org.python.pydev.core.interactive_console.IScriptConsoleViewer;
 import org.python.pydev.parser.fastparser.FastParser;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.visitors.NodeUtils;
-import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
 
 /**
  * Makes a custom evaluation of the template buffer to be created (to put it in the correct indentation and

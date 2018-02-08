@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.logging;
+package org.python.pydev.core.logging;
 
 /**
  * This class is used to give debug settings for this plugin. 

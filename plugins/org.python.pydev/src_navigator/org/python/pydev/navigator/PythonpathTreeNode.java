@@ -14,9 +14,9 @@ import java.util.zip.ZipFile;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.preferences.FileTypesPreferences;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.navigator.elements.ISortedElement;
-import org.python.pydev.plugin.preferences.FileTypesPreferences;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.image.UIConstants;

@@ -43,6 +43,7 @@ import org.python.pydev.core.TupleN;
 import org.python.pydev.core.UnpackInfo;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.logging.DebugSettings;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
@@ -55,7 +56,6 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinitio
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.GlobalModelVisitor;
 import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
-import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;

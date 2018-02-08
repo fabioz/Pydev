@@ -1,4 +1,4 @@
-package org.python.pydev.plugin.preferences;
+package org.python.pydev.core.preferences;
 
 public class PyDevCoreEditorPreferences {
 

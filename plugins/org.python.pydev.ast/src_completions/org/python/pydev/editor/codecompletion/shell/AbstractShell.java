@@ -33,9 +33,10 @@ import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.concurrency.Semaphore;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.logging.DebugSettings;
+import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledToken;
-import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.net.SocketUtil;
@@ -43,7 +44,6 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.Timer;
-import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 
 /**
  * This is the shell that 'talks' to the python / jython process (it is intended to be subclassed so that

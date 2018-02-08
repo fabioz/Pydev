@@ -1,4 +1,4 @@
-package org.python.pydev.plugin.preferences;
+package org.python.pydev.core.preferences;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.python.pydev.shared_core.SharedCorePlugin;

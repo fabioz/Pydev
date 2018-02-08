@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.core.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 

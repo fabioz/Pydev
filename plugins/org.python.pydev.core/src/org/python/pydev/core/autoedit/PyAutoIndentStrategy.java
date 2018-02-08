@@ -9,7 +9,7 @@
  * Author: atotic
  */
 
-package org.python.pydev.editor.autoedit;
+package org.python.pydev.core.autoedit;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.text.BadLocationException;

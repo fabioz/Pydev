@@ -21,14 +21,14 @@ import org.python.pydev.core.CheckAnalysisErrors;
 import org.python.pydev.core.FormatStd;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
+import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_ui.SharedUiPlugin;
-import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
-import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.builder.AnalysisRunner;

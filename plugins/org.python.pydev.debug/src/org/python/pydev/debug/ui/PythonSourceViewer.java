@@ -28,7 +28,7 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
-import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
+import org.python.pydev.core.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.codefolding.PyAbstractIndentGuidePreferencesProvider;
 import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.shared_ui.editor.BaseSourceViewer;

@@ -103,7 +103,7 @@ public abstract class AbstractModule implements IModule {
 
     /**
      * @throws CompletionRecursionException
-     * @see org.python.pydev.core.IModule#isInGlobalTokens(java.lang.String, org.python.pydev.plugin.nature.PythonNature)
+     * @see org.python.pydev.core.IModule#isInGlobalTokens(java.lang.String, org.python.pydev.core.nature.PythonNature)
      */
     @Override
     public boolean isInGlobalTokens(String tok, IPythonNature nature, ICompletionCache completionCache)
@@ -113,7 +113,7 @@ public abstract class AbstractModule implements IModule {
 
     /**
      * @throws CompletionRecursionException
-     * @see org.python.pydev.core.IModule#isInGlobalTokens(java.lang.String, org.python.pydev.plugin.nature.PythonNature, boolean)
+     * @see org.python.pydev.core.IModule#isInGlobalTokens(java.lang.String, org.python.pydev.core.nature.PythonNature, boolean)
      */
     @Override
     public boolean isInGlobalTokens(String tok, IPythonNature nature, boolean searchSameLevelMods,

@@ -50,6 +50,7 @@ import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.concurrency.IRunnableWithMonitor;
 import org.python.pydev.core.concurrency.RunnableAsJobsPoolThread;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
@@ -57,7 +58,6 @@ import org.python.pydev.shared_core.cache.LRUCache;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 
 /**
  * @author Fabio Zadrozny

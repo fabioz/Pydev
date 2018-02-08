@@ -26,6 +26,8 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
+import org.python.pydev.core.interactive_console.IScriptConsoleViewer;
+import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant2;
@@ -34,12 +36,10 @@ import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils.IFilter;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
+import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
+import org.python.pydev.shared_core.code_completion.IPyCompletionProposal.ICompareContext;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.FullRepIterable;
-import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
-import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
-import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
-import org.python.pydev.shared_ui.proposals.IPyCompletionProposal.ICompareContext;
 
 import com.python.pydev.analysis.AnalysisPreferences;
 

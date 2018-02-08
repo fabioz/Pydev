@@ -11,8 +11,8 @@ import java.util.Set;
 
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
+import org.python.pydev.core.interactive_console.IScriptConsoleViewer;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
-import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
 
 /**
  * This is an extension to the IPyDevCompletionParticipant for gathering completions

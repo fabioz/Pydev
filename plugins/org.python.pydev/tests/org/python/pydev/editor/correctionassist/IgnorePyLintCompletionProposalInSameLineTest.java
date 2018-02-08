@@ -3,9 +3,9 @@ package org.python.pydev.editor.correctionassist;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.FormatStd;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.editor.codecompletion.proposals.DefaultCompletionProposalFactory;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
-import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 
 import junit.framework.TestCase;
 

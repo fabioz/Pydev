@@ -157,7 +157,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
     }
 
     /**
-     * @see org.python.pydev.core.IProjectModulesManager#getModule(java.lang.String, org.python.pydev.plugin.nature.PythonNature, boolean)
+     * @see org.python.pydev.core.IProjectModulesManager#getModule(java.lang.String, org.python.pydev.core.nature.PythonNature, boolean)
      */
     @Override
     public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit) {
@@ -173,7 +173,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
     }
 
     /**
-     * @see org.python.pydev.core.IProjectModulesManager#getModule(java.lang.String, org.python.pydev.plugin.nature.PythonNature, boolean, boolean)
+     * @see org.python.pydev.core.IProjectModulesManager#getModule(java.lang.String, org.python.pydev.core.nature.PythonNature, boolean, boolean)
      */
     @Override
     public IModule getModule(String name, IPythonNature nature, boolean checkSystemManager, boolean dontSearchInit) {

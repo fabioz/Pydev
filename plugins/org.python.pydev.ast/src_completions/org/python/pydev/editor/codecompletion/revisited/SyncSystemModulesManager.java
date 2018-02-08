@@ -32,7 +32,7 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.core.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallback2;
 import org.python.pydev.shared_core.image.IImageCache;

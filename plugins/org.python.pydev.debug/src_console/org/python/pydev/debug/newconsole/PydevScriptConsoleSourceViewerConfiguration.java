@@ -19,8 +19,8 @@ import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.jface.text.quickassist.IQuickAssistAssistant;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
+import org.python.pydev.core.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.PyInformationControlCreator;
-import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 
 /**

@@ -43,6 +43,7 @@ import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.docutils.StringSubstitution;
 import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.preferences.PydevPrefs;
 import org.python.pydev.debug.codecoverage.PyCodeCoverageView;
 import org.python.pydev.debug.codecoverage.PyCoverage;
 import org.python.pydev.debug.codecoverage.PyCoveragePreferences;
@@ -57,7 +58,6 @@ import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks.CreatedCommandL
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
-import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.pyunit.preferences.PyUnitPrefsPage2;
 import org.python.pydev.runners.SimpleRunner;
 import org.python.pydev.shared_core.SharedCorePlugin;

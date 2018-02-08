@@ -12,6 +12,7 @@ import org.eclipse.jface.text.contentassist.ICompletionListener;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
+import org.python.pydev.core.interactive_console.IScriptConsoleViewer;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.CompletionError;
 import org.python.pydev.editor.codecompletion.ConvertCompletionProposals;
@@ -21,7 +22,6 @@ import org.python.pydev.editor.codecompletion.PyContextInformationValidator;
 import org.python.pydev.editor.codecompletion.PythonCompletionProcessor;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_interactive_console.console.IScriptConsoleShell;
-import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
 import org.python.pydev.shared_ui.content_assist.AbstractCompletionProcessorWithCycling;
 
 /**

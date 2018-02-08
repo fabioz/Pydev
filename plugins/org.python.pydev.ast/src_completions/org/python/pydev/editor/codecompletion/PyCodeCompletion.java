@@ -43,6 +43,8 @@ import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.logging.DebugSettings;
+import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils.IFilter;
 import org.python.pydev.editor.codecompletion.revisited.AbstractASTManager;
@@ -57,7 +59,6 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.FindScopeVisito
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
-import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -81,7 +82,6 @@ import org.python.pydev.shared_core.structure.ImmutableTuple;
 import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 import org.python.pydev.shared_core.structure.OrderedMap;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 
 /**
  * @author Dmoore

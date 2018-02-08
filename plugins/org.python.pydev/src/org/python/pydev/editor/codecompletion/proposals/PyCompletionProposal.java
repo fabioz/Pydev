@@ -15,11 +15,11 @@ import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
+import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
+import org.python.pydev.shared_core.code_completion.IPyCompletionProposal.ICompareContext;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_ui.ImageCache;
-import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
-import org.python.pydev.shared_ui.proposals.IPyCompletionProposal.ICompareContext;
 
 /**
  * The standard implementation of the <code>ICompletionProposal</code> interface.
@@ -261,7 +261,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
     }
 
     /**
-     * @see org.python.pydev.shared_ui.proposals.IPyCompletionProposal#getPriority()
+     * @see org.python.pydev.shared_core.code_completion.IPyCompletionProposal#getPriority()
      */
     @Override
     public int getPriority() {

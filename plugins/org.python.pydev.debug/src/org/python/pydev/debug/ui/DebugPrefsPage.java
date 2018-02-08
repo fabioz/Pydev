@@ -23,9 +23,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.preferences.PydevPrefs;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
-import org.python.pydev.plugin.preferences.PydevPrefs;
 
 /**
  * Debug preferences.

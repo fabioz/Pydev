@@ -39,7 +39,7 @@ public class CheckDefaultPreferencesDialog extends TrayDialog {
         setHelpAvailable(false);
         setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS | SWT.MAX | SWT.RESIZE | getDefaultOrientation());
         setBlockOnOpen(true);
-        memento = new DialogMemento(shell, "org.python.pydev.plugin.preferences.CheckDefaultPreferencesDialog");
+        memento = new DialogMemento(shell, "org.python.pydev.core.preferences.CheckDefaultPreferencesDialog");
         this.missing = missing;
         checkBoxes = new ArrayList<>(missing.length + 2);
     }

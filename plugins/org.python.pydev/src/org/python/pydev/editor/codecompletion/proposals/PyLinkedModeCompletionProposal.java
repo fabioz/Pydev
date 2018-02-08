@@ -29,9 +29,9 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_ui.ImageCache;
-import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
 public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionProposalExtension2 implements
         ICompletionProposalExtension {

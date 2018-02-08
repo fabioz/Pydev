@@ -14,6 +14,8 @@ import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.DocstringInfo;
+import org.python.pydev.core.interactive_console.IScriptConsoleViewer;
+import org.python.pydev.core.proposals.ICompletionProposalFactory;
 import org.python.pydev.editor.codecompletion.PyTemplateProposal;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.codefolding.PyCalltipsContextInformationFromIToken;
@@ -24,13 +26,11 @@ import org.python.pydev.editor.correctionassist.IgnorePyLintCompletionProposalIn
 import org.python.pydev.editor.correctionassist.docstrings.AssistDocstringCompletionProposal;
 import org.python.pydev.editor.correctionassist.heuristics.AssistAssignCompletionProposal;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
+import org.python.pydev.shared_core.code_completion.IPyCompletionProposal.ICompareContext;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.string.FastStringBuffer;
-import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
 import org.python.pydev.shared_ui.ImageCache;
-import org.python.pydev.shared_ui.proposals.ICompletionProposalFactory;
-import org.python.pydev.shared_ui.proposals.IPyCompletionProposal.ICompareContext;
 
 public class DefaultCompletionProposalFactory implements ICompletionProposalFactory {
 

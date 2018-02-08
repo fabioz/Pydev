@@ -1,4 +1,4 @@
-package org.python.pydev.shared_ui.proposals;
+package org.python.pydev.core.proposals;
 
 public class CompletionProposalFactory {
 

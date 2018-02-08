@@ -17,7 +17,7 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.python.pydev.plugin.preferences.FileTypesPreferences;
+import org.python.pydev.core.preferences.FileTypesPreferences;
 import org.python.pydev.shared_core.string.StringUtils;
 
 public class PythonPackageWizard extends AbstractPythonWizard {

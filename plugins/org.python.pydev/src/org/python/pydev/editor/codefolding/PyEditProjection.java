@@ -24,8 +24,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.preferences.PydevPrefs;
 import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
-import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.parsing.IParserObserver;
 import org.python.pydev.shared_ui.editor.BaseEditor;
 

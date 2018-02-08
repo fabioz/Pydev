@@ -9,7 +9,7 @@ package com.python.pydev.debug;
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.osgi.service.prefs.Preferences;
-import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.core.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 
 public class DebugPluginPrefsInitializer extends AbstractPreferenceInitializer {

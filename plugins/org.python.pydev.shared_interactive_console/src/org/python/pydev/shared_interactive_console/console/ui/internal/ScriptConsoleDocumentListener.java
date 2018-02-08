@@ -26,7 +26,7 @@ import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
-import org.python.pydev.editor.autoedit.IHandleScriptAutoEditStrategy;
+import org.python.pydev.core.autoedit.IHandleScriptAutoEditStrategy;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.log.Log;

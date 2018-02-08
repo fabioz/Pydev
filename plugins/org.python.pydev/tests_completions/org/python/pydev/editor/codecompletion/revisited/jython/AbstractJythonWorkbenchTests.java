@@ -7,10 +7,10 @@
 package org.python.pydev.editor.codecompletion.revisited.jython;
 
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.python.pydev.core.preferences.InterpreterGeneralPreferences;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.preferences.InterpreterGeneralPreferences;
 
 /**
  * Base class for code-completion on a workbench test.

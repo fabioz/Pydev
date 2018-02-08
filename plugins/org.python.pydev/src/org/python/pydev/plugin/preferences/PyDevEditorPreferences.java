@@ -19,8 +19,8 @@ public class PyDevEditorPreferences {
      * - create fields for it, as seen here
      * - add to overlay store in createOverlayStore()
      * - add what appears in the Preferences page at createAppearancePage()
-     * - add the function to the org.python.pydev.editor.autoedit.IIndentPrefs interface
-     * - probably add that function to org.python.pydev.editor.autoedit.DefaultIndentPrefs
+     * - add the function to the org.python.pydev.core.autoedit.IIndentPrefs interface
+     * - probably add that function to org.python.pydev.core.autoedit.DefaultIndentPrefs
      *
      */
 

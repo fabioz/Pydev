@@ -17,9 +17,9 @@ import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPySourceViewer;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.autoedit.DefaultIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.NameTok;
@@ -30,10 +30,10 @@ import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 import org.python.pydev.parser.prettyprinterv2.MakeAstValidForPrettyPrintingVisitor;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
+import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.string.StringUtils;
-import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
 /**
  * @author fabioz

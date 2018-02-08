@@ -1,4 +1,4 @@
-package org.python.pydev.plugin.preferences;
+package org.python.pydev.core.preferences;
 
 public class PyDevTypingPreferences {
 
@@ -38,7 +38,7 @@ public class PyDevTypingPreferences {
 
     /**
      * fields for automatically skipping braces
-     * @see  org.python.pydev.editor.autoedit.PyAutoIndentStrategy
+     * @see  org.python.pydev.core.autoedit.PyAutoIndentStrategy
      */
     public static final String AUTO_BRACES = "AUTO_BRACES";
     public static final boolean DEFAULT_AUTO_BRACES = true;

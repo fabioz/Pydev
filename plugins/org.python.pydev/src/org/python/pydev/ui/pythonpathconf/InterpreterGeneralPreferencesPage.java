@@ -18,9 +18,9 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.python.pydev.core.preferences.InterpreterGeneralPreferences;
 import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.preferences.InterpreterGeneralPreferences;
 import org.python.pydev.shared_ui.field_editors.ButtonFieldEditor;
 import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;
 

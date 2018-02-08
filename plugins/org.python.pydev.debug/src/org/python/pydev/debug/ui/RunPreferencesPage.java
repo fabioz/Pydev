@@ -6,9 +6,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.python.pydev.core.preferences.PydevPrefs;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
-import org.python.pydev.plugin.preferences.PydevPrefs;
 
 public class RunPreferencesPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 

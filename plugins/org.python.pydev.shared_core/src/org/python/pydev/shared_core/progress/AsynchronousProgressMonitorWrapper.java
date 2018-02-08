@@ -9,7 +9,7 @@
 * Contributors:
 *     Fabio Zadrozny <fabiofz@gmail.com> - initial API and implementation
 ******************************************************************************/
-package org.python.pydev.utils;
+package org.python.pydev.shared_core.progress;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.ProgressMonitorWrapper;

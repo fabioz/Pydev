@@ -18,8 +18,8 @@ import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
-import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
-import org.python.pydev.shared_ui.proposals.IPyCompletionProposal.ICompareContext;
+import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
+import org.python.pydev.shared_core.code_completion.IPyCompletionProposal.ICompareContext;
 
 /**
  * @author Fabio Zadrozny

@@ -14,13 +14,13 @@ import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.docutils.ImportsSelection;
+import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.editor.codecompletion.ProposalsComparator.CompareContext;
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
+import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
+import org.python.pydev.shared_core.code_completion.IPyCompletionProposal.ICompareContext;
 import org.python.pydev.shared_core.string.FastStringBuffer;
-import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
-import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
-import org.python.pydev.shared_ui.proposals.IPyCompletionProposal.ICompareContext;
 
 public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
 

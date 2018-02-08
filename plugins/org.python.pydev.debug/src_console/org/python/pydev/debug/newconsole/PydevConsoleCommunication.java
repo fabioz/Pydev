@@ -34,6 +34,7 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.concurrency.ConditionEvent;
 import org.python.pydev.core.concurrency.ConditionEventWithValue;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.env.UserCanceledException;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
@@ -44,6 +45,7 @@ import org.python.pydev.editorinput.PyOpenEditor;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
+import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
 import org.python.pydev.shared_core.io.ThreadStreamReader;
 import org.python.pydev.shared_core.process.ProcessUtils;
 import org.python.pydev.shared_core.string.FullRepIterable;
@@ -54,8 +56,6 @@ import org.python.pydev.shared_interactive_console.console.IXmlRpcClient;
 import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
 import org.python.pydev.shared_interactive_console.console.ScriptXmlRpcClient;
 import org.python.pydev.shared_ui.EditorUtils;
-import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
-import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 /**

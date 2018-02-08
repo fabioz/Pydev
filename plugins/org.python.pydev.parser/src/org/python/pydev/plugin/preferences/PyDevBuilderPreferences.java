@@ -1,5 +1,6 @@
 package org.python.pydev.plugin.preferences;
 
+import org.python.pydev.core.preferences.PydevPrefs;
 import org.python.pydev.parser.PyParserManager;
 
 public class PyDevBuilderPreferences {

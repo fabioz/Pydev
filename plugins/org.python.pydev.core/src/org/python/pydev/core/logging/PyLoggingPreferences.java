@@ -1,6 +1,6 @@
-package org.python.pydev.logging;
+package org.python.pydev.core.logging;
 
-import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.core.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 
 public class PyLoggingPreferences {

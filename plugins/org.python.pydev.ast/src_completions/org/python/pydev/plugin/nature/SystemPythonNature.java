@@ -28,6 +28,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PropertiesHelper;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.nature.AbstractPythonNature;
 import org.python.pydev.editor.codecompletion.revisited.SystemASTManager;
 import org.python.pydev.shared_core.structure.OrderedMap;
 import org.python.pydev.shared_core.structure.Tuple;

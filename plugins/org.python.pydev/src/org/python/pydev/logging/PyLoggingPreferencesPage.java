@@ -15,6 +15,8 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.python.pydev.core.logging.DebugSettings;
+import org.python.pydev.core.logging.PyLoggingPreferences;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;

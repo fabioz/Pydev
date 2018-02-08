@@ -13,11 +13,11 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestCaseUtils;
+import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.editor.codecompletion.proposals.DefaultCompletionProposalFactory;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.shared_core.string.CoreTextSelection;
 import org.python.pydev.shared_core.string.ICoreTextSelection;
-import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 
 public class PyCreateMethodTest extends TestCaseUtils {
 

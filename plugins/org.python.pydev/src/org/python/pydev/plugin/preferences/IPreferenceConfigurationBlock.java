@@ -15,7 +15,7 @@ import org.eclipse.swt.widgets.Control;
 
 /**
  * Interface for preference configuration blocks which can either be
- * wrapped by a {@link org.python.pydev.plugin.preferences.AbstractConfigurationBlockPreferencePage}
+ * wrapped by a {@link org.python.pydev.core.preferences.AbstractConfigurationBlockPreferencePage}
  * or be included in some preference page.
  * <p>
  * Clients may implement this interface.

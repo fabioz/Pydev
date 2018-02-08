@@ -25,7 +25,7 @@ import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.logging.DebugSettings;
+import org.python.pydev.core.logging.DebugSettings;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_ui.log.ToLogFile;
 import org.python.pydev.shared_ui.utils.PyMarkerUtils;

@@ -7,7 +7,7 @@
  *
 
  *******************************************************************************/
-package org.python.pydev.shared_interactive_console.console.ui;
+package org.python.pydev.core.interactive_console;
 
 import org.eclipse.jface.text.IDocument;
 

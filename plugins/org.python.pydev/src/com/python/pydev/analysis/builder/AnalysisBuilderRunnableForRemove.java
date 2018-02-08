@@ -9,7 +9,7 @@ package com.python.pydev.analysis.builder;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.logging.DebugSettings;
+import org.python.pydev.core.logging.DebugSettings;
 import org.python.pydev.shared_ui.log.ToLogFile;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;

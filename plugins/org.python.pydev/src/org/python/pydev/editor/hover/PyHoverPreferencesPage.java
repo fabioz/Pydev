@@ -8,10 +8,10 @@ package org.python.pydev.editor.hover;
 
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.python.pydev.core.preferences.PydevPrefs;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.AbstractConfigurationBlockPreferencePage;
 import org.python.pydev.plugin.preferences.IPreferenceConfigurationBlock;
-import org.python.pydev.plugin.preferences.PydevPrefs;
 
 /**
  * Preferences page for showing or not hovering info.

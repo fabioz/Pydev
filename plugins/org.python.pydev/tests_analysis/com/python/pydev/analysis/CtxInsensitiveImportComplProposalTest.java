@@ -10,9 +10,9 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.SWT;
 import org.python.pydev.core.IInfo;
+import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.editor.codecompletion.proposals.CtxInsensitiveImportComplProposal;
 import org.python.pydev.editor.codecompletion.proposals.DefaultCompletionProposalFactory;
-import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 
 import junit.framework.TestCase;
 

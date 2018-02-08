@@ -28,7 +28,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.plugin.preferences.FileTypesPreferences;
+import org.python.pydev.core.preferences.FileTypesPreferences;
 import org.python.pydev.runners.SimpleJythonRunner;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.string.StringUtils;

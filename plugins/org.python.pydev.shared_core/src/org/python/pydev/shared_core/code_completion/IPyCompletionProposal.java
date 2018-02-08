@@ -1,3 +1,4 @@
+package org.python.pydev.shared_core.code_completion;
 /**
  * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
@@ -9,9 +10,6 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.shared_ui.proposals;
-
-import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 
 /**
  * @author Fabio Zadrozny

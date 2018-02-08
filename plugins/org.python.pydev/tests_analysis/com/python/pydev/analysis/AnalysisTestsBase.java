@@ -23,7 +23,7 @@ import org.python.pydev.core.IInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.editor.autoedit.TestIndentPrefs;
+import org.python.pydev.core.autoedit.TestIndentPrefs;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;

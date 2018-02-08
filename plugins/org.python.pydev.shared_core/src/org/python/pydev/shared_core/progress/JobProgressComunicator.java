@@ -9,7 +9,7 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.utils;
+package org.python.pydev.shared_core.progress;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;

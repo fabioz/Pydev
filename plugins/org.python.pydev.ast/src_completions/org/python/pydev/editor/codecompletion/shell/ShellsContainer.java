@@ -14,8 +14,8 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.logging.DebugSettings;
 import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
-import org.python.pydev.logging.DebugSettings;
 
 public class ShellsContainer {
 

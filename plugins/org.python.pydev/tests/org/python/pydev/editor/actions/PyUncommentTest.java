@@ -14,9 +14,9 @@ import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.FormatStd;
+import org.python.pydev.core.autoedit.DefaultIndentPrefs;
+import org.python.pydev.core.autoedit.TestIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
-import org.python.pydev.editor.autoedit.TestIndentPrefs;
 import org.python.pydev.shared_core.structure.Tuple;
 
 public class PyUncommentTest extends TestCase {

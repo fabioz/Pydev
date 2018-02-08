@@ -44,10 +44,10 @@ import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 import org.python.pydev.parser.visitors.scope.ReturnVisitor;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
+import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.string.StringUtils;
-import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
 import com.python.pydev.analysis.builder.AnalysisRunner;
 import com.python.pydev.analysis.ctrl_1.AbstractAnalysisMarkersParticipants;

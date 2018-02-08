@@ -36,7 +36,7 @@ import org.eclipse.ui.console.IConsoleDocumentPartitioner;
 import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.console.TextConsole;
 import org.eclipse.ui.part.IPageBookViewPage;
-import org.python.pydev.editor.autoedit.IHandleScriptAutoEditStrategy;
+import org.python.pydev.core.autoedit.IHandleScriptAutoEditStrategy;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.structure.Tuple;

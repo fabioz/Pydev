@@ -53,7 +53,8 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.TextConsoleViewer;
-import org.python.pydev.editor.autoedit.IHandleScriptAutoEditStrategy;
+import org.python.pydev.core.autoedit.IHandleScriptAutoEditStrategy;
+import org.python.pydev.core.interactive_console.IScriptConsoleViewer;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_interactive_console.console.ScriptConsoleHistory;
@@ -62,7 +63,6 @@ import org.python.pydev.shared_interactive_console.console.codegen.PythonSnippet
 import org.python.pydev.shared_interactive_console.console.codegen.SafeScriptConsoleCodeGenerator;
 import org.python.pydev.shared_interactive_console.console.ui.IConsoleStyleProvider;
 import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleSession;
-import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
 import org.python.pydev.shared_interactive_console.console.ui.ScriptConsole;
 import org.python.pydev.shared_interactive_console.console.ui.internal.actions.AbstractHandleBackspaceAction;
 import org.python.pydev.shared_interactive_console.console.ui.internal.actions.HandleDeletePreviousWord;

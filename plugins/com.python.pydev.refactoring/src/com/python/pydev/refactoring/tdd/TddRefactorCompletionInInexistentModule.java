@@ -25,11 +25,11 @@ import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Point;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.preferences.FileTypesPreferences;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editorinput.PySourceLocatorBase;
-import org.python.pydev.plugin.preferences.FileTypesPreferences;
 import org.python.pydev.shared_core.image.IImageHandle;
 
 /**

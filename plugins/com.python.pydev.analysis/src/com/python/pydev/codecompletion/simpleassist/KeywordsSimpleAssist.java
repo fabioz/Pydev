@@ -18,12 +18,12 @@ import org.python.pydev.core.IPySyntaxHighlightingAndCodeCompletionEditor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant;
 import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant2;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
-import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
-import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
+import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
 
 /**
  * Auto completion for keywords:

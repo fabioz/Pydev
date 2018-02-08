@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.editor.actions.PySelectionTest;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
@@ -29,7 +30,6 @@ import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.preferences.InMemoryEclipsePreferences;
-import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 
 import com.python.pydev.analysis.AnalysisPreferences;
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;

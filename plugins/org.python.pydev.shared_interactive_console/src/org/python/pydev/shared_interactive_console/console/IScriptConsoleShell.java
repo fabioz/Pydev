@@ -10,8 +10,8 @@
 package org.python.pydev.shared_interactive_console.console;
 
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.interactive_console.IScriptConsoleViewer;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
-import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
 
 /**
  * This is the interface required by the console 'shell': meaning that those are the things

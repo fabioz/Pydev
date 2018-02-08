@@ -17,10 +17,10 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.codingstd.ICodingStd;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.proposals.DefaultCompletionProposalFactory;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
-import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 
 import junit.framework.TestCase;
 

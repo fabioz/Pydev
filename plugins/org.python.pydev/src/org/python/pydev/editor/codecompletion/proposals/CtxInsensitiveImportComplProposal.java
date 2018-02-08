@@ -25,6 +25,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPySourceViewer;
+import org.python.pydev.core.autoedit.DefaultIndentPrefs;
 import org.python.pydev.core.docutils.ImportHandle;
 import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
 import org.python.pydev.core.docutils.ImportNotRecognizedException;
@@ -34,16 +35,15 @@ import org.python.pydev.core.docutils.PyImportsHandling;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal2;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
+import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.ImageCache;
-import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 
 /**

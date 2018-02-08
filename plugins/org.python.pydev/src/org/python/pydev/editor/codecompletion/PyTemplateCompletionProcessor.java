@@ -11,6 +11,7 @@ import org.eclipse.jface.text.templates.TemplateCompletionProcessor;
 import org.eclipse.jface.text.templates.TemplateContext;
 import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.swt.graphics.Image;
+import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.editor.codecompletion.templates.PyDocumentTemplateContext;
 import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.editor.templates.TemplateHelper;
@@ -19,7 +20,6 @@ import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
-import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 
 /**
  * @author Fabio Zadrozny

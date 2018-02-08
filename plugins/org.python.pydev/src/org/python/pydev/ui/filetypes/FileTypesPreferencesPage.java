@@ -11,8 +11,8 @@ import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.python.pydev.core.preferences.FileTypesPreferences;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.preferences.FileTypesPreferences;
 import org.python.pydev.shared_core.string.WrapAndCaseUtils;
 import org.python.pydev.utils.LabelFieldEditorWith2Cols;
 

@@ -21,13 +21,13 @@ import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
+import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.string.DocIterator;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
-import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
 /**
  * The code-completion engine that should be used inside strings

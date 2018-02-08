@@ -9,7 +9,7 @@
 * Contributors:
 *     Fabio Zadrozny <fabiofz@gmail.com> - initial API and implementation
 ******************************************************************************/
-package org.python.pydev.editor.autoedit;
+package org.python.pydev.core.autoedit;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;

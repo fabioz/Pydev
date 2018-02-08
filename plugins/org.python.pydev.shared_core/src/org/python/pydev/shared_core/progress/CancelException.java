@@ -1,4 +1,4 @@
-package org.python.pydev.utils;
+package org.python.pydev.shared_core.progress;
 
 public final class CancelException extends Exception {
 

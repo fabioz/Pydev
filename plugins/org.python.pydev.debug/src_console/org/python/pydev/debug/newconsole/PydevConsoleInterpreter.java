@@ -34,7 +34,9 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.ImportsSelection;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
+import org.python.pydev.core.interactive_console.IScriptConsoleViewer;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.debug.model.PyDebugTarget;
 import org.python.pydev.debug.model.PyStackFrame;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant2;
@@ -45,14 +47,12 @@ import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant2;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
+import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_interactive_console.console.IScriptConsoleCommunication;
 import org.python.pydev.shared_interactive_console.console.IScriptConsoleInterpreter;
 import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
-import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
 import org.python.pydev.shared_ui.content_assist.AbstractCompletionProcessorWithCycling;
-import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
-import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
 /**
  * Default implementation for the console interpreter.

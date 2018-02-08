@@ -20,10 +20,10 @@ import org.eclipse.jface.text.templates.persistence.TemplatePersistenceData;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorPart;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.preferences.FileTypesPreferences;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.templates.PyDocumentTemplateContext;
 import org.python.pydev.editor.templates.PyContextType;
-import org.python.pydev.plugin.preferences.FileTypesPreferences;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 /**

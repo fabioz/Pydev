@@ -12,7 +12,7 @@ package org.python.pydev.editor.codecompletion;
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.osgi.service.prefs.Preferences;
-import org.python.pydev.logging.PyLoggingPreferences;
+import org.python.pydev.core.logging.PyLoggingPreferences;
 import org.python.pydev.shared_core.SharedCorePlugin;
 
 public class PyCodeCompletionInitializer extends AbstractPreferenceInitializer {

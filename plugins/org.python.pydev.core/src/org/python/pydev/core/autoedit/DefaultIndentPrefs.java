@@ -9,14 +9,14 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.editor.autoedit;
+package org.python.pydev.core.autoedit;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.ITabChangedListener;
-import org.python.pydev.plugin.preferences.PyDevCoreEditorPreferences;
-import org.python.pydev.plugin.preferences.PyDevTypingPreferences;
-import org.python.pydev.plugin.preferences.PyScopedPreferences;
+import org.python.pydev.core.preferences.PyDevCoreEditorPreferences;
+import org.python.pydev.core.preferences.PyDevTypingPreferences;
+import org.python.pydev.core.preferences.PyScopedPreferences;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ListenerList;
 

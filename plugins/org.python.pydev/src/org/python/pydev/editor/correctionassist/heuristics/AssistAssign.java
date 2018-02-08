@@ -25,18 +25,18 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.plugin.preferences.PyCodeStylePreferencesPage;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
+import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
-import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
-import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
 /**
  * @author Fabio Zadrozny

@@ -21,6 +21,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.templates.PyDocumentTemplateContext;
 import org.python.pydev.editor.correctionassist.heuristics.AssistAssign;
@@ -38,7 +39,6 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.EditorUtils;
-import org.python.pydev.shared_ui.proposals.CompletionProposalFactory;
 
 public abstract class AbstractPyCreateClassOrMethodOrField extends AbstractPyCreateAction {
 

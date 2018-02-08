@@ -66,13 +66,14 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IInterpreterManagerListener;
 import org.python.pydev.core.PropertiesHelper;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.preferences.FileTypesPreferences;
 import org.python.pydev.jython.JythonPlugin;
-import org.python.pydev.plugin.preferences.FileTypesPreferences;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_core.jython.IPythonInterpreter;
+import org.python.pydev.shared_core.progress.CancelException;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.ImageCache;
@@ -83,7 +84,6 @@ import org.python.pydev.tree.EnabledTreeDragReorder;
 import org.python.pydev.ui.TabVariables;
 import org.python.pydev.ui.dialogs.InterpreterInputDialog;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
-import org.python.pydev.utils.CancelException;
 
 /**
  * Field editor for a list of python interpreter with executable verifier.

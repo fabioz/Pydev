@@ -1,7 +1,7 @@
 package com.python.pydev.analysis;
 
 import org.eclipse.core.runtime.IAdaptable;
-import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.core.preferences.PydevPrefs;
 import org.python.pydev.shared_core.preferences.IScopedPreferences;
 import org.python.pydev.shared_core.preferences.ScopedPreferences;
 

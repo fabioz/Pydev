@@ -43,6 +43,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.image.UIConstants;
+import org.python.pydev.shared_core.progress.AsynchronousProgressMonitorWrapper;
 import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
@@ -51,7 +52,6 @@ import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.pythonpathconf.IInterpreterProviderFactory.InterpreterType;
-import org.python.pydev.utils.AsynchronousProgressMonitorWrapper;
 
 /**
  * This class uses code based from {@link AbstractInterpreterEditor} and

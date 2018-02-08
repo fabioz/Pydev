@@ -19,7 +19,7 @@ import org.eclipse.core.resources.IProject;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.editor.codecompletion.ProposalsComparator.CompareContext;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
-import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
+import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
 
 public class PyCodeCompletionUtils {
 
