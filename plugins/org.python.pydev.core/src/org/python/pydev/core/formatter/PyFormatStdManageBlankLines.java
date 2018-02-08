@@ -1,4 +1,4 @@
-package org.python.pydev.editor.actions;
+package org.python.pydev.core.formatter;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -11,7 +11,6 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
-import org.python.pydev.core.formatter.FormatStd;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;

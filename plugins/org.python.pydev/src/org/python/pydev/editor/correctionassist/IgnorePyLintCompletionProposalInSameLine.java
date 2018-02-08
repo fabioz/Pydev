@@ -8,6 +8,7 @@ import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.formatter.FormatStd;
+import org.python.pydev.core.formatter.PyFormatter;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyFormatStd;
@@ -89,7 +90,7 @@ public class IgnorePyLintCompletionProposalInSameLine extends IgnoreCompletionPr
 
             strToAdd = new FastStringBuffer("", 40);
             strToAdd.append('#');
-            PyFormatStd.formatComment(formatStd, strToAdd);
+            PyFormatter.formatComment(formatStd, strToAdd);
 
             //Just add spaces before the '#' if there's actually some content in the line.
             if (c != '\r' && c != '\n' && c != '\0' && c != ' ') {
