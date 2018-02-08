@@ -39,6 +39,7 @@ import org.python.pydev.ast.codecompletion.revisited.SyncSystemModulesManagerSch
 import org.python.pydev.ast.codecompletion.revisited.SyncSystemModulesManagerScheduler.InfoTracker;
 import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
 import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
+import org.python.pydev.ast.interpreter_managers.PythonInterpreterManager;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInfo;
 import org.python.pydev.core.IInterpreterInfo;
@@ -55,7 +56,6 @@ import org.python.pydev.shared_core.structure.DataAndImageTreeNode;
 import org.python.pydev.shared_core.structure.TreeNode;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.testutils.TestUtils;
-import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 
 import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.builders.InterpreterObserver;

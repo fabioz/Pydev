@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.python.pydev.ast.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
 import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
+import org.python.pydev.ast.interpreter_managers.PythonInterpreterManager;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInfo;
 import org.python.pydev.core.IInterpreterInfo;
@@ -27,7 +28,6 @@ import org.python.pydev.plugin.PydevTestUtils;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.preferences.InMemoryEclipsePreferences;
 import org.python.pydev.shared_core.string.FastStringBuffer;
-import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;

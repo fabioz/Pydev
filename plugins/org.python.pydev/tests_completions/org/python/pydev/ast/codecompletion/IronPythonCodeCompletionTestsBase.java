@@ -16,13 +16,13 @@ import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
 import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
+import org.python.pydev.ast.interpreter_managers.IronpythonInterpreterManager;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.ui.interpreters.IronpythonInterpreterManager;
 
 public class IronPythonCodeCompletionTestsBase extends CodeCompletionTestsBase {
 

@@ -9,7 +9,7 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.ui.interpreters;
+package org.python.pydev.ast.interpreter_managers;
 
 import java.io.File;
 import java.util.List;
@@ -18,7 +18,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
-import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
 import org.python.pydev.ast.listing_utils.JavaVmLocationFinder;
 import org.python.pydev.ast.runners.SimpleJythonRunner;
 import org.python.pydev.core.IInterpreterManager;
@@ -48,7 +47,7 @@ public class JythonInterpreterManager extends AbstractInterpreterManager {
     }
 
     @Override
-    protected String getPreferencesPageId() {
+    public String getPreferencesPageId() {
         return "org.python.pydev.ast.interpreter_managers.interpreterPreferencesPageJython";
     }
 

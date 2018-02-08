@@ -15,10 +15,10 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.ast.codecompletion.revisited.PythonInterpreterManagerStub;
 import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
+import org.python.pydev.ast.interpreter_managers.JythonInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 
 public class JythonInterpreterManagerStub extends PythonInterpreterManagerStub {
 

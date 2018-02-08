@@ -30,6 +30,7 @@ import org.python.pydev.ast.codecompletion.IPyCodeCompletion;
 import org.python.pydev.ast.codecompletion.PyCodeCompletionUtils;
 import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
 import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
+import org.python.pydev.ast.interpreter_managers.PythonInterpreterManager;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
@@ -48,7 +49,6 @@ import org.python.pydev.shared_core.progress.PrintProgressMonitor;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.ui.BundleInfoStub;
-import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 
 import junit.framework.TestCase;
 

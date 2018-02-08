@@ -22,6 +22,7 @@ import org.eclipse.jface.text.Document;
 import org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
+import org.python.pydev.ast.interpreter_managers.PythonInterpreterManager;
 import org.python.pydev.core.DeltaSaver;
 import org.python.pydev.core.IInfo;
 import org.python.pydev.core.IInterpreterManager;
@@ -33,7 +34,6 @@ import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.shared_core.callbacks.ICallbackListener;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 
 import com.python.pydev.analysis.system_info_builder.InterpreterInfoBuilder;
 

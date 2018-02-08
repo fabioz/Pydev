@@ -18,9 +18,9 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.python.pydev.ast.codecompletion.revisited.DefaultSyncSystemModulesManagerScheduler;
 import org.python.pydev.core.preferences.InterpreterGeneralPreferences;
 import org.python.pydev.plugin.PyDevUiPrefs;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_ui.field_editors.ButtonFieldEditor;
 import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;
 
@@ -55,7 +55,7 @@ public class InterpreterGeneralPreferencesPage extends FieldEditorPreferencePage
 
             @Override
             public void widgetSelected(SelectionEvent e) {
-                PydevPlugin.getDefault().syncScheduler.checkAllNow();
+                DefaultSyncSystemModulesManagerScheduler.get().checkAllNow();
             }
 
             @Override

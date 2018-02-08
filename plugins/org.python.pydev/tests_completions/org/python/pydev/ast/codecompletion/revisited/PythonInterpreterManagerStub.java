@@ -16,14 +16,14 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
+import org.python.pydev.ast.interpreter_managers.AbstractInterpreterManager;
 import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
+import org.python.pydev.ast.interpreter_managers.PythonInterpreterManager;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.ui.interpreters.AbstractInterpreterManager;
-import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 
 public class PythonInterpreterManagerStub extends AbstractInterpreterManager implements IInterpreterManager {
 
@@ -62,7 +62,7 @@ public class PythonInterpreterManagerStub extends AbstractInterpreterManager imp
     }
 
     @Override
-    protected String getPreferencesPageId() {
+    public String getPreferencesPageId() {
         return "org.python.pydev.ast.interpreter_managers.interpreterPreferencesPagePython";
     }
 

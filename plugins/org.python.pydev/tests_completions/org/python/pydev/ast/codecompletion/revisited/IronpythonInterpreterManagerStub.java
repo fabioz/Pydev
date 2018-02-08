@@ -17,12 +17,12 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
+import org.python.pydev.ast.interpreter_managers.IronpythonInterpreterManager;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.ui.interpreters.IronpythonInterpreterManager;
 
 public class IronpythonInterpreterManagerStub extends PythonInterpreterManagerStub {
 

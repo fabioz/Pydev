@@ -35,6 +35,7 @@ import org.eclipse.jdt.internal.launching.StandardVMType;
 import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jdt.launching.LibraryLocation;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.IDocument;
@@ -57,15 +58,19 @@ import org.eclipse.ui.texteditor.link.EditorLinkedModeUI;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.prefs.BackingStoreException;
 import org.python.pydev.ast.codecompletion.AbstractTemplateCodeCompletion;
+import org.python.pydev.ast.codecompletion.revisited.DefaultSyncSystemModulesManagerScheduler;
 import org.python.pydev.ast.codecompletion.revisited.ModulesManager;
 import org.python.pydev.ast.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.ast.codecompletion.revisited.SyncSystemModulesManager;
-import org.python.pydev.ast.codecompletion.revisited.SyncSystemModulesManagerScheduler;
 import org.python.pydev.ast.codecompletion.revisited.modules.EmptyModuleForZip;
 import org.python.pydev.ast.codecompletion.shell.AbstractShell;
+import org.python.pydev.ast.interpreter_managers.AbstractInterpreterManager;
 import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
-import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.ast.interpreter_managers.InterpreterInfo.IPythonSelectLibraries;
+import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
+import org.python.pydev.ast.interpreter_managers.IronpythonInterpreterManager;
+import org.python.pydev.ast.interpreter_managers.JythonInterpreterManager;
+import org.python.pydev.ast.interpreter_managers.PythonInterpreterManager;
 import org.python.pydev.ast.listing_utils.JavaVmLocationFinder;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.IInterpreterInfo;
@@ -95,11 +100,9 @@ import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.bundle.BundleInfo;
 import org.python.pydev.shared_ui.bundle.IBundleInfo;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
+import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.dialogs.SelectNDialog;
 import org.python.pydev.ui.dialogs.TreeNodeLabelProvider;
-import org.python.pydev.ui.interpreters.IronpythonInterpreterManager;
-import org.python.pydev.ui.interpreters.JythonInterpreterManager;
-import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.PythonSelectionLibrariesDialog;
 
 /**
@@ -137,8 +140,6 @@ public class PydevPlugin extends AbstractUIPlugin {
 
     private ResourceBundle resourceBundle; //Resource bundle.
 
-    public final SyncSystemModulesManagerScheduler syncScheduler = new SyncSystemModulesManagerScheduler();
-
     private boolean isAlive;
 
     private static PyEditorTextHoverDescriptor combiningHoverDescriptor;
@@ -155,7 +156,7 @@ public class PydevPlugin extends AbstractUIPlugin {
 
         @Override
         protected IStatus run(IProgressMonitor monitor) {
-            syncScheduler.start();
+            DefaultSyncSystemModulesManagerScheduler.get().start();
             return Status.OK_STATUS;
         }
     };
@@ -190,6 +191,8 @@ public class PydevPlugin extends AbstractUIPlugin {
         }
         return false;
     }
+
+    private ConfigureInterpreterJob configureInterpreterJob = new ConfigureInterpreterJob();
 
     @SuppressWarnings({ "rawtypes", "restriction" })
     @Override
@@ -359,6 +362,33 @@ public class PydevPlugin extends AbstractUIPlugin {
             return null;
         };
 
+        AbstractInterpreterManager.configWhenInterpreterNotAvailable = (manager) -> {
+            //If we got here, the interpreter is not properly configured, let's try to auto-configure it
+            if (PyDialogHelpers.getAskAgainInterpreter(manager)) {
+                configureInterpreterJob.addInterpreter(manager);
+                configureInterpreterJob.schedule(50);
+            }
+            return null;
+        };
+
+        AbstractInterpreterManager.errorCreatingInterpreterInfo = (title, reason) -> {
+            try {
+                final Display disp = Display.getDefault();
+                disp.asyncExec(new Runnable() {
+                    @Override
+                    public void run() {
+                        ErrorDialog.openError(null, title, "Unable to get information on interpreter!",
+                                new Status(Status.ERROR, PydevPlugin.getPluginID(), 0,
+                                        reason, null));
+                    }
+                });
+            } catch (Throwable e) {
+                // ignore error communication error
+            }
+
+            return null;
+        };
+
         // End setup extension in dependencies
         // End setup extension in dependencies
         // End setup extension in dependencies
@@ -430,7 +460,7 @@ public class PydevPlugin extends AbstractUIPlugin {
      */
     @Override
     public void stop(BundleContext context) throws Exception {
-        syncScheduler.stop();
+        DefaultSyncSystemModulesManagerScheduler.get().stop();
         IPath stateLocation = getStateLocation();
         File file = stateLocation.toFile();
         for (String prefix : erasePrefixes) {

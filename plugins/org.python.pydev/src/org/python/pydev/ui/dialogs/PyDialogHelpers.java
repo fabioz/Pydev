@@ -25,6 +25,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.python.pydev.ast.interpreter_managers.AbstractInterpreterManager;
 import org.python.pydev.core.IInterpreterInfo.UnableToFindExecutableException;
 import org.python.pydev.core.preferences.InterpreterGeneralPreferences;
 import org.python.pydev.plugin.PydevPlugin;
@@ -32,7 +33,6 @@ import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.dialogs.DialogHelpers;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.shared_ui.utils.UIUtils;
-import org.python.pydev.ui.interpreters.AbstractInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterConfigHelpers;
 
 /**

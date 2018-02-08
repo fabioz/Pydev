@@ -31,6 +31,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ListDialog;
 import org.eclipse.ui.dialogs.ListSelectionDialog;
 import org.eclipse.ui.dialogs.SelectionDialog;
+import org.python.pydev.ast.interpreter_managers.AbstractInterpreterManager;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.log.Log;
@@ -40,7 +41,6 @@ import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorDialog;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
-import org.python.pydev.ui.interpreters.AbstractInterpreterManager;
 
 /**
  * @author Fabio Zadrozny

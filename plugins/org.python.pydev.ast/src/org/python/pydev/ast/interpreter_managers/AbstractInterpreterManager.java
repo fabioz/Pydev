@@ -9,13 +9,12 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.ui.interpreters;
+package org.python.pydev.ast.interpreter_managers;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -24,23 +23,14 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.jface.dialogs.ErrorDialog;
-import org.eclipse.jface.preference.PreferenceDialog;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.dialogs.PreferencesUtil;
-import org.eclipse.ui.progress.UIJob;
 import org.osgi.service.prefs.BackingStoreException;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
+import org.python.pydev.ast.codecompletion.revisited.DefaultSyncSystemModulesManagerScheduler;
 import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.ast.codecompletion.revisited.SyncSystemModulesManagerScheduler;
 import org.python.pydev.ast.codecompletion.shell.AbstractShell;
-import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
-import org.python.pydev.ast.interpreter_managers.IInterpreterProviderFactory.InterpreterType;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInterpreterInfo;
@@ -55,17 +45,14 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.NotConfiguredInterpreterException;
 import org.python.pydev.core.interpreters.IInterpreterObserver;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.PythonNatureListenersManager;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.callbacks.ICallback2;
 import org.python.pydev.shared_core.callbacks.ListenerList;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.shared_ui.EditorUtils;
-import org.python.pydev.ui.dialogs.PyDialogHelpers;
-import org.python.pydev.ui.pythonpathconf.AutoConfigMaker;
-import org.python.pydev.ui.pythonpathconf.InterpreterConfigHelpers;
 
 /**
  * Does not write directly in INTERPRETER_PATH, just loads from it and works with it.
@@ -220,6 +207,8 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      */
     protected abstract String getPreferenceName();
 
+    public static ICallback<Object, AbstractInterpreterManager> configWhenInterpreterNotAvailable;
+
     /**
      * @throws NotConfiguredInterpreterException
      * @see org.python.pydev.core.IInterpreterManager#getDefaultInterpreterInfo()
@@ -241,74 +230,16 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
             errorMsg = getInterpreterUIName() + " not configured.";
         }
 
-        if (autoConfigureIfNotConfigured) {
-            //If we got here, the interpreter is not properly configured, let's try to auto-configure it
-            if (PyDialogHelpers.getAskAgainInterpreter(this)) {
-                configureInterpreterJob.addInterpreter(this);
-                configureInterpreterJob.schedule(50);
-            }
+        if (autoConfigureIfNotConfigured && configWhenInterpreterNotAvailable != null) {
+            configWhenInterpreterNotAvailable.call(this);
         }
         throw new NotConfiguredInterpreterException(errorMsg);
     }
 
-    private static class ConfigureInterpreterJob extends UIJob {
-
-        private volatile Set<AbstractInterpreterManager> interpreters = new HashSet<AbstractInterpreterManager>();
-
-        public void addInterpreter(AbstractInterpreterManager abstractInterpreterManager) {
-            this.interpreters.add(abstractInterpreterManager);
-        }
-
-        public ConfigureInterpreterJob() {
-            super("Configure interpreter");
-        }
-
-        @Override
-        public IStatus runInUIThread(IProgressMonitor monitor) {
-            Set<AbstractInterpreterManager> current = interpreters;
-            interpreters = new HashSet<AbstractInterpreterManager>();
-            for (AbstractInterpreterManager m : current) {
-                try {
-                    m.getDefaultInterpreterInfo(false);
-                    continue; //Maybe it got configured at some other point...
-                } catch (NotConfiguredInterpreterException e) {
-                    int ret = PyDialogHelpers.openQuestionConfigureInterpreter(m);
-                    if (ret == InterpreterConfigHelpers.CONFIG_MANUAL) {
-                        PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(null,
-                                m.getPreferencesPageId(), null, null);
-                        dialog.open();
-                    } else if (ret != PyDialogHelpers.INTERPRETER_CANCEL_CONFIG) {
-                        InterpreterType interpreterType;
-                        switch (m.getInterpreterType()) {
-                            case IPythonNature.INTERPRETER_TYPE_JYTHON:
-                                interpreterType = InterpreterType.JYTHON;
-                                break;
-
-                            case IPythonNature.INTERPRETER_TYPE_IRONPYTHON:
-                                interpreterType = InterpreterType.IRONPYTHON;
-                                break;
-
-                            default:
-                                interpreterType = InterpreterType.PYTHON;
-                        }
-                        boolean advanced = ret == InterpreterConfigHelpers.CONFIG_ADV_AUTO;
-                        Shell shell = EditorUtils.getShell();
-                        AutoConfigMaker a = new AutoConfigMaker(interpreterType, advanced, null, null);
-                        a.autoConfigSingleApply(null);
-                    }
-                }
-            }
-            return Status.OK_STATUS;
-        }
-
-    }
-
-    private static ConfigureInterpreterJob configureInterpreterJob = new ConfigureInterpreterJob();
-
     /**
      * @return
      */
-    protected abstract String getPreferencesPageId();
+    public abstract String getPreferencesPageId();
 
     /**
      * @return a message to show to the user when there is no configured interpreter
@@ -404,32 +335,22 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         if (info.executableOrJar == null || info.executableOrJar.trim().length() == 0) {
             //it is null or empty
             final String title = "Invalid interpreter:" + executable;
-            final String msg = "Unable to get information on interpreter!";
             String reasonCreation = "The interpreter (or jar): '" + executable
                     + "' is not valid - info.executable found: " + info.executableOrJar + "\n";
             if (tup != null) {
                 reasonCreation += "The standard output gotten from the executed shell was: >>" + tup.o2 + "<<";
             }
-            final String reason = reasonCreation;
-
-            try {
-                final Display disp = Display.getDefault();
-                disp.asyncExec(new Runnable() {
-                    @Override
-                    public void run() {
-                        ErrorDialog.openError(null, title, msg, new Status(Status.ERROR, PydevPlugin.getPluginID(), 0,
-                                reason, null));
-                    }
-                });
-            } catch (Throwable e) {
-                // ignore error communication error
+            if (errorCreatingInterpreterInfo != null) {
+                errorCreatingInterpreterInfo.call(title, reasonCreation);
             }
-            throw new RuntimeException(reason);
+
+            throw new RuntimeException(reasonCreation);
         }
 
         return info;
-
     }
+
+    public static ICallback2<Object, String, String> errorCreatingInterpreterInfo;
 
     /**
      * Creates the interpreter info from the output. Checks for errors.
@@ -698,9 +619,8 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 
         //In the regular process we do not create the global indexing for forced builtins, thus, we schedule a process
         //now which will be able to do that when checking if things are correct in the configuration.
-        PydevPlugin plugin = PydevPlugin.getDefault();
-        if (plugin != null && interpreterNamesToRestore != null && interpreterNamesToRestore.size() > 0) {
-            SyncSystemModulesManagerScheduler syncScheduler = plugin.syncScheduler;
+        SyncSystemModulesManagerScheduler syncScheduler = DefaultSyncSystemModulesManagerScheduler.get();
+        if (syncScheduler != null && interpreterNamesToRestore != null && interpreterNamesToRestore.size() > 0) {
             ArrayList<IInterpreterInfo> lst = new ArrayList<>(interpreterNamesToRestore.size());
             for (IInterpreterInfo info : interpreterInfos) {
                 if (interpreterNamesToRestore.contains(info.getExecutableOrJar())) {

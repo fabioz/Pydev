@@ -17,8 +17,10 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.ast.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.ast.interpreter_managers.AbstractInterpreterManager;
 import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
 import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
+import org.python.pydev.ast.interpreter_managers.JythonInterpreterManager;
 import org.python.pydev.ast.listing_utils.JavaVmLocationFinder;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
@@ -26,8 +28,6 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback0;
-import org.python.pydev.ui.interpreters.AbstractInterpreterManager;
-import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 
 public class JythonCodeCompletionTestsBase extends CodeCompletionTestsBase {
 

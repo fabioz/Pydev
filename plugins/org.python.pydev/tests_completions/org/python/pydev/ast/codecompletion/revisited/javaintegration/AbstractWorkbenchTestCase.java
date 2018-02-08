@@ -47,6 +47,8 @@ import org.eclipse.ui.part.ViewPart;
 import org.python.pydev.ast.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
 import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
+import org.python.pydev.ast.interpreter_managers.JythonInterpreterManager;
+import org.python.pydev.ast.interpreter_managers.PythonInterpreterManager;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModulesManager;
@@ -65,8 +67,6 @@ import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.ui.interpreters.JythonInterpreterManager;
-import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 
 import junit.framework.TestCase;
 

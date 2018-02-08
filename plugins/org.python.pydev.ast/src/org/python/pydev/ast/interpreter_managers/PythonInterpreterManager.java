@@ -5,35 +5,36 @@
  * Any modifications to this file must keep this entire header intact.
  */
 /*
+ * Created on 08/08/2005
+ *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.ui.interpreters;
+package org.python.pydev.ast.interpreter_managers;
 
 import java.io.File;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
-import org.python.pydev.ast.runners.SimpleIronpythonRunner;
+import org.python.pydev.ast.runners.SimplePythonRunner;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
-public class IronpythonInterpreterManager extends AbstractInterpreterManager {
+public class PythonInterpreterManager extends AbstractInterpreterManager {
 
-    public IronpythonInterpreterManager(IEclipsePreferences prefs) {
-        super(prefs);
+    public PythonInterpreterManager(IEclipsePreferences preferences) {
+        super(preferences);
     }
 
     @Override
     protected String getPreferenceName() {
-        return IRONPYTHON_INTERPRETER_PATH;
+        return PYTHON_INTERPRETER_PATH;
     }
 
     @Override
     public String getInterpreterUIName() {
-        return "IronPython.";
+        return "Python";
     }
 
     @Override
@@ -43,12 +44,12 @@ public class IronpythonInterpreterManager extends AbstractInterpreterManager {
     }
 
     @Override
-    protected String getPreferencesPageId() {
-        return "org.python.pydev.ast.interpreter_managers.interpreterPreferencesPageIronpython";
+    public String getPreferencesPageId() {
+        return "org.python.pydev.ast.interpreter_managers.interpreterPreferencesPagePython";
     }
 
     /**
-     * @param executable the IronPython interpreter from where we should create the info
+     * @param executable the python interpreter from where we should create the info
      * @param monitor a monitor to see the progress
      *
      * @return the created interpreter info
@@ -58,15 +59,15 @@ public class IronpythonInterpreterManager extends AbstractInterpreterManager {
             boolean askUser) throws CoreException {
         boolean isJythonExecutable = InterpreterInfo.isJythonExecutable(executable);
         if (isJythonExecutable) {
-            throw new RuntimeException("A jar cannot be used in order to get the info for the IronPython interpreter.");
+            throw new RuntimeException("A jar cannot be used in order to get the info for the python interpreter.");
         }
 
         File script = getInterpreterInfoPy();
 
-        Tuple<String, String> outTup = new SimpleIronpythonRunner().runAndGetOutputWithInterpreter(executable,
+        Tuple<String, String> outTup = new SimplePythonRunner().runAndGetOutputWithInterpreter(executable,
                 FileUtils.getFileAbsolutePath(script), null, null, null, monitor, "utf-8");
 
-        InterpreterInfo info = createInfoFromOutput(monitor, outTup, askUser, executable, false);
+        InterpreterInfo info = createInfoFromOutput(monitor, outTup, askUser, executable, true);
 
         if (info == null) {
             //cancelled
@@ -80,12 +81,12 @@ public class IronpythonInterpreterManager extends AbstractInterpreterManager {
 
     @Override
     public int getInterpreterType() {
-        return IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON;
+        return IInterpreterManager.INTERPRETER_TYPE_PYTHON;
     }
 
     @Override
     public String getManagerRelatedName() {
-        return "ironpython";
+        return "python";
     }
 
 }
