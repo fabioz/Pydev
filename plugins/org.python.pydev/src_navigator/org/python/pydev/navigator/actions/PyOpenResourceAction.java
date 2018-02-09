@@ -21,11 +21,11 @@ import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.ide.IDE;
 import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.ast.item_pointer.ItemPointer;
+import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.navigator.PythonpathTreeNode;
 import org.python.pydev.navigator.PythonpathZipChildTreeNode;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.structure.Location;
 import org.python.pydev.shared_ui.editor_input.PydevZipFileEditorInput;
 import org.python.pydev.shared_ui.editor_input.PydevZipFileStorage;
@@ -91,7 +91,7 @@ public class PyOpenResourceAction extends PyOpenPythonFileAction {
     @Override
     protected void openFiles(List<IFile> filesSelected) {
         for (IFile f : filesSelected) {
-            PydevPlugin.markAsPyDevFileIfDetected(f);
+            CorePlugin.markAsPyDevFileIfDetected(f);
             try {
                 IDE.openEditor(page, f);
             } catch (PartInitException e) {

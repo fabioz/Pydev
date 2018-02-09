@@ -9,7 +9,7 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.builder;
+package org.python.pydev.ast.builder;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,21 +27,16 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.ast.builder.PyDevBuilderVisitor;
-import org.python.pydev.ast.builder.VisitorMemo;
 import org.python.pydev.ast.codecompletion.revisited.PyCodeCompletionVisitor;
 import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.ast.listing_utils.PyFileListing;
-import org.python.pydev.builder.pycremover.PycHandlerBuilderVisitor;
-import org.python.pydev.builder.syntaxchecker.PySyntaxChecker;
-import org.python.pydev.builder.todo.PyTodoVisitor;
+import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.preferences.PyDevBuilderPreferences;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -61,10 +56,8 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
      */
     public List<PyDevBuilderVisitor> getVisitors() {
         List<PyDevBuilderVisitor> list = new ArrayList<PyDevBuilderVisitor>();
-        list.add(new PyTodoVisitor());
         list.add(new PyCodeCompletionVisitor());
         list.add(new PycHandlerBuilderVisitor());
-        list.add(new PySyntaxChecker());
 
         list.addAll(ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_BUILDER));
         return list;
@@ -297,7 +290,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
             total += inc;
             IFile r = iter.next();
 
-            PydevPlugin.markAsPyDevFileIfDetected(r);
+            CorePlugin.markAsPyDevFileIfDetected(r);
 
             IPythonNature nature = PythonNature.getPythonNature(r);
             if (nature == null) {

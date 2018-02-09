@@ -26,7 +26,6 @@
                class="org.python.pydev.plugin.nature.PythonNature">
          </run>
       </runtime>
-      <builder id="org.python.pydev.builder"/>
    </extension>
 <!-- Initialize our preferences -->
    <extension point="org.eclipse.core.runtime.preferences">
@@ -1156,7 +1155,7 @@
          name="PyDev Builder"
          point="org.eclipse.core.resources.builders">
       <builder>
-         <run class="org.python.pydev.builder.PyDevBuilder"/>
+         <run class="org.python.pydev.ast.builder.PyDevBuilder"/>
       </builder>
     </extension>
 <!-- Communicate pylint problems as markers -->
@@ -3075,8 +3074,13 @@ The related image showing the error is at: http://i.stack.imgur.com/IfNFY.png
    </extension>
 
    <extension point="org.python.pydev.pydev_builder">
-   		<!--Also does the ctx insensitive builder part (which was removed)-->
    		<builder_participant class="com.python.pydev.analysis.builder.AnalysisBuilderVisitor"/>
+   </extension>
+   <extension point="org.python.pydev.pydev_builder">
+   		<builder_participant class="org.python.pydev.builder.todo.PyTodoVisitor"/>
+   </extension>
+   <extension point="org.python.pydev.pydev_builder">
+   		<builder_participant class="org.python.pydev.builder.syntaxchecker.PySyntaxChecker"/>
    </extension>
 
    <extension point="org.python.pydev.parser.pydev_parser_observer">

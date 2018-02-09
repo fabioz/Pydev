@@ -23,6 +23,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.preferences.FileTypesPreferences;
 import org.python.pydev.navigator.elements.IWrappedResource;
@@ -31,7 +32,6 @@ import org.python.pydev.navigator.elements.PythonFolder;
 import org.python.pydev.navigator.elements.PythonNode;
 import org.python.pydev.navigator.elements.PythonProjectSourceFolder;
 import org.python.pydev.navigator.elements.PythonSourceFolder;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 import org.python.pydev.shared_core.image.UIConstants;
@@ -99,7 +99,7 @@ public class PythonLabelProvider implements ILabelProvider {
 
                 if (name.indexOf('.') == -1) {
                     try {
-                        if (PydevPlugin.markAsPyDevFileIfDetected(iFile)) {
+                        if (CorePlugin.markAsPyDevFileIfDetected(iFile)) {
                             if (FileTypesPreferences.isCythonFile(name)) {
                                 return ImageCache
                                         .asImage(SharedUiPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON));

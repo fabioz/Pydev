@@ -6,16 +6,23 @@
  */
 package org.python.pydev.core;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Plugin;
+import org.eclipse.core.runtime.QualifiedName;
 import org.osgi.framework.BundleContext;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.shared_core.io.FileUtils;
 
 /**
  * The main plugin class to be used in the desktop.
@@ -153,5 +160,48 @@ public class CorePlugin extends Plugin {
                     "pydevStatelocation not set. If running in tests, call: setTestPlatformStateLocation");
         }
         return new File(pydevStatelocation, fileName);
+    }
+
+    /**
+     * Gotten from:
+     * org.eclipse.ui.ide.IDE.EDITOR_KEY
+     */
+    public static final QualifiedName EDITOR_KEY = new QualifiedName(
+            "org.eclipse.ui.internal.registry.ResourceEditorRegistry", "EditorProperty");//$NON-NLS-2$//$NON-NLS-1$
+
+    /**
+     * @return true if PyEdit.EDITOR_ID is set as the persistent property (only if the file does not have an extension).
+     */
+    public static boolean markAsPyDevFileIfDetected(IFile file) {
+        String name = file.getName();
+        if (name == null || name.indexOf('.') != -1) {
+            return false;
+        }
+
+        String editorID;
+        try {
+            editorID = file.getPersistentProperty(EDITOR_KEY);
+            if (editorID == null) {
+                InputStream contents = file.getContents(true);
+                Reader inputStreamReader = new InputStreamReader(new BufferedInputStream(contents));
+                if (FileUtils.hasPythonShebang(inputStreamReader)) {
+                    // IDE.setDefaultEditor(file, IPyEdit.EDITOR_ID); -- Remove IDE dependency
+                    try {
+                        file.setPersistentProperty(EDITOR_KEY, editorID);
+                    } catch (CoreException e) {
+                        // Ignore
+                    }
+                    return true;
+                }
+            } else {
+                return IPyEdit.EDITOR_ID.equals(editorID);
+            }
+
+        } catch (Exception e) {
+            if (file.exists()) {
+                Log.log(e);
+            }
+        }
+        return false;
     }
 }

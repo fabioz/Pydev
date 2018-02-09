@@ -7,7 +7,7 @@
 /*
  * Created on 14/09/2005
  */
-package org.python.pydev.builder.pycremover;
+package org.python.pydev.ast.builder;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -21,13 +21,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.ast.builder.PyDevBuilderVisitor;
 import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.ast.location.FindWorkspaceFiles;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.preferences.FileTypesPreferences;
-import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.parser.preferences.PyDevBuilderPreferences;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback0;
@@ -86,8 +84,6 @@ public class PycHandlerBuilderVisitor extends PyDevBuilderVisitor {
     }
 
     private static final PycDeleteJob pycDeleteJob = new PycDeleteJob();
-
-    private static final PySourceLocatorBase locator = new PySourceLocatorBase();
 
     private int pycDeleteHandling;
 

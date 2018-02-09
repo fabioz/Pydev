@@ -6,11 +6,7 @@
  */
 package org.python.pydev.plugin;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -18,7 +14,6 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -52,7 +47,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.ui.forms.FormColors;
 import org.eclipse.ui.forms.widgets.FormToolkit;
-import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.texteditor.link.EditorLinkedModeUI;
 import org.osgi.framework.BundleContext;
@@ -74,7 +68,6 @@ import org.python.pydev.ast.interpreter_managers.PythonInterpreterManager;
 import org.python.pydev.ast.listing_utils.JavaVmLocationFinder;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.IInterpreterInfo;
-import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.preferences.PydevPrefs;
@@ -160,37 +153,6 @@ public class PydevPlugin extends AbstractUIPlugin {
             return Status.OK_STATUS;
         }
     };
-
-    /**
-     * @return true if PyEdit.EDITOR_ID is set as the persistent property (only if the file does not have an extension).
-     */
-    public static boolean markAsPyDevFileIfDetected(IFile file) {
-        String name = file.getName();
-        if (name == null || name.indexOf('.') != -1) {
-            return false;
-        }
-
-        String editorID;
-        try {
-            editorID = file.getPersistentProperty(IDE.EDITOR_KEY);
-            if (editorID == null) {
-                InputStream contents = file.getContents(true);
-                Reader inputStreamReader = new InputStreamReader(new BufferedInputStream(contents));
-                if (FileUtils.hasPythonShebang(inputStreamReader)) {
-                    IDE.setDefaultEditor(file, IPyEdit.EDITOR_ID);
-                    return true;
-                }
-            } else {
-                return IPyEdit.EDITOR_ID.equals(editorID);
-            }
-
-        } catch (Exception e) {
-            if (file.exists()) {
-                Log.log(e);
-            }
-        }
-        return false;
-    }
 
     private ConfigureInterpreterJob configureInterpreterJob = new ConfigureInterpreterJob();
 
