@@ -42,6 +42,7 @@ import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.internal.console.IOConsolePartition;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
+import org.python.pydev.ast.location.FindWorkspaceFiles;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.IConsoleInputListener;
@@ -63,7 +64,6 @@ import org.python.pydev.debug.model.remote.SetShowReturnValuesEnabledCommand;
 import org.python.pydev.debug.model.remote.ThreadListCommand;
 import org.python.pydev.debug.model.remote.VersionCommand;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
-import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -972,7 +972,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         } else if (adapter.equals(IResource.class)) {
             // used by Variable ContextManager, and Project:Properties menu item
             if (file != null && file.length > 0) {
-                return (T) new PySourceLocatorBase().getFileForLocation(file[0], null);
+                return (T) FindWorkspaceFiles.getFileForLocation(file[0], null);
             } else {
                 return null;
             }

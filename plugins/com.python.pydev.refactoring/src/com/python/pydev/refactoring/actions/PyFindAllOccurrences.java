@@ -20,8 +20,6 @@ import com.python.pydev.refactoring.search.FindOccurrencesSearchQuery;
 
 public class PyFindAllOccurrences extends PyRefactorAction {
 
-    public static final boolean DEBUG_FIND_REFERENCES = false;
-
     @Override
     protected String perform(IAction action, IProgressMonitor monitor) throws Exception {
         IPyRefactoring2 r = (IPyRefactoring2) AbstractPyRefactoring.getPyRefactoring();

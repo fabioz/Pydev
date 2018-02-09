@@ -32,10 +32,10 @@ import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 import org.eclipse.text.edits.TextEditGroup;
 import org.python.pydev.ast.codecompletion.revisited.modules.ASTEntryWithSourceModule;
+import org.python.pydev.ast.location.FindWorkspaceFiles;
 import org.python.pydev.ast.refactoring.RefactoringRequest;
 import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
@@ -51,10 +51,10 @@ import com.python.pydev.refactoring.wizards.IRefactorRenameProcess;
 
 /**
  * Note that this class should only be used once and then should be thrown away.
- * 
+ *
  * It should be used to get AstEntries and transform them into TextEdits (filled into a Change object
  * as required by the refactoring structure).
- * 
+ *
  * @author Fabio
  */
 public abstract class TextEditCreation {
@@ -90,7 +90,7 @@ public abstract class TextEditCreation {
     private RefactoringStatus status;
 
     /**
-     * Dictionary with a tuple (name of renamed module / file of the renamed module) --> 
+     * Dictionary with a tuple (name of renamed module / file of the renamed module) -->
      * occurrences to be renamed
      */
     private Map<Tuple<String, File>, HashSet<ASTEntry>> fileOccurrences;
@@ -120,7 +120,7 @@ public abstract class TextEditCreation {
     }
 
     /**
-     * In this method, changes from the occurrences found in the current document and 
+     * In this method, changes from the occurrences found in the current document and
      * other files are transformed to the objects required by the Eclipse Language Toolkit
      */
     public void fillRefactoringChangeObject(RefactoringRequest request, CheckConditionsContext context) {
@@ -159,11 +159,11 @@ public abstract class TextEditCreation {
 
     /**
      * Create the changes for references in other modules.
-     * @param request 
-     * 
+     * @param request
+     *
      * @param fChange the 'root' change.
      * @param status the status of the change
-     * @param editsAlreadyCreated 
+     * @param editsAlreadyCreated
      */
     private void createOtherFileChanges(RefactoringRequest request) {
 
@@ -182,11 +182,12 @@ public abstract class TextEditCreation {
                     project = nature.getProject();
                 }
 
-                workspaceFile = new PySourceLocatorBase().getWorkspaceFile(tup.o2, project);
+                workspaceFile = FindWorkspaceFiles.getWorkspaceFile(tup.o2, project);
                 if (workspaceFile == null) {
                     status.addWarning(StringUtils.format(
                             "Error. Unable to resolve the file:\n" + "%s\n"
-                                    + "to a file in the Eclipse workspace.", tup.o2));
+                                    + "to a file in the Eclipse workspace.",
+                            tup.o2));
                     continue;
                 }
                 path = workspaceFile.getFullPath();
@@ -249,7 +250,7 @@ public abstract class TextEditCreation {
 
     /**
      * TextChange docChange, MultiTextEdit rootEdit
-     * @param currentDoc 
+     * @param currentDoc
      */
     protected abstract Tuple<TextChange, MultiTextEdit> getTextFileChange(IFile workspaceFile, IDocument currentDoc);
 
@@ -277,10 +278,10 @@ public abstract class TextEditCreation {
 
     /**
      * Create the change for the current module
-     * 
+     *
      * @param status the status for the change.
      * @param fChange tho 'root' change.
-     * @param editsAlreadyCreated 
+     * @param editsAlreadyCreated
      */
     private void createCurrModuleChange(RefactoringRequest request) {
         if (docOccurrences.size() == 0 && !(request.isModuleRenameRefactoringRequest())) {
@@ -339,10 +340,10 @@ public abstract class TextEditCreation {
 
     /**
      * Create a text edit on the given offset.
-     * 
+     *
      * It uses the information in the request to obtain the length of the replace and
      * the new name to be set in the replace
-     * 
+     *
      * @param offset the offset marking the place where the replace should happen.
      * @return a TextEdit corresponding to a rename.
      */
@@ -353,12 +354,12 @@ public abstract class TextEditCreation {
     /**
      * Gets the occurrences in a document and converts it to a TextEdit as required
      * by the Eclipse language toolkit.
-     * 
+     *
      * @param occurrences the occurrences found
      * @param doc the doc where the occurrences were found
-     * @param occurrences 
+     * @param occurrences
      * @param workspaceFile may be null!
-     * @param nature 
+     * @param nature
      * @return a list of tuples with the TextEdit and the description for that edit.
      */
     protected List<Tuple<List<TextEdit>, String>> getAllRenameEdits(IDocument doc, HashSet<ASTEntry> occurrences,

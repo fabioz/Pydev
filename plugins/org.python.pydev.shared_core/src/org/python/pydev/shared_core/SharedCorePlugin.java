@@ -18,6 +18,7 @@ import org.osgi.framework.BundleContext;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.log.Log;
 
 /**
  * The main plugin class to be used in the desktop.
@@ -173,10 +174,23 @@ public class SharedCorePlugin extends Plugin {
         return true;
     }
 
-    public static ICallback<Object, Runnable> onRunInUiThread;
+    public static ICallback<Object, Runnable> onAsyncRunInUiThread = (runnable) -> {
+        Log.log("Error: no callback assigned to run in ui thread async.");
+        runnable.run();
+        return null;
+    };
+    public static ICallback<Object, Runnable> onSyncWithUiThread = (runnable) -> {
+        Log.log("Error: no callback assigned to run in ui thread sync.");
+        runnable.run();
+        return null;
+    };
 
-    public static void runInUiThread(Runnable runnable) {
-        onRunInUiThread.call(runnable);
+    public static void asyncRunInUiThread(Runnable runnable) {
+        onAsyncRunInUiThread.call(runnable);
+    }
+
+    public static void syncWithUiThread(Runnable runnable) {
+        onSyncWithUiThread.call(runnable);
     }
 
 }

@@ -7,7 +7,7 @@
 /*
  * Created on Apr 8, 2006
  */
-package com.python.pydev.refactoring.wizards;
+package org.python.pydev.ui.refactoring;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;

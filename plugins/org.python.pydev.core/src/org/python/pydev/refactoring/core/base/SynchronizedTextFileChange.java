@@ -9,12 +9,13 @@
 * Contributors:
 *     Fabio Zadrozny <fabiofz@gmail.com> - initial API and implementation
 ******************************************************************************/
-package org.python.pydev.shared_ui.utils;
+package org.python.pydev.refactoring.core.base;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.log.Log;
 
 public class SynchronizedTextFileChange extends TextFileChange {
@@ -28,7 +29,7 @@ public class SynchronizedTextFileChange extends TextFileChange {
 
         final Object[] superPerform = new Object[1];
         //We need to sync it to have UI access because otherwise we're unable to start a document rewrite session.
-        RunInUiThread.sync(new Runnable() {
+        SharedCorePlugin.syncWithUiThread(new Runnable() {
 
             @Override
             public void run() {

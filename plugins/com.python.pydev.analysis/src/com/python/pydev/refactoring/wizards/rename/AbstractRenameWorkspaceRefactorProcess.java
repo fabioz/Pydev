@@ -27,8 +27,6 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
-import com.python.pydev.refactoring.actions.PyFindAllOccurrences;
-
 /**
  * This class provides helper methods for finding things in the workspace.
  *
@@ -39,7 +37,7 @@ import com.python.pydev.refactoring.actions.PyFindAllOccurrences;
  */
 public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRenameRefactorProcess {
 
-    public static final boolean DEBUG_FILTERED_MODULES = false || PyFindAllOccurrences.DEBUG_FIND_REFERENCES;
+    public static final boolean DEBUG_FILTERED_MODULES = false || DebugFlags.DEBUG_FIND_REFERENCES;
 
     /**
      * May be used by subclasses

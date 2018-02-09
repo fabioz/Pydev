@@ -7,7 +7,6 @@
 package com.python.pydev.refactoring.refactorer;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -17,30 +16,17 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.ltk.core.refactoring.participants.RenameRefactoring;
-import org.eclipse.ltk.ui.refactoring.RefactoringWizardOpenOperation;
 import org.python.pydev.ast.codecompletion.revisited.visitors.AssignDefinition;
-import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.ast.item_pointer.ItemPointer;
 import org.python.pydev.ast.refactoring.AbstractPyRefactoring;
 import org.python.pydev.ast.refactoring.HierarchyNodeModel;
-import org.python.pydev.ast.refactoring.IPyRefactoring;
 import org.python.pydev.ast.refactoring.IPyRefactoring2;
-import org.python.pydev.ast.refactoring.IPyRefactoringRequest;
-import org.python.pydev.ast.refactoring.ModuleRenameRefactoringRequest;
-import org.python.pydev.ast.refactoring.MultiModuleMoveRefactoringRequest;
-import org.python.pydev.ast.refactoring.PyRefactoringRequest;
 import org.python.pydev.ast.refactoring.RefactoringRequest;
 import org.python.pydev.ast.refactoring.TooManyMatchesException;
-import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.shared_ui.EditorUtils;
 
-import com.python.pydev.refactoring.wizards.RefactorProcessFactory;
 import com.python.pydev.refactoring.wizards.rename.PyReferenceSearcher;
-import com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint;
-import com.python.pydev.refactoring.wizards.rename.PyRenameRefactoringWizard;
 
 /**
  * This is the entry point for any refactoring that we implement.
@@ -52,65 +38,6 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
     @Override
     public String getName() {
         return "PyDev Extensions Refactorer";
-    }
-
-    /**
-     * Renames something...
-     *
-     * Basically passes things to the rename processor (it will choose the kind of rename that will happen).
-     *
-     * @see org.python.pydev.ast.refactoring.IPyRefactoring#rename(org.python.pydev.ast.refactoring.RefactoringRequest)
-     */
-    @Override
-    public String rename(IPyRefactoringRequest request) {
-        try {
-            List<RefactoringRequest> actualRequests = request.getRequests();
-            if (actualRequests.size() == 1) {
-                RefactoringRequest req = actualRequests.get(0);
-
-                //Note: if it's already a ModuleRenameRefactoringRequest, no need to change anything.
-                if (!(req.isModuleRenameRefactoringRequest())) {
-
-                    //Note: if we're renaming an import, we must change to the appropriate req
-                    IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
-                    ItemPointer[] pointers = pyRefactoring.findDefinition(req);
-                    for (ItemPointer pointer : pointers) {
-                        Definition definition = pointer.definition;
-                        if (RefactorProcessFactory.isModuleRename(definition)) {
-                            try {
-                                request = new PyRefactoringRequest(new ModuleRenameRefactoringRequest(
-                                        definition.module.getFile(), req.nature, null));
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                    }
-                }
-            }
-
-            PyRenameEntryPoint entryPoint = new PyRenameEntryPoint(request);
-            RenameRefactoring renameRefactoring = new RenameRefactoring(entryPoint);
-            request.fillInitialNameAndOffset();
-
-            String title = "Rename";
-            if (request instanceof MultiModuleMoveRefactoringRequest) {
-                MultiModuleMoveRefactoringRequest multiModuleMoveRefactoringRequest = (MultiModuleMoveRefactoringRequest) request;
-                title = "Move To package (project: "
-                        + multiModuleMoveRefactoringRequest.getTarget().getProject().getName()
-                        + ")";
-            }
-            final PyRenameRefactoringWizard wizard = new PyRenameRefactoringWizard(renameRefactoring, title,
-                    "inputPageDescription", request);
-            try {
-                RefactoringWizardOpenOperation op = new RefactoringWizardOpenOperation(wizard);
-                op.run(EditorUtils.getShell(), "Rename Refactor Action");
-            } catch (InterruptedException e) {
-                // do nothing. User action got cancelled
-            }
-        } catch (Exception e) {
-            Log.log(e);
-        }
-        return null;
     }
 
     @Override

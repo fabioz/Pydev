@@ -39,12 +39,12 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.ui.console.IHyperlink;
 import org.python.pydev.ast.item_pointer.ItemPointer;
+import org.python.pydev.ast.location.FindWorkspaceFiles;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.preferences.FileTypesPreferences;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.python.pydev.editor.actions.PyOpenAction;
-import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.structure.Location;
@@ -435,7 +435,7 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
     private IFile getFileForLocation(String fileName) {
         IFile file;
         IProject project = getProject();
-        file = new PySourceLocatorBase().getFileForLocation(Path.fromOSString(fileName), project);
+        file = FindWorkspaceFiles.getFileForLocation(Path.fromOSString(fileName), project);
         return file;
     }
 

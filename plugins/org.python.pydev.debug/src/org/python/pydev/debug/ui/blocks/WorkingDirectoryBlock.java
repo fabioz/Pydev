@@ -35,11 +35,11 @@ import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
+import org.python.pydev.ast.location.FindWorkspaceFiles;
 import org.python.pydev.core.docutils.StringSubstitution;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.MainModuleTab;
-import org.python.pydev.editorinput.PySourceLocatorBase;
 
 /**
  * A control for setting the working directory associated with a launch
@@ -211,7 +211,7 @@ public class WorkingDirectoryBlock extends AbstractLaunchConfigurationTab {
                     path = stringSubstitution.performStringSubstitution(path, false);
                 }
                 IPath uriPath = new Path(path).makeAbsolute();
-                res = new PySourceLocatorBase().getContainerForLocation(uriPath, null);
+                res = FindWorkspaceFiles.getContainerForLocation(uriPath, null);
             } catch (CoreException e) {
                 Log.log(e);
             }

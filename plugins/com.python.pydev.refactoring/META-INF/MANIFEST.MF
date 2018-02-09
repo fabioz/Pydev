@@ -31,17 +31,12 @@ Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: refactoring.jar
 Export-Package: com.python.pydev.codecompletion,
  com.python.pydev.refactoring.actions,
- com.python.pydev.refactoring.changes,
  com.python.pydev.refactoring.hyperlink,
  com.python.pydev.refactoring.markoccurrences,
- com.python.pydev.refactoring.refactorer,
  com.python.pydev.refactoring.refactorer.search,
  com.python.pydev.refactoring.refactorer.search.copied,
  com.python.pydev.refactoring.search,
  com.python.pydev.refactoring.tdd,
  com.python.pydev.refactoring.ui,
- com.python.pydev.refactoring.ui.findreplace,
- com.python.pydev.refactoring.wizards,
- com.python.pydev.refactoring.wizards.rename,
- com.python.pydev.refactoring.wizards.rename.visitors
+ com.python.pydev.refactoring.ui.findreplace
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

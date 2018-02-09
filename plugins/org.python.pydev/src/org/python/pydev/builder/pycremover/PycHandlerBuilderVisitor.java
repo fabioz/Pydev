@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.ast.builder.PyDevBuilderVisitor;
 import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.ast.location.FindWorkspaceFiles;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.preferences.FileTypesPreferences;
@@ -200,7 +201,7 @@ public class PycHandlerBuilderVisitor extends PyDevBuilderVisitor {
                 File file = new File(loc);
 
                 //remove all: file and links
-                final IFile[] files = locator.getWorkspaceFiles(file);
+                final IFile[] files = FindWorkspaceFiles.getWorkspaceFiles(file);
 
                 if (files == null || files.length == 0) {
                     return;

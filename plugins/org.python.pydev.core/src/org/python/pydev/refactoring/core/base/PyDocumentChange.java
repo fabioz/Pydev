@@ -18,7 +18,7 @@ import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.DocumentChange;
 import org.eclipse.ltk.core.refactoring.TextChange;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.shared_ui.utils.RunInUiThread;
+import org.python.pydev.shared_core.SharedCorePlugin;
 
 public class PyDocumentChange extends DocumentChange {
 
@@ -32,7 +32,7 @@ public class PyDocumentChange extends DocumentChange {
 
         final Object[] superPerform = new Object[1];
         //We need to sync it to have UI access because otherwise we're unable to start a document rewrite session.
-        RunInUiThread.sync(new Runnable() {
+        SharedCorePlugin.syncWithUiThread(new Runnable() {
 
             @Override
             public void run() {

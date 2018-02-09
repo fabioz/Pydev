@@ -46,10 +46,10 @@ import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.refactoring.core.base.PyDocumentChange;
+import org.python.pydev.refactoring.core.base.SynchronizedTextFileChange;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.search.replace.ChangedFilesChecker;
-import org.python.pydev.shared_ui.utils.SynchronizedTextFileChange;
 
 import com.python.pydev.refactoring.changes.PyCompositeChange;
 import com.python.pydev.refactoring.changes.PyRenameResourceChange;
@@ -214,7 +214,7 @@ public class PyRenameEntryPoint extends RenameProcessor {
      */
     private static void checkResourcesToBeChanged(Set<IResource> resources,
             CheckConditionsContext context, RefactoringStatus refactoringStatus)
-                    throws CoreException {
+            throws CoreException {
         Set<IFile> affectedFiles = new HashSet<>();
         for (IResource resource : resources) {
             if (resource instanceof IFile) {

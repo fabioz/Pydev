@@ -9,7 +9,6 @@
  */
 package com.python.pydev.refactoring.wizards;
 
-import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.ast.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.ast.codecompletion.revisited.visitors.KeywordParameterDefinition;
@@ -35,7 +34,7 @@ public class RefactorProcessFactory {
 
     /**
      * Decides which process should take care of the request.
-     * @param request 
+     * @param request
      */
     public static IRefactorRenameProcess getProcess(Definition definition, RefactoringRequest request) {
         if (definition instanceof AssignDefinition) {

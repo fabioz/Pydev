@@ -7,7 +7,7 @@
 /*
  * Created on Apr 8, 2006
  */
-package com.python.pydev.refactoring.wizards.rename;
+package org.python.pydev.ui.refactoring;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Assert;
@@ -30,8 +30,6 @@ import org.python.pydev.ast.refactoring.MultiModuleMoveRefactoringRequest;
 import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.shared_core.string.StringUtils;
-
-import com.python.pydev.refactoring.wizards.TextInputWizardPage;
 
 public class PyRenameRefactoringWizard extends RefactoringWizard {
 

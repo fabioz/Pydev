@@ -71,8 +71,13 @@ public class SharedUiPlugin extends AbstractUIPlugin {
         super.start(context);
 
         SharedCorePlugin.setImageCache(getImageCache());
-        SharedCorePlugin.onRunInUiThread = (runnable) -> {
+        SharedCorePlugin.onAsyncRunInUiThread = (runnable) -> {
             RunInUiThread.async(runnable);
+            return null;
+        };
+
+        SharedCorePlugin.onSyncWithUiThread = (runnable) -> {
+            RunInUiThread.sync(runnable);
             return null;
         };
     }

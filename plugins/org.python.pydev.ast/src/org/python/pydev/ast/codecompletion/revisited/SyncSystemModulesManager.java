@@ -458,7 +458,7 @@ public class SyncSystemModulesManager {
         if (ALWAYS_APPLY_ALL_CHANGES_WITHOUT_ASKING) {
             runnable.run();
         } else {
-            SharedCorePlugin.runInUiThread(runnable);
+            SharedCorePlugin.asyncRunInUiThread(runnable);
         }
     }
 

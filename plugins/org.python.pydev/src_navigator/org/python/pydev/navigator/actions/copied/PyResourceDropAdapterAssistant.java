@@ -40,7 +40,6 @@ import org.eclipse.ui.navigator.CommonDropAdapter;
 import org.eclipse.ui.navigator.resources.ResourceDropAdapterAssistant;
 import org.eclipse.ui.part.ResourceTransfer;
 import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
-import org.python.pydev.ast.refactoring.AbstractPyRefactoring;
 import org.python.pydev.ast.refactoring.ModuleRenameRefactoringRequest;
 import org.python.pydev.ast.refactoring.MultiModuleMoveRefactoringRequest;
 import org.python.pydev.ast.refactoring.TargetNotInPythonpathException;
@@ -49,10 +48,11 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.ui.refactoring.PyRenameRefactoring;
 
 /**
  * Copied becaus the original did not really adapt to resources (it tries to do if !xxx instanceof IResource in many places)
- * 
+ *
  * @author Fabio
  */
 @SuppressWarnings("restriction")
@@ -75,7 +75,7 @@ public class PyResourceDropAdapterAssistant extends ResourceDropAdapterAssistant
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.ui.navigator.CommonDropAdapterAssistant#isSupportedType(org.eclipse.swt.dnd.TransferData)
      */
     @Override
@@ -85,7 +85,7 @@ public class PyResourceDropAdapterAssistant extends ResourceDropAdapterAssistant
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.ui.navigator.CommonDropAdapterAssistant#validateDrop(java.lang.Object,
      *      int, org.eclipse.swt.dnd.TransferData)
      */
@@ -149,7 +149,7 @@ public class PyResourceDropAdapterAssistant extends ResourceDropAdapterAssistant
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.ui.navigator.CommonDropAdapterAssistant#handleDrop(CommonDropAdapter,
      *      DropTargetEvent, Object)
      */
@@ -202,7 +202,7 @@ public class PyResourceDropAdapterAssistant extends ResourceDropAdapterAssistant
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.ui.navigator.CommonDropAdapterAssistant#validatePluginTransferDrop(org.eclipse.jface.viewers.IStructuredSelection,
      *      java.lang.Object)
      */
@@ -243,7 +243,7 @@ public class PyResourceDropAdapterAssistant extends ResourceDropAdapterAssistant
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.ui.navigator.CommonDropAdapterAssistant#handlePluginTransferDrop(org.eclipse.jface.viewers.IStructuredSelection,
      *      java.lang.Object)
      */
@@ -284,7 +284,7 @@ public class PyResourceDropAdapterAssistant extends ResourceDropAdapterAssistant
 
     /**
      * Returns the resource selection from the LocalSelectionTransfer.
-     * 
+     *
      * @return the resource selection from the LocalSelectionTransfer
      */
     private IResource[] getSelectedResources() {
@@ -298,7 +298,7 @@ public class PyResourceDropAdapterAssistant extends ResourceDropAdapterAssistant
 
     /**
      * Returns the resource selection from the LocalSelectionTransfer.
-     * 
+     *
      * @return the resource selection from the LocalSelectionTransfer
      */
     private IResource[] getSelectedResources(IStructuredSelection selection) {
@@ -418,7 +418,7 @@ public class PyResourceDropAdapterAssistant extends ResourceDropAdapterAssistant
                         return problems;
                     } else {
                         //Make a refactoring operation
-                        AbstractPyRefactoring.getPyRefactoring().rename(
+                        PyRenameRefactoring.rename(
                                 new MultiModuleMoveRefactoringRequest(requests, target));
 
                         return problems;

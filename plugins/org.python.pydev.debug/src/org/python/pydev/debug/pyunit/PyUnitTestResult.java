@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.Assert;
 import org.python.pydev.ast.codecompletion.revisited.CompletionCache;
 import org.python.pydev.ast.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.ast.item_pointer.ItemPointer;
+import org.python.pydev.ast.location.FindWorkspaceFiles;
 import org.python.pydev.ast.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.IDefinition;
@@ -132,7 +133,7 @@ public class PyUnitTestResult {
             //do an actual (more costly) find definition.
             try {
                 PySourceLocatorBase locator = new PySourceLocatorBase();
-                IFile workspaceFile = locator.getWorkspaceFile(file, null);
+                IFile workspaceFile = FindWorkspaceFiles.getWorkspaceFile(file, null);
                 if (workspaceFile != null && workspaceFile.exists()) {
                     IProject project = workspaceFile.getProject();
                     if (project != null && project.exists()) {

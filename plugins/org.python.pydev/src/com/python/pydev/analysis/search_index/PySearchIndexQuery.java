@@ -19,13 +19,13 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.search.ui.ISearchResult;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
+import org.python.pydev.ast.location.FindWorkspaceFiles;
 import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.OrderedMap;
 import org.python.pydev.shared_ui.search.AbstractSearchIndexQuery;
@@ -91,7 +91,7 @@ public class PySearchIndexQuery extends AbstractSearchIndexQuery {
                         Log.logInfo(StringUtils.format("Ignoring: %s. File no longer exists.", file));
                     }
 
-                    workspaceFile = new PySourceLocatorBase().getWorkspaceFile(file, nature.getProject());
+                    workspaceFile = FindWorkspaceFiles.getWorkspaceFile(file, nature.getProject());
                     if (workspaceFile == null) {
                         Log.logInfo(StringUtils
                                 .format("Ignoring: %s. Unable to resolve to a file in the Eclipse workspace.", file));
