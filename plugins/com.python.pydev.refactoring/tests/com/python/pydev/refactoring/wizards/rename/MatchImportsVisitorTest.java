@@ -9,6 +9,8 @@ import org.python.pydev.parser.PythonNatureStub;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
 
+import com.python.pydev.analysis.refactoring.wizards.rename.MatchImportsVisitor;
+
 import junit.framework.TestCase;
 
 public class MatchImportsVisitorTest extends TestCase {

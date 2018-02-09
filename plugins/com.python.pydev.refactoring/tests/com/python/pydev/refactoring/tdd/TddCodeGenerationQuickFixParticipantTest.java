@@ -20,7 +20,7 @@ import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
-import com.python.pydev.refactoring.refactorer.Refactorer;
+import com.python.pydev.analysis.refactoring.refactorer.Refactorer;
 
 /**
  * @author Fabio

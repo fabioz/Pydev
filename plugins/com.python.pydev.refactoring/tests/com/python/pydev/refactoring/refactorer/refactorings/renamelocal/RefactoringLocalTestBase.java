@@ -25,8 +25,8 @@ import org.python.pydev.ast.refactoring.RefactoringRequest;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.shared_core.string.StringUtils;
 
-import com.python.pydev.refactoring.refactorer.Refactorer;
-import com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint;
+import com.python.pydev.analysis.refactoring.refactorer.Refactorer;
+import com.python.pydev.analysis.refactoring.wizards.rename.PyRenameEntryPoint;
 
 public class RefactoringLocalTestBase extends CodeCompletionTestsBase {
 

@@ -17,7 +17,7 @@ import java.util.Map;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.shared_core.structure.Tuple;
 
-import com.python.pydev.refactoring.wizards.rename.PyRenameClassProcess;
+import com.python.pydev.analysis.refactoring.wizards.rename.PyRenameClassProcess;
 
 public class RefactoringLocalToken extends RefactoringRenameTestBase {
     public static void main(String[] args) {

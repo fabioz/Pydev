@@ -13,6 +13,7 @@ import junit.framework.TestCase;
 
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
+import com.python.pydev.analysis.refactoring.wizards.rename.AbstractRenameWorkspaceRefactorProcess;
 import com.python.pydev.analysis.scopeanalysis.AstEntryScopeAnalysisConstants;
 
 public class AbstractRenameRefactorProcessTest extends TestCase {

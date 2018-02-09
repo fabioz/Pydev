@@ -49,8 +49,8 @@ import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.parsing.IParserObserver;
 import org.python.pydev.shared_core.structure.Tuple;
 
+import com.python.pydev.analysis.refactoring.wizards.rename.PyRenameEntryPoint;
 import com.python.pydev.refactoring.markoccurrences.MarkOccurrencesJob;
-import com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint;
 
 /**
  * This action should mark to rename all the occurrences found for some name in the file

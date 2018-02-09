@@ -44,8 +44,8 @@ import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.editor.BaseEditor;
 import org.python.pydev.shared_ui.mark_occurrences.BaseMarkOccurrencesJob;
 
+import com.python.pydev.analysis.refactoring.wizards.rename.PyReferenceSearcher;
 import com.python.pydev.refactoring.ui.MarkOccurrencesPreferencesPage;
-import com.python.pydev.refactoring.wizards.rename.PyReferenceSearcher;
 
 /**
  * This is a 'low-priority' thread. It acts as a singleton. Requests to mark the occurrences

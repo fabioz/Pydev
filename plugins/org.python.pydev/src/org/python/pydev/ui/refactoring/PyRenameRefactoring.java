@@ -17,8 +17,8 @@ import org.python.pydev.ast.refactoring.RefactoringRequest;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_ui.EditorUtils;
 
-import com.python.pydev.refactoring.wizards.RefactorProcessFactory;
-import com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint;
+import com.python.pydev.analysis.refactoring.wizards.RefactorProcessFactory;
+import com.python.pydev.analysis.refactoring.wizards.rename.PyRenameEntryPoint;
 
 public class PyRenameRefactoring {
 

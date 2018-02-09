@@ -77,6 +77,9 @@
   		<simpleassist_participant class="com.python.pydev.codecompletion.simpleassist.KeywordsSimpleAssist"/>
    </extension>
 
+   <extension point="org.python.pydev.pydev_refactoring">
+  		<refactoring_participant class="com.python.pydev.analysis.refactoring.refactorer.Refactorer"/>
+   </extension>
 
 
 </plugin>

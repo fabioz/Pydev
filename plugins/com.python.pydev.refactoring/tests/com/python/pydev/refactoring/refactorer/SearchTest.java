@@ -23,6 +23,7 @@ import org.python.pydev.shared_core.utils.PlatformUtils;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
+import com.python.pydev.analysis.refactoring.refactorer.Refactorer;
 
 public class SearchTest extends AdditionalInfoTestsBase {
 

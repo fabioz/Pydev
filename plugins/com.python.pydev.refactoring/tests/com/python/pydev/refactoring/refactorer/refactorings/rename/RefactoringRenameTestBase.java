@@ -60,11 +60,11 @@ import org.python.pydev.shared_core.structure.Tuple;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
+import com.python.pydev.analysis.refactoring.wizards.IRefactorRenameProcess;
+import com.python.pydev.analysis.refactoring.wizards.rename.PyRenameEntryPoint;
+import com.python.pydev.analysis.refactoring.wizards.rename.TextEditCreation;
 import com.python.pydev.analysis.scopeanalysis.AstEntryScopeAnalysisConstants;
 import com.python.pydev.refactoring.refactorer.refactorings.renamelocal.RefactoringLocalTestBase;
-import com.python.pydev.refactoring.wizards.IRefactorRenameProcess;
-import com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint;
-import com.python.pydev.refactoring.wizards.rename.TextEditCreation;
 
 /**
  * A class used for the refactorings that need the rename project (in pysrcrefactoring)
@@ -101,7 +101,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
 
     /**
      * In the setUp, it initializes the files in the refactoring project
-     * @see com.python.pydev.refactoring.refactorer.refactorings.renamelocal.RefactoringLocalTestBase#setUp()
+     * @see com.python.pydev.analysis.refactoring.refactorer.refactorings.renamelocal.RefactoringLocalTestBase#setUp()
      */
     @Override
     public void setUp() throws Exception {

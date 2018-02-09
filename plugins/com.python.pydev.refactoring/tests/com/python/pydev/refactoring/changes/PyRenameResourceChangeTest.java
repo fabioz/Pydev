@@ -12,6 +12,8 @@ import org.python.pydev.shared_core.resource_stubs.FileStub;
 import org.python.pydev.shared_core.resource_stubs.FolderStub;
 import org.python.pydev.shared_core.resource_stubs.ProjectStub;
 
+import com.python.pydev.analysis.refactoring.changes.PyRenameResourceChange;
+
 public class PyRenameResourceChangeTest extends TestCase {
 
     private File tempDir;
