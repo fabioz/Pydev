@@ -129,7 +129,7 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
 
                     @Override
                     public void widgetSelected(SelectionEvent e) {
-                        String id = "org.python.pydev.ast.interpreter_managers.interpreterPreferencesPagePython";
+                        String id = "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPagePython";
                         IWorkbenchPreferenceContainer workbenchPreferenceContainer = ((IWorkbenchPreferenceContainer) getContainer());
                         workbenchPreferenceContainer.openPage(id, null);
                     }
@@ -150,7 +150,8 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
 
         createTabs(p);
 
-        spaceAfterComma = createBooleanFieldEditorCustom(PyFormatterPreferences.USE_SPACE_AFTER_COMMA, "Use space after commas?",
+        spaceAfterComma = createBooleanFieldEditorCustom(PyFormatterPreferences.USE_SPACE_AFTER_COMMA,
+                "Use space after commas?",
                 spacingParent);
         addField(spaceAfterComma);
 
@@ -158,7 +159,8 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
                 "Use space before and after parenthesis?", spacingParent);
         addField(spaceForParentesis);
 
-        assignWithSpaceInsideParentesis = createBooleanFieldEditorCustom(PyFormatterPreferences.USE_ASSIGN_WITH_PACES_INSIDER_PARENTESIS,
+        assignWithSpaceInsideParentesis = createBooleanFieldEditorCustom(
+                PyFormatterPreferences.USE_ASSIGN_WITH_PACES_INSIDER_PARENTESIS,
                 "Use space before and after assign for keyword arguments?", spacingParent);
         addField(assignWithSpaceInsideParentesis);
 
@@ -166,18 +168,21 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
                 "Use space before and after operators? (+, -, /, *, //, **, etc.)", spacingParent);
         addField(operatorsWithSpace);
 
-        rightTrimLines = createBooleanFieldEditorCustom(PyFormatterPreferences.TRIM_LINES, "Right trim lines?", spacingParent);
+        rightTrimLines = createBooleanFieldEditorCustom(PyFormatterPreferences.TRIM_LINES, "Right trim lines?",
+                spacingParent);
         addField(rightTrimLines);
 
         rightTrimMultilineLiterals = createBooleanFieldEditorCustom(PyFormatterPreferences.TRIM_MULTILINE_LITERALS,
                 "Right trim multi-line string literals?", spacingParent);
         addField(rightTrimMultilineLiterals);
 
-        spacesBeforeComment = new ComboFieldEditor(PyFormatterPreferences.SPACES_BEFORE_COMMENT, "Spaces before a comment?",
+        spacesBeforeComment = new ComboFieldEditor(PyFormatterPreferences.SPACES_BEFORE_COMMENT,
+                "Spaces before a comment?",
                 ENTRIES_AND_VALUES_FOR_SPACES, commentsParent);
         addField(spacesBeforeComment);
 
-        spacesInStartComment = new ComboFieldEditor(PyFormatterPreferences.SPACES_IN_START_COMMENT, "Spaces in comment start?",
+        spacesInStartComment = new ComboFieldEditor(PyFormatterPreferences.SPACES_IN_START_COMMENT,
+                "Spaces in comment start?",
                 ENTRIES_AND_VALUES_FOR_SPACES2, commentsParent);
         addField(spacesInStartComment);
 

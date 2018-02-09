@@ -40,8 +40,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.dialogs.PropertyPage;
-import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.ast.interpreter_managers.IInterpreterProviderFactory.InterpreterType;
+import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IGrammarVersionProvider.AdditionalGrammarVersionsToCheck;
 import org.python.pydev.core.IInterpreterInfo;
@@ -151,7 +151,7 @@ public class PyProjectPythonDetails extends PropertyPage {
 
             //interpreter configured in the project
             final String[] idToConfig = new String[] {
-                    "org.python.pydev.ast.interpreter_managers.interpreterPreferencesPagePython" };
+                    "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPagePython" };
             interpretersChoice = new Combo(topComp, SWT.READ_ONLY);
             selectionListener = new SelectionListener() {
 
@@ -206,15 +206,15 @@ public class PyProjectPythonDetails extends PropertyPage {
                     //config which preferences page should be opened!
                     switch (interpreterManager.getInterpreterType()) {
                         case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
-                            idToConfig[0] = "org.python.pydev.ast.interpreter_managers.interpreterPreferencesPagePython";
+                            idToConfig[0] = "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPagePython";
                             break;
 
                         case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
-                            idToConfig[0] = "org.python.pydev.ast.interpreter_managers.interpreterPreferencesPageJython";
+                            idToConfig[0] = "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageJython";
                             break;
 
                         case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
-                            idToConfig[0] = "org.python.pydev.ast.interpreter_managers.interpreterPreferencesPageIronpython";
+                            idToConfig[0] = "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageIronpython";
                             break;
 
                         default:
