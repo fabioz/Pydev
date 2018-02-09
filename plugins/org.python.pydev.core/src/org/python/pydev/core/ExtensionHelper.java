@@ -13,14 +13,15 @@ import org.python.pydev.shared_core.utils.BaseExtensionHelper;
 
 public class ExtensionHelper extends BaseExtensionHelper {
 
-    //pydev
+    //pydev core
     public final static String PYDEV_COMPLETION = "org.python.pydev.pydev_completion";
     public final static String PYDEV_BUILDER = "org.python.pydev.pydev_builder";
+    public final static String PYDEV_MANAGER_OBSERVER = "org.python.pydev.pydev_manager_observer";
+
     public final static String PYDEV_MODULES_OBSERVER = "org.python.pydev.pydev_modules_observer";
     public final static String PYDEV_VIEW_CREATED_OBSERVER = "org.python.pydev.pydev_view_created_observer";
     public final static String PYDEV_INTERPRETER_OBSERVER = "org.python.pydev.pydev_interpreter_observer";
     public final static String PYDEV_INTERPRETER_NEW_CUSTOM_ENTRIES = "org.python.pydev.pydev_interpreter_new_custom_entries";
-    public final static String PYDEV_MANAGER_OBSERVER = "org.python.pydev.pydev_manager_observer";
     public final static String PYDEV_PARSER_OBSERVER = "org.python.pydev.parser.pydev_parser_observer";
     public static final String PYDEV_CTRL_1 = "org.python.pydev.pydev_ctrl_1";
     public static final String PYDEV_SIMPLE_ASSIST = "org.python.pydev.pydev_simpleassist";

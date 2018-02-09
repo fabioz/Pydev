@@ -9,7 +9,7 @@
          Extension point to notify that code completion manager was created and attached to a project
       </documentation>
    </annotation>
-   
+
    <element name="extension">
       <complexType>
          <sequence>
@@ -47,7 +47,7 @@
          <attribute name="class" type="string" use="required">
             <annotation>
                <documentation>
-                  
+
                </documentation>
             </annotation>
          </attribute>
@@ -95,7 +95,7 @@
          <meta.section type="copyright"/>
       </appInfo>
       <documentation>
-         
+
       </documentation>
    </annotation>
 
