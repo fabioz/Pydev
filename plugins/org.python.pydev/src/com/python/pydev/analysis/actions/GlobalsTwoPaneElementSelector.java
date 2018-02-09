@@ -15,7 +15,7 @@ import org.python.pydev.shared_ui.dialogs.DialogMemento;
 
 /**
  * This is the class that shows the globals browser.
- * 
+ *
  * It shows 2 panels, one with the labels for a token and the second with the path to that token
  *
  * @author Fabio
@@ -30,7 +30,7 @@ public class GlobalsTwoPaneElementSelector extends TwoPaneElementSelector {
     public GlobalsTwoPaneElementSelector(Shell parent) {
         super(parent, new NameIInfoLabelProvider(false), new ModuleIInfoLabelProvider());
         setTitle("PyDev: Globals Browser");
-        memento = new DialogMemento(getShell(), "org.python.pydev.ast.analysis.actions.GlobalsTwoPaneElementSelector");
+        memento = new DialogMemento(getShell(), "com.python.pydev.analysis.actions.GlobalsTwoPaneElementSelector");
     }
 
     @Override

@@ -58,7 +58,7 @@ import com.python.pydev.analysis.ctrl_1.UndefinedVariableFixParticipant;
  */
 public class OrganizeImports implements IOrganizeImports {
 
-    private static final String DIALOG_SETTINGS = "org.python.pydev.ast.analysis.ORGANIZE_IMPORTS_DIALOG"; //$NON-NLS-1$;
+    private static final String DIALOG_SETTINGS = "com.python.pydev.analysis.ORGANIZE_IMPORTS_DIALOG"; //$NON-NLS-1$;
 
     private boolean didChange = false;
 

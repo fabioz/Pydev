@@ -107,7 +107,7 @@ public class AnalysisUiPlugin {
     public static IPreferenceStore getPreferenceStore() {
         // Create the preference store lazily.
         if (preferenceStore == null) {
-            preferenceStore = new ScopedPreferenceStore(InstanceScope.INSTANCE, "org.python.pydev.ast.analysis");
+            preferenceStore = new ScopedPreferenceStore(InstanceScope.INSTANCE, "com.python.pydev.analysis");
 
         }
         return preferenceStore;

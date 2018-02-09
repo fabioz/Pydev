@@ -214,7 +214,7 @@ public class AnalysisPlugin extends Plugin {
         if (AnalysisPlugin.getDefault() == null) {
             return new File(".");
         }
-        IPath location = p.getWorkingLocation("org.python.pydev.ast.analysis");
+        IPath location = p.getWorkingLocation("com.python.pydev.analysis");
         IPath path = location;
 
         File file = new File(path.toOSString());

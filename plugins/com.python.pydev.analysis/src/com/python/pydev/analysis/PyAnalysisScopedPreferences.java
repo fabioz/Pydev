@@ -37,7 +37,7 @@ public class PyAnalysisScopedPreferences {
     }
 
     public static IScopedPreferences get() {
-        // Note: our bundle is org.python.pydev.ast.analysis, but for the user it can be presented as
+        // Note: our bundle is com.python.pydev.analysis, but for the user it can be presented as
         // org.python.pydev.analysis as it's like that only because of historical reasons.
         return ScopedPreferences.get(ANALYSIS_SCOPE);
     }
