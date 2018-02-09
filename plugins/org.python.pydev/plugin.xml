@@ -17,16 +17,6 @@
          </contentTypeBinding>
       </editor>
    </extension>
-   <extension
-         id="pythonNature"
-         name="Python Nature"
-         point="org.eclipse.core.resources.natures">
-      <runtime>
-         <run
-               class="org.python.pydev.plugin.nature.PythonNature">
-         </run>
-      </runtime>
-   </extension>
 <!-- Initialize our preferences -->
    <extension point="org.eclipse.core.runtime.preferences">
       <initializer class="org.python.pydev.builder.pylint.PyLintPrefInitializer"/>
@@ -1148,15 +1138,6 @@
       <markerResolutionGenerator
             class="org.python.pydev.editor.correctionassist.PyQuickFix"
             markerType="org.eclipse.core.resources.problemmarker"/>
-    </extension>
-<!-- Builder for pydev -->
-    <extension
-         id="PyDevBuilder"
-         name="PyDev Builder"
-         point="org.eclipse.core.resources.builders">
-      <builder>
-         <run class="org.python.pydev.ast.builder.PyDevBuilder"/>
-      </builder>
     </extension>
 <!-- Communicate pylint problems as markers -->
     <extension

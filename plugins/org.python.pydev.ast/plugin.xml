@@ -4,4 +4,26 @@
 
    <extension-point id="org.python.pydev.pydev_completion" name="PyDev completion" schema="schema/org.python.pydev.pydev_completion.exsd"/>
 
+<!-- Nature for pydev -->
+   <extension
+         id="org.python.pydev.pythonNature"
+         name="Python Nature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="org.python.pydev.plugin.nature.PythonNature">
+         </run>
+      </runtime>
+   </extension>
+
+<!-- Builder for pydev -->
+    <extension
+         id="org.python.pydev.PyDevBuilder"
+         name="PyDev Builder"
+         point="org.eclipse.core.resources.builders">
+      <builder>
+         <run class="org.python.pydev.ast.builder.PyDevBuilder"/>
+      </builder>
+    </extension>
+
 </plugin>
