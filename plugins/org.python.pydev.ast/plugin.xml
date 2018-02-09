@@ -3,6 +3,8 @@
 <plugin>
 
    <extension-point id="org.python.pydev.pydev_completion" name="PyDev completion" schema="schema/org.python.pydev.pydev_completion.exsd"/>
+   <extension-point id="pydev_manager_observer" name="PyDev code completion manager observer" schema="schema/pydev_manager_observer.exsd"/>
+   <extension-point id="pydev_builder" name="PyDev Builder" schema="schema/pydev_builder.exsd"/>
 
 <!-- Nature for pydev -->
    <extension

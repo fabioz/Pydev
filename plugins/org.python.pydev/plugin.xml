@@ -1180,7 +1180,6 @@
 <!-- extensions -->
 <!-- extensions -->
 <!-- extensions -->
-   <extension-point id="pydev_builder" name="PyDev Builder" schema="schema/pydev_builder.exsd"/>
    <extension-point id="pydev_modules_observer" name="PyDev modules observer" schema="schema/pydev_modules_observer.exsd"/>
    <extension-point id="pydev_interpreter_observer" name="PyDev Interpreter Observer" schema="schema/pydev_interpreter_observer.exsd"/>
    <extension-point id="pydev_interpreter_new_custom_entries" name="PyDev Interpreter New Custom Entries" schema="schema/pydev_interpreter_new_custom_entries.exsd"/>
@@ -1196,7 +1195,6 @@
    <extension-point id="pydev_globals_browser" name="PyDev Globals Browser" schema="schema/pydev_globals_browser.exsd"/>
    <extension-point id="pydev_debug_preferences_page" name="PyDev Debug Preferences Page" schema="schema/pydev_debug_preferences_page.exsd"/>
    <extension-point id="pydev_pythonpath_contrib" name="Python Path Contributor" schema="schema/pydev_pythonpath_contrib.exsd"/>
-   <extension-point id="pydev_manager_observer" name="PyDev code completion manager observer" schema="schema/pydev_manager_observer.exsd"/>
    <extension-point id="pydev_interpreter_info_builder" name="PyDev interpreter info builder" schema="schema/pydev_interpreter_info_builder.exsd"/>
    <extension-point id="pydev_interpreter_provider" name="PyDev interpreter provider" schema="schema/pydev_interpreter_provider.exsd"/>
    <extension-point id="pydev_python_module_resolver" name="Python module resolver" schema="schema/pydev_python_module_resolver.exsd"/>
