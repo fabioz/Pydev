@@ -1184,17 +1184,12 @@
    <extension-point id="pydev_ctrl_1" name="PyDev M11 participant" schema="schema/pydev_ctrl_1.exsd"/>
    <extension-point id="pydev_organize_imports" name="PyDev Organize Imports" schema="schema/pydev_organize_imports.exsd"/>
    <extension-point id="pydev_quick_outline" name="PyDev Quick Outline" schema="schema/pydev_quick_outline.exsd"/>
-   <extension-point id="pydev_preferences_provider" name="PyDev Preferences Provider" schema="schema/pydev_preferences_provider.exsd"/>
    <extension-point id="pydev_pyedit_listener" name="PyEdit Listener" schema="schema/pydev_pyedit_listener.exsd"/>
    <extension-point id="pydev_formatter" name="PyDev Formatter" schema="schema/pydev_formatter.exsd"/>
    <extension-point id="pydev_globals_browser" name="PyDev Globals Browser" schema="schema/pydev_globals_browser.exsd"/>
    <extension-point id="pydev_debug_preferences_page" name="PyDev Debug Preferences Page" schema="schema/pydev_debug_preferences_page.exsd"/>
-   <extension-point id="pydev_pythonpath_contrib" name="Python Path Contributor" schema="schema/pydev_pythonpath_contrib.exsd"/>
-   <extension-point id="pydev_interpreter_info_builder" name="PyDev interpreter info builder" schema="schema/pydev_interpreter_info_builder.exsd"/>
    <extension-point id="pydev_interpreter_provider" name="PyDev interpreter provider" schema="schema/pydev_interpreter_provider.exsd"/>
-   <extension-point id="pydev_python_module_resolver" name="Python module resolver" schema="schema/pydev_python_module_resolver.exsd"/>
    <extension-point id="pydev_hover2" name="PyDev Hover2" schema="schema/pydev_hover2.exsd"/>
-   <extension-point id="pydev_combiningHover" name="PyDev Combining Hover" schema="schema/pydev_combiningHover.exsd"/>
 <!-- wizards -->
    <extension point="org.eclipse.ui.newWizards">
       <category

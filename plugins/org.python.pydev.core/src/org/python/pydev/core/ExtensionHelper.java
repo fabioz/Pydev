@@ -24,27 +24,23 @@ public class ExtensionHelper extends BaseExtensionHelper {
     public static final String PYDEV_SIMPLE_ASSIST = "org.python.pydev.pydev_simpleassist";
     public static final String PYDEV_REFACTORING = "org.python.pydev.pydev_refactoring";
 
-    //pydev ui
-    public final static String PYDEV_VIEW_CREATED_OBSERVER = "org.python.pydev.pydev_view_created_observer";
-    public static final String PYDEV_CTRL_1 = "org.python.pydev.pydev_ctrl_1";
-
-    // not checked
-    public static final String PYDEV_ORGANIZE_IMPORTS = "org.python.pydev.pydev_organize_imports";
-    public static final String PYDEV_QUICK_OUTLINE = "org.python.pydev.pydev_quick_outline";
-    public static final String PYDEV_PYEDIT_LISTENER = "org.python.pydev.pydev_pyedit_listener";
-    public static final String PYDEV_FORMATTER = "org.python.pydev.pydev_formatter";
-    public static final String PYDEV_GLOBALS_BROWSER = "org.python.pydev.pydev_globals_browser";
-    public static final String PYDEV_DEBUG_PREFERENCES_PAGE = "org.python.pydev.pydev_debug_preferences_page";
-    public static final String PYDEV_HOVER2 = "org.python.pydev.pydev_hover2";
-    public static final String PY_TEXT_COMBINING_HOVER = "org.python.pydev.pydev_combiningHover";
-
     //IInterpreterInfoBuilder
     public static final String PYDEV_INTERPRETER_INFO_BUILDER = "org.python.pydev.pydev_interpreter_info_builder";
 
+    //pydev ui
+    public final static String PYDEV_VIEW_CREATED_OBSERVER = "org.python.pydev.pydev_view_created_observer";
+    public static final String PYDEV_CTRL_1 = "org.python.pydev.pydev_ctrl_1";
+    public static final String PYDEV_ORGANIZE_IMPORTS = "org.python.pydev.pydev_organize_imports";
+    public static final String PYDEV_QUICK_OUTLINE = "org.python.pydev.pydev_quick_outline";
+    public static final String PYDEV_PYEDIT_LISTENER = "org.python.pydev.pydev_pyedit_listener";
+    public static final String PYDEV_FORMATTER = "org.python.pydev.pydev_formatter"; // note: not used in PyDev.
+    public static final String PYDEV_GLOBALS_BROWSER = "org.python.pydev.pydev_globals_browser";
+    public static final String PYDEV_HOVER2 = "org.python.pydev.pydev_hover2";
     //IInterpreterProviderFactory
     public static final String PYDEV_INTERPRETER_PROVIDER = "org.python.pydev.pydev_interpreter_provider";
 
-    //debug
+    // pydev debug (ui)
+    public static final String PYDEV_DEBUG_PREFERENCES_PAGE = "org.python.pydev.pydev_debug_preferences_page";
     public static final String PYDEV_DEBUG_CONSOLE_INPUT_LISTENER = "org.python.pydev.debug.pydev_debug_console_input_listener";
     public static final String PYDEV_COMMAND_LINE_PARTICIPANT = "org.python.pydev.debug.pydev_debug_command_line_participant";
 
