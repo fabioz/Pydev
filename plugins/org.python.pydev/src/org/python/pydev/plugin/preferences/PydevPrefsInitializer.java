@@ -14,12 +14,7 @@ import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.jface.resource.StringConverter;
 import org.osgi.service.prefs.Preferences;
 import org.python.pydev.builder.todo.PyTodoPrefPage;
-import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.core.formatter.PyFormatterPreferences;
-import org.python.pydev.core.preferences.FileTypesPreferences;
-import org.python.pydev.core.preferences.InterpreterGeneralPreferences;
-import org.python.pydev.core.preferences.PyDevCoreEditorPreferences;
-import org.python.pydev.core.preferences.PyDevTypingPreferences;
+import org.python.pydev.core.preferences.PyDevCorePreferencesInitializer;
 import org.python.pydev.editor.codefolding.PyDevCodeFoldingPrefPage;
 import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
 import org.python.pydev.editor.correctionassist.docstrings.DocstringsPrefPage;
@@ -38,27 +33,11 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
 
     @Override
     public void initializeDefaultPreferences() {
+        // Initialize preferences in core plugin.
+        PyDevCorePreferencesInitializer.initializeDefaultPreferences();
+
         Preferences node = DefaultScope.INSTANCE.getNode(SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_SCOPE);
 
-        //ironpython
-        node.put(IInterpreterManager.IRONPYTHON_INTERNAL_SHELL_VM_ARGS,
-                IInterpreterManager.IRONPYTHON_DEFAULT_INTERNAL_SHELL_VM_ARGS);
-
-        //text
-        node.putBoolean(PyDevTypingPreferences.SMART_INDENT_PAR, PyDevTypingPreferences.DEFAULT_SMART_INDENT_PAR);
-        node.putBoolean(PyDevTypingPreferences.AUTO_PAR, PyDevTypingPreferences.DEFAULT_AUTO_PAR);
-        node.putBoolean(PyDevTypingPreferences.INDENT_AFTER_PAR_AS_PEP8, PyDevTypingPreferences.DEFAULT_INDENT_AFTER_PAR_AS_PEP8);
-        node.putBoolean(PyDevTypingPreferences.AUTO_LINK, PyDevTypingPreferences.DEFAULT_AUTO_LINK);
-        node.putBoolean(PyDevTypingPreferences.AUTO_INDENT_TO_PAR_LEVEL, PyDevTypingPreferences.DEFAULT_AUTO_INDENT_TO_PAR_LEVEL);
-        node.putBoolean(PyDevTypingPreferences.AUTO_DEDENT_ELSE, PyDevTypingPreferences.DEFAULT_AUTO_DEDENT_ELSE);
-        node.putInt(PyDevTypingPreferences.AUTO_INDENT_AFTER_PAR_WIDTH, PyDevTypingPreferences.DEFAULT_AUTO_INDENT_AFTER_PAR_WIDTH);
-        node.putBoolean(PyDevTypingPreferences.AUTO_COLON, PyDevTypingPreferences.DEFAULT_AUTO_COLON);
-        node.putBoolean(PyDevTypingPreferences.AUTO_BRACES, PyDevTypingPreferences.DEFAULT_AUTO_BRACES);
-        node.putBoolean(PyDevTypingPreferences.AUTO_WRITE_IMPORT_STR, PyDevTypingPreferences.DEFAULT_AUTO_WRITE_IMPORT_STR);
-        node.putBoolean(PyDevTypingPreferences.AUTO_LITERALS, PyDevTypingPreferences.DEFAULT_AUTO_LITERALS);
-        node.putBoolean(PyDevTypingPreferences.SMART_LINE_MOVE, PyDevTypingPreferences.DEFAULT_SMART_LINE_MOVE);
-
-        node.putInt(PyDevCoreEditorPreferences.TAB_WIDTH, PyDevCoreEditorPreferences.DEFAULT_TAB_WIDTH);
         node.putInt(IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PREFERENCES,
                 IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER);
 
@@ -74,11 +53,8 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.putBoolean(CommentBlocksPreferences.SINGLE_BLOCK_COMMENT_ALIGN_RIGHT,
                 CommentBlocksPreferences.DEFAULT_SINGLE_BLOCK_COMMENT_ALIGN_RIGHT);
 
-        //checkboxes
-        node.putBoolean(PyDevCoreEditorPreferences.SUBSTITUTE_TABS, PyDevCoreEditorPreferences.DEFAULT_SUBSTITUTE_TABS);
-        node.putBoolean(PyDevTypingPreferences.AUTO_ADD_SELF, PyDevTypingPreferences.DEFAULT_AUTO_ADD_SELF);
-        node.putBoolean(PyDevCoreEditorPreferences.GUESS_TAB_SUBSTITUTION, PyDevCoreEditorPreferences.DEFAULT_GUESS_TAB_SUBSTITUTION);
-        node.putBoolean(PyDevEditorPreferences.USE_VERTICAL_INDENT_GUIDE, PyDevEditorPreferences.DEFAULT_USE_VERTICAL_INDENT_GUIDE);
+        node.putBoolean(PyDevEditorPreferences.USE_VERTICAL_INDENT_GUIDE,
+                PyDevEditorPreferences.DEFAULT_USE_VERTICAL_INDENT_GUIDE);
         node.putBoolean(PyDevEditorPreferences.USE_VERTICAL_INDENT_COLOR_EDITOR_FOREGROUND,
                 PyDevEditorPreferences.DEFAULT_USE_VERTICAL_INDENT_COLOR_EDITOR_FOREGROUND);
         node.putInt(PyDevEditorPreferences.VERTICAL_INDENT_TRANSPARENCY,
@@ -87,29 +63,42 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.put(SubWordPreferences.WORD_NAVIGATION_STYLE, SubWordPreferences.DEFAULT_WORD_NAVIGATION_STYLE);
 
         //matching
-        node.putBoolean(PyDevEditorPreferences.USE_MATCHING_BRACKETS, PyDevEditorPreferences.DEFAULT_USE_MATCHING_BRACKETS);
+        node.putBoolean(PyDevEditorPreferences.USE_MATCHING_BRACKETS,
+                PyDevEditorPreferences.DEFAULT_USE_MATCHING_BRACKETS);
         node.put(PyDevEditorPreferences.MATCHING_BRACKETS_COLOR,
                 StringConverter.asString(PyDevEditorPreferences.DEFAULT_MATCHING_BRACKETS_COLOR));
-        node.putInt(PyDevEditorPreferences.MATCHING_BRACKETS_STYLE, PyDevEditorPreferences.DEFAULT_MATCHING_BRACKETS_STYLE);
+        node.putInt(PyDevEditorPreferences.MATCHING_BRACKETS_STYLE,
+                PyDevEditorPreferences.DEFAULT_MATCHING_BRACKETS_STYLE);
 
         //colors
         node.put(PyDevEditorPreferences.VERTICAL_INDENT_COLOR,
                 StringConverter.asString(PyDevEditorPreferences.DEFAULT_VERTICAL_INDENT_COLOR));
-        node.put(PyDevEditorPreferences.CODE_COLOR, StringConverter.asString(PyDevEditorPreferences.DEFAULT_CODE_COLOR));
-        node.put(PyDevEditorPreferences.NUMBER_COLOR, StringConverter.asString(PyDevEditorPreferences.DEFAULT_NUMBER_COLOR));
-        node.put(PyDevEditorPreferences.DECORATOR_COLOR, StringConverter.asString(PyDevEditorPreferences.DEFAULT_DECORATOR_COLOR));
-        node.put(PyDevEditorPreferences.KEYWORD_COLOR, StringConverter.asString(PyDevEditorPreferences.DEFAULT_KEYWORD_COLOR));
-        node.put(PyDevEditorPreferences.SELF_COLOR, StringConverter.asString(PyDevEditorPreferences.DEFAULT_SELF_COLOR));
-        node.put(PyDevEditorPreferences.STRING_COLOR, StringConverter.asString(PyDevEditorPreferences.DEFAULT_STRING_COLOR));
-        node.put(PyDevEditorPreferences.UNICODE_COLOR, StringConverter.asString(PyDevEditorPreferences.DEFAULT_UNICODE_COLOR));
-        node.put(PyDevEditorPreferences.COMMENT_COLOR, StringConverter.asString(PyDevEditorPreferences.DEFAULT_COMMENT_COLOR));
+        node.put(PyDevEditorPreferences.CODE_COLOR,
+                StringConverter.asString(PyDevEditorPreferences.DEFAULT_CODE_COLOR));
+        node.put(PyDevEditorPreferences.NUMBER_COLOR,
+                StringConverter.asString(PyDevEditorPreferences.DEFAULT_NUMBER_COLOR));
+        node.put(PyDevEditorPreferences.DECORATOR_COLOR,
+                StringConverter.asString(PyDevEditorPreferences.DEFAULT_DECORATOR_COLOR));
+        node.put(PyDevEditorPreferences.KEYWORD_COLOR,
+                StringConverter.asString(PyDevEditorPreferences.DEFAULT_KEYWORD_COLOR));
+        node.put(PyDevEditorPreferences.SELF_COLOR,
+                StringConverter.asString(PyDevEditorPreferences.DEFAULT_SELF_COLOR));
+        node.put(PyDevEditorPreferences.STRING_COLOR,
+                StringConverter.asString(PyDevEditorPreferences.DEFAULT_STRING_COLOR));
+        node.put(PyDevEditorPreferences.UNICODE_COLOR,
+                StringConverter.asString(PyDevEditorPreferences.DEFAULT_UNICODE_COLOR));
+        node.put(PyDevEditorPreferences.COMMENT_COLOR,
+                StringConverter.asString(PyDevEditorPreferences.DEFAULT_COMMENT_COLOR));
         node.put(PyDevEditorPreferences.BACKQUOTES_COLOR,
                 StringConverter.asString(PyDevEditorPreferences.DEFAULT_BACKQUOTES_COLOR));
         node.put(PyDevEditorPreferences.CLASS_NAME_COLOR,
                 StringConverter.asString(PyDevEditorPreferences.DEFAULT_CLASS_NAME_COLOR));
-        node.put(PyDevEditorPreferences.FUNC_NAME_COLOR, StringConverter.asString(PyDevEditorPreferences.DEFAULT_FUNC_NAME_COLOR));
-        node.put(PyDevEditorPreferences.PARENS_COLOR, StringConverter.asString(PyDevEditorPreferences.DEFAULT_PARENS_COLOR));
-        node.put(PyDevEditorPreferences.OPERATORS_COLOR, StringConverter.asString(PyDevEditorPreferences.DEFAULT_OPERATORS_COLOR));
+        node.put(PyDevEditorPreferences.FUNC_NAME_COLOR,
+                StringConverter.asString(PyDevEditorPreferences.DEFAULT_FUNC_NAME_COLOR));
+        node.put(PyDevEditorPreferences.PARENS_COLOR,
+                StringConverter.asString(PyDevEditorPreferences.DEFAULT_PARENS_COLOR));
+        node.put(PyDevEditorPreferences.OPERATORS_COLOR,
+                StringConverter.asString(PyDevEditorPreferences.DEFAULT_OPERATORS_COLOR));
         node.put(PyDevEditorPreferences.DOCSTRING_MARKUP_COLOR,
                 StringConverter.asString(PyDevEditorPreferences.DEFAULT_DOCSTRING_MARKUP_COLOR));
         //for selection colors see initializeDefaultColors()
@@ -128,11 +117,13 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.putInt(PyDevEditorPreferences.FUNC_NAME_STYLE, PyDevEditorPreferences.DEFAULT_FUNC_NAME_STYLE);
         node.putInt(PyDevEditorPreferences.PARENS_STYLE, PyDevEditorPreferences.DEFAULT_PARENS_STYLE);
         node.putInt(PyDevEditorPreferences.OPERATORS_STYLE, PyDevEditorPreferences.DEFAULT_OPERATORS_STYLE);
-        node.putInt(PyDevEditorPreferences.DOCSTRING_MARKUP_STYLE, PyDevEditorPreferences.DEFAULT_DOCSTRING_MARKUP_STYLE);
+        node.putInt(PyDevEditorPreferences.DOCSTRING_MARKUP_STYLE,
+                PyDevEditorPreferences.DEFAULT_DOCSTRING_MARKUP_STYLE);
 
         //Debugger
         node.putInt(PyDevEditorPreferences.CONNECT_TIMEOUT, PyDevEditorPreferences.DEFAULT_CONNECT_TIMEOUT);
-        node.putBoolean(PyDevEditorPreferences.RELOAD_MODULE_ON_CHANGE, PyDevEditorPreferences.DEFAULT_RELOAD_MODULE_ON_CHANGE);
+        node.putBoolean(PyDevEditorPreferences.RELOAD_MODULE_ON_CHANGE,
+                PyDevEditorPreferences.DEFAULT_RELOAD_MODULE_ON_CHANGE);
         node.putBoolean(PyDevEditorPreferences.DONT_TRACE_ENABLED, PyDevEditorPreferences.DEFAULT_DONT_TRACE_ENABLED);
         node.putBoolean(PyDevEditorPreferences.SHOW_RETURN_VALUES, PyDevEditorPreferences.DEFAULT_SHOW_RETURN_VALUES);
         node.putBoolean(PyDevEditorPreferences.DEBUG_MULTIPROCESSING_ENABLED,
@@ -244,52 +235,6 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.put(PyTitlePreferencesPage.TITLE_EDITOR_DJANGO_MODULES_HANDLING,
                 PyTitlePreferencesPage.DEFAULT_TITLE_EDITOR_DJANGO_MODULES_HANDLING);
 
-        //code formatting
-        node.putBoolean(PyFormatterPreferences.USE_ASSIGN_WITH_PACES_INSIDER_PARENTESIS,
-                PyFormatterPreferences.DEFAULT_USE_ASSIGN_WITH_PACES_INSIDE_PARENTESIS);
-        node.putBoolean(PyFormatterPreferences.USE_OPERATORS_WITH_SPACE,
-                PyFormatterPreferences.DEFAULT_USE_OPERATORS_WITH_SPACE);
-        node.putBoolean(PyFormatterPreferences.USE_SPACE_AFTER_COMMA, PyFormatterPreferences.DEFAULT_USE_SPACE_AFTER_COMMA);
-        node.putBoolean(PyFormatterPreferences.ADD_NEW_LINE_AT_END_OF_FILE,
-                PyFormatterPreferences.DEFAULT_ADD_NEW_LINE_AT_END_OF_FILE);
-        node.putBoolean(PydevSaveActionsPrefPage.FORMAT_BEFORE_SAVING,
-                PydevSaveActionsPrefPage.DEFAULT_FORMAT_BEFORE_SAVING);
-        node.putBoolean(PydevSaveActionsPrefPage.SAVE_ACTIONS_ONLY_ON_WORKSPACE_FILES,
-                PydevSaveActionsPrefPage.DEFAULT_SAVE_ACTIONS_ONLY_ON_WORKSPACE_FILES);
-        node.putBoolean(PyFormatterPreferences.FORMAT_WITH_AUTOPEP8, PyFormatterPreferences.DEFAULT_FORMAT_WITH_AUTOPEP8);
-        node.putBoolean(PyFormatterPreferences.FORMAT_ONLY_CHANGED_LINES,
-                PyFormatterPreferences.DEFAULT_FORMAT_ONLY_CHANGED_LINES);
-        node.putBoolean(PyFormatterPreferences.TRIM_LINES, PyFormatterPreferences.DEFAULT_TRIM_LINES);
-        node.putBoolean(PyFormatterPreferences.USE_SPACE_FOR_PARENTESIS,
-                PyFormatterPreferences.DEFAULT_USE_SPACE_FOR_PARENTESIS);
-        node.putInt(PyFormatterPreferences.SPACES_BEFORE_COMMENT,
-                PyFormatterPreferences.DEFAULT_SPACES_BEFORE_COMMENT);
-        node.putInt(PyFormatterPreferences.SPACES_IN_START_COMMENT,
-                PyFormatterPreferences.DEFAULT_SPACES_IN_START_COMMENT);
-        node.putBoolean(PyFormatterPreferences.MANAGE_BLANK_LINES,
-                PyFormatterPreferences.DEFAULT_MANAGE_BLANK_LINES);
-        node.putInt(PyFormatterPreferences.BLANK_LINES_TOP_LEVEL,
-                PyFormatterPreferences.DEFAULT_BLANK_LINES_TOP_LEVEL);
-        node.putInt(PyFormatterPreferences.BLANK_LINES_INNER,
-                PyFormatterPreferences.DEFAULT_BLANK_LINES_INNER);
-
-        //initialize pyunit prefs
-        node.putInt(PyUnitPrefsPage2.TEST_RUNNER, PyUnitPrefsPage2.DEFAULT_TEST_RUNNER);
-        node.putBoolean(PyUnitPrefsPage2.USE_PYUNIT_VIEW, PyUnitPrefsPage2.DEFAULT_USE_PYUNIT_VIEW);
-        node.put(PyUnitPrefsPage2.TEST_RUNNER_DEFAULT_PARAMETERS,
-                PyUnitPrefsPage2.DEFAULT_TEST_RUNNER_DEFAULT_PARAMETERS);
-
-        // Docstrings
-        node.put(DocstringsPrefPage.P_DOCSTRINGCHARACTER, DocstringsPrefPage.DEFAULT_P_DOCSTRINGCHARACTER);
-        node.put(DocstringsPrefPage.P_DOCSTRINGSTYLE, DocstringsPrefPage.DEFAULT_P_DOCSTIRNGSTYLE);
-        node.put(DocstringsPrefPage.P_TYPETAGGENERATION, DocstringsPrefPage.DEFAULT_P_TYPETAGGENERATION);
-        node.put(DocstringsPrefPage.P_DONT_GENERATE_TYPETAGS, DocstringsPrefPage.DEFAULT_P_DONT_GENERATE_TYPETAGS);
-
-        //file types
-        node.put(FileTypesPreferences.VALID_SOURCE_FILES, FileTypesPreferences.DEFAULT_VALID_SOURCE_FILES);
-        node.put(FileTypesPreferences.FIRST_CHOICE_PYTHON_SOURCE_FILE,
-                FileTypesPreferences.DEFAULT_FIRST_CHOICE_PYTHON_SOURCE_FILE);
-
         //imports
         node.putBoolean(ImportsPreferencesPage.GROUP_IMPORTS, ImportsPreferencesPage.DEFAULT_GROUP_IMPORTS);
         node.putBoolean(ImportsPreferencesPage.MULTILINE_IMPORTS, ImportsPreferencesPage.DEFAULT_MULTILINE_IMPORTS);
@@ -313,19 +258,17 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
                 PySourceLocatorPrefs.DEFAULT_ON_FILE_NOT_FOUND_IN_DEBUGGER);
         node.putInt(PySourceLocatorPrefs.FILE_CONTENTS_TIMEOUT, PySourceLocatorPrefs.DEFAULT_FILE_CONTENTS_TIMEOUT);
 
-        //general interpreters
-        node.putBoolean(InterpreterGeneralPreferences.NOTIFY_NO_INTERPRETER_PY,
-                InterpreterGeneralPreferences.DEFAULT_NOTIFY_NO_INTERPRETER_PY);
-        node.putBoolean(InterpreterGeneralPreferences.NOTIFY_NO_INTERPRETER_JY,
-                InterpreterGeneralPreferences.DEFAULT_NOTIFY_NO_INTERPRETER_JY);
-        node.putBoolean(InterpreterGeneralPreferences.NOTIFY_NO_INTERPRETER_IP,
-                InterpreterGeneralPreferences.DEFAULT_NOTIFY_NO_INTERPRETER_IP);
+        //initialize pyunit prefs
+        node.putInt(PyUnitPrefsPage2.TEST_RUNNER, PyUnitPrefsPage2.DEFAULT_TEST_RUNNER);
+        node.putBoolean(PyUnitPrefsPage2.USE_PYUNIT_VIEW, PyUnitPrefsPage2.DEFAULT_USE_PYUNIT_VIEW);
+        node.put(PyUnitPrefsPage2.TEST_RUNNER_DEFAULT_PARAMETERS,
+                PyUnitPrefsPage2.DEFAULT_TEST_RUNNER_DEFAULT_PARAMETERS);
 
-        node.putBoolean(InterpreterGeneralPreferences.CHECK_CONSISTENT_ON_STARTUP,
-                InterpreterGeneralPreferences.DEFAULT_CHECK_CONSISTENT_ON_STARTUP);
-
-        node.putBoolean(InterpreterGeneralPreferences.UPDATE_INTERPRETER_INFO_ON_FILESYSTEM_CHANGES,
-                InterpreterGeneralPreferences.DEFAULT_UPDATE_INTERPRETER_INFO_ON_FILESYSTEM_CHANGES);
+        // Docstrings
+        node.put(DocstringsPrefPage.P_DOCSTRINGCHARACTER, DocstringsPrefPage.DEFAULT_P_DOCSTRINGCHARACTER);
+        node.put(DocstringsPrefPage.P_DOCSTRINGSTYLE, DocstringsPrefPage.DEFAULT_P_DOCSTIRNGSTYLE);
+        node.put(DocstringsPrefPage.P_TYPETAGGENERATION, DocstringsPrefPage.DEFAULT_P_TYPETAGGENERATION);
+        node.put(DocstringsPrefPage.P_DONT_GENERATE_TYPETAGS, DocstringsPrefPage.DEFAULT_P_DONT_GENERATE_TYPETAGS);
 
         //save actions
         node.putBoolean(PydevSaveActionsPrefPage.SORT_IMPORTS_ON_SAVE,
@@ -336,6 +279,10 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
 
         node.put(PydevSaveActionsPrefPage.DATE_FIELD_NAME, PydevSaveActionsPrefPage.DEFAULT_DATE_FIELD_NAME);
         node.put(PydevSaveActionsPrefPage.DATE_FIELD_FORMAT, PydevSaveActionsPrefPage.DEFAULT_DATE_FIELD_FORMAT);
+        node.putBoolean(PydevSaveActionsPrefPage.FORMAT_BEFORE_SAVING,
+                PydevSaveActionsPrefPage.DEFAULT_FORMAT_BEFORE_SAVING);
+        node.putBoolean(PydevSaveActionsPrefPage.SAVE_ACTIONS_ONLY_ON_WORKSPACE_FILES,
+                PydevSaveActionsPrefPage.DEFAULT_SAVE_ACTIONS_ONLY_ON_WORKSPACE_FILES);
 
         //root
         node.putBoolean(PydevRootPrefs.CHECK_PREFERRED_PYDEV_SETTINGS,
