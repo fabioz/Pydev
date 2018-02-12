@@ -6,6 +6,7 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContext;
+import org.python.pydev.core.ICompletionRequest;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.docutils.PySelection;
@@ -50,7 +51,8 @@ public interface ICompletionProposalFactory {
             Object contextInformation, String additionalProposalInfo, int priority,
             /*ISourceViewer*/ Object sourceViewer, ICompareContext compareContext);
 
-    ICompletionProposalHandle createOverrideMethodCompletionProposal(int replacementOffset,
+    ICompletionProposalHandle createOverrideMethodCompletionProposal(ICompletionRequest request,
+            PySelection ps, int replacementOffset,
             int replacementLength, int cursorPosition, IImageHandle image, /*FunctionDef*/ ISimpleNode functionDef,
             String parentClassName, String currentClassName);
 

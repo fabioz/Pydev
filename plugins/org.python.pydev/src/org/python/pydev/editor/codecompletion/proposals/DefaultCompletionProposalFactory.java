@@ -10,6 +10,7 @@ import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContext;
 import org.eclipse.swt.widgets.Display;
 import org.python.pydev.ast.codecompletion.shell.AbstractShell;
+import org.python.pydev.core.ICompletionRequest;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.docutils.PySelection;
@@ -97,7 +98,8 @@ public class DefaultCompletionProposalFactory implements ICompletionProposalFact
     }
 
     @Override
-    public ICompletionProposalHandle createOverrideMethodCompletionProposal(int replacementOffset,
+    public ICompletionProposalHandle createOverrideMethodCompletionProposal(ICompletionRequest request, PySelection ps,
+            int replacementOffset,
             int replacementLength, int cursorPosition, IImageHandle image, /*FunctionDef*/ ISimpleNode functionDef,
             String parentClassName, String currentClassName) {
         return new OverrideMethodCompletionProposal(replacementOffset, replacementLength, cursorPosition, image,

@@ -6,8 +6,6 @@
  */
 package org.python.pydev.editor.codecompletion.proposals;
 
-import java.io.IOException;
-
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
@@ -20,7 +18,6 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.autoedit.DefaultIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Pass;
@@ -28,8 +25,7 @@ import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 import org.python.pydev.parser.prettyprinterv2.MakeAstValidForPrettyPrintingVisitor;
-import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
-import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
+import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.model.ISimpleNode;
@@ -120,7 +116,14 @@ public class OverrideMethodCompletionProposal extends AbstractPyCompletionPropos
         } catch (Exception e) {
             Log.log(e);
         }
-        String printed = printAst(edit, functionDef, delimiter);
+
+        IIndentPrefs indentPrefs;
+        if (edit != null) {
+            indentPrefs = edit.getIndentPrefs();
+        } else {
+            indentPrefs = DefaultIndentPrefs.get(null);
+        }
+        String printed = NodeUtils.printAst(indentPrefs, edit, functionDef, delimiter);
         PySelection ps = new PySelection(document, offset);
         try {
             String lineContentsToCursor = ps.getLineContentsToCursor();
@@ -137,29 +140,6 @@ public class OverrideMethodCompletionProposal extends AbstractPyCompletionPropos
             // ignore
         }
         return -1;
-    }
-
-    public static String printAst(IPyEdit edit, SimpleNode astToPrint, String lineDelimiter) {
-        String str = null;
-        if (astToPrint != null) {
-            IIndentPrefs indentPrefs;
-            if (edit != null) {
-                indentPrefs = edit.getIndentPrefs();
-            } else {
-                indentPrefs = DefaultIndentPrefs.get(null);
-            }
-
-            PrettyPrinterPrefsV2 prefsV2 = PrettyPrinterV2.createDefaultPrefs(edit, indentPrefs, lineDelimiter);
-
-            PrettyPrinterV2 prettyPrinterV2 = new PrettyPrinterV2(prefsV2);
-            try {
-
-                str = prettyPrinterV2.print(astToPrint);
-            } catch (IOException e) {
-                Log.log(e);
-            }
-        }
-        return str;
     }
 
     /* (non-Javadoc)

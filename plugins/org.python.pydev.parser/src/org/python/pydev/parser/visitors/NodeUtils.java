@@ -2005,4 +2005,21 @@ public class NodeUtils {
         return str;
     }
 
+    public static String printAst(IIndentPrefs indentPrefs, IGrammarVersionProvider versionProvider,
+            SimpleNode astToPrint, String lineDelimiter) {
+        String str = null;
+        if (astToPrint != null) {
+
+            PrettyPrinterPrefsV2 prefsV2 = PrettyPrinterV2.createDefaultPrefs(versionProvider, indentPrefs,
+                    lineDelimiter);
+            PrettyPrinterV2 prettyPrinterV2 = new PrettyPrinterV2(prefsV2);
+            try {
+
+                str = prettyPrinterV2.print(astToPrint);
+            } catch (IOException e) {
+                Log.log(e);
+            }
+        }
+        return str;
+    }
 }

@@ -505,6 +505,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
 
                         if (functionDef != null) {
                             ret.add(CompletionProposalFactory.get().createOverrideMethodCompletionProposal(
+                                    request, ps,
                                     ps.getAbsoluteCursorOffset(), 0, 0, imageOverride,
                                     functionDef, tokenAndBaseClass.o2, className));
                         }
