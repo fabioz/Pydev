@@ -24,47 +24,6 @@
   		<interpreter_observer class="com.python.pydev.analysis.additionalinfo.builders.InterpreterObserver"/>
    </extension>
 
-
-
-
-<extension point="org.eclipse.ui.perspectiveExtensions">
-    <perspectiveExtension targetID="org.python.pydev.ui.PythonPerspective">
-        <actionSet id="com.python.pydev.navigate.actionSet"/>
-    </perspectiveExtension>
-    <perspectiveExtension targetID="org.eclipse.debug.ui.DebugPerspective">
-        <actionSet id="com.python.pydev.navigate.actionSet"/>
-    </perspectiveExtension>
-</extension>
-
-<extension point="org.eclipse.ui.commands">
-      <command
-            name="Python Show Global Tokens (Global)"
-            description="Python Show Global Tokens (Global)"
-            categoryId="org.python.pydev.ui.category.source"
-            id="com.python.pydev.analysis.actions.pyGlobalsBrowserWorkbench">
-      </command>
-</extension>
-
-<extension point="org.eclipse.ui.contexts">
-      <context
-            description="PyDev view (PyUnit, PyOutline, etc)."
-            id="com.python.pydev.contexts.window"
-            name="PyDev view"
-            parentId="org.eclipse.ui.contexts.window">
-      </context>
-</extension>
-
-<extension point="org.eclipse.ui.bindings">
-      <key
-            sequence="M1+M2+T"
-            contextId="com.python.pydev.contexts.window"
-            commandId="com.python.pydev.analysis.actions.pyGlobalsBrowserWorkbench"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
-      </key>
-</extension>
-
-
-
    <extension point="org.python.pydev.pydev_completion">
   		<completion_participant class="com.python.pydev.codecompletion.participant.ImportsCompletionParticipant"/>
    </extension>
