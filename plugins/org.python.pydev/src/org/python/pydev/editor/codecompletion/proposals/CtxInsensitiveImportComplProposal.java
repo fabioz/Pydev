@@ -9,42 +9,31 @@
  */
 package org.python.pydev.editor.codecompletion.proposals;
 
-import java.util.List;
-
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.python.pydev.ast.codecompletion.IPyCompletionProposal2;
 import org.python.pydev.ast.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPySourceViewer;
 import org.python.pydev.core.autoedit.DefaultIndentPrefs;
-import org.python.pydev.core.docutils.ImportHandle;
-import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
-import org.python.pydev.core.docutils.ImportNotRecognizedException;
-import org.python.pydev.core.docutils.ParsingUtils;
-import org.python.pydev.core.docutils.PyDocIterator;
-import org.python.pydev.core.docutils.PyImportsHandling;
-import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
-import org.python.pydev.shared_core.string.StringUtils;
-import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
+
+import com.python.pydev.analysis.refactoring.quick_fixes.AddTokenAndImportStatement;
 
 /**
  * This is the proposal that should be used to do a completion that can have a related import.
@@ -198,7 +187,7 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
         apply(document, trigger, stateMask, offset, null);
     }
 
-    public void apply(IDocument document, char trigger, int stateMask, int offset, IAdaptable projectAdaptable) {
+    protected void apply(IDocument document, char trigger, int stateMask, int offset, IAdaptable projectAdaptable) {
         if (this.indentString == null) {
             throw new RuntimeException("Indent string not set (not called with a PyEdit as viewer?)");
         }
@@ -208,305 +197,31 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
             return;
         }
 
-        try {
-            PySelection selection = new PySelection(document);
-            int lineToAddImport = -1;
-            ImportHandleInfo groupInto = null;
-            ImportHandleInfo realImportHandleInfo = null;
-
-            boolean groupImports = ImportsPreferencesPage.getGroupImports(projectAdaptable);
-
-            LineStartingScope previousLineThatStartsScope = null;
-            PySelection ps = null;
-            if (this.addLocalImport) {
-                ps = new PySelection(document, offset);
-                int startLineIndex = ps.getStartLineIndex();
-                if (startLineIndex == 0) {
-                    this.addLocalImport = false;
-                } else {
-                    String[] indentTokens = PySelection.INDENT_TOKENS;
-                    if (getAddLocalImportsOnTopOfMethod()) {
-                        indentTokens = PySelection.FUNC_TOKEN;
-                    }
-                    previousLineThatStartsScope = ps.getPreviousLineThatStartsScope(indentTokens,
-                            startLineIndex - 1, PySelection.getFirstCharPosition(ps.getCursorLineContents()));
-                    if (previousLineThatStartsScope == null) {
-                        //note that if we have no previous scope, it means we're actually on the global scope, so,
-                        //proceed as usual...
-                        this.addLocalImport = false;
-                    }
-                }
-            }
-
-            if (realImportRep.length() > 0 && !this.addLocalImport) {
-
-                //Workaround for: https://sourceforge.net/tracker/?func=detail&aid=2697165&group_id=85796&atid=577329
-                //when importing from __future__ import with_statement, we actually want to add a 'with' token, not
-                //with_statement token.
-                boolean isWithStatement = realImportRep.equals("from __future__ import with_statement");
-                if (isWithStatement) {
-                    this.fReplacementString = "with";
-                }
-
-                if (groupImports) {
-                    try {
-                        realImportHandleInfo = new ImportHandleInfo(realImportRep);
-                        PyImportsHandling importsHandling = new PyImportsHandling(document);
-                        for (ImportHandle handle : importsHandling) {
-                            if (handle.contains(realImportHandleInfo)) {
-                                lineToAddImport = -2; //signal that there's no need to find a line available to add the import
-                                break;
-
-                            } else if (groupInto == null && realImportHandleInfo.getFromImportStr() != null) {
-                                List<ImportHandleInfo> handleImportInfo = handle.getImportInfo();
-
-                                for (ImportHandleInfo importHandleInfo : handleImportInfo) {
-                                    if (realImportHandleInfo.getFromImportStr() == null) {
-                                        continue;
-                                    }
-                                    if (realImportHandleInfo.getFromImportStrWithoutUnwantedChars().equals(
-                                            importHandleInfo.getFromImportStrWithoutUnwantedChars())) {
-                                        List<String> commentsForImports = importHandleInfo.getCommentsForImports();
-                                        if (commentsForImports.size() > 0
-                                                && commentsForImports.get(commentsForImports.size() - 1)
-                                                        .length() == 0) {
-                                            groupInto = importHandleInfo;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    } catch (ImportNotRecognizedException e1) {
-                        Log.log(e1);//that should not happen at this point
-                    }
-                }
-
-                if (lineToAddImport == -1) {
-                    boolean isFutureImport = PySelection.isFutureImportLine(this.realImportRep);
-                    lineToAddImport = selection.getLineAvailableForImport(isFutureImport);
-                }
-            } else {
-                lineToAddImport = -1;
-            }
-            String delimiter = PySelection.getDelimiter(document);
-
-            appliedWithTrigger = trigger == '.' || trigger == '(';
-            String appendForTrigger = "";
-            if (appliedWithTrigger) {
-                if (trigger == '(') {
-                    appendForTrigger = "()";
-
-                } else if (trigger == '.') {
-                    appendForTrigger = ".";
-                }
-            }
-
-            //if the trigger is ')', just let it apply regularly -- so, ')' will only be added if it's already in the completion.
-
-            //first do the completion
-            if (fReplacementString.length() > 0) {
-                int dif = offset - fReplacementOffset;
-                document.replace(offset - dif, dif + this.fLen, fReplacementString + appendForTrigger);
-            }
-            if (this.addLocalImport) {
-                if (addAsLocalImport(previousLineThatStartsScope, ps, delimiter)) {
-                    return;
-                }
-            }
-
-            if (groupInto != null && realImportHandleInfo != null) {
-                //let's try to group it
-                final int maxCols;
-                if (SharedCorePlugin.inTestMode()) {
-                    maxCols = 80;
-                } else {
-                    IPreferenceStore chainedPrefStore = PyDevUiPrefs.getChainedPrefStore();
-                    maxCols = chainedPrefStore
-                            .getInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLUMN);
-                }
-
-                int endLine = groupInto.getEndLine();
-                IRegion lineInformation = document.getLineInformation(endLine);
-                String strToAdd = ", " + realImportHandleInfo.getImportedStr().get(0);
-
-                String line = PySelection.getLine(document, endLine);
-                if (line.length() + strToAdd.length() > maxCols) {
-                    if (line.indexOf('#') == -1) {
-                        //no comments: just add it in the next line
-                        int len = line.length();
-                        if (line.trim().endsWith(")")) {
-                            len = line.indexOf(")");
-                            strToAdd = "," + delimiter + indentString + realImportHandleInfo.getImportedStr().get(0);
-                        } else {
-                            strToAdd = ",\\" + delimiter + indentString + realImportHandleInfo.getImportedStr().get(0);
-                        }
-
-                        int end = lineInformation.getOffset() + len;
-                        importLen = strToAdd.length();
-                        document.replace(end, 0, strToAdd);
-                        return;
-
-                    }
-
-                } else {
-                    //regular addition (it won't pass the number of columns expected).
-                    line = PySelection.getLineWithoutCommentsOrLiterals(line);
-                    int len = line.length();
-                    if (line.trim().endsWith(")")) {
-                        len = line.indexOf(")");
-                    }
-
-                    int end = lineInformation.getOffset() + len;
-                    importLen = strToAdd.length();
-                    document.replace(end, 0, strToAdd);
-                    return;
-                }
-            }
-
-            //if we got here, it hasn't been added in a grouped way, so, let's add it in a new import
-            if (lineToAddImport >= 0 && lineToAddImport <= document.getNumberOfLines()) {
-                IRegion lineInformation = document.getLineInformation(lineToAddImport);
-                String strToAdd = realImportRep + delimiter;
-                importLen = strToAdd.length();
-                document.replace(lineInformation.getOffset(), 0, strToAdd);
-                return;
-            }
-
-        } catch (BadLocationException x) {
-            Log.log(x);
+        final int maxCols;
+        if (SharedCorePlugin.inTestMode()) {
+            maxCols = 80;
+        } else {
+            IPreferenceStore chainedPrefStore = PyDevUiPrefs.getChainedPrefStore();
+            maxCols = chainedPrefStore
+                    .getInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLUMN);
         }
-    }
 
-    public boolean addAsLocalImport(LineStartingScope previousLineThatStartsScope, PySelection ps, String delimiter) {
-        //All the code below is because we don't want to work with a generated AST (as it may not be there),
-        //so, we go to the previous scope, find out the valid indent inside it and then got backwards
-        //from the position we're in now to find the closer location to where we're now where we're
-        //actually able to add the import.
-        try {
-            int iLineStartingScope;
-            if (previousLineThatStartsScope != null) {
-                iLineStartingScope = previousLineThatStartsScope.iLineStartingScope;
-
-                // Ok, we have the line where the scope starts... now, we have to check where that declaration
-                // is finished (i.e.: def my( \n\n\n ): <- only after the ):
-                Tuple<List<String>, Integer> tuple = new PySelection(ps.getDoc(), iLineStartingScope, 0)
-                        .getInsideParentesisToks(false);
-                if (tuple != null) {
-                    iLineStartingScope = ps.getLineOfOffset(tuple.o2);
-                }
-
-                //Go to a non-empty line from the line we have and the line we're currently in.
-                int iLine = iLineStartingScope + 1;
-                String line = ps.getLine(iLine);
-                final int startLineIndex = ps.getStartLineIndex(); // startLineIndex is our cursor line
-                while (iLine < startLineIndex && (line.startsWith("#") || line.trim().length() == 0)) {
-                    iLine++;
-                    line = ps.getLine(iLine);
-                }
-                if (iLine >= startLineIndex) {
-                    //Sanity check!
-                    iLine = startLineIndex;
-                    line = ps.getLine(iLine);
-                }
-                final String indent = line.substring(0, PySelection.getFirstCharPosition(line));
-
-                if (getAddLocalImportsOnTopOfMethod()) {
-                    if (iLine < startLineIndex) {
-                        // Ok, should be on top of the function, but still, after the docstring.
-                        String line2 = ps.getLine(iLine);
-                        String trimmed = line2.trim();
-                        if (trimmed.startsWith("'") || trimmed.startsWith("\"")) {
-                            ParsingUtils parsingUtils = ParsingUtils.create(ps.getDoc());
-                            int index = line2.indexOf("'");
-                            int index2 = line2.indexOf("\"");
-                            int use;
-                            if (index < 0) {
-                                use = index2;
-                            } else if (index2 < 0) {
-                                use = index;
-                            } else {
-                                use = Math.min(index, index2);
-                            }
-                            int newOffset = parsingUtils.eatLiterals(null,
-                                    ps.getAbsoluteCursorOffset(iLine, use));
-                            int lineOfOffset = ps.getLineOfOffset(newOffset) + 1;
-                            iLine = lineOfOffset;
-                        }
-
-                        // Also, if there's an import block, keep on going (make it the last import).
-                        int j = iLine;
-                        while (j < startLineIndex) {
-                            line2 = ps.getLine(j);
-                            trimmed = line2.trim();
-                            if (trimmed.length() == 0) {
-                                j++;
-                                // Just a new line won't update the iLine
-                                continue;
-                            }
-                            if (PySelection.isImportLine(trimmed)) {
-                                PyDocIterator docIterator = new PyDocIterator(ps.getDoc(), true, true, false,
-                                        false);
-                                docIterator.setStartingOffset(ps.getLineOffset(j));
-                                String str = docIterator.next();
-
-                                if (str.contains("(")) { //we have something like from os import (pipe,\nfoo)
-                                    while (docIterator.hasNext()) {
-                                        if (str.contains(")")) {
-                                            j = docIterator.getLastReturnedLine() + 1;
-                                            break;
-                                        } else {
-                                            str = docIterator.next();
-                                        }
-                                    }
-                                } else if (StringUtils.endsWith(str.trim(), '\\')) {
-                                    while (docIterator.hasNext()) {
-                                        if (!StringUtils.endsWith(str.trim(), '\\')) {
-                                            j = docIterator.getLastReturnedLine() + 1;
-                                            break;
-                                        }
-                                        str = docIterator.next();
-                                    }
-                                } else {
-                                    j++;
-                                }
-
-                                iLine = j;
-                                continue;
-                            }
-                            break;
-                        }
-                        line = ps.getLine(iLine);
-                    }
-
-                } else {
-                    //Ok, all good so far, now, this would add the line to the beginning of
-                    //the element (after the if statement, def, etc.), let's try to put
-                    //it closer to where we're now (but still in a valid position).
-                    int firstCharPos = PySelection.getFirstCharPosition(line);
-                    int j = startLineIndex;
-                    while (j >= 0) {
-                        String line2 = ps.getLine(j);
-                        if (PySelection.getFirstCharPosition(line2) == firstCharPos) {
-                            iLine = j;
-                            break;
-                        }
-                        if (j == iLineStartingScope) {
-                            break;
-                        }
-                        j--;
-                    }
-                }
-
-                String strToAdd = indent + realImportRep + delimiter;
-                ps.addLine(strToAdd, iLine - 1); //Will add it just after the line passed as a parameter.
-                importLen = strToAdd.length();
-                return true;
+        AddTokenAndImportStatement.ComputedInfo computedInfo = new AddTokenAndImportStatement.ComputedInfo(
+                realImportRep, fReplacementOffset, fLen, indentString,
+                fReplacementString, appliedWithTrigger, importLen, document);
+        AddTokenAndImportStatement.createTextEdit(document, trigger, offset, addLocalImport,
+                getAddLocalImportsOnTopOfMethod(),
+                computedInfo, ImportsPreferencesPage.getGroupImports(projectAdaptable), maxCols);
+        this.fReplacementString = computedInfo.fReplacementString;
+        this.appliedWithTrigger = computedInfo.appliedWithTrigger;
+        this.importLen = computedInfo.importLen;
+        for (ReplaceEdit edit : computedInfo.replaceEdit) {
+            try {
+                edit.apply(document);
+            } catch (Exception e) {
+                Log.log(e);
             }
-        } catch (Exception e) {
-            Log.log(e); //Something went wrong, add it as global (i.e.: BUG)
         }
-        return false;
     }
 
     @Override

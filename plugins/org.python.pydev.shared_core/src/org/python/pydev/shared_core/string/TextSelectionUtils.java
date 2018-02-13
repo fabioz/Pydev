@@ -466,6 +466,18 @@ public class TextSelectionUtils {
         addLine(getDoc(), getEndLineDelim(), contents, afterLine);
     }
 
+    public static void addLine(IDocument doc, String endLineDelim, String contents, int afterLine) {
+        Tuple<Integer, String> offsetAndContentsToAddLine = getOffsetAndContentsToAddLine(doc, endLineDelim, contents,
+                afterLine);
+        if (offsetAndContentsToAddLine != null) {
+            try {
+                doc.replace(offsetAndContentsToAddLine.o1, 0, offsetAndContentsToAddLine.o2);
+            } catch (BadLocationException e) {
+                Log.log(e);
+            }
+        }
+    }
+
     /**
      * Adds a line to the document.
      *
@@ -475,7 +487,8 @@ public class TextSelectionUtils {
      *  (depending on what are the current contents of the document).
      * @param afterLine the contents should be added after the line specified here.
      */
-    public static void addLine(IDocument doc, String endLineDelim, String contents, int afterLine) {
+    public static Tuple<Integer, String> getOffsetAndContentsToAddLine(IDocument doc, String endLineDelim,
+            String contents, int afterLine) {
         try {
 
             int offset = -1;
@@ -496,11 +509,12 @@ public class TextSelectionUtils {
             }
 
             if (offset >= 0) {
-                doc.replace(offset, 0, contents);
+                return new Tuple<>(offset, contents);
             }
         } catch (BadLocationException e) {
             Log.log(e);
         }
+        return null;
     }
 
     public String getLineContentsFromCursor() throws BadLocationException {
