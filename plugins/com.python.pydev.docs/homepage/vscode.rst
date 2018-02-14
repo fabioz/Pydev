@@ -18,8 +18,6 @@ available and details on getting it running.
 PyDev on Visual Studio Code (0.0.1)
 --------------------------------------------
 
-* Bundled with **PyDev 6.2.0**
-
 * **Code-completion**
     * Fast
     * Context sensitive
@@ -39,14 +37,16 @@ PyDev on Visual Studio Code (0.0.1)
 
 * **Symbols for open editor**
 
+* **Find references**
+
+* **Quick fix for undefined variables** (adds missing import)
+
 Planned features (soon)
 -------------------------
 
 * Launching
 
 * PyDev Debugger integration
-
-* Find references
 
 * Hover
 
@@ -85,7 +85,22 @@ from **Visual Studio Code** to be a folder in the **PYTHONPATH** too.
 
 To see information on the current interpreter configured, the command:
 
-**PyDev: Show Python Interpreter Configuration**
+**PyDev: Show PyDev Configuration Information**
 
 may be executed from inside **Visual Studio Code**.
 
+
+Settings
+--------------------------
+
+- `python.pydev.java.home` if the extension can't find the java executable, this setting can be used to specify the java home folder (which has /bin/java inside it).
+
+ Note: requires restarting vscode after
+
+- `python.pydev.ls.vmargs` vmargs to the java executable used to launch PyDev.
+
+- `python.pydev.pythonExecutable` the python executable to be used (if not specified, `python` is expected to be in the `PATH`).
+
+- `python.pydev.pythonPath` a list of folders that should be added to the PYTHONPATH and should be considered source folders (i.e.: folders with the sources meant to be edited by the user). If not specified, the folders which are in the PYTHONPATH and are available below a workspace in vscode will be considered as source folders (and if there's no match, each workspace folder in vscode will be considered a source folder).
+
+- `python.pydev.forcedBuiltins` a list of additional modules to be inspected through a shell (see http://www.pydev.org/manual_101_interpreter.html#PyDevInterpreterConfiguration-ForcedBuiltins for more information).
