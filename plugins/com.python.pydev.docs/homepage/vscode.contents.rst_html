@@ -5,16 +5,60 @@
 <!-- <image_area></image_area>
 
 
-<quote_area></quote_area> -->
+<right_area2>
+<ul>
+PyDev for VSCode may be evaluated for 30 days but must be bought for continued use.<br/>
+<br/>
+See: <a href="license.html">license info</a> for details.<br/>
+<br/>
+
+Licenses may be purchased using Paypal and will be delivered to e-mail specified during the checkout process.<br/>
+<br/>
+<br/>
+Promotional launch licensing price is <strong>USD 10.00</strong>.<br/>
+<br/>
+<br/>
+
+    <strong>Buy Single-User License</strong><br/>
+<br/>
+
+    <ul class="libutton">
+        <li class="libutton"><a class="libutton" href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=N929BMNSSUJHE">
+        Click to buy using<strong class="libutton">Paypal</strong>
+        </a>
+        </li>
+</ul>
+
+<br/>
+<br/>
+<br/>
+
+    <strong>Buy Multi-User License</strong><br/>
+<br/>
+
+    <ul class="libutton">
+        <li class="libutton"><a class="libutton" href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=ZHYGQQF7728EC">
+        Click to buy using<strong class="libutton">Paypal</strong>
+        </a>
+        </li>
+</ul>
+<br/>
+<br/>
+
+    Note: your license should be delivered within a day after your purchase is completed
+    (remember to check your spam folder too). If you don't find it within that timeframe,
+    please contact fabiofz (at) gmail (dot) com.
+
+</ul>
+</right_area2> -->
 <p>Although PyDev is a <strong>Python IDE</strong> commonly used along with <strong>Eclipse</strong>, it's now possible to
 leverage the features from <strong>PyDev</strong> on <strong>Visual Studio Code</strong>.</p>
 <p>While there are some important features to be added (such as the <strong>debugger</strong>), the current version can
-already leverage many features that make <strong>PyDev</strong> unique inside of Visual Studio Code! See below which features are
-available and details on getting it running.</p>
+already leverage many features that make <strong>PyDev</strong> unique inside of Visual Studio Code!</p>
+<p>See below which features are available and details on getting it running.</p>
 <div class="section" id="pydev-on-visual-studio-code-0-0-1">
 <h1>PyDev on Visual Studio Code (0.0.1)</h1>
 <ul class="simple">
-<li>Bundled with <strong>PyDev 6.2.0</strong></li>
 <li><dl class="first docutils">
 <dt><strong>Code-completion</strong></dt>
 <dd><ul class="first last">
@@ -46,6 +90,8 @@ available and details on getting it running.</p>
 </li>
 <li><strong>Symbols for Workspace</strong></li>
 <li><strong>Symbols for open editor</strong></li>
+<li><strong>Find references</strong></li>
+<li><strong>Quick fix for undefined variables</strong> (adds missing import)</li>
 </ul>
 </div>
 <div class="section" id="planned-features-soon">
@@ -53,7 +99,6 @@ available and details on getting it running.</p>
 <ul class="simple">
 <li>Launching</li>
 <li>PyDev Debugger integration</li>
-<li>Find references</li>
 <li>Hover</li>
 </ul>
 </div>
@@ -82,8 +127,46 @@ info from the folders which are currently in the <strong>PYTHONPATH</strong>, bu
 <strong>PYTHONPATH</strong> are available as root folders inside Visual Studio Code, it will also consider each root folder
 from <strong>Visual Studio Code</strong> to be a folder in the <strong>PYTHONPATH</strong> too.</p>
 <p>To see information on the current interpreter configured, the command:</p>
-<p><strong>PyDev: Show Python Interpreter Configuration</strong></p>
+<p><strong>PyDev: Show PyDev Configuration Information</strong></p>
 <p>may be executed from inside <strong>Visual Studio Code</strong>.</p>
+</div>
+<div class="section" id="settings">
+<h1>Settings</h1>
+<ul class="simple">
+<li><strong>python.pydev.java.home</strong></li>
+</ul>
+<blockquote>
+<p>If the extension can't find the java executable, this setting can be used to specify the java home folder (which has /bin/java inside it).</p>
+<p><strong>Note</strong>: requires restarting vscode</p>
+</blockquote>
+<ul class="simple">
+<li><strong>python.pydev.ls.vmargs</strong></li>
+</ul>
+<blockquote>
+<p>vmargs to the java executable used to launch PyDev.</p>
+<p><strong>Note</strong>: requires restarting vscode</p>
+</blockquote>
+<ul class="simple">
+<li><strong>python.pydev.pythonExecutable</strong></li>
+</ul>
+<blockquote>
+The python executable to be used (if not specified, <strong>python</strong> is expected to be in the <strong>PATH</strong>).</blockquote>
+<ul class="simple">
+<li><strong>python.pydev.pythonPath</strong></li>
+</ul>
+<blockquote>
+<p>A list of folders that should be added to the <strong>PYTHONPATH</strong> and should be considered source folders
+(i.e.: folders with the sources meant to be edited by the user).</p>
+<p>If not specified, the folders which are in the <strong>PYTHONPATH</strong> and are available below a workspace
+in vscode will be considered as source folders (and if there's no match, each workspace folder in
+vscode will be considered a source folder).</p>
+</blockquote>
+<ul class="simple">
+<li><strong>python.pydev.forcedBuiltins</strong></li>
+</ul>
+<blockquote>
+A  list of additional modules to be inspected through a shell
+(see <a class="reference external" href="http://www.pydev.org/manual_101_interpreter.html#PyDevInterpreterConfiguration-ForcedBuiltins">http://www.pydev.org/manual_101_interpreter.html#PyDevInterpreterConfiguration-ForcedBuiltins</a> for more information).</blockquote>
 </div>
 </contents_area>
 

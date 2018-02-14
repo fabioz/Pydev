@@ -1,0 +1,62 @@
+<doc>
+<contents_area>
+
+
+<p>In short terms, the license allows anyone to evaluate <strong>PyDev for VSCode</strong> for 30 days, but it must be bought for continued use.</p>
+<p>A <strong>single-user license</strong> can be used only by the person to which it's licensed for.</p>
+<p>A <strong>multi-user license</strong> is to be obtained by an organization so that its employees can use it. It can be used by more than one person, but the number of developers using it within a week may not exceed the amount of users to which it was licensed for. (i.e.: If licensed for 2 developers, if 2 developers use it on Monday, it cannot be used by anyone else until the next Monday).</p>
+<p>A license is <strong>bought for a given version of the software</strong> (i.e.: 0.X, 1.X) and must be <strong>renewed for use in a new version</strong> (but has no time-limit).</p>
+<div class="section" id="license-legal-terms">
+<h1>License Legal terms</h1>
+<p>This License Agreement is a legal contract between you (either as an individual or as an entity) and <strong>BRAINWY SOFTWARE LTDA-ME</strong> for the <strong>PyDev for VSCode</strong> Software.</p>
+<p>You should carefully read the following terms and conditions before using the Software. Installation or use of the Software indicates your acceptance of this License Agreement.</p>
+<p>The Software is protected by copyright laws and international copyright treaties, as well as other intellectual property laws and treaties. The Software is licensed, not sold.</p>
+<p>The Software may not be rented or leased to others, and the conditions of this sale apply to the purchaser in any resale.</p>
+<p><strong>Evaluation Version</strong></p>
+<p>This is NOT a free software. Subject to the terms below, you are hereby licensed to use the Software for evaluation purposes without charge for a period of thirty (30) days. To use the Software after the 30-day evaluation period, you must buy a license. Unlicensed use of the Evaluation Version of the Software after the thirtieth (30th) day of evaluation period is a violation of this License Agreement.</p>
+<p><strong>Single User License</strong></p>
+<p>With a a single user license, you are granted a non-exclusive, nontransferable license to use the Software on any computer as long as the product is used solely by the user for which the license was generated. This license does not expire but it can be used solely with the version of the software it was bought for.</p>
+<p><strong>Single User Eternal License</strong></p>
+<p>With a a single user license, you are granted a non-exclusive, nontransferable license to use the Software on any computer as long as the product is used solely by the user for which the license was generated. This license does not expire and can be used with any version of the software.</p>
+<p><strong>Multi User License</strong></p>
+<p>Multi User licenses may only be acquired by an organization and can only be used by employees of the organization to which the license was licensed. With a Multi User License you are granted a non-exclusive, nontransferable license to install the Software to any number of computers, but within a week the maximum number of different users using this license may not exceed the number of users available in the license. i.e. if you have a 2 user license, within a week only 2 different users may use the license. This license does not expire but it can be used solely with the version of the software it was bought for.</p>
+<p><strong>Academic Institution License</strong></p>
+<p>Academic Institution licenses may only be acquired to be used in classrooms for teaching institutions such as universities and schools. With an academic institution license, you are granted a non-exclusive, nontransferable license to install the Software to the number of computers specified in the license inside the academic institution for which it was bougth and it may be used by any student and teacher for teaching purposes. This license does not expire but it can be used solely with the version of the software it was bought for.</p>
+<p><strong>Upgrades</strong></p>
+<p>Unless otherwise indicated, a valid license to use the registered version includes the right to install free version updates, patches, bug-fixes only within the same major version of the software for which a license was bought. i.e. if you bought it for version 1.0 you won't be able to upgrade to version 2.0 without acquiring a new license.</p>
+<p><strong>Distribution</strong></p>
+<p>Provided that you are distributing the evaluation version and NOT the registered version, you are hereby licensed to make as many copies of the evaluation version of the Software as you wish; give exact copies of the original evaluation version to anyone; and distribute the evaluation version of the Software in its unmodified form via electronic means. There is no charge for any of the above.</p>
+<p>You are specifically prohibited from charging, or requesting donations, for any such copies, however made; and from distributing the Software with other products (commercial or otherwise) without prior written permission.</p>
+<p>You may NOT redistribute any derivative works of the Software without prior written permission from BRAINWY SOFTWARE LTDA-ME.</p>
+<p><strong>OTHER RESTRICTIONS.</strong></p>
+<p>You may not disclose, publish, translate, rent, lease, transfer, export or otherwise make the Software available in any form, to any person or entity, except as expressly licensed herein. You may not reverse engineer, decompile, disassemble the Software or in any way reduce the Software to a human-perceivable form.</p>
+<p><strong>COPYRIGHT.</strong></p>
+<p>The Software and Documentation are copyrighted by BRAINWY SOFTWARE LTDA-ME and are protected by international copyright laws. The product contains copyrighted software of BRAINWY SOFTWARE LTDA-ME. All rights reserved. You agree not to remove any trademarks or copyright notices from the Software or Documentation.</p>
+<p><strong>Term and Termination</strong></p>
+<p>If you have acquired an evaluation version, the license granted herein shall automatically terminate thirty (30) days after you first install such version. Subsequent downloads, installations or use of the evaluation version by or for you will not extend, renew, or otherwise restart the term of the license. The license granted for the commercial version will continue until it is terminated. BRAINWY SOFTWARE LTDA-ME may terminate any license granted herein if you fail to comply with the terms of this License Agreement. Upon the termination of a license for any reason, you must promptly destroy all copies of the software covered by the license.</p>
+<p><strong>DISCLAIMER OF WARRANTY</strong></p>
+<p>BRAINWY SOFTWARE LTDA-ME EXPRESSLY DISCLAIMS ANY WARRANTY FOR THE SOFTWARE. THE SOFTWARE AND ANY RELATED DOCUMENTATION IS PROVIDED &quot;AS IS&quot; WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT. THE ENTIRE RISK ARISING OUT OF USE OR PERFORMANCE OF THE SOFTWARE REMAINS WITH YOU.</p>
+<p><strong>LIMITATION OF LIABILITY</strong></p>
+<p>TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL BRAINWY SOFTWARE LTDA-ME OR ITS SUPPLIERS BE LIABLE FOR ANY SPECIAL, INCIDENTAL, INDIRECT, OR CONSEQUENTIAL DAMAGES WHATSOEVER (INCLUDING, WITHOUT LIMITATION, DAMAGES FOR LOSS OF BUSINESS PROFITS, BUSINESS INTERRUPTION, LOSS OF BUSINESS INFORMATION, ANY OTHER PECUNIARY LOSS, ATTORNEY FEES AND COURT COSTS) ARISING OUT OF THE USE OF OR INABILITY TO USE THE SOFTWARE OR THE PROVISION OF OR FAILURE TO PROVIDE SUPPORT SERVICES, EVEN IF BRAINWY SOFTWARE LTDA-ME HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.</p>
+<p><strong>General</strong></p>
+<p>This License Agreement will be governed by the laws of Brazil. This License Agreement may only be modified by a license addendum, which accompanies this License Agreement or by a written document which has been signed, by both you and BRAINWY SOFTWARE LTDA-ME. This License Agreement has been written in the English language only and is not to be translated or interpreted in any other language. Prices, costs and fees for use of PyDev for VSCode are subject to change without notice to you. In the event of invalidity of any provision of this License Agreement, the invalidity shall not affect the validity of the remaining portions of this License Agreement.</p>
+<p><strong>ENTIRE AGREEMENT.</strong></p>
+<p>You agree that this Agreement expresses the entire understanding between you and BRAINWY SOFTWARE LTDA-ME, and supersedes all other communications, oral or written, relating to the Software.</p>
+<p><strong>COPYRIGHT 2013-2018 BRAINWY SOFTWARE LTDA-ME</strong></p>
+</div>
+</contents_area>
+
+
+<right_area>
+</right_area>
+
+
+<image_area>manual.png</image_area>
+
+
+<quote_area></quote_area>
+
+
+
+</doc>
+

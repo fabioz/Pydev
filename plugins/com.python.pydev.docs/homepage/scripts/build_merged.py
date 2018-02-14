@@ -56,6 +56,11 @@ update_sites = (
     ('template1.html', 'update_sites/index'               , ''),
 )
 
+vscode_pages = (
+    ('template1.html', 'vscode'                    , 'Visual Studio Code', 'vscode/index.html'),
+    ('template1.html', 'vscode_license'                    , 'Visual Studio Code', 'vscode/license.html'),
+)
+
 homepageBase = (
     ('template1.html', 'index'                     , 'PyDev'),
     ('template1.html', 'download'                  , 'Download'),
@@ -68,13 +73,15 @@ homepageBase = (
     ('template1.html', 'manual_adv_keybindings'    , 'Keybindings'),
     ('template1.html', 'faq'                       , 'FAQ'),
     ('template1.html', 'screenshots'               , 'Screenshots'),
-    ('template1.html', 'vscode'                    , 'Visual Studio Code'),
 )
 
 def template(template, contents, title, **kwargs):
     if_not_specified_in_file = kwargs.pop('if_not_specified_in_file', {})
 
-    target_file = 'final/%s.html' % contents
+    if 'target_file' in kwargs:
+        target_file = 'final/' + kwargs['target_file']
+    else:
+        target_file = 'final/%s.html' % contents
 
     try:
         contents_file = file('%s.contents.html' % contents, 'r').read()
@@ -88,7 +95,7 @@ def template(template, contents, title, **kwargs):
 
 
     toReplace = ['contents_area', 'right_area' , 'image_area', 'quote_area',
-                 'prev', 'title_prev', 'next', 'title_next', 'root']
+                 'prev', 'title_prev', 'next', 'title_next', 'root', 'right_area2']
 
     for r in toReplace:
         if r not in kwargs:
@@ -148,6 +155,9 @@ def templateForAll(lst, first, last, if_not_specified_in_file={}):
 
 
 def main():
+    for b in vscode_pages:
+        template(*b[:-1], target_file=b[-1])
+
     for b in homepageBase:
         template(*b)
 
