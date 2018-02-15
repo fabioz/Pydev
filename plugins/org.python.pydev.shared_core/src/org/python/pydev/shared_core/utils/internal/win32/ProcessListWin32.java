@@ -105,9 +105,10 @@ public class ProcessListWin32 implements IProcessList {
                     String processId = line.substring(processIdI, line.length()).trim();
                     lst.add(new ProcessInfo(Integer.parseInt(processId), name + "   " + commandLine));
                 } catch (Exception e) {
-                    Log.log(StringUtils.format(
-                            "Error processing line: \n%s\ncommandLineI: %s\nprocessIdI: %s", line, commandLineI,
-                            processIdI), e);
+                    // This may happen if some command line is too big.
+                    // Log.log(StringUtils.format(
+                    //         "Error processing line: \n%s\ncommandLineI: %s\nprocessIdI: %s", line, commandLineI,
+                    //         processIdI), e);
                 }
             }
             if (lst.size() == 0) {
