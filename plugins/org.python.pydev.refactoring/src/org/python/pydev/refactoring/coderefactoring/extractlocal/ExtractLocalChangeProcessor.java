@@ -26,7 +26,6 @@ package org.python.pydev.refactoring.coderefactoring.extractlocal;
 
 import java.util.List;
 
-import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.refactoring.coderefactoring.extractlocal.edit.CreateLocalVariableEdit;
@@ -37,6 +36,7 @@ import org.python.pydev.refactoring.core.base.AbstractFileChangeProcessor;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
 import org.python.pydev.refactoring.messages.Messages;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
 import org.python.pydev.shared_core.structure.Tuple;
 
 public class ExtractLocalChangeProcessor extends AbstractFileChangeProcessor<ExtractLocalRequest> {
@@ -60,8 +60,8 @@ public class ExtractLocalChangeProcessor extends AbstractFileChangeProcessor<Ext
         registerEdit(replaceWithVariableEdit, Messages.extractLocalReplaceWithVariable);
 
         if (req.replaceDuplicates) {
-            List<Tuple<ITextSelection, SimpleNode>> duplicates = req.duplicates;
-            for (Tuple<ITextSelection, SimpleNode> dup : duplicates) {
+            List<Tuple<ICoreTextSelection, SimpleNode>> duplicates = req.duplicates;
+            for (Tuple<ICoreTextSelection, SimpleNode> dup : duplicates) {
                 try {
                     ReplaceDuplicateWithVariableEdit v = new ReplaceDuplicateWithVariableEdit(req, dup);
                     registerEdit(v, "Replace duplicate.");

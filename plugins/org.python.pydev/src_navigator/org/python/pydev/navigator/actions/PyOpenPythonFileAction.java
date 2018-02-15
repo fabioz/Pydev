@@ -24,24 +24,24 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.ide.IDE;
+import org.python.pydev.ast.item_pointer.ItemPointer;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyOpenAction;
-import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.navigator.PythonpathTreeNode;
 import org.python.pydev.navigator.PythonpathZipChildTreeNode;
 import org.python.pydev.navigator.elements.PythonNode;
 import org.python.pydev.outline.ParsedItem;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_core.structure.Location;
-import org.python.pydev.shared_ui.UIConstants;
-
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 
 /**
  * This action will try to open a given file or node in the pydev editor (if a file or node is selected).
- * 
+ *
  * If a container is selected, it will expand or collapse it.
  */
 public class PyOpenPythonFileAction extends Action {
@@ -60,13 +60,14 @@ public class PyOpenPythonFileAction extends Action {
 
     public PyOpenPythonFileAction(IWorkbenchPage page, ISelectionProvider selectionProvider) {
         this.setText("Open With Pydev (Python)");
-        this.setImageDescriptor(PydevPlugin.getImageCache().getDescriptor(UIConstants.PY_FILE_ICON));
+        this.setImageDescriptor(
+                ImageCache.asImageDescriptor(SharedUiPlugin.getImageCache().getDescriptor(UIConstants.PY_FILE_ICON)));
         this.provider = selectionProvider;
     }
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.jface.action.Action#isEnabled()
      */
     @Override
@@ -76,7 +77,7 @@ public class PyOpenPythonFileAction extends Action {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.jface.action.Action#run()
      */
     @Override
@@ -132,8 +133,8 @@ public class PyOpenPythonFileAction extends Action {
     }
 
     /**
-     * Opens the given files with the Pydev editor. 
-     * 
+     * Opens the given files with the Pydev editor.
+     *
      * @param filesSelected the files to be opened with the pydev editor.
      */
     protected void openFiles(List<IFile> filesSelected) {
@@ -183,12 +184,12 @@ public class PyOpenPythonFileAction extends Action {
 
                 } else if (element instanceof IAdaptable) {
                     IAdaptable adaptable = (IAdaptable) element;
-                    IFile file = (IFile) adaptable.getAdapter(IFile.class);
+                    IFile file = adaptable.getAdapter(IFile.class);
                     if (file != null) {
                         filesSelected.add(file);
 
                     } else {
-                        IContainer container = (IContainer) adaptable.getAdapter(IContainer.class);
+                        IContainer container = adaptable.getAdapter(IContainer.class);
                         if (container != null) {
                             containersSelected.add(element);
                         }

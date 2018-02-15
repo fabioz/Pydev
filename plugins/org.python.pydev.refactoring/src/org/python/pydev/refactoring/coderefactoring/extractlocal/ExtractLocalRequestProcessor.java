@@ -26,22 +26,22 @@ package org.python.pydev.refactoring.coderefactoring.extractlocal;
 
 import java.util.List;
 
-import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.refactoring.coderefactoring.extractlocal.request.ExtractLocalRequest;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
 import org.python.pydev.refactoring.utils.ListUtils;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
 import org.python.pydev.shared_core.structure.Tuple;
 
 public class ExtractLocalRequestProcessor implements IRequestProcessor<ExtractLocalRequest> {
 
     private RefactoringInfo info;
-    private ITextSelection selection;
+    private ICoreTextSelection selection;
     private exprType expression;
     private String variableName;
-    private List<Tuple<ITextSelection, SimpleNode>> duplicates;
+    private List<Tuple<ICoreTextSelection, SimpleNode>> duplicates;
     private boolean replaceDuplicates;
 
     public ExtractLocalRequestProcessor(RefactoringInfo info) {
@@ -54,7 +54,7 @@ public class ExtractLocalRequestProcessor implements IRequestProcessor<ExtractLo
                 replaceDuplicates));
     }
 
-    public void setSelection(ITextSelection selection) {
+    public void setSelection(ICoreTextSelection selection) {
         this.selection = selection;
     }
 
@@ -76,7 +76,7 @@ public class ExtractLocalRequestProcessor implements IRequestProcessor<ExtractLo
     /**
      * @param duplicates
      */
-    public void setDuplicates(List<Tuple<ITextSelection, SimpleNode>> duplicates) {
+    public void setDuplicates(List<Tuple<ICoreTextSelection, SimpleNode>> duplicates) {
         this.duplicates = duplicates;
     }
 

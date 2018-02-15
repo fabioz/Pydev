@@ -19,7 +19,8 @@ import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.jface.text.quickassist.IQuickAssistAssistant;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
-import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
+import org.python.pydev.core.autoedit.DefaultIndentPrefs;
+import org.python.pydev.editor.PyInformationControlCreator;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 
 /**
@@ -75,12 +76,12 @@ public class PydevScriptConsoleSourceViewerConfiguration extends SourceViewerCon
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.jface.text.source.SourceViewerConfiguration#getInformationControlCreator(org.eclipse.jface.text.source.ISourceViewer)
      */
     @Override
     public IInformationControlCreator getInformationControlCreator(ISourceViewer sourceViewer) {
-        return PyContentAssistant.createInformationControlCreator(sourceViewer);
+        return new PyInformationControlCreator();
     }
 
 }

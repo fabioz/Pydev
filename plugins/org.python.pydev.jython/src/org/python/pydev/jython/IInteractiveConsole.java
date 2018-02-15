@@ -9,6 +9,8 @@
  */
 package org.python.pydev.jython;
 
+import org.python.pydev.shared_core.jython.IPythonInterpreter;
+
 public interface IInteractiveConsole extends IPythonInterpreter {
 
     boolean push(String input);

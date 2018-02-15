@@ -18,7 +18,7 @@ import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.MenuListener;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
-import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.plugin.PyDevUiPrefs;
 
 /**
  * Action used to force the orientation (automatic, horizontal or vertical).
@@ -46,7 +46,7 @@ public class SetOrientationAction extends Action {
 
         @Override
         public void run() {
-            PydevPrefs.getPreferenceStore().setValue(viewPartWithOrientation.getOrientationPreferencesKey(),
+            PyDevUiPrefs.getPreferenceStore().setValue(viewPartWithOrientation.getOrientationPreferencesKey(),
                     this.setsValue);
         }
 

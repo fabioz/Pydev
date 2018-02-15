@@ -31,6 +31,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editorinput.EditorInputFactory;
+import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.ImageCache;
 
@@ -74,7 +75,7 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
      */
     @Override
     public Image getImage(Object element) {
-        ImageCache imageCache = PydevDebugPlugin.getImageCache();
+        IImageCache imageCache = PydevDebugPlugin.getImageCache();
 
         if (element instanceof PyBreakpoint) {
             try {
@@ -82,24 +83,24 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
 
                 if (pyBreakpoint.isEnabled()) {
                     if (pyBreakpoint.getType().equals(PyBreakpoint.PY_BREAK_TYPE_DJANGO)) {
-                        return imageCache.get("icons/breakmarker_django.png");
+                        return ImageCache.asImage(imageCache.get("icons/breakmarker_django.png"));
 
                     } else {
                         if (pyBreakpoint.isConditionEnabled()) {
-                            return imageCache.get("icons/breakmarker_conditional.gif");
+                            return ImageCache.asImage(imageCache.get("icons/breakmarker_conditional.gif"));
                         } else {
-                            return imageCache.get("icons/breakmarker.gif");
+                            return ImageCache.asImage(imageCache.get("icons/breakmarker.gif"));
                         }
                     }
                 } else {
                     if (pyBreakpoint.getType().equals(PyBreakpoint.PY_BREAK_TYPE_DJANGO)) {
-                        return imageCache.get("icons/breakmarker_django_gray.png");
+                        return ImageCache.asImage(imageCache.get("icons/breakmarker_django_gray.png"));
 
                     } else {
                         if (pyBreakpoint.isConditionEnabled()) {
-                            return imageCache.get("icons/breakmarker_gray_conditional.gif");
+                            return ImageCache.asImage(imageCache.get("icons/breakmarker_gray_conditional.gif"));
                         } else {
-                            return imageCache.get("icons/breakmarker_gray.gif");
+                            return ImageCache.asImage(imageCache.get("icons/breakmarker_gray.gif"));
                         }
                     }
                 }
@@ -111,24 +112,24 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
         } else if (element instanceof PyVariableCollection) {
             PyVariableCollection pyVariableCollection = (PyVariableCollection) element;
             if (pyVariableCollection.isReturnValue()) {
-                return imageCache.get("icons/return_value.png");
+                return ImageCache.asImage(imageCache.get("icons/return_value.png"));
             }
-            return imageCache.get("icons/greendot_big.gif");
+            return ImageCache.asImage(imageCache.get("icons/greendot_big.gif"));
 
         } else if (element instanceof PyVariable) {
             PyVariable pyVariable = (PyVariable) element;
             if (pyVariable.isReturnValue()) {
-                return imageCache.get("icons/return_value.png");
+                return ImageCache.asImage(imageCache.get("icons/return_value.png"));
             }
-            return imageCache.get("icons/greendot.gif");
+            return ImageCache.asImage(imageCache.get("icons/greendot.gif"));
 
         } else if (element instanceof CaughtException) {
-            return imageCache.get("icons/python_exception_breakpoint.png");
+            return ImageCache.asImage(imageCache.get("icons/python_exception_breakpoint.png"));
 
         } else if (element instanceof PyDebugTarget || element instanceof PyThread || element instanceof PyStackFrame) {
             if (element instanceof PyThread) {
                 if (((PyThread) element).isCustomFrame) {
-                    return imageCache.get("icons/tasklet.png");
+                    return ImageCache.asImage(imageCache.get("icons/tasklet.png"));
                 }
             }
 

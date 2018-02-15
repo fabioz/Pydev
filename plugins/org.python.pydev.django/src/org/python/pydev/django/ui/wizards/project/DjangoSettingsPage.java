@@ -25,15 +25,15 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
+import org.python.pydev.ast.runners.UniversalRunner;
+import org.python.pydev.ast.runners.UniversalRunner.AbstractRunner;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
-import org.python.pydev.runners.UniversalRunner;
-import org.python.pydev.runners.UniversalRunner.AbstractRunner;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -171,7 +171,7 @@ public class DjangoSettingsPage extends WizardPage {
         SystemPythonNature nature;
         try {
             final int interpreterType = PythonNature.getInterpreterTypeFromVersion(projectType);
-            IInterpreterManager interpreterManagerFromType = PydevPlugin.getInterpreterManagerFromType(interpreterType);
+            IInterpreterManager interpreterManagerFromType = InterpreterManagersAPI.getInterpreterManagerFromType(interpreterType);
             IInterpreterInfo interpreterInfo;
             if (IPythonNature.DEFAULT_INTERPRETER.equals(projectInterpreter)) {
                 interpreterInfo = interpreterManagerFromType.getDefaultInterpreterInfo(false);

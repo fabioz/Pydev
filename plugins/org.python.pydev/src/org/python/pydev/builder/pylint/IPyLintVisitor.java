@@ -11,7 +11,7 @@ import java.util.List;
 import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
 
 /**
- * See: org.python.pydev.builder.pylint.PyLintVisitorFactory to create PyLint visitors.
+ * See: org.python.pydev.ast.builder.pylint.PyLintVisitorFactory to create PyLint visitors.
  */
 public interface IPyLintVisitor {
 

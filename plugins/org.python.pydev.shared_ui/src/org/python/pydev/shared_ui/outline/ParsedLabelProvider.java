@@ -12,7 +12,7 @@ package org.python.pydev.shared_ui.outline;
 
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
-import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_core.image.IImageCache;
 
 /**
  * 
@@ -20,9 +20,9 @@ import org.python.pydev.shared_ui.ImageCache;
  */
 public class ParsedLabelProvider extends LabelProvider {
 
-    ImageCache imageCache;
+    IImageCache imageCache;
 
-    public ParsedLabelProvider(ImageCache imageCache) {
+    public ParsedLabelProvider(IImageCache imageCache) {
         this.imageCache = imageCache;
     }
 

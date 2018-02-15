@@ -9,7 +9,8 @@ package com.python.pydev.debug;
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.osgi.service.prefs.Preferences;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.core.preferences.PydevPrefs;
+import org.python.pydev.shared_core.SharedCorePlugin;
 
 public class DebugPluginPrefsInitializer extends AbstractPreferenceInitializer {
 
@@ -32,7 +33,7 @@ public class DebugPluginPrefsInitializer extends AbstractPreferenceInitializer {
 
     @Override
     public void initializeDefaultPreferences() {
-        Preferences node = DefaultScope.INSTANCE.getNode(PydevPlugin.DEFAULT_PYDEV_SCOPE);
+        Preferences node = DefaultScope.INSTANCE.getNode(SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_SCOPE);
         node.putInt(PYDEV_REMOTE_DEBUGGER_PORT, DEFAULT_REMOTE_DEBUGGER_PORT);
 
         node.putInt(DEBUG_SERVER_STARTUP, DEFAULT_DEBUG_SERVER_ALWAYS_ON);
@@ -40,7 +41,7 @@ public class DebugPluginPrefsInitializer extends AbstractPreferenceInitializer {
     }
 
     public static int getRemoteDebuggerPort() {
-        return PydevPlugin.getDefault().getPreferenceStore().getInt(PYDEV_REMOTE_DEBUGGER_PORT);
+        return PydevPrefs.getEclipsePreferences().getInt(PYDEV_REMOTE_DEBUGGER_PORT, DEFAULT_REMOTE_DEBUGGER_PORT);
     }
 
 }

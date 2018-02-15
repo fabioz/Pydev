@@ -14,6 +14,8 @@ import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 
+import com.python.pydev.analysis.refactoring.wizards.rename.visitors.FindCallVisitor;
+
 public class FindCallVisitorTest extends PyParserTestBase {
 
     public static void main(String[] args) {

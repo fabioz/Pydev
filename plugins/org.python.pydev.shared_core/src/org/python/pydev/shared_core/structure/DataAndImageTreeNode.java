@@ -6,14 +6,14 @@
  */
 package org.python.pydev.shared_core.structure;
 
-import org.eclipse.swt.graphics.Image;
+import org.python.pydev.shared_core.image.IImageHandle;
 
 @SuppressWarnings("unchecked")
 public class DataAndImageTreeNode<X> extends TreeNode<X> {
 
-    public final Image image;
+    public final IImageHandle image;
 
-    public DataAndImageTreeNode(DataAndImageTreeNode<X> parent, X data, Image image) {
+    public DataAndImageTreeNode(DataAndImageTreeNode<X> parent, X data, IImageHandle image) {
         super(parent, data);
         this.image = image;
     }

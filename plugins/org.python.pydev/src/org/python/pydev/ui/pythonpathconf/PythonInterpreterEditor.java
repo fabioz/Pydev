@@ -10,6 +10,7 @@
 package org.python.pydev.ui.pythonpathconf;
 
 import org.eclipse.swt.widgets.Composite;
+import org.python.pydev.ast.interpreter_managers.IInterpreterProviderFactory;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.shared_core.utils.PlatformUtils;
 

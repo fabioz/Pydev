@@ -6,18 +6,43 @@
  */
 package org.python.pydev.shared_core;
 
+import java.io.File;
+import java.net.URI;
+
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Plugin;
+import org.eclipse.core.runtime.Status;
 import org.osgi.framework.BundleContext;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.image.IImageCache;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.log.Log;
 
 /**
  * The main plugin class to be used in the desktop.
  */
 public class SharedCorePlugin extends Plugin {
 
-    public static final String PLUGIN_ID = "org.python.pydev.shared_core";
+    public static final String SHARED_CORE_PLUGIN_ID = "org.python.pydev.shared_core";
+
+    public static final String PYDEV_PLUGIN_ID = "org.python.pydev";
+
+    public static final String DEFAULT_PYDEV_PREFERENCES_SCOPE = "org.python.pydev";
 
     //The shared instance.
     private static SharedCorePlugin plugin;
+
+    private static IImageCache imageCache;
+
+    public static void setImageCache(IImageCache imageCache) {
+        SharedCorePlugin.imageCache = imageCache;
+    }
+
+    public static IImageCache getImageCache() {
+        return SharedCorePlugin.imageCache;
+    }
 
     /**
      * The constructor.
@@ -41,6 +66,59 @@ public class SharedCorePlugin extends Plugin {
     @Override
     public void stop(BundleContext context) throws Exception {
         super.stop(context);
+    }
+
+    /**
+     * Given a resource get the string in the filesystem for it.
+     */
+    public static String getIResourceOSString(IResource f) {
+        URI locationURI = f.getLocationURI();
+        if (locationURI != null) {
+            try {
+                //RTC source control not return a valid uri
+                return FileUtils.getFileAbsolutePath(new File(locationURI));
+            } catch (IllegalArgumentException e) {
+            }
+        }
+
+        IPath rawLocation = f.getRawLocation();
+        if (rawLocation == null) {
+            return null; //yes, we could have a resource that was deleted but we still have it's representation...
+        }
+        String fullPath = rawLocation.toOSString();
+        //now, we have to make sure it is canonical...
+        File file = new File(fullPath);
+        if (file.exists()) {
+            return FileUtils.getFileAbsolutePath(file);
+        } else {
+            //it does not exist, so, we have to check its project to validate the part that we can
+            IProject project = f.getProject();
+            IPath location = project.getLocation();
+            File projectFile = location.toFile();
+            if (projectFile.exists()) {
+                String projectFilePath = FileUtils.getFileAbsolutePath(projectFile);
+
+                if (fullPath.startsWith(projectFilePath)) {
+                    //the case is all ok
+                    return fullPath;
+                } else {
+                    //the case appears to be different, so, let's check if this is it...
+                    if (fullPath.toLowerCase().startsWith(projectFilePath.toLowerCase())) {
+                        String relativePart = fullPath.substring(projectFilePath.length());
+
+                        //at least the first part was correct
+                        return projectFilePath + relativePart;
+                    }
+                }
+            }
+        }
+
+        //it may not be correct, but it was the best we could do...
+        return fullPath;
+    }
+
+    public static Status makeStatus(int errorLevel, String message, Throwable e) {
+        return new Status(errorLevel, PYDEV_PLUGIN_ID, errorLevel, message, e);
     }
 
     /**
@@ -95,4 +173,24 @@ public class SharedCorePlugin extends Plugin {
     public static boolean skipKnownFailures() {
         return true;
     }
+
+    public static ICallback<Object, Runnable> onAsyncRunInUiThread = (runnable) -> {
+        Log.log("Error: no callback assigned to run in ui thread async.");
+        runnable.run();
+        return null;
+    };
+    public static ICallback<Object, Runnable> onSyncWithUiThread = (runnable) -> {
+        Log.log("Error: no callback assigned to run in ui thread sync.");
+        runnable.run();
+        return null;
+    };
+
+    public static void asyncRunInUiThread(Runnable runnable) {
+        onAsyncRunInUiThread.call(runnable);
+    }
+
+    public static void syncWithUiThread(Runnable runnable) {
+        onSyncWithUiThread.call(runnable);
+    }
+
 }

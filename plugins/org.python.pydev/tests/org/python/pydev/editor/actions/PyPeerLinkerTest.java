@@ -7,8 +7,8 @@
 package org.python.pydev.editor.actions;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.autoedit.TestIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.autoedit.TestIndentPrefs;
 
 import junit.framework.TestCase;
 

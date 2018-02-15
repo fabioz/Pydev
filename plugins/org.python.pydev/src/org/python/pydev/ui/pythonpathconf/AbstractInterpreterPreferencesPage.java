@@ -31,14 +31,16 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ListDialog;
 import org.eclipse.ui.dialogs.ListSelectionDialog;
 import org.eclipse.ui.dialogs.SelectionDialog;
+import org.python.pydev.ast.interpreter_managers.AbstractInterpreterManager;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_core.image.UIConstants;
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorDialog;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
-import org.python.pydev.ui.interpreters.AbstractInterpreterManager;
 
 /**
  * @author Fabio Zadrozny
@@ -94,7 +96,7 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
         LabelProvider labelProvider = new LabelProvider() {
             @Override
             public Image getImage(Object element) {
-                return PydevPlugin.getImageCache().get(UIConstants.PY_INTERPRETER_ICON);
+                return ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.PY_INTERPRETER_ICON));
             }
 
             @Override

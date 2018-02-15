@@ -50,6 +50,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.structure.OrderedMap;
+import org.python.pydev.shared_core.structure.Tuple;
 
 import junit.framework.TestCase;
 
@@ -1096,6 +1097,11 @@ public class StringSubstitutionTest extends TestCase {
 
             @Override
             public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException {
+                throw new RuntimeException("Not implemented");
+            }
+
+            @Override
+            public Tuple<String, String> getVersionAndError(boolean translateIfInterpreter) throws CoreException {
                 throw new RuntimeException("Not implemented");
             }
         });

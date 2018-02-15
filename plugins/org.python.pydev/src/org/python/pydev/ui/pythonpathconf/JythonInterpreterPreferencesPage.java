@@ -13,8 +13,8 @@ package org.python.pydev.ui.pythonpathconf;
 
 import org.eclipse.jface.preference.DirectoryFieldEditor;
 import org.eclipse.swt.widgets.Composite;
+import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.plugin.PydevPlugin;
 
 public class JythonInterpreterPreferencesPage extends AbstractInterpreterPreferencesPage {
 
@@ -36,7 +36,7 @@ public class JythonInterpreterPreferencesPage extends AbstractInterpreterPrefere
      */
     @Override
     protected AbstractInterpreterEditor getInterpreterEditor(Composite p) {
-        return new JythonInterpreterEditor(getInterpretersTitle(), p, PydevPlugin.getJythonInterpreterManager(true));
+        return new JythonInterpreterEditor(getInterpretersTitle(), p, InterpreterManagersAPI.getJythonInterpreterManager(true));
     }
 
     @Override
@@ -48,7 +48,7 @@ public class JythonInterpreterPreferencesPage extends AbstractInterpreterPrefere
 
     @Override
     protected IInterpreterManager getInterpreterManager() {
-        return PydevPlugin.getJythonInterpreterManager(true);
+        return InterpreterManagersAPI.getJythonInterpreterManager(true);
     }
 
 }

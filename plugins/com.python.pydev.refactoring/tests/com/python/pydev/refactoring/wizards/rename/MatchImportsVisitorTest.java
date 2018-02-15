@@ -1,13 +1,15 @@
 package com.python.pydev.refactoring.wizards.rename;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule;
+import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.PythonNatureStub;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
+
+import com.python.pydev.analysis.refactoring.wizards.rename.MatchImportsVisitor;
 
 import junit.framework.TestCase;
 

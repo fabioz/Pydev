@@ -17,8 +17,8 @@ import java.util.Map;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
-import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
-import org.python.pydev.editor.autoedit.TestIndentPrefs;
+import org.python.pydev.core.autoedit.PyAutoIndentStrategy;
+import org.python.pydev.core.autoedit.TestIndentPrefs;
 import org.python.pydev.shared_core.utils.DocCmd;
 
 import junit.framework.TestCase;

@@ -36,9 +36,12 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.jython.ui.JyScriptingPreferencesPage;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.jython.IPythonInterpreter;
+import org.python.pydev.shared_core.jython.JythonPep8Core;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.ConsoleColorCache;
+import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.bundle.BundleInfo;
 import org.python.pydev.shared_ui.bundle.IBundleInfo;
 import org.python.util.PythonInterpreter;
@@ -222,6 +225,10 @@ public class JythonPlugin extends AbstractUIPlugin {
     public void start(BundleContext context) throws Exception {
         super.start(context);
         bundles = context.getBundles();
+        JythonPep8Core.analyzeCallback = (params) -> {
+            JythonPep8.analyzePep8WithJython(params);
+            return null;
+        };
     }
 
     private static final Object lock = new Object();
@@ -462,8 +469,8 @@ public class JythonPlugin extends AbstractUIPlugin {
 
                 if (!regenerate) {
                     //if the 'code' object does not exist or if it's timestamp is outdated, we have to re-set it.
-                    PyObject obj = interpreter.get(codeObjName);
-                    PyObject pyTime = interpreter.get(codeObjTimestampName);
+                    PyObject obj = (PyObject) interpreter.get(codeObjName);
+                    PyObject pyTime = (PyObject) interpreter.get(codeObjTimestampName);
                     if (obj == null || pyTime == null || !pyTime.__tojava__(Long.class).equals(timestamp.o1)) {
                         if (DEBUG) {
                             System.out.println("Resetting object: " + codeObjName);
@@ -580,8 +587,9 @@ public class JythonPlugin extends AbstractUIPlugin {
     private static MessageConsole getConsole() {
         try {
             if (fConsole == null) {
-                fConsole = new MessageConsole("PyDev Scripting", JythonPlugin.getBundleInfo().getImageCache()
-                        .getDescriptor("icons/python_scripting.png"));
+                fConsole = new MessageConsole("PyDev Scripting",
+                        ImageCache.asImageDescriptor(JythonPlugin.getBundleInfo().getImageCache()
+                                .getDescriptor("icons/python_scripting.png")));
 
                 fOutputStream = fConsole.newOutputStream();
                 fErrorStream = fConsole.newOutputStream();

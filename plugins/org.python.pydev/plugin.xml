@@ -9,7 +9,7 @@
             contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
             default="true"
             extensions="py,pyw,pyx,pxd,pxi"
-            icon="icons/python_file.gif"
+            icon="platform:/plugin/org.python.pydev.shared_ui/icons/python_file.gif"
             id="org.python.pydev.editor.PythonEditor"
             name="Python Editor">
          <contentTypeBinding
@@ -21,8 +21,12 @@
    <extension point="org.eclipse.core.runtime.preferences">
       <initializer class="org.python.pydev.builder.pylint.PyLintPrefInitializer"/>
       <initializer class="org.python.pydev.plugin.preferences.PydevPrefsInitializer"/>
-      <initializer class="org.python.pydev.editor.codecompletion.PyCodeCompletionInitializer"/>
    </extension>
+<!-- Analyze file on request through ctrl+2, c -->
+   <extension point="org.python.pydev.pydev_pyedit_listener">
+  		<pyedit_listener_participant class="com.python.pydev.analysis.actions.AnalyzeOnRequestSetter"/>
+   </extension>
+
 <!-- document provider (even for the external files) -->
    <extension point="org.eclipse.ui.editors.documentProviders">
       <provider
@@ -61,20 +65,9 @@
 
 <!-- Python nature -->
    <extension
-         id="pythonNature"
-         name="Python Nature"
-         point="org.eclipse.core.resources.natures">
-      <runtime>
-         <run
-               class="org.python.pydev.plugin.nature.PythonNature">
-         </run>
-      </runtime>
-      <builder id="org.python.pydev.builder"/>
-   </extension>
-   <extension
          point="org.eclipse.ui.ide.projectNatureImages">
       <image
-            icon="icons/pythonNature.gif"
+            icon="platform:/plugin/org.python.pydev.shared_ui/icons/pythonNature.gif"
             natureId="org.python.pydev.pythonNature"
             id="org.python.pydev.ui.projectNatureImage">
       </image>
@@ -108,6 +101,27 @@
 
 
 <!-- PyDev nature/project related actions -->
+
+   <extension point="org.eclipse.ui.popupMenus">
+
+      <!-- Force analysis of tree -->
+      <objectContribution
+            adaptable="true"
+            id="com.python.pydev.analysis.actions.forceCodeAnalysisOnTree"
+            objectClass="org.eclipse.core.resources.IResource">
+         <menu id="org.python.pydev.ui.actions.menu" label="PyDev"/>
+         <action
+               class="com.python.pydev.analysis.actions.ForceCodeAnalysisOnTree"
+               enablesFor="+"
+               id="com.python.pydev.analysis.actions.forceCodeAnalysisOnTree"
+               label="Code analysis"
+               menubarPath="org.python.pydev.ui.actions.menu/pydev"
+               tooltip="Force a code analysis for the selected elements (recursive)">
+         </action>
+         <visibility><objectState name="projectNature" value="org.python.pydev.pythonNature"/></visibility>
+      </objectContribution>
+   </extension>
+
    <extension point="org.eclipse.ui.popupMenus">
 
       <!-- add to PYTHONPATH -->
@@ -121,7 +135,7 @@
                enablesFor="+"
                id="org.python.pydev.ui.actions.container.pyAddNature"
                label="Set as Source Folder (add to PYTHONPATH)"
-               icon="icons/packagefolder_obj.gif"
+               icon="platform:/plugin/org.python.pydev.shared_ui/icons/packagefolder_obj.gif"
                menubarPath="org.python.pydev.ui.actions.menu/pydev"
                tooltip="Include this folder in its project's PYTHONPATH">
          </action>
@@ -139,7 +153,7 @@
                enablesFor="+"
                id="org.python.pydev.ui.actions.container.pyAddNature"
                label="Set as non-source folder (remove from PYTHONPATH)"
-               icon="icons/packagefolder_obj_remove.gif"
+               icon="platform:/plugin/org.python.pydev.shared_ui/icons/packagefolder_obj_remove.gif"
                menubarPath="org.python.pydev.ui.actions.menu/pydev"
                tooltip="Remove this folder from its project's PYTHONPATH">
          </action>
@@ -190,7 +204,7 @@
                enablesFor="+"
                id="org.python.pydev.ui.actions.container.pyOrganizeImportsAction"
                label="Organize Imports ..."
-               icon="icons/new/imp_obj.gif"
+               icon="platform:/plugin/org.python.pydev.shared_ui/icons/new/imp_obj.gif"
                menubarPath="org.python.pydev.ui.actions.menu/pydev"
                tooltip="Organizes imports in the selected python files.">
          </action>
@@ -239,7 +253,7 @@
          <action
                class="org.python.pydev.ui.actions.project.PyRemoveNature"
                enablesFor="1"
-               icon="icons/remove_nature.png"
+               icon="platform:/plugin/org.python.pydev.shared_ui/icons/remove_nature.png"
                id="org.python.pydev.ui.actions.project.pyRemoveNature"
                label="Remove PyDev Project Config"
                menubarPath="org.python.pydev.ui.actions.menu/pydev"
@@ -258,7 +272,7 @@
          <action
                class="org.python.pydev.ui.actions.project.PyAddNature"
                enablesFor="1"
-               icon="icons/python_nature.png"
+               icon="platform:/plugin/org.python.pydev.shared_ui/icons/python_nature.png"
                id="org.python.pydev.ui.actions.project.pyAddNature"
                label="Set as PyDev Project"
                menubarPath="org.python.pydev.ui.actions.menu/pydev"
@@ -335,7 +349,7 @@
       <page
             name="Typing"
             category="org.python.pydev.prefs.editor"
-            class="org.python.pydev.editor.preferences.PydevTypingPrefs"
+            class="org.python.pydev.editor.preferences.PydevTypingPreferencesPage"
             id="org.python.pydev.prefs2">
             <keywordReference id="org.python.pydev.typing"/>
       </page>
@@ -430,7 +444,7 @@
 
       <page
             name="Code Completion"
-            class="org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage"
+            class="org.python.pydev.ast.codecompletion.PyCodeCompletionPreferencesPage"
             category="org.python.pydev.prefs.editor"
             id="org.python.pydev.prefs.PyCodeCompletionPage"/>
       <page
@@ -636,7 +650,7 @@
          <action
                definitionId="org.python.pydev.editor.actions.pyFormatStd"
                label="Format Code"
-               class="org.python.pydev.editor.actions.PyFormatStd"
+               class="org.python.pydev.editor.actions.PyFormatAction"
                menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
                id="org.python.pydev.editor.actions.navigation.pyFormatStd">
          </action>
@@ -660,7 +674,7 @@
                class="org.python.pydev.editor.actions.PyCopyQualifiedName"
                menubarPath="edit/copy"
                id="org.python.pydev.editor.actions.copyqualifiedname"
-               icon="icons/cpyqual_menu.gif">
+               icon="platform:/plugin/org.python.pydev.shared_ui/icons/cpyqual_menu.gif">
          </action>
          <action
                definitionId="org.python.pydev.editor.actions.goToMatchingBracket"
@@ -1094,6 +1108,41 @@
    </extension>
 
 
+<extension point="org.eclipse.ui.perspectiveExtensions">
+    <perspectiveExtension targetID="org.python.pydev.ui.PythonPerspective">
+        <actionSet id="com.python.pydev.navigate.actionSet"/>
+    </perspectiveExtension>
+    <perspectiveExtension targetID="org.eclipse.debug.ui.DebugPerspective">
+        <actionSet id="com.python.pydev.navigate.actionSet"/>
+    </perspectiveExtension>
+</extension>
+
+<extension point="org.eclipse.ui.commands">
+      <command
+            name="Python Show Global Tokens (Global)"
+            description="Python Show Global Tokens (Global)"
+            categoryId="org.python.pydev.ui.category.source"
+            id="com.python.pydev.analysis.actions.pyGlobalsBrowserWorkbench">
+      </command>
+</extension>
+
+<extension point="org.eclipse.ui.contexts">
+      <context
+            description="PyDev view (PyUnit, PyOutline, etc)."
+            id="com.python.pydev.contexts.window"
+            name="PyDev view"
+            parentId="org.eclipse.ui.contexts.window">
+      </context>
+</extension>
+
+<extension point="org.eclipse.ui.bindings">
+      <key
+            sequence="M1+M2+T"
+            contextId="com.python.pydev.contexts.window"
+            commandId="com.python.pydev.analysis.actions.pyGlobalsBrowserWorkbench"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+</extension>
 
 
 <!-- file type extensions for the team (CVS) -->
@@ -1124,15 +1173,6 @@
       <markerResolutionGenerator
             class="org.python.pydev.editor.correctionassist.PyQuickFix"
             markerType="org.eclipse.core.resources.problemmarker"/>
-    </extension>
-<!-- Builder for pydev -->
-    <extension
-         id="PyDevBuilder"
-         name="PyDev Builder"
-         point="org.eclipse.core.resources.builders">
-      <builder>
-         <run class="org.python.pydev.builder.PyDevBuilder"/>
-      </builder>
     </extension>
 <!-- Communicate pylint problems as markers -->
     <extension
@@ -1169,35 +1209,22 @@
                id="org.python.pydev.editor.templates.python.modules"
                name="New Module"/>
     </extension>
-   <extension-point id="pydev_builder" name="PyDev Builder" schema="schema/pydev_builder.exsd"/>
 <!-- extensions -->
 <!-- extensions -->
 <!-- extensions -->
 <!-- extensions -->
 <!-- extensions -->
 <!-- extensions -->
-   <extension-point id="pydev_completion" name="PyDev completion" schema="schema/pydev_completion.exsd"/>
-   <extension-point id="pydev_modules_observer" name="PyDev modules observer" schema="schema/pydev_modules_observer.exsd"/>
-   <extension-point id="pydev_interpreter_observer" name="PyDev Interpreter Observer" schema="schema/pydev_interpreter_observer.exsd"/>
-   <extension-point id="pydev_interpreter_new_custom_entries" name="PyDev Interpreter New Custom Entries" schema="schema/pydev_interpreter_new_custom_entries.exsd"/>
    <extension-point id="pydev_view_created_observer" name="PyDev view created observer" schema="schema/pydev_view_created_observer.exsd"/>
    <extension-point id="pydev_ctrl_1" name="PyDev M11 participant" schema="schema/pydev_ctrl_1.exsd"/>
-   <extension-point id="pydev_simpleassist" name="PyDev Simple Assist" schema="schema/pydev_simpleassist.exsd"/>
    <extension-point id="pydev_organize_imports" name="PyDev Organize Imports" schema="schema/pydev_organize_imports.exsd"/>
-   <extension-point id="pydev_refactoring" name="PyDev Refactoring" schema="schema/pydev_refactoring.exsd"/>
    <extension-point id="pydev_quick_outline" name="PyDev Quick Outline" schema="schema/pydev_quick_outline.exsd"/>
-   <extension-point id="pydev_preferences_provider" name="PyDev Preferences Provider" schema="schema/pydev_preferences_provider.exsd"/>
    <extension-point id="pydev_pyedit_listener" name="PyEdit Listener" schema="schema/pydev_pyedit_listener.exsd"/>
    <extension-point id="pydev_formatter" name="PyDev Formatter" schema="schema/pydev_formatter.exsd"/>
    <extension-point id="pydev_globals_browser" name="PyDev Globals Browser" schema="schema/pydev_globals_browser.exsd"/>
    <extension-point id="pydev_debug_preferences_page" name="PyDev Debug Preferences Page" schema="schema/pydev_debug_preferences_page.exsd"/>
-   <extension-point id="pydev_pythonpath_contrib" name="Python Path Contributor" schema="schema/pydev_pythonpath_contrib.exsd"/>
-   <extension-point id="pydev_manager_observer" name="PyDev code completion manager observer" schema="schema/pydev_manager_observer.exsd"/>
-   <extension-point id="pydev_interpreter_info_builder" name="PyDev interpreter info builder" schema="schema/pydev_interpreter_info_builder.exsd"/>
    <extension-point id="pydev_interpreter_provider" name="PyDev interpreter provider" schema="schema/pydev_interpreter_provider.exsd"/>
-   <extension-point id="pydev_python_module_resolver" name="Python module resolver" schema="schema/pydev_python_module_resolver.exsd"/>
    <extension-point id="pydev_hover2" name="PyDev Hover2" schema="schema/pydev_hover2.exsd"/>
-   <extension-point id="pydev_combiningHover" name="PyDev Combining Hover" schema="schema/pydev_combiningHover.exsd"/>
 <!-- wizards -->
    <extension point="org.eclipse.ui.newWizards">
       <category
@@ -1207,10 +1234,10 @@
             canFinishEarly="false"
             category="org.python.pydev.PythonCategory"
             class="org.python.pydev.ui.wizards.project.PythonProjectWizard"
-            descriptionImage="icons/python_logo.png"
+            descriptionImage="platform:/plugin/org.python.pydev.shared_ui/icons/python_logo.png"
             finalPerspective="org.python.pydev.ui.PythonPerspective"
             hasPages="true"
-            icon="icons/python_16x16.png"
+            icon="platform:/plugin/org.python.pydev.shared_ui/icons/python_16x16.png"
             id="org.python.pydev.ui.wizards.project.PythonProjectWizard"
             name="PyDev Project"
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"
@@ -1221,10 +1248,10 @@
             canFinishEarly="false"
             category="org.python.pydev.PythonCategory"
             class="org.python.pydev.ui.wizards.gettingstarted.PythonGettingStartedWizard"
-            descriptionImage="icons/python_logo.png"
+            descriptionImage="platform:/plugin/org.python.pydev.shared_ui/icons/python_logo.png"
             finalPerspective="org.python.pydev.ui.PythonPerspective"
             hasPages="true"
-            icon="icons/mainfunction.gif"
+            icon="platform:/plugin/org.python.pydev.shared_ui/icons/mainfunction.gif"
             id="org.python.pydev.ui.wizards.gettingstarted.PythonGettingStartedWizard"
             name="PyDev Getting Started"
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"
@@ -1234,10 +1261,10 @@
             canFinishEarly="false"
             category="org.python.pydev.PythonCategory"
             class="org.python.pydev.ui.wizards.files.PythonSourceFolderWizard"
-            descriptionImage="icons/python_logo.png"
+            descriptionImage="platform:/plugin/org.python.pydev.shared_ui/icons/python_logo.png"
             finalPerspective="org.python.pydev.ui.PythonPerspective"
             hasPages="true"
-            icon="icons/packagefolder_obj.gif"
+            icon="platform:/plugin/org.python.pydev.shared_ui/icons/packagefolder_obj.gif"
             id="org.python.pydev.ui.wizards.files.PythonSourceFolderWizard"
             name="&amp;Source Folder"
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"
@@ -1246,10 +1273,10 @@
             canFinishEarly="false"
             category="org.python.pydev.PythonCategory"
             class="org.python.pydev.ui.wizards.files.PythonExistingSourceFolderWizard"
-            descriptionImage="icons/python_logo.png"
+            descriptionImage="platform:/plugin/org.python.pydev.shared_ui/icons/python_logo.png"
             finalPerspective="org.python.pydev.ui.PythonPerspective"
             hasPages="true"
-            icon="icons/packagefolder_obj.gif"
+            icon="platform:/plugin/org.python.pydev.shared_ui/icons/packagefolder_obj.gif"
             id="org.python.pydev.ui.wizards.files.PythonExistingSourceFolderWizard"
             name="&amp;Link to Existing Source"
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"
@@ -1258,10 +1285,10 @@
             canFinishEarly="false"
             category="org.python.pydev.PythonCategory"
             class="org.python.pydev.ui.wizards.files.PythonPackageWizard"
-            descriptionImage="icons/python_logo.png"
+            descriptionImage="platform:/plugin/org.python.pydev.shared_ui/icons/python_logo.png"
             finalPerspective="org.python.pydev.ui.PythonPerspective"
             hasPages="true"
-            icon="icons/package_obj.gif"
+            icon="platform:/plugin/org.python.pydev.shared_ui/icons/package_obj.gif"
             id="org.python.pydev.ui.wizards.files.PythonPackageWizard"
             name="PyDev P&amp;ackage"
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"
@@ -1270,10 +1297,10 @@
             canFinishEarly="false"
             category="org.python.pydev.PythonCategory"
             class="org.python.pydev.ui.wizards.files.PythonModuleWizard"
-            descriptionImage="icons/python_logo.png"
+            descriptionImage="platform:/plugin/org.python.pydev.shared_ui/icons/python_logo.png"
             finalPerspective="org.python.pydev.ui.PythonPerspective"
             hasPages="true"
-            icon="icons/python_file.gif"
+            icon="platform:/plugin/org.python.pydev.shared_ui/icons/python_file.gif"
             id="org.python.pydev.ui.wizards.files.PythonModuleWizard"
             name="PyDev &amp;Module"
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"
@@ -1282,7 +1309,7 @@
    <extension point="org.eclipse.ui.perspectives">
       <perspective
             class="org.python.pydev.ui.perspective.PythonPerspectiveFactory"
-            icon="icons/python_16x16.png"
+            icon="platform:/plugin/org.python.pydev.shared_ui/icons/python_16x16.png"
             id="org.python.pydev.ui.PythonPerspective"
             name="PyDev"/>
    </extension>
@@ -1308,14 +1335,14 @@
                id="org.python.pydev.editor.actions.copyqualifiedname"
                label="Copy Context Qualified Name"
                menubarPath="copy"
-               icon="icons/cpyqual_menu.gif"/>
+               icon="platform:/plugin/org.python.pydev.shared_ui/icons/cpyqual_menu.gif"/>
          <action
                class="org.python.pydev.editor.actions.PyToggleForceTabs"
                definitionId="org.python.pydev.editor.actions.toggleforcetabs"
                id="org.python.pydev.editor.actions.toggleforcetabs"
                label="Toggle force tabs"
                menubarPath="tabs"
-               icon="icons/tabs_active.png"/>
+               icon="platform:/plugin/org.python.pydev.shared_ui/icons/tabs_active.png"/>
       </viewerContribution>
       <viewerContribution
             targetID="#PyEditRulerContext"
@@ -1355,7 +1382,7 @@
         category="org.python.pydev"
         class="org.python.pydev.navigator.ui.PydevPackageExplorer"
         id="org.python.pydev.navigator.view"
-        icon="icons/pydev_package_explorer.gif"
+        icon="platform:/plugin/org.python.pydev.shared_ui/icons/pydev_package_explorer.gif"
         name="PyDev Package Explorer"/>
 </extension>
 
@@ -1424,7 +1451,7 @@
       <navigatorContent
             id="org.python.pydev.navigator.pythoncontent"
             name="PyDev Navigator Content"
-            icon="icons/python_16x16.png"
+            icon="platform:/plugin/org.python.pydev.shared_ui/icons/python_16x16.png"
             contentProvider="org.python.pydev.navigator.PythonModelProvider"
             labelProvider="org.python.pydev.navigator.PythonLabelProvider"
             activeByDefault="true"
@@ -1668,7 +1695,7 @@
    		targetID="org.python.pydev.navigator.view">
     	<action
            class="org.python.pydev.navigator.actions.PySetupCustomFilters"
-           icon="icons/filter.gif"
+           icon="platform:/plugin/org.python.pydev.shared_ui/icons/filter.gif"
            id="org.python.pydev.navigator.actions.PySetupCustomFilters"
            label="Setup custom filters"
            menubarPath="additions"
@@ -1746,7 +1773,7 @@
    </extension>
 
    <extension point="org.python.pydev.pydev_pyedit_listener">
-  		<pyedit_listener_participant class="org.python.pydev.plugin.nature.PyNatureReindexer"/>
+  		<pyedit_listener_participant class="org.python.pydev.editor.actions.PyNatureReindexer"/>
    </extension>
 
 
@@ -1846,7 +1873,7 @@
       <template
             autoinsert="false"
             name="super"
-            icon="icons/template.gif"
+            icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
             description="Call super(current_class, self).current_method()"
             contextTypeId="org.python.pydev.editor.templates.python"
             id="org.python.pydev.editor.templates.python.super">
@@ -1859,7 +1886,7 @@ super(${current_class}, self).${current_method}(${cursor})
       <template
             autoinsert="false"
             name="super_raw"
-            icon="icons/template.gif"
+            icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
             description="Call superclass.current_method(self)"
             contextTypeId="org.python.pydev.editor.templates.python"
             id="org.python.pydev.editor.templates.python.super_raw">
@@ -1873,7 +1900,7 @@ ${superclass}.${current_method}(self${cursor})
       <template
             autoinsert="true"
             name="main"
-            icon="icons/template.gif"
+            icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
             description="Main function pattern."
             contextTypeId="org.python.pydev.editor.templates.python"
             id="org.python.pydev.editor.templates.python.main">
@@ -1887,7 +1914,7 @@ if __name__ == '__main__':
       <template
             autoinsert="true"
             name="ifmain"
-            icon="icons/template.gif"
+            icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
             description="Main function pattern."
             contextTypeId="org.python.pydev.editor.templates.python"
             id="org.python.pydev.editor.templates.python.main">
@@ -1899,7 +1926,7 @@ if __name__ == '__main__':
       <template
             autoinsert="true"
             name="pd"
-            icon="icons/template.gif"
+            icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
             description="pdb"
             contextTypeId="org.python.pydev.editor.templates.python"
             id="org.python.pydev.editor.templates.python.pdb">
@@ -1908,7 +1935,7 @@ if __name__ == '__main__':
       <template
             autoinsert="true"
             name="pydevd"
-            icon="icons/template.gif"
+            icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
             description="pydevd.settrace()"
             contextTypeId="org.python.pydev.editor.templates.python"
             id="org.python.pydev.editor.templates.python.pydevd">
@@ -1918,7 +1945,7 @@ import pydevd;pydevd.settrace()</pattern>
       <template
             autoinsert="true"
             name="pydevd_patch_django_auto_reload"
-            icon="icons/template.gif"
+            icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
             description="pydevd.patch_django_autoreload()"
             contextTypeId="org.python.pydev.editor.templates.python"
             id="org.python.pydev.editor.templates.python.pydevd_patch_django_auto_reload">
@@ -1928,7 +1955,7 @@ import pydevd;pydevd.patch_django_autoreload(patch_remote_debugger=True, patch_s
       <template
             autoinsert="true"
             name="eq"
-            icon="icons/template.gif"
+            icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
             description="equals and not equals"
             contextTypeId="org.python.pydev.editor.templates.python"
             id="org.python.pydev.editor.templates.python.eq">
@@ -1948,7 +1975,7 @@ def __ne__(self, o):
             autoinsert="true"
             contextTypeId="org.python.pydev.editor.templates.python"
             description="Class definition (subclass)"
-            icon="icons/template.gif"
+            icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
             id="org.python.pydev.editor.templates.python.classo"
             name="classs">
          <pattern>class ${class}(${object}):${cursor}</pattern>
@@ -1957,7 +1984,7 @@ def __ne__(self, o):
             autoinsert="true"
             contextTypeId="org.python.pydev.editor.templates.python"
             description="Class definition (simple)"
-            icon="icons/template.gif"
+            icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
             id="org.python.pydev.editor.templates.python.class"
             name="class">
          <pattern>class ${class}:${cursor}</pattern>
@@ -1966,7 +1993,7 @@ def __ne__(self, o):
             autoinsert="true"
             contextTypeId="org.python.pydev.editor.templates.python"
             description="Method definition (class)"
-            icon="icons/template.gif"
+            icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
             id="org.python.pydev.editor.templates.python.defc"
             name="defc">
          <pattern>def ${method}(self):${cursor}</pattern>
@@ -1975,7 +2002,7 @@ def __ne__(self, o):
             autoinsert="true"
             contextTypeId="org.python.pydev.editor.templates.python"
             description="def __init__(self):"
-            icon="icons/template.gif"
+            icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
             id="org.python.pydev.editor.templates.python.ini"
             name="ini">
          <pattern>def __init__(self):${cursor}</pattern>
@@ -1984,7 +2011,7 @@ def __ne__(self, o):
             autoinsert="true"
             contextTypeId="org.python.pydev.editor.templates.python"
             description="def __init__(self, ${params})"
-            icon="icons/template.gif"
+            icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
             id="org.python.pydev.editor.templates.python.init"
             name="inip">
          <pattern>def __init__(self, ${params}):${cursor}</pattern>
@@ -1993,7 +2020,7 @@ def __ne__(self, o):
             autoinsert="true"
             contextTypeId="org.python.pydev.editor.templates.python"
             description="Method definition (class - with parameters)"
-            icon="icons/template.gif"
+            icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
             id="org.python.pydev.editor.templates.python.defp"
             name="defp">
          <pattern>def ${method}(self, ${params}):${cursor}</pattern>
@@ -2001,7 +2028,7 @@ def __ne__(self, o):
       <template
             autoinsert="true"
             name="def"
-            icon="icons/template.gif"
+            icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
             description="Method definition (global)"
             contextTypeId="org.python.pydev.editor.templates.python"
             id="org.python.pydev.editor.templates.python.def">
@@ -2010,7 +2037,7 @@ def __ne__(self, o):
       <template
             autoinsert="true"
             name="print"
-            icon="icons/template.gif"
+            icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
             description="print (considers python 2 or 3)"
             contextTypeId="org.python.pydev.editor.templates.python"
             id="org.python.pydev.editor.templates.python.print">
@@ -2019,7 +2046,7 @@ def __ne__(self, o):
       <template
             autoinsert="true"
             name="printdir"
-            icon="icons/template.gif"
+            icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
             description="print '\n'.join(sorted(dir(value)))"
             contextTypeId="org.python.pydev.editor.templates.python"
             id="org.python.pydev.editor.templates.python.printdir">
@@ -2028,7 +2055,7 @@ def __ne__(self, o):
       <template
             autoinsert="true"
             name="printexc"
-            icon="icons/template.gif"
+            icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
             description="print current traceback"
             contextTypeId="org.python.pydev.editor.templates.python"
             id="org.python.pydev.editor.templates.python.printexc">
@@ -2037,7 +2064,7 @@ def __ne__(self, o):
       <template
             autoinsert="true"
             name="raiseruntimeerror"
-            icon="icons/template.gif"
+            icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
             description="raise RuntimeError('desc')"
             contextTypeId="org.python.pydev.editor.templates.python"
             id="org.python.pydev.editor.templates.python.raiseruntimeerror">
@@ -2046,7 +2073,7 @@ def __ne__(self, o):
       <template
             autoinsert="true"
             name="raise"
-            icon="icons/template.gif"
+            icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
             description="raise"
             contextTypeId="org.python.pydev.editor.templates.python"
             id="org.python.pydev.editor.templates.python.raise">
@@ -2055,7 +2082,7 @@ def __ne__(self, o):
       <template
             autoinsert="false"
             name="testCase"
-            icon="icons/template.gif"
+            icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
             description="Complete test-case module with pyunit"
             contextTypeId="org.python.pydev.editor.templates.python"
             id="org.python.pydev.editor.templates.python.testCase">
@@ -2092,7 +2119,7 @@ template = '''<template
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
    description="%s keyword"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.%s"
    name="%s">
    <pattern>%s ${cursor}</pattern>
@@ -2108,7 +2135,7 @@ for k in keyword.kwlist:
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
    description="and keyword"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.and"
    name="and">
    <pattern>and ${cursor}</pattern>
@@ -2117,7 +2144,7 @@ for k in keyword.kwlist:
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
    description="assert keyword"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.assert"
    name="assert">
    <pattern>assert ${cursor}</pattern>
@@ -2126,7 +2153,7 @@ for k in keyword.kwlist:
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
    description="break keyword"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.break"
    name="break">
    <pattern>break${cursor}</pattern>
@@ -2135,7 +2162,7 @@ for k in keyword.kwlist:
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
    description="continue keyword"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.continue"
    name="continue">
    <pattern>continue${cursor}</pattern>
@@ -2144,7 +2171,7 @@ for k in keyword.kwlist:
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
    description="del keyword"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.del"
    name="del">
    <pattern>del ${cursor}</pattern>
@@ -2153,7 +2180,7 @@ for k in keyword.kwlist:
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
    description="elif keyword"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.elif"
    name="elif">
    <pattern>elif${cursor}</pattern>
@@ -2162,7 +2189,7 @@ for k in keyword.kwlist:
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
    description="else keyword"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.else"
    name="else">
    <pattern>else${cursor}</pattern>
@@ -2172,7 +2199,7 @@ for k in keyword.kwlist:
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
    description="except keyword"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.except"
    name="except">
    <pattern>except${cursor}:</pattern>
@@ -2181,7 +2208,7 @@ for k in keyword.kwlist:
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
    description="exec keyword"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.exec"
    name="exec">
    <pattern>exec ${cursor}</pattern>
@@ -2190,7 +2217,7 @@ for k in keyword.kwlist:
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
    description="finally keyword"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.finally"
    name="finally">
    <pattern>finally:${cursor}</pattern>
@@ -2200,7 +2227,7 @@ for k in keyword.kwlist:
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
    description="for keyword"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.for"
    name="for">
    <pattern>for ${cursor}:</pattern>
@@ -2209,7 +2236,7 @@ for k in keyword.kwlist:
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
    description="from keyword"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.from"
    name="from">
    <pattern>from ${cursor}</pattern>
@@ -2218,7 +2245,7 @@ for k in keyword.kwlist:
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
    description="global keyword"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.global"
    name="global">
    <pattern>global ${cursor}</pattern>
@@ -2228,7 +2255,7 @@ for k in keyword.kwlist:
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
    description="if keyword"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.if"
    name="if">
    <pattern>if ${cursor}:</pattern>
@@ -2238,7 +2265,7 @@ for k in keyword.kwlist:
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
    description="import keyword"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.import"
    name="import">
    <pattern>import ${cursor}</pattern>
@@ -2248,7 +2275,7 @@ for k in keyword.kwlist:
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
    description="in keyword"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.in"
    name="in">
    <pattern>in ${cursor}</pattern>
@@ -2257,7 +2284,7 @@ for k in keyword.kwlist:
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
    description="is keyword"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.is"
    name="is">
    <pattern>is ${cursor}</pattern>
@@ -2267,7 +2294,7 @@ for k in keyword.kwlist:
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
    description="lambda keyword"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.lambda"
    name="lambda">
    <pattern>lambda ${args}:${cursor}</pattern>
@@ -2276,7 +2303,7 @@ for k in keyword.kwlist:
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
    description="not keyword"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.not"
    name="not">
    <pattern>not ${cursor}</pattern>
@@ -2286,7 +2313,7 @@ for k in keyword.kwlist:
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
    description="or keyword"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.or"
    name="or">
    <pattern>or ${cursor}</pattern>
@@ -2296,7 +2323,7 @@ for k in keyword.kwlist:
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
    description="pass keyword"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.pass"
    name="pass">
    <pattern>pass${cursor}</pattern>
@@ -2305,7 +2332,7 @@ for k in keyword.kwlist:
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
    description="return keyword"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.return"
    name="return">
    <pattern>return ${cursor}</pattern>
@@ -2315,7 +2342,7 @@ for k in keyword.kwlist:
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
    description="try keyword"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.try"
    name="try">
    <pattern>try:${cursor}</pattern>
@@ -2325,7 +2352,7 @@ for k in keyword.kwlist:
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
    description="while keyword"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.while"
    name="while">
    <pattern>while ${cursor}:</pattern>
@@ -2334,7 +2361,7 @@ for k in keyword.kwlist:
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
    description="yield keyword"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.yield"
    name="yield">
    <pattern>yield ${cursor}</pattern>
@@ -2343,7 +2370,7 @@ for k in keyword.kwlist:
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
    description="property creation from inner methods"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.property_inner"
    name="property_inner">
    <pattern>def ${prop}(): #@NoSelf
@@ -2366,7 +2393,7 @@ ${prop} = property(**${prop}())${cursor}</pattern>
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
    description="encoding comment"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.encoding.comment"
    name="cod">
    <pattern># encoding: ${word_selection}</pattern>
@@ -2375,7 +2402,7 @@ ${prop} = property(**${prop}())${cursor}</pattern>
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python"
    description="encoding comment: utf-8"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.encoding.comment.utf8"
    name="codu8">
    <pattern># encoding: utf-8</pattern>
@@ -2392,7 +2419,7 @@ ${prop} = property(**${prop}())${cursor}</pattern>
    autoinsert="false"
    contextTypeId="org.python.pydev.editor.templates.python.modules"
    description="Module: Unittest with setUp and tearDown"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.module.setup_and_teardown"
    name="Module: Unittest with setUp and tearDown">
    <pattern>'''
@@ -2432,7 +2459,7 @@ if __name__ == "__main__":
    autoinsert="false"
    contextTypeId="org.python.pydev.editor.templates.python.modules"
    description="Module: Main"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.module.main"
    name="Module: Main">
    <pattern>'''
@@ -2457,7 +2484,7 @@ if __name__ == '__main__':
    autoinsert="false"
    contextTypeId="org.python.pydev.editor.templates.python.modules"
    description="Module: Class"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.module.class"
    name="Module: Class">
    <pattern>'''
@@ -2490,7 +2517,7 @@ class ${MyClass}(${object}):
    autoinsert="false"
    contextTypeId="org.python.pydev.editor.templates.python.modules"
    description="Module: Empty"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.module.empty"
    name="&lt;Empty&gt;">
    <pattern>'''
@@ -2511,7 +2538,7 @@ ${cursor}
    autoinsert="false"
    contextTypeId="org.python.pydev.editor.templates.python.modules"
    description="Module: Unittest"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.module.unittest"
    name="Module: Unittest">
    <pattern>'''
@@ -2545,7 +2572,7 @@ if __name__ == "__main__":
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python.modules"
    description="Module: Command line tool skeleton using argparse (suitable for Python 2.7+)"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.module.cli.argparse"
    name="Module: CLI (argparse)">
    <pattern>#!/usr/local/bin/python2.7
@@ -2696,7 +2723,7 @@ if __name__ == "__main__":
    autoinsert="true"
    contextTypeId="org.python.pydev.editor.templates.python.modules"
    description="Module: Command line tool skeleton using optparse (suitable for Python &lt; 2.6)"
-   icon="icons/template.gif"
+   icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
    id="org.python.pydev.editor.templates.python.module.cli.optparse"
    name="Module: CLI (optparse)">
    <pattern>#!/usr/bin/env python
@@ -2874,4 +2901,266 @@ if __name__ == "__main__":
             priority="10"> <!-- Marker hover should appear first -->
       </pyTextHover>
    </extension>
+
+
+   <extension point="org.python.pydev.pydev_quick_outline">
+   		<quick_outline_participant class="com.python.pydev.actions.PyShowOutline"/>
+   </extension>
+
+<!-- command: hierarchy view (F4)-->
+   <extension point="org.eclipse.ui.commands">
+      <command
+            description="Show the class hierarchy for a python class"
+            id="com.python.pydev.actions.pyShowHierarchy"
+            categoryId="org.python.pydev.ui.category.source"
+            name="Show Python Class Hierarchy">
+      </command>
+   </extension>
+<!-- binding: hierarchy view (F4)-->
+   <extension point="org.eclipse.ui.bindings">
+      <key
+            sequence="F4"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="com.python.pydev.actions.pyShowHierarchy"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+   </extension>
+<!-- action: hierarchy view (F4)-->
+   <extension point="org.eclipse.ui.editorActions">
+      <editorContribution
+            targetID="org.python.pydev.editor.PythonEditor"
+            id="org.python.pydev.editor.editorContribution">
+         <action
+               definitionId="com.python.pydev.actions.pyShowHierarchy"
+               label="Show Python Class Hierarchy"
+               class="com.python.pydev.actions.PyShowHierarchy"
+               id="com.python.pydev.actions.pyShowHierarchy">
+         </action>
+      </editorContribution>
+   </extension>
+
+
+<!-- view: hierarchy view-->
+<extension point="org.eclipse.ui.views">
+   <view
+        class="com.python.pydev.ui.hierarchy.PyHierarchyView"
+        icon="platform:/plugin/org.python.pydev.shared_ui/icons/class_hi.gif"
+        category="org.python.pydev"
+        name="Hierarchy View"
+        id="com.python.pydev.ui.hierarchy.PyHierarchyView"/>
+</extension>
+<!-- occurrences annotation-->
+<extension point="org.eclipse.ui.editors.annotationTypes">
+	<type name="com.python.pydev.occurrences"/>
+</extension>
+
+<extension point="org.eclipse.ui.editors.markerAnnotationSpecification">
+	  <specification
+            annotationType="com.python.pydev.occurrences"
+            label="Occurrences (PyDev)"
+            icon="platform:/plugin/org.python.pydev.shared_ui/icons/searchm_obj.gif"
+            textPreferenceKey="pydevOccurrenceIndication"
+            textPreferenceValue="false"
+            textStylePreferenceKey="pydevOccurrenceIndicationTextStyle"
+            textStylePreferenceValue="NONE"
+            highlightPreferenceKey="pydevOccurrenceHighlighting"
+            highlightPreferenceValue="true"
+            contributesToHeader="false"
+            overviewRulerPreferenceKey="pydevOccurrenceIndicationInOverviewRuler"
+            overviewRulerPreferenceValue="true"
+            verticalRulerPreferenceKey="pydevOccurrenceIndicationInVerticalRuler"
+            verticalRulerPreferenceValue="false"
+            colorPreferenceKey="pydevOccurrenceIndicationColor"
+            colorPreferenceValue="255,255,150"
+            presentationLayer="4"
+            showInNextPrevDropdownToolbarActionKey="pydevShowOccurrenceInNextPrevDropdownToolbarAction"
+            showInNextPrevDropdownToolbarAction="true"
+            isGoToNextNavigationTargetKey="pydevIsOccurrenceGoToNextNavigationTarget"
+	        isGoToNextNavigationTarget="true"
+            isGoToPreviousNavigationTargetKey="pydevIsOccurrenceGoToPreviousNavigationTarget"
+	        isGoToPreviousNavigationTarget="true">
+	  </specification>
+</extension>
+<!--
+This was removed because of a bug where multiple interactive consoles were appearing in the toolbar
+(and apparently, it's impossible to remove them, even if this action is removed and the additional
+entries appear to live forever in all perspectives).
+
+This definitely seems an Eclipse bug... I (Fabio) do have some workspaces where the toolbar becomes
+trashed because of it and apparently there's no way to recover and the only solution is creating a new
+workspace or manually removing the com.python.pydev.toolbars.evaluateActionSetterToolbar
+from .metadata/.plugins/org.eclipse.e4.workbench/workbench.xmi.
+
+There's also a bug report with it: https://www.brainwy.com/tracker/PyDev/708
+
+The related image showing the error is at: http://i.stack.imgur.com/IfNFY.png
+
+<extension
+      point="org.eclipse.ui.menus">
+   <menuContribution
+         locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+      <toolbar
+            id="com.python.pydev.toolbars.evaluateActionSetterToolbar">
+         <command
+               commandId="org.python.pydev.interactiveconsole.evaluateActionSetter"
+               icon="platform:/plugin/org.python.pydev.shared_ui/icons/python_16x16.png">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference
+                     definitionId="org.python.pydev.editor.PythonEditor.activeEditor">
+               </reference>
+            </visibleWhen>
+         </command>
+      </toolbar>
+   </menuContribution>
+</extension>
+-->
+
+
+<extension point="org.python.pydev.pydev_view_created_observer">
+      <view_created_observer
+            class="com.python.pydev.analysis.PyContextActivatorViewCreatedObserver">
+      </view_created_observer>
+</extension>
+
+<extension point="org.eclipse.ui.actionSets">
+  <actionSet
+        label="PyDev Navigate"
+        visible="false"
+        id="com.python.pydev.navigate.actionSet">
+     <menu
+           label="P&amp;ydev"
+           id="pyGeneralMenu">
+        <separator name="pyNavigateGroup"/>
+     </menu>
+     <action
+           label="&amp;Globals Browser"
+           icon="icons/opentype.gif"
+           class="com.python.pydev.analysis.actions.PyGlobalsBrowserWorkbench"
+           tooltip="PyDev: Globals Browser"
+           menubarPath="pyGeneralMenu/pyNavigateGroup"
+           toolbarPath="pyNavigateGroup"
+           id="com.python.pydev.analysis.actions.pyGlobalsBrowserWorkbench"
+           definitionId="com.python.pydev.analysis.actions.pyGlobalsBrowserWorkbench"
+           >
+     </action>
+  </actionSet>
+</extension>
+
+   <extension point="org.python.pydev.pydev_globals_browser">
+   		<globals_browser_participant class="com.python.pydev.analysis.actions.PyGlobalsBrowser"/>
+   </extension>
+
+    <extension point="org.python.pydev.pydev_ctrl_1">
+		<ctrl_1_participant class="com.python.pydev.analysis.ctrl_1.AnalysisMarkersParticipants"/>
+   </extension>
+
+   <extension point="org.python.pydev.pydev_ctrl_1">
+		<ctrl_1_participant class="com.python.pydev.analysis.ctrl_1.pylint.PyLintAnalysisMarkersParticipants"/>
+   </extension>
+
+   <extension point="org.python.pydev.pydev_ctrl_1">
+		<ctrl_1_participant class="com.python.pydev.analysis.ctrl_1.DontAnalyzeFileMarkerParticipant"/>
+   </extension>
+
+ <!-- Adds ctrl+2+ - - d -->
+   <extension point="org.python.pydev.pydev_pyedit_listener">
+  		<pyedit_listener_participant class="com.python.pydev.analysis.additionalinfo.AdditionalInfoIntegrityChecker"/>
+   </extension>
+   <extension point="org.python.pydev.pydev_pyedit_listener">
+  		<pyedit_listener_participant class="com.python.pydev.analysis.builder.ClearAnalysisMarkersPyEditListener"/>
+   </extension>
+   <extension point="org.python.pydev.pydev_pyedit_listener">
+  		<pyedit_listener_participant class="com.python.pydev.analysis.builder.PreloadAdditionalInfoPyEditListener"/>
+   </extension>
+   <extension point="org.python.pydev.pydev_pyedit_listener">
+  		<pyedit_listener_participant class="com.python.pydev.analysis.builder.MarkEditorOnSave"/>
+   </extension>
+
+   <extension point="org.python.pydev.pydev_builder">
+   		<builder_participant class="com.python.pydev.analysis.builder.AnalysisBuilderVisitor"/>
+   </extension>
+   <extension point="org.python.pydev.pydev_builder">
+   		<builder_participant class="org.python.pydev.builder.todo.PyTodoVisitor"/>
+   </extension>
+   <extension point="org.python.pydev.pydev_builder">
+   		<builder_participant class="org.python.pydev.builder.syntaxchecker.PySyntaxChecker"/>
+   </extension>
+
+   <extension point="org.python.pydev.parser.pydev_parser_observer">
+   		<parser_observer class="com.python.pydev.analysis.builder.AnalysisParserObserver"/>
+   </extension>
+
+
+
+ <!-- search page-->
+   <extension
+         point="org.eclipse.search.searchPages">
+      <page
+            canSearchEnclosingProjects="false"
+            class="com.python.pydev.analysis.search_index.PySearchIndexPage"
+            extensions="py:90, pyw:90"
+            icon="icons/python_file.gif"
+            id="com.python.pydev.analysis.search_index.PySearchIndexPage"
+            label="PyDev Search"
+            showScopeSection="false"/>
+   </extension>
+   <extension
+         id="com.python.pydev.analysis.search_index.SearchIndexResultPage"
+         point="org.eclipse.search.searchResultViewPages">
+      <viewPage
+            class="com.python.pydev.analysis.search_index.PySearchIndexResultPage"
+            id="com.python.pydev.analysis.search_index.SearchIndexResultPage"
+            label="PyDev Search Result"
+            searchResultClass="com.python.pydev.analysis.search_index.PySearchResult"/>
+   </extension>
+
+
+<!-- organize imports participant -->
+   <extension point="org.python.pydev.pydev_organize_imports">
+		<organize_imports_participant class="com.python.pydev.analysis.organizeimports.OrganizeImports"/>
+   </extension>
+
+
+<!-- view: indexing info -->
+<extension point="org.eclipse.ui.views">
+   <view
+        class="com.python.pydev.analysis.indexview.PyIndexView"
+        icon="icons/opentype.gif"
+        category="org.python.pydev"
+        name="Index View"
+        id="com.python.pydev.analysis.indexview.PyIndexView"/>
+</extension>
+
+   <extension point="org.eclipse.ui.preferencePages">
+      <page
+            class="com.python.pydev.codecompletion.ui.CodeCompletionPreferencesPage"
+            category="org.python.pydev.prefs.editor"
+            id="org.python.pydev.prefs.extensions.codecompletion"
+            name="Code Completion (ctx insensitive and common tokens)"/>
+   </extension>
+
+
+    <extension point="org.eclipse.ui.keywords" name="Analysis Preferences">
+        <keyword id="com.python.pydev.analysis.keywords"  label="pep8 pycodestyle builtins globals tokens"/>
+    </extension>
+
+   <extension point="org.eclipse.ui.preferencePages">
+      <page
+            class="com.python.pydev.analysis.ui.AnalysisPreferencesPage"
+            category="org.python.pydev.prefs.editor"
+            id="org.python.pydev.prefs.extensions.analysis"
+            name="Code Analysis">
+            <keywordReference id="com.python.pydev.analysis.keywords"/>
+      </page>
+   </extension>
+
+   <extension point="org.eclipse.ui.preferencePages">
+      <page
+            class="com.python.pydev.analysis.ui.AutoImportsPreferencesPage"
+            category="org.python.pydev.prefs.editor"
+            id="org.python.pydev.prefs.extensions.autoimports"
+            name="Auto Imports"/>
+   </extension>
+
  </plugin>

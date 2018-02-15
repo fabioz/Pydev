@@ -79,6 +79,7 @@ import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
 import org.eclipse.ui.texteditor.MarkerUtilities;
+import org.python.pydev.ast.location.FindWorkspaceFiles;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks;
 import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks.CreatedCommandLineParams;
@@ -857,7 +858,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
                         File file = new File(files[0]);
                         if (file.isDirectory()) {
                             PySourceLocatorBase locator = new PySourceLocatorBase();
-                            IContainer container = locator.getContainerForLocation(
+                            IContainer container = FindWorkspaceFiles.getContainerForLocation(
                                     Path.fromOSString(file.getAbsolutePath()), null);
                             if (container != null && container.exists()) {
                                 setSelectedContainer(container);

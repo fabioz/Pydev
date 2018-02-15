@@ -7,10 +7,10 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
+import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
 import org.python.pydev.core.IInterpreterInfo.UnableToFindExecutableException;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.string.WrapAndCaseUtils;
-import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 public abstract class AbstractPackageManager {
 

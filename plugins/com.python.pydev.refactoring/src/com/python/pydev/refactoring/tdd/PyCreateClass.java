@@ -8,16 +8,16 @@ package com.python.pydev.refactoring.tdd;
 
 import java.util.List;
 
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
 /**
- * This class should be used to generate code for creating a new class. 
+ * This class should be used to generate code for creating a new class.
  */
 public class PyCreateClass extends AbstractPyCreateClassOrMethodOrField {
 
@@ -47,7 +47,8 @@ public class PyCreateClass extends AbstractPyCreateClassOrMethodOrField {
      * Returns a proposal that can be used to generate the code.
      */
     @Override
-    public ICompletionProposal createProposal(RefactoringInfo refactoringInfo, String actTok, int locationStrategy,
+    public ICompletionProposalHandle createProposal(RefactoringInfo refactoringInfo, String actTok,
+            int locationStrategy,
             List<String> parametersAfterCall) {
         PySelection pySelection = refactoringInfo.getPySelection();
         ModuleAdapter moduleAdapter = refactoringInfo.getModuleAdapter();

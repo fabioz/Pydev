@@ -17,9 +17,9 @@ import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.debug.internal.ui.views.console.ProcessConsole;
 import org.eclipse.debug.ui.console.IConsoleLineTracker;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.quickassist.IQuickAssistProcessor;
 import org.eclipse.jface.text.quickassist.QuickAssistAssistant;
@@ -36,7 +36,9 @@ import org.eclipse.ui.console.IConsoleDocumentPartitioner;
 import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.console.TextConsole;
 import org.eclipse.ui.part.IPageBookViewPage;
+import org.python.pydev.core.autoedit.IHandleScriptAutoEditStrategy;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.Reflection;
 import org.python.pydev.shared_interactive_console.console.IScriptConsoleCommunication;
@@ -45,7 +47,6 @@ import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
 import org.python.pydev.shared_interactive_console.console.ScriptConsoleHistory;
 import org.python.pydev.shared_interactive_console.console.ScriptConsolePrompt;
 import org.python.pydev.shared_interactive_console.console.ui.internal.ICommandHandler;
-import org.python.pydev.shared_interactive_console.console.ui.internal.IHandleScriptAutoEditStrategy;
 import org.python.pydev.shared_interactive_console.console.ui.internal.ScriptConsolePage;
 import org.python.pydev.shared_interactive_console.console.ui.internal.ScriptConsoleSession;
 import org.python.pydev.shared_interactive_console.console.ui.internal.ScriptConsoleViewer;
@@ -77,6 +78,11 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
     // Backward-compatibility
     public static ScriptConsole getActiveScriptConsole(String ignored) {
         return getActiveScriptConsole();
+    }
+
+    @Override
+    public IDocument getDocument() {
+        return super.getDocument();
     }
 
     public static Iterable<IConsoleView> iterConsoles() {
@@ -340,14 +346,15 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
      * Fetch the current completions for the content presented in the user's ipython console
      */
     @Override
-    public ICompletionProposal[] getTabCompletions(String commandLine, int cursorPosition) {
+    public ICompletionProposalHandle[] getTabCompletions(String commandLine, int cursorPosition) {
         try {
-            ICompletionProposal[] completions = interpreter.getCompletions(viewer.get(), commandLine, cursorPosition,
+            ICompletionProposalHandle[] completions = interpreter.getCompletions(viewer.get(), commandLine,
+                    cursorPosition,
                     cursorPosition, AbstractCompletionProcessorWithCycling.SHOW_FOR_TAB_COMPLETIONS);
             return completions;
         } catch (Exception e) {
         }
-        return new ICompletionProposal[0];
+        return new ICompletionProposalHandle[0];
     }
 
     /**

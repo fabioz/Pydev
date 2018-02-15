@@ -11,40 +11,17 @@
  */
 package org.python.pydev.shared_ui.bundle;
 
-import java.io.File;
-
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.osgi.framework.Bundle;
-import org.python.pydev.shared_core.bundle.BundleUtils;
+import org.python.pydev.core.CoreBundleInfo;
 import org.python.pydev.shared_ui.ImageCache;
 
 /**
  * @author Fabio Zadrozny
  */
-public class BundleInfo implements IBundleInfo {
-
-    private Bundle bundle;
+public class BundleInfo extends CoreBundleInfo implements IBundleInfo {
 
     public BundleInfo(Bundle bundle) {
-        this.bundle = bundle;
-    }
-
-    /**
-     * @throws CoreException
-     * @see org.python.pydev.shared_ui.bundle.IBundleInfo#getRelativePath(org.eclipse.core.runtime.IPath)
-     */
-    @Override
-    public File getRelativePath(IPath relative) throws CoreException {
-        return BundleUtils.getRelative(relative, bundle);
-    }
-
-    /**
-     * @see org.python.pydev.shared_ui.bundle.IBundleInfo#getPluginID()
-     */
-    @Override
-    public String getPluginID() {
-        return bundle.getSymbolicName();
+        super(bundle);
     }
 
     private ImageCache imageCache;

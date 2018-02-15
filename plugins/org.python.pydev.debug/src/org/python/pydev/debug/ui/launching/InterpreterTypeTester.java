@@ -7,10 +7,10 @@
 package org.python.pydev.debug.ui.launching;
 
 import org.eclipse.core.expressions.PropertyTester;
+import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
 
 
 public class InterpreterTypeTester extends PropertyTester {
@@ -21,11 +21,11 @@ public class InterpreterTypeTester extends PropertyTester {
         String str = expectedValue.toString();
 
         if ("python".equals(str)) {
-            interpreterManager = PydevPlugin.getPythonInterpreterManager();
+            interpreterManager = InterpreterManagersAPI.getPythonInterpreterManager();
         } else if ("jython".equals(str)) {
-            interpreterManager = PydevPlugin.getJythonInterpreterManager();
+            interpreterManager = InterpreterManagersAPI.getJythonInterpreterManager();
         } else if ("ironpython".equals(str)) {
-            interpreterManager = PydevPlugin.getIronpythonInterpreterManager();
+            interpreterManager = InterpreterManagersAPI.getIronpythonInterpreterManager();
         } else {
             Log.log("Unable to check for: " + expectedValue);
         }

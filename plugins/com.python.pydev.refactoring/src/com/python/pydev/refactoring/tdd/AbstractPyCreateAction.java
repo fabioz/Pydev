@@ -13,17 +13,16 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.ErrorDialog;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.texteditor.ITextEditor;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.PyEdit;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
+import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_ui.EditorUtils;
-
 
 public abstract class AbstractPyCreateAction extends Action implements IEditorActionDelegate {
 
@@ -31,13 +30,13 @@ public abstract class AbstractPyCreateAction extends Action implements IEditorAc
     public static final int LOCATION_STRATEGY_END = 1; //end of file or end of class
     public static final int LOCATION_STRATEGY_FIRST_METHOD = 2; //In a class as the first method
 
-    protected PyEdit targetEditor;
+    protected IPyEdit targetEditor;
 
     @Override
     public void setActiveEditor(IAction action, IEditorPart targetEditor) {
         if (targetEditor instanceof ITextEditor) {
-            if (targetEditor instanceof PyEdit) {
-                this.targetEditor = (PyEdit) targetEditor;
+            if (targetEditor instanceof IPyEdit) {
+                this.targetEditor = (IPyEdit) targetEditor;
             } else {
                 this.targetEditor = null;
                 Log.log(new RuntimeException("Editor not a PyEdit."));
@@ -56,7 +55,7 @@ public abstract class AbstractPyCreateAction extends Action implements IEditorAc
     @Override
     public void run(IAction action) {
         if (targetEditor == null) {
-            Status status = PydevPlugin.makeStatus(IStatus.ERROR, "Unable to do refactoring.", null);
+            Status status = SharedCorePlugin.makeStatus(IStatus.ERROR, "Unable to do refactoring.", null);
             ErrorDialog.openError(EditorUtils.getShell(), "Unable to do refactoring.",
                     "Target editor is null (not PyEdit).", status);
             return;
@@ -72,14 +71,14 @@ public abstract class AbstractPyCreateAction extends Action implements IEditorAc
                 e = e.getCause();
             }
             //get the root cause
-            Status status = PydevPlugin.makeStatus(IStatus.ERROR, "Error making refactoring", initial);
+            Status status = SharedCorePlugin.makeStatus(IStatus.ERROR, "Error making refactoring", initial);
             ErrorDialog.openError(EditorUtils.getShell(), "Error making refactoring", e.getMessage(), status);
         }
     }
 
     public abstract void execute(RefactoringInfo refactoringInfo, int locationStrategyBeforeCurrent);
 
-    public abstract ICompletionProposal createProposal(RefactoringInfo refactoringInfo, String actTok,
+    public abstract ICompletionProposalHandle createProposal(RefactoringInfo refactoringInfo, String actTok,
             int locationStrategy, List<String> parametersAfterCall);
 
 }

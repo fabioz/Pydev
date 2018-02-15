@@ -23,10 +23,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
-import org.python.pydev.core.docutils.PythonPairMatcher;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.preferences.PydevEditorPrefs;
-import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.core.preferences.PydevPrefs;
+import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
 import org.python.pydev.shared_core.parsing.IParserObserver;
 import org.python.pydev.shared_ui.editor.BaseEditor;
 
@@ -51,7 +50,8 @@ public abstract class PyEditProjection extends BaseEditor implements IParserObse
     @Override
     protected ISourceViewer createSourceViewer(Composite parent, IVerticalRuler ruler, int styles) {
         IOverviewRuler overviewRuler = getOverviewRuler();
-        PySourceViewer viewer = new PySourceViewer(parent, ruler, overviewRuler, isOverviewRulerVisible(), styles, this);
+        PySourceViewer viewer = new PySourceViewer(parent, ruler, overviewRuler, isOverviewRulerVisible(), styles,
+                this);
 
         //ensure decoration support has been created and configured.
         getSourceViewerDecorationSupport(viewer);
@@ -65,14 +65,14 @@ public abstract class PyEditProjection extends BaseEditor implements IParserObse
 
     protected final static char[] BRACKETS = { '{', '}', '(', ')', '[', ']' };
 
-    protected PythonPairMatcher fBracketMatcher = new PythonPairMatcher(BRACKETS);
+    protected PythonPairCharacterMatcher fBracketMatcher = new PythonPairCharacterMatcher(BRACKETS);
 
     @Override
     protected void configureSourceViewerDecorationSupport(SourceViewerDecorationSupport support) {
         super.configureSourceViewerDecorationSupport(support);
         support.setCharacterPairMatcher(fBracketMatcher);
-        support.setMatchingCharacterPainterPreferenceKeys(PydevEditorPrefs.USE_MATCHING_BRACKETS,
-                PydevEditorPrefs.MATCHING_BRACKETS_COLOR);
+        support.setMatchingCharacterPainterPreferenceKeys(PyDevEditorPreferences.USE_MATCHING_BRACKETS,
+                PyDevEditorPreferences.MATCHING_BRACKETS_COLOR);
     }
 
     @Override
@@ -104,7 +104,8 @@ public abstract class PyEditProjection extends BaseEditor implements IParserObse
      * @return
      */
     public static boolean isFoldingEnabled() {
-        return PydevPrefs.getPreferences().getBoolean(PyDevCodeFoldingPrefPage.USE_CODE_FOLDING);
+        return PydevPrefs.getEclipsePreferences().getBoolean(PyDevCodeFoldingPrefPage.USE_CODE_FOLDING,
+                PyDevCodeFoldingPrefPage.DEFAULT_USE_CODE_FOLDING);
     }
 
     @Override

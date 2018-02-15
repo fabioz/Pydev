@@ -10,6 +10,7 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IInformationControlCreator;
@@ -18,23 +19,25 @@ import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.reconciler.IReconciler;
 import org.eclipse.jface.text.reconciler.IReconcilingStrategy;
 import org.eclipse.jface.text.reconciler.MonoReconciler;
-import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IIndentPrefs;
+import org.python.pydev.core.IPyEditConfigurationWithoutEditor;
 import org.python.pydev.core.IPythonPartitions;
+import org.python.pydev.core.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
-import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.utils.IDocumentCommand;
 import org.python.pydev.ui.ColorAndStyleCache;
 
-public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfiguration {
+public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfiguration
+        implements IPyEditConfigurationWithoutEditor {
 
     private ColorAndStyleCache colorCache;
 
@@ -61,6 +64,8 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
     private final Object lock = new Object();
 
     private IGrammarVersionProvider grammarVersionProvider;
+
+    private IAutoEditStrategy autoEditStrategyWrapper;
 
     public PyEditConfigurationWithoutEditor(ColorAndStyleCache colorManager, IPreferenceStore preferenceStore,
             IGrammarVersionProvider grammarVersionProvider) {
@@ -115,7 +120,64 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
      */
     @Override
     public IAutoEditStrategy[] getAutoEditStrategies(ISourceViewer sourceViewer, String contentType) {
-        return new IAutoEditStrategy[] { getPyAutoIndentStrategy(null) };
+        if (autoEditStrategyWrapper == null) {
+            final PyAutoIndentStrategy pyAutoEditStrategy = getPyAutoIndentStrategy(null);
+            autoEditStrategyWrapper = new IAutoEditStrategy() {
+
+                @Override
+                public void customizeDocumentCommand(IDocument document, final DocumentCommand command) {
+                    IDocumentCommand wrapper = new IDocumentCommand() {
+
+                        @Override
+                        public void setText(String string) {
+                            command.text = string;
+                        }
+
+                        @Override
+                        public void setShiftsCaret(boolean b) {
+                            command.shiftsCaret = b;
+                        }
+
+                        @Override
+                        public void setOffset(int i) {
+                            command.offset = i;
+                        }
+
+                        @Override
+                        public void setLength(int i) {
+                            command.length = i;
+                        }
+
+                        @Override
+                        public void setCaretOffset(int i) {
+                            command.caretOffset = i;
+                        }
+
+                        @Override
+                        public String getText() {
+                            return command.text;
+                        }
+
+                        @Override
+                        public int getOffset() {
+                            return command.offset;
+                        }
+
+                        @Override
+                        public int getLength() {
+                            return command.length;
+                        }
+
+                        @Override
+                        public boolean getDoIt() {
+                            return command.doit;
+                        }
+                    };
+                    pyAutoEditStrategy.customizeDocumentCommand(document, wrapper);
+                }
+            };
+        }
+        return new IAutoEditStrategy[] { autoEditStrategyWrapper };
     }
 
     @Override
@@ -220,9 +282,9 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
                 reconciler = new PyPresentationReconciler();
                 reconciler.setDocumentPartitioning(IPythonPartitions.PYTHON_PARTITION_TYPE);
 
-                DefaultDamagerRepairer dr;
+                PyDefaultDamagerRepairer dr;
 
-                // DefaultDamagerRepairer implements both IPresentationDamager, IPresentationRepairer
+                // PyDefaultDamagerRepairer implements both IPresentationDamager, IPresentationRepairer
                 // IPresentationDamager::getDamageRegion does not scan, just
                 // returns the intersection of document event, and partition region
                 // IPresentationRepairer::createPresentation scans
@@ -231,20 +293,20 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
                 // We need to cover all the content types from PyPartitionScanner
 
                 // Comments have uniform color
-                commentScanner = new PyColoredScanner(colorCache, PydevEditorPrefs.COMMENT_COLOR);
-                dr = new DefaultDamagerRepairer(commentScanner);
+                commentScanner = new PyColoredScanner(colorCache, PyDevEditorPreferences.COMMENT_COLOR);
+                dr = new PyDefaultDamagerRepairer(commentScanner);
                 reconciler.setDamager(dr, IPythonPartitions.PY_COMMENT);
                 reconciler.setRepairer(dr, IPythonPartitions.PY_COMMENT);
 
                 // Backquotes have uniform color
-                backquotesScanner = new PyColoredScanner(colorCache, PydevEditorPrefs.BACKQUOTES_COLOR);
-                dr = new DefaultDamagerRepairer(backquotesScanner);
+                backquotesScanner = new PyColoredScanner(colorCache, PyDevEditorPreferences.BACKQUOTES_COLOR);
+                dr = new PyDefaultDamagerRepairer(backquotesScanner);
                 reconciler.setDamager(dr, IPythonPartitions.PY_BACKQUOTES);
                 reconciler.setRepairer(dr, IPythonPartitions.PY_BACKQUOTES);
 
                 // Strings have uniform color
                 stringScanner = new PyStringScanner(colorCache);
-                dr = new DefaultDamagerRepairer(stringScanner);
+                dr = new PyDefaultDamagerRepairer(stringScanner);
                 reconciler.setDamager(dr, IPythonPartitions.PY_SINGLELINE_BYTES1);
                 reconciler.setRepairer(dr, IPythonPartitions.PY_SINGLELINE_BYTES1);
                 reconciler.setDamager(dr, IPythonPartitions.PY_SINGLELINE_BYTES2);
@@ -271,7 +333,7 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
                 reconciler.setRepairer(dr, IPythonPartitions.PY_MULTILINE_FSTRING2);
 
                 unicodeScanner = new PyUnicodeScanner(colorCache);
-                dr = new DefaultDamagerRepairer(unicodeScanner);
+                dr = new PyDefaultDamagerRepairer(unicodeScanner);
                 reconciler.setDamager(dr, IPythonPartitions.PY_SINGLELINE_UNICODE1);
                 reconciler.setRepairer(dr, IPythonPartitions.PY_SINGLELINE_UNICODE1);
                 reconciler.setDamager(dr, IPythonPartitions.PY_SINGLELINE_UNICODE2);
@@ -283,7 +345,7 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
                 reconciler.setRepairer(dr, IPythonPartitions.PY_MULTILINE_UNICODE2);
 
                 bytesOrUnicodeScanner = new PyBytesOrUnicodeScanner(colorCache, grammarVersionProvider, reconciler);
-                dr = new DefaultDamagerRepairer(bytesOrUnicodeScanner);
+                dr = new PyDefaultDamagerRepairer(bytesOrUnicodeScanner);
                 reconciler.setDamager(dr, IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE1);
                 reconciler.setRepairer(dr, IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE1);
                 reconciler.setDamager(dr, IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE2);
@@ -303,7 +365,7 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
                 } else {
                     codeScanner = new PyCodeScanner(colorCache);
                 }
-                dr = new DefaultDamagerRepairer(codeScanner);
+                dr = new PyDefaultDamagerRepairer(codeScanner);
                 reconciler.setDamager(dr, IDocument.DEFAULT_CONTENT_TYPE);
                 reconciler.setRepairer(dr, IDocument.DEFAULT_CONTENT_TYPE);
             }
@@ -319,7 +381,7 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
      */
     @Override
     public IInformationControlCreator getInformationControlCreator(ISourceViewer sourceViewer) {
-        return PyContentAssistant.createInformationControlCreator(sourceViewer);
+        return new PyInformationControlCreator();
     }
 
     /**

@@ -23,7 +23,6 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentPartitionerExtension2;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.TypedPosition;
-import org.eclipse.jface.text.rules.ICharacterScanner;
 import org.python.pydev.shared_core.log.Log;
 
 /**

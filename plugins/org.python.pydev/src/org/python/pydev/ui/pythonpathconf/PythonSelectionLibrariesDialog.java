@@ -16,8 +16,9 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
-import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_core.image.UIConstants;
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 
 /**
  * @author fabioz
@@ -32,7 +33,7 @@ public final class PythonSelectionLibrariesDialog implements Runnable {
     private static final class LabelProvider implements ILabelProvider {
         @Override
         public Image getImage(Object element) {
-            return PydevPlugin.getImageCache().get(UIConstants.LIB_SYSTEM);
+            return ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.LIB_SYSTEM));
         }
 
         @Override

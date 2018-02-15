@@ -21,8 +21,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -365,7 +365,7 @@ public class PyUnitViewTestsHolder {
      * @return the directory to save the files
      */
     private static File getPyUnitTestsDir() {
-        File workspaceMetadataFile = PydevPlugin.getWorkspaceMetadataFile("pyunit_tests");
+        File workspaceMetadataFile = CorePlugin.getWorkspaceMetadataFile("pyunit_tests");
         if (!workspaceMetadataFile.exists()) {
             workspaceMetadataFile.mkdirs();
         }

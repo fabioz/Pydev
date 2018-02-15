@@ -44,12 +44,13 @@ import org.eclipse.ui.part.ShowInContext;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
+import org.python.pydev.shared_core.image.IImageCache;
+import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.model.ErrorDescription;
 import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.ImageCache;
-import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.editor.BaseEditor;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -62,7 +63,7 @@ public abstract class BaseOutlinePage extends ContentOutlinePageWithFilter imple
     //Important: it must be final (i.e.: never change)
     protected final IOutlineModel model;
 
-    protected final ImageCache imageCache;
+    protected final IImageCache imageCache;
 
     // listeners to rawPartition
     protected ISelectionChangedListener selectionListener;
@@ -79,7 +80,7 @@ public abstract class BaseOutlinePage extends ContentOutlinePageWithFilter imple
 
     protected final String pluginId;
 
-    public BaseOutlinePage(BaseEditor editorView, ImageCache imageCache, String pluginId) {
+    public BaseOutlinePage(BaseEditor editorView, IImageCache imageCache, String pluginId) {
         this.imageCache = imageCache;
         this.editorView = editorView;
         this.pluginId = pluginId;
@@ -133,7 +134,7 @@ public abstract class BaseOutlinePage extends ContentOutlinePageWithFilter imple
         if (selectionListener != null) {
             removeSelectionChangedListener(selectionListener);
         }
-        //Note: not disposing of the image cache (the 'global' one is meant to be used). 
+        //Note: not disposing of the image cache (the 'global' one is meant to be used).
         //        if (imageCache != null) {
         //            imageCache.dispose();
         //        }
@@ -285,9 +286,10 @@ public abstract class BaseOutlinePage extends ContentOutlinePageWithFilter imple
             }
         };
 
-        collapseAll.setImageDescriptor(imageCache.getDescriptor(UIConstants.COLLAPSE_ALL));
+        collapseAll
+                .setImageDescriptor(ImageCache.asImageDescriptor(imageCache.getDescriptor(UIConstants.COLLAPSE_ALL)));
         collapseAll.setId("outline.page.collapse");
-        expandAll.setImageDescriptor(imageCache.getDescriptor(UIConstants.EXPAND_ALL));
+        expandAll.setImageDescriptor(ImageCache.asImageDescriptor(imageCache.getDescriptor(UIConstants.EXPAND_ALL)));
         expandAll.setId("outline.page.expand");
 
         // Add actions to the toolbar

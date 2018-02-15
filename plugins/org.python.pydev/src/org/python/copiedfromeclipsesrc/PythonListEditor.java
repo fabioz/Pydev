@@ -32,9 +32,10 @@ import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.ui.pythonpathconf.InterpreterConfigHelpers;
 
 /**
@@ -44,7 +45,7 @@ import org.python.pydev.ui.pythonpathconf.InterpreterConfigHelpers;
  * Subclasses must implement the <code>parseString</code>,<code>createList</code>, and <code>getNewInputObject</code> framework
  * methods.
  * </p>
- * 
+ *
  * NOTE: COPIED only because we want removePressed to be protected
  */
 public abstract class PythonListEditor extends FieldEditor {
@@ -106,13 +107,13 @@ public abstract class PythonListEditor extends FieldEditor {
      */
     protected PythonListEditor() {
         if (USE_ICONS) {
-            imageInterpreter = PydevPlugin.getImageCache().get(UIConstants.PY_INTERPRETER_ICON);
+            imageInterpreter = ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.PY_INTERPRETER_ICON));
         }
     }
 
     /**
      * Creates a list field editor.
-     * 
+     *
      * @param name the name of the preference this field editor works on
      * @param labelText the label text of the field editor
      * @param parent the parent of the field editor's control
@@ -125,7 +126,7 @@ public abstract class PythonListEditor extends FieldEditor {
 
     /**
      * Notifies that one of the Config buttons (or Add) has been pressed.
-     * 
+     *
      * @param configType the type of configuration to use when creating the new interpreter.
      */
     public void addPressed(int configType) {
@@ -149,7 +150,7 @@ public abstract class PythonListEditor extends FieldEditor {
 
     /**
      * Adds a new tree item to the interpreter tree.
-     * @return 
+     * @return
      */
     protected TreeItem createInterpreterItem(String name, String executable) {
         TreeItem item = new TreeItem(treeWithInterpreters, SWT.NULL);
@@ -170,7 +171,7 @@ public abstract class PythonListEditor extends FieldEditor {
 
     /**
      * Creates the Add, Remove, Up, and Down button in the given button box.
-     * 
+     *
      * @param box the box for the buttons
      */
     private void createButtons(Composite box) {
@@ -183,7 +184,8 @@ public abstract class PythonListEditor extends FieldEditor {
         upButton = createPushButton(box, "ListEditor.up");//$NON-NLS-1$
         downButton = createPushButton(box, "ListEditor.down");//$NON-NLS-1$
         advAutoConfigButton
-                .setToolTipText("Choose from a list of valid interpreters, and select the folders to be in the SYSTEM pythonpath.");
+                .setToolTipText(
+                        "Choose from a list of valid interpreters, and select the folders to be in the SYSTEM pythonpath.");
     }
 
     /**
@@ -195,7 +197,7 @@ public abstract class PythonListEditor extends FieldEditor {
 
     /**
      * Helper method to create a push button.
-     * 
+     *
      * @param parent the parent control
      * @param key the resource name used to supply the button's label text
      * @return Button
@@ -290,7 +292,7 @@ public abstract class PythonListEditor extends FieldEditor {
 
     /**
      * Returns this field editor's button box containing the Add, Remove, Up, and Down button.
-     * 
+     *
      * @param parent the parent control
      * @return the button box
      */
@@ -323,7 +325,7 @@ public abstract class PythonListEditor extends FieldEditor {
 
     /**
      * Returns this field editor's list control.
-     * 
+     *
      * @param parent the parent control
      * @return the list control
      */
@@ -358,7 +360,7 @@ public abstract class PythonListEditor extends FieldEditor {
      * <p>
      * Subclasses must implement this method.
      * </p>
-     * 
+     *
      * @return the name and executable of the new item
      */
     protected abstract Tuple<String, String> getNewInputObject(int configType);
@@ -373,12 +375,13 @@ public abstract class PythonListEditor extends FieldEditor {
 
     /**
      * Returns this field editor's selection listener. The listener is created if nessessary.
-     * 
+     *
      * @return the selection listener
      */
     private SelectionListener getSelectionListener() {
-        if (selectionListener == null)
+        if (selectionListener == null) {
             createSelectionListener();
+        }
         return selectionListener;
     }
 
@@ -387,12 +390,13 @@ public abstract class PythonListEditor extends FieldEditor {
      * <p>
      * This method is internal to the framework; subclassers should not call this method.
      * </p>
-     * 
+     *
      * @return the shell
      */
     protected Shell getShell() {
-        if (addButton == null)
+        if (addButton == null) {
             return null;
+        }
         return addButton.getShell();
     }
 
@@ -459,7 +463,7 @@ public abstract class PythonListEditor extends FieldEditor {
 
     /**
      * Moves the currently selected item up or down.
-     * 
+     *
      * @param up <code>true</code> if the item should move up, and <code>false</code> if it should move down
      */
     private void swap(boolean up) {

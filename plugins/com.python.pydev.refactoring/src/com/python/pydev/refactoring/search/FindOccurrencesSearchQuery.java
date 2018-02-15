@@ -22,22 +22,22 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.search.ui.ISearchResult;
+import org.python.pydev.ast.location.FindWorkspaceFiles;
+import org.python.pydev.ast.refactoring.IPyRefactoring2;
+import org.python.pydev.ast.refactoring.RefactoringRequest;
 import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.refactoring.RefactoringRequest;
-import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
-import com.python.pydev.refactoring.IPyRefactoring2;
-import com.python.pydev.refactoring.actions.PyFindAllOccurrences;
+import com.python.pydev.analysis.refactoring.wizards.rename.AbstractRenameRefactorProcess;
+import com.python.pydev.analysis.refactoring.wizards.rename.DebugFlags;
 import com.python.pydev.refactoring.refactorer.search.AbstractPythonSearchQuery;
 import com.python.pydev.refactoring.refactorer.search.copied.FileMatch;
 import com.python.pydev.refactoring.refactorer.search.copied.LineElement;
-import com.python.pydev.refactoring.wizards.rename.AbstractRenameRefactorProcess;
 
 public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery {
     private static final String DEFAULT_DESCRIPTION = "Workspace";
@@ -66,6 +66,7 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery {
             monitor.beginTask("Searching...", 100);
             req.pushMonitor(monitor);
 
+            FindOccurrencesSearchResult searchResult = (FindOccurrencesSearchResult) getSearchResult();
             Map<Tuple<String, File>, HashSet<ASTEntry>> occurrences;
             try {
                 req.pushMonitor(new SubProgressMonitor(monitor, 80));
@@ -96,7 +97,7 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery {
                             project = nature.getProject();
                         }
 
-                        workspaceFile = new PySourceLocatorBase().getWorkspaceFile(o.getKey().o2, project);
+                        workspaceFile = FindWorkspaceFiles.getWorkspaceFile(o.getKey().o2, project);
                         if (workspaceFile == null) {
                             Log.logInfo(StringUtils.format("Ignoring: %s. "
                                     + "Unable to resolve to a file in the Eclipse workspace.", o.getKey().o2));
@@ -119,7 +120,7 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery {
                         int offset = AbstractRenameRefactorProcess.getOffset(doc, entry);
                         if (!foundOffsets.contains(offset)) {
                             foundOffsets.add(offset);
-                            if (PyFindAllOccurrences.DEBUG_FIND_REFERENCES) {
+                            if (DebugFlags.DEBUG_FIND_REFERENCES) {
                                 System.out.println("Adding match:" + workspaceFile);
                             }
                             PySelection ps = new PySelection(doc, offset);
@@ -128,8 +129,8 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery {
                             int lineStartOffset = ps.getLineOffset(lineNumber);
 
                             LineElement element = new LineElement(workspaceFile, lineNumber, lineStartOffset,
-                                    lineContents);
-                            findOccurrencesSearchResult.addMatch(new FileMatch(workspaceFile, offset, length, element));
+                                    lineContents, offset - lineStartOffset);
+                            searchResult.addMatch(new FileMatch(workspaceFile, offset, length, element));
                         }
                     }
                 }

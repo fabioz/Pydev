@@ -11,6 +11,7 @@ import java.lang.ref.WeakReference;
 import org.eclipse.jface.action.Action;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.shared_core.callbacks.ICallbackListener;
+import org.python.pydev.shared_ui.ImageCache;
 
 /**
  * @author fabioz
@@ -25,7 +26,8 @@ public class RestorePinHistoryAction extends Action implements ICallbackListener
      */
     public RestorePinHistoryAction(PyUnitView pyUnitView) {
         this.view = new WeakReference<PyUnitView>(pyUnitView);
-        this.setImageDescriptor(PydevDebugPlugin.getImageCache().getDescriptor("icons/refresh.png"));
+        this.setImageDescriptor(
+                ImageCache.asImageDescriptor(PydevDebugPlugin.getImageCache().getDescriptor("icons/refresh.png")));
         PyUnitViewTestsHolder.onPinSelected.registerListener(this);
         this.call(PyUnitViewTestsHolder.getCurrentPinned());
     }

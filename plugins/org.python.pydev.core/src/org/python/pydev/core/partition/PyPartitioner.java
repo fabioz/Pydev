@@ -15,13 +15,14 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.TypedRegion;
-import org.eclipse.jface.text.rules.IPartitionTokenScanner;
 import org.python.pydev.core.IPythonPartitions;
+import org.python.pydev.shared_core.partitioner.FastPartitioner;
+import org.python.pydev.shared_core.partitioner.IPartitionTokenScanner;
 
 /**
  * @author Fabio Zadrozny
  */
-public final class PyPartitioner extends org.eclipse.jface.text.rules.FastPartitioner {
+public final class PyPartitioner extends FastPartitioner {
 
     /**
      * @param scanner

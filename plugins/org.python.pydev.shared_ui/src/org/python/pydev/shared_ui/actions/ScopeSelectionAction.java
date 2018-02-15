@@ -21,11 +21,12 @@ import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.Region;
-import org.eclipse.jface.text.TextSelection;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.parsing.IScopesParser;
 import org.python.pydev.shared_core.parsing.Scopes;
+import org.python.pydev.shared_core.string.CoreTextSelection;
 import org.python.pydev.shared_core.string.ICharacterPairMatcher2;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.FastStack;
@@ -36,7 +37,7 @@ public class ScopeSelectionAction {
 
     public static final String SELECTION_SCOPE_CACHE = "_SELECTION_SCOPE_CACHE_";
 
-    public void perform(IDocument doc, ITextSelection selection, BaseEditor editor) {
+    public void perform(IDocument doc, ICoreTextSelection selection, BaseEditor editor) {
         FastStack<IRegion> cache = getCache(editor);
         Region initialRegion = new Region(selection.getOffset(), selection.getLength());
         if (cache.size() > 0) {
@@ -48,7 +49,7 @@ public class ScopeSelectionAction {
         if (cache.size() == 0) {
             cache.push(initialRegion);
         }
-        ITextSelection newSelection = getNewSelection(doc, selection, editor);
+        ICoreTextSelection newSelection = getNewSelection(doc, selection, editor);
         if (initialRegion.equals(new Region(newSelection.getOffset(), newSelection.getLength()))) {
             return;
         }
@@ -57,11 +58,12 @@ public class ScopeSelectionAction {
         cache.push(new Region(newSelection.getOffset(), newSelection.getLength()));
     }
 
-    public ITextSelection getNewSelection(IDocument doc, ITextSelection selection, BaseEditor editor) {
+    public ICoreTextSelection getNewSelection(IDocument doc, ICoreTextSelection selection, BaseEditor editor) {
         return this.getNewSelection(doc, selection, editor.getPairMatcher(), editor.createScopesParser());
     }
 
-    public ITextSelection getNewSelection(IDocument doc, ITextSelection selection, ICharacterPairMatcher2 pairMatcher,
+    public ICoreTextSelection getNewSelection(IDocument doc, ICoreTextSelection selection,
+            ICharacterPairMatcher2 pairMatcher,
             IScopesParser scopesParser) {
         try {
             TextSelectionUtils ps = new TextSelectionUtils(doc, selection);
@@ -70,7 +72,7 @@ public class ScopeSelectionAction {
                 //Select the current word
                 Tuple<String, Integer> currToken = ps.getCurrToken();
                 if (currToken.o1.length() > 0) {
-                    return new TextSelection(currToken.o2, currToken.o1.length());
+                    return new CoreTextSelection(currToken.o2, currToken.o1.length());
                 } else {
                     char c = '\0';
                     try {
@@ -82,7 +84,8 @@ public class ScopeSelectionAction {
                         int openingOffset = pairMatcher.searchForOpeningPeer(ps.getAbsoluteCursorOffset(),
                                 StringUtils.getPeer(c), c, doc);
                         if (openingOffset >= 0) {
-                            return new TextSelection(openingOffset, ps.getAbsoluteCursorOffset() - openingOffset + 1);
+                            return new CoreTextSelection(openingOffset,
+                                    ps.getAbsoluteCursorOffset() - openingOffset + 1);
                         }
                     }
                 }
@@ -104,12 +107,12 @@ public class ScopeSelectionAction {
                 if (tryMatchWithQualifier) {
                     Tuple<String, Integer> currToken = ps.getCurrToken();
                     if (!hasDotSelected && !currToken.o1.equals(selectedText)) {
-                        return new TextSelection(currToken.o2, currToken.o1.length());
+                        return new CoreTextSelection(currToken.o2, currToken.o1.length());
                     } else {
                         //The selected text is not equal to the current token, let's see if we have to select a full dotted word
                         Tuple<String, Integer> currDottedToken = ps.getCurrDottedStatement(pairMatcher);
                         if (!currDottedToken.o1.equals(selectedText)) {
-                            return new TextSelection(currDottedToken.o2, currDottedToken.o1.length());
+                            return new CoreTextSelection(currDottedToken.o2, currDottedToken.o1.length());
                         }
                     }
                 }
@@ -118,7 +121,7 @@ public class ScopeSelectionAction {
             //            System.out.println(scopes.debugString(doc));
             IRegion scope = scopes.getScopeForSelection(selection.getOffset(), selection.getLength());
             if (scope != null) {
-                return new TextSelection(scope.getOffset(), scope.getLength());
+                return new CoreTextSelection(scope.getOffset(), scope.getLength());
             }
 
         } catch (BadLocationException e) {

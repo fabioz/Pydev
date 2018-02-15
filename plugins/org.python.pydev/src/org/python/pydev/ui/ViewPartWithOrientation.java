@@ -15,7 +15,7 @@ import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
-import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
@@ -29,9 +29,9 @@ public abstract class ViewPartWithOrientation extends ViewPart implements IPrope
     protected ViewPartWithOrientation() {
         String orientationPreferencesKey = getOrientationPreferencesKey();
         if (!SharedCorePlugin.inTestMode()) {
-            IPreferenceStore preferenceStore = PydevPrefs.getPreferenceStore();
+            IPreferenceStore preferenceStore = PyDevUiPrefs.getPreferenceStore();
             orientationPreference = preferenceStore.getInt(orientationPreferencesKey);
-            PydevPrefs.getPreferenceStore().addPropertyChangeListener(this);
+            PyDevUiPrefs.getPreferenceStore().addPropertyChangeListener(this);
         }
     }
 
@@ -105,7 +105,7 @@ public abstract class ViewPartWithOrientation extends ViewPart implements IPrope
 
     @Override
     public void dispose() {
-        PydevPrefs.getPreferenceStore().removePropertyChangeListener(this);
+        PyDevUiPrefs.getPreferenceStore().removePropertyChangeListener(this);
         super.dispose();
     }
 

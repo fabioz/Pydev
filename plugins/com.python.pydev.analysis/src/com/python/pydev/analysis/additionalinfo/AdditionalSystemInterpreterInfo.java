@@ -20,6 +20,7 @@ import java.util.Set;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
@@ -31,8 +32,6 @@ import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.shared_core.global_feedback.GlobalFeedback;
 import org.python.pydev.shared_core.global_feedback.GlobalFeedback.GlobalFeedbackReporter;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.ui.interpreters.PythonInterpreterManager;
-import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 
@@ -112,7 +111,7 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithB
 
         File base;
         try {
-            IPath stateLocation = AnalysisPlugin.getDefault().getStateLocation();
+            IPath stateLocation = AnalysisPlugin.stateLocation;
             base = stateLocation.toFile();
         } catch (Exception e) {
             //it may fail in tests... (save it in default folder in this cases)
@@ -143,7 +142,7 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithB
     /**
      * Should only be used in tests.
      */
-    public static void setAdditionalSystemInfo(PythonInterpreterManager manager, String executableOrJar,
+    public static void setAdditionalSystemInfo(IInterpreterManager manager, String executableOrJar,
             AdditionalSystemInterpreterInfo additionalInfo) {
         synchronized (additionalSystemInfoLock) {
             Tuple<String, String> key = new Tuple<String, String>(manager.getManagerRelatedName(), executableOrJar);

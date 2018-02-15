@@ -11,7 +11,9 @@
 package org.python.pydev.debug.ui;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -36,17 +38,17 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.ui.console.IHyperlink;
+import org.python.pydev.ast.item_pointer.ItemPointer;
+import org.python.pydev.ast.location.FindWorkspaceFiles;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.preferences.FileTypesPreferences;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.python.pydev.editor.actions.PyOpenAction;
-import org.python.pydev.editor.model.ItemPointer;
-import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.structure.Location;
 import org.python.pydev.shared_core.utils.PlatformUtils;
-import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
  * Line tracker that hyperlinks error lines: 'File "D:\mybad.py" line 3\n n Syntax error'
@@ -181,6 +183,9 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
                 PydevDebugPlugin.log(IStatus.ERROR, "unexpected error", e);
                 return;
             }
+            if (text.contains("..\\..\\..\\etk\\coilib50\\source\\python\\coilib50")) {
+                System.out.println("here");
+            }
 
             Matcher m = regularPythonlinePattern.matcher(text);
             if (m.matches()) {
@@ -197,7 +202,7 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
             }
 
             // Ok, we did not have a direct match, let's try a different approach...
-            String[] dottedValidSourceFiles = FileTypesPreferencesPage.getDottedValidSourceFiles();
+            String[] dottedValidSourceFiles = FileTypesPreferences.getDottedValidSourceFiles();
             for (String dottedExt : dottedValidSourceFiles) {
                 Pattern pattern = getRegexpForExtension(dottedExt);
                 m = pattern.matcher(text);
@@ -290,15 +295,17 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
             }
         }
         // Not a direct match, let's try some heuristics to get a match based on the working dir.
-        IPath path = Path.fromOSString(filename);
+        final IPath path = Path.fromOSString(filename);
 
         IProject project = getProject();
         try {
-            IFile file = project.getFile(path);
-            if (file.exists()) {
-                FileLink link = new FileLink(file, null, -1, -1, lineNumberInt);
-                linkContainer.addLink(link, lineOffset + matchStartCol, endCol - matchStartCol);
-                return true;
+            if (project != null) {
+                IFile file = project.getFile(path);
+                if (file.exists()) {
+                    FileLink link = new FileLink(file, null, -1, -1, lineNumberInt);
+                    linkContainer.addLink(link, lineOffset + matchStartCol, endCol - matchStartCol);
+                    return true;
+                }
             }
         } catch (IllegalArgumentException e1) {
             // ignore
@@ -320,6 +327,11 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
                                 FileLink link = new FileLink(file2, null, -1, -1, lineNumberInt);
                                 linkContainer.addLink(link, lineOffset + matchStartCol, endCol - matchStartCol);
                             }
+                            IPath pathInDisk = iContainer.getLocation().append(path);
+                            if (createHyperlink(lineOffset, matchStartCol, endCol, pathInDisk.toOSString(),
+                                    lineNumberInt)) {
+                                return true;
+                            }
                         } catch (IllegalArgumentException e) {
                         } catch (Exception e) {
                             Log.log(e);
@@ -331,22 +343,33 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
         }
 
         try {
-            IPath workingDirectory = getWorkingDirectory();
-            while (path.segmentCount() > 0) {
-                IPath appended = workingDirectory.append(path);
-                File checkFile = appended.toFile();
-                if (checkFile.exists()) {
-                    if (createHyperlink(lineOffset,
-                            matchStartCol + (initialFilename.length() - path.toString().length()),
-                            endCol, checkFile.getAbsolutePath(), lineNumberInt)) {
-                        return true;
+            List<IPath> lst = new ArrayList<>();
+            lst.add(getWorkingDirectory());
+            if (getProject() != null) {
+                lst.add(getProject().getLocation());
+            }
+
+            for (IPath workingDirectory : lst) {
+                if (workingDirectory != null) {
+                    IPath pathCopy = (IPath) path.clone();
+                    while (pathCopy.segmentCount() > 0) {
+                        IPath appended = workingDirectory.append(pathCopy);
+                        File checkFile = appended.toFile();
+                        if (checkFile.exists()) {
+                            if (createHyperlink(lineOffset,
+                                    matchStartCol + (initialFilename.length() - pathCopy.toString().length()),
+                                    endCol, checkFile.getAbsolutePath(), lineNumberInt)) {
+                                return true;
+                            }
+                        }
+                        pathCopy = pathCopy.removeFirstSegments(1);
                     }
                 }
-                path = path.removeFirstSegments(1);
             }
         } catch (Exception e) {
             Log.log(e);
         }
+
         return false;
     }
 
@@ -412,7 +435,7 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
     private IFile getFileForLocation(String fileName) {
         IFile file;
         IProject project = getProject();
-        file = new PySourceLocatorBase().getFileForLocation(Path.fromOSString(fileName), project);
+        file = FindWorkspaceFiles.getFileForLocation(Path.fromOSString(fileName), project);
         return file;
     }
 

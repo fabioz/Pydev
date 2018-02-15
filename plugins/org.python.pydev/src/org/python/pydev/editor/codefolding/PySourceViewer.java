@@ -33,14 +33,15 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.MarkerAnnotation;
+import org.python.pydev.core.IPySourceViewer;
+import org.python.pydev.core.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyShiftLeft;
-import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.shared_ui.editor.BaseSourceViewer;
 import org.python.pydev.shared_ui.editor.ITextViewerExtensionAutoEditions;
 
 public class PySourceViewer extends BaseSourceViewer implements IAdaptable,
-        ITextViewerExtensionAutoEditions {
+        ITextViewerExtensionAutoEditions, IPySourceViewer {
 
     private WeakReference<PyEdit> projection;
 

@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * @author Fabio
@@ -243,6 +244,14 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
      * it's a bit too much work at this point to do that.
      */
     String getVersion(boolean translateIfInterpreter) throws CoreException;
+
+    /**
+     * @return the project version given the constants provided (something as "python 2.7" or "jython 3.0") along with an error to be shown to the user.
+     *
+     * Unfortunately the version includes the interpreter type... ideally we'd undo this to have only the version, but
+     * it's a bit too much work at this point to do that.
+     */
+    Tuple<String, String> getVersionAndError(boolean translateIfInterpreter) throws CoreException;
 
     /**
      * set the project version given the constants provided

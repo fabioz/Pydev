@@ -15,14 +15,14 @@ import java.lang.reflect.Field;
 
 import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.quickassist.QuickAssistAssistant;
+import org.python.pydev.editor.codecompletion.ContentAssistHackingAroundBugs;
 import org.python.pydev.shared_core.utils.PlatformUtils;
-import org.python.pydev.shared_ui.content_assist.ContentAssistHackingAroundBugs;
 
 /**
- * 
+ *
  * The PyCorrectionAssistant was based on org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor
  * assistant. (after many hour of exploration)...
- * 
+ *
  * @author Fabio Zadrozny
  */
 public class PyCorrectionAssistant extends QuickAssistAssistant {

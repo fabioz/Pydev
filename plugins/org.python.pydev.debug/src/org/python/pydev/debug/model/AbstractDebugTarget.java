@@ -42,6 +42,7 @@ import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.internal.console.IOConsolePartition;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
+import org.python.pydev.ast.location.FindWorkspaceFiles;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.IConsoleInputListener;
@@ -63,9 +64,8 @@ import org.python.pydev.debug.model.remote.SetShowReturnValuesEnabledCommand;
 import org.python.pydev.debug.model.remote.ThreadListCommand;
 import org.python.pydev.debug.model.remote.VersionCommand;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
-import org.python.pydev.editor.preferences.PydevEditorPrefs;
-import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -766,13 +766,13 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         @Override
         public void propertyChange(PropertyChangeEvent event) {
             String property = event.getProperty();
-            if (property.equals(PydevEditorPrefs.DONT_TRACE_ENABLED)) {
+            if (property.equals(PyDevEditorPreferences.DONT_TRACE_ENABLED)) {
                 sendDontTraceEnabledCommand();
 
-            } else if (property.equals(PydevEditorPrefs.SHOW_RETURN_VALUES)) {
+            } else if (property.equals(PyDevEditorPreferences.SHOW_RETURN_VALUES)) {
                 sendShowReturnValuesEnabledCommand();
 
-            } else if (property.equals(PydevEditorPrefs.TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS)) {
+            } else if (property.equals(PyDevEditorPreferences.TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS)) {
                 sendSetDjangoExceptionBreakpointCommand();
             }
         }
@@ -811,21 +811,21 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
     private void sendDontTraceEnabledCommand() {
         IPreferenceStore pyPrefsStore = PydevPlugin.getDefault().getPreferenceStore();
         SetDontTraceEnabledCommand cmd = new SetDontTraceEnabledCommand(this,
-                pyPrefsStore.getBoolean(PydevEditorPrefs.DONT_TRACE_ENABLED));
+                pyPrefsStore.getBoolean(PyDevEditorPreferences.DONT_TRACE_ENABLED));
         this.postCommand(cmd);
     }
 
     private void sendShowReturnValuesEnabledCommand() {
         IPreferenceStore pyPrefsStore = PydevPlugin.getDefault().getPreferenceStore();
         SetShowReturnValuesEnabledCommand cmd = new SetShowReturnValuesEnabledCommand(this,
-                pyPrefsStore.getBoolean(PydevEditorPrefs.SHOW_RETURN_VALUES));
+                pyPrefsStore.getBoolean(PyDevEditorPreferences.SHOW_RETURN_VALUES));
         this.postCommand(cmd);
     }
 
     private void sendSetDjangoExceptionBreakpointCommand() {
         IPreferenceStore pyPrefsStore = PydevPlugin.getDefault().getPreferenceStore();
         SetDjangoExceptionBreakpointCommand cmd = new SetDjangoExceptionBreakpointCommand(
-                this, pyPrefsStore.getBoolean(PydevEditorPrefs.TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS));
+                this, pyPrefsStore.getBoolean(PyDevEditorPreferences.TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS));
         this.postCommand(cmd);
     }
 
@@ -972,7 +972,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         } else if (adapter.equals(IResource.class)) {
             // used by Variable ContextManager, and Project:Properties menu item
             if (file != null && file.length > 0) {
-                return (T) new PySourceLocatorBase().getFileForLocation(file[0], null);
+                return (T) FindWorkspaceFiles.getFileForLocation(file[0], null);
             } else {
                 return null;
             }

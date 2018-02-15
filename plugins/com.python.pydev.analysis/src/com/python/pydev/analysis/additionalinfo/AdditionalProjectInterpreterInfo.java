@@ -28,7 +28,10 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.python.pydev.ast.codecompletion.revisited.ProjectModulesManager;
+import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.FileUtilsFileBuffer;
+import org.python.pydev.core.IInfo;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
@@ -36,8 +39,6 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.shared_core.global_feedback.GlobalFeedback;
@@ -171,7 +172,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
             AbstractAdditionalTokensInfo systemInfo;
             try {
                 systemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
-                        PydevPlugin.getInterpreterManager(nature), nature.getProjectInterpreter().getExecutableOrJar());
+                        InterpreterManagersAPI.getInterpreterManager(nature), nature.getProjectInterpreter().getExecutableOrJar());
             } catch (MisconfigurationException e) {
                 throw e;
             } catch (PythonNatureWithoutProjectException e) {

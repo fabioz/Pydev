@@ -13,7 +13,7 @@ import java.util.Map;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.shared_core.structure.Tuple;
 
-import com.python.pydev.refactoring.wizards.rename.PyRenameLocalProcess;
+import com.python.pydev.analysis.refactoring.wizards.rename.PyRenameLocalProcess;
 
 public class RenameLocalRefactoringTest extends RefactoringRenameTestBase {
 

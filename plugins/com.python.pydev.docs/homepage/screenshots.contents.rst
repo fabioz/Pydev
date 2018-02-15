@@ -10,7 +10,7 @@ Screenshots
 
 .. _Features Matrix: manual_adv_features.html
 
-Note that these screenshots cover only a bit of the
+Note that these screenshots cover only a small subset of the
 features available. For more details check the `Features Matrix`_.
 
 

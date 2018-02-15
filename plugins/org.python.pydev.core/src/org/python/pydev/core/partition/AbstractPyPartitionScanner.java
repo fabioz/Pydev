@@ -6,12 +6,12 @@
  */
 package org.python.pydev.core.partition;
 
-import org.eclipse.jface.text.rules.EndOfLineRule;
-import org.eclipse.jface.text.rules.IPredicateRule;
-import org.eclipse.jface.text.rules.SingleLineRule;
-import org.eclipse.jface.text.rules.Token;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.shared_core.partitioner.CustomRuleBasedPartitionScanner;
+import org.python.pydev.shared_core.partitioner.EndOfLineRule;
+import org.python.pydev.shared_core.partitioner.IPredicateRule;
+import org.python.pydev.shared_core.partitioner.SingleLineRule;
+import org.python.pydev.shared_core.partitioner.Token;
 
 /**
  * This class should partition Python files in major partitions (code, strings, unicode, comments, backquotes)
@@ -37,26 +37,26 @@ public class AbstractPyPartitionScanner extends CustomRuleBasedPartitionScanner 
 
     /**
      * Note: the formats supported for strings are:
-     * 
+     *
      * br''
      * b''
      * ur''
      * u''
      * r''
      * ''
-     * 
+     *
      * For matching only unicode we care about:
-     * 
+     *
      * u''
      * ur''
-     * 
+     *
      * For matching only bytes we care about:
-     * 
+     *
      * b''
      * br''
-     * 
+     *
      * For matching dependent on defaultIsUnicode we care about:
-     * 
+     *
      * ''
      * r''
      *

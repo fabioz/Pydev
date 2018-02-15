@@ -9,6 +9,7 @@
  */
 package org.python.pydev.parser.visitors;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -19,11 +20,15 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IGrammarVersionProvider;
+import org.python.pydev.core.IIndentPrefs;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.ITypeInfo;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.UnpackInfo;
+import org.python.pydev.core.autoedit.DefaultIndentPrefs;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.jython.ISpecialStr;
@@ -69,6 +74,7 @@ import org.python.pydev.parser.jython.ast.keywordType;
 import org.python.pydev.parser.jython.ast.sliceType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
+import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
@@ -1959,4 +1965,61 @@ public class NodeUtils {
         return null;
     }
 
+    /**
+     * Based on org.python.pydev.shared_ui.tooltips.presenter.AbstractInformationPresenter
+     *
+     * The line delimiter that should be used in the tooltip.
+     */
+    public static final String LINE_DELIM = System.getProperty("line.separator", "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+
+    /**
+     * Copied from {@link PyTextHover} when that class was deprecated.
+     */
+    public static String printAst(IPyEdit edit, SimpleNode astToPrint) {
+        String str = null;
+        if (astToPrint != null) {
+            IIndentPrefs indentPrefs;
+            if (edit != null) {
+                indentPrefs = edit.getIndentPrefs();
+            } else {
+                indentPrefs = DefaultIndentPrefs.get(null);
+            }
+
+            Str docStr = getNodeDocStringNode(astToPrint);
+            if (docStr != null) {
+                docStr.s = PyStringUtils.fixWhitespaceColumnsToLeftFromDocstring(docStr.s,
+                        indentPrefs.getIndentationString());
+            }
+
+            PrettyPrinterPrefsV2 prefsV2 = PrettyPrinterV2.createDefaultPrefs(edit, indentPrefs,
+                    LINE_DELIM);
+
+            PrettyPrinterV2 prettyPrinterV2 = new PrettyPrinterV2(prefsV2);
+            try {
+
+                str = prettyPrinterV2.print(astToPrint);
+            } catch (IOException e) {
+                Log.log(e);
+            }
+        }
+        return str;
+    }
+
+    public static String printAst(IIndentPrefs indentPrefs, IGrammarVersionProvider versionProvider,
+            SimpleNode astToPrint, String lineDelimiter) {
+        String str = null;
+        if (astToPrint != null) {
+
+            PrettyPrinterPrefsV2 prefsV2 = PrettyPrinterV2.createDefaultPrefs(versionProvider, indentPrefs,
+                    lineDelimiter);
+            PrettyPrinterV2 prettyPrinterV2 = new PrettyPrinterV2(prefsV2);
+            try {
+
+                str = prettyPrinterV2.print(astToPrint);
+            } catch (IOException e) {
+                Log.log(e);
+            }
+        }
+        return str;
+    }
 }

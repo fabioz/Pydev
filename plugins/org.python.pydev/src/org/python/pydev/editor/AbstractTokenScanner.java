@@ -3,7 +3,7 @@ package org.python.pydev.editor;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.rules.ITokenScanner;
+import org.python.pydev.shared_core.partitioner.ITokenScanner;
 import org.python.pydev.ui.ColorAndStyleCache;
 
 public abstract class AbstractTokenScanner implements ITokenScanner {

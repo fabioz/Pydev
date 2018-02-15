@@ -8,10 +8,10 @@ package org.python.pydev.editor.hover;
 
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.python.pydev.core.preferences.PydevPrefs;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.AbstractConfigurationBlockPreferencePage;
 import org.python.pydev.plugin.preferences.IPreferenceConfigurationBlock;
-import org.python.pydev.plugin.preferences.PydevPrefs;
 
 /**
  * Preferences page for showing or not hovering info.
@@ -65,14 +65,15 @@ public class PyHoverPreferencesPage extends AbstractConfigurationBlockPreference
      * @return whether info from enabled Hovers should be combined.
      */
     public static boolean getCombineHoverInfo() {
-        return PydevPrefs.getPreferences().getBoolean(COMBINE_HOVER_INFO);
+        return PydevPrefs.getEclipsePreferences().getBoolean(COMBINE_HOVER_INFO, DEFAULT_COMBINE_HOVER_INFO);
     }
 
     /**
      * @return whether the value of variables should be shown on hover while debugging.
      */
     public static boolean getShowValuesWhileDebuggingOnHover() {
-        return PydevPrefs.getPreferences().getBoolean(SHOW_DEBUG_VARIABLES_VALUES_ON_HOVER);
+        return PydevPrefs.getEclipsePreferences().getBoolean(SHOW_DEBUG_VARIABLES_VALUES_ON_HOVER,
+                DEFAULT_SHOW_DEBUG_VARIABLES_VALUES_ON_HOVER);
     }
 
     /**
@@ -80,7 +81,7 @@ public class PyHoverPreferencesPage extends AbstractConfigurationBlockPreference
      * combining info from multiple Hovers.
      */
     public static boolean getUseHoverDelimiters() {
-        return PydevPrefs.getPreferences().getBoolean(USE_HOVER_DIVIDER);
+        return PydevPrefs.getEclipsePreferences().getBoolean(USE_HOVER_DIVIDER, DEFAULT_USE_HOVER_DIVIDER);
     }
 
     @Override

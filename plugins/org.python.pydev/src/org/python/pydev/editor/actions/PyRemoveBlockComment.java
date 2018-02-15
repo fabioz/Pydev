@@ -16,10 +16,10 @@ import java.util.List;
 
 import org.eclipse.jface.action.IAction;
 import org.python.pydev.core.IIndentPrefs;
+import org.python.pydev.core.autoedit.DefaultIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.PySelectionFromEditor;
-import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.string.TextSelectionUtils;

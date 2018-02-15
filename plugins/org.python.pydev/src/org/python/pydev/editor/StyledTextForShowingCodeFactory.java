@@ -16,8 +16,6 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.TextPresentation;
-import org.eclipse.jface.text.rules.FastPartitioner;
-import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
@@ -27,12 +25,15 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
+import org.python.pydev.ast.formatter.PyFormatter;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.docutils.SyntaxErrorException;
+import org.python.pydev.core.formatter.FormatStd;
 import org.python.pydev.core.partition.PyPartitionScanner;
-import org.python.pydev.editor.actions.PyFormatStd;
-import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
-import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.editor.actions.PyFormatAction;
+import org.python.pydev.plugin.PyDevUiPrefs;
+import org.python.pydev.shared_core.partitioner.FastPartitioner;
+import org.python.pydev.shared_core.partitioner.IToken;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -76,7 +77,7 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener 
         }
         updateBackgroundColor();
 
-        PydevPrefs.getChainedPrefStore().addPropertyChangeListener(this);
+        PyDevUiPrefs.getChainedPrefStore().addPropertyChangeListener(this);
 
         return styledText;
     }
@@ -85,7 +86,7 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener 
      * Updates the color of the background.
      */
     private void updateBackgroundColor() {
-        IPreferenceStore chainedPrefStore = PydevPrefs.getChainedPrefStore();
+        IPreferenceStore chainedPrefStore = PyDevUiPrefs.getChainedPrefStore();
 
         Color backgroundColor = null;
         if (!chainedPrefStore.getBoolean(PyEdit.PREFERENCE_COLOR_BACKGROUND_SYSTEM_DEFAULT)) {
@@ -112,7 +113,7 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener 
      * It needs to be called so that we're properly garbage-collected and clear our caches.
      */
     public void dispose() {
-        PydevPrefs.getChainedPrefStore().removePropertyChangeListener(this);
+        PyDevUiPrefs.getChainedPrefStore().removePropertyChangeListener(this);
         this.backgroundColorCache.dispose();
         this.colorCache.dispose();
     }
@@ -133,10 +134,10 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener 
         //cleared because the colors are gotten from the rgb and not from the names).
         this.colorCache.setPreferences(prefs);
 
-        PyFormatStd formatter = new PyFormatStd();
+        PyFormatAction formatter = new PyFormatAction();
         try {
             Document doc = new Document(str);
-            formatter.formatAll(doc, null, false, formatStd, false, true);
+            PyFormatter.formatAll(doc, null, false, formatStd, false, true);
             str = doc.get();
         } catch (SyntaxErrorException e) {
         }

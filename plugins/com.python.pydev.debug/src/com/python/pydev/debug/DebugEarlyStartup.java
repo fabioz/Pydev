@@ -7,20 +7,22 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IDebugEventSetListener;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TaskBar;
 import org.eclipse.swt.widgets.TaskItem;
 import org.eclipse.ui.IStartup;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.preferences.PydevPrefs;
 import org.python.pydev.debug.model.PyThread;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.shared_core.utils.PlatformUtils;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.shared_ui.utils.UIUtils;
@@ -36,7 +38,7 @@ public class DebugEarlyStartup implements IStartup {
         @Override
         protected IStatus run(IProgressMonitor monitor) {
             try {
-                checkAlwaysOn(PydevPlugin.getDefault().getPreferenceStore());
+                checkAlwaysOn(PydevPrefs.getEclipsePreferences());
             } catch (NullPointerException e) {
                 // Ignore: it can happen during interpreter shutdown.
                 // java.lang.NullPointerException
@@ -53,12 +55,12 @@ public class DebugEarlyStartup implements IStartup {
     @Override
     public void earlyStartup() {
         //Note: preferences are in the PydevPlugin, not in the debug plugin.
-        IPreferenceStore preferenceStore = PydevPlugin.getDefault().getPreferenceStore();
-        preferenceStore.addPropertyChangeListener(new IPropertyChangeListener() {
+        IEclipsePreferences preferenceStore = PydevPrefs.getEclipsePreferences();
+        preferenceStore.addPreferenceChangeListener(new IPreferenceChangeListener() {
 
             @Override
-            public void propertyChange(PropertyChangeEvent event) {
-                if (DebugPluginPrefsInitializer.DEBUG_SERVER_STARTUP.equals(event.getProperty())) {
+            public void preferenceChange(PreferenceChangeEvent event) {
+                if (DebugPluginPrefsInitializer.DEBUG_SERVER_STARTUP.equals(event.getKey())) {
                     //On a change in the preferences, re-check if it should be always on...
                     checkAlwaysOnJob.schedule(200);
                 }
@@ -85,7 +87,7 @@ public class DebugEarlyStartup implements IStartup {
                             if (debugEvent.getDetail() == DebugEvent.BREAKPOINT) {
                                 if (debugEvent.getSource() instanceof PyThread) {
 
-                                    IPreferenceStore preferenceStore2 = PydevPlugin.getDefault().getPreferenceStore();
+                                    IPreferenceStore preferenceStore2 = PyDevUiPrefs.getPreferenceStore();
                                     final int forceOption = preferenceStore2
                                             .getInt(DebugPluginPrefsInitializer.FORCE_SHOW_SHELL_ON_BREAKPOINT);
 
@@ -114,10 +116,10 @@ public class DebugEarlyStartup implements IStartup {
 
     /**
      * There are some issues with just forceActive as it doesn't actually bring it to the front on windows on some situations.
-     * 
+     *
      * - https://bugs.eclipse.org/bugs/show_bug.cgi?id=192036: outlines the win32 solution implemented in here (using reflection to avoid issues compiling on other platforms).
-     * 
-     * Some possible alternatives: 
+     *
+     * Some possible alternatives:
      * - we could change the text/icon in the taskbar (http://git.eclipse.org/c/platform/eclipse.platform.swt.git/tree/examples/org.eclipse.swt.snippets/src/org/eclipse/swt/snippets/Snippet336.java)
      * - Creating our own windows-dependent dll (but this is probably too much for the build process too) http://stackoverflow.com/questions/2773364/make-jface-window-blink-in-taskbar-or-get-users-attention
      * - https://github.com/jnr/jnr-ffi using the approach commented on http://stackoverflow.com/questions/2315560/how-do-you-force-a-java-swt-program-to-move-itself-to-the-foreground seems a possible acceptable workaround
@@ -249,8 +251,9 @@ public class DebugEarlyStartup implements IStartup {
 
     private static volatile boolean checkedOnOnce = false;
 
-    public void checkAlwaysOn(final IPreferenceStore preferenceStore) {
-        int debugServerStartup = preferenceStore.getInt(DebugPluginPrefsInitializer.DEBUG_SERVER_STARTUP);
+    public void checkAlwaysOn(final IEclipsePreferences preferenceStore) {
+        int debugServerStartup = preferenceStore.getInt(DebugPluginPrefsInitializer.DEBUG_SERVER_STARTUP,
+                DebugPluginPrefsInitializer.DEFAULT_DEBUG_SERVER_ALWAYS_ON);
         if (debugServerStartup != DebugPluginPrefsInitializer.DEBUG_SERVER_MANUAL) {
             boolean runNowIfInUiThread = true;
             Runnable r = new Runnable() {
@@ -259,7 +262,8 @@ public class DebugEarlyStartup implements IStartup {
                 public void run() {
 
                     //Check if it didn't change in the meanwhile...
-                    int debugServerStartup = preferenceStore.getInt(DebugPluginPrefsInitializer.DEBUG_SERVER_STARTUP);
+                    int debugServerStartup = preferenceStore.getInt(DebugPluginPrefsInitializer.DEBUG_SERVER_STARTUP,
+                            DebugPluginPrefsInitializer.DEFAULT_DEBUG_SERVER_ALWAYS_ON);
 
                     if (debugServerStartup == DebugPluginPrefsInitializer.DEBUG_SERVER_KEEY_ALWAYS_ON
                             && !PydevRemoteDebuggerServer.isRunning()) {
@@ -268,7 +272,7 @@ public class DebugEarlyStartup implements IStartup {
                     } else if (debugServerStartup == DebugPluginPrefsInitializer.DEBUG_SERVER_ON_WHEN_PLUGIN_STARTED) {
                         if (!checkedOnOnce && !PydevRemoteDebuggerServer.isRunning()) {
                             //Note: if the preference was manual and the user just changed to this setting, this
-                            //will turn it on as that'll be the first time it's checked. 
+                            //will turn it on as that'll be the first time it's checked.
                             //Is this a bug or feature? -- I think it's a feature :)
                             PydevRemoteDebuggerServer.startServer();
                         }

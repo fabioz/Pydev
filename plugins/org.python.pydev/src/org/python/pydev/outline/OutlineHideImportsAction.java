@@ -12,20 +12,20 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
-import org.python.pydev.shared_ui.ImageCache;
-import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_core.image.IImageCache;
+import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_ui.outline.AbstractOutlineFilterAction;
 
 /**
  * Action that will hide the imports in the outline
- * 
+ *
  * @author Fabio
  */
 public class OutlineHideImportsAction extends AbstractOutlineFilterAction {
 
     private static final String PREF_HIDE_IMPORTS = "org.python.pydev.OUTLINE_HIDE_IMPORTS";
 
-    public OutlineHideImportsAction(PyOutlinePage page, ImageCache imageCache) {
+    public OutlineHideImportsAction(PyOutlinePage page, IImageCache imageCache) {
         super("Hide Imports", page, imageCache, PREF_HIDE_IMPORTS, UIConstants.IMPORT_ICON);
     }
 

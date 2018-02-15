@@ -11,12 +11,19 @@ package com.python.pydev.analysis;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.python.pydev.ast.analysis.IAnalysisPreferences;
+import org.python.pydev.core.preferences.PydevPrefs;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.preferences.IScopedPreferences;
+import org.python.pydev.shared_core.process.ProcessUtils;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 
 public class AnalysisPreferences extends AbstractAnalysisPreferences {
 
@@ -88,12 +95,15 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences {
                 if (severityTypeMapCache == null) {
                     //Do it lazily as it's possible we don't need it...
                     HashMap<Integer, Integer> temp = new HashMap<Integer, Integer>();
-                    IPreferenceStore pluginPreferences = AnalysisPlugin.getDefault().getPreferenceStore();
+                    IEclipsePreferences analysisEclipsePreferences = PydevPrefs.getAnalysisEclipsePreferences();
+                    IEclipsePreferences defaultAnalysisEclipsePreferences = PydevPrefs
+                            .getDefaultAnalysisEclipsePreferences();
                     IScopedPreferences iScopedPreferences = PyAnalysisScopedPreferences.get();
 
                     for (int i = 0; i < completeSeverityMap.length; i++) {
                         Object[] s = completeSeverityMap[i];
-                        int v = iScopedPreferences.getInt(pluginPreferences, (String) s[1], projectAdaptable);
+                        int v = iScopedPreferences.getInt(analysisEclipsePreferences, defaultAnalysisEclipsePreferences,
+                                (String) s[1], projectAdaptable);
                         temp.put((Integer) s[0], v);
                     }
 
@@ -109,7 +119,7 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences {
     /**
      * return the severity based on the user-set values
      *
-     * @see com.python.pydev.analysis.IAnalysisPreferences#getSeverityForType(int)
+     * @see org.python.pydev.ast.analysis.IAnalysisPreferences#getSeverityForType(int)
      */
     @Override
     public int getSeverityForType(int type) {
@@ -124,7 +134,7 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences {
     /**
      * yeah, we always do code analysis...
      *
-     * @see com.python.pydev.analysis.IAnalysisPreferences#makeCodeAnalysis()
+     * @see org.python.pydev.ast.analysis.IAnalysisPreferences#makeCodeAnalysis()
      */
     @Override
     public boolean makeCodeAnalysis() {
@@ -137,7 +147,7 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences {
     }
 
     /**
-     * @see com.python.pydev.analysis.IAnalysisPreferences#getNamesIgnoredByUnusedVariable()
+     * @see org.python.pydev.ast.analysis.IAnalysisPreferences#getNamesIgnoredByUnusedVariable()
      */
     @Override
     public Set<String> getNamesIgnoredByUnusedVariable() {
@@ -167,7 +177,7 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences {
     }
 
     /**
-     * @see com.python.pydev.analysis.IAnalysisPreferences#getModuleNamePatternsToBeIgnored()
+     * @see org.python.pydev.ast.analysis.IAnalysisPreferences#getModuleNamePatternsToBeIgnored()
      */
     @Override
     public Set<String> getModuleNamePatternsToBeIgnored() {
@@ -180,4 +190,90 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences {
         return ret;
     }
 
+    public static String[] getPep8CommandLine(IAdaptable projectAdaptable) {
+        return ProcessUtils.parseArguments(getPep8CommandLineAsStr(projectAdaptable));
+    }
+
+    public static String getPep8CommandLineAsStr(IAdaptable projectAdaptable) {
+        return PyAnalysisScopedPreferences.getString(AnalysisPreferenceInitializer.PEP8_COMMAND_LINE, projectAdaptable);
+    }
+
+    public static boolean useConsole(IAdaptable projectAdaptable) {
+        if (AnalysisPreferenceInitializer.SHOW_IN_PEP8_FEATURE_ENABLED) {
+            return PyAnalysisScopedPreferences.getBoolean(AnalysisPreferenceInitializer.USE_PEP8_CONSOLE,
+                    projectAdaptable);
+        }
+        return false;
+    }
+
+    public static boolean useSystemInterpreter(IAdaptable projectAdaptable) {
+        return PyAnalysisScopedPreferences.getBoolean(AnalysisPreferenceInitializer.PEP8_USE_SYSTEM, projectAdaptable);
+    }
+
+    public static boolean TESTS_DO_AUTO_IMPORT = true;
+
+    public static boolean doAutoImport() {
+        if (SharedCorePlugin.inTestMode()) {
+            return TESTS_DO_AUTO_IMPORT;
+        }
+
+        return PydevPrefs.getAnalysisEclipsePreferences().getBoolean(
+                AnalysisPreferenceInitializer.DO_AUTO_IMPORT,
+                AnalysisPreferenceInitializer.DEFAULT_DO_AUT_IMPORT);
+    }
+
+    public static boolean TESTS_DO_AUTO_IMPORT_ON_ORGANIZE_IMPORTS = true;
+
+    public static boolean doAutoImportOnOrganizeImports() {
+        if (SharedCorePlugin.inTestMode()) {
+            return TESTS_DO_AUTO_IMPORT_ON_ORGANIZE_IMPORTS;
+        }
+        return PydevPrefs.getAnalysisEclipsePreferences().getBoolean(
+                AnalysisPreferenceInitializer.DO_AUTO_IMPORT_ON_ORGANIZE_IMPORTS,
+                AnalysisPreferenceInitializer.DEFAULT_DO_AUTO_IMPORT_ON_ORGANIZE_IMPORTS);
+    }
+
+    public static boolean TESTS_DO_IGNORE_IMPORT_STARTING_WITH_UNDER = false;
+
+    public static boolean doIgnoreImportsStartingWithUnder() {
+        if (SharedCorePlugin.inTestMode()) {
+            return TESTS_DO_IGNORE_IMPORT_STARTING_WITH_UNDER;
+        }
+
+        return PydevPrefs.getAnalysisEclipsePreferences().getBoolean(
+                AnalysisPreferenceInitializer.DO_IGNORE_IMPORTS_STARTING_WITH_UNDER,
+                AnalysisPreferenceInitializer.DEFAULT_DO_IGNORE_FIELDS_WITH_UNDER);
+    }
+
+    /**
+    *
+    * @param doIgnoreImportsStartingWithUnder: result from the doIgnoreImportsStartingWithUnder() method
+    * (but should be called before so that it does not get into a loop which call this method as that method
+    * may be slow).
+    */
+    public static String removeImportsStartingWithUnderIfNeeded(String declPackageWithoutInit, FastStringBuffer buf,
+            boolean doIgnoreImportsStartingWithUnder) {
+        if (doIgnoreImportsStartingWithUnder) {
+            List<String> splitted = StringUtils.dotSplit(declPackageWithoutInit);
+
+            boolean foundStartingWithoutUnder = false;
+            buf.clear();
+            int len = splitted.size();
+            for (int i = len - 1; i >= 0; i--) {
+                String s = splitted.get(i);
+                if (!foundStartingWithoutUnder) {
+                    if (s.charAt(0) == '_') {
+                        continue;
+                    }
+                    foundStartingWithoutUnder = true;
+                }
+                buf.insert(0, s);
+                if (i != 0) {
+                    buf.insert(0, '.');
+                }
+            }
+            declPackageWithoutInit = buf.toString();
+        }
+        return declPackageWithoutInit;
+    }
 }

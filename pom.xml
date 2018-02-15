@@ -164,10 +164,8 @@
                  this lists matches. -->
             <explodedBundle>com.python.pydev</explodedBundle>
             <explodedBundle>com.python.pydev.analysis</explodedBundle>
-            <explodedBundle>com.python.pydev.codecompletion</explodedBundle>
             <explodedBundle>com.python.pydev.debug</explodedBundle>
             <!-- TODO com.python.pydev.docs -->
-            <explodedBundle>com.python.pydev.fastparser</explodedBundle>
             <explodedBundle>com.python.pydev.refactoring</explodedBundle>
             <explodedBundle>com.python.pydev.runalltests</explodedBundle>
             <explodedBundle>org.python.pydev</explodedBundle>

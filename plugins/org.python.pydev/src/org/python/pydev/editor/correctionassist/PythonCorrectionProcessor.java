@@ -28,23 +28,23 @@ import org.eclipse.ui.internal.texteditor.spelling.NoCompletionsProposal;
 import org.eclipse.ui.texteditor.spelling.SpellingAnnotation;
 import org.eclipse.ui.texteditor.spelling.SpellingCorrectionProcessor;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
+import org.python.pydev.ast.codecompletion.ProposalsComparator;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.IPySyntaxHighlightingAndCodeCompletionEditor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.IPySyntaxHighlightingAndCodeCompletionEditor;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
-import org.python.pydev.editor.codecompletion.ProposalsComparator;
 import org.python.pydev.editor.correctionassist.docstrings.AssistDocString;
 import org.python.pydev.editor.correctionassist.heuristics.AssistAssign;
 import org.python.pydev.editor.correctionassist.heuristics.AssistImport;
 import org.python.pydev.editor.correctionassist.heuristics.AssistPercentToFormat;
 import org.python.pydev.editor.correctionassist.heuristics.AssistSurroundWith;
-import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
-import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
+import org.python.pydev.shared_core.image.IImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 
 /**
  * This class should be used to give context help
@@ -154,7 +154,7 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
         }
         PyEdit editor = (PyEdit) this.edit;
 
-        List<ICompletionProposal> results = new ArrayList<ICompletionProposal>();
+        List<ICompletionProposalHandle> results = new ArrayList<>();
         String sel = PyAction.getLineWithoutComments(base);
 
         List<IAssistProps> assists = new ArrayList<IAssistProps>();
@@ -171,7 +171,7 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
         assists.add(new AssistPercentToFormat());
 
         assists.addAll(ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_CTRL_1));
-        ImageCache imageCache = PydevPlugin.getImageCache();
+        IImageCache imageCache = SharedUiPlugin.getImageCache();
         File editorFile = edit.getEditorFile();
         IPythonNature pythonNature = null;
         try {

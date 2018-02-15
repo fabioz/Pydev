@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.0"?>
 <plugin>
-   <extension point="org.python.pydev.pydev_refactoring">
-  		<refactoring_participant class="com.python.pydev.refactoring.refactorer.Refactorer"/>
-   </extension>
-   <!--
-   <extension point="org.python.pydev.pydev_formatter">
-  		<refactoring_participant class="com.python.pydev.refactoring.visitors.Formatter"/>
-   </extension>
-   -->
    <extension point="org.python.pydev.pydev_pyedit_listener">
   		<pyedit_listener_participant class="com.python.pydev.refactoring.markoccurrences.MarkOccurrencesDispatcher"/>
    </extension>

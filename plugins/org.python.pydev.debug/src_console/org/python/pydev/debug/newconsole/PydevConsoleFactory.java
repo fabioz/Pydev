@@ -26,6 +26,7 @@ import org.eclipse.ui.console.IConsoleFactory;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.preferences.PydevPrefs;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyDebugTargetConsole;
 import org.python.pydev.debug.model.PySourceLocator;
@@ -37,8 +38,7 @@ import org.python.pydev.debug.newconsole.env.PydevIProcessFactory;
 import org.python.pydev.debug.newconsole.env.PydevIProcessFactory.PydevConsoleLaunchInfo;
 import org.python.pydev.debug.newconsole.env.UserCanceledException;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
-import org.python.pydev.editor.preferences.PydevEditorPrefs;
-import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
 import org.python.pydev.shared_interactive_console.InteractiveConsolePlugin;
 import org.python.pydev.shared_interactive_console.console.ui.ScriptConsoleManager;
 
@@ -193,7 +193,8 @@ public class PydevConsoleFactory implements IConsoleFactory {
                 PydevConsoleCommunication consoleCommunication = (PydevConsoleCommunication) interpreter
                         .getConsoleCommunication();
 
-                int acceptTimeout = PydevPrefs.getPreferences().getInt(PydevEditorPrefs.CONNECT_TIMEOUT);
+                int acceptTimeout = PydevPrefs.getEclipsePreferences().getInt(PyDevEditorPreferences.CONNECT_TIMEOUT,
+                        PyDevEditorPreferences.DEFAULT_CONNECT_TIMEOUT);
                 PyDebugTargetConsole pyDebugTargetConsole = null;
                 ILaunch launch = interpreter.getLaunch();
                 IProcess eclipseProcess = launch.getProcesses()[0];
@@ -315,7 +316,8 @@ public class PydevConsoleFactory implements IConsoleFactory {
             return null;
         }
         if (launchAndProcess.interpreter != null) {
-            return createPydevInterpreter(launchAndProcess, iprocessFactory.getNaturesUsed(), launchAndProcess.encoding);
+            return createPydevInterpreter(launchAndProcess, iprocessFactory.getNaturesUsed(),
+                    launchAndProcess.encoding);
         } else {
             return createPydevDebugInterpreter(launchAndProcess, true, new AnyPyStackFrameSelected());
         }

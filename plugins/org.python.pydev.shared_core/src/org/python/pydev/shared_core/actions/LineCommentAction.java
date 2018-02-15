@@ -14,8 +14,8 @@ package org.python.pydev.shared_core.actions;
 import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -61,7 +61,7 @@ public class LineCommentAction {
         String selectedText = ps.getSelectedText();
 
         FastStringBuffer strbuf = commentLines(selectedText);
-        ITextSelection txtSel = ps.getTextSelection();
+        ICoreTextSelection txtSel = ps.getTextSelection();
         int start = txtSel.getOffset();
         int len = txtSel.getLength();
 

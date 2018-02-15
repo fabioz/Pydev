@@ -9,8 +9,8 @@
  *******************************************************************************/
 package org.python.pydev.shared_interactive_console.console.ui.internal;
 
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
 
@@ -18,7 +18,7 @@ public interface ICommandHandler {
 
     void handleCommand(String userInput, ICallback<Object, InterpreterResponse> onResponseReceived);
 
-    public ICompletionProposal[] getTabCompletions(String commandLine, int cursorPosition);
+    public ICompletionProposalHandle[] getTabCompletions(String commandLine, int cursorPosition);
 
     void setOnContentsReceivedCallback(ICallback<Object, Tuple<String, String>> onContentsReceived);
 

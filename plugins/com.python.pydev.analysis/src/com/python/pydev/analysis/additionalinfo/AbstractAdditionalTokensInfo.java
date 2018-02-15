@@ -29,15 +29,16 @@ import java.util.Set;
 import java.util.SortedMap;
 
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.ast.codecompletion.revisited.PyPublicTreeMap;
 import org.python.pydev.core.FileUtilsFileBuffer;
+import org.python.pydev.core.IInfo;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.ObjectsInternPool;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.revisited.PyPublicTreeMap;
-import org.python.pydev.logging.DebugSettings;
+import org.python.pydev.core.logging.DebugSettings;
 import org.python.pydev.parser.fastparser.FastDefinitionsParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -52,7 +53,6 @@ import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.FastStack;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
-import org.python.pydev.shared_ui.log.ToLogFile;
 
 /**
  * This class contains additional information on an interpreter, so that we are able to make code-completion in
@@ -336,7 +336,7 @@ public abstract class AbstractAdditionalTokensInfo {
         try {
             Tuple<DefinitionsASTIteratorVisitor, Iterator<ASTEntry>> tup = getInnerEntriesForAST(node);
             if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                ToLogFile.toLogFile(this, "Adding ast info to: " + key.name);
+                org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "Adding ast info to: " + key.name);
             }
 
             try {
@@ -550,7 +550,7 @@ public abstract class AbstractAdditionalTokensInfo {
      */
     public void removeInfoFromModule(String moduleName, boolean generateDelta) {
         if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-            ToLogFile.toLogFile(this, "Removing ast info from: " + moduleName);
+            org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "Removing ast info from: " + moduleName);
         }
         synchronized (lock) {
             removeInfoFromMap(moduleName, topLevelInitialsToInfo);

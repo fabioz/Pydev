@@ -32,10 +32,12 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
-import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_core.string.WrapAndCaseUtils;
-import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 final class DialogNotifier extends Dialog {
@@ -113,19 +115,21 @@ final class DialogNotifier extends Dialog {
             browser.setLayoutData(gridData);
 
             final ToolItem back = new ToolItem(navBar, SWT.PUSH);
-            back.setImage(org.python.pydev.plugin.PydevPlugin.getImageCache().get(UIConstants.BACK));
+            back.setImage(
+                    ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.BACK)));
 
             final ToolItem forward = new ToolItem(navBar, SWT.PUSH);
-            forward.setImage(org.python.pydev.plugin.PydevPlugin.getImageCache().get(UIConstants.FORWARD));
+            forward.setImage(
+                    ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.FORWARD)));
 
             final ToolItem stop = new ToolItem(navBar, SWT.PUSH);
-            stop.setImage(org.python.pydev.plugin.PydevPlugin.getImageCache().get(UIConstants.STOP));
+            stop.setImage(ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.STOP)));
 
             final ToolItem refresh = new ToolItem(navBar, SWT.PUSH);
-            refresh.setImage(org.python.pydev.plugin.PydevPlugin.getImageCache().get(UIConstants.REFRESH));
+            refresh.setImage(ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.REFRESH)));
 
             final ToolItem home = new ToolItem(navBar, SWT.PUSH);
-            home.setImage(org.python.pydev.plugin.PydevPlugin.getImageCache().get(UIConstants.HOME));
+            home.setImage(ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.HOME)));
 
             back.addListener(SWT.Selection, new Listener() {
                 @Override
@@ -216,7 +220,7 @@ final class DialogNotifier extends Dialog {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 doClose();
-                IPreferenceStore preferenceStore = PydevPrefs.getPreferenceStore();
+                IPreferenceStore preferenceStore = PyDevUiPrefs.getPreferenceStore();
                 //Show it again only after a full year has elapsed.
                 preferenceStore.setValue(PydevShowBrowserMessage.PYDEV_FUNDING_SHOW_AT_TIME,
                         System.currentTimeMillis() + (PydevShowBrowserMessage.ONE_DAY_IN_MILLIS * 365));
@@ -277,7 +281,7 @@ public class PydevShowBrowserMessage {
         if (hide != null && (hide.equals("1") || hide.equals("true"))) {
             return;
         }
-        IPreferenceStore preferenceStore = PydevPrefs.getPreferenceStore();
+        IPreferenceStore preferenceStore = PyDevUiPrefs.getPreferenceStore();
         long showAtTime = preferenceStore.getLong(PYDEV_FUNDING_SHOW_AT_TIME);
         boolean show;
         if (showAtTime == 0) {

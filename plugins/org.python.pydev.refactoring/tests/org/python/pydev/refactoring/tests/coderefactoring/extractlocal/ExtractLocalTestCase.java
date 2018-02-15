@@ -24,8 +24,6 @@ package org.python.pydev.refactoring.tests.coderefactoring.extractlocal;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.ITextSelection;
-import org.eclipse.jface.text.TextSelection;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.core.IGrammarVersionProvider;
@@ -34,6 +32,8 @@ import org.python.pydev.refactoring.coderefactoring.extractlocal.ExtractLocalReq
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.tests.core.AbstractIOTestCase;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.string.CoreTextSelection;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
 
 public class ExtractLocalTestCase extends AbstractIOTestCase {
 
@@ -46,7 +46,7 @@ public class ExtractLocalTestCase extends AbstractIOTestCase {
         FileUtils.IN_TESTS = true;
 
         IDocument document = new Document(data.source);
-        ITextSelection selection = new TextSelection(document, data.sourceSelection.getOffset(),
+        ICoreTextSelection selection = new CoreTextSelection(document, data.sourceSelection.getOffset(),
                 data.sourceSelection.getLength());
         IGrammarVersionProvider versionProvider = createVersionProvider();
         RefactoringInfo info = new RefactoringInfo(document, selection, versionProvider);

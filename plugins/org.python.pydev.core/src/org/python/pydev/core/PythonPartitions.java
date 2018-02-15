@@ -1,0 +1,26 @@
+package org.python.pydev.core;
+
+import java.util.HashSet;
+import java.util.Set;
+
+public class PythonPartitions {
+    public static Set<String> STRING_PROCESSOR_PARTITIONS = new HashSet<>();
+    static {
+        STRING_PROCESSOR_PARTITIONS.add(IPythonPartitions.PY_SINGLELINE_BYTES1);
+        STRING_PROCESSOR_PARTITIONS.add(IPythonPartitions.PY_SINGLELINE_BYTES2);
+        STRING_PROCESSOR_PARTITIONS.add(IPythonPartitions.PY_MULTILINE_BYTES1);
+        STRING_PROCESSOR_PARTITIONS.add(IPythonPartitions.PY_MULTILINE_BYTES2);
+
+        STRING_PROCESSOR_PARTITIONS.add(IPythonPartitions.PY_SINGLELINE_UNICODE1);
+        STRING_PROCESSOR_PARTITIONS.add(IPythonPartitions.PY_SINGLELINE_UNICODE2);
+        STRING_PROCESSOR_PARTITIONS.add(IPythonPartitions.PY_MULTILINE_UNICODE1);
+        STRING_PROCESSOR_PARTITIONS.add(IPythonPartitions.PY_MULTILINE_UNICODE2);
+
+        STRING_PROCESSOR_PARTITIONS.add(IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE1);
+        STRING_PROCESSOR_PARTITIONS.add(IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE2);
+        STRING_PROCESSOR_PARTITIONS.add(IPythonPartitions.PY_MULTILINE_BYTES_OR_UNICODE1);
+        STRING_PROCESSOR_PARTITIONS.add(IPythonPartitions.PY_MULTILINE_BYTES_OR_UNICODE2);
+
+        STRING_PROCESSOR_PARTITIONS.add(IPythonPartitions.PY_COMMENT);
+    }
+}

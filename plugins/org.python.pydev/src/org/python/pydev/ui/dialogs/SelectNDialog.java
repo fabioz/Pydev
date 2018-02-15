@@ -22,9 +22,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.CheckedTreeSelectionDialog;
 import org.python.pydev.shared_core.structure.TreeNode;
-import org.python.pydev.shared_core.structure.TreeNodeContentProvider;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.dialogs.SelectElementDialog;
+import org.python.pydev.shared_ui.tree.TreeNodeContentProvider;
 
 @SuppressWarnings("rawtypes")
 public class SelectNDialog {

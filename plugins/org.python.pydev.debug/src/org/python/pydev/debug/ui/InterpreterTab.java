@@ -31,6 +31,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
@@ -38,20 +39,20 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.launching.InvalidRunException;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.string.WrapAndCaseUtils;
-
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 
 /**
  * The Python interpreter setup tab.
  *
- * The contents of this tab was formerly in the ArgumentsTab, until 
+ * The contents of this tab was formerly in the ArgumentsTab, until
  * controls took too much space to fit.
- * 
- * As benefit of the split, this separates the program launch parameters 
- * from the Interpreter configuration. 
- * 
+ *
+ * As benefit of the split, this separates the program launch parameters
+ * from the Interpreter configuration.
+ *
  * <p>Interesting functionality: InterpreterEditor will try the verify the choice of an interpreter.
  * <p>Getting the ModifyListener to display the proper error message was tricky
  */
@@ -76,7 +77,7 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
                             .getProjectFromConfiguration(this.fWorkingCopyForCommandLineGeneration);
                     PythonNature nature = PythonNature.getPythonNature(project);
                     if (nature != null) {
-                        return PydevPlugin.getInterpreterManager(nature);
+                        return InterpreterManagersAPI.getInterpreterManager(nature);
                     }
                 } catch (Exception e) {
                     Log.log(e);
@@ -103,7 +104,8 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
                             launchConfigurationDialog);
                     if (config == null) {
                         fCommandLineText
-                                .setText("Unable to make the command-line. \n\nReason:Interpreter not available for current project.");
+                                .setText(
+                                        "Unable to make the command-line. \n\nReason:Interpreter not available for current project.");
                     } else {
                         String commandLineAsString = config.getCommandLineAsString();
                         commandLineAsString = WrapAndCaseUtils.wrap(commandLineAsString, 80);
@@ -127,8 +129,8 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
      * @param launchConfigurationDialog the dialog for the launch configuration
      * @return a PythonRunnerConfig configured with the given launch configuration
      * @throws CoreException
-     * @throws InvalidRunException 
-     * @throws MisconfigurationException 
+     * @throws InvalidRunException
+     * @throws MisconfigurationException
      */
     private PythonRunnerConfig getConfig(ILaunchConfiguration configuration,
             ILaunchConfigurationDialog launchConfigurationDialog) throws CoreException, InvalidRunException,
@@ -156,7 +158,7 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
         }
 
         boolean makeArgumentsVariableSubstitution = false;
-        // we don't want to make the arguments substitution (because it could end opening up a 
+        // we don't want to make the arguments substitution (because it could end opening up a
         // dialog for the user requesting something).
         PythonRunnerConfig config = new PythonRunnerConfig(configuration, launchConfigurationDialog.getMode(), run,
                 makeArgumentsVariableSubstitution);
@@ -268,7 +270,7 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
      */
     @Override
     public Image getImage() {
-        return PydevPlugin.getImageCache().get(Constants.PYTHON_ORG_ICON);
+        return ImageCache.asImage(SharedUiPlugin.getImageCache().get(Constants.PYTHON_ORG_ICON));
     }
 
     /*
@@ -315,7 +317,8 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
         }
 
         if (fInterpreterComboField.getItems().length == 0) {
-            setErrorMessage("No interpreter is configured, please, go to window > preferences > interpreters and add the interpreter you want to use.");
+            setErrorMessage(
+                    "No interpreter is configured, please, go to window > preferences > interpreters and add the interpreter you want to use.");
 
         } else {
 
@@ -368,7 +371,7 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
     /**
      * @param interpreter the interpreter to validate
      * @return true if the interpreter is configured in pydev
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     protected boolean checkIfInterpreterExists(String interpreter) throws MisconfigurationException {
         IInterpreterManager interpreterManager = this.getInterpreterManager();

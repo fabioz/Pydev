@@ -23,7 +23,7 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.actions.MoveResourceAction;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
-import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
 
 public class PyMoveResourceAction extends MoveResourceAction {
 

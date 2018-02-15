@@ -28,8 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.autoedit.DefaultIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;

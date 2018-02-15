@@ -12,13 +12,13 @@ package org.python.pydev.builder.pylint;
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.osgi.service.prefs.Preferences;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.SharedCorePlugin;
 
 public class PyLintPrefInitializer extends AbstractPreferenceInitializer {
 
     @Override
     public void initializeDefaultPreferences() {
-        Preferences node = DefaultScope.INSTANCE.getNode(PydevPlugin.DEFAULT_PYDEV_SCOPE);
+        Preferences node = DefaultScope.INSTANCE.getNode(SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_SCOPE);
 
         node.put(PyLintPrefPage.PYLINT_FILE_LOCATION, "");
         node.putBoolean(PyLintPrefPage.USE_PYLINT, PyLintPrefPage.DEFAULT_USE_PYLINT);

@@ -29,10 +29,10 @@ import org.python.pydev.shared_core.string.StringUtils;
 
 public class FileStub extends AbstractIFileStub implements IFile {
 
-    private ProjectStub project;
+    private IProjectStub project;
     protected File file;
 
-    public FileStub(ProjectStub project, File file) {
+    public FileStub(IProjectStub project, File file) {
         this.project = project;
         this.file = file;
     }
@@ -99,7 +99,7 @@ public class FileStub extends AbstractIFileStub implements IFile {
 
     @Override
     public IPath getFullPath() {
-        IPath projectPath = Path.fromOSString(FileUtils.getFileAbsolutePath(project.projectRoot));
+        IPath projectPath = Path.fromOSString(FileUtils.getFileAbsolutePath(project.getProjectRoot()));
         IPath filePath = Path.fromOSString(FileUtils.getFileAbsolutePath(file));
         return filePath.makeRelativeTo(projectPath);
     }

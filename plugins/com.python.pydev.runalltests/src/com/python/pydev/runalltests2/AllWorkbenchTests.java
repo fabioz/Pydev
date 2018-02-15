@@ -10,6 +10,9 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.python.pydev.ast.codecompletion.revisited.javaintegration.JavaClassModuleTestWorkbench;
+import org.python.pydev.ast.codecompletion.revisited.jython.JythonCompletionWithBuiltinsTestWorkbench;
+import org.python.pydev.ast.codecompletion.revisited.jython.JythonFindDefinitionTestWorkbench;
 import org.python.pydev.customizations.app_engine.wizards.AppEngineConfigWizardPageTestWorkbench;
 import org.python.pydev.debug.codecoverage.PyCodeCoverageTestWorkbench;
 import org.python.pydev.debug.pyunit.PyUnitView2TestTestWorkbench;
@@ -21,11 +24,8 @@ import org.python.pydev.debug.ui.launching.PythonRunnerConfigTestWorkbench;
 import org.python.pydev.dltk.console.codegen.GetGeneratorTestWorkbench;
 import org.python.pydev.dltk.console.codegen.StructuredSelectionGeneratorTestWorkbench;
 import org.python.pydev.editor.PyEditTitleTestWorkbench;
-import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaClassModuleTestWorkbench;
-import org.python.pydev.editor.codecompletion.revisited.jython.JythonCompletionWithBuiltinsTestWorkbench;
-import org.python.pydev.editor.codecompletion.revisited.jython.JythonFindDefinitionTestWorkbench;
-import org.python.pydev.plugin.nature.ProjectImportedHasAstManagerTestWorkbench;
-import org.python.pydev.plugin.nature.SaveFileWithoutNatureTestWorkbench;
+import org.python.pydev.plugin.ProjectImportedHasAstManagerTestWorkbench;
+import org.python.pydev.plugin.SaveFileWithoutNatureTestWorkbench;
 
 import com.python.pydev.analysis.AnalysisRequestsTestWorkbench;
 import com.python.pydev.codecompletion.JavaIntegrationPydevComTestWorkbench;

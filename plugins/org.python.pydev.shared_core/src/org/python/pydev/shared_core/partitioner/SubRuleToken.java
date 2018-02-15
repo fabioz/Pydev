@@ -10,7 +10,6 @@ import java.util.ListIterator;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.rules.IToken;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 

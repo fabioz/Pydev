@@ -14,38 +14,35 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
+import org.python.pydev.ast.codecompletion.revisited.CompletionStateFactory;
+import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
+import org.python.pydev.ast.codecompletion.revisited.visitors.HeuristicFindAttrs;
+import org.python.pydev.ast.item_pointer.ItemPointer;
+import org.python.pydev.ast.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.IDefinition;
+import org.python.pydev.core.IInfo;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
-import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
-import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
-import org.python.pydev.editor.codecompletion.revisited.visitors.HeuristicFindAttrs;
-import org.python.pydev.editor.model.ItemPointer;
-import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.exprType;
-import org.python.pydev.shared_ui.ImageCache;
-import org.python.pydev.shared_ui.UIConstants;
 
-import com.python.pydev.analysis.additionalinfo.IInfo;
 import com.python.pydev.analysis.additionalinfo.ReferenceSearchesLucene;
 
 /**
  * The main plugin class to be used in the desktop.
  */
-public class AnalysisPlugin extends AbstractUIPlugin {
+public class AnalysisPlugin extends Plugin {
 
     //The shared instance.
     private static AnalysisPlugin plugin;
 
+    public static IPath stateLocation;
     //    private IWorkbenchWindow activeWorkbenchWindow;
 
     /**
@@ -61,6 +58,7 @@ public class AnalysisPlugin extends AbstractUIPlugin {
     @Override
     public void start(BundleContext context) throws Exception {
         super.start(context);
+        stateLocation = AnalysisPlugin.getDefault().getStateLocation();
 
         // Leaving code around to know when we get to the PyDev perspective in the active window (may be
         // useful in the future).
@@ -210,136 +208,13 @@ public class AnalysisPlugin extends AbstractUIPlugin {
     }
 
     /**
-     * Returns an image descriptor for the image file at the given
-     * plug-in relative path.
-     *
-     * @param path the path
-     * @return the image descriptor
-     */
-    public static ImageDescriptor getImageDescriptor(String path) {
-        return AbstractUIPlugin.imageDescriptorFromPlugin("com.python.pydev.analysis", path);
-    }
-
-    private static final Object lock = new Object();
-    public static Image autoImportClassWithImportType;
-    public static Image autoImportMethodWithImportType;
-    public static Image autoImportAttributeWithImportType;
-    public static Image autoImportModImportType;
-
-    public static Image getImageForAutoImportTypeInfo(IInfo info) {
-        return getImageForAutoImportTypeInfo(info.getType());
-    }
-
-    public static Image getImageForAutoImportTypeInfo(int infoType) {
-        switch (infoType) {
-            case IInfo.CLASS_WITH_IMPORT_TYPE:
-                if (autoImportClassWithImportType == null) {
-                    synchronized (lock) {
-                        ImageCache imageCache = org.python.pydev.plugin.PydevPlugin.getImageCache();
-                        autoImportClassWithImportType = imageCache.getImageDecorated(UIConstants.CLASS_ICON,
-                                UIConstants.CTX_INSENSITIVE_DECORATION_ICON,
-                                ImageCache.DECORATION_LOCATION_BOTTOM_RIGHT);
-                    }
-                }
-                return autoImportClassWithImportType;
-
-            case IInfo.METHOD_WITH_IMPORT_TYPE:
-                if (autoImportMethodWithImportType == null) {
-                    synchronized (lock) {
-                        ImageCache imageCache = org.python.pydev.plugin.PydevPlugin.getImageCache();
-                        autoImportMethodWithImportType = imageCache.getImageDecorated(UIConstants.METHOD_ICON,
-                                UIConstants.CTX_INSENSITIVE_DECORATION_ICON,
-                                ImageCache.DECORATION_LOCATION_BOTTOM_RIGHT);
-                    }
-                }
-                return autoImportMethodWithImportType;
-
-            case IInfo.ATTRIBUTE_WITH_IMPORT_TYPE:
-                if (autoImportAttributeWithImportType == null) {
-                    synchronized (lock) {
-                        ImageCache imageCache = org.python.pydev.plugin.PydevPlugin.getImageCache();
-                        autoImportAttributeWithImportType = imageCache.getImageDecorated(UIConstants.PUBLIC_ATTR_ICON,
-                                UIConstants.CTX_INSENSITIVE_DECORATION_ICON,
-                                ImageCache.DECORATION_LOCATION_BOTTOM_RIGHT);
-                    }
-                }
-                return autoImportAttributeWithImportType;
-
-            case IInfo.MOD_IMPORT_TYPE:
-                if (autoImportModImportType == null) {
-                    synchronized (lock) {
-                        ImageCache imageCache = org.python.pydev.plugin.PydevPlugin.getImageCache();
-                        autoImportModImportType = imageCache.getImageDecorated(UIConstants.FOLDER_PACKAGE_ICON,
-                                UIConstants.CTX_INSENSITIVE_DECORATION_ICON,
-                                ImageCache.DECORATION_LOCATION_BOTTOM_RIGHT);
-                    }
-                }
-                return autoImportModImportType;
-
-            case IInfo.USE_PACKAGE_ICON:
-                ImageCache imageCache = org.python.pydev.plugin.PydevPlugin.getImageCache();
-                return imageCache.get(UIConstants.COMPLETION_PACKAGE_ICON);
-
-            default:
-                throw new RuntimeException("Undefined type.");
-
-        }
-
-    }
-
-    public static Image classWithImportType;
-    public static Image methodWithImportType;
-    public static Image attributeWithImportType;
-    public static Image modImportType;
-
-    public static Image getImageForTypeInfo(IInfo info) {
-        switch (info.getType()) {
-            case IInfo.CLASS_WITH_IMPORT_TYPE:
-                if (classWithImportType == null) {
-                    synchronized (lock) {
-                        ImageCache imageCache = org.python.pydev.plugin.PydevPlugin.getImageCache();
-                        classWithImportType = imageCache.get(UIConstants.CLASS_ICON);
-                    }
-                }
-                return classWithImportType;
-
-            case IInfo.METHOD_WITH_IMPORT_TYPE:
-                if (methodWithImportType == null) {
-                    synchronized (lock) {
-                        ImageCache imageCache = org.python.pydev.plugin.PydevPlugin.getImageCache();
-                        methodWithImportType = imageCache.get(UIConstants.METHOD_ICON);
-                    }
-                }
-                return methodWithImportType;
-
-            case IInfo.ATTRIBUTE_WITH_IMPORT_TYPE:
-                if (attributeWithImportType == null) {
-                    synchronized (lock) {
-                        ImageCache imageCache = org.python.pydev.plugin.PydevPlugin.getImageCache();
-                        attributeWithImportType = imageCache.get(UIConstants.PUBLIC_ATTR_ICON);
-                    }
-                }
-                return attributeWithImportType;
-
-            case IInfo.MOD_IMPORT_TYPE:
-                if (modImportType == null) {
-                    synchronized (lock) {
-                        ImageCache imageCache = org.python.pydev.plugin.PydevPlugin.getImageCache();
-                        modImportType = imageCache.get(UIConstants.FOLDER_PACKAGE_ICON);
-                    }
-                }
-                return modImportType;
-            default:
-                throw new RuntimeException("Undefined type.");
-
-        }
-    }
-
-    /**
      * Returns the directory that can be used to store things for some project
      */
     public static File getStorageDirForProject(IProject p) {
-        IPath location = p.getWorkingLocation(plugin.getBundle().getSymbolicName());
+        if (AnalysisPlugin.getDefault() == null) {
+            return new File(".");
+        }
+        IPath location = p.getWorkingLocation("com.python.pydev.analysis");
         IPath path = location;
 
         File file = new File(path.toOSString());

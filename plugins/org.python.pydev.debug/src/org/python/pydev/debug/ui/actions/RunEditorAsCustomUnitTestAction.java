@@ -48,6 +48,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IEditorInput;
+import org.python.pydev.ast.codecompletion.PyCodeCompletionImages;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.docutils.PySelection;
@@ -56,7 +57,6 @@ import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.launching.AbstractLaunchShortcut;
 import org.python.pydev.debug.ui.launching.FileOrResource;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -69,6 +69,7 @@ import org.python.pydev.shared_core.callbacks.ICallbackListener;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.EditorUtils;
+import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.dialogs.DialogMemento;
 import org.python.pydev.ui.dialogs.TreeSelectionDialog;
 
@@ -469,12 +470,12 @@ final class SelectTestLabelProvider extends LabelProvider {
     public Image getImage(Object element) {
         SimpleNode n = ((ASTEntry) element).node;
         if (n instanceof ClassDef) {
-            return PyCodeCompletionImages.getImageForType(IToken.TYPE_CLASS);
+            return ImageCache.asImage(PyCodeCompletionImages.getImageForType(IToken.TYPE_CLASS));
         }
         if (n instanceof FunctionDef) {
-            return PyCodeCompletionImages.getImageForType(IToken.TYPE_FUNCTION);
+            return ImageCache.asImage(PyCodeCompletionImages.getImageForType(IToken.TYPE_FUNCTION));
         }
-        return PyCodeCompletionImages.getImageForType(IToken.TYPE_ATTR);
+        return ImageCache.asImage(PyCodeCompletionImages.getImageForType(IToken.TYPE_ATTR));
     }
 
     @Override

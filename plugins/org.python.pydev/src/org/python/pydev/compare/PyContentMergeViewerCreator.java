@@ -15,7 +15,7 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
-import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.plugin.PyDevUiPrefs;
 
 /**
  * Required when creating a PyMergeViewer from the plugin.xml file.
@@ -34,7 +34,7 @@ public class PyContentMergeViewerCreator implements IViewerCreator {
      * Also copies the available data from the original compare configuration to the new configuration.
      */
     private CompareConfiguration createNewCompareConfiguration(CompareConfiguration mp) {
-        List<IPreferenceStore> stores = PydevPrefs.getDefaultStores(false);
+        List<IPreferenceStore> stores = PyDevUiPrefs.getDefaultStores(false);
         IPreferenceStore prefs = mp.getPreferenceStore();
         if (prefs != null) {
             //Note, we could use the CompareUIPlugin.getDefault().getPreferenceStore() directly, but it's access

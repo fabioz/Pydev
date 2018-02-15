@@ -6,14 +6,14 @@
  */
 package org.python.pydev.navigator;
 
-import org.eclipse.swt.graphics.Image;
+import org.python.pydev.shared_core.image.IImageHandle;
 
 public final class LabelAndImage {
 
     public final String label;
-    public final Image image;
+    public final IImageHandle image;
 
-    public LabelAndImage(String o1, Image o2) {
+    public LabelAndImage(String o1, IImageHandle o2) {
         this.label = o1;
         this.image = o2;
     }
@@ -25,7 +25,7 @@ public final class LabelAndImage {
         }
 
         LabelAndImage t2 = (LabelAndImage) obj;
-        if (label == t2.label && image == t2.image) { //all the same 
+        if (label == t2.label && image == t2.image) { //all the same
             return true;
         }
 

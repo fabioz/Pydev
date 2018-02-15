@@ -5,8 +5,8 @@
  * Any modifications to this file must keep this entire header intact.
  */
 /*
- * TAKEN FROM 
- * 
+ * TAKEN FROM
+ *
  * org.eclipse.jdt.internal.ui.text.JavaPairMatcher
  */
 package org.python.pydev.core.docutils;
@@ -20,7 +20,6 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
-import org.eclipse.jface.text.source.ICharacterPairMatcher;
 import org.python.pydev.shared_core.string.ICharacterPairMatcher2;
 import org.python.pydev.shared_core.string.StringUtils;
 
@@ -31,9 +30,9 @@ import org.python.pydev.shared_core.string.StringUtils;
  * anchor defines whether the chosen character is left or right of the initial offset. The matcher then
  * searches for the matching peer character of the chosen character and if it finds one, delivers the minimal
  * region of the document that contains both characters.
- * 
+ *
  * Typical usage of this class is something like the following:
- * 
+ *
  * @code
    PythonPairMatcher matcher = new PythonPairMatcher(PyDoubleClickStrategy.BRACKETS);
    IRegion region = matcher.match(document, offset);
@@ -42,11 +41,20 @@ import org.python.pydev.shared_core.string.StringUtils;
      // do something
    }
    @endcode
- * 
+ *
  * @author Fabio Zadrozny
  * @see org.eclipse.jface.text.source.ICharacterPairMatcher
  */
-public class PythonPairMatcher implements ICharacterPairMatcher, ICharacterPairMatcher2 {
+public class PythonPairMatcher implements ICharacterPairMatcher2 {
+
+    /**
+     * Indicates the anchor value "right".
+     */
+    int RIGHT = 0;
+    /**
+     * Indicates the anchor value "left".
+     */
+    int LEFT = 1;
 
     protected char[] fPairs;
 
@@ -68,9 +76,9 @@ public class PythonPairMatcher implements ICharacterPairMatcher, ICharacterPairM
 
     /**
      * Constructor which accepts an array of array of characters you want to interpreted as pairs.
-     * 
+     *
      * Most commonly, you'll simply use STANDARD_PYTHON_PAIRS.
-     * 
+     *
      * @param pairs an array of characters to be interprested as pairs; the array size must be a multiple of
      *            two, and the first element of the "pair" must be the beginning brace, and the "second"
      *            element of the pair must be the ending brace. For example, pairs[0] = '(', pairs[1] = ')'
@@ -81,13 +89,12 @@ public class PythonPairMatcher implements ICharacterPairMatcher, ICharacterPairM
 
     /**
      * Match the brace specified by the arguments and return the region.
-     * 
+     *
      * @param document the document in which to search
      * @param offset the offset where the brace is
      * @return the region describing the
      * @see org.eclipse.jface.text.source.ICharacterPairMatcher#match(org.eclipse.jface.text.IDocument, int)
      */
-    @Override
     public IRegion match(IDocument document, int offset) {
 
         fOffset = offset;
@@ -107,20 +114,18 @@ public class PythonPairMatcher implements ICharacterPairMatcher, ICharacterPairM
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.jface.text.source.ICharacterPairMatcher#getAnchor()
      */
-    @Override
     public int getAnchor() {
         return fAnchor;
     }
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.jface.text.source.ICharacterPairMatcher#dispose()
      */
-    @Override
     public void dispose() {
         clear();
         fDocument = null;
@@ -130,7 +135,6 @@ public class PythonPairMatcher implements ICharacterPairMatcher, ICharacterPairM
     /*
      * @see org.eclipse.jface.text.source.ICharacterPairMatcher#clear()
      */
-    @Override
     public void clear() {
         if (fReader != null) {
             try {
@@ -207,7 +211,7 @@ public class PythonPairMatcher implements ICharacterPairMatcher, ICharacterPairM
 
     /**
      * If you found an opening peer, you'll want to look for a closing peer.
-     * 
+     *
      * @param offset
      * @param openingPeer
      * @param closingPeer
@@ -244,7 +248,7 @@ public class PythonPairMatcher implements ICharacterPairMatcher, ICharacterPairM
 
     /**
      * If you found a closing peer, you'll want to search for an opening peer.
-     * 
+     *
      * @param offset
      * @param openingPeer
      * @param closingPeer
@@ -301,7 +305,7 @@ public class PythonPairMatcher implements ICharacterPairMatcher, ICharacterPairM
 
             int c = fReader.read();
             while (c != PythonCodeReader.EOF) {
-                if (closing.contains((char) c)) { // c == ')' || c == ']' || c == '}' 
+                if (closing.contains((char) c)) { // c == ')' || c == ']' || c == '}'
                     char peer = StringUtils.getPeer((char) c);
                     Integer iStack = stack.get(peer);
                     iStack++;

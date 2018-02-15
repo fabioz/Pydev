@@ -26,26 +26,26 @@ package org.python.pydev.refactoring.coderefactoring.extractlocal.request;
 
 import java.util.List;
 
-import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.request.IRefactoringRequest;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
 import org.python.pydev.shared_core.structure.Tuple;
 
 public class ExtractLocalRequest implements IRefactoringRequest {
 
     public final RefactoringInfo info;
-    public final ITextSelection selection;
+    public final ICoreTextSelection selection;
     public final exprType expression;
     public final String variableName;
-    public final List<Tuple<ITextSelection, SimpleNode>> duplicates;
+    public final List<Tuple<ICoreTextSelection, SimpleNode>> duplicates;
     public final boolean replaceDuplicates;
 
-    public ExtractLocalRequest(RefactoringInfo info, ITextSelection selection, exprType expression,
-            String variableName, List<Tuple<ITextSelection, SimpleNode>> duplicates, boolean replaceDuplicates) {
+    public ExtractLocalRequest(RefactoringInfo info, ICoreTextSelection selection, exprType expression,
+            String variableName, List<Tuple<ICoreTextSelection, SimpleNode>> duplicates, boolean replaceDuplicates) {
         this.info = info;
         this.selection = selection;
         this.expression = expression;

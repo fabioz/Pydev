@@ -6,7 +6,7 @@
  */
 package org.python.pydev.debug.pyunit;
 
-import org.python.pydev.editor.model.ItemPointer;
+import org.python.pydev.ast.item_pointer.ItemPointer;
 
 import junit.framework.TestCase;
 

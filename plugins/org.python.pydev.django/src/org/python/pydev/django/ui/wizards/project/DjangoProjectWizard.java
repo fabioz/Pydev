@@ -28,6 +28,8 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.wizard.IWizardPage;
+import org.python.pydev.ast.runners.UniversalRunner;
+import org.python.pydev.ast.runners.UniversalRunner.AbstractRunner;
 import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.log.Log;
@@ -38,8 +40,6 @@ import org.python.pydev.django.ui.wizards.project.DjangoSettingsPage.DjangoSetti
 import org.python.pydev.plugin.PyStructureConfigHelpers;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.runners.UniversalRunner;
-import org.python.pydev.runners.UniversalRunner.AbstractRunner;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.io.FileUtils;

@@ -17,10 +17,11 @@ import java.io.File;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_interactive_console.console.ui.ScriptConsole;
 import org.python.pydev.shared_interactive_console.console.ui.ScriptConsoleManager;
 import org.python.pydev.shared_interactive_console.console.ui.ScriptConsoleUIConstants;
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 
 public class LinkWithDebugSelectionAction extends Action {
 
@@ -41,7 +42,7 @@ public class LinkWithDebugSelectionAction extends Action {
     public ImageDescriptor getImageDescriptor() {
         String imagePath = ScriptConsoleUIConstants.ICONS_PATH + File.separator
                 + ScriptConsoleUIConstants.LINK_WITH_DEBUGGER;
-        return ImageDescriptor.createFromImage(PydevPlugin.getImageCache().get(imagePath));
+        return ImageCache.asImageDescriptor(SharedUiPlugin.getImageCache().getDescriptor(imagePath));
     }
 
     @Override

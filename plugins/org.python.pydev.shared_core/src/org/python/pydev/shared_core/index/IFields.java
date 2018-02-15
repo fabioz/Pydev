@@ -14,7 +14,7 @@ package org.python.pydev.shared_core.index;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.jface.text.rules.IToken;
+import org.python.pydev.shared_core.partitioner.IToken;
 
 class StaticInit {
 

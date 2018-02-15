@@ -29,11 +29,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
-import org.python.pydev.core.SystemUtils;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.preferences.PyScopedPreferences;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.preferences.PyScopedPreferences;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;
 import org.python.pydev.shared_ui.field_editors.LinkFieldEditor;
 import org.python.pydev.shared_ui.field_editors.ScopedFieldEditorPreferencePage;
@@ -228,7 +228,7 @@ public class PydevSaveActionsPrefPage extends ScopedFieldEditorPreferencePage im
         addField(new LabelFieldEditor("__dummy__",
                 "I.e.: __updated__=\"2010-01-01\" will be synched on save.", p));
 
-        addField(new ScopedPreferencesFieldEditor(p, PydevPlugin.DEFAULT_PYDEV_SCOPE, this));
+        addField(new ScopedPreferencesFieldEditor(p, SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_SCOPE, this));
 
     }
 

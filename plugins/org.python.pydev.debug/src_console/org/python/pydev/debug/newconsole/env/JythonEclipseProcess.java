@@ -12,9 +12,9 @@ import java.io.OutputStream;
 import java.util.HashMap;
 
 import org.python.pydev.core.log.Log;
-import org.python.pydev.jython.IPythonInterpreter;
 import org.python.pydev.jython.JythonPlugin;
 import org.python.pydev.shared_core.io.PipedInputStream;
+import org.python.pydev.shared_core.jython.IPythonInterpreter;
 
 
 /**

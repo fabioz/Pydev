@@ -14,6 +14,11 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
+import org.python.pydev.ast.codecompletion.revisited.CompletionCache;
+import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
+import org.python.pydev.ast.item_pointer.ItemPointer;
+import org.python.pydev.ast.refactoring.PyRefactoringFindDefinition;
+import org.python.pydev.ast.refactoring.RefactoringRequest;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IPythonNature;
@@ -26,12 +31,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.PyInformationPresenter;
-import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
-import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codefolding.PySourceViewer;
-import org.python.pydev.editor.model.ItemPointer;
-import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
-import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -171,7 +171,7 @@ public class PyDocstringTextHover extends AbstractPyEditorTextHover {
                     }
                 }
 
-                String str = printAst(edit, astToPrint);
+                String str = NodeUtils.printAst(edit, astToPrint);
 
                 if (str != null && str.trim().length() > 0) {
                     temp.append(PyInformationPresenter.LINE_DELIM);

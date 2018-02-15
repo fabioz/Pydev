@@ -16,6 +16,13 @@ import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.python.pydev.ast.codecompletion.revisited.ModulesFoundStructure;
+import org.python.pydev.ast.codecompletion.revisited.ModulesManager;
+import org.python.pydev.ast.codecompletion.revisited.PyPublicTreeMap;
+import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.ast.codecompletion.revisited.SystemModulesManager;
+import org.python.pydev.ast.interpreter_managers.IInterpreterInfoBuilder;
+import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModulesManager;
@@ -24,17 +31,9 @@ import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure;
-import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
-import org.python.pydev.editor.codecompletion.revisited.PyPublicTreeMap;
-import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
-import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
-import org.python.pydev.logging.DebugSettings;
+import org.python.pydev.core.logging.DebugSettings;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.shared_ui.log.ToLogFile;
-import org.python.pydev.ui.pythonpathconf.IInterpreterInfoBuilder;
-import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
@@ -93,7 +92,7 @@ public class InterpreterInfoBuilder implements IInterpreterInfoBuilder {
             monitor = new NullProgressMonitor();
         }
         if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {
-            ToLogFile.toLogFile(this, "--- Start run");
+            org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "--- Start run");
         }
         BuilderResult ret = checkEarlyReturn(monitor, info);
         if (ret != BuilderResult.OK) {
@@ -110,7 +109,7 @@ public class InterpreterInfoBuilder implements IInterpreterInfoBuilder {
                 modulesFound);
 
         if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {
-            ToLogFile.toLogFile(
+            org.python.pydev.shared_core.log.ToLogFile.toLogFile(
                     this,
                     StringUtils.format("Found: %s modules",
                             keysFound.size()));
@@ -143,7 +142,7 @@ public class InterpreterInfoBuilder implements IInterpreterInfoBuilder {
 
                 if (diffModules.o1.size() > 0 || diffModules.o2.size() > 0) {
                     if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {
-                        ToLogFile.toLogFile(this, StringUtils.format(
+                        org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, StringUtils.format(
                                 "Diff modules. Added: %s Removed: %s", diffModules.o1,
                                 diffModules.o2));
                     }
@@ -166,7 +165,7 @@ public class InterpreterInfoBuilder implements IInterpreterInfoBuilder {
         }
 
         if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {
-            ToLogFile.toLogFile(this, "--- End Run");
+            org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "--- End Run");
         }
         return BuilderResult.OK;
     }
@@ -174,14 +173,14 @@ public class InterpreterInfoBuilder implements IInterpreterInfoBuilder {
     private BuilderResult checkEarlyReturn(IProgressMonitor monitor, InterpreterInfo info) {
         if (monitor.isCanceled()) {
             if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {
-                ToLogFile.toLogFile(this, "Cancelled");
+                org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "Cancelled");
             }
             return BuilderResult.ABORTED;
         }
 
         if (info != null && !info.getLoadFinished()) {
             if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {
-                ToLogFile.toLogFile(this, "Load not finished (rescheduling)");
+                org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "Load not finished (rescheduling)");
             }
             Log.log("The interpreter sync was cancelled (scheduling for checking the integrity later on again).\n"
                     + "To prevent any scheduling (at the cost of possible index corruptions),\n"

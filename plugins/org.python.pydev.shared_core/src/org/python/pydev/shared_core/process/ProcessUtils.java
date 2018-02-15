@@ -87,7 +87,7 @@ public class ProcessUtils {
 
         } else {
             try {
-                throw new CoreException(new Status(IStatus.ERROR, SharedCorePlugin.PLUGIN_ID,
+                throw new CoreException(new Status(IStatus.ERROR, SharedCorePlugin.SHARED_CORE_PLUGIN_ID,
                         "Error creating process - got null process(" + executionString + ")", new Exception(
                                 "Error creating process - got null process.")));
             } catch (CoreException e) {
@@ -240,6 +240,13 @@ public class ProcessUtils {
      * Parses the given command line into separate arguments that can be passed to
      * <code>DebugPlugin.exec(String[], File)</code>. Embedded quotes and slashes
      * are escaped.
+     *
+     * Parses the argument text into an array of individual
+     * strings using the space character as the delimiter.
+     * An individual argument containing spaces must have a
+     * double quote (") at the start and end. Two double
+     * quotes together is taken to mean an embedded double
+     * quote in the argument text.
      *
      * @param args command line arguments as a single string
      * @return individual arguments

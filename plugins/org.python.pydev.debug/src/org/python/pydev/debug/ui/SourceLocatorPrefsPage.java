@@ -17,9 +17,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.editorinput.PySourceLocatorPrefs;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.field_editors.ComboFieldEditor;
 
@@ -63,7 +63,7 @@ public class SourceLocatorPrefsPage extends FieldEditorPreferencePage implements
         addField(new IntegerFieldEditor(PySourceLocatorPrefs.FILE_CONTENTS_TIMEOUT,
                 "Timeout to get file contents (millis):", p));
 
-        addField(new TableEditor(PydevEditorPrefs.SOURCE_LOCATION_PATHS, "Translation paths to use:", p) {
+        addField(new TableEditor(PyDevEditorPreferences.SOURCE_LOCATION_PATHS, "Translation paths to use:", p) {
 
             @Override
             protected String createTable(List<String[]> items) {

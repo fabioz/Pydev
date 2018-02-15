@@ -15,9 +15,9 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.python.pydev.core.logging.DebugSettings;
+import org.python.pydev.core.logging.PyLoggingPreferences;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.preferences.PydevPrefs;
-import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;
 import org.python.pydev.shared_ui.field_editors.LinkFieldEditor;
@@ -30,15 +30,6 @@ import org.python.pydev.shared_ui.log.ToLogFile;
  * @author Fabio
  */
 public class PyLoggingPreferencesPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
-
-    public static final String DEBUG_CODE_COMPLETION = "DEBUG_CODE_COMPLETION";
-    public static final boolean DEFAULT_DEBUG_CODE_COMPLETION = false;
-
-    public static final String DEBUG_ANALYSIS_REQUESTS = "DEBUG_ANALYSIS_REQUESTS";
-    public static final boolean DEFAULT_DEBUG_ANALYSIS_REQUESTS = false;
-
-    public static final String DEBUG_INTERPRETER_AUTO_UPDATE = "DEBUG_INTERPRETER_UPDATE";
-    public static final boolean DEFAULT_DEBUG_INTERPRETER_AUTO_UPDATE = false;
 
     public PyLoggingPreferencesPage() {
         super(GRID);
@@ -56,13 +47,13 @@ public class PyLoggingPreferencesPage extends FieldEditorPreferencePage implemen
                         + "Afterwards, remember to turn it off again, as things\n"
                         + "may be slower when logging is enabled.\n\n", p));
 
-        addField(new BooleanFieldEditor(DEBUG_CODE_COMPLETION, "Enable logging for code completion?", p));
+        addField(new BooleanFieldEditor(PyLoggingPreferences.DEBUG_CODE_COMPLETION, "Enable logging for code completion?", p));
 
-        addField(new BooleanFieldEditor(DEBUG_ANALYSIS_REQUESTS, "Enable logging for analysis requests?", p));
+        addField(new BooleanFieldEditor(PyLoggingPreferences.DEBUG_ANALYSIS_REQUESTS, "Enable logging for analysis requests?", p));
 
-        addField(new BooleanFieldEditor(DEBUG_INTERPRETER_AUTO_UPDATE, "Enable logging for interpreter auto update?", p));
+        addField(new BooleanFieldEditor(PyLoggingPreferences.DEBUG_INTERPRETER_AUTO_UPDATE, "Enable logging for interpreter auto update?", p));
 
-        String logOutputFile = ToLogFile.getLogOutputFile();
+        String logOutputFile = org.python.pydev.shared_core.log.ToLogFile.getLogOutputFile();
         if (logOutputFile != null) {
             final File f = new File(logOutputFile);
             addField(new LinkFieldEditor("UNUSED 2",
@@ -82,33 +73,12 @@ public class PyLoggingPreferencesPage extends FieldEditorPreferencePage implemen
     public void init(IWorkbench workbench) {
     }
 
-    public static boolean isToDebugCodeCompletion() {
-        if (SharedCorePlugin.inTestMode()) {
-            return false;
-        }
-        return PydevPrefs.getPreferences().getBoolean(DEBUG_CODE_COMPLETION);
-    }
-
-    public static boolean isToDebugAnalysisRequests() {
-        if (SharedCorePlugin.inTestMode()) {
-            return false;
-        }
-        return PydevPrefs.getPreferences().getBoolean(DEBUG_ANALYSIS_REQUESTS);
-    }
-
-    public static boolean isToDebugInterpreterAutoUpdate() {
-        if (SharedCorePlugin.inTestMode()) {
-            return false;
-        }
-        return PydevPrefs.getPreferences().getBoolean(DEBUG_INTERPRETER_AUTO_UPDATE);
-    }
-
     @Override
     public boolean performOk() {
         boolean ret = super.performOk();
-        DebugSettings.DEBUG_CODE_COMPLETION = isToDebugCodeCompletion();
-        DebugSettings.DEBUG_ANALYSIS_REQUESTS = isToDebugAnalysisRequests();
-        DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE = isToDebugInterpreterAutoUpdate();
+        DebugSettings.DEBUG_CODE_COMPLETION = PyLoggingPreferences.isToDebugCodeCompletion();
+        DebugSettings.DEBUG_ANALYSIS_REQUESTS = PyLoggingPreferences.isToDebugAnalysisRequests();
+        DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE = PyLoggingPreferences.isToDebugInterpreterAutoUpdate();
         return ret;
     }
 

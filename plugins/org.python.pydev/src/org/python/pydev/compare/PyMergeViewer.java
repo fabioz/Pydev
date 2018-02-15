@@ -40,22 +40,23 @@ import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IIndentPrefs;
+import org.python.pydev.core.IPySyntaxHighlightingAndCodeCompletionEditor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.autoedit.DefaultIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.partition.PyPartitionScanner;
-import org.python.pydev.editor.IPySyntaxHighlightingAndCodeCompletionEditor;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.PyEditConfiguration;
 import org.python.pydev.editor.PyEditConfigurationWithoutEditor;
+import org.python.pydev.editor.PySelectionFromEditor;
 import org.python.pydev.editor.actions.FirstCharAction;
 import org.python.pydev.editor.actions.PyBackspace;
 import org.python.pydev.editor.actions.PyPeerLinker;
-import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.ui.ColorAndStyleCache;
 
@@ -139,7 +140,7 @@ public class PyMergeViewer extends TextMergeViewer {
         viewer.appendVerifyKeyListener(PyBackspace.createVerifyKeyListener(viewer, null));
         IWorkbenchPart workbenchPart = getCompareConfiguration().getContainer().getWorkbenchPart();
 
-        //Note that any site should be OK as it's just to know if a keybinding is active. 
+        //Note that any site should be OK as it's just to know if a keybinding is active.
         IWorkbenchPartSite site = null;
         if (workbenchPart != null) {
             site = workbenchPart.getSite();
@@ -202,7 +203,7 @@ public class PyMergeViewer extends TextMergeViewer {
         //Hack to provide the source viewer configuration that'll only be created later (there's a cycle there).
         final WeakReference<PyEditConfigurationWithoutEditor>[] sourceViewerConfigurationObj = new WeakReference[1];
 
-        IPreferenceStore chainedPrefStore = PydevPrefs.getChainedPrefStore();
+        IPreferenceStore chainedPrefStore = PyDevUiPrefs.getChainedPrefStore();
         final ColorAndStyleCache c = new ColorAndStyleCache(chainedPrefStore);
         this.getColorCache().add(c); //add for it to be disposed later.
 
@@ -249,7 +250,7 @@ public class PyMergeViewer extends TextMergeViewer {
             public PySelection createPySelection() {
                 ISelection selection = sourceViewer.getSelection();
                 if (selection instanceof ITextSelection) {
-                    return new PySelection(sourceViewer.getDocument(), (ITextSelection) selection);
+                    return PySelectionFromEditor.createPySelectionFromEditor(sourceViewer, (ITextSelection) selection);
                 } else {
                     return null;
                 }
@@ -335,7 +336,7 @@ public class PyMergeViewer extends TextMergeViewer {
 
         List<IPropertyChangeListener> prefChangeListeners = getPrefChangeListeners();
         for (IPropertyChangeListener l : prefChangeListeners) {
-            PydevPrefs.getChainedPrefStore().removePropertyChangeListener(l);
+            PyDevUiPrefs.getChainedPrefStore().removePropertyChangeListener(l);
         }
         prefChangeListeners.clear();
     }

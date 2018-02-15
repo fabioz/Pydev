@@ -28,6 +28,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.PreferencesUtil;
+import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
@@ -38,7 +39,6 @@ import org.python.pydev.debug.model.PyStackFrame;
 import org.python.pydev.debug.model.PyStackFrameConsole;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.structure.Tuple;
 
@@ -94,17 +94,17 @@ final class ChooseProcessTypeDialog extends Dialog {
         checkboxPython = new Button(area, SWT.RADIO);
         checkboxPython
                 .setToolTipText("Creates a Python console with the PYTHONPATH containing all the python projects in the workspace.");
-        configureButton(checkboxPython, "Python", PydevPlugin.getPythonInterpreterManager());
+        configureButton(checkboxPython, "Python", InterpreterManagersAPI.getPythonInterpreterManager());
 
         checkboxJython = new Button(area, SWT.RADIO);
         checkboxJython
                 .setToolTipText("Creates a Jython console with the PYTHONPATH containing all the python projects in the workspace.");
-        configureButton(checkboxJython, "Jython", PydevPlugin.getJythonInterpreterManager());
+        configureButton(checkboxJython, "Jython", InterpreterManagersAPI.getJythonInterpreterManager());
 
         checkboxIronpython = new Button(area, SWT.RADIO);
         checkboxIronpython
                 .setToolTipText("Creates an IronPython console with the PYTHONPATH containing all the python projects in the workspace.");
-        configureButton(checkboxIronpython, "IronPython", PydevPlugin.getIronpythonInterpreterManager());
+        configureButton(checkboxIronpython, "IronPython", InterpreterManagersAPI.getIronpythonInterpreterManager());
 
         checkboxJythonEclipse = new Button(area, SWT.RADIO);
         checkboxJythonEclipse
@@ -244,20 +244,20 @@ final class ChooseProcessTypeDialog extends Dialog {
             this.interpreterManager = relatedInterpreterManager;
 
         } else if (checkboxPython.isEnabled() && checkboxPython.getSelection()) {
-            this.interpreterManager = PydevPlugin.getPythonInterpreterManager();
+            this.interpreterManager = InterpreterManagersAPI.getPythonInterpreterManager();
 
         } else if (checkboxPythonDebug.isEnabled() && checkboxPythonDebug.getSelection()) {
             setSelectedFrame(getSuspendedFrame());
-            this.interpreterManager = PydevPlugin.getPythonInterpreterManager();
+            this.interpreterManager = InterpreterManagersAPI.getPythonInterpreterManager();
 
         } else if (checkboxJython.isEnabled() && checkboxJython.getSelection()) {
-            this.interpreterManager = PydevPlugin.getJythonInterpreterManager();
+            this.interpreterManager = InterpreterManagersAPI.getJythonInterpreterManager();
 
         } else if (checkboxJythonEclipse.isEnabled() && checkboxJythonEclipse.getSelection()) {
             this.interpreterManager = new JythonEclipseInterpreterManager();
 
         } else if (checkboxIronpython.isEnabled() && checkboxIronpython.getSelection()) {
-            this.interpreterManager = PydevPlugin.getIronpythonInterpreterManager();
+            this.interpreterManager = InterpreterManagersAPI.getIronpythonInterpreterManager();
 
         }
 

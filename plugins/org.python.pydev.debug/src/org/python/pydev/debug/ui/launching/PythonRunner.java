@@ -33,6 +33,8 @@ import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
+import org.python.pydev.ast.runners.SimpleRunner;
+import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
@@ -44,11 +46,9 @@ import org.python.pydev.debug.processfactory.PyProcessFactory;
 import org.python.pydev.debug.pyunit.IPyUnitServer;
 import org.python.pydev.debug.pyunit.PyUnitServer;
 import org.python.pydev.debug.pyunit.PyUnitView;
-import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.runners.SimpleRunner;
+import org.python.pydev.shared_core.IMiscConstants;
 import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 import org.python.pydev.shared_core.process.ProcessUtils;
-import org.python.pydev.shared_ui.debug.RelaunchConstants;
 
 /**
  * Launches Python process, and connects it to Eclipse's debugger.
@@ -269,7 +269,7 @@ public class PythonRunner {
             throws CoreException {
         Map<String, String> arrayAsMapEnv = ProcessUtils.getArrayAsMapEnv(envp);
         arrayAsMapEnv.put("PYTHONUNBUFFERED", "1");
-        arrayAsMapEnv.put("PYDEV_COMPLETER_PYTHONPATH", PydevPlugin.getBundleInfo().getRelativePath(new Path("pysrc"))
+        arrayAsMapEnv.put("PYDEV_COMPLETER_PYTHONPATH", CorePlugin.getBundleInfo().getRelativePath(new Path("pysrc"))
                 .toString());
 
         //Not using DebugPlugin.ATTR_CONSOLE_ENCODING to provide backward compatibility for eclipse 3.2
@@ -302,8 +302,8 @@ public class PythonRunner {
         processAttributes.put(IProcess.ATTR_PROCESS_TYPE, config.getProcessType());
         processAttributes.put(IProcess.ATTR_PROCESS_LABEL, label);
         processAttributes.put(Constants.PYDEV_CONFIG_RUN, config.run);
-        processAttributes.put(RelaunchConstants.PYDEV_ADD_RELAUNCH_IPROCESS_ATTR,
-                RelaunchConstants.PYDEV_ADD_RELAUNCH_IPROCESS_ATTR_TRUE);
+        processAttributes.put(IMiscConstants.PYDEV_ADD_RELAUNCH_IPROCESS_ATTR,
+                IMiscConstants.PYDEV_ADD_RELAUNCH_IPROCESS_ATTR_TRUE);
         processAttributes.put(DebugPlugin.ATTR_CAPTURE_OUTPUT, "true");
 
         ILaunchConfiguration launchConfiguration = launch.getLaunchConfiguration();

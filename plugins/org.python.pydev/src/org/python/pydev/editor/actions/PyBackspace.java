@@ -22,12 +22,13 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.python.pydev.core.IIndentPrefs;
+import org.python.pydev.core.autoedit.DefaultIndentPrefs;
+import org.python.pydev.core.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PythonPairMatcher;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.PySelectionFromEditor;
-import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
-import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.editor.ITextViewerExtensionAutoEditions;
@@ -62,7 +63,7 @@ public class PyBackspace extends PyAction {
     public void perform(PySelection ps) {
         // Perform the action
         try {
-            ITextSelection textSelection = ps.getTextSelection();
+            ICoreTextSelection textSelection = ps.getTextSelection();
 
             if (textSelection.getLength() != 0) {
                 eraseSelection(ps);
@@ -194,7 +195,7 @@ public class PyBackspace extends PyAction {
      * @throws BadLocationException
      */
     private void eraseSingleChar(PySelection ps) throws BadLocationException {
-        ITextSelection textSelection = ps.getTextSelection();
+        ICoreTextSelection textSelection = ps.getTextSelection();
 
         int replaceLength = 1;
         int replaceOffset = textSelection.getOffset() - replaceLength;
@@ -252,7 +253,7 @@ public class PyBackspace extends PyAction {
      */
     private void eraseLineDelimiter(PySelection ps) throws BadLocationException {
 
-        ITextSelection textSelection = ps.getTextSelection();
+        ICoreTextSelection textSelection = ps.getTextSelection();
 
         int length = getDelimiter(ps.getDoc()).length();
         int offset = textSelection.getOffset() - length;
@@ -268,7 +269,7 @@ public class PyBackspace extends PyAction {
      * @throws BadLocationException
      */
     private void eraseSelection(PySelection ps) throws BadLocationException {
-        ITextSelection textSelection = ps.getTextSelection();
+        ICoreTextSelection textSelection = ps.getTextSelection();
 
         makeDelete(ps.getDoc(), textSelection.getOffset(), textSelection.getLength());
     }
@@ -279,7 +280,7 @@ public class PyBackspace extends PyAction {
      * @throws BadLocationException
      */
     private void eraseUntilLastChar(PySelection ps, int lastCharPosition) throws BadLocationException {
-        ITextSelection textSelection = ps.getTextSelection();
+        ICoreTextSelection textSelection = ps.getTextSelection();
         int cursorOffset = textSelection.getOffset();
 
         int offset = lastCharPosition + 1;
@@ -428,7 +429,8 @@ public class PyBackspace extends PyAction {
                                 }
                                 pyBackspace.setIndentPrefs(new DefaultIndentPrefs(adaptable));
                             }
-                            PySelection ps = new PySelection(viewer.getDocument(), (ITextSelection) selection);
+                            PySelection ps = PySelectionFromEditor.createPySelectionFromEditor(viewer,
+                                    (ITextSelection) selection);
                             pyBackspace.perform(ps);
                             event.doit = false;
                         }

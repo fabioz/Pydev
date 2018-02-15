@@ -35,19 +35,25 @@ import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.dialogs.ListDialog;
+import org.python.pydev.ast.interpreter_managers.IInterpreterProvider;
+import org.python.pydev.ast.interpreter_managers.IInterpreterProviderFactory;
+import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
+import org.python.pydev.ast.interpreter_managers.IInterpreterProviderFactory.InterpreterType;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.image.UIConstants;
+import org.python.pydev.shared_core.progress.AsynchronousProgressMonitorWrapper;
 import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
 import org.python.pydev.shared_ui.EditorUtils;
-import org.python.pydev.shared_ui.UIConstants;
-import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorWrapper;
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
-import org.python.pydev.ui.pythonpathconf.IInterpreterProviderFactory.InterpreterType;
 
 /**
  * This class uses code based from {@link AbstractInterpreterEditor} and
@@ -85,13 +91,13 @@ public class AutoConfigMaker {
         this.nameToInfo = nameToInfo;
         switch (interpreterType) {
             case JYTHON:
-                interpreterManager = PydevPlugin.getJythonInterpreterManager(true);
+                interpreterManager = InterpreterManagersAPI.getJythonInterpreterManager(true);
                 break;
             case IRONPYTHON:
-                interpreterManager = PydevPlugin.getIronpythonInterpreterManager(true);
+                interpreterManager = InterpreterManagersAPI.getIronpythonInterpreterManager(true);
                 break;
             default:
-                interpreterManager = PydevPlugin.getPythonInterpreterManager(true);
+                interpreterManager = InterpreterManagersAPI.getPythonInterpreterManager(true);
         }
         this.advanced = advanced;
 
@@ -142,7 +148,7 @@ public class AutoConfigMaker {
                         String errorMsg = "Error configuring the chosen interpreter.\n"
                                 + "Make sure the file containing the interpreter did not get corrupted during the configuration process.";
                         ErrorDialog.openError(EditorUtils.getShell(), "Interpreter configuration failure",
-                                errorMsg, PydevPlugin.makeStatus(IStatus.ERROR, "See error log for details.", e));
+                                errorMsg, SharedCorePlugin.makeStatus(IStatus.ERROR, "See error log for details.", e));
                         return Status.CANCEL_STATUS;
                     } finally {
                         monitor.done();
@@ -170,7 +176,7 @@ public class AutoConfigMaker {
                     + "  (usually a link to the actual interpreter on Mac or Linux)";
             //show the user a message (so that it does not fail silently)...
             ErrorDialog.openError(EditorUtils.getShell(), "Unable to get info on the interpreter.",
-                    errorMsg, PydevPlugin.makeStatus(IStatus.ERROR, "See error log for details.", e));
+                    errorMsg, SharedCorePlugin.makeStatus(IStatus.ERROR, "See error log for details.", e));
             return false;
         } finally {
             if (charWriter != null) {
@@ -328,7 +334,7 @@ public class AutoConfigMaker {
         listDialog.setLabelProvider(new LabelProvider() {
             @Override
             public Image getImage(Object element) {
-                return PydevPlugin.getImageCache().get(UIConstants.PY_INTERPRETER_ICON);
+                return ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.PY_INTERPRETER_ICON));
             }
 
             @Override
@@ -431,13 +437,13 @@ public class AutoConfigMaker {
             IStatus[] children = new IStatus[exceptions.size()];
             for (int i = 0; i < exceptions.size(); i++) {
                 Exception exception = exceptions.get(i);
-                children[i] = PydevPlugin.makeStatus(IStatus.ERROR, null, exception);
+                children[i] = SharedCorePlugin.makeStatus(IStatus.ERROR, null, exception);
             }
             MultiStatus multiStatus = new MultiStatus(PydevPlugin.getPluginID(), IStatus.ERROR, children, message,
                     null);
             ErrorDialog.openError(EditorUtils.getShell(), dialogTitle, errorMsg + typeSpecificMessage, multiStatus);
         } else {
-            Status status = PydevPlugin.makeStatus(IStatus.ERROR, message, null);
+            Status status = SharedCorePlugin.makeStatus(IStatus.ERROR, message, null);
             ErrorDialog.openError(EditorUtils.getShell(), dialogTitle, errorMsg + typeSpecificMessage, status);
         }
     }

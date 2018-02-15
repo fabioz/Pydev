@@ -16,17 +16,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.PyEdit;
+import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.editor.actions.PyAction;
-import org.python.pydev.editor.correctionassist.FixCompletionProposal;
-import org.python.pydev.editor.correctionassist.IgnoreCompletionProposal;
-import org.python.pydev.editor.correctionassist.IgnoreCompletionProposalInSameLine;
-import org.python.pydev.shared_ui.ImageCache;
-import org.python.pydev.shared_ui.UIConstants;
-import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
+import org.python.pydev.editor.correctionassist.IAssistProps;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
+import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
+import org.python.pydev.shared_core.image.IImageCache;
+import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 
 /**
@@ -35,12 +34,13 @@ import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 public class AssistImport implements IAssistProps {
 
     /**
-     * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps(org.python.pydev.core.docutils.PySelection, org.python.pydev.shared_ui.ImageCache)
+     * @see org.python.pydev.editor.correctionassist.IAssistProps#getProps(org.python.pydev.core.docutils.PySelection, org.python.pydev.shared_ui.ImageCache)
      */
     @Override
-    public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature,
-            PyEdit edit, int offset) throws BadLocationException {
-        ArrayList<ICompletionProposal> l = new ArrayList<ICompletionProposal>();
+    public List<ICompletionProposalHandle> getProps(PySelection ps, IImageCache imageCache, File f,
+            IPythonNature nature,
+            IPyEdit edit, int offset) throws BadLocationException {
+        ArrayList<ICompletionProposalHandle> l = new ArrayList<>();
         String sel = PyAction.getLineWithoutComments(ps).trim();
 
         int i = sel.indexOf("import");
@@ -57,7 +57,8 @@ public class AssistImport implements IAssistProps {
             int lineToMoveOffset = ps.getDoc().getLineOffset(lineToMoveImport);
 
             if (i >= 0) {
-                l.add(new FixCompletionProposal(sel + delimiter, lineToMoveOffset, 0, ps.getStartLine().getOffset(),
+                l.add(CompletionProposalFactory.get().createFixCompletionProposal(sel + delimiter, lineToMoveOffset, 0,
+                        ps.getStartLine().getOffset(),
                         imageCache
                                 .get(UIConstants.ASSIST_MOVE_IMPORT),
                         "Move import to global scope", null, null, ps
@@ -76,11 +77,10 @@ public class AssistImport implements IAssistProps {
                 caption = messageToIgnore = "isort:skip";
             }
             if (!cursorLineContents.contains(messageToIgnore)) {
-                IgnoreCompletionProposal proposal = new IgnoreCompletionProposalInSameLine(messageToIgnore,
-                        ps.getEndLineOffset(), 0,
-                        offset, //note: the cursor position is unchanged!
-                        imageCache.get(UIConstants.ASSIST_ANNOTATION), caption, null, null,
-                        PyCompletionProposal.PRIORITY_DEFAULT, edit, cursorLineContents, ps, null);
+                ICompletionProposalHandle proposal = CompletionProposalFactory.get()
+                        .createIgnoreCompletionProposalInSameLine(messageToIgnore, ps.getEndLineOffset(), 0, offset,
+                                imageCache.get(UIConstants.ASSIST_ANNOTATION), caption, null, null,
+                                IPyCompletionProposal.PRIORITY_DEFAULT, edit, cursorLineContents, ps, null);
 
                 l.add(proposal);
             }
@@ -89,10 +89,10 @@ public class AssistImport implements IAssistProps {
     }
 
     /**
-     * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#isValid(org.python.pydev.core.docutils.PySelection)
+     * @see org.python.pydev.editor.correctionassist.IAssistProps#isValid(org.python.pydev.core.docutils.PySelection)
      */
     @Override
-    public boolean isValid(PySelection ps, String sel, PyEdit edit, int offset) {
+    public boolean isValid(PySelection ps, String sel, IPyEdit edit, int offset) {
         return sel.indexOf("import ") != -1;
     }
 

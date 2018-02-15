@@ -21,26 +21,20 @@ import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipFile;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
+import org.python.pydev.ast.runners.SimpleJythonRunner;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.runners.SimpleJythonRunner;
+import org.python.pydev.core.preferences.FileTypesPreferences;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorDialog;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
-import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
  * Contains some static methods to be used for configuring PyDev interpreters.
@@ -93,7 +87,7 @@ public class InterpreterConfigHelpers {
                     SimpleJythonRunner.JavaNotConfiguredException javaNotConfiguredException = (SimpleJythonRunner.JavaNotConfiguredException) operation.e;
                     if (displayErrors) {
                         ErrorDialog.openError(shell, errorTitle,
-                                javaNotConfiguredException.getMessage(), PydevPlugin.makeStatus(IStatus.ERROR,
+                                javaNotConfiguredException.getMessage(), SharedCorePlugin.makeStatus(IStatus.ERROR,
                                         "Java vm not configured.\n", javaNotConfiguredException));
                     }
                     throw new Exception(javaNotConfiguredException);
@@ -103,7 +97,7 @@ public class InterpreterConfigHelpers {
                     if (displayErrors) {
                         ErrorDialog.openError(shell, errorTitle,
                                 noJdtException.getMessage(),
-                                PydevPlugin.makeStatus(IStatus.ERROR, "JDT not available.\n", noJdtException));
+                                SharedCorePlugin.makeStatus(IStatus.ERROR, "JDT not available.\n", noJdtException));
                     }
                     throw new Exception(noJdtException);
 
@@ -117,7 +111,7 @@ public class InterpreterConfigHelpers {
                                 + "\n" + "- Specifying an invalid interpreter\n"
                                 + "  (usually a link to the actual interpreter on Mac or Linux)" + "";
                         ErrorDialog.openError(shell, errorTitle,
-                                errorMsg, PydevPlugin.makeStatus(IStatus.ERROR, "See error log for details.",
+                                errorMsg, SharedCorePlugin.makeStatus(IStatus.ERROR, "See error log for details.",
                                         operation.e));
                     }
                     throw new Exception(operation.e);
@@ -133,7 +127,7 @@ public class InterpreterConfigHelpers {
             hashSet.add("threading");
             hashSet.add("traceback");
 
-            String[] validSourceFiles = FileTypesPreferencesPage.getValidSourceFiles();
+            String[] validSourceFiles = FileTypesPreferences.getValidSourceFiles();
             Set<String> extensions = new HashSet<String>(Arrays.asList(validSourceFiles));
             for (String s : operation.result.libs) {
                 File file = new File(s);
@@ -236,7 +230,7 @@ public class InterpreterConfigHelpers {
             if (shell != null) {
                 ErrorDialog.openError(shell, errorMsg,
                         "interpreterNameAndExecutable == null",
-                        PydevPlugin.makeStatus(IStatus.ERROR, "interpreterNameAndExecutable == null",
+                        SharedCorePlugin.makeStatus(IStatus.ERROR, "interpreterNameAndExecutable == null",
                                 new RuntimeException()));
             }
             foundError = true;
@@ -247,7 +241,7 @@ public class InterpreterConfigHelpers {
 
                 if (shell != null) {
                     ErrorDialog.openError(shell, errorMsg, "interpreterNameAndExecutable size == empty",
-                            PydevPlugin.makeStatus(IStatus.ERROR, "interpreterNameAndExecutable size == empty",
+                            SharedCorePlugin.makeStatus(IStatus.ERROR, "interpreterNameAndExecutable size == empty",
                                     new RuntimeException()));
                 }
                 foundError = true;
@@ -259,7 +253,7 @@ public class InterpreterConfigHelpers {
             if (error != null) {
                 logger.println("- Duplicated interpreter found.");
                 if (shell != null) {
-                    ErrorDialog.openError(shell, errorMsg, error, PydevPlugin.makeStatus(IStatus.ERROR,
+                    ErrorDialog.openError(shell, errorMsg, error, SharedCorePlugin.makeStatus(IStatus.ERROR,
                             "Duplicated interpreter information", new RuntimeException()));
                 }
                 foundError = true;
@@ -311,48 +305,5 @@ public class InterpreterConfigHelpers {
             }
         }
         return error;
-    }
-
-    /**
-     * Creates a Set of the root paths of all projects (and the workspace root itself).
-     * @return A HashSet of root paths.
-     */
-    public static HashSet<IPath> getRootPaths() {
-        HashSet<IPath> rootPaths = new HashSet<IPath>();
-        if (SharedCorePlugin.inTestMode()) {
-            return rootPaths;
-        }
-        IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-        IPath rootLocation = root.getLocation().makeAbsolute();
-
-        rootPaths.add(rootLocation);
-
-        IProject[] projects = root.getProjects();
-        for (IProject iProject : projects) {
-            IPath location = iProject.getLocation();
-            if (location != null) {
-                IPath abs = location.makeAbsolute();
-                if (!rootLocation.isPrefixOf(abs)) {
-                    rootPaths.add(abs);
-                }
-            }
-        }
-        return rootPaths;
-    }
-
-    /**
-     * States whether or not a given path is the child of at least one root path of a set of root paths.
-     * @param data The path that will be checked for child status.
-     * @param rootPaths A set of root paths.
-     * @return True if the path of data is a child of any of the paths of rootPaths.
-     */
-    public static boolean isChildOfRootPath(String data, Set<IPath> rootPaths) {
-        IPath path = Path.fromOSString(data);
-        for (IPath p : rootPaths) {
-            if (p.isPrefixOf(path)) {
-                return true;
-            }
-        }
-        return false;
     }
 }

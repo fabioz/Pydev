@@ -29,6 +29,15 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.TextEdit;
+import org.python.pydev.ast.codecompletion.revisited.ASTManager;
+import org.python.pydev.ast.codecompletion.revisited.ProjectStub;
+import org.python.pydev.ast.codecompletion.revisited.modules.ASTEntryWithSourceModule;
+import org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule;
+import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
+import org.python.pydev.ast.listing_utils.PyFileListing;
+import org.python.pydev.ast.listing_utils.PyFileListing.PyFileInfo;
+import org.python.pydev.ast.refactoring.RefactoringRequest;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IProjectModulesManager;
@@ -37,12 +46,6 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.codecompletion.revisited.ASTManager;
-import org.python.pydev.editor.codecompletion.revisited.ProjectStub;
-import org.python.pydev.editor.codecompletion.revisited.modules.ASTEntryWithSourceModule;
-import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
-import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -54,17 +57,14 @@ import org.python.pydev.shared_core.resource_stubs.FileStub;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
-import org.python.pydev.utils.PyFileListing;
-import org.python.pydev.utils.PyFileListing.PyFileInfo;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
+import com.python.pydev.analysis.refactoring.wizards.IRefactorRenameProcess;
+import com.python.pydev.analysis.refactoring.wizards.rename.PyRenameEntryPoint;
+import com.python.pydev.analysis.refactoring.wizards.rename.TextEditCreation;
 import com.python.pydev.analysis.scopeanalysis.AstEntryScopeAnalysisConstants;
 import com.python.pydev.refactoring.refactorer.refactorings.renamelocal.RefactoringLocalTestBase;
-import com.python.pydev.refactoring.wizards.IRefactorRenameProcess;
-import com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint;
-import com.python.pydev.refactoring.wizards.rename.TextEditCreation;
 
 /**
  * A class used for the refactorings that need the rename project (in pysrcrefactoring)
@@ -101,7 +101,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
 
     /**
      * In the setUp, it initializes the files in the refactoring project
-     * @see com.python.pydev.refactoring.refactorer.refactorings.renamelocal.RefactoringLocalTestBase#setUp()
+     * @see com.python.pydev.analysis.refactoring.refactorer.refactorings.renamelocal.RefactoringLocalTestBase#setUp()
      */
     @Override
     public void setUp() throws Exception {

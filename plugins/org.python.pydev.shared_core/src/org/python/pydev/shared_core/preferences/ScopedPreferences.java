@@ -30,7 +30,7 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.text.IDocument;
 import org.osgi.framework.Bundle;
 import org.python.pydev.shared_core.cache.LRUCache;
@@ -209,7 +209,8 @@ public final class ScopedPreferences implements IScopedPreferences {
                         StringUtils
                                 .format("Error: unable to write settings because the file: %s already exists but "
                                         + "is not a parseable YAML file (aborting to avoid overriding existing file).",
-                                        yamlFile), e);
+                                        yamlFile),
+                        e);
             }
         }
 
@@ -239,7 +240,8 @@ public final class ScopedPreferences implements IScopedPreferences {
                                 StringUtils
                                         .format("Error: unable to write settings because the file: %s already exists but "
                                                 + "is not a parseable YAML file (aborting to avoid overriding existing file).\n",
-                                                projectConfigFile), e);
+                                                projectConfigFile),
+                                e);
 
                     }
                     Map<String, Object> yamlMapToWrite = new TreeMap<>();
@@ -321,33 +323,38 @@ public final class ScopedPreferences implements IScopedPreferences {
     //long modificationStamp = projectConfigFile.getModificationStamp();
 
     @Override
-    public String getString(IPreferenceStore pluginPreferenceStore, String keyInPreferenceStore, IAdaptable adaptable) {
+    public String getString(IEclipsePreferences instancePreferences, IEclipsePreferences defaultPreferences,
+            String keyInPreferenceStore,
+            IAdaptable adaptable) {
         Object object = getFromProjectOrUserSettings(keyInPreferenceStore, adaptable);
         if (object != null) {
             return object.toString();
         }
         // Ok, not in project or user settings: get it from the workspace settings.
-        return pluginPreferenceStore.getString(keyInPreferenceStore);
+        return instancePreferences.get(keyInPreferenceStore, defaultPreferences.get(keyInPreferenceStore, ""));
     }
 
     @Override
-    public boolean getBoolean(IPreferenceStore pluginPreferenceStore, String keyInPreferenceStore, IAdaptable adaptable) {
+    public boolean getBoolean(IEclipsePreferences instancePreferences, IEclipsePreferences defaultPreferences,
+            String keyInPreferenceStore, IAdaptable adaptable) {
         Object object = getFromProjectOrUserSettings(keyInPreferenceStore, adaptable);
         if (object != null) {
             return toBoolean(object);
         }
         // Ok, not in project or user settings: get it from the workspace settings.
-        return pluginPreferenceStore.getBoolean(keyInPreferenceStore);
+        return instancePreferences.getBoolean(keyInPreferenceStore,
+                defaultPreferences.getBoolean(keyInPreferenceStore, false));
     }
 
     @Override
-    public int getInt(IPreferenceStore pluginPreferenceStore, String keyInPreferenceStore, IAdaptable adaptable) {
+    public int getInt(IEclipsePreferences instancePreferences, IEclipsePreferences defaultPreferences,
+            String keyInPreferenceStore, IAdaptable adaptable) {
         Object object = getFromProjectOrUserSettings(keyInPreferenceStore, adaptable);
         if (object != null) {
             return toInt(object);
         }
         // Ok, not in project or user settings: get it from the workspace settings.
-        return pluginPreferenceStore.getInt(keyInPreferenceStore);
+        return instancePreferences.getInt(keyInPreferenceStore, defaultPreferences.getInt(keyInPreferenceStore, 0));
     }
 
     private Object getFromProjectOrUserSettings(String keyInPreferenceStore, IAdaptable adaptable) {
@@ -360,7 +367,7 @@ public final class ScopedPreferences implements IScopedPreferences {
                 if (adaptable instanceof IResource) {
                     project = ((IResource) adaptable).getProject();
                 } else {
-                    project = (IProject) adaptable.getAdapter(IProject.class);
+                    project = adaptable.getAdapter(IProject.class);
                 }
                 IFile projectConfigFile = getProjectSettingsLocation(project);
                 if (projectConfigFile != null && projectConfigFile.exists()) {

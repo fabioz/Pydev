@@ -8,14 +8,16 @@ package org.python.pydev.plugin.preferences;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.core.preferences.PydevPrefs;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.shared_ui.ImageCache;
-import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_core.image.IImageCache;
+import org.python.pydev.shared_core.image.IImageHandle;
+import org.python.pydev.shared_core.image.UIConstants;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;
 import org.python.pydev.utils.TableComboFieldEditor;
 
@@ -126,18 +128,20 @@ public class PyTitlePreferencesPage extends FieldEditorPreferencePage implements
     }
 
     public static boolean getEditorNamesUnique() {
-        return PydevPrefs.getPreferences().getBoolean(TITLE_EDITOR_NAMES_UNIQUE);
+        return PydevPrefs.getEclipsePreferences().getBoolean(TITLE_EDITOR_NAMES_UNIQUE,
+                DEFAULT_TITLE_EDITOR_NAMES_UNIQUE);
     }
 
     /**
      * @return A constant defined in this class
      * EDITOR_TITLE_INIT_HANDLING_XXX
-     * 
+     *
      * Note that clients using this methods can compare it with == with a constant in this
      * class (as it will return the actual constant and not what's set in the preferences).
      */
     public static String getInitHandling() {
-        String initHandling = PydevPrefs.getPreferences().getString(TITLE_EDITOR_INIT_HANDLING);
+        String initHandling = PydevPrefs.getEclipsePreferences().get(TITLE_EDITOR_INIT_HANDLING,
+                DEFAULT_TITLE_EDITOR_INIT_HANDLING);
         if (TITLE_EDITOR_INIT_HANDLING_IN_TITLE.equals(initHandling)) {
             return TITLE_EDITOR_INIT_HANDLING_IN_TITLE;
         }
@@ -145,7 +149,8 @@ public class PyTitlePreferencesPage extends FieldEditorPreferencePage implements
     }
 
     public static String getDjangoModulesHandling() {
-        String djangoHandling = PydevPrefs.getPreferences().getString(TITLE_EDITOR_DJANGO_MODULES_HANDLING);
+        String djangoHandling = PydevPrefs.getEclipsePreferences().get(TITLE_EDITOR_DJANGO_MODULES_HANDLING,
+                DEFAULT_TITLE_EDITOR_DJANGO_MODULES_HANDLING);
         if (TITLE_EDITOR_DJANGO_MODULES_DEFAULT_ICON.equals(djangoHandling)) {
             return TITLE_EDITOR_DJANGO_MODULES_DEFAULT_ICON;
         }
@@ -156,15 +161,17 @@ public class PyTitlePreferencesPage extends FieldEditorPreferencePage implements
     }
 
     public static boolean useCustomInitIcon() {
-        return PydevPrefs.getPreferences().getBoolean(TITLE_EDITOR_CUSTOM_INIT_ICON);
+        return PydevPrefs.getEclipsePreferences().getBoolean(TITLE_EDITOR_CUSTOM_INIT_ICON,
+                DEFAULT_TITLE_EDITOR_CUSTOM_INIT_ICON);
     }
 
     public static boolean getTitleShowExtension() {
-        return PydevPrefs.getPreferences().getBoolean(TITLE_EDITOR_SHOW_EXTENSION);
+        return PydevPrefs.getEclipsePreferences().getBoolean(TITLE_EDITOR_SHOW_EXTENSION,
+                DEFAULT_TITLE_EDITOR_SHOW_EXTENSION);
     }
 
-    public static Image getInitIcon() {
-        ImageCache imageCache = PydevPlugin.getImageCache();
+    public static IImageHandle getInitIcon() {
+        IImageCache imageCache = SharedUiPlugin.getImageCache();
         if (useCustomInitIcon()) {
             return imageCache.get(UIConstants.CUSTOM_INIT_ICON);
         } else {
@@ -181,8 +188,8 @@ public class PyTitlePreferencesPage extends FieldEditorPreferencePage implements
         return false;
     }
 
-    public static Image getDjangoModuleIcon(String lastSegment) {
-        return PydevPlugin.getImageCache().getStringDecorated(UIConstants.PY_FILE_CUSTOM_ICON,
+    public static IImageHandle getDjangoModuleIcon(String lastSegment) {
+        return SharedUiPlugin.getImageCache().getStringDecorated(UIConstants.PY_FILE_CUSTOM_ICON,
                 lastSegment.charAt(0) + "");
     }
 

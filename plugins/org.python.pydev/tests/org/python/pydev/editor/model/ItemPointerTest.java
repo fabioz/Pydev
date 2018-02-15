@@ -7,6 +7,7 @@
 package org.python.pydev.editor.model;
 
 import org.eclipse.core.runtime.Path;
+import org.python.pydev.ast.item_pointer.ItemPointer;
 import org.python.pydev.shared_core.structure.Location;
 
 import junit.framework.TestCase;

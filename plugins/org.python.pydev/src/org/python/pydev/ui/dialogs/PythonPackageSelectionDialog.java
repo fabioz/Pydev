@@ -32,8 +32,9 @@ import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.shared_ui.UIConstants;
-
+import org.python.pydev.shared_core.image.UIConstants;
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 
 /**
  * Dialog to select some source folder (in the workspace)
@@ -62,7 +63,7 @@ public class PythonPackageSelectionDialog extends ElementTreeSelectionDialog {
                     element = ((Package) element).folder;
                 }
                 if (element instanceof SourceFolder) {
-                    return PydevPlugin.getImageCache().get(UIConstants.SOURCE_FOLDER_ICON);
+                    return ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.SOURCE_FOLDER_ICON));
                 }
                 return super.getImage(element);
             }

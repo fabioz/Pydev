@@ -5,13 +5,13 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- 
+
  *******************************************************************************/
 package org.python.pydev.shared_interactive_console.console;
 
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
+import org.python.pydev.core.interactive_console.IScriptConsoleViewer;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 
 /**
  * This is the interface required by the console 'shell': meaning that those are the things
@@ -22,21 +22,22 @@ public interface IScriptConsoleShell {
     /**
      * @param viewer the viewer that requested the completions (can be used to get document, etc).
      * @param commandLine the current command in the buffer (still not entered)
-     * @param position the relative position in the current buffer where the caret is 
+     * @param position the relative position in the current buffer where the caret is
      * @param offset the actual offset where the completions were requested (needed for creating the IProposals so that
      * they can be correctly applied).
      * @param whatToShow see constants at: AbstractCompletionProcessorWithCycling
-     * 
+     *
      * @return the proposals to be applied.
      * @throws Exception
      */
-    ICompletionProposal[] getCompletions(IScriptConsoleViewer viewer, String commandLine, int position, int offset,
+    ICompletionProposalHandle[] getCompletions(IScriptConsoleViewer viewer, String commandLine, int position,
+            int offset,
             int whatToShow) throws Exception;
 
     /**
-     * @param doc the document with all the contents of the console 
+     * @param doc the document with all the contents of the console
      * @param offset the offset that's being hovered in the viewer
-     * 
+     *
      * @return the description to be shown to the user (hover)
      * @throws Exception
      */
@@ -44,7 +45,7 @@ public interface IScriptConsoleShell {
 
     /**
      * Closes the shell
-     * 
+     *
      * @throws Exception
      */
     void close() throws Exception;

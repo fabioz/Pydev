@@ -9,8 +9,8 @@
  *******************************************************************************/
 package org.python.pydev.shared_interactive_console.console;
 
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.structure.Tuple;
 
 /**
@@ -39,7 +39,8 @@ public interface IScriptConsoleCommunication {
      * @return a list of proposals that can be applied for the given text.
      * @throws Exception
      */
-    public ICompletionProposal[] getCompletions(String text, String actTok, int offset, boolean showForTabCompletion)
+    public ICompletionProposalHandle[] getCompletions(String text, String actTok, int offset,
+            boolean showForTabCompletion)
             throws Exception;
 
     /**

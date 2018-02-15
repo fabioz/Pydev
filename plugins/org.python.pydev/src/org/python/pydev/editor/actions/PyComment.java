@@ -13,17 +13,16 @@ package org.python.pydev.editor.actions;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.ITextSelection;
+import org.python.pydev.core.formatter.FormatStd;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 import org.python.pydev.shared_core.actions.LineCommentAction;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.EditorUtils;
 
 /**
  * Creates a bulk comment. Comments all selected lines
- * 
+ *
  * @author Fabio Zadrozny
  * @author Parhaum Toofanian
  */
@@ -53,11 +52,7 @@ public class PyComment extends PyAction {
             PyEdit pyEdit = getPyEdit();
             this.std = pyEdit.getFormatStd();
 
-            // Select from text editor
-            IDocument document = pyEdit.getDocumentProvider().getDocument(pyEdit.getEditorInput());
-            ITextSelection selection = (ITextSelection) pyEdit.getSelectionProvider().getSelection();
-
-            TextSelectionUtils ps = new TextSelectionUtils(document, selection);
+            TextSelectionUtils ps = EditorUtils.createTextSelectionUtils(pyEdit);
             // Perform the action
             Tuple<Integer, Integer> repRegion = perform(ps);
 
@@ -74,10 +69,10 @@ public class PyComment extends PyAction {
 
     /**
      * Performs the action with a given PySelection
-     * 
+     *
      * @param ps Given PySelection
      * @return the new selection
-     * @throws BadLocationException 
+     * @throws BadLocationException
      */
     protected Tuple<Integer, Integer> performComment(TextSelectionUtils ps) throws BadLocationException {
         LineCommentAction lineCommentAction = new LineCommentAction(ps, "#", this.std.spacesInStartComment);

@@ -19,9 +19,7 @@ import org.eclipse.jface.text.FindReplaceDocumentAdapter;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.Region;
-import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.text.TextUtilities;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -29,13 +27,13 @@ import org.python.pydev.shared_core.structure.Tuple;
 public class TextSelectionUtils {
 
     protected IDocument doc;
-    protected ITextSelection textSelection;
+    protected ICoreTextSelection textSelection;
 
     /**
      * @param document the document we are using to make the selection
      * @param selection that's the actual selection. It might have an offset and a number of selected chars
      */
-    public TextSelectionUtils(IDocument doc, ITextSelection selection) {
+    public TextSelectionUtils(IDocument doc, ICoreTextSelection selection) {
         this.doc = doc;
         this.textSelection = selection;
     }
@@ -45,7 +43,7 @@ public class TextSelectionUtils {
      * @param offset the offset where the selection will happen (0 characters will be selected)
      */
     public TextSelectionUtils(IDocument doc, int offset) {
-        this(doc, new TextSelection(doc, offset, 0));
+        this(doc, new CoreTextSelection(doc, offset, 0));
     }
 
     /**
@@ -83,7 +81,7 @@ public class TextSelectionUtils {
     /**
      * @return Returns the textSelection.
      */
-    public final ITextSelection getTextSelection() {
+    public final ICoreTextSelection getTextSelection() {
         return textSelection;
     }
 
@@ -180,13 +178,13 @@ public class TextSelectionUtils {
      */
     public void selectCompleteLine() {
         if (doc.getNumberOfLines() == 1) {
-            this.textSelection = new TextSelection(doc, 0, doc.getLength());
+            this.textSelection = new CoreTextSelection(doc, 0, doc.getLength());
             return;
         }
         IRegion endLine = getEndLine();
         IRegion startLine = getStartLine();
 
-        this.textSelection = new TextSelection(doc, startLine.getOffset(), endLine.getOffset() + endLine.getLength()
+        this.textSelection = new CoreTextSelection(doc, startLine.getOffset(), endLine.getOffset() + endLine.getLength()
                 - startLine.getOffset());
     }
 
@@ -194,7 +192,7 @@ public class TextSelectionUtils {
      * @return the Selected text
      */
     public String getSelectedText() {
-        ITextSelection txtSel = getTextSelection();
+        ICoreTextSelection txtSel = getTextSelection();
         int start = txtSel.getOffset();
         int len = txtSel.getLength();
         try {
@@ -217,7 +215,7 @@ public class TextSelectionUtils {
             }
         }
 
-        textSelection = new TextSelection(doc, 0, doc.getLength());
+        textSelection = new CoreTextSelection(doc, 0, doc.getLength());
     }
 
     /**
@@ -311,7 +309,7 @@ public class TextSelectionUtils {
      * @param absoluteEnd this is the offset of the end of the selection
      */
     public void setSelection(int absoluteStart, int absoluteEnd) {
-        this.textSelection = new TextSelection(doc, absoluteStart, absoluteEnd - absoluteStart);
+        this.textSelection = new CoreTextSelection(doc, absoluteStart, absoluteEnd - absoluteStart);
     }
 
     /**
@@ -468,6 +466,18 @@ public class TextSelectionUtils {
         addLine(getDoc(), getEndLineDelim(), contents, afterLine);
     }
 
+    public static void addLine(IDocument doc, String endLineDelim, String contents, int afterLine) {
+        Tuple<Integer, String> offsetAndContentsToAddLine = getOffsetAndContentsToAddLine(doc, endLineDelim, contents,
+                afterLine);
+        if (offsetAndContentsToAddLine != null) {
+            try {
+                doc.replace(offsetAndContentsToAddLine.o1, 0, offsetAndContentsToAddLine.o2);
+            } catch (BadLocationException e) {
+                Log.log(e);
+            }
+        }
+    }
+
     /**
      * Adds a line to the document.
      *
@@ -477,7 +487,8 @@ public class TextSelectionUtils {
      *  (depending on what are the current contents of the document).
      * @param afterLine the contents should be added after the line specified here.
      */
-    public static void addLine(IDocument doc, String endLineDelim, String contents, int afterLine) {
+    public static Tuple<Integer, String> getOffsetAndContentsToAddLine(IDocument doc, String endLineDelim,
+            String contents, int afterLine) {
         try {
 
             int offset = -1;
@@ -498,11 +509,12 @@ public class TextSelectionUtils {
             }
 
             if (offset >= 0) {
-                doc.replace(offset, 0, contents);
+                return new Tuple<>(offset, contents);
             }
         } catch (BadLocationException e) {
             Log.log(e);
         }
+        return null;
     }
 
     public String getLineContentsFromCursor() throws BadLocationException {

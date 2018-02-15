@@ -27,10 +27,11 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.preferences.PyScopedPreferences;
+import org.python.pydev.core.preferences.PyScopedPreferences;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_ui.field_editors.ComboFieldEditor;
 import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;
@@ -301,7 +302,7 @@ public class PyUnitPrefsPage2 extends ScopedFieldEditorPreferencePage implements
         layoutTestRunnerOptions(stackLayout, getTestRunner(null), contentPanel);
 
         addField(
-                new ScopedPreferencesFieldEditor(parentAll, PydevPlugin.DEFAULT_PYDEV_SCOPE, this));
+                new ScopedPreferencesFieldEditor(parentAll, SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_SCOPE, this));
     }
 
     private void add(String linkText, String flag, String tooltip, Composite p) {
@@ -411,7 +412,7 @@ public class PyUnitPrefsPage2 extends ScopedFieldEditorPreferencePage implements
     }
 
     public static boolean getUsePyUnitView(IAdaptable projectAdaptable) {
-        return PydevPrefs.getPreferenceStore().getBoolean(USE_PYUNIT_VIEW);
+        return PyDevUiPrefs.getPreferenceStore().getBoolean(USE_PYUNIT_VIEW);
     }
 
     public static void showPage() {

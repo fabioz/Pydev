@@ -20,6 +20,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.DialogPage;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
@@ -41,7 +42,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkingSet;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -70,8 +70,8 @@ public abstract class AbstractSearchIndexPage extends DialogPage implements ISea
     protected Button fSelectProjects;
     protected Button fSelectFolders;
 
-    public AbstractSearchIndexPage(AbstractUIPlugin plugin) {
-        searchIndexDataHistory = new SearchIndexDataHistory(plugin);
+    public AbstractSearchIndexPage(IDialogSettings dialogSettings) {
+        searchIndexDataHistory = new SearchIndexDataHistory(dialogSettings);
     }
 
     @Override
@@ -288,9 +288,9 @@ public abstract class AbstractSearchIndexPage extends DialogPage implements ISea
 
             // As we have a checkbox for whole word now, the code below shouldn't be needed anymore.
 
-            // if (selection instanceof TextSelection) {
+            // if (selection instanceof CoreTextSelection) {
             //    // If we got a substring, add * as needed before/after.
-            //    TextSelection tx = (TextSelection) selection;
+            //    CoreTextSelection tx = (CoreTextSelection) selection;
             //    IDocument doc = getDocument(tx);
             //    if (doc != null) {
             //        int offset = tx.getOffset();

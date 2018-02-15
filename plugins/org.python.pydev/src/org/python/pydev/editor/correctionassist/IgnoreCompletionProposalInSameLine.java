@@ -8,13 +8,15 @@ package org.python.pydev.editor.correctionassist;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.IContextInformation;
-import org.eclipse.swt.graphics.Image;
+import org.python.pydev.ast.formatter.PyFormatter;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.formatter.FormatStd;
+import org.python.pydev.core.formatter.PyFormatterPreferences;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.actions.PyFormatStd;
-import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
+import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
 public class IgnoreCompletionProposalInSameLine extends IgnoreCompletionProposal {
@@ -24,8 +26,8 @@ public class IgnoreCompletionProposalInSameLine extends IgnoreCompletionProposal
     private FormatStd format;
 
     public IgnoreCompletionProposalInSameLine(String replacementString, int replacementOffset, int replacementLength,
-            int cursorPosition, Image image, String displayString, IContextInformation contextInformation,
-            String additionalProposalInfo, int priority, PyEdit edit, String line, PySelection ps, FormatStd format) {
+            int cursorPosition, IImageHandle image, String displayString, IContextInformation contextInformation,
+            String additionalProposalInfo, int priority, IPyEdit edit, String line, PySelection ps, FormatStd format) {
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
                 contextInformation, additionalProposalInfo, priority, edit);
         this.line = line; //the current line
@@ -62,16 +64,16 @@ public class IgnoreCompletionProposalInSameLine extends IgnoreCompletionProposal
             FormatStd formatStd = this.format;
             if (formatStd == null) {
                 if (edit != null) {
-                    formatStd = edit.getFormatStd();
+                    formatStd = ((PyEdit) edit).getFormatStd();
                 } else {
                     // Shouldn't happen when not in test mode
                     Log.log("Error: using default format (not considering project preferences).");
-                    formatStd = PyFormatStd.getFormat(null);
+                    formatStd = PyFormatterPreferences.getFormatStd(null);
                 }
             }
 
             strToAdd.insert(0, '#');
-            PyFormatStd.formatComment(formatStd, strToAdd);
+            PyFormatter.formatComment(formatStd, strToAdd);
 
             //Just add spaces before the '#' if there's actually some content in the line.
             if (c != '\r' && c != '\n' && c != '\0' && c != ' ') {

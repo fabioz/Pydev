@@ -8,7 +8,6 @@ package org.python.pydev.editor.actions;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
@@ -24,16 +23,18 @@ import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.ui.texteditor.link.EditorLinkedModeUI;
 import org.python.pydev.core.IIndentPrefs;
+import org.python.pydev.core.autoedit.DefaultIndentPrefs;
+import org.python.pydev.core.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
-import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
+import org.python.pydev.editor.PySelectionFromEditor;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.DocCmd;
+import org.python.pydev.shared_core.utils.IDocumentCommand;
 import org.python.pydev.shared_ui.editor.ITextViewerExtensionAutoEditions;
 
 /**
@@ -112,7 +113,8 @@ public class PyPeerLinker {
                             //Don't bother in getting the indent prefs from the editor: the default indent prefs are
                             //always global for the settings we want.
                             pyPeerLinker.setIndentPrefs(new DefaultIndentPrefs(adaptable));
-                            PySelection ps = new PySelection(viewer.getDocument(), (ITextSelection) selection);
+                            ITextSelection textSelection = (ITextSelection) selection;
+                            PySelection ps = PySelectionFromEditor.createPySelectionFromEditor(viewer, textSelection);
 
                             if (pyPeerLinker.perform(ps, event.character, viewer)) {
                                 event.doit = false;
@@ -242,7 +244,7 @@ public class PyPeerLinker {
         }
         if (c == '(') {
 
-            PyAutoIndentStrategy.handleParens(doc, docCmd, prefs);
+            PyAutoIndentStrategy.handleParens(doc, docCmd, prefs, false);
 
             docCmd.doExecute(doc);
 
@@ -285,31 +287,31 @@ public class PyPeerLinker {
      *
      * @return false if we should leave the handling to the auto-indent and true if it handled things properly here.
      */
-    private boolean handleLiteral(IDocument document, DocumentCommand command, PySelection ps,
+    private boolean handleLiteral(IDocument document, IDocumentCommand command, PySelection ps,
             boolean isDefaultContext, IIndentPrefs prefs) throws BadLocationException {
         int offset = ps.getAbsoluteCursorOffset();
 
-        if (command.length > 0) {
+        if (command.getLength() > 0) {
             String selectedText = ps.getSelectedText();
             if (selectedText.indexOf('\r') != -1 || selectedText.indexOf('\n') != -1) {
                 //we have a new line
                 FastStringBuffer buf = new FastStringBuffer(selectedText.length() + 10);
-                buf.appendN(command.text, 3);
+                buf.appendN(command.getText(), 3);
                 buf.append(selectedText);
-                buf.appendN(command.text, 3);
+                buf.appendN(command.getText(), 3);
                 document.replace(offset, ps.getSelLength(), buf.toString());
                 linkOffset = offset + 3;
                 linkLen = selectedText.length();
                 linkExitPos = linkOffset + linkLen + 3;
             } else {
-                document.replace(offset, ps.getSelLength(), command.text + selectedText + command.text);
+                document.replace(offset, ps.getSelLength(), command.getText() + selectedText + command.getText());
                 linkOffset = offset + 1;
                 linkLen = selectedText.length();
                 linkExitPos = linkOffset + linkLen + 1;
             }
             return true;
         }
-        char literalChar = command.text.charAt(0);
+        char literalChar = command.getText().charAt(0);
 
         try {
             char nextChar = ps.getCharAfterCurrentOffset();
@@ -327,7 +329,7 @@ public class PyPeerLinker {
                 //only add additional chars if on default context.
                 return false;
             }
-            document.replace(offset, ps.getSelLength(), command.text + command.text);
+            document.replace(offset, ps.getSelLength(), command.getText() + command.getText());
             linkOffset = offset + 1;
             linkLen = 0;
             linkExitPos = linkOffset + linkLen + 1;
@@ -351,7 +353,7 @@ public class PyPeerLinker {
                     //only add additional chars if on default context.
                     return false;
                 }
-                document.replace(offset, ps.getSelLength(), command.text + command.text);
+                document.replace(offset, ps.getSelLength(), command.getText() + command.getText());
                 linkOffset = offset + 1;
                 linkLen = 0;
                 linkExitPos = linkOffset + linkLen + 1;

@@ -48,12 +48,12 @@ import org.eclipse.search2.internal.ui.text.PositionTracker;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEditGroup;
+import org.python.pydev.refactoring.core.base.SynchronizedTextFileChange;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_ui.search.ICustomLineElement;
 import org.python.pydev.shared_ui.search.ICustomMatch;
 import org.python.pydev.shared_ui.search.ICustomSearchQuery;
 import org.python.pydev.shared_ui.search.SearchMessages;
-import org.python.pydev.shared_ui.utils.SynchronizedTextFileChange;
 
 public class ReplaceRefactoring extends Refactoring {
 

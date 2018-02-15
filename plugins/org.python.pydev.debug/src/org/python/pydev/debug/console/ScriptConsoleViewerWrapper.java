@@ -57,7 +57,8 @@ import org.eclipse.ui.console.IHyperlink;
 import org.eclipse.ui.console.TextConsoleViewer;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
+import org.python.pydev.core.interactive_console.IScriptConsoleViewer;
+import org.python.pydev.editor.PySelectionFromEditor;
 
 public class ScriptConsoleViewerWrapper implements ITextViewer, IScriptConsoleViewer {
 
@@ -76,18 +77,15 @@ public class ScriptConsoleViewerWrapper implements ITextViewer, IScriptConsoleVi
 
     @Override
     public String getCommandLine() {
-
-        IDocument document = this.viewer.getDocument();
         ITextSelection selection = (ITextSelection) this.viewer.getSelection();
-        PySelection ps = new PySelection(document, selection);
+        PySelection ps = PySelectionFromEditor.createPySelectionFromEditor(this.viewer, selection);
         return ps.getCursorLineContents();
     }
 
     @Override
     public int getCommandLineOffset() {
-        IDocument document = this.viewer.getDocument();
         ITextSelection selection = (ITextSelection) this.viewer.getSelection();
-        PySelection ps = new PySelection(document, selection);
+        PySelection ps = PySelectionFromEditor.createPySelectionFromEditor(this.viewer, selection);
         return ps.getStartLineOffset();
     }
 

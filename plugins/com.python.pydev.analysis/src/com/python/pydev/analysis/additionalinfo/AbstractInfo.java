@@ -11,6 +11,7 @@ package com.python.pydev.analysis.additionalinfo;
 
 import java.io.Serializable;
 
+import org.python.pydev.core.IInfo;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ObjectsInternPool;
 

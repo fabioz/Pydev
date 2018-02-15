@@ -11,9 +11,9 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
-import org.python.pydev.editor.preferences.PydevEditorPrefs;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
 import org.python.pydev.shared_ui.ColorCache;
 import org.python.pydev.shared_ui.editor.IVerticalIndentGuidePreferencesProvider;
 
@@ -26,11 +26,11 @@ public abstract class PyAbstractIndentGuidePreferencesProvider implements IVerti
     private IPreferenceStore chainedPrefStore;
 
     public PyAbstractIndentGuidePreferencesProvider() {
-        chainedPrefStore = PydevPrefs.getChainedPrefStore();
-        showIndentGuide = chainedPrefStore.getBoolean(PydevEditorPrefs.USE_VERTICAL_INDENT_GUIDE);
+        chainedPrefStore = PyDevUiPrefs.getChainedPrefStore();
+        showIndentGuide = chainedPrefStore.getBoolean(PyDevEditorPreferences.USE_VERTICAL_INDENT_GUIDE);
         useEditorForegroundColor = chainedPrefStore
-                .getBoolean(PydevEditorPrefs.USE_VERTICAL_INDENT_COLOR_EDITOR_FOREGROUND);
-        setTransparency(chainedPrefStore.getInt(PydevEditorPrefs.VERTICAL_INDENT_TRANSPARENCY));
+                .getBoolean(PyDevEditorPreferences.USE_VERTICAL_INDENT_COLOR_EDITOR_FOREGROUND);
+        setTransparency(chainedPrefStore.getInt(PyDevEditorPreferences.VERTICAL_INDENT_TRANSPARENCY));
         chainedPrefStore.addPropertyChangeListener(this);
     }
 
@@ -59,15 +59,15 @@ public abstract class PyAbstractIndentGuidePreferencesProvider implements IVerti
 
     @Override
     public void propertyChange(PropertyChangeEvent event) {
-        if (PydevEditorPrefs.USE_VERTICAL_INDENT_GUIDE.equals(event.getProperty())) {
-            this.showIndentGuide = chainedPrefStore.getBoolean(PydevEditorPrefs.USE_VERTICAL_INDENT_GUIDE);
+        if (PyDevEditorPreferences.USE_VERTICAL_INDENT_GUIDE.equals(event.getProperty())) {
+            this.showIndentGuide = chainedPrefStore.getBoolean(PyDevEditorPreferences.USE_VERTICAL_INDENT_GUIDE);
 
-        } else if (PydevEditorPrefs.USE_VERTICAL_INDENT_COLOR_EDITOR_FOREGROUND.equals(event.getProperty())) {
+        } else if (PyDevEditorPreferences.USE_VERTICAL_INDENT_COLOR_EDITOR_FOREGROUND.equals(event.getProperty())) {
             this.useEditorForegroundColor = chainedPrefStore
-                    .getBoolean(PydevEditorPrefs.USE_VERTICAL_INDENT_COLOR_EDITOR_FOREGROUND);
+                    .getBoolean(PyDevEditorPreferences.USE_VERTICAL_INDENT_COLOR_EDITOR_FOREGROUND);
 
-        } else if (PydevEditorPrefs.VERTICAL_INDENT_TRANSPARENCY.equals(event.getProperty())) {
-            setTransparency(chainedPrefStore.getInt(PydevEditorPrefs.VERTICAL_INDENT_TRANSPARENCY));
+        } else if (PyDevEditorPreferences.VERTICAL_INDENT_TRANSPARENCY.equals(event.getProperty())) {
+            setTransparency(chainedPrefStore.getInt(PyDevEditorPreferences.VERTICAL_INDENT_TRANSPARENCY));
         }
     }
 
@@ -77,7 +77,7 @@ public abstract class PyAbstractIndentGuidePreferencesProvider implements IVerti
             return styledText.getForeground();
         }
         ColorCache colorCache = PydevPlugin.getColorCache();
-        return colorCache.getColor(PydevEditorPrefs.VERTICAL_INDENT_COLOR);
+        return colorCache.getColor(PyDevEditorPreferences.VERTICAL_INDENT_COLOR);
     }
 
     @Override

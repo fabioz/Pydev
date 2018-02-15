@@ -19,12 +19,12 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.eclipse.core.runtime.IStatus;
+import org.python.pydev.ast.runners.SimpleJythonRunner;
+import org.python.pydev.ast.runners.SimpleRunner;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.jython.IPythonInterpreter;
 import org.python.pydev.jython.JythonPlugin;
-import org.python.pydev.runners.SimpleJythonRunner;
-import org.python.pydev.runners.SimpleRunner;
+import org.python.pydev.shared_core.jython.IPythonInterpreter;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
@@ -35,11 +35,11 @@ public class JythonTest extends TestCase {
     final File[] foldersWithTestContentsOnSameProcess = new File[] {
             new File(TestDependent.TEST_PYDEV_JYTHON_PLUGIN_LOC + "jysrc/tests"),
             new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "tests/jysrc/tests"),
-            new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "pysrc/tests_runfiles"), };
+            new File(TestDependent.PYSRC_LOC + "tests_runfiles"), };
 
     final File[] additionalPythonpathFolders = new File[] {
             new File(TestDependent.TEST_PYDEV_JYTHON_PLUGIN_LOC + "jysrc/"),
-            new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "pysrc/"), new File(TestDependent.JYTHON_ANT_JAR_LOCATION),
+            new File(TestDependent.PYSRC_LOC), new File(TestDependent.JYTHON_ANT_JAR_LOCATION),
             new File(TestDependent.JYTHON_JUNIT_JAR_LOCATION), new File(TestDependent.JYTHON_LIB_LOCATION), };
 
     private static final boolean RUN_TESTS_ON_SEPARATE_PROCESS = true;

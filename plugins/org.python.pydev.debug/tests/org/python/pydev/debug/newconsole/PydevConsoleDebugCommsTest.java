@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;
 import org.junit.Assert;
+import org.python.pydev.ast.runners.SimpleRunner;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.debug.model.AbstractDebugTarget;
 import org.python.pydev.debug.model.AbstractDebugTargetWithTransmission;
@@ -36,7 +37,6 @@ import org.python.pydev.debug.model.PyVariableCollection;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.model.remote.GetFrameCommand;
 import org.python.pydev.debug.model.remote.VersionCommand;
-import org.python.pydev.runners.SimpleRunner;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.net.SocketUtil;
@@ -62,9 +62,10 @@ public class PydevConsoleDebugCommsTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        String consoleFile = FileUtils.createFileFromParts(TestDependent.TEST_PYDEV_PLUGIN_LOC, "pysrc",
-                "pydevconsole.py").getAbsolutePath();
-        String pydevdDir = new File(TestDependent.TEST_PYDEV_DEBUG_PLUGIN_LOC, "pysrc").getAbsolutePath();
+        String consoleFile = FileUtils
+                .createFileFromParts(TestDependent.PYSRC_LOC, "pydevconsole.py")
+                .getAbsolutePath();
+        String pydevdDir = new File(TestDependent.PYSRC_LOC).getAbsolutePath();
         Integer[] ports = SocketUtil.findUnusedLocalPorts(2);
         int port = ports[0];
         int clientPort = ports[1];

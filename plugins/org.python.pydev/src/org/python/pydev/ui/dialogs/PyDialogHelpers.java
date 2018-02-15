@@ -10,20 +10,30 @@ import java.util.Arrays;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
+import org.python.pydev.ast.interpreter_managers.AbstractInterpreterManager;
 import org.python.pydev.core.IInterpreterInfo.UnableToFindExecutableException;
+import org.python.pydev.core.preferences.InterpreterGeneralPreferences;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.dialogs.DialogHelpers;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.shared_ui.utils.UIUtils;
-import org.python.pydev.ui.interpreters.AbstractInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterConfigHelpers;
-import org.python.pydev.ui.pythonpathconf.InterpreterGeneralPreferencesPage;
 
 /**
  * @author fabioz
@@ -112,7 +122,7 @@ public class PyDialogHelpers {
 
     public static int openQuestionConfigureInterpreter(AbstractInterpreterManager m) {
         IPreferenceStore store = PydevPlugin.getDefault().getPreferenceStore();
-        String key = InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER + m.getInterpreterType();
+        String key = InterpreterGeneralPreferences.NOTIFY_NO_INTERPRETER + m.getInterpreterType();
         boolean val = store.getBoolean(key);
 
         if (val) {
@@ -151,12 +161,67 @@ public class PyDialogHelpers {
             return false;
         }
         IPreferenceStore store = PydevPlugin.getDefault().getPreferenceStore();
-        return store.getBoolean(InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER + m.getInterpreterType());
+        return store.getBoolean(InterpreterGeneralPreferences.NOTIFY_NO_INTERPRETER + m.getInterpreterType());
     }
 
     public static void openException(String title, UnableToFindExecutableException e) {
         ErrorDialog.openError(UIUtils.getActiveShell(), title, e.getMessage(),
                 new Status(IStatus.ERROR,
                         PydevPlugin.getPluginID(), e.getMessage(), e));
+    }
+
+    public static void showString(String string) {
+        RunInUiThread.async(() -> {
+            Display disp = Display.getCurrent();
+            Shell shell = disp.getActiveShell();
+            if (shell == null) {
+                shell = new Shell(disp);
+            }
+            ShowTextDialog showTextDialog = new ShowTextDialog(shell, string);
+            showTextDialog.open();
+        });
+    }
+
+    private static final class ShowTextDialog extends Dialog {
+
+        private String message;
+
+        public ShowTextDialog(Shell shell, String message) {
+            super(shell);
+            this.message = message;
+            setShellStyle(
+                    SWT.CLOSE | SWT.MODELESS | SWT.BORDER | SWT.TITLE | SWT.RESIZE | SWT.MAX | getDefaultOrientation());
+            setBlockOnOpen(true);
+        }
+
+        @Override
+        protected boolean isResizable() {
+            return true;
+        }
+
+        @Override
+        protected Point getInitialSize() {
+            return new Point(800, 600);
+        }
+
+        @Override
+        protected Control createDialogArea(Composite parent) {
+            Composite composite = (Composite) super.createDialogArea(parent);
+
+            GridLayout layout = (GridLayout) composite.getLayout();
+            layout.numColumns = 1;
+            createText(composite, message, 1);
+
+            return composite;
+        }
+
+        private Text createText(Composite composite, String labelMsg, int colSpan) {
+            Text text = new Text(composite, SWT.BORDER | SWT.MULTI | SWT.READ_ONLY | SWT.V_SCROLL | SWT.H_SCROLL);
+            GridData gridData = new GridData(GridData.FILL_BOTH);
+            gridData.horizontalSpan = colSpan;
+            text.setLayoutData(gridData);
+            text.setText(labelMsg);
+            return text;
+        }
     }
 }

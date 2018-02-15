@@ -13,7 +13,7 @@ import org.osgi.service.prefs.Preferences;
 import com.python.pydev.refactoring.ui.MarkOccurrencesPreferencesPage;
 
 public class RefactoringPreferencesInitializer extends AbstractPreferenceInitializer {
-    public static final String DEFAULT_SCOPE = "com.python.pydev.refactoring";
+    public static final String DEFAULT_SCOPE = "com.python.pydev.analysis.refactoring";
 
     @Override
     public void initializeDefaultPreferences() {

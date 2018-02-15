@@ -12,9 +12,10 @@
 package org.python.pydev.editor.actions;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.ast.formatter.PyFormatter;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
-import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
+import org.python.pydev.core.formatter.FormatStd;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.string.StringUtils;
 
@@ -50,7 +51,7 @@ public class PyFormatStdTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        std = new PyFormatStd.FormatStd();
+        std = new FormatStd();
         std.operatorsWithSpace = true;
     }
 
@@ -818,7 +819,7 @@ public class PyFormatStdTest extends TestCase {
         std.addNewLineAtEndOfFile = true;
         std.trimLines = true;
 
-        final PyFormatStd pyFormatStd = new PyFormatStd();
+        final PyFormatAction pyFormatStd = new PyFormatAction();
         String s = "" +
                 "a  =  10  \n" +
                 "a  =  10  " +
@@ -830,7 +831,7 @@ public class PyFormatStdTest extends TestCase {
         Document doc = new Document(s);
 
         int[] regionsForSave = new int[] { 0 };
-        pyFormatStd.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
+        PyFormatter.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
         assertEquals(expected, doc.get());
     }
 
@@ -841,7 +842,7 @@ public class PyFormatStdTest extends TestCase {
         std.addNewLineAtEndOfFile = true;
         std.trimLines = true;
 
-        final PyFormatStd pyFormatStd = new PyFormatStd();
+        final PyFormatAction pyFormatStd = new PyFormatAction();
         String s = "" +
                 "a,b,c\n" +
                 "a  =  10  " +
@@ -853,7 +854,7 @@ public class PyFormatStdTest extends TestCase {
         Document doc = new Document(s);
 
         int[] regionsForSave = new int[] { 0 };
-        pyFormatStd.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
+        PyFormatter.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
         assertEquals(expected, doc.get());
     }
 
@@ -864,7 +865,7 @@ public class PyFormatStdTest extends TestCase {
         std.addNewLineAtEndOfFile = true;
         std.trimLines = true;
 
-        final PyFormatStd pyFormatStd = new PyFormatStd();
+        final PyFormatAction pyFormatStd = new PyFormatAction();
         final String s = "" +
                 "'a,b,c'\n" +
                 "a  =  10\n" +
@@ -872,7 +873,7 @@ public class PyFormatStdTest extends TestCase {
         Document doc = new Document(s);
 
         int[] regionsForSave = new int[] { 0 };
-        pyFormatStd.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
+        PyFormatter.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
         assertEquals(s, doc.get());
     }
 
@@ -998,9 +999,9 @@ public class PyFormatStdTest extends TestCase {
     private void checkFormatResults(String s, String expected) {
         //default check (defined with \n)
         try {
-            final PyFormatStd pyFormatStd = new PyFormatStd();
+            final PyFormatAction pyFormatStd = new PyFormatAction();
             Document doc = new Document(s);
-            pyFormatStd.formatAll(doc, null, true, std, false, true);
+            PyFormatter.formatAll(doc, null, true, std, false, true);
             String formatStr = doc.get();
 
             if (DEBUG) {
@@ -1023,7 +1024,7 @@ public class PyFormatStdTest extends TestCase {
             String expected2 = expected.replace('\n', '\r');
 
             doc = new Document(s);
-            pyFormatStd.formatAll(doc, null, true, std, false, true);
+            PyFormatter.formatAll(doc, null, true, std, false, true);
             formatStr = doc.get();
             assertEquals(expected, formatStr);
 
@@ -1032,11 +1033,11 @@ public class PyFormatStdTest extends TestCase {
             expected = StringUtils.replaceAll(expected, "\r", "\r\n");
 
             doc = new Document(s);
-            pyFormatStd.formatAll(doc, null, true, std, false, true);
+            PyFormatter.formatAll(doc, null, true, std, false, true);
             formatStr = doc.get();
             assertEquals(expected, formatStr);
 
-            formatStr = pyFormatStd.formatStrAutopep8OrPyDev(new Document(s2), std, "\r", false, true);
+            formatStr = PyFormatter.formatStrAutopep8OrPyDev(new Document(s2), std, "\r", false, true);
             if (expected2.endsWith("\r") && !formatStr.endsWith("\r")) {
                 expected2 = expected2.substring(0, expected2.length() - 1);
             }
@@ -1046,7 +1047,7 @@ public class PyFormatStdTest extends TestCase {
             String s3 = StringUtils.replaceAll(s, "\n", "\r\n");
             String expected3 = StringUtils.replaceAll(expected, "\n", "\r\n");
 
-            formatStr = pyFormatStd.formatStrAutopep8OrPyDev(new Document(s3), std, "\r\n", false, true);
+            formatStr = PyFormatter.formatStrAutopep8OrPyDev(new Document(s3), std, "\r\n", false, true);
             if (expected3.endsWith("\r\n") && !formatStr.endsWith("\r\n")) {
                 expected3 = expected3.substring(0, expected3.length() - 2);
             }
@@ -1055,7 +1056,7 @@ public class PyFormatStdTest extends TestCase {
             //now, same thing with different API
             doc = new Document();
             doc.set(s);
-            pyFormatStd.formatAll(doc, null, true, std, false, true);
+            PyFormatter.formatAll(doc, null, true, std, false, true);
             assertEquals(expected, doc.get());
         } catch (SyntaxErrorException e) {
             throw new RuntimeException(e);
@@ -1255,9 +1256,9 @@ public class PyFormatStdTest extends TestCase {
                 "        ra( )\n" +
                 "        a.Get(self, ra( )\n" +
                 "";
-        final PyFormatStd pyFormatStd = new PyFormatStd();
+        final PyFormatAction pyFormatStd = new PyFormatAction();
         try {
-            pyFormatStd.formatAll(new Document(s), null, false, std, true, true);
+            PyFormatter.formatAll(new Document(s), null, false, std, true, true);
             fail("Expecting exception!");
         } catch (Exception e) {
         }
@@ -1989,7 +1990,7 @@ public class PyFormatStdTest extends TestCase {
         std.manageBlankLines = true;
         std.trimLines = true;
 
-        final PyFormatStd pyFormatStd = new PyFormatStd();
+        final PyFormatAction pyFormatStd = new PyFormatAction();
         String s = "" +
                 "a  =  10  \n" +
                 "\n" +
@@ -2005,7 +2006,7 @@ public class PyFormatStdTest extends TestCase {
         Document doc = new Document(s);
 
         int[] regionsForSave = new int[] { 0, 1, 2, 3 };
-        pyFormatStd.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
+        PyFormatter.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
         assertEquals(expected, doc.get());
     }
 
@@ -2034,12 +2035,12 @@ public class PyFormatStdTest extends TestCase {
                 + "    def foo():\n"
                 + "";
 
-        final PyFormatStd pyFormatStd = new PyFormatStd();
+        final PyFormatAction pyFormatStd = new PyFormatAction();
         std.manageBlankLines = true;
         std.trimLines = true;
         Document doc = new Document(input);
         int[] regionsForSave = new int[] { 4 };
-        pyFormatStd.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
+        PyFormatter.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
         assertEquals(expected, doc.get());
 
     }
@@ -2072,12 +2073,12 @@ public class PyFormatStdTest extends TestCase {
                 + "    def foo():\n"
                 + "";
 
-        final PyFormatStd pyFormatStd = new PyFormatStd();
+        final PyFormatAction pyFormatStd = new PyFormatAction();
         std.manageBlankLines = true;
         std.trimLines = true;
         Document doc = new Document(input);
         int[] regionsForSave = new int[] { 5 };
-        pyFormatStd.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
+        PyFormatter.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
         assertEquals(expected, doc.get());
     }
 
@@ -2101,13 +2102,13 @@ public class PyFormatStdTest extends TestCase {
                 + "        a = 10\n"
                 + "";
 
-        final PyFormatStd pyFormatStd = new PyFormatStd();
+        final PyFormatAction pyFormatStd = new PyFormatAction();
         std.manageBlankLines = true;
         std.trimLines = true;
         std.blankLinesInner = 2;
         Document doc = new Document(input);
         int[] regionsForSave = new int[] { 3 };
-        pyFormatStd.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
+        PyFormatter.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
         assertEquals(expected, doc.get());
     }
 }

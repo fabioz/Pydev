@@ -10,17 +10,19 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import junit.framework.TestCase;
-
-import org.eclipse.jface.preference.PreferenceStore;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.python.pydev.ast.codecompletion.revisited.ProjectModulesManager;
+import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
+import org.python.pydev.ast.interpreter_managers.PythonInterpreterManager;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.plugin.PydevTestUtils;
 import org.python.pydev.shared_core.io.FileUtils;
-import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
+import org.python.pydev.shared_core.preferences.InMemoryEclipsePreferences;
+
+import junit.framework.TestCase;
 
 /**
  * @author fabioz
@@ -75,9 +77,9 @@ public class InterpreterManagerTest extends TestCase {
         pythonpath.add(TestDependent.PYTHON_LIB);
         pythonpath.add(TestDependent.PYTHON_SITE_PACKAGES);
 
-        PreferenceStore prefs = new PreferenceStore();
+        IEclipsePreferences prefs = new InMemoryEclipsePreferences();
         String interpreterStr = new InterpreterInfo("2.6", TestDependent.PYTHON_EXE, pythonpath).toString();
-        prefs.setValue(IInterpreterManager.PYTHON_INTERPRETER_PATH, interpreterStr);
+        prefs.put(IInterpreterManager.PYTHON_INTERPRETER_PATH, interpreterStr);
         PythonInterpreterManager manager = new PythonInterpreterManager(prefs);
         checkSameInterpreterInfo(manager);
 
@@ -89,12 +91,13 @@ public class InterpreterManagerTest extends TestCase {
         pythonpath.add(TestDependent.PYTHON_SITE_PACKAGES);
         pythonpath.add(additionalPythonpathEntry.toString());
         interpreterStr = new InterpreterInfo("2.6", TestDependent.PYTHON_EXE, pythonpath).toString();
-        prefs.setValue(IInterpreterManager.PYTHON_INTERPRETER_PATH, interpreterStr);
+        prefs.put(IInterpreterManager.PYTHON_INTERPRETER_PATH, interpreterStr);
 
         info = checkSameInterpreterInfo(manager);
     }
 
-    private InterpreterInfo checkSameInterpreterInfo(PythonInterpreterManager manager) throws MisconfigurationException {
+    private InterpreterInfo checkSameInterpreterInfo(PythonInterpreterManager manager)
+            throws MisconfigurationException {
         InterpreterInfo infoInManager = manager.getInterpreterInfo(TestDependent.PYTHON_EXE, null);
         IInterpreterInfo[] interpreterInfos = manager.getInterpreterInfos();
         assertEquals(1, interpreterInfos.length);

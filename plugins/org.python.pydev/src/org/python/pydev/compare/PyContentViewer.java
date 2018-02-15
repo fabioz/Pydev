@@ -22,7 +22,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.python.pydev.core.partition.PyPartitionScanner;
 import org.python.pydev.editor.PyEditConfigurationWithoutEditor;
-import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.ui.ColorAndStyleCache;
 
@@ -33,7 +33,7 @@ public class PyContentViewer extends Viewer {
 
     PyContentViewer(Composite parent, CompareConfiguration mp) {
         fSourceViewer = new SourceViewer(parent, null, SWT.LEFT_TO_RIGHT | SWT.H_SCROLL | SWT.V_SCROLL);
-        IPreferenceStore store = PydevPrefs.getChainedPrefStore();
+        IPreferenceStore store = PyDevUiPrefs.getChainedPrefStore();
 
         final ColorAndStyleCache c = new ColorAndStyleCache(store);
 

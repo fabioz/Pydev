@@ -24,16 +24,15 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.ITextSelection;
-import org.eclipse.jface.text.TextSelection;
-import org.eclipse.ui.PlatformUI;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.docutils.TabNannyDocIterator.IndentInfo;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.partition.PyPartitionScanner;
+import org.python.pydev.shared_core.string.CoreTextSelection;
 import org.python.pydev.shared_core.string.DocIterator;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -134,7 +133,7 @@ public final class PySelection extends TextSelectionUtils {
      * @param document the document we are using to make the selection
      * @param selection that's the actual selection. It might have an offset and a number of selected chars
      */
-    public PySelection(IDocument doc, ITextSelection selection) {
+    public PySelection(IDocument doc, ICoreTextSelection selection) {
         super(doc, selection);
     }
 
@@ -153,7 +152,7 @@ public final class PySelection extends TextSelectionUtils {
     }
 
     public PySelection(IDocument doc, int line, int col, int len) {
-        super(doc, new TextSelection(doc, getAbsoluteCursorOffset(doc, line, col), len));
+        super(doc, new CoreTextSelection(doc, getAbsoluteCursorOffset(doc, line, col), len));
     }
 
     /**
@@ -161,7 +160,7 @@ public final class PySelection extends TextSelectionUtils {
      * @param offset the offset where the selection will happen (0 characters will be selected)
      */
     public PySelection(IDocument doc, int offset) {
-        super(doc, new TextSelection(doc, offset, 0));
+        super(doc, new CoreTextSelection(doc, offset, 0));
     }
 
     /**
@@ -176,7 +175,7 @@ public final class PySelection extends TextSelectionUtils {
      * Creates a selection based on another selection.
      */
     public PySelection(PySelection base) {
-        super(base.doc, new TextSelection(base.doc, base.getAbsoluteCursorOffset(), base.getSelLength()));
+        super(base.doc, new CoreTextSelection(base.doc, base.getAbsoluteCursorOffset(), base.getSelLength()));
     }
 
     /**
@@ -373,11 +372,6 @@ public final class PySelection extends TextSelectionUtils {
         } catch (SyntaxErrorException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    protected static void beep(Exception e) {
-        Log.log(e);
-        PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay().beep();
     }
 
     public static String getLineWithoutCommentsOrLiterals(String l) {
@@ -1558,6 +1552,31 @@ public final class PySelection extends TextSelectionUtils {
             return null;
         }
 
+    }
+
+    public static void computeArgsOffsetsAndLens(String args, List<Integer> offsetsAndLens) {
+        int bufferLen = 0;
+        int len = args.length();
+        for (int i = 0; i < len; i++) {
+            char c = args.charAt(i);
+    
+            if (Character.isJavaIdentifierPart(c)) {
+                if (bufferLen == 0) {
+                    offsetsAndLens.add(i);
+                    bufferLen += 1;
+                } else {
+                    bufferLen += 1;
+                }
+            } else {
+                if (bufferLen > 0) {
+                    offsetsAndLens.add(bufferLen);
+                    bufferLen = 0;
+                }
+            }
+        }
+        if (bufferLen > 0) {
+            offsetsAndLens.add(bufferLen);
+        }
     }
 
 }

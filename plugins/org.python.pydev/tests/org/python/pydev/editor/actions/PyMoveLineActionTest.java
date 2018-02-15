@@ -8,10 +8,10 @@ package org.python.pydev.editor.actions;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.ITextSelection;
-import org.eclipse.jface.text.TextSelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.PyEdit.MyResources;
+import org.python.pydev.shared_core.string.CoreTextSelection;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
 
 import junit.framework.TestCase;
 
@@ -244,7 +244,7 @@ public class PyMoveLineActionTest extends TestCase {
 
     public void check(PyMoveLineAction action, String initialContent, String finalContent, int offset, int len) {
         IDocument document = new Document(initialContent);
-        ITextSelection sel = new TextSelection(document, offset, len);
+        ICoreTextSelection sel = new CoreTextSelection(document, offset, len);
 
         action.move(null, null, document, sel);
         assertEquals(finalContent, document.get());

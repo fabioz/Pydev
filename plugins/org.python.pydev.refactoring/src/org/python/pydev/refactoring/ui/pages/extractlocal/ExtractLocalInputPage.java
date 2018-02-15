@@ -34,7 +34,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.refactoring.coderefactoring.extractlocal.ExtractLocalRefactoring;
 import org.python.pydev.refactoring.coderefactoring.extractlocal.ExtractLocalRequestProcessor;
 import org.python.pydev.refactoring.messages.Messages;
@@ -74,7 +74,7 @@ public class ExtractLocalInputPage extends TextInputWizardPage {
         replaceDuplicates.setText(StringUtils.format("Also replace &duplicates (%s references)?",
                 requestProcessor.getDuplicatesSize()));
 
-        IPreferenceStore preferences = PydevPrefs.getPreferences();
+        IPreferenceStore preferences = PyDevUiPrefs.getPreferenceStore();
         boolean replace = preferences.getBoolean(EXTRACT_LOCAL_REPLACE_DUPLICATES);
         replaceDuplicates.setSelection(replace);
         requestProcessor.setReplaceDuplicates(replace);
@@ -82,7 +82,7 @@ public class ExtractLocalInputPage extends TextInputWizardPage {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 getRequestProcessor().setReplaceDuplicates(replaceDuplicates.getSelection());
-                IPreferenceStore preferences = PydevPrefs.getPreferences();
+                IPreferenceStore preferences = PyDevUiPrefs.getPreferenceStore();
                 preferences.setValue(EXTRACT_LOCAL_REPLACE_DUPLICATES, replaceDuplicates.getSelection());
             }
 

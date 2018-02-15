@@ -8,14 +8,10 @@ Bundle-Activator: org.python.pydev.parser.ParserPlugin
 Bundle-Localization: plugin
 Eclipse-BundleShape: dir
 Require-Bundle: org.junit;bundle-version="4.0.0";resolution:=optional,
- org.eclipse.ui,
- org.eclipse.ui.ide,
  org.eclipse.core.runtime,
  org.eclipse.core.resources,
- org.eclipse.jface.text,
- org.python.pydev.core;bundle-version="[6.3.0,6.3.1)",
- org.eclipse.ui.editors,
- org.eclipse.ui.workbench.texteditor
+ org.eclipse.text,
+ org.python.pydev.core;bundle-version="[6.3.0,6.3.1)"
 Bundle-ActivationPolicy: lazy
 Export-Package: org.python.pydev.parser,
  org.python.pydev.parser.fastparser,
@@ -25,11 +21,13 @@ Export-Package: org.python.pydev.parser,
  org.python.pydev.parser.grammar26,
  org.python.pydev.parser.grammar27,
  org.python.pydev.parser.grammar30,
+ org.python.pydev.parser.grammar36,
  org.python.pydev.parser.grammar_fstrings,
  org.python.pydev.parser.grammarcommon,
  org.python.pydev.parser.jython,
  org.python.pydev.parser.jython.ast,
  org.python.pydev.parser.jython.ast.factory,
+ org.python.pydev.parser.preferences,
  org.python.pydev.parser.prettyprinter,
  org.python.pydev.parser.prettyprinterv2,
  org.python.pydev.parser.visitors,

@@ -26,7 +26,6 @@ import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
@@ -39,6 +38,7 @@ import org.python.pydev.refactoring.core.base.AbstractPythonRefactoring;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.change.IChangeProcessor;
 import org.python.pydev.refactoring.messages.Messages;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
 import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 
 public class InlineLocalRefactoring extends AbstractPythonRefactoring {
@@ -66,7 +66,7 @@ public class InlineLocalRefactoring extends AbstractPythonRefactoring {
     @Override
     public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException {
         AbstractScopeNode<?> scope = info.getScopeAdapter();
-        ITextSelection selection = info.getUserSelection();
+        ICoreTextSelection selection = info.getUserSelection();
 
         SimpleNode node = scope.getASTNode();
 
@@ -167,7 +167,7 @@ public class InlineLocalRefactoring extends AbstractPythonRefactoring {
         return relatedVariables;
     }
 
-    private Name findSelectedVariable(ITextSelection selection, List<Name> variables) {
+    private Name findSelectedVariable(ICoreTextSelection selection, List<Name> variables) {
         int selectionOffset = selection.getOffset();
 
         for (Name variable : variables) {

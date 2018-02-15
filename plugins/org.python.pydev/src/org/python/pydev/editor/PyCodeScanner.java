@@ -18,15 +18,15 @@ import java.util.Map;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.rules.IRule;
-import org.eclipse.jface.text.rules.IToken;
-import org.eclipse.jface.text.rules.IWhitespaceDetector;
-import org.eclipse.jface.text.rules.IWordDetector;
-import org.eclipse.jface.text.rules.RuleBasedScanner;
-import org.eclipse.jface.text.rules.Token;
-import org.eclipse.jface.text.rules.WhitespaceRule;
-import org.eclipse.jface.text.rules.WordRule;
 import org.python.pydev.shared_core.callbacks.ICallbackListener;
+import org.python.pydev.shared_core.partitioner.IRule;
+import org.python.pydev.shared_core.partitioner.IToken;
+import org.python.pydev.shared_core.partitioner.IWhitespaceDetector;
+import org.python.pydev.shared_core.partitioner.IWordDetector;
+import org.python.pydev.shared_core.partitioner.RuleBasedScanner;
+import org.python.pydev.shared_core.partitioner.Token;
+import org.python.pydev.shared_core.partitioner.WhitespaceRule;
+import org.python.pydev.shared_core.partitioner.WordRule;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.utils.ArrayUtils;
 import org.python.pydev.ui.ColorAndStyleCache;
@@ -34,7 +34,7 @@ import org.python.pydev.ui.ColorAndStyleCache;
 /**
  * PyCodeScanner - A scanner that looks for python keywords and code
  * and supports the updating of named colors through the colorCache
- * 
+ *
  * GreatWhite, GreatKeywordDetector came from PyEditConfiguration
  */
 public class PyCodeScanner extends RuleBasedScanner {
@@ -75,7 +75,7 @@ public class PyCodeScanner extends RuleBasedScanner {
 
     /**
      * Whitespace detector.
-     * 
+     *
      * I know, naming the class after a band that burned
      * is not funny, but I've got to get my brain off my
      * annoyance with the abstractions of JFace.

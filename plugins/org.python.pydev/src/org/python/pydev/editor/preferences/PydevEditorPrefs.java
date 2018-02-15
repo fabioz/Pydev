@@ -33,14 +33,15 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
+import org.python.pydev.core.formatter.FormatStd;
+import org.python.pydev.core.formatter.PyFormatterPreferences;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.StyledTextForShowingCodeFactory;
-import org.python.pydev.editor.actions.PyFormatStd;
-import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.AbstractPydevPrefs;
 import org.python.pydev.plugin.preferences.ColorEditor;
-import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.field_editors.LinkFieldEditor;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
@@ -150,7 +151,7 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
         gridData = new GridData(GridData.FILL_HORIZONTAL);
         gridData.grabExcessHorizontalSpace = true;
         labelExample.setLayoutData(gridData);
-        updateLabelExample(PyFormatStd.getFormat(null), PydevPrefs.getChainedPrefStore());
+        updateLabelExample(PyFormatterPreferences.getFormatStd(null), PyDevUiPrefs.getChainedPrefStore());
 
         LinkFieldEditor tabsFieldEditor = new LinkFieldEditor("UNUSED",
                 "Other settings:\n\n<a>Tabs</a>: tab preferences for PyDev ...\n(note: 'Insert spaces for tabs' in the general settings is ignored).",
@@ -355,37 +356,37 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
 
     @Override
     protected void onAppearanceRelatedPreferenceChanged() {
-        localStore.setValue(KEYWORD_COLOR, fOverlayStore.getString(KEYWORD_COLOR));
-        localStore.setValue(SELF_COLOR, fOverlayStore.getString(SELF_COLOR));
-        localStore.setValue(CODE_COLOR, fOverlayStore.getString(CODE_COLOR));
-        localStore.setValue(DECORATOR_COLOR, fOverlayStore.getString(DECORATOR_COLOR));
-        localStore.setValue(NUMBER_COLOR, fOverlayStore.getString(NUMBER_COLOR));
-        localStore.setValue(FUNC_NAME_COLOR, fOverlayStore.getString(FUNC_NAME_COLOR));
-        localStore.setValue(CLASS_NAME_COLOR, fOverlayStore.getString(CLASS_NAME_COLOR));
-        localStore.setValue(STRING_COLOR, fOverlayStore.getString(STRING_COLOR));
-        localStore.setValue(UNICODE_COLOR, fOverlayStore.getString(UNICODE_COLOR));
-        localStore.setValue(COMMENT_COLOR, fOverlayStore.getString(COMMENT_COLOR));
-        localStore.setValue(BACKQUOTES_COLOR, fOverlayStore.getString(BACKQUOTES_COLOR));
-        localStore.setValue(PARENS_COLOR, fOverlayStore.getString(PARENS_COLOR));
-        localStore.setValue(OPERATORS_COLOR, fOverlayStore.getString(OPERATORS_COLOR));
-        localStore.setValue(DOCSTRING_MARKUP_COLOR, fOverlayStore.getString(DOCSTRING_MARKUP_COLOR));
+        localStore.setValue(PyDevEditorPreferences.KEYWORD_COLOR, fOverlayStore.getString(PyDevEditorPreferences.KEYWORD_COLOR));
+        localStore.setValue(PyDevEditorPreferences.SELF_COLOR, fOverlayStore.getString(PyDevEditorPreferences.SELF_COLOR));
+        localStore.setValue(PyDevEditorPreferences.CODE_COLOR, fOverlayStore.getString(PyDevEditorPreferences.CODE_COLOR));
+        localStore.setValue(PyDevEditorPreferences.DECORATOR_COLOR, fOverlayStore.getString(PyDevEditorPreferences.DECORATOR_COLOR));
+        localStore.setValue(PyDevEditorPreferences.NUMBER_COLOR, fOverlayStore.getString(PyDevEditorPreferences.NUMBER_COLOR));
+        localStore.setValue(PyDevEditorPreferences.FUNC_NAME_COLOR, fOverlayStore.getString(PyDevEditorPreferences.FUNC_NAME_COLOR));
+        localStore.setValue(PyDevEditorPreferences.CLASS_NAME_COLOR, fOverlayStore.getString(PyDevEditorPreferences.CLASS_NAME_COLOR));
+        localStore.setValue(PyDevEditorPreferences.STRING_COLOR, fOverlayStore.getString(PyDevEditorPreferences.STRING_COLOR));
+        localStore.setValue(PyDevEditorPreferences.UNICODE_COLOR, fOverlayStore.getString(PyDevEditorPreferences.UNICODE_COLOR));
+        localStore.setValue(PyDevEditorPreferences.COMMENT_COLOR, fOverlayStore.getString(PyDevEditorPreferences.COMMENT_COLOR));
+        localStore.setValue(PyDevEditorPreferences.BACKQUOTES_COLOR, fOverlayStore.getString(PyDevEditorPreferences.BACKQUOTES_COLOR));
+        localStore.setValue(PyDevEditorPreferences.PARENS_COLOR, fOverlayStore.getString(PyDevEditorPreferences.PARENS_COLOR));
+        localStore.setValue(PyDevEditorPreferences.OPERATORS_COLOR, fOverlayStore.getString(PyDevEditorPreferences.OPERATORS_COLOR));
+        localStore.setValue(PyDevEditorPreferences.DOCSTRING_MARKUP_COLOR, fOverlayStore.getString(PyDevEditorPreferences.DOCSTRING_MARKUP_COLOR));
 
-        localStore.setValue(KEYWORD_STYLE, fOverlayStore.getInt(KEYWORD_STYLE));
-        localStore.setValue(SELF_STYLE, fOverlayStore.getInt(SELF_STYLE));
-        localStore.setValue(CODE_STYLE, fOverlayStore.getInt(CODE_STYLE));
-        localStore.setValue(DECORATOR_STYLE, fOverlayStore.getInt(DECORATOR_STYLE));
-        localStore.setValue(NUMBER_STYLE, fOverlayStore.getInt(NUMBER_STYLE));
-        localStore.setValue(FUNC_NAME_STYLE, fOverlayStore.getInt(FUNC_NAME_STYLE));
-        localStore.setValue(CLASS_NAME_STYLE, fOverlayStore.getInt(CLASS_NAME_STYLE));
-        localStore.setValue(STRING_STYLE, fOverlayStore.getInt(STRING_STYLE));
-        localStore.setValue(UNICODE_STYLE, fOverlayStore.getInt(UNICODE_STYLE));
-        localStore.setValue(COMMENT_STYLE, fOverlayStore.getInt(COMMENT_STYLE));
-        localStore.setValue(BACKQUOTES_STYLE, fOverlayStore.getInt(BACKQUOTES_STYLE));
-        localStore.setValue(PARENS_STYLE, fOverlayStore.getInt(PARENS_STYLE));
-        localStore.setValue(OPERATORS_STYLE, fOverlayStore.getInt(OPERATORS_STYLE));
-        localStore.setValue(DOCSTRING_MARKUP_STYLE, fOverlayStore.getInt(DOCSTRING_MARKUP_STYLE));
+        localStore.setValue(PyDevEditorPreferences.KEYWORD_STYLE, fOverlayStore.getInt(PyDevEditorPreferences.KEYWORD_STYLE));
+        localStore.setValue(PyDevEditorPreferences.SELF_STYLE, fOverlayStore.getInt(PyDevEditorPreferences.SELF_STYLE));
+        localStore.setValue(PyDevEditorPreferences.CODE_STYLE, fOverlayStore.getInt(PyDevEditorPreferences.CODE_STYLE));
+        localStore.setValue(PyDevEditorPreferences.DECORATOR_STYLE, fOverlayStore.getInt(PyDevEditorPreferences.DECORATOR_STYLE));
+        localStore.setValue(PyDevEditorPreferences.NUMBER_STYLE, fOverlayStore.getInt(PyDevEditorPreferences.NUMBER_STYLE));
+        localStore.setValue(PyDevEditorPreferences.FUNC_NAME_STYLE, fOverlayStore.getInt(PyDevEditorPreferences.FUNC_NAME_STYLE));
+        localStore.setValue(PyDevEditorPreferences.CLASS_NAME_STYLE, fOverlayStore.getInt(PyDevEditorPreferences.CLASS_NAME_STYLE));
+        localStore.setValue(PyDevEditorPreferences.STRING_STYLE, fOverlayStore.getInt(PyDevEditorPreferences.STRING_STYLE));
+        localStore.setValue(PyDevEditorPreferences.UNICODE_STYLE, fOverlayStore.getInt(PyDevEditorPreferences.UNICODE_STYLE));
+        localStore.setValue(PyDevEditorPreferences.COMMENT_STYLE, fOverlayStore.getInt(PyDevEditorPreferences.COMMENT_STYLE));
+        localStore.setValue(PyDevEditorPreferences.BACKQUOTES_STYLE, fOverlayStore.getInt(PyDevEditorPreferences.BACKQUOTES_STYLE));
+        localStore.setValue(PyDevEditorPreferences.PARENS_STYLE, fOverlayStore.getInt(PyDevEditorPreferences.PARENS_STYLE));
+        localStore.setValue(PyDevEditorPreferences.OPERATORS_STYLE, fOverlayStore.getInt(PyDevEditorPreferences.OPERATORS_STYLE));
+        localStore.setValue(PyDevEditorPreferences.DOCSTRING_MARKUP_STYLE, fOverlayStore.getInt(PyDevEditorPreferences.DOCSTRING_MARKUP_STYLE));
 
-        this.updateLabelExample(PyFormatStd.getFormat(null), localStore);
+        this.updateLabelExample(PyFormatterPreferences.getFormatStd(null), localStore);
     }
 
     @Override
@@ -396,7 +397,7 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
             formatAndStyleRangeHelper = null;
         }
         if (updateLabelExampleOnPrefsChanges != null) {
-            PydevPrefs.getChainedPrefStore().removePropertyChangeListener(updateLabelExampleOnPrefsChanges);
+            PyDevUiPrefs.getChainedPrefStore().removePropertyChangeListener(updateLabelExampleOnPrefsChanges);
             updateLabelExampleOnPrefsChanges = null;
         }
         if (labelExample != null) {
@@ -418,12 +419,12 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
 
                     @Override
                     public void run() {
-                        updateLabelExample(PyFormatStd.getFormat(null), PydevPrefs.getChainedPrefStore());
+                        updateLabelExample(PyFormatterPreferences.getFormatStd(null), PyDevUiPrefs.getChainedPrefStore());
                     }
                 });
             }
         };
-        PydevPrefs.getChainedPrefStore().addPropertyChangeListener(updateLabelExampleOnPrefsChanges);
+        PyDevUiPrefs.getChainedPrefStore().addPropertyChangeListener(updateLabelExampleOnPrefsChanges);
 
     }
 }

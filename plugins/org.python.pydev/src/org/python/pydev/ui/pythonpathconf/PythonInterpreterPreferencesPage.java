@@ -12,8 +12,8 @@
 package org.python.pydev.ui.pythonpathconf;
 
 import org.eclipse.swt.widgets.Composite;
+import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.plugin.PydevPlugin;
 
 public class PythonInterpreterPreferencesPage extends AbstractInterpreterPreferencesPage {
 
@@ -35,12 +35,12 @@ public class PythonInterpreterPreferencesPage extends AbstractInterpreterPrefere
      */
     @Override
     protected AbstractInterpreterEditor getInterpreterEditor(Composite p) {
-        return new PythonInterpreterEditor(getInterpretersTitle(), p, PydevPlugin.getPythonInterpreterManager(true));
+        return new PythonInterpreterEditor(getInterpretersTitle(), p, InterpreterManagersAPI.getPythonInterpreterManager(true));
     }
 
     @Override
     protected IInterpreterManager getInterpreterManager() {
-        return PydevPlugin.getPythonInterpreterManager(true);
+        return InterpreterManagersAPI.getPythonInterpreterManager(true);
     }
 
 }

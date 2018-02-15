@@ -2,7 +2,52 @@
     <image_area></image_area>
 
 
-    <quote_area></quote_area>
+    <right_area2>
+    <ul>
+    PyDev for VSCode may be evaluated for 30 days but must be bought for continued use.<br/>
+    <br/>
+    See: <a href="license.html">license info</a> for details.<br/>
+    <br/>
+
+    Licenses may be purchased using Paypal and will be delivered to e-mail specified during the checkout process.<br/>
+    <br/>
+    <br/>
+    Promotional launch licensing price is <strong>USD 10.00</strong>.<br/>
+    <br/>
+    <br/>
+
+	<strong>Buy Single-User License</strong><br/>
+    <br/>
+
+	<ul class="libutton">
+	    <li class="libutton"><a class="libutton" href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=N929BMNSSUJHE">
+	    Click to buy using<strong class="libutton">Paypal</strong>
+	    </a>
+	    </li>
+    </ul>
+
+    <br/>
+    <br/>
+    <br/>
+
+	<strong>Buy Multi-User License</strong><br/>
+    <br/>
+
+	<ul class="libutton">
+	    <li class="libutton"><a class="libutton" href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=ZHYGQQF7728EC">
+	    Click to buy using<strong class="libutton">Paypal</strong>
+	    </a>
+	    </li>
+    </ul>
+    <br/>
+    <br/>
+
+	Note: your license should be delivered within a day after your purchase is completed
+	(remember to check your spam folder too). If you don't find it within that timeframe,
+	please contact fabiofz (at) gmail (dot) com.
+
+    </ul>
+    </right_area2>
 
 
 PyDev on Visual Studio Code
@@ -12,13 +57,12 @@ Although PyDev is a **Python IDE** commonly used along with **Eclipse**, it's no
 leverage the features from **PyDev** on **Visual Studio Code**.
 
 While there are some important features to be added (such as the **debugger**), the current version can
-already leverage many features that make **PyDev** unique inside of Visual Studio Code! See below which features are
-available and details on getting it running.
+already leverage many features that make **PyDev** unique inside of Visual Studio Code!
 
-PyDev on Visual Studio Code (0.0.1)
+See below which features are available and details on getting it running.
+
+PyDev on Visual Studio Code (0.1)
 --------------------------------------------
-
-* Bundled with **PyDev 6.2.0**
 
 * **Code-completion**
     * Fast
@@ -39,14 +83,16 @@ PyDev on Visual Studio Code (0.0.1)
 
 * **Symbols for open editor**
 
+* **Find references**
+
+* **Quick fix for undefined variables** (adds missing import)
+
 Planned features (soon)
 -------------------------
 
 * Launching
 
 * PyDev Debugger integration
-
-* Find references
 
 * Hover
 
@@ -85,7 +131,40 @@ from **Visual Studio Code** to be a folder in the **PYTHONPATH** too.
 
 To see information on the current interpreter configured, the command:
 
-**PyDev: Show Python Interpreter Configuration**
+**PyDev: Show PyDev Configuration Information**
 
 may be executed from inside **Visual Studio Code**.
 
+
+Settings
+--------------------------
+
+- **python.pydev.java.home**
+
+ If the extension can't find the java executable, this setting can be used to specify the java home folder (which has /bin/java inside it).
+
+ **Note**: requires restarting vscode
+
+- **python.pydev.ls.vmargs**
+
+ vmargs to the java executable used to launch PyDev.
+
+ **Note**: requires restarting vscode
+
+- **python.pydev.pythonExecutable**
+
+ The python executable to be used (if not specified, **python** is expected to be in the **PATH**).
+
+- **python.pydev.pythonPath**
+
+ A list of folders that should be added to the **PYTHONPATH** and should be considered source folders
+ (i.e.: folders with the sources meant to be edited by the user).
+
+ If not specified, the folders which are in the **PYTHONPATH** and are available below a workspace
+ in vscode will be considered as source folders (and if there's no match, each workspace folder in
+ vscode will be considered a source folder).
+
+- **python.pydev.forcedBuiltins**
+
+ A  list of additional modules to be inspected through a shell
+ (see http://www.pydev.org/manual_101_interpreter.html#PyDevInterpreterConfiguration-ForcedBuiltins for more information).

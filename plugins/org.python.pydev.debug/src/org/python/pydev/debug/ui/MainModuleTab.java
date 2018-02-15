@@ -21,19 +21,20 @@ import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.blocks.MainModuleBlock;
 import org.python.pydev.debug.ui.blocks.ProjectBlock;
 import org.python.pydev.debug.ui.blocks.PythonPathBlock;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 
 /**
  * Tab where user chooses project and Python module for launch
- * 
+ *
  * <p>
  * Also show PYTHONPATH information
  * </p>
- * 
+ *
  * TODO: Fix code completion job scheduling problem with this tab.
  * Show progress dialog when ASTManager and thus PYTHONPATH information
  * is not yet available.
- * 
+ *
  * @author Mikko Ohtamaa
  */
 public class MainModuleTab extends AbstractLaunchConfigurationTab {
@@ -198,6 +199,6 @@ public class MainModuleTab extends AbstractLaunchConfigurationTab {
      */
     @Override
     public Image getImage() {
-        return PydevPlugin.getImageCache().get(Constants.MAIN_ICON);
+        return ImageCache.asImage(SharedUiPlugin.getImageCache().get(Constants.MAIN_ICON));
     }
 }

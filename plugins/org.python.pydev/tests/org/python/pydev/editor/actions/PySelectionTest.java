@@ -16,13 +16,13 @@ import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
-import org.eclipse.jface.text.TextSelection;
 import org.python.pydev.core.docutils.PyDocIterator;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.DocstringInfo;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.docutils.PySelection.TddPossibleMatches;
 import org.python.pydev.core.docutils.PythonPairMatcher;
+import org.python.pydev.shared_core.string.CoreTextSelection;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
@@ -73,15 +73,15 @@ public class PySelectionTest extends TestCase {
     }
 
     public void testAddLine() {
-        ps = new PySelection(new Document("line1\nline2\n"), new TextSelection(doc, 0, 0));
+        ps = new PySelection(new Document("line1\nline2\n"), 0);
         ps.addLine("foo", 0);
         assertEquals("line1\nfoo\nline2\n", ps.getDoc().get());
 
-        ps = new PySelection(new Document("line1\n"), new TextSelection(doc, 0, 0));
+        ps = new PySelection(new Document("line1\n"), 0);
         ps.addLine("foo", 0);
         assertEquals("line1\nfoo\n", ps.getDoc().get());
 
-        ps = new PySelection(new Document("line1"), new TextSelection(doc, 0, 0));
+        ps = new PySelection(new Document("line1"), 0);
         ps.addLine("foo", 0);
         assertEquals("line1\nfoo\n", ps.getDoc().get().replace("\r\n", "\n"));
     }
@@ -91,7 +91,7 @@ public class PySelectionTest extends TestCase {
      *
      */
     public void testGeneral() throws BadLocationException {
-        ps = new PySelection(doc, new TextSelection(doc, 0, 0));
+        ps = new PySelection(doc, 0);
         assertEquals("TestLine1", ps.getCursorLineContents());
         assertEquals("", ps.getLineContentsToCursor());
         ps.selectCompleteLine();
@@ -271,17 +271,17 @@ public class PySelectionTest extends TestCase {
     }
 
     public void testSelectAll() {
-        ps = new PySelection(doc, new TextSelection(doc, 0, 0));
+        ps = new PySelection(doc, 0);
         ps.selectAll(true);
         assertEquals(docContents, ps.getCursorLineContents() + "\n");
         assertEquals(docContents, ps.getSelectedText());
 
-        ps = new PySelection(doc, new TextSelection(doc, 0, 9)); //first line selected
+        ps = new PySelection(doc, new CoreTextSelection(doc, 0, 9)); //first line selected
         ps.selectAll(true); //changes
         assertEquals(docContents, ps.getCursorLineContents() + "\n");
         assertEquals(docContents, ps.getSelectedText());
 
-        ps = new PySelection(doc, new TextSelection(doc, 0, 9)); //first line selected
+        ps = new PySelection(doc, new CoreTextSelection(doc, 0, 9)); //first line selected
         ps.selectAll(false); //nothing changes
         assertEquals(ps.getLine(0), ps.getCursorLineContents());
         assertEquals(ps.getLine(0), ps.getSelectedText());
@@ -290,12 +290,12 @@ public class PySelectionTest extends TestCase {
     public void testFullRep() throws Exception {
         String s = "v=aa.bb.cc()";
         doc = new Document(s);
-        ps = new PySelection(doc, new TextSelection(doc, 2, 2));
+        ps = new PySelection(doc, new CoreTextSelection(doc, 2, 2));
         assertEquals("aa.bb.cc", ps.getFullRepAfterSelection());
 
         s = "v=aa.bb.cc";
         doc = new Document(s);
-        ps = new PySelection(doc, new TextSelection(doc, 2, 2));
+        ps = new PySelection(doc, new CoreTextSelection(doc, 2, 2));
         assertEquals("aa.bb.cc", ps.getFullRepAfterSelection());
 
     }
@@ -311,7 +311,7 @@ public class PySelectionTest extends TestCase {
     public void testGetInsideParentesis() throws Exception {
         String s = "def m1(self, a, b)";
         doc = new Document(s);
-        ps = new PySelection(doc, new TextSelection(doc, 0, 0));
+        ps = new PySelection(doc, 0);
         List<String> insideParentesisToks = ps.getInsideParentesisToks(false).o1;
         assertEquals(2, insideParentesisToks.size());
         assertEquals("a", insideParentesisToks.get(0));
@@ -319,7 +319,7 @@ public class PySelectionTest extends TestCase {
 
         s = "def m1(self, a, b, )";
         doc = new Document(s);
-        ps = new PySelection(doc, new TextSelection(doc, 0, 0));
+        ps = new PySelection(doc, 0);
         insideParentesisToks = ps.getInsideParentesisToks(false).o1;
         assertEquals(2, insideParentesisToks.size());
         assertEquals("a", insideParentesisToks.get(0));
@@ -327,7 +327,7 @@ public class PySelectionTest extends TestCase {
 
         s = "def m1(self, a, b=None)";
         doc = new Document(s);
-        ps = new PySelection(doc, new TextSelection(doc, 0, 0));
+        ps = new PySelection(doc, 0);
         insideParentesisToks = ps.getInsideParentesisToks(true).o1;
         assertEquals(3, insideParentesisToks.size());
         assertEquals("self", insideParentesisToks.get(0));
@@ -336,7 +336,7 @@ public class PySelectionTest extends TestCase {
 
         s = "def m1(self, a, b=None)";
         doc = new Document(s);
-        ps = new PySelection(doc, new TextSelection(doc, 0, 0));
+        ps = new PySelection(doc, 0);
         insideParentesisToks = ps.getInsideParentesisToks(false).o1;
         assertEquals(2, insideParentesisToks.size());
         assertEquals("a", insideParentesisToks.get(0));
@@ -345,14 +345,14 @@ public class PySelectionTest extends TestCase {
         //Note: as Python dropped this support, so did PyDev: in this situation (b,c) is ignored.
         s = "def m1(self, a, (b,c) )";
         doc = new Document(s);
-        ps = new PySelection(doc, new TextSelection(doc, 0, 0));
+        ps = new PySelection(doc, 0);
         insideParentesisToks = ps.getInsideParentesisToks(false).o1;
         assertEquals(1, insideParentesisToks.size());
         assertEquals("a", insideParentesisToks.get(0));
 
         s = "def m1(self, a, b, \nc,\nd )";
         doc = new Document(s);
-        ps = new PySelection(doc, new TextSelection(doc, 0, 0));
+        ps = new PySelection(doc, 0);
         insideParentesisToks = ps.getInsideParentesisToks(false).o1;
         assertEquals(4, insideParentesisToks.size());
         assertEquals("a", insideParentesisToks.get(0));
@@ -362,7 +362,7 @@ public class PySelectionTest extends TestCase {
 
         s = "def m1(self, a=(1,2))";
         doc = new Document(s);
-        ps = new PySelection(doc, new TextSelection(doc, 0, 0));
+        ps = new PySelection(doc, 0);
         insideParentesisToks = ps.getInsideParentesisToks(false).o1;
         assertEquals(1, insideParentesisToks.size());
         assertEquals("a", insideParentesisToks.get(0));

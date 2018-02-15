@@ -20,18 +20,18 @@ import org.python.pydev.shared_core.io.FileUtils;
 public class FolderStub extends AbstractIFolderStub implements IFolder {
 
     private File folder;
-    private ProjectStub project;
+    private IProjectStub project;
     private IContainer parent;
 
-    public FolderStub(ProjectStub stub, File parentFile) {
+    public FolderStub(IProjectStub stub, File parentFile) {
         this(stub, null, parentFile);
     }
 
-    public FolderStub(ProjectStub stub, IContainer parent, File parentFile) {
+    public FolderStub(IProjectStub stub, IContainer parent, File parentFile) {
         this(stub, parent, parentFile, true);
     }
 
-    public FolderStub(ProjectStub stub, IContainer parent, File parentFile, boolean mustExist) {
+    public FolderStub(IProjectStub stub, IContainer parent, File parentFile, boolean mustExist) {
         if (mustExist) {
             Assert.isTrue(parentFile.exists() && parentFile.isDirectory());
         }
@@ -119,7 +119,7 @@ public class FolderStub extends AbstractIFolderStub implements IFolder {
     public IPath getFullPath() {
         //        return Path.fromOSString(FileUtils.getFileAbsolutePath(this.folder));
         String fileAbsolutePath = FileUtils.getFileAbsolutePath(this.folder);
-        String workspaceAbsolutePath = FileUtils.getFileAbsolutePath(this.project.projectRoot.getParentFile());
+        String workspaceAbsolutePath = FileUtils.getFileAbsolutePath(this.project.getProjectRoot().getParentFile());
 
         IPath fromOSString = Path.fromOSString(fileAbsolutePath);
         IPath workspace = Path.fromOSString(workspaceAbsolutePath);

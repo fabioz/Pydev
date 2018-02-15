@@ -28,10 +28,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
+import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.ast.listing_utils.PyFileListing;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
-import org.python.pydev.utils.PyFileListing;
 
 public class PythonExistingSourceGroup {
 

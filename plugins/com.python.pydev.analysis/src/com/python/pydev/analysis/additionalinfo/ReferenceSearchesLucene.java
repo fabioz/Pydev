@@ -28,20 +28,20 @@ import java.util.zip.ZipFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.python.pydev.ast.codecompletion.revisited.modules.IModulesKeyForJava;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.cache.CompleteIndexKey;
 import org.python.pydev.core.cache.DiskCache;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.revisited.javaintegration.ModulesKeyForJava;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.index.IndexApi;
 import org.python.pydev.shared_core.index.IndexApi.DocumentInfo;
 import org.python.pydev.shared_core.index.IndexApi.IDocumentsVisitor;
+import org.python.pydev.shared_core.progress.AsynchronousProgressMonitorWrapper;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.OrderedMap;
 import org.python.pydev.shared_core.utils.Timer;
-import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorWrapper;
 
 import com.python.pydev.analysis.system_info_builder.InterpreterInfoBuilder;
 
@@ -86,7 +86,7 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
     @Override
     public synchronized List<ModulesKey> search(IProject project,
             final OrderedMap<String, Set<String>> fieldNameToValues, IProgressMonitor monitor)
-                    throws OperationCanceledException {
+            throws OperationCanceledException {
         try {
             if (!(monitor instanceof AsynchronousProgressMonitorWrapper)) {
                 monitor = new AsynchronousProgressMonitorWrapper(monitor);
@@ -101,7 +101,7 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
 
     private synchronized List<ModulesKey> internalSearch(IProject project,
             final OrderedMap<String, Set<String>> fieldNameToValues, IProgressMonitor monitor)
-                    throws OperationCanceledException {
+            throws OperationCanceledException {
 
         final List<ModulesKey> ret = new ArrayList<ModulesKey>();
         PythonNature nature = PythonNature.getPythonNature(project);
@@ -233,7 +233,7 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
                 CompleteIndexKey completeIndexKey = currentEntry.getValue();
                 if (!indexMap.containsKey(completeIndexKey.key)) {
                     ModulesKey modulesKey = completeIndexKey.key;
-                    if (modulesKey instanceof ModulesKeyForJava || modulesKey.file == null
+                    if (modulesKey instanceof IModulesKeyForJava || modulesKey.file == null
                             || !modulesKey.file.isFile()) {
                         //ignore this one (we can't do anything with it).
                         continue;

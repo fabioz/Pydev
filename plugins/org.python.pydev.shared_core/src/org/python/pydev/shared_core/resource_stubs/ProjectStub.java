@@ -22,11 +22,9 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.ui.model.IWorkbenchAdapter;
 import org.python.pydev.shared_core.io.FileUtils;
 
-public class ProjectStub extends AbstractIProjectStub implements IWorkbenchAdapter {
+public class ProjectStub extends AbstractIProjectStub implements IProjectStub {
 
     public File projectRoot;
 
@@ -36,9 +34,10 @@ public class ProjectStub extends AbstractIProjectStub implements IWorkbenchAdapt
 
     private IContainer parent;
 
-    private boolean addNullChild;
-
-    private List<Object> additionalChildren;
+    @Override
+    public File getProjectRoot() {
+        return projectRoot;
+    }
 
     public ProjectStub(File file, IProjectNature nature) {
         this(file, nature, false);
@@ -52,8 +51,6 @@ public class ProjectStub extends AbstractIProjectStub implements IWorkbenchAdapt
         Assert.isTrue(file.exists() && file.isDirectory());
         this.projectRoot = file;
         this.nature = nature;
-        this.addNullChild = addNullChild;
-        this.additionalChildren = additionalChildren;
     }
 
     public IResource getResource(File parentFile) {
@@ -73,6 +70,7 @@ public class ProjectStub extends AbstractIProjectStub implements IWorkbenchAdapt
         return r;
     }
 
+    @Override
     public IContainer getFolder(File parentFile) {
         return (IContainer) getResource(parentFile);
     }
@@ -166,64 +164,9 @@ public class ProjectStub extends AbstractIProjectStub implements IWorkbenchAdapt
 
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <T> T getAdapter(Class<T> adapter) {
-        if (adapter == IWorkbenchAdapter.class) {
-            return (T) this;
-        }
-        throw new RuntimeException("Not impl");
-
+        return null;
     }
 
-    private HashMap<Object, Object[]> stubsCache = new HashMap<Object, Object[]>();
-
-    //workbench adapter
-    @Override
-    public Object[] getChildren(Object o) {
-        Object[] found = stubsCache.get(o);
-        if (found != null) {
-            return found;
-        }
-
-        File folder = null;
-        if (o instanceof ProjectStub) {
-            ProjectStub projectStub = (ProjectStub) o;
-            folder = projectStub.projectRoot;
-        } else {
-            throw new RuntimeException("Shouldn't happen");
-        }
-        ArrayList<Object> ret = new ArrayList<Object>();
-        for (File file : folder.listFiles()) {
-            String lower = file.getName().toLowerCase();
-            if (lower.equals("cvs") || lower.equals(".svn")) {
-                continue;
-            }
-            if (file.isDirectory()) {
-                ret.add(new FolderStub(this, file));
-            } else {
-                ret.add(new FileStub(this, file));
-            }
-        }
-        if (addNullChild) {
-            ret.add(null);
-        }
-        ret.addAll(this.additionalChildren);
-        return ret.toArray();
-    }
-
-    @Override
-    public ImageDescriptor getImageDescriptor(Object object) {
-        throw new RuntimeException("Not implemented");
-    }
-
-    @Override
-    public String getLabel(Object o) {
-        throw new RuntimeException("Not implemented");
-    }
-
-    @Override
-    public Object getParent(Object o) {
-        throw new RuntimeException("Not implemented");
-    }
 }

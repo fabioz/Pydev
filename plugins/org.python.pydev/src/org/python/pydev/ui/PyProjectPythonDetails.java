@@ -40,6 +40,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.dialogs.PropertyPage;
+import org.python.pydev.ast.interpreter_managers.IInterpreterProviderFactory.InterpreterType;
+import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IGrammarVersionProvider.AdditionalGrammarVersionsToCheck;
 import org.python.pydev.core.IInterpreterInfo;
@@ -47,7 +49,6 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -55,7 +56,6 @@ import org.python.pydev.shared_core.utils.ArrayUtils;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.dialogs.SelectNDialog;
 import org.python.pydev.ui.pythonpathconf.AutoConfigMaker;
-import org.python.pydev.ui.pythonpathconf.IInterpreterProviderFactory.InterpreterType;
 import org.python.pydev.ui.pythonpathconf.InterpreterConfigHelpers;
 import org.python.pydev.utils.ICallback;
 
@@ -175,13 +175,13 @@ public class PyProjectPythonDetails extends PropertyPage {
                     IInterpreterManager interpreterManager;
 
                     if (radioJy.getSelection()) {
-                        interpreterManager = PydevPlugin.getJythonInterpreterManager();
+                        interpreterManager = InterpreterManagersAPI.getJythonInterpreterManager();
 
                     } else if (radioIron.getSelection()) {
-                        interpreterManager = PydevPlugin.getIronpythonInterpreterManager();
+                        interpreterManager = InterpreterManagersAPI.getIronpythonInterpreterManager();
 
                     } else {
-                        interpreterManager = PydevPlugin.getPythonInterpreterManager();
+                        interpreterManager = InterpreterManagersAPI.getPythonInterpreterManager();
                     }
 
                     IInterpreterInfo[] interpretersInfo = interpreterManager.getInterpreterInfos();

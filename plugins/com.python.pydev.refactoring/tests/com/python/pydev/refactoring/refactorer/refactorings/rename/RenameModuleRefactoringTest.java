@@ -11,15 +11,15 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.python.pydev.ast.refactoring.ModuleRenameRefactoringRequest;
+import org.python.pydev.ast.refactoring.RefactoringRequest;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IProjectModulesManager;
-import org.python.pydev.editor.refactoring.ModuleRenameRefactoringRequest;
-import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.shared_core.structure.Tuple;
 
-import com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint;
-import com.python.pydev.refactoring.wizards.rename.PyRenameImportProcess;
+import com.python.pydev.analysis.refactoring.wizards.rename.PyRenameEntryPoint;
+import com.python.pydev.analysis.refactoring.wizards.rename.PyRenameImportProcess;
 
 public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
 

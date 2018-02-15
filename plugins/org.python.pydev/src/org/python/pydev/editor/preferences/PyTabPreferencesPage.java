@@ -12,7 +12,9 @@ import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.python.pydev.core.preferences.PyDevCoreEditorPreferences;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_ui.field_editors.ScopedFieldEditorPreferencePage;
 import org.python.pydev.shared_ui.field_editors.ScopedPreferencesFieldEditor;
 
@@ -34,12 +36,12 @@ public class PyTabPreferencesPage extends ScopedFieldEditorPreferencePage implem
     protected void createFieldEditors() {
         final Composite p = getFieldEditorParent();
 
-        addField(new IntegerFieldEditor(PydevEditorPrefs.TAB_WIDTH, "Tab length:", p));
-        addField(new BooleanFieldEditor(PydevEditorPrefs.SUBSTITUTE_TABS, "Replace tabs with spaces when typing?", p));
-        addField(new BooleanFieldEditor(PydevEditorPrefs.GUESS_TAB_SUBSTITUTION,
+        addField(new IntegerFieldEditor(PyDevCoreEditorPreferences.TAB_WIDTH, "Tab length:", p));
+        addField(new BooleanFieldEditor(PyDevCoreEditorPreferences.SUBSTITUTE_TABS, "Replace tabs with spaces when typing?", p));
+        addField(new BooleanFieldEditor(PyDevCoreEditorPreferences.GUESS_TAB_SUBSTITUTION,
                 "Assume tab spacing when files contain tabs?", p));
-        addField(new BooleanFieldEditor(PydevEditorPrefs.TAB_STOP_IN_COMMENT, "Allow tab stops in comments?", p));
+        addField(new BooleanFieldEditor(PyDevCoreEditorPreferences.TAB_STOP_IN_COMMENT, "Allow tab stops in comments?", p));
 
-        addField(new ScopedPreferencesFieldEditor(p, PydevPlugin.DEFAULT_PYDEV_SCOPE, this));
+        addField(new ScopedPreferencesFieldEditor(p, SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_SCOPE, this));
     }
 }

@@ -23,13 +23,13 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.editor.preferences.PydevEditorPrefs;
+import org.python.pydev.core.preferences.PydevPrefs;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
 
 /**
  * Debug preferences.
- * 
+ *
  * <p>Simple 1 page debug preferences page.
  * <p>Prefeernce constants are defined in Constants.java
  */
@@ -54,9 +54,10 @@ public class DebugPrefsPage extends FieldEditorPreferencePage implements IWorkbe
     @SuppressWarnings("unchecked")
     protected void createFieldEditors() {
         Composite p = getFieldEditorParent();
-        addField(new IntegerFieldEditor(PydevEditorPrefs.CONNECT_TIMEOUT, "Connect timeout for debugger (ms)", p, 10));
+        addField(new IntegerFieldEditor(PyDevEditorPreferences.CONNECT_TIMEOUT, "Connect timeout for debugger (ms)", p,
+                10));
 
-        BooleanFieldEditor editor = new BooleanFieldEditor(PydevEditorPrefs.RELOAD_MODULE_ON_CHANGE,
+        BooleanFieldEditor editor = new BooleanFieldEditor(PyDevEditorPreferences.RELOAD_MODULE_ON_CHANGE,
                 "When file is changed, automatically reload module?", BooleanFieldEditor.SEPARATE_LABEL, p);
         Control c = editor.getDescriptionControl(p);
         c.setToolTipText(
@@ -66,7 +67,7 @@ public class DebugPrefsPage extends FieldEditorPreferencePage implements IWorkbe
                         + "are provided so that your own classes act upon this change.");
         addField(editor);
 
-        editor = new BooleanFieldEditor(PydevEditorPrefs.DONT_TRACE_ENABLED,
+        editor = new BooleanFieldEditor(PyDevEditorPreferences.DONT_TRACE_ENABLED,
                 "On a step in, skip over methods which have a @DontTrace comment?", BooleanFieldEditor.SEPARATE_LABEL,
                 p);
         c = editor.getDescriptionControl(p);
@@ -75,7 +76,7 @@ public class DebugPrefsPage extends FieldEditorPreferencePage implements IWorkbe
                         + "Use Ctrl+1 in a method line to add such a comment.");
         addField(editor);
 
-        editor = new BooleanFieldEditor(PydevEditorPrefs.SHOW_RETURN_VALUES,
+        editor = new BooleanFieldEditor(PyDevEditorPreferences.SHOW_RETURN_VALUES,
                 "Show return values for methods?", BooleanFieldEditor.SEPARATE_LABEL,
                 p);
         c = editor.getDescriptionControl(p);
@@ -88,7 +89,7 @@ public class DebugPrefsPage extends FieldEditorPreferencePage implements IWorkbe
             participant.createFieldEditors(this, p);
         }
 
-        editor = new BooleanFieldEditor(PydevEditorPrefs.DEBUG_MULTIPROCESSING_ENABLED,
+        editor = new BooleanFieldEditor(PyDevEditorPreferences.DEBUG_MULTIPROCESSING_ENABLED,
                 "Attach to subprocess automatically while debugging?", BooleanFieldEditor.SEPARATE_LABEL,
                 p);
         c = editor.getDescriptionControl(p);
@@ -96,42 +97,48 @@ public class DebugPrefsPage extends FieldEditorPreferencePage implements IWorkbe
                 + "and will attempt to automatically connect new launched processes to the debugger.");
         addField(editor);
 
-        editor = new BooleanFieldEditor(PydevEditorPrefs.GEVENT_DEBUGGING,
+        editor = new BooleanFieldEditor(PyDevEditorPreferences.GEVENT_DEBUGGING,
                 "Gevent compatible debugging?", BooleanFieldEditor.SEPARATE_LABEL,
                 p);
         c = editor.getDescriptionControl(p);
         c.setToolTipText("When this option is turned on, the debugger will be able to debug GEvent programs.");
         addField(editor);
 
-        ComboFieldEditor comboEditor = new ComboFieldEditor(PydevEditorPrefs.QT_THREADS_DEBUG_MODE, "Qt Threads:",
-                PydevEditorPrefs.ENTRIES_VALUES_QT_THREADS_DEBUG_MODE, p);
+        ComboFieldEditor comboEditor = new ComboFieldEditor(PyDevEditorPreferences.QT_THREADS_DEBUG_MODE, "Qt Threads:",
+                PyDevEditorPreferences.ENTRIES_VALUES_QT_THREADS_DEBUG_MODE, p);
         Label labelControl = comboEditor.getLabelControl(p);
         labelControl.setToolTipText("Specify whether the debugger should patch Qt to debug inside QThreads.");
         addField(comboEditor);
     }
 
     public static boolean getReloadModuleOnChange() {
-        return PydevPrefs.getPreferences().getBoolean(PydevEditorPrefs.RELOAD_MODULE_ON_CHANGE);
+        return PydevPrefs.getEclipsePreferences().getBoolean(PyDevEditorPreferences.RELOAD_MODULE_ON_CHANGE,
+                PyDevEditorPreferences.DEFAULT_RELOAD_MODULE_ON_CHANGE);
     }
 
     public static boolean getDontTraceEnabled() {
-        return PydevPrefs.getPreferences().getBoolean(PydevEditorPrefs.DONT_TRACE_ENABLED);
+        return PydevPrefs.getEclipsePreferences().getBoolean(PyDevEditorPreferences.DONT_TRACE_ENABLED,
+                PyDevEditorPreferences.DEFAULT_DONT_TRACE_ENABLED);
     }
 
     public static boolean getShowReturnValuesEnabled() {
-        return PydevPrefs.getPreferences().getBoolean(PydevEditorPrefs.SHOW_RETURN_VALUES);
+        return PydevPrefs.getEclipsePreferences().getBoolean(PyDevEditorPreferences.SHOW_RETURN_VALUES,
+                PyDevEditorPreferences.DEFAULT_SHOW_RETURN_VALUES);
     }
 
     public static boolean getDebugMultiprocessingEnabled() {
-        return PydevPrefs.getPreferences().getBoolean(PydevEditorPrefs.DEBUG_MULTIPROCESSING_ENABLED);
+        return PydevPrefs.getEclipsePreferences().getBoolean(PyDevEditorPreferences.DEBUG_MULTIPROCESSING_ENABLED,
+                PyDevEditorPreferences.DEFAULT_DEBUG_MULTIPROCESSING_ENABLED);
     }
 
     public static boolean getGeventDebugging() {
-        return PydevPrefs.getPreferences().getBoolean(PydevEditorPrefs.GEVENT_DEBUGGING);
+        return PydevPrefs.getEclipsePreferences().getBoolean(PyDevEditorPreferences.GEVENT_DEBUGGING,
+                PyDevEditorPreferences.DEFAULT_GEVENT_DEBUGGING);
     }
 
     public static String getQtThreadsDebugMode() {
-        return PydevPrefs.getPreferences().getString(PydevEditorPrefs.QT_THREADS_DEBUG_MODE);
+        return PydevPrefs.getEclipsePreferences().get(PyDevEditorPreferences.QT_THREADS_DEBUG_MODE,
+                PyDevEditorPreferences.DEFAULT_QT_THREADS_DEBUG_MODE);
     }
 
     /**

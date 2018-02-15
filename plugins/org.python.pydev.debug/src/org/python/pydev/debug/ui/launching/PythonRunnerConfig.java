@@ -34,7 +34,10 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
-import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
+import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
+import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
+import org.python.pydev.ast.listing_utils.JavaVmLocationFinder;
+import org.python.pydev.ast.runners.SimpleRunner;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
@@ -43,6 +46,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.docutils.StringSubstitution;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.preferences.PydevPrefs;
 import org.python.pydev.debug.codecoverage.PyCodeCoverageView;
 import org.python.pydev.debug.codecoverage.PyCoverage;
 import org.python.pydev.debug.codecoverage.PyCoveragePreferences;
@@ -54,12 +58,11 @@ import org.python.pydev.debug.pyunit.PyUnitServer;
 import org.python.pydev.debug.ui.DebugPrefsPage;
 import org.python.pydev.debug.ui.RunPreferencesPage;
 import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks.CreatedCommandLineParams;
-import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
 import org.python.pydev.pyunit.preferences.PyUnitPrefsPage2;
-import org.python.pydev.runners.SimpleRunner;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.net.LocalHost;
 import org.python.pydev.shared_core.process.ProcessUtils;
@@ -69,7 +72,6 @@ import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.PlatformUtils;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
-import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 /**
  * Holds configuration for PythonRunner.
@@ -183,21 +185,6 @@ public class PythonRunnerConfig {
         } else {
             return arguments;
         }
-    }
-
-    /**
-     * Parses the argument text into an array of individual
-     * strings using the space character as the delimiter.
-     * An individual argument containing spaces must have a
-     * double quote (") at the start and end. Two double
-     * quotes together is taken to mean an embedded double
-     * quote in the argument text.
-     *
-     * @param arguments the arguments as one string
-     * @return the array of arguments
-     */
-    public static String[] parseStringIntoList(String arguments) {
-        return ProcessUtils.parseArguments(arguments);
     }
 
     private static StringSubstitution getStringSubstitution(IPythonNature nature) {
@@ -406,7 +393,8 @@ public class PythonRunnerConfig {
         arguments = getArguments(conf, makeArgumentsVariableSubstitution);
         IPath workingPath = getWorkingDirectory(conf, pythonNature);
         workingDirectory = workingPath == null ? null : workingPath.toFile();
-        acceptTimeout = PydevPrefs.getPreferences().getInt(PydevEditorPrefs.CONNECT_TIMEOUT);
+        acceptTimeout = PydevPrefs.getEclipsePreferences().getInt(PyDevEditorPreferences.CONNECT_TIMEOUT,
+                PyDevEditorPreferences.DEFAULT_CONNECT_TIMEOUT);
 
         interpreterLocation = getInterpreterLocation(conf, pythonNature, this.getRelatedInterpreterManager());
         interpreter = getInterpreter(interpreterLocation, conf, pythonNature);
@@ -416,11 +404,11 @@ public class PythonRunnerConfig {
         envp = launchManager.getEnvironment(conf);
         IInterpreterManager manager;
         if (isJython()) {
-            manager = PydevPlugin.getJythonInterpreterManager();
+            manager = InterpreterManagersAPI.getJythonInterpreterManager();
         } else if (isIronpython()) {
-            manager = PydevPlugin.getIronpythonInterpreterManager();
+            manager = InterpreterManagersAPI.getIronpythonInterpreterManager();
         } else {
-            manager = PydevPlugin.getPythonInterpreterManager();
+            manager = InterpreterManagersAPI.getPythonInterpreterManager();
         }
 
         boolean win32 = PlatformUtils.isWindowsPlatform();
@@ -789,7 +777,7 @@ public class PythonRunnerConfig {
             if (actualRun && arguments != null) {
                 String expanded = getStringSubstitution(PythonNature.getPythonNature(project))
                         .performStringSubstitution(arguments);
-                runArguments = parseStringIntoList(expanded);
+                runArguments = ProcessUtils.parseArguments(expanded);
             }
 
             for (int i = 0; runArguments != null && i < runArguments.length; i++) {
@@ -858,7 +846,7 @@ public class PythonRunnerConfig {
                             try {
                                 fileOutputStream.write(configurationFile.getBytes());
                             } catch (IOException e) {
-                                throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, "Error writing to: "
+                                throw new CoreException(SharedCorePlugin.makeStatus(IStatus.ERROR, "Error writing to: "
                                         + tempFile, e));
                             }
                         } finally {
@@ -868,8 +856,9 @@ public class PythonRunnerConfig {
                         if (e instanceof CoreException) {
                             throw (CoreException) e;
                         }
-                        throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, "Error writing to: " + tempFile,
-                                e));
+                        throw new CoreException(
+                                SharedCorePlugin.makeStatus(IStatus.ERROR, "Error writing to: " + tempFile,
+                                        e));
                     }
                     cmdArgs.add(tempFile.toString());
                 } else {
@@ -934,7 +923,7 @@ public class PythonRunnerConfig {
             }
 
             //Last thing: nose parameters or parameters the user configured.
-            for (String s : parseStringIntoList(PyUnitPrefsPage2.getTestRunnerParameters(this.configuration,
+            for (String s : ProcessUtils.parseArguments(PyUnitPrefsPage2.getTestRunnerParameters(this.configuration,
                     this.project))) {
                 cmdArgs.add(s);
             }
@@ -977,7 +966,7 @@ public class PythonRunnerConfig {
                 try {
                     cmdArgs.add(Integer.toString(getDebuggerListenConnector().getLocalPort()));
                 } catch (IOException e) {
-                    throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, "Unable to get port", e));
+                    throw new CoreException(SharedCorePlugin.makeStatus(IStatus.ERROR, "Unable to get port", e));
                 }
             } else {
                 cmdArgs.add("0");
@@ -1015,7 +1004,7 @@ public class PythonRunnerConfig {
         if (args != null && args.trim().length() > 0) {
             String expanded = getStringSubstitution(PythonNature.getPythonNature(project)).performStringSubstitution(
                     args);
-            return parseStringIntoList(expanded);
+            return ProcessUtils.parseArguments(expanded);
         }
         return null;
     }
@@ -1046,12 +1035,12 @@ public class PythonRunnerConfig {
 
     public IInterpreterManager getRelatedInterpreterManager() {
         if (isJython()) {
-            return PydevPlugin.getJythonInterpreterManager();
+            return InterpreterManagersAPI.getJythonInterpreterManager();
         }
         if (isIronpython()) {
-            return PydevPlugin.getIronpythonInterpreterManager();
+            return InterpreterManagersAPI.getIronpythonInterpreterManager();
         }
-        return PydevPlugin.getPythonInterpreterManager();
+        return InterpreterManagersAPI.getPythonInterpreterManager();
     }
 
     public PyUnitServer getPyUnitServer() {
