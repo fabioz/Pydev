@@ -38,7 +38,9 @@ See PyDev license for details.
 http://pydev.sourceforge.net
 """
 
-from org.python.pydev.editor.correctionassist.heuristics import IAssistProps #@UnresolvedImport
+from org.python.pydev.editor.correctionassist import \
+    IAssistProps  # @UnresolvedImport
+
 
 class AssistProposal:
     """Convenience class for adding assist proposals to pydev.

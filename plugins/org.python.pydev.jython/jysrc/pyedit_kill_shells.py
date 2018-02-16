@@ -25,7 +25,7 @@ if cmd == 'onCreateActions':
                 
             def run(self):
                 editor = self.editor
-                from org.python.pydev.editor.codecompletion.shell import AbstractShell #@UnresolvedImport
+                from org.python.pydev.ast.codecompletion.shell import AbstractShell  # @UnresolvedImport
                 error_msg = AbstractShell.restartAllShells()
                 if error_msg:
                     editor.showInformationDialog("Error killing the shells", error_msg);
@@ -35,4 +35,3 @@ if cmd == 'onCreateActions':
         systemGlobals['ListCommand'] = ListCommand
 
     editor.addOfflineActionListener("kill", ListCommand(editor), 'Kill all the running shells.', True)
-
