@@ -53,7 +53,12 @@ public class PyGlobalsBrowser extends PyAction {
             return;
         }
         PySelection ps = PySelectionFromEditor.createPySelectionFromEditor(this.getPyEdit());
-        String selectedText = ps.getSelectedText();
+        String selectedText;
+        try {
+            selectedText = ps.getSelectedText();
+        } catch (BadLocationException e1) {
+            selectedText = null;
+        }
         if (selectedText == null || selectedText.length() == 0) {
             try {
                 selectedText = ps.getCurrToken().o1;

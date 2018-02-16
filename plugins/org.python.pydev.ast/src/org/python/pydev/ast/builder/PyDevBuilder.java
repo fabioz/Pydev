@@ -83,6 +83,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
     @Override
     protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor) throws CoreException {
 
+        System.err.println("Build requested");
         if (PyDevBuilderPreferences.usePydevBuilders() == false) {
             return null;
         }
@@ -90,10 +91,12 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
         if (kind == IncrementalProjectBuilder.FULL_BUILD || kind == IncrementalProjectBuilder.CLEAN_BUILD) {
             // Do a Full Build: Use a ResourceVisitor to process the tree.
             //Timer timer = new Timer();
+            System.err.println("Doing full build");
             performFullBuild(monitor);
             //timer.printDiff("Total time for analysis of: " + getProject());
 
         } else {
+            System.err.println("Doing delta build");
             // Build it with a delta
             IResourceDelta delta = getDelta(getProject());
 

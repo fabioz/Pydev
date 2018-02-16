@@ -21,6 +21,7 @@ import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -390,7 +391,12 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction {
             dialog.setMessage("Select the tests to run (press enter to run tests shown/selected)");
 
             PySelection ps = pyEdit.createPySelection();
-            String selectedText = ps.getSelectedText();
+            String selectedText;
+            try {
+                selectedText = ps.getSelectedText();
+            } catch (BadLocationException e) {
+                selectedText = "";
+            }
             if (selectedText.length() > 0 && PyStringUtils.isValidIdentifier(selectedText, false)) {
                 dialog.setInitialFilter(selectedText + " "); //Space in the end == exact match
             } else {

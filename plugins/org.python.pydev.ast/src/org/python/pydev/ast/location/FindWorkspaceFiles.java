@@ -39,7 +39,7 @@ public class FindWorkspaceFiles {
                         if (iResource instanceof IContainer) {
                             //I.e.: don't consider zip files
                             IContainer iContainer = (IContainer) iResource;
-                            file = getFileInContainer(location, iContainer);
+                            file = getFileInContainer(location, iContainer, true);
                             if (file != null) {
                                 return file;
                             }
@@ -71,7 +71,7 @@ public class FindWorkspaceFiles {
                         if (iResource instanceof IContainer) {
                             //I.e.: don't consider zip files
                             IContainer iContainer = (IContainer) iResource;
-                            file = getContainerInContainer(location, iContainer);
+                            file = getContainerInContainer(location, iContainer, true);
                             if (file != null) {
                                 return file;
                             }

@@ -270,7 +270,7 @@ public class PySelectionTest extends TestCase {
         assertEquals(1, selection.getLineAvailableForImport(false));
     }
 
-    public void testSelectAll() {
+    public void testSelectAll() throws BadLocationException {
         ps = new PySelection(doc, 0);
         ps.selectAll(true);
         assertEquals(docContents, ps.getCursorLineContents() + "\n");

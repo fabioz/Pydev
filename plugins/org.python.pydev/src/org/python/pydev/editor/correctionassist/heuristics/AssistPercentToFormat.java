@@ -106,7 +106,11 @@ public class AssistPercentToFormat extends AbstractTemplateCodeCompletion implem
      */
     @Override
     public boolean isValid(PySelection ps, String sel, IPyEdit edit, int offset) {
-        return PercentToBraceConverter.isValidPercentFormatString(ps.getSelectedText(), true);
+        try {
+            return PercentToBraceConverter.isValidPercentFormatString(ps.getSelectedText(), true);
+        } catch (BadLocationException e) {
+            return false;
+        }
     }
 
     @Override

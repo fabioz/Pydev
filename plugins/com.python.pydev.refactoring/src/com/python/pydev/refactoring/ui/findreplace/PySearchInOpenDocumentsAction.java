@@ -12,6 +12,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.InputDialog;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.ui.internal.texteditor.TextEditorPlugin;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.IOfflineActionWithParameters;
@@ -62,7 +63,11 @@ public class PySearchInOpenDocumentsAction extends Action implements IOfflineAct
         }
         if (searchText.length() == 0) {
             PySelection ps = PySelectionFromEditor.createPySelectionFromEditor(edit);
-            searchText = ps.getSelectedText();
+            try {
+                searchText = ps.getSelectedText();
+            } catch (BadLocationException e) {
+                searchText = "";
+            }
         }
         IStatusLineManager statusLineManager = edit.getStatusLineManager();
         if (searchText.length() == 0) {

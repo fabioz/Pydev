@@ -99,7 +99,7 @@ public class GetFiles {
      * Gets an IFile inside a container given a path in the filesystem (resolves the full path of the container and
      * checks if the location given is under it).
      */
-    public static final IFile getFileInContainer(IPath location, IContainer container) {
+    public static final IFile getFileInContainer(IPath location, IContainer container, boolean mustExist) {
         IPath containerLocation = container.getLocation();
         if (containerLocation != null) {
             if (containerLocation.isPrefixOf(location)) {
@@ -111,7 +111,7 @@ public class GetFiles {
                     return null;
                 }
                 IFile file = container.getFile(removingFirstSegments);
-                if (file.exists()) {
+                if (!mustExist || file.exists()) {
                     return file;
                 }
             }
@@ -131,7 +131,7 @@ public class GetFiles {
      * @return the file found or null if it was not found.
      */
     protected IFile getFileInProject(IPath location, IProject project) {
-        IFile file = getFileInContainer(location, project);
+        IFile file = getFileInContainer(location, project, true);
         if (file != null) {
             return file;
         }

@@ -102,7 +102,12 @@ public class FindDuplicatesVisitor implements VisitorIF {
         this.expression = expression;
         this.doc = doc;
         this.ps = new PySelection(this.doc, selection);
-        FastStringBuffer buf = new FastStringBuffer(ps.getSelectedText(), 0);
+        FastStringBuffer buf;
+        try {
+            buf = new FastStringBuffer(ps.getSelectedText(), 0);
+        } catch (BadLocationException e) {
+            throw new RuntimeException(e);
+        }
         ParsingUtils.removeCommentsAndWhitespaces(buf);
         buf.replaceAll("\\", ""); //Remove all the \\ 
         selectedText = buf.toCharArray();

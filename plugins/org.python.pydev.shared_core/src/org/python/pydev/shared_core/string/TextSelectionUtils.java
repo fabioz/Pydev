@@ -190,16 +190,13 @@ public class TextSelectionUtils {
 
     /**
      * @return the Selected text
+     * @throws BadLocationException 
      */
-    public String getSelectedText() {
+    public String getSelectedText() throws BadLocationException {
         ICoreTextSelection txtSel = getTextSelection();
         int start = txtSel.getOffset();
         int len = txtSel.getLength();
-        try {
-            return this.doc.get(start, len);
-        } catch (BadLocationException e) {
-            throw new RuntimeException(e);
-        }
+        return this.doc.get(start, len);
     }
 
     /**

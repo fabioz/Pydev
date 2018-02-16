@@ -93,8 +93,9 @@ public class GetContainers {
     /**
      * Gets an IContainer inside a container given a path in the filesystem (resolves the full path of the container and
      * checks if the location given is under it).
+     * @param mustExist 
      */
-    public static final IContainer getContainerInContainer(IPath location, IContainer container) {
+    public static final IContainer getContainerInContainer(IPath location, IContainer container, boolean mustExist) {
         IPath projectLocation = container.getLocation();
         if (projectLocation != null && projectLocation.isPrefixOf(location)) {
             int segmentsToRemove = projectLocation.segmentCount();
@@ -103,7 +104,7 @@ public class GetContainers {
                 return container; //I.e.: equal to container
             }
             IContainer file = container.getFolder(removeFirstSegments);
-            if (file.exists()) {
+            if (!mustExist || file.exists()) {
                 return file;
             }
         }
@@ -118,7 +119,7 @@ public class GetContainers {
      * @return the file found or null if it was not found.
      */
     protected IContainer getContainerInProject(IPath location, IProject project) {
-        IContainer file = getContainerInContainer(location, project);
+        IContainer file = getContainerInContainer(location, project, true);
         if (file != null) {
             return file;
         }
