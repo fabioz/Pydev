@@ -182,7 +182,7 @@ public abstract class AbstractAdditionalTokensInfo {
      * 3: Changed from string-> list to string->set
      * 4: Keeping file, line and column for entries
      */
-    protected static final int version = 5;
+    protected static final int version = 4;
 
     public AbstractAdditionalTokensInfo() {
     }
