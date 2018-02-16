@@ -21,9 +21,9 @@ public class InfoStrFactoryTest extends TestCase {
 
     public void testInfoStrFactory() throws Exception {
         List<IInfo> iInfo = new ArrayList<IInfo>();
-        iInfo.add(new FuncInfo("Bar", "Foo", null, null));
-        iInfo.add(new ClassInfo("Class", "ClassMod", null, null));
-        iInfo.add(new FuncInfo("Bar", "Foo", null, null));
+        iInfo.add(new FuncInfo("Bar", "Foo", null, null, "c:\\temp\\a.py", 0, 0));
+        iInfo.add(new ClassInfo("Class", "ClassMod", null, null, "c:\\temp\\a.py", 1, 1));
+        iInfo.add(new FuncInfo("Bar", "Foo", null, null, "c:\\temp\\a.py", 2, 2));
         assertEquals(iInfo, InfoStrFactory.strToInfo(InfoStrFactory.infoToString(iInfo), null));
     }
 }

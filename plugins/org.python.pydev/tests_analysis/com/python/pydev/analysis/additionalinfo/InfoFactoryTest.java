@@ -34,7 +34,7 @@ public class InfoFactoryTest extends TestCase {
 
         assertNull(infoFactory.createElement(memento));
 
-        ClassInfo info = new ClassInfo(null, null, null, null);
+        ClassInfo info = new ClassInfo(null, null, null, null, null, 0, 0);
         infoFactory = new InfoFactory(new AdditionalInfoAndIInfo(null, info));
         infoFactory.saveState(memento);
         assertNull(infoFactory.createElement(memento));

@@ -162,14 +162,31 @@ public class FastDefinitionsParserTest extends TestCase {
                 +
                 "");
         assertEquals(1, m.body.length);
+        assertEquals(1, m.beginLine);
+
         ClassDef classDef = ((ClassDef) m.body[0]);
         assertEquals("Bar", ((NameTok) classDef.name).id);
+        assertEquals(1, classDef.beginLine);
+        assertEquals(1, classDef.beginColumn);
+
+        assertEquals(1, classDef.name.beginLine);
+        assertEquals(7, classDef.name.beginColumn);
+
         assertEquals(1, classDef.body.length);
+
         Assign assign = (Assign) classDef.body[0];
         assertEquals(2, assign.targets.length);
+        assertEquals(2, assign.beginLine);
+        assertEquals(5, assign.beginColumn);
+
         Name name = (Name) assign.targets[0];
+        assertEquals(2, name.beginLine);
+        assertEquals(5, name.beginColumn);
         assertEquals("ATTRIBUTE1", name.id);
+
         name = (Name) assign.targets[1];
+        assertEquals(2, name.beginLine);
+        assertEquals(18, name.beginColumn);
         assertEquals("ATTRIBUTE2", name.id);
     }
 
@@ -203,8 +220,7 @@ public class FastDefinitionsParserTest extends TestCase {
 
     public void testAttributes4() {
         Module m = (Module) FastDefinitionsParser.parse("class Bar:\n" +
-                "    def m1(self):\n"
-                +
+                "    def m1(self):\n" +
                 "        self.ATTRIBUTE = 10\n" + //local scope: get it because of self.
                 "\n" +
                 "");
@@ -214,14 +230,28 @@ public class FastDefinitionsParserTest extends TestCase {
         assertEquals(1, classDef.body.length); //method
 
         FunctionDef funcDef = (FunctionDef) classDef.body[0];
-        assertEquals("m1", ((NameTok) funcDef.name).id);
+        assertEquals(2, funcDef.beginLine);
+        assertEquals(5, funcDef.beginColumn);
+
+        NameTok nameTok = (NameTok) funcDef.name;
+        assertEquals("m1", nameTok.id);
+        assertEquals(2, nameTok.beginLine);
+        assertEquals(9, nameTok.beginColumn);
 
         assertEquals(1, funcDef.body.length);
         Assign assign = (Assign) funcDef.body[0];
         assertEquals(1, assign.targets.length);
+        assertEquals(3, assign.beginLine);
+        assertEquals(9, assign.beginColumn);
+
         Attribute attribute = (Attribute) assign.targets[0];
-        NameTok attr = (NameTok) attribute.attr;
-        assertEquals("ATTRIBUTE", attr.id.toString());
+        assertEquals(3, attribute.beginLine);
+        assertEquals(9, attribute.beginColumn);
+
+        NameTok name = (NameTok) attribute.attr;
+        assertEquals("ATTRIBUTE", name.id.toString());
+        assertEquals(3, name.beginLine);
+        assertEquals(9, name.beginColumn);
     }
 
     public void testAttributes5() {

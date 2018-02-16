@@ -180,6 +180,7 @@ public abstract class AbstractAdditionalTokensInfo {
     /**
      * 2: because we've removed some info (the hash is no longer saved)
      * 3: Changed from string-> list to string->set
+     * 4: Keeping file, line and column for entries
      */
     protected static final int version = 4;
 
@@ -245,7 +246,8 @@ public abstract class AbstractAdditionalTokensInfo {
         return lInfo;
     }
 
-    private IInfo addAssignTargets(ASTEntry entry, String moduleName, int doOn, String path, boolean lastIsMethod) {
+    private IInfo addAssignTargets(ASTEntry entry, String moduleName, int doOn, String path, boolean lastIsMethod,
+            String file) {
         String rep = NodeUtils.getFullRepresentationString(entry.node);
         if (lastIsMethod) {
             List<String> parts = StringUtils.dotSplit(rep);
@@ -255,7 +257,8 @@ public abstract class AbstractAdditionalTokensInfo {
                     rep = parts.get(1);
                     //no intern construct (locked in the loop that calls this method)
                     AttrInfo info = new AttrInfo(ObjectsInternPool.internUnsynched(rep), moduleName,
-                            ObjectsInternPool.internUnsynched(path), false, getNature());
+                            ObjectsInternPool.internUnsynched(path), false, getNature(), file,
+                            entry.node.beginLine - 1, entry.node.beginColumn - 1);
                     add(info, doOn);
                     return info;
                 }
@@ -264,7 +267,8 @@ public abstract class AbstractAdditionalTokensInfo {
             //no intern construct (locked in the loop that calls this method)
             AttrInfo info = new AttrInfo(ObjectsInternPool.internUnsynched(FullRepIterable.getFirstPart(rep)),
                     moduleName,
-                    ObjectsInternPool.internUnsynched(path), false, getNature());
+                    ObjectsInternPool.internUnsynched(path), false, getNature(), file,
+                    entry.node.beginLine - 1, entry.node.beginColumn - 1);
             add(info, doOn);
             return info;
         }
@@ -346,6 +350,8 @@ public abstract class AbstractAdditionalTokensInfo {
 
                 synchronized (this.lock) {
                     synchronized (ObjectsInternPool.lock) {
+                        final String file = key.file != null ? ObjectsInternPool.internUnsynched(key.file.toString())
+                                : null;
                         key.name = ObjectsInternPool.internUnsynched(key.name);
 
                         while (entries.hasNext()) {
@@ -355,25 +361,29 @@ public abstract class AbstractAdditionalTokensInfo {
                             if (entry.parent == null) { //we only want those that are in the global scope
                                 if (entry.node instanceof ClassDef) {
                                     //no intern construct (locked in this loop)
+                                    NameTok name = (NameTok) ((ClassDef) entry.node).name;
                                     ClassInfo info = new ClassInfo(
                                             ObjectsInternPool
-                                                    .internUnsynched(((NameTok) ((ClassDef) entry.node).name).id),
-                                            key.name, null, false, getNature());
+                                                    .internUnsynched(name.id),
+                                            key.name, null, false, getNature(), file, name.beginLine - 1,
+                                            name.beginColumn - 1);
                                     add(info, TOP_LEVEL);
                                     infoCreated = info;
 
                                 } else if (entry.node instanceof FunctionDef) {
                                     //no intern construct (locked in this loop)
+                                    NameTok name = (NameTok) ((FunctionDef) entry.node).name;
                                     FuncInfo info2 = new FuncInfo(
                                             ObjectsInternPool
-                                                    .internUnsynched(((NameTok) ((FunctionDef) entry.node).name).id),
-                                            key.name, null, false, getNature());
+                                                    .internUnsynched(name.id),
+                                            key.name, null, false, getNature(), file, name.beginLine - 1,
+                                            name.beginColumn - 1);
                                     add(info2, TOP_LEVEL);
                                     infoCreated = info2;
 
                                 } else {
                                     //it is an assign
-                                    infoCreated = this.addAssignTargets(entry, key.name, TOP_LEVEL, null, false);
+                                    infoCreated = this.addAssignTargets(entry, key.name, TOP_LEVEL, null, false, file);
 
                                 }
                             } else {
@@ -387,23 +397,25 @@ public abstract class AbstractAdditionalTokensInfo {
                                         //a method, or something similar).
 
                                         if (entry.node instanceof ClassDef) {
+                                            NameTok name = ((NameTok) ((ClassDef) entry.node).name);
                                             ClassInfo info = new ClassInfo(
                                                     ObjectsInternPool
                                                             .internUnsynched(
-                                                                    ((NameTok) ((ClassDef) entry.node).name).id),
+                                                                    name.id),
                                                     key.name, ObjectsInternPool.internUnsynched(pathToRoot.o1), false,
-                                                    getNature());
+                                                    getNature(), file, name.beginLine - 1, name.beginColumn - 1);
                                             add(info, INNER);
                                             infoCreated = info;
 
                                         } else {
                                             //FunctionDef
+                                            NameTok name = ((NameTok) ((FunctionDef) entry.node).name);
                                             FuncInfo info2 = new FuncInfo(
                                                     ObjectsInternPool
                                                             .internUnsynched(
-                                                                    ((NameTok) ((FunctionDef) entry.node).name).id),
+                                                                    name.id),
                                                     key.name, ObjectsInternPool.internUnsynched(pathToRoot.o1), false,
-                                                    getNature());
+                                                    getNature(), file, name.beginLine - 1, name.beginColumn - 1);
                                             add(info2, INNER);
                                             infoCreated = info2;
 
@@ -415,7 +427,7 @@ public abstract class AbstractAdditionalTokensInfo {
                                             tempStack);
                                     if (pathToRoot != null && pathToRoot.o1 != null && pathToRoot.o1.length() > 0) {
                                         infoCreated = this.addAssignTargets(entry, key.name, INNER, pathToRoot.o1,
-                                                pathToRoot.o2);
+                                                pathToRoot.o2, file);
                                     }
                                 }
                             }

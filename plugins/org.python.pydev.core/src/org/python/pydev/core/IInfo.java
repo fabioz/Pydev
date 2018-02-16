@@ -1,4 +1,5 @@
 package org.python.pydev.core;
+
 /**
  * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
@@ -36,6 +37,21 @@ public interface IInfo extends Comparable<IInfo> {
      * This field may be null!
      */
     String getPath();
+
+    /**
+     * The file for the info (may be null).
+     */
+    String getFile();
+
+    /**
+     * Line (0-based).
+     */
+    int getLine();
+
+    /**
+     * Column (0-based).
+     */
+    int getCol();
 
     /**
      * The type when it is a class with import

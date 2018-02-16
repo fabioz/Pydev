@@ -37,6 +37,12 @@ public class InfoFactory {
 
     private static final String TAG_TYPE = "type";
 
+    private static final String TAG_FILE = "file";
+
+    private static final String TAG_LINE = "line";
+
+    private static final String TAG_COL = "col";
+
     private static final String TAG_PROJECT_NAME = "project";
 
     /**
@@ -69,13 +75,17 @@ public class InfoFactory {
             attributeKeys = memento.getAttributeKeys();
             HashSet<String> keys = new HashSet<String>(Arrays.asList(attributeKeys));
             if (!keys.contains(TAG_NAME) || !keys.contains(TAG_MODULE_NAME) || !keys.contains(TAG_PATH)
-                    || !keys.contains(TAG_TYPE)) {
+                    || !keys.contains(TAG_TYPE) || !keys.contains(TAG_FILE) || !keys.contains(TAG_LINE)
+                    || !keys.contains(TAG_COL)) {
                 return null;
             }
 
-            String name = memento.getString(TAG_NAME);
-            String moduleName = memento.getString(TAG_MODULE_NAME);
-            String path = memento.getString(TAG_PATH);
+            final String name = memento.getString(TAG_NAME);
+            final String moduleName = memento.getString(TAG_MODULE_NAME);
+            final String path = memento.getString(TAG_PATH);
+            final String file = memento.getString(TAG_FILE);
+            final int line = memento.getInteger(TAG_LINE);
+            final int col = memento.getInteger(TAG_COL);
             final int type = memento.getInteger(TAG_TYPE);
 
             String infoName = null;
@@ -109,19 +119,19 @@ public class InfoFactory {
 
             AbstractInfo info;
             if (type == IInfo.ATTRIBUTE_WITH_IMPORT_TYPE) {
-                info = new AttrInfo(infoName, infoModule, infoPath, nature);
+                info = new AttrInfo(infoName, infoModule, infoPath, nature, file, line, col);
 
             } else if (type == IInfo.CLASS_WITH_IMPORT_TYPE) {
-                info = new ClassInfo(infoName, infoModule, infoPath, nature);
+                info = new ClassInfo(infoName, infoModule, infoPath, nature, file, line, col);
 
             } else if (type == IInfo.METHOD_WITH_IMPORT_TYPE) {
-                info = new FuncInfo(infoName, infoModule, infoPath, nature);
+                info = new FuncInfo(infoName, infoModule, infoPath, nature, file, line, col);
 
             } else if (type == IInfo.NAME_WITH_IMPORT_TYPE) {
-                info = new NameInfo(infoName, infoModule, infoPath, nature);
+                info = new NameInfo(infoName, infoModule, infoPath, nature, file, line, col);
 
             } else if (type == IInfo.MOD_IMPORT_TYPE) {
-                info = new ModInfo(infoModule, nature);
+                info = new ModInfo(infoModule, nature, file, line, col);
 
             } else {
                 throw new AssertionError("Cannot restore type: " + type);

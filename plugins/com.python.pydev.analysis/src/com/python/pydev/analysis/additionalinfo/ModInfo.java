@@ -17,12 +17,14 @@ public final class ModInfo extends AbstractInfo {
 
     private static final long serialVersionUID = 1L;
 
-    public ModInfo(String moduleDeclared, IPythonNature nature) {
-        super(getNameFromModule(moduleDeclared), moduleDeclared, null, nature);
+    public ModInfo(String moduleDeclared, IPythonNature nature, String file, int line, int col) {
+        super(getNameFromModule(moduleDeclared), moduleDeclared, null, nature, file, line, col);
     }
 
-    public ModInfo(String moduleDeclared, boolean doNotInternOnThisContstruct, IPythonNature nature) {
-        super(getNameFromModule(moduleDeclared), moduleDeclared, null, doNotInternOnThisContstruct, nature);
+    public ModInfo(String moduleDeclared, boolean doNotInternOnThisContstruct, IPythonNature nature, String file,
+            int line, int col) {
+        super(getNameFromModule(moduleDeclared), moduleDeclared, null, doNotInternOnThisContstruct, nature, file, line,
+                col);
     }
 
     private static String getNameFromModule(String moduleDeclared) {

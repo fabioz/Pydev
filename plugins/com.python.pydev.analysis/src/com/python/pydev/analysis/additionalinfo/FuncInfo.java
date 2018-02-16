@@ -18,13 +18,14 @@ public final class FuncInfo extends AbstractInfo {
      */
     private static final long serialVersionUID = 3L;
 
-    public FuncInfo(String defName, String moduleDeclared, String path, IPythonNature nature) {
-        super(defName, moduleDeclared, path, nature);
+    public FuncInfo(String defName, String moduleDeclared, String path, IPythonNature nature, String file, int line,
+            int col) {
+        super(defName, moduleDeclared, path, nature, file, line, col);
     }
 
     public FuncInfo(String defName, String moduleDeclared, String path, boolean doNotInternOnThisContstruct,
-            IPythonNature nature) {
-        super(defName, moduleDeclared, path, doNotInternOnThisContstruct, nature);
+            IPythonNature nature, String file, int line, int col) {
+        super(defName, moduleDeclared, path, doNotInternOnThisContstruct, nature, file, line, col);
     }
 
     @Override

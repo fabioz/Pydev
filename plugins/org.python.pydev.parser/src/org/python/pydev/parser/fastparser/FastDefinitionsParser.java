@@ -291,8 +291,14 @@ public final class FastDefinitionsParser {
                             final List<String> splitted = StringUtils.split(equalsLine, '=');
                             final int splittedLen = splitted.size();
                             ArrayList<exprType> targets = new ArrayList<exprType>(2);
-
                             for (int j = 0; j < splittedLen - 1 || (splittedLen == 1 && j == 0); j++) { //we don't want to get the last one.
+                                int addCols = 0;
+                                if (j > 0) {
+                                    for (int k = 0; k < j; k++) {
+                                        addCols += splitted.get(j).length();
+                                        addCols += 1;
+                                    }
+                                }
                                 String lineContents = splitted.get(j).trim();
                                 if (lineContents.length() == 0) {
                                     continue;
@@ -312,13 +318,23 @@ public final class FastDefinitionsParser {
                                     if (lineContents.indexOf('.') != -1) {
                                         List<String> dotSplit = StringUtils.dotSplit(lineContents);
                                         if (dotSplit.size() == 2 && dotSplit.get(0).equals("self")) {
-                                            Attribute attribute = new Attribute(new Name("self", Name.Load, false),
-                                                    new NameTok(dotSplit.get(1), NameTok.Attrib), Attribute.Load);
+                                            Name selfName = new Name("self", Name.Load, false);
+                                            NameTok attribName = new NameTok(dotSplit.get(1), NameTok.Attrib);
+                                            selfName.beginLine = row;
+                                            selfName.beginColumn = this.firstCharCol;
+                                            attribName.beginLine = row;
+                                            attribName.beginColumn = this.firstCharCol;
+
+                                            Attribute attribute = new Attribute(selfName, attribName, Attribute.Load);
+                                            attribute.beginLine = row;
+                                            attribute.beginColumn = this.firstCharCol;
                                             targets.add(attribute);
                                         }
 
                                     } else {
                                         Name name = new Name(lineContents, Name.Store, false);
+                                        name.beginLine = row;
+                                        name.beginColumn = this.firstCharCol + addCols;
                                         targets.add(name);
                                     }
                                 }
@@ -394,7 +410,8 @@ public final class FastDefinitionsParser {
             endScopesInStack((col - leadingTabsInLine) + (leadingTabsInLine * 8));
         }
 
-        int funcDefIndex = -1;
+        int funcDefDeltaIndex = -1;
+        firstCharCol = col;
         if (c == 'c' && matchClass()) {
             int startClassCol = col;
             currIndex += 6;
@@ -403,23 +420,22 @@ public final class FastDefinitionsParser {
             if (this.length <= currIndex) {
                 return;
             }
-            startClass(getNextIdentifier(c), row, startClassCol, leadingTabsInLine);
+            startClass(getNextIdentifier(c), row, startClassCol, col, leadingTabsInLine);
 
-        } else if ((c == 'd' && (funcDefIndex = matchFunction()) != -1) ||
-                (c == 'a' && (funcDefIndex = matchAsyncFunction()) != -1)) {
+        } else if ((c == 'd' && (funcDefDeltaIndex = matchFunction()) != -1) ||
+                (c == 'a' && (funcDefDeltaIndex = matchAsyncFunction()) != -1)) {
             if (DEBUG) {
                 System.out.println("Found method");
             }
             int startMethodCol = col;
-            currIndex = funcDefIndex + 1;
-            col = funcDefIndex + 1;
+            currIndex += funcDefDeltaIndex + 1;
+            col += funcDefDeltaIndex + 1;
 
             if (this.length <= currIndex) {
                 return;
             }
-            startMethod(getNextIdentifier(c), row, startMethodCol, leadingTabsInLine);
+            startMethod(getNextIdentifier(c), row, startMethodCol, col, leadingTabsInLine);
         }
-        firstCharCol = col;
         if (currIndex < length) {
 
             //starting some call, dict, list, tuple... those don't count on getting some actual definition
@@ -542,8 +558,11 @@ public final class FastDefinitionsParser {
      * @param startMethodRow the row where the scope should start
      * @param startMethodCol the column where the scope should start
      */
-    private void startMethod(String name, int startMethodRow, int startMethodCol, int leadingTabs) {
+    private void startMethod(String name, int startMethodRow, int startMethodCol, int nameCol, int leadingTabs) {
         NameTok nameTok = new NameTok(name, NameTok.ClassName);
+        nameTok.beginLine = startMethodRow;
+        nameTok.beginColumn = nameCol;
+
         FunctionDef functionDef = new FunctionDef(nameTok, null, null, null, null, false);
         functionDef.beginLine = startMethodRow;
         functionDef.beginColumn = startMethodCol;
@@ -555,11 +574,14 @@ public final class FastDefinitionsParser {
      * Start a new class scope with the given row and column.
      * @param startClassRow the row where the scope should start
      * @param startClassCol the column where the scope should start
+     * @param leadingTabsInLine2 
      */
-    private void startClass(String name, int startClassRow, int startClassCol, int leadingTabs) {
+    private void startClass(String name, int startClassRow, int startClassCol, int nameCol, int leadingTabs) {
         NameTok nameTok = new NameTok(name, NameTok.ClassName);
-        ClassDef classDef = new ClassDef(nameTok, null, null, null, null, null, null);
+        nameTok.beginLine = startClassRow;
+        nameTok.beginColumn = nameCol;
 
+        ClassDef classDef = new ClassDef(nameTok, null, null, null, null, null, null);
         classDef.beginLine = startClassRow;
         classDef.beginColumn = startClassCol;
 
@@ -623,7 +645,11 @@ public final class FastDefinitionsParser {
      * -1 means it was not matched.
      */
     private int matchFunction() {
-        return ParsingUtils.matchFunction(this.currIndex, this.cs, this.length);
+        int matchAt = ParsingUtils.matchFunction(this.currIndex, this.cs, this.length);
+        if (matchAt != -1) {
+            return matchAt - this.currIndex;
+        }
+        return matchAt;
     }
 
     /**
@@ -631,7 +657,11 @@ public final class FastDefinitionsParser {
      * -1 means it was not matched.
      */
     private int matchAsyncFunction() {
-        return ParsingUtils.matchAsyncFunction(this.currIndex, this.cs, this.length);
+        int matchAt = ParsingUtils.matchAsyncFunction(this.currIndex, this.cs, this.length);
+        if (matchAt != -1) {
+            return matchAt - this.currIndex;
+        }
+        return matchAt;
     }
 
     /**
@@ -672,6 +702,8 @@ public final class FastDefinitionsParser {
         }
         List<stmtType> body = parser.body;
         Module ret = new Module(body.toArray(new stmtType[body.size()]));
+        ret.beginLine = 1;
+        ret.beginColumn = 1;
         if (parseCallbacks.size() > 0) {
             Tuple<String, SimpleNode> arg = new Tuple<String, SimpleNode>(moduleName, ret);
             for (ICallback<Object, Tuple<String, SimpleNode>> c : parseCallbacks) {

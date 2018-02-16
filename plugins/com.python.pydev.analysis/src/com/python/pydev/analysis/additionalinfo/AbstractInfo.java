@@ -14,6 +14,8 @@ import java.io.Serializable;
 import org.python.pydev.core.IInfo;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ObjectsInternPool;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.shared_core.string.StringUtils;
 
 public abstract class AbstractInfo implements IInfo, Serializable {
     /**
@@ -38,11 +40,31 @@ public abstract class AbstractInfo implements IInfo, Serializable {
 
     public final IPythonNature nature;
 
-    public AbstractInfo(String name, String moduleDeclared, String path, IPythonNature nature) {
+    public final String file;
+
+    public final int line;
+
+    public final int col;
+
+    public AbstractInfo(String name, String moduleDeclared, String path, IPythonNature nature, String file, int line,
+            int col) {
+        if (line < 0) {
+            line = 0;
+            Log.log(StringUtils.format("Not expecting to get negative line for: %s - %s - %s - %s", name,
+                    moduleDeclared, path, file));
+        }
+        if (col < 0) {
+            col = 0;
+            Log.log(StringUtils.format("Not expecting to get negative column for: %s - %s - %s - %s", name,
+                    moduleDeclared, path, file));
+        }
         synchronized (ObjectsInternPool.lock) {
             this.name = ObjectsInternPool.internUnsynched(name);
             this.moduleDeclared = ObjectsInternPool.internUnsynched(moduleDeclared);
             this.path = ObjectsInternPool.internUnsynched(path);
+            this.file = ObjectsInternPool.internUnsynched(file);
+            this.line = line;
+            this.col = col;
         }
         this.nature = nature;
     }
@@ -51,11 +73,24 @@ public abstract class AbstractInfo implements IInfo, Serializable {
      * Same as the other constructor but does not intern anything.
      */
     public AbstractInfo(String name, String moduleDeclared, String path, boolean doNotInternOnThisContstruct,
-            IPythonNature nature) {
+            IPythonNature nature, String file, int line, int col) {
+        if (line < 0) {
+            line = 0;
+            Log.log(StringUtils.format("Not expecting to get negative line for: %s - %s - %s - %s", name,
+                    moduleDeclared, path, file));
+        }
+        if (col < 0) {
+            col = 0;
+            Log.log(StringUtils.format("Not expecting to get negative column for: %s - %s - %s - %s", name,
+                    moduleDeclared, path, file));
+        }
         this.name = name;
         this.moduleDeclared = moduleDeclared;
         this.path = path;
         this.nature = nature;
+        this.file = file;
+        this.line = line;
+        this.col = col;
     }
 
     @Override
@@ -76,6 +111,21 @@ public abstract class AbstractInfo implements IInfo, Serializable {
     @Override
     public String getPath() {
         return path;
+    }
+
+    @Override
+    public String getFile() {
+        return file;
+    }
+
+    @Override
+    public int getLine() {
+        return line;
+    }
+
+    @Override
+    public int getCol() {
+        return col;
     }
 
     @Override

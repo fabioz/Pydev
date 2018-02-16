@@ -18,13 +18,14 @@ public final class AttrInfo extends AbstractInfo {
      */
     private static final long serialVersionUID = 3L;
 
-    public AttrInfo(String name, String moduleDeclared, String path, IPythonNature nature) {
-        super(name, moduleDeclared, path, nature);
+    public AttrInfo(String name, String moduleDeclared, String path, IPythonNature nature, String file, int line,
+            int col) {
+        super(name, moduleDeclared, path, nature, file, line, col);
     }
 
     public AttrInfo(String name, String moduleDeclared, String path, boolean doNotInternOnThisContstruct,
-            IPythonNature nature) {
-        super(name, moduleDeclared, path, doNotInternOnThisContstruct, nature);
+            IPythonNature nature, String file, int line, int col) {
+        super(name, moduleDeclared, path, doNotInternOnThisContstruct, nature, file, line, col);
     }
 
     @Override
