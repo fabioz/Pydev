@@ -44,12 +44,12 @@ public interface IInfo extends Comparable<IInfo> {
     String getFile();
 
     /**
-     * Line (0-based).
+     * Line (1-based).
      */
     int getLine();
 
     /**
-     * Column (0-based).
+     * Column (1-based).
      */
     int getCol();
 

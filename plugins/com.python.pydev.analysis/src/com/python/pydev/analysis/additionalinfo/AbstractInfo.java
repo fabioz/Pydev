@@ -43,15 +43,15 @@ public abstract class AbstractInfo implements IInfo, Serializable {
 
     public final String file;
 
-    // 0-based
+    // 1-based
     public final int line;
 
-    // 0-based
+    // 1-based
     public final int col;
 
     public AbstractInfo(String name, String moduleDeclared, String path, IPythonNature nature, String file, int line,
             int col) {
-        if (line < 0 || col < 0) {
+        if (line <= 0 || col <= 0) {
             if (file != null && PythonPathHelper.isValidSourceFile(file)) {
                 Log.log(StringUtils.format("Not expecting to get negative line for: %s - %s - %s - %s - %s - %s", name,
                         moduleDeclared, path, file, line, col));
@@ -79,7 +79,7 @@ public abstract class AbstractInfo implements IInfo, Serializable {
      */
     public AbstractInfo(String name, String moduleDeclared, String path, boolean doNotInternOnThisContstruct,
             IPythonNature nature, String file, int line, int col) {
-        if (line < 0 || col < 0) {
+        if (line <= 0 || col <= 0) {
             if (file != null && PythonPathHelper.isValidSourceFile(file)) {
                 Log.log(StringUtils.format("Not expecting to get negative line for: %s - %s - %s - %s - %s - %s", name,
                         moduleDeclared, path, file, line, col));

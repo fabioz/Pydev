@@ -434,7 +434,7 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
                     for (ModulesKey modulesKey : values) {
                         contentProvider.add(new AdditionalInfoAndIInfo(additionalInfo,
                                 new ModInfo(modulesKey.name, modulesManager.getNature(),
-                                        modulesKey.file != null ? modulesKey.file.toString() : null, 0, 0)),
+                                        modulesKey.file != null ? modulesKey.file.toString() : null, 1, 1)),
                                 itemsFilter);
                     }
                 }

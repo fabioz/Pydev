@@ -182,7 +182,7 @@ public abstract class AbstractAdditionalTokensInfo {
      * 3: Changed from string-> list to string->set
      * 4: Keeping file, line and column for entries
      */
-    protected static final int version = 4;
+    protected static final int version = 5;
 
     public AbstractAdditionalTokensInfo() {
     }
@@ -258,7 +258,7 @@ public abstract class AbstractAdditionalTokensInfo {
                     //no intern construct (locked in the loop that calls this method)
                     AttrInfo info = new AttrInfo(ObjectsInternPool.internUnsynched(rep), moduleName,
                             ObjectsInternPool.internUnsynched(path), false, getNature(), file,
-                            entry.node.beginLine - 1, entry.node.beginColumn - 1);
+                            entry.node.beginLine, entry.node.beginColumn);
                     add(info, doOn);
                     return info;
                 }
@@ -268,7 +268,7 @@ public abstract class AbstractAdditionalTokensInfo {
             AttrInfo info = new AttrInfo(ObjectsInternPool.internUnsynched(FullRepIterable.getFirstPart(rep)),
                     moduleName,
                     ObjectsInternPool.internUnsynched(path), false, getNature(), file,
-                    entry.node.beginLine - 1, entry.node.beginColumn - 1);
+                    entry.node.beginLine, entry.node.beginColumn);
             add(info, doOn);
             return info;
         }
@@ -363,10 +363,9 @@ public abstract class AbstractAdditionalTokensInfo {
                                     //no intern construct (locked in this loop)
                                     NameTok name = (NameTok) ((ClassDef) entry.node).name;
                                     ClassInfo info = new ClassInfo(
-                                            ObjectsInternPool
-                                                    .internUnsynched(name.id),
-                                            key.name, null, false, getNature(), file, name.beginLine - 1,
-                                            name.beginColumn - 1);
+                                            ObjectsInternPool.internUnsynched(name.id),
+                                            key.name, null, false, getNature(), file, name.beginLine,
+                                            name.beginColumn);
                                     add(info, TOP_LEVEL);
                                     infoCreated = info;
 
@@ -374,10 +373,9 @@ public abstract class AbstractAdditionalTokensInfo {
                                     //no intern construct (locked in this loop)
                                     NameTok name = (NameTok) ((FunctionDef) entry.node).name;
                                     FuncInfo info2 = new FuncInfo(
-                                            ObjectsInternPool
-                                                    .internUnsynched(name.id),
-                                            key.name, null, false, getNature(), file, name.beginLine - 1,
-                                            name.beginColumn - 1);
+                                            ObjectsInternPool.internUnsynched(name.id),
+                                            key.name, null, false, getNature(), file, name.beginLine,
+                                            name.beginColumn);
                                     add(info2, TOP_LEVEL);
                                     infoCreated = info2;
 
@@ -399,11 +397,9 @@ public abstract class AbstractAdditionalTokensInfo {
                                         if (entry.node instanceof ClassDef) {
                                             NameTok name = ((NameTok) ((ClassDef) entry.node).name);
                                             ClassInfo info = new ClassInfo(
-                                                    ObjectsInternPool
-                                                            .internUnsynched(
-                                                                    name.id),
+                                                    ObjectsInternPool.internUnsynched(name.id),
                                                     key.name, ObjectsInternPool.internUnsynched(pathToRoot.o1), false,
-                                                    getNature(), file, name.beginLine - 1, name.beginColumn - 1);
+                                                    getNature(), file, name.beginLine, name.beginColumn);
                                             add(info, INNER);
                                             infoCreated = info;
 
@@ -411,11 +407,9 @@ public abstract class AbstractAdditionalTokensInfo {
                                             //FunctionDef
                                             NameTok name = ((NameTok) ((FunctionDef) entry.node).name);
                                             FuncInfo info2 = new FuncInfo(
-                                                    ObjectsInternPool
-                                                            .internUnsynched(
-                                                                    name.id),
+                                                    ObjectsInternPool.internUnsynched(name.id),
                                                     key.name, ObjectsInternPool.internUnsynched(pathToRoot.o1), false,
-                                                    getNature(), file, name.beginLine - 1, name.beginColumn - 1);
+                                                    getNature(), file, name.beginLine, name.beginColumn);
                                             add(info2, INNER);
                                             infoCreated = info2;
 
