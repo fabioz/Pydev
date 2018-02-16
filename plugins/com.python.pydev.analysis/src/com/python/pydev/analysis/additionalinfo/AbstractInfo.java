@@ -11,6 +11,7 @@ package com.python.pydev.analysis.additionalinfo;
 
 import java.io.Serializable;
 
+import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.core.IInfo;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ObjectsInternPool;
@@ -42,21 +43,25 @@ public abstract class AbstractInfo implements IInfo, Serializable {
 
     public final String file;
 
+    // 0-based
     public final int line;
 
+    // 0-based
     public final int col;
 
     public AbstractInfo(String name, String moduleDeclared, String path, IPythonNature nature, String file, int line,
             int col) {
-        if (line < 0) {
-            line = 0;
-            Log.log(StringUtils.format("Not expecting to get negative line for: %s - %s - %s - %s", name,
-                    moduleDeclared, path, file));
-        }
-        if (col < 0) {
-            col = 0;
-            Log.log(StringUtils.format("Not expecting to get negative column for: %s - %s - %s - %s", name,
-                    moduleDeclared, path, file));
+        if (line < 0 || col < 0) {
+            if (file != null && PythonPathHelper.isValidSourceFile(file)) {
+                Log.log(StringUtils.format("Not expecting to get negative line for: %s - %s - %s - %s - %s - %s", name,
+                        moduleDeclared, path, file, line, col));
+            }
+            if (line < 0) {
+                line = 0;
+            }
+            if (col < 0) {
+                col = 0;
+            }
         }
         synchronized (ObjectsInternPool.lock) {
             this.name = ObjectsInternPool.internUnsynched(name);
@@ -74,15 +79,17 @@ public abstract class AbstractInfo implements IInfo, Serializable {
      */
     public AbstractInfo(String name, String moduleDeclared, String path, boolean doNotInternOnThisContstruct,
             IPythonNature nature, String file, int line, int col) {
-        if (line < 0) {
-            line = 0;
-            Log.log(StringUtils.format("Not expecting to get negative line for: %s - %s - %s - %s", name,
-                    moduleDeclared, path, file));
-        }
-        if (col < 0) {
-            col = 0;
-            Log.log(StringUtils.format("Not expecting to get negative column for: %s - %s - %s - %s", name,
-                    moduleDeclared, path, file));
+        if (line < 0 || col < 0) {
+            if (file != null && PythonPathHelper.isValidSourceFile(file)) {
+                Log.log(StringUtils.format("Not expecting to get negative line for: %s - %s - %s - %s - %s - %s", name,
+                        moduleDeclared, path, file, line, col));
+            }
+            if (line < 0) {
+                line = 0;
+            }
+            if (col < 0) {
+                col = 0;
+            }
         }
         this.name = name;
         this.moduleDeclared = moduleDeclared;
