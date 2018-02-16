@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.builder.pylint;
+package com.python.pydev.analysis.pylint;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -16,7 +16,7 @@ public class PyLintVisitorFactory {
 
     public static IPyLintVisitor create(IResource resource, IDocument document, ICallback<IModule, Integer> module,
             IProgressMonitor internalCancelMonitor) {
-        if (PyLintPrefPage.usePyLint() == false) {
+        if (PyLintPreferences.usePyLint() == false) {
             return new OnlyRemoveMarkersPyLintVisitor(resource);
         } else {
             return new PyLintVisitor(resource, document, module, internalCancelMonitor);

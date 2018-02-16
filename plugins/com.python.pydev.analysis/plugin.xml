@@ -40,5 +40,8 @@
   		<refactoring_participant class="com.python.pydev.analysis.refactoring.refactorer.Refactorer"/>
    </extension>
 
+   <extension point="org.python.pydev.pydev_builder">
+   		<builder_participant class="com.python.pydev.analysis.additionalinfo.builders.AnalysisBuilderVisitor"/>
+   </extension>
 
 </plugin>

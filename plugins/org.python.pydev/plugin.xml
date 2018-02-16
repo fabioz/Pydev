@@ -19,7 +19,6 @@
    </extension>
 <!-- Initialize our preferences -->
    <extension point="org.eclipse.core.runtime.preferences">
-      <initializer class="org.python.pydev.builder.pylint.PyLintPrefInitializer"/>
       <initializer class="org.python.pydev.plugin.preferences.PydevPrefsInitializer"/>
    </extension>
 <!-- Analyze file on request through ctrl+2, c -->
@@ -3077,9 +3076,6 @@ The related image showing the error is at: http://i.stack.imgur.com/IfNFY.png
   		<pyedit_listener_participant class="com.python.pydev.analysis.builder.MarkEditorOnSave"/>
    </extension>
 
-   <extension point="org.python.pydev.pydev_builder">
-   		<builder_participant class="com.python.pydev.analysis.builder.AnalysisBuilderVisitor"/>
-   </extension>
    <extension point="org.python.pydev.pydev_builder">
    		<builder_participant class="org.python.pydev.builder.todo.PyTodoVisitor"/>
    </extension>

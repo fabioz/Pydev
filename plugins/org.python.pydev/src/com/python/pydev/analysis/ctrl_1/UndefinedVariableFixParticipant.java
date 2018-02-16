@@ -23,7 +23,7 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 
-import com.python.pydev.analysis.builder.AnalysisRunner;
+import com.python.pydev.analysis.additionalinfo.builders.AnalysisRunner;
 import com.python.pydev.analysis.refactoring.quick_fixes.UndefinedVariableQuickFixCreator;
 
 /**

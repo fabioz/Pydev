@@ -33,6 +33,7 @@ import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.exprType;
 
 import com.python.pydev.analysis.additionalinfo.ReferenceSearchesLucene;
+import com.python.pydev.analysis.pylint.PyLintPrefInitializer;
 
 /**
  * The main plugin class to be used in the desktop.
@@ -58,6 +59,10 @@ public class AnalysisPlugin extends Plugin {
     @Override
     public void start(BundleContext context) throws Exception {
         super.start(context);
+
+        // As it starts things in the org.python.pydev node for backward-compatibility, we must
+        // initialize it now.
+        PyLintPrefInitializer.initializeDefaultPreferences();
         stateLocation = AnalysisPlugin.getDefault().getStateLocation();
 
         // Leaving code around to know when we get to the PyDev perspective in the active window (may be

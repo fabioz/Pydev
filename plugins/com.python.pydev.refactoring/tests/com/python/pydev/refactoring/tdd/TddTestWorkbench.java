@@ -36,7 +36,7 @@ import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 
 import com.python.pydev.analysis.AnalysisRequestsTestWorkbench;
-import com.python.pydev.analysis.builder.AnalysisRunner;
+import com.python.pydev.analysis.additionalinfo.builders.AnalysisRunner;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;

@@ -66,6 +66,7 @@ import org.python.pydev.ast.interpreter_managers.IronpythonInterpreterManager;
 import org.python.pydev.ast.interpreter_managers.JythonInterpreterManager;
 import org.python.pydev.ast.interpreter_managers.PythonInterpreterManager;
 import org.python.pydev.ast.listing_utils.JavaVmLocationFinder;
+import org.python.pydev.consoles.MessageConsoles;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IPythonNature;
@@ -83,6 +84,7 @@ import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.editor.templates.TemplateHelper;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.progress.CancelException;
 import org.python.pydev.shared_core.structure.DataAndImageTreeNode;
@@ -97,6 +99,8 @@ import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.dialogs.SelectNDialog;
 import org.python.pydev.ui.dialogs.TreeNodeLabelProvider;
 import org.python.pydev.ui.pythonpathconf.PythonSelectionLibrariesDialog;
+
+import com.python.pydev.analysis.pylint.PyLintPreferences;
 
 /**
  * The main plugin class - initialized on startup - has resource bundle for internationalization - has preferences
@@ -181,6 +185,19 @@ public class PydevPlugin extends AbstractUIPlugin {
                 IPythonNature nature) -> JythonModulesManagerUtils.createModuleFromJar(emptyModuleForZip, nature);
 
         CorePlugin.pydevStatelocation = Platform.getStateLocation(getBundle()).toFile();
+
+        PyLintPreferences.createPyLintStream = (() -> {
+            if (PyLintPreferences.useConsole()) {
+                IOConsoleOutputStream console = MessageConsoles.getConsoleOutputStream("PyLint",
+                        UIConstants.PY_LINT_ICON);
+
+                return ((string) -> { // IPyLintStream
+                    console.write(string);
+                });
+            } else {
+                return null;
+            }
+        });
 
         JavaVmLocationFinder.callbackJavaJars = () -> {
 

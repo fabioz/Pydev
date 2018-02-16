@@ -23,7 +23,7 @@ import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 
-import com.python.pydev.analysis.builder.AnalysisRunner;
+import com.python.pydev.analysis.additionalinfo.builders.AnalysisRunner;
 
 public class DontAnalyzeFileMarkerParticipant implements IAssistProps {
 

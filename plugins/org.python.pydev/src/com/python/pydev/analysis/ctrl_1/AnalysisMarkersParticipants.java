@@ -1,6 +1,6 @@
 package com.python.pydev.analysis.ctrl_1;
 
-import com.python.pydev.analysis.builder.AnalysisRunner;
+import com.python.pydev.analysis.additionalinfo.builders.AnalysisRunner;
 
 /**
  * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.

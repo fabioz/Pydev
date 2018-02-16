@@ -12,10 +12,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.ListResourceBundle;
-import java.util.Set;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -107,6 +105,7 @@ import org.python.pydev.core.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PythonPairMatcher;
 import org.python.pydev.core.docutils.SyntaxErrorException;
+import org.python.pydev.core.editor.OpenEditors;
 import org.python.pydev.core.formatter.FormatStd;
 import org.python.pydev.core.formatter.PyFormatterPreferences;
 import org.python.pydev.core.log.Log;
@@ -150,13 +149,14 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.CheckDefaultPreferencesDialog;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
-import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
 import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.image.IImageDescriptor;
 import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.markers.PyMarkerUtils;
+import org.python.pydev.shared_core.markers.PyMarkerUtils.MarkerInfo;
 import org.python.pydev.shared_core.model.ErrorDescription;
 import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
@@ -178,8 +178,6 @@ import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.editor.IPyEditListener;
 import org.python.pydev.shared_ui.editor_input.PydevFileEditorInput;
 import org.python.pydev.shared_ui.outline.IOutlineModel;
-import org.python.pydev.shared_ui.utils.PyMarkerUtils;
-import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.ui.ColorAndStyleCache;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
@@ -217,9 +215,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     public static final String PY_EDIT_RULER_CONTEXT = "#PyEditRulerContext";
 
     static public final String ACTION_OPEN = "OpenEditor";
-
-    static private final Set<PyEdit> currentlyOpenedEditors = new HashSet<PyEdit>();
-    static private final Object currentlyOpenedEditorsLock = new Object();
 
     /** color cache */
     private ColorAndStyleCache colorCache;
@@ -341,9 +336,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     @SuppressWarnings("unchecked")
     public PyEdit() {
         super();
-        synchronized (currentlyOpenedEditorsLock) {
-            currentlyOpenedEditors.add(this);
-        }
+        OpenEditors.addOpenedEditor(this);
         try {
             onPyEditCreated.call(this);
         } catch (Throwable e) {
@@ -1065,9 +1058,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         if (!this.disposed) {
             this.disposed = true;
 
-            synchronized (currentlyOpenedEditorsLock) {
-                currentlyOpenedEditors.remove(this);
-            }
+            OpenEditors.removeOpenedEditor(this);
             this.outlinePage = null;
             this.codeFoldingSetter = null;
 
@@ -1712,39 +1703,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             editor.validateEditorInputState();
 
         }
-    }
-
-    public static Object iterOpenEditorsUntilFirstReturn(ICallback<Object, PyEdit> callback) {
-        HashSet<PyEdit> hashSet;
-        synchronized (currentlyOpenedEditorsLock) {
-            hashSet = new HashSet<>(currentlyOpenedEditors);
-        }
-        // Iterate in unsynchronized copy
-        for (PyEdit edit : hashSet) {
-            Object ret = callback.call(edit);
-            if (ret != null) {
-                return ret;
-            }
-        }
-        return null;
-    }
-
-    public static boolean isEditorOpenForResource(IResource r) {
-        HashSet<PyEdit> hashSet;
-        synchronized (currentlyOpenedEditorsLock) {
-            hashSet = new HashSet<>(currentlyOpenedEditors);
-        }
-        // Iterate in unsynchronized copy
-        for (PyEdit edit : hashSet) {
-            IEditorInput input = edit.getEditorInput();
-            if (input != null) {
-                Object adapter = input.getAdapter(IResource.class);
-                if (adapter != null && r.equals(adapter)) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     @Override

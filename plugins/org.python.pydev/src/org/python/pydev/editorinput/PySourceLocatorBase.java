@@ -31,10 +31,11 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.ast.location.FindWorkspaceFiles;
 import org.python.pydev.core.CorePlugin;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPyStackFrame;
+import org.python.pydev.core.editor.OpenEditors;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.preferences.FileTypesPreferences;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -57,11 +58,11 @@ public class PySourceLocatorBase {
         }
 
         public IEditorInput findFromOpenedPyEdits() {
-            Object ret = PyEdit.iterOpenEditorsUntilFirstReturn(new ICallback<Object, PyEdit>() {
+            Object ret = OpenEditors.iterOpenEditorsUntilFirstReturn(new ICallback<Object, IPyEdit>() {
 
                 @Override
-                public Object call(PyEdit pyEdit) {
-                    IEditorInput editorInput = pyEdit.getEditorInput();
+                public Object call(IPyEdit pyEdit) {
+                    IEditorInput editorInput = (IEditorInput) pyEdit.getEditorInput();
                     if (editorInput instanceof IPathEditorInput) {
                         IPathEditorInput pathEditorInput = (IPathEditorInput) editorInput;
                         IPath localPath = pathEditorInput.getPath();

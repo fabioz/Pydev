@@ -18,8 +18,8 @@ import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.editor.PyInformationPresenter;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.editor.codefolding.PySourceViewer;
+import org.python.pydev.shared_core.markers.PyMarkerUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
-import org.python.pydev.shared_ui.utils.PyMarkerUtils;
 
 public class PyMarkerTextHover extends AbstractPyEditorTextHover {
 

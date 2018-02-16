@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.builder.pylint;
+package com.python.pydev.analysis.pylint;
 
 import java.util.List;
 
@@ -12,7 +12,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.IMiscConstants;
-import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
+import org.python.pydev.shared_core.markers.PyMarkerUtils;
 
 public class OnlyRemoveMarkersPyLintVisitor implements IPyLintVisitor {
 
@@ -49,7 +49,7 @@ public class OnlyRemoveMarkersPyLintVisitor implements IPyLintVisitor {
     }
 
     @Override
-    public List<MarkerInfo> getMarkers() {
+    public List<PyMarkerUtils.MarkerInfo> getMarkers() {
         return null;
     }
 

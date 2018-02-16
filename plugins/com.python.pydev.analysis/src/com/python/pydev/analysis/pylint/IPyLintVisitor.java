@@ -4,11 +4,11 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.builder.pylint;
+package com.python.pydev.analysis.pylint;
 
 import java.util.List;
 
-import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
+import org.python.pydev.shared_core.markers.PyMarkerUtils;
 
 /**
  * See: org.python.pydev.ast.builder.pylint.PyLintVisitorFactory to create PyLint visitors.
@@ -36,6 +36,6 @@ public interface IPyLintVisitor {
      * The list of markers that the visitor generated (must be gotten only after {@link #join()}).
      * @return the list of markers or null if no markers were generated.
      */
-    List<MarkerInfo> getMarkers();
+    List<PyMarkerUtils.MarkerInfo> getMarkers();
 
 }

@@ -9,11 +9,10 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.builder.pylint;
+package com.python.pydev.analysis.pylint;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,10 +30,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.python.pydev.ast.runners.SimplePythonRunner;
 import org.python.pydev.ast.runners.SimpleRunner;
-import org.python.pydev.consoles.MessageConsoles;
 import org.python.pydev.core.CheckAnalysisErrors;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
@@ -43,13 +40,11 @@ import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
-import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.io.ThreadStreamReader;
+import org.python.pydev.shared_core.markers.PyMarkerUtils;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.shared_ui.utils.PyMarkerUtils;
-import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
 
 /**
  * Check lint.py for options.
@@ -96,7 +91,7 @@ import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
         /**
          * Creates the pylint process and starts getting its output.
          */
-        private void createPyLintProcess(IOConsoleOutputStream out)
+        private void createPyLintProcess(IPyLintStream out)
                 throws CoreException,
                 MisconfigurationException, PythonNatureWithoutProjectException {
             String script = FileUtils.getFileAbsolutePath(pyLintLocation);
@@ -112,7 +107,7 @@ import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
             }
             //user args
             String userArgs = StringUtils.replaceNewLines(
-                    PyLintPrefPage.getPyLintArgs(), " ");
+                    PyLintPreferences.getPyLintArgs(), " ");
             StringTokenizer tokenizer2 = new StringTokenizer(userArgs);
             while (tokenizer2.hasMoreTokens()) {
                 String token = tokenizer2.nextToken();
@@ -215,18 +210,18 @@ import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
             this.processWatchDoc.start();
         }
 
-        public void afterRunProcess(String output, String errors, IOConsoleOutputStream out) {
+        public void afterRunProcess(String output, String errors, IPyLintStream out) {
             write("PyLint: The stdout of the command line is:", out, output);
             write("PyLint: The stderr of the command line is:", out, errors);
 
             StringTokenizer tokenizer = new StringTokenizer(output, "\r\n");
 
             //Set up local values for severity
-            int wSeverity = PyLintPrefPage.wSeverity();
-            int eSeverity = PyLintPrefPage.eSeverity();
-            int fSeverity = PyLintPrefPage.fSeverity();
-            int cSeverity = PyLintPrefPage.cSeverity();
-            int rSeverity = PyLintPrefPage.rSeverity();
+            int wSeverity = PyLintPreferences.wSeverity();
+            int eSeverity = PyLintPreferences.eSeverity();
+            int fSeverity = PyLintPreferences.fSeverity();
+            int cSeverity = PyLintPreferences.cSeverity();
+            int rSeverity = PyLintPreferences.rSeverity();
 
             if (monitor.isCanceled()) {
                 return;
@@ -338,7 +333,7 @@ import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
         }
     }
 
-    private static void write(String cmdLineToExe, IOConsoleOutputStream out, Object... args) {
+    private static void write(String cmdLineToExe, IPyLintStream out, Object... args) {
         try {
             if (out != null) {
                 synchronized (lock) {
@@ -387,7 +382,7 @@ import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
      */
     @Override
     public void startVisit() {
-        if (document == null || resource == null || PyLintPrefPage.usePyLint() == false) {
+        if (document == null || resource == null || PyLintPreferences.usePyLint() == false) {
             deleteMarkers();
             return;
         }
@@ -399,7 +394,7 @@ import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
             return;
         }
 
-        File pyLintLocation = PyLintPrefPage.getPyLintLocation(pythonNature);
+        File pyLintLocation = PyLintPreferences.getPyLintLocation(pythonNature);
         if (pyLintLocation == null || !pyLintLocation.exists()) {
             deleteMarkers();
             return;
@@ -423,7 +418,7 @@ import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
                         new NullProgressMonitorWrapper(monitor), pyLintLocation);
 
                 try {
-                    IOConsoleOutputStream out = getConsoleOutputStream();
+                    IPyLintStream out = PyLintPreferences.getConsoleOutputStream();
                     pyLintRunnable.createPyLintProcess(out);
                 } catch (final Exception e) {
                     Log.log(e);
@@ -440,19 +435,11 @@ import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
     }
 
     @Override
-    public List<MarkerInfo> getMarkers() {
+    public List<PyMarkerUtils.MarkerInfo> getMarkers() {
         if (pyLintRunnable == null) {
             return null;
         }
         return pyLintRunnable.markers;
-    }
-
-    private static IOConsoleOutputStream getConsoleOutputStream() throws MalformedURLException {
-        if (PyLintPrefPage.useConsole()) {
-            return MessageConsoles.getConsoleOutputStream("PyLint", UIConstants.PY_LINT_ICON);
-        } else {
-            return null;
-        }
     }
 
 }

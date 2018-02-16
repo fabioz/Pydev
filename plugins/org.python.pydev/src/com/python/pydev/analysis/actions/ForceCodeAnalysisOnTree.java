@@ -31,8 +31,8 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.ui.actions.resources.PyResourceAction;
 
-import com.python.pydev.analysis.builder.AnalysisBuilderRunnable;
-import com.python.pydev.analysis.builder.AnalysisBuilderVisitor;
+import com.python.pydev.analysis.additionalinfo.builders.AnalysisBuilderRunnable;
+import com.python.pydev.analysis.additionalinfo.builders.AnalysisBuilderVisitor;
 
 /**
  * @author fabioz

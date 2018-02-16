@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.python.pydev.analysis.builder;
+package com.python.pydev.analysis.additionalinfo.builders;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -12,8 +12,6 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.logging.DebugSettings;
-import org.python.pydev.shared_ui.log.ToLogFile;
-
 
 /**
  * Abstract class for the builder runnables.
@@ -119,8 +117,9 @@ public abstract class AbstractAnalysisBuilderRunnable implements IAnalysisBuilde
 
     protected void logOperationCancelled() {
         if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-            org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "OperationCanceledException: cancelled by new runnable -- " + moduleName
-                    + ". Cancelled was from: " + getAnalysisCauseStr());
+            org.python.pydev.shared_core.log.ToLogFile.toLogFile(this,
+                    "OperationCanceledException: cancelled by new runnable -- " + moduleName
+                            + ". Cancelled was from: " + getAnalysisCauseStr());
         }
     }
 
@@ -135,7 +134,8 @@ public abstract class AbstractAnalysisBuilderRunnable implements IAnalysisBuilde
             try {
                 if (oldAnalysisBuilderThread != null) {
                     if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                        org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "Waiting for other to be finished...");
+                        org.python.pydev.shared_core.log.ToLogFile.toLogFile(this,
+                                "Waiting for other to be finished...");
                     }
 
                     //just to make sure that the analysis of the existing runnable had a request for stopping already
@@ -153,7 +153,8 @@ public abstract class AbstractAnalysisBuilderRunnable implements IAnalysisBuilde
                         }
                     }
                     if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                        org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "Starting analysis after attempts: " + attempts);
+                        org.python.pydev.shared_core.log.ToLogFile.toLogFile(this,
+                                "Starting analysis after attempts: " + attempts);
                     }
                 }
                 //that's all we need it for... we can already dispose of it.

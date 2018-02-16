@@ -4,13 +4,12 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.python.pydev.analysis.builder;
+package com.python.pydev.analysis.additionalinfo.builders;
 
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.logging.DebugSettings;
-import org.python.pydev.shared_ui.log.ToLogFile;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
@@ -70,7 +69,8 @@ public class AnalysisBuilderRunnableForRemove extends AbstractAnalysisBuilderRun
             info.removeInfoFromModule(moduleName, generateDelta);
         } else {
             if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                org.python.pydev.shared_core.log.ToLogFile.toLogFile("Unable to remove info. name: " + moduleName + " or nature:" + nature + " is null.",
+                org.python.pydev.shared_core.log.ToLogFile.toLogFile(
+                        "Unable to remove info. name: " + moduleName + " or nature:" + nature + " is null.",
                         AnalysisBuilderRunnableForRemove.class);
             }
         }

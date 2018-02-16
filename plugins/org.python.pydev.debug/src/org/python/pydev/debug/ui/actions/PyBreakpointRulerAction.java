@@ -40,7 +40,7 @@ import org.python.pydev.debug.model.PyDebugModelPresentation;
 import org.python.pydev.debug.ui.IPyToggleBreakpointsTarget;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_ui.editor_input.EditorInputUtils;
-import org.python.pydev.shared_ui.utils.PyMarkerUtils;
+import org.python.pydev.shared_ui.utils.PyMarkerUIUtils;
 
 /**
  * Setting/removing breakpoints in the ruler
@@ -118,7 +118,7 @@ public class PyBreakpointRulerAction extends AbstractBreakpointRulerAction {
             } catch (Exception e) {
                 return; //ignore
             }
-            final IResource resource = PyMarkerUtils.getResourceForTextEditor(textEditor);
+            final IResource resource = PyMarkerUIUtils.getResourceForTextEditor(textEditor);
 
             // The map containing the marker attributes
             final Map<String, Object> map = new HashMap<String, Object>();

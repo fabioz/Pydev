@@ -52,8 +52,11 @@
          <attribute name="class" type="string" use="required">
             <annotation>
                <documentation>
-
+                  
                </documentation>
+               <appInfo>
+                  <meta.attribute kind="java" basedOn=":org.python.pydev.ast.codecompletion.IPyDevCompletionParticipant"/>
+               </appInfo>
             </annotation>
          </attribute>
       </complexType>

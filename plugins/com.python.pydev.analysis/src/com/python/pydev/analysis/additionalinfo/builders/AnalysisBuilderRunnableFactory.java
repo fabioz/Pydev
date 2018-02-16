@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.python.pydev.analysis.builder;
+package com.python.pydev.analysis.additionalinfo.builders;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +19,6 @@ import org.python.pydev.parser.preferences.PyDevBuilderPreferences;
 import org.python.pydev.shared_core.cache.LRUCache;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.shared_ui.log.ToLogFile;
 
 public class AnalysisBuilderRunnableFactory {
 
@@ -65,8 +64,9 @@ public class AnalysisBuilderRunnableFactory {
 
     private static void logCreate(String moduleName, IAnalysisBuilderRunnable analysisBuilderThread, String factory) {
         if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-            org.python.pydev.shared_core.log.ToLogFile.toLogFile(analysisBuilderThread, "Created new builder: " + analysisBuilderThread + " for:" + moduleName
-                    + " -- " + analysisBuilderThread.getAnalysisCauseStr() + " -- " + factory);
+            org.python.pydev.shared_core.log.ToLogFile.toLogFile(analysisBuilderThread,
+                    "Created new builder: " + analysisBuilderThread + " for:" + moduleName
+                            + " -- " + analysisBuilderThread.getAnalysisCauseStr() + " -- " + factory);
         }
     }
 

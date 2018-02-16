@@ -57,7 +57,7 @@
                   Must implement IInterpreterInfoBuilder
                </documentation>
                <appInfo>
-                  <meta.attribute translatable="true"/>
+                  <meta.attribute kind="java" basedOn=":org.python.pydev.ast.interpreter_managers.IInterpreterInfoBuilder"/>
                </appInfo>
             </annotation>
          </attribute>

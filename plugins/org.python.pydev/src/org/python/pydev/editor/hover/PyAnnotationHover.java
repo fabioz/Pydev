@@ -18,8 +18,8 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.editor.codefolding.PySourceViewer;
+import org.python.pydev.shared_core.markers.PyMarkerUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
-import org.python.pydev.shared_ui.utils.PyMarkerUtils;
 
 public class PyAnnotationHover implements IAnnotationHover {
 

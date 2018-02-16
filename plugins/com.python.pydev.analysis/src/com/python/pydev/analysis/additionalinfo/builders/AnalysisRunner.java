@@ -7,7 +7,7 @@
 /*
  * Created on 18/09/2005
  */
-package com.python.pydev.analysis.builder;
+package com.python.pydev.analysis.additionalinfo.builders;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,8 +21,8 @@ import org.python.pydev.ast.analysis.messages.IMessage;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.IMiscConstants;
-import org.python.pydev.shared_ui.utils.PyMarkerUtils;
-import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
+import org.python.pydev.shared_core.markers.PyMarkerUtils;
+import org.python.pydev.shared_core.markers.PyMarkerUtils.MarkerInfo;
 
 public class AnalysisRunner {
 

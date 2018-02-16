@@ -27,9 +27,8 @@ import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.logging.DebugSettings;
 import org.python.pydev.shared_core.callbacks.ICallback0;
-import org.python.pydev.shared_ui.log.ToLogFile;
-import org.python.pydev.shared_ui.utils.PyMarkerUtils;
-import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
+import org.python.pydev.shared_core.markers.PyMarkerUtils;
+import org.python.pydev.shared_core.markers.PyMarkerUtils.MarkerInfo;
 
 /**
  * @author Fabio Zadrozny

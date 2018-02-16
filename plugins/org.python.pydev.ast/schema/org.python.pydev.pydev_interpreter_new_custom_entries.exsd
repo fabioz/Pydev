@@ -56,6 +56,9 @@
                <documentation>
                   Must implement IInterpreterNewCustomEntries, can extend InterpreterNewCustomEntriesAdapter for a simpler implementation if not all addition types are made.
                </documentation>
+               <appInfo>
+                  <meta.attribute kind="java" basedOn=":org.python.pydev.core.interpreters.IInterpreterNewCustomEntries"/>
+               </appInfo>
             </annotation>
          </attribute>
       </complexType>

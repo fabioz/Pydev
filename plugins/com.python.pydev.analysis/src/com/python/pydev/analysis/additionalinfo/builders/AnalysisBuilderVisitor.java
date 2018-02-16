@@ -7,7 +7,7 @@
 /*
  * Created on 23/07/2005
  */
-package com.python.pydev.analysis.builder;
+package com.python.pydev.analysis.additionalinfo.builders;
 
 import java.io.File;
 
@@ -28,7 +28,6 @@ import org.python.pydev.parser.fastparser.FastDefinitionsParser;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.callbacks.ICallback0;
-import org.python.pydev.shared_ui.log.ToLogFile;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
@@ -108,7 +107,8 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor {
 
                 } else if (arg == IAnalysisBuilderRunnable.DEFINITIONS_MODULE) {
                     if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                        org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()");
+                        org.python.pydev.shared_core.log.ToLogFile.toLogFile(this,
+                                "PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()");
                     }
                     IFile f = (IFile) resource;
                     String file = f.getRawLocation().toOSString();

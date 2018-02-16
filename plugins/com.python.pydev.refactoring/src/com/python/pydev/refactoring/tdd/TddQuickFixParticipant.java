@@ -52,7 +52,7 @@ import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 
-import com.python.pydev.analysis.builder.AnalysisRunner;
+import com.python.pydev.analysis.additionalinfo.builders.AnalysisRunner;
 import com.python.pydev.analysis.ctrl_1.IAnalysisMarkersParticipant;
 
 /**

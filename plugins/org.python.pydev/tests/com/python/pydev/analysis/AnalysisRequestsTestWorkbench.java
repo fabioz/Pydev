@@ -43,8 +43,8 @@ import com.python.pydev.analysis.actions.AnalyzeOnRequestSetter;
 import com.python.pydev.analysis.actions.AnalyzeOnRequestSetter.AnalyzeOnRequestAction;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
-import com.python.pydev.analysis.builder.AnalysisBuilderRunnable;
-import com.python.pydev.analysis.builder.AnalysisRunner;
+import com.python.pydev.analysis.additionalinfo.builders.AnalysisBuilderRunnable;
+import com.python.pydev.analysis.additionalinfo.builders.AnalysisRunner;
 
 /**
  * This test is used to see if the code-analysis is correctly requested on a refresh of some file.

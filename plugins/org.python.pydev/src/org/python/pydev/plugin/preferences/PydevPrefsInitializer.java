@@ -14,7 +14,6 @@ import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.jface.resource.StringConverter;
 import org.osgi.service.prefs.Preferences;
 import org.python.pydev.builder.todo.PyTodoPrefPage;
-import org.python.pydev.core.preferences.PyDevCorePreferencesInitializer;
 import org.python.pydev.editor.codefolding.PyDevCodeFoldingPrefPage;
 import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
 import org.python.pydev.editor.correctionassist.docstrings.DocstringsPrefPage;
@@ -33,9 +32,6 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
 
     @Override
     public void initializeDefaultPreferences() {
-        // Initialize preferences in core plugin.
-        PyDevCorePreferencesInitializer.initializeDefaultPreferences();
-
         Preferences node = DefaultScope.INSTANCE.getNode(SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_SCOPE);
 
         node.putInt(IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PREFERENCES,

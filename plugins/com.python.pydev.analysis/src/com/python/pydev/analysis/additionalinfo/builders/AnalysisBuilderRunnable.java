@@ -7,7 +7,7 @@
 /*
  * Created on Apr 6, 2006
  */
-package com.python.pydev.analysis.builder;
+package com.python.pydev.analysis.additionalinfo.builders;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,27 +24,27 @@ import org.python.pydev.ast.analysis.IAnalysisPreferences;
 import org.python.pydev.ast.analysis.messages.IMessage;
 import org.python.pydev.ast.builder.PyDevBuilderVisitor;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
-import org.python.pydev.builder.pylint.IPyLintVisitor;
-import org.python.pydev.builder.pylint.PyLintVisitorFactory;
 import org.python.pydev.core.CheckAnalysisErrors;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.autoedit.DefaultIndentPrefs;
+import org.python.pydev.core.editor.OpenEditors;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.logging.DebugSettings;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.preferences.PyDevBuilderPreferences;
 import org.python.pydev.shared_core.IMiscConstants;
 import org.python.pydev.shared_core.callbacks.ICallback;
-import org.python.pydev.shared_ui.log.ToLogFile;
-import org.python.pydev.shared_ui.utils.PyMarkerUtils;
-import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
+import org.python.pydev.shared_core.markers.PyMarkerUtils;
+import org.python.pydev.shared_core.markers.PyMarkerUtils.MarkerInfo;
+import org.python.pydev.shared_core.resources.DocumentChanged;
 
 import com.python.pydev.analysis.AnalysisPreferences;
 import com.python.pydev.analysis.OccurrencesAnalyzer;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
+import com.python.pydev.analysis.pylint.IPyLintVisitor;
+import com.python.pydev.analysis.pylint.PyLintVisitorFactory;
 
 /**
  * This class is used to do analysis on a thread, so that if an analysis is asked for some analysis that
@@ -188,17 +188,20 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
         try {
 
             if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "doAnalysis() - " + moduleName + " " + this.getAnalysisCauseStr());
+                org.python.pydev.shared_core.log.ToLogFile.toLogFile(this,
+                        "doAnalysis() - " + moduleName + " " + this.getAnalysisCauseStr());
             }
             //if the resource is not open, there's not much we can do...
             final IResource r = resource;
             if (r == null) {
-                org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "Finished analysis -- resource null -- " + moduleName);
+                org.python.pydev.shared_core.log.ToLogFile.toLogFile(this,
+                        "Finished analysis -- resource null -- " + moduleName);
                 return;
             }
 
             if (!r.getProject().isOpen()) {
-                org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "Finished analysis -- project closed -- " + moduleName);
+                org.python.pydev.shared_core.log.ToLogFile.toLogFile(this,
+                        "Finished analysis -- project closed -- " + moduleName);
                 return;
             }
 
@@ -214,15 +217,17 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
                 //let's see if we should do code analysis
                 AnalysisRunner.deleteMarkers(r);
                 if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                    org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "Skipping: !makeAnalysis -- " + moduleName);
+                    org.python.pydev.shared_core.log.ToLogFile.toLogFile(this,
+                            "Skipping: !makeAnalysis -- " + moduleName);
                 }
                 return;
             }
 
             if (onlyRecreateCtxInsensitiveInfo) {
                 if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                    org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "Skipping: !forceAnalysis && analysisCause == ANALYSIS_CAUSE_BUILDER && "
-                            + "PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor() -- " + moduleName);
+                    org.python.pydev.shared_core.log.ToLogFile.toLogFile(this,
+                            "Skipping: !forceAnalysis && analysisCause == ANALYSIS_CAUSE_BUILDER && "
+                                    + "PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor() -- " + moduleName);
                 }
                 return;
             }
@@ -239,15 +244,17 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
             }
 
             if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "makeAnalysis:" + makeAnalysis + " " + "analysisCause: " + getAnalysisCauseStr()
-                        + " -- " + moduleName);
+                org.python.pydev.shared_core.log.ToLogFile.toLogFile(this,
+                        "makeAnalysis:" + makeAnalysis + " " + "analysisCause: " + getAnalysisCauseStr()
+                                + " -- " + moduleName);
             }
 
             checkStop();
 
             if (isHierarchicallyDerived(r)) {
                 if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                    org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "Resource marked as derived not analyzed: " + r + " -- " + moduleName);
+                    org.python.pydev.shared_core.log.ToLogFile.toLogFile(this,
+                            "Resource marked as derived not analyzed: " + r + " -- " + moduleName);
                 }
                 //We don't want to check derived resources (but we want to remove any analysis messages that
                 //might be already there)
@@ -261,7 +268,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
             // Currently, the PyLint visitor can only analyze the contents saved, so, if the contents on the doc
             // changed in the meanwhile, skip doing this visit for PyLint.
             // Maybe we can improve that when https://github.com/PyCQA/pylint/pull/1189 is done.
-            if (!MarkEditorOnSave.hasDocumentChanged(resource, document)) {
+            if (!DocumentChanged.hasDocumentChanged(resource, document)) {
                 pyLintVisitor.startVisit();
             } else {
                 pyLintVisitor.deleteMarkers();
@@ -291,13 +298,14 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
                 if (forceAnalysis
                         || !analyzeOnlyActiveEditor
                         || (analyzeOnlyActiveEditor
-                                && (!PyDevBuilderPreferences.getRemoveErrorsWhenEditorIsClosed() || PyEdit
+                                && (!PyDevBuilderPreferences.getRemoveErrorsWhenEditorIsClosed() || OpenEditors
                                         .isEditorOpenForResource(r)))) {
                     markersFromCodeAnalysis = runner.setMarkers(r, document, messages, this.internalCancelMonitor);
                 } else {
                     if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                        org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "Skipped adding markers for module: " + moduleName
-                                + " (editor not opened).");
+                        org.python.pydev.shared_core.log.ToLogFile.toLogFile(this,
+                                "Skipped adding markers for module: " + moduleName
+                                        + " (editor not opened).");
                     }
                 }
             }

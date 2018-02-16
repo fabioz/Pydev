@@ -18,6 +18,8 @@ import org.python.pydev.shared_ui.editor.BaseEditor;
 import org.python.pydev.shared_ui.editor.IPyEditListener;
 import org.python.pydev.shared_ui.editor.IPyEditListener3;
 
+import com.python.pydev.analysis.additionalinfo.builders.AnalysisRunner;
+
 /**
  * When the editor is disposed, if needed this class will remove the markers from the related
  * file (if no other editor is still editing the same file) and will remove the hash from the

@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Schema file written by PDE -->
-<schema targetNamespace="org.python.pydev">
+<schema targetNamespace="org.python.pydev" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appInfo>
          <meta.schema plugin="org.python.pydev" id="pydev_interpreter_observer" name="org.python.pydev.pydev_interpreter_observer"/>
@@ -9,8 +9,13 @@
          [Enter description of this extension point.]
       </documentation>
    </annotation>
-   
+
    <element name="extension">
+      <annotation>
+         <appInfo>
+            <meta.element />
+         </appInfo>
+      </annotation>
       <complexType>
          <sequence>
             <element ref="interpreter_observer" minOccurs="0" maxOccurs="unbounded"/>
@@ -49,6 +54,9 @@
                <documentation>
                   
                </documentation>
+               <appInfo>
+                  <meta.attribute kind="java" basedOn=":org.python.pydev.core.interpreters.IInterpreterObserver"/>
+               </appInfo>
             </annotation>
          </attribute>
       </complexType>
@@ -90,13 +98,5 @@
       </documentation>
    </annotation>
 
-   <annotation>
-      <appInfo>
-         <meta.section type="copyright"/>
-      </appInfo>
-      <documentation>
-         
-      </documentation>
-   </annotation>
 
 </schema>

@@ -36,6 +36,10 @@ import org.python.pydev.shared_core.parsing.IParserObserver;
 import org.python.pydev.shared_core.parsing.IParserObserver3;
 import org.python.pydev.shared_core.structure.Tuple;
 
+import com.python.pydev.analysis.additionalinfo.builders.AnalysisBuilderRunnable;
+import com.python.pydev.analysis.additionalinfo.builders.AnalysisBuilderVisitor;
+import com.python.pydev.analysis.additionalinfo.builders.AnalysisRunner;
+
 /**
  * Observes changes to the parser and when OK, it'll ask for the analysis of the module reparsed.
  *

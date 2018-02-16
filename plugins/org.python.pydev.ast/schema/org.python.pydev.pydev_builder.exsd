@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Schema file written by PDE -->
-<schema targetNamespace="org.python.pydev">
+<schema targetNamespace="org.python.pydev" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appInfo>
          <meta.schema plugin="org.python.pydev" id="pydev_builder" name="org.python.pydev.pydev_builder"/>
@@ -10,8 +10,12 @@
       </documentation>
    </annotation>
 
-
    <element name="extension">
+      <annotation>
+         <appInfo>
+            <meta.element />
+         </appInfo>
+      </annotation>
       <complexType>
          <sequence>
             <element ref="builder_participant" minOccurs="0" maxOccurs="unbounded"/>
@@ -42,8 +46,7 @@
          </attribute>
       </complexType>
    </element>
-   
-   
+
    <element name="builder_participant">
       <complexType>
          <sequence>
@@ -54,21 +57,13 @@
                   must subclass org.python.pydev.builder.PyDevBuilderVisitor
                </documentation>
                <appInfo>
-                  <meta.attribute translatable="true"/>
+                  <meta.attribute kind="java" basedOn="org.python.pydev.ast.builder.PyDevBuilderVisitor:"/>
                </appInfo>
             </annotation>
          </attribute>
       </complexType>
    </element>
 
-   <annotation>
-      <appInfo>
-         <meta.section type="since"/>
-      </appInfo>
-      <documentation>
-         
-      </documentation>
-   </annotation>
 
    <annotation>
       <appInfo>
@@ -109,22 +104,6 @@ in the pythonpath anymore, or all may be added at the same time).&lt;br&gt;
       </documentation>
    </annotation>
 
-   <annotation>
-      <appInfo>
-         <meta.section type="implementation"/>
-      </appInfo>
-      <documentation>
-         
-      </documentation>
-   </annotation>
 
-   <annotation>
-      <appInfo>
-         <meta.section type="copyright"/>
-      </appInfo>
-      <documentation>
-         
-      </documentation>
-   </annotation>
 
 </schema>

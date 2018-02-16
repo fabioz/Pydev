@@ -49,7 +49,7 @@ import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.string.StringUtils;
 
-import com.python.pydev.analysis.builder.AnalysisRunner;
+import com.python.pydev.analysis.additionalinfo.builders.AnalysisRunner;
 import com.python.pydev.analysis.ctrl_1.AbstractAnalysisMarkersParticipants;
 
 public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarkersParticipants {

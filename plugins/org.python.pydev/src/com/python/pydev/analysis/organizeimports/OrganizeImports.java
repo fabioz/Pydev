@@ -48,7 +48,7 @@ import org.python.pydev.ui.dialogs.TreeSelectionDialog;
 
 import com.python.pydev.analysis.AnalysisPreferences;
 import com.python.pydev.analysis.AnalysisUiPlugin;
-import com.python.pydev.analysis.builder.AnalysisRunner;
+import com.python.pydev.analysis.additionalinfo.builders.AnalysisRunner;
 import com.python.pydev.analysis.ctrl_1.UndefinedVariableFixParticipant;
 
 /**

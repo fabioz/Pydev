@@ -40,7 +40,7 @@ import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 
 import com.python.pydev.analysis.AnalysisTestsBase;
 import com.python.pydev.analysis.MarkerStub;
-import com.python.pydev.analysis.builder.AnalysisRunner;
+import com.python.pydev.analysis.additionalinfo.builders.AnalysisRunner;
 
 public class AdditionalInfoTestsBase extends AnalysisTestsBase {
 
