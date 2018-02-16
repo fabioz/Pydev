@@ -183,9 +183,6 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
                 PydevDebugPlugin.log(IStatus.ERROR, "unexpected error", e);
                 return;
             }
-            if (text.contains("..\\..\\..\\etk\\coilib50\\source\\python\\coilib50")) {
-                System.out.println("here");
-            }
 
             Matcher m = regularPythonlinePattern.matcher(text);
             if (m.matches()) {
