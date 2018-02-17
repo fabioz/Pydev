@@ -31,6 +31,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.exprType;
+import org.python.pydev.shared_core.structure.Location;
 
 import com.python.pydev.analysis.additionalinfo.ReferenceSearchesLucene;
 import com.python.pydev.analysis.pylint.PyLintPrefInitializer;
@@ -123,13 +124,36 @@ public class AnalysisPlugin extends Plugin {
     }
 
     /**
-     * @param pointers the list where the pointers will be added
-     * @param manager the manager to be used to get the definition
-     * @param nature the nature to be used
-     * @param info the info that we are looking for
+     * @param pointers the list where the pointers will be added (if null, a new one will be created).
+     * @param manager the manager to be used to get the definition.
+     * @param nature the nature to be used.
+     * @param info the info that we are looking for.
+     * @param force whether we should force getting the ItemPointer if it's not readily available.
+     * @return whether we actually tried to look for a completion or just bailed out due to force being == false.
      */
-    public static void getDefinitionFromIInfo(List<ItemPointer> pointers, ICodeCompletionASTManager manager,
-            IPythonNature nature, IInfo info, ICompletionCache completionCache) {
+    public static boolean getDefinitionFromIInfo(List<ItemPointer> pointers, ICodeCompletionASTManager manager,
+            IPythonNature nature, IInfo info, ICompletionCache completionCache, boolean requireIDefinition,
+            boolean force) {
+        if (pointers == null) {
+            pointers = new ArrayList<>();
+        }
+        if (!requireIDefinition) {
+            String file = info.getFile();
+            if (file != null) {
+                File f = new File(file);
+                int line = info.getLine();
+                int col = info.getCol();
+
+                ItemPointer itemPointer = new ItemPointer(f, new Location(line - 1, col - 1),
+                        new Location(line - 1, col - 1), null, null, f.toURI());
+                pointers.add(itemPointer);
+                return true;
+            }
+        }
+        if (!force) {
+            return false;
+        }
+        System.err.println("Unable to get for: " + info.getName() + " " + info.getDeclaringModuleName());
         IModule mod;
         String tok;
         mod = manager.getModule(info.getDeclaringModuleName(), nature, true);
@@ -137,7 +161,7 @@ public class AnalysisPlugin extends Plugin {
             if (info.getType() == IInfo.MOD_IMPORT_TYPE) {
                 Definition definition = new Definition(1, 1, "", null, null, mod);
                 PyRefactoringFindDefinition.getAsPointers(pointers, new Definition[] { definition });
-                return;
+                return true;
             }
             //ok, now that we found the module, we have to get the actual definition
             tok = "";
@@ -203,6 +227,7 @@ public class AnalysisPlugin extends Plugin {
                 throw new RuntimeException(e);
             }
         }
+        return true;
     }
 
     /**

@@ -21,9 +21,9 @@ import org.python.pydev.ast.codecompletion.CompletionRequest;
 import org.python.pydev.ast.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.ast.codecompletion.IPyDevCompletionParticipant2;
 import org.python.pydev.ast.codecompletion.IPyDevCompletionParticipant3;
+import org.python.pydev.ast.codecompletion.ProposalsComparator.CompareContext;
 import org.python.pydev.ast.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.ast.codecompletion.PyCodeCompletionUtils;
-import org.python.pydev.ast.codecompletion.ProposalsComparator.CompareContext;
 import org.python.pydev.ast.codecompletion.PyCodeCompletionUtils.IFilter;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
@@ -323,7 +323,7 @@ public class CtxParticipant
                 for (IInfo iInfo : tokensEqualTo) {
                     List<ItemPointer> pointers = new LinkedListWarningOnSlowOperations<>();
                     AnalysisPlugin.getDefinitionFromIInfo(pointers, astManager, nature, iInfo,
-                            completionCache);
+                            completionCache, true, true);
                     for (ItemPointer itemPointer : pointers) {
                         if (itemPointer.definition.ast instanceof FunctionDef) {
                             FunctionDef functionDef = (FunctionDef) itemPointer.definition.ast;

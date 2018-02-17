@@ -48,6 +48,11 @@ public class ItemPointer extends BaseItemPointer {
      */
     public final String zipFilePath;
 
+    /**
+     * If there's an URI for this item pointer, it may be passed in the constructor.
+     */
+    private URI uri;
+
     public ItemPointer(Object file) {
         this(file, new Location(), new Location());
     }
@@ -66,6 +71,11 @@ public class ItemPointer extends BaseItemPointer {
         super(file, start, end);
         this.definition = definition;
         this.zipFilePath = zipFilePath;
+    }
+
+    public ItemPointer(Object file, Location start, Location end, Definition definition, String zipFilePath, URI uri) {
+        this(file, start, end, definition, zipFilePath);
+        this.uri = uri;
     }
 
     @Override
@@ -104,6 +114,9 @@ public class ItemPointer extends BaseItemPointer {
     }
 
     public URI getFileAsURI() {
+        if (this.uri != null) {
+            return this.uri;
+        }
         // Also see org.python.pydev.editor.actions.PyOpenAction
         Object file = this.file;
         if (file instanceof File) {
@@ -169,6 +182,9 @@ public class ItemPointer extends BaseItemPointer {
 
         } else if (file instanceof File) {
             return ((File) file).toURI();
+
+        } else if (file instanceof URI) {
+            return (URI) file;
         }
 
         return null;

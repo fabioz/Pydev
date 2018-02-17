@@ -47,7 +47,7 @@ public class RefactorerFindDefinition {
      * easy to find (so, multiple places that could be the definitions for
      * the given token may be returned... and it may be up to the user to actually
      * choose the best match).
-     * @throws BadLocationException 
+     * @throws BadLocationException
      *
      * @see org.python.pydev.ast.refactoring.IPyRefactoring#findDefinition(org.python.pydev.ast.refactoring.RefactoringRequest)
      */
@@ -92,7 +92,8 @@ public class RefactorerFindDefinition {
                             "Found: %s possible matches.", tokensEqualTo.size()));
                     IPythonNature nature = request.nature;
                     for (IInfo info : tokensEqualTo) {
-                        AnalysisPlugin.getDefinitionFromIInfo(pointers, manager, nature, info, completionCache);
+                        AnalysisPlugin.getDefinitionFromIInfo(pointers, manager, nature, info, completionCache, true,
+                                true);
                         request.checkCancelled();
                     }
                 } catch (MisconfigurationException e) {

@@ -107,11 +107,11 @@ public class PyGlobalsBrowser extends PyAction {
     /**
      * This method will check if the user has python and/or the jython interpreter configured. If it has only
      * one of those, it will get the info for it and the related projects.
-     * 
+     *
      * If both are configured, default is python
-     * 
+     *
      * If none is configured, it will show an error saying so.
-     *  
+     *
      * @param selectedText the text that should be initially set as the filter
      */
     public static void getFromWorkspace(String selectedText) {
@@ -130,7 +130,7 @@ public class PyGlobalsBrowser extends PyAction {
 
     /**
      * Gets it using all the natures that match a given interpreter manager.
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     private static void getFromManagerAndRelatedNatures(String selectedText, IInterpreterManager useManager) {
         AbstractAdditionalTokensInfo additionalSystemInfo;
@@ -165,7 +165,7 @@ public class PyGlobalsBrowser extends PyAction {
 
     /**
      * @param pythonNatures the natures from were we can get info
-     * @param additionalInfo the additional informations 
+     * @param additionalInfo the additional informations
      * @param selectedText the text that should be initially set as a filter
      */
     public static void doSelect(List<IPythonNature> pythonNatures, List<AbstractAdditionalTokensInfo> additionalInfo,
@@ -216,7 +216,8 @@ public class PyGlobalsBrowser extends PyAction {
                     if (astManager == null) {
                         continue;
                     }
-                    AnalysisPlugin.getDefinitionFromIInfo(pointers, astManager, pythonNature, entry, completionCache);
+                    AnalysisPlugin.getDefinitionFromIInfo(pointers, astManager, pythonNature, entry, completionCache,
+                            false, true);
                     if (pointers.size() > 0) {
                         new PyOpenAction().run(pointers.get(0));
                         break; //don't check the other natures
