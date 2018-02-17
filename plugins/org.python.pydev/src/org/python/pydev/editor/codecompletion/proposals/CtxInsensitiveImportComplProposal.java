@@ -209,9 +209,8 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
         AddTokenAndImportStatement.ComputedInfo computedInfo = new AddTokenAndImportStatement.ComputedInfo(
                 realImportRep, fReplacementOffset, fLen, indentString,
                 fReplacementString, appliedWithTrigger, importLen, document);
-        AddTokenAndImportStatement.createTextEdit(document, trigger, offset, addLocalImport,
-                getAddLocalImportsOnTopOfMethod(),
-                computedInfo, ImportsPreferencesPage.getGroupImports(projectAdaptable), maxCols);
+        new AddTokenAndImportStatement(document, trigger, offset, addLocalImport, getAddLocalImportsOnTopOfMethod(),
+                ImportsPreferencesPage.getGroupImports(projectAdaptable), maxCols).createTextEdit(computedInfo);
         this.fReplacementString = computedInfo.fReplacementString;
         this.appliedWithTrigger = computedInfo.appliedWithTrigger;
         this.importLen = computedInfo.importLen;
