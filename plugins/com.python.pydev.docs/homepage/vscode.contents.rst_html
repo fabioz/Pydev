@@ -56,8 +56,8 @@ leverage the features from <strong>PyDev</strong> on <strong>Visual Studio Code<
 <p>While there are some important features to be added (such as the <strong>debugger</strong>), the current version can
 already leverage many features that make <strong>PyDev</strong> unique inside of Visual Studio Code!</p>
 <p>See below which features are available and details on getting it running.</p>
-<div class="section" id="pydev-on-visual-studio-code-0-0-1">
-<h1>PyDev on Visual Studio Code (0.0.1)</h1>
+<div class="section" id="pydev-on-visual-studio-code-0-1">
+<h1>PyDev on Visual Studio Code (0.1)</h1>
 <ul class="simple">
 <li><dl class="first docutils">
 <dt><strong>Code-completion</strong></dt>
@@ -132,41 +132,7 @@ from <strong>Visual Studio Code</strong> to be a folder in the <strong>PYTHONPAT
 </div>
 <div class="section" id="settings">
 <h1>Settings</h1>
-<ul class="simple">
-<li><strong>python.pydev.java.home</strong></li>
-</ul>
-<blockquote>
-<p>If the extension can't find the java executable, this setting can be used to specify the java home folder (which has /bin/java inside it).</p>
-<p><strong>Note</strong>: requires restarting vscode</p>
-</blockquote>
-<ul class="simple">
-<li><strong>python.pydev.ls.vmargs</strong></li>
-</ul>
-<blockquote>
-<p>vmargs to the java executable used to launch PyDev.</p>
-<p><strong>Note</strong>: requires restarting vscode</p>
-</blockquote>
-<ul class="simple">
-<li><strong>python.pydev.pythonExecutable</strong></li>
-</ul>
-<blockquote>
-The python executable to be used (if not specified, <strong>python</strong> is expected to be in the <strong>PATH</strong>).</blockquote>
-<ul class="simple">
-<li><strong>python.pydev.pythonPath</strong></li>
-</ul>
-<blockquote>
-<p>A list of folders that should be added to the <strong>PYTHONPATH</strong> and should be considered source folders
-(i.e.: folders with the sources meant to be edited by the user).</p>
-<p>If not specified, the folders which are in the <strong>PYTHONPATH</strong> and are available below a workspace
-in vscode will be considered as source folders (and if there's no match, each workspace folder in
-vscode will be considered a source folder).</p>
-</blockquote>
-<ul class="simple">
-<li><strong>python.pydev.forcedBuiltins</strong></li>
-</ul>
-<blockquote>
-A  list of additional modules to be inspected through a shell
-(see <a class="reference external" href="http://www.pydev.org/manual_101_interpreter.html#PyDevInterpreterConfiguration-ForcedBuiltins">http://www.pydev.org/manual_101_interpreter.html#PyDevInterpreterConfiguration-ForcedBuiltins</a> for more information).</blockquote>
+<p>For information on the settings which affect PyDev on Visual Studio Code see: <a class="reference external" href="settings.html">Settings</a>.</p>
 </div>
 </contents_area>
 

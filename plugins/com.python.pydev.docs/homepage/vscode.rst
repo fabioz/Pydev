@@ -139,32 +139,6 @@ may be executed from inside **Visual Studio Code**.
 Settings
 --------------------------
 
-- **python.pydev.java.home**
+.. _Settings: settings.html
 
- If the extension can't find the java executable, this setting can be used to specify the java home folder (which has /bin/java inside it).
-
- **Note**: requires restarting vscode
-
-- **python.pydev.ls.vmargs**
-
- vmargs to the java executable used to launch PyDev.
-
- **Note**: requires restarting vscode
-
-- **python.pydev.pythonExecutable**
-
- The python executable to be used (if not specified, **python** is expected to be in the **PATH**).
-
-- **python.pydev.pythonPath**
-
- A list of folders that should be added to the **PYTHONPATH** and should be considered source folders
- (i.e.: folders with the sources meant to be edited by the user).
-
- If not specified, the folders which are in the **PYTHONPATH** and are available below a workspace
- in vscode will be considered as source folders (and if there's no match, each workspace folder in
- vscode will be considered a source folder).
-
-- **python.pydev.forcedBuiltins**
-
- A  list of additional modules to be inspected through a shell
- (see http://www.pydev.org/manual_101_interpreter.html#PyDevInterpreterConfiguration-ForcedBuiltins for more information).
+For information on the settings which affect PyDev on Visual Studio Code see: `Settings`_.

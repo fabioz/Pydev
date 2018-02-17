@@ -57,8 +57,9 @@ update_sites = (
 )
 
 vscode_pages = (
-    ('template1.html', 'vscode'                    , 'Visual Studio Code', 'vscode/index.html'),
-    ('template1.html', 'vscode_license'                    , 'Visual Studio Code', 'vscode/license.html'),
+    ('template1.html', 'vscode'          , 'PyDev on VSCode', 'vscode/index.html'),
+    ('template1.html', 'vscode_license'  , 'License for PyDev on VSCode', 'vscode/license.html'),
+    ('template1.html', 'vscode_settings' , 'PyDev on VSCode Settings', 'vscode/settings.html'),
 )
 
 homepageBase = (
