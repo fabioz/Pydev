@@ -699,13 +699,19 @@ public class PyFormatter {
         return i;
     }
 
+    public static void formatSelection(IDocument doc, int[] regionsForSave, IPyFormatStdProvider edit, PySelection ps,
+            FormatStd formatStd) {
+        formatSelection(doc, regionsForSave, edit, ps, formatStd, Integer.MAX_VALUE);
+    }
+
     /**
      * Formats the given selection
      * @param regionsForSave lines to be formatted (0-based).
+     * @param manageBlankLinesBeforeLine we'll manage blank lines only before the passed line.
      * @see IFormatter
      */
     public static void formatSelection(IDocument doc, int[] regionsForSave, IPyFormatStdProvider edit, PySelection ps,
-            FormatStd formatStd) {
+            FormatStd formatStd, int manageBlankLinesBeforeLine) {
         //        Formatter formatter = new Formatter();
         //        formatter.formatSelection(doc, startLine, endLineIndex, edit, ps);
         Assert.isTrue(regionsForSave != null);
@@ -776,6 +782,9 @@ public class PyFormatter {
 
                 for (LineOffsetAndInfo lineOffsetAndInfo : computed) {
                     if (!hashSet.contains(lineOffsetAndInfo.infoFromRealLine)) {
+                        continue;
+                    }
+                    if (lineOffsetAndInfo.infoFromRealLine > manageBlankLinesBeforeLine) {
                         continue;
                     }
                     // We're going backwards to keep lines valid...

@@ -1559,7 +1559,7 @@ public final class PySelection extends TextSelectionUtils {
         int len = args.length();
         for (int i = 0; i < len; i++) {
             char c = args.charAt(i);
-    
+
             if (Character.isJavaIdentifierPart(c)) {
                 if (bufferLen == 0) {
                     offsetsAndLens.add(i);
@@ -1577,6 +1577,17 @@ public final class PySelection extends TextSelectionUtils {
         if (bufferLen > 0) {
             offsetsAndLens.add(bufferLen);
         }
+    }
+
+    public int getFirstNonWhitespaceLine(int line) {
+        while (line >= 0) {
+            String lineContents = this.getLine(line);
+            if (!lineContents.trim().isEmpty()) {
+                return line;
+            }
+            line--;
+        }
+        return line; // can be -1 if not found (expected)
     }
 
 }
