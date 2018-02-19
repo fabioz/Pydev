@@ -60,6 +60,8 @@ vscode_pages = (
     ('template1.html', 'vscode'          , 'PyDev on VSCode', 'vscode/index.html'),
     ('template1.html', 'vscode_license'  , 'License for PyDev on VSCode', 'vscode/license.html'),
     ('template1.html', 'vscode_settings' , 'PyDev on VSCode Settings', 'vscode/settings.html'),
+    ('template1.html', 'vscode_screenshots' , 'PyDev on VSCode Settings', 'vscode/screenshots.html'),
+    ('template1.html', 'vscode_download' , 'PyDev on VSCode Settings', 'vscode/download.html'),
 )
 
 homepageBase = (
@@ -85,7 +87,7 @@ def template(template, contents, title, **kwargs):
         relative_path = '../'
     else:
         target_file = 'final/%s.html' % contents
-        
+
     if_not_specified_in_file['relative_path'] = relative_path
 
     try:

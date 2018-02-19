@@ -103,16 +103,7 @@ already leverage many features that make <strong>PyDev</strong> unique inside of
 <li>PyDev Debugger integration</li>
 <li>Hover</li>
 </ul>
-</div>
-<div class="section" id="getting-it-running">
-<h1>Getting it running</h1>
-<p>The main requisite to run <strong>PyDev</strong> in <strong>Visual Studio Code</strong> is a <strong>Java 8</strong> installation. If you have
-it installed, just installing the extension from the <strong>Visual Studio Code Marketplace</strong> may be all that's
-needed, but if it doesn't work, you may customize the setting:</p>
-<p><strong>python.pydev.java.home</strong></p>
-<p>locally to point to the proper <strong>Java Home</strong> in your <strong>Visual Studio Code</strong> installation (note that the <strong>Java Home</strong>
-is the directory which contains the <strong>/bin/java</strong> executable).</p>
-<p><strong>Note</strong>: you have to restart <strong>Visual Studio Code</strong> after changing this setting.</p>
+<p>For detail on installing it and getting it running, see: <a class="reference external" href="download.html">Download</a></p>
 </div>
 <div class="section" id="customizations">
 <h1>Customizations</h1>

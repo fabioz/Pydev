@@ -99,19 +99,10 @@ Planned features (soon)
 
 * Hover
 
-Getting it running
----------------------
 
-The main requisite to run **PyDev** in **Visual Studio Code** is a **Java 8** installation. If you have
-it installed, just installing the extension from the **Visual Studio Code Marketplace** may be all that's
-needed, but if it doesn't work, you may customize the setting:
+.. _Download: download.html
 
-**python.pydev.java.home**
-
-locally to point to the proper **Java Home** in your **Visual Studio Code** installation (note that the **Java Home**
-is the directory which contains the **/bin/java** executable).
-
-**Note**: you have to restart **Visual Studio Code** after changing this setting.
+For detail on installing it and getting it running, see: `Download`_
 
 Customizations
 ----------------
