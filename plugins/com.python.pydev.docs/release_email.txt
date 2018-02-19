@@ -55,8 +55,9 @@ Software Developer
 LiClipse
 http://www.liclipse.com
 
-PyDev - Python Development Environment for Eclipse
-http://pydev.org
+PyDev - Python Development Environment
+http://pydev.org (on Eclipse)
+http://pydev.org/vscode (on VSCode)
 http://pydev.blogspot.com
 
 PyVmMonitor - Python Profiler
