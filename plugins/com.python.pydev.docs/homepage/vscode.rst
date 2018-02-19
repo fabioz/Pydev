@@ -9,10 +9,10 @@
     See: <a href="license.html">license info</a> for details.<br/>
     <br/>
 
-    Licenses may be purchased using Paypal and will be delivered to e-mail specified during the checkout process.<br/>
+    Licenses may be purchased using Paypal and will be delivered to the e-mail specified during the checkout process.<br/>
     <br/>
     <br/>
-    Promotional launch licensing price is <strong>USD 10.00</strong>.<br/>
+    Promotional launch licensing price is <strong>USD 40.00</strong>.<br/>
     <br/>
     <br/>
 
@@ -64,28 +64,31 @@ See below which features are available and details on getting it running.
 PyDev on Visual Studio Code (0.1)
 --------------------------------------------
 
-* **Code-completion**
+* Code-completion
     * Fast
     * Context sensitive
     * Common tokens
     * Context insensitive with auto import
 
-* **Code analysis**
+* Code formatter
+    * Fast
+    * Format ranges
+    * Format on type
+
+* Code analysis
     * Real time
 
-* **Go to definition**
+* Go to definition
 
-* **Code formatter**
-    * Fast
-    * Works with line ranges
+* Symbols for Workspace
 
-* **Symbols for Workspace**
+* Symbols for open editor
 
-* **Symbols for open editor**
+* Find references
 
-* **Find references**
+* Quick fix for undefined variables (adds missing import)
 
-* **Quick fix for undefined variables** (adds missing import)
+* Navigate to previous or next class or method (Ctrl+Shift+Up, Ctrl+Shift+Down)
 
 Planned features (soon)
 -------------------------

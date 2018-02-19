@@ -4,7 +4,7 @@
 
 <div class="section" id="python-pydev-java-home">
 <h1>python.pydev.java.home</h1>
-<p>If the extension can't find the java executable, this setting can be used to specify the java home folder (which has /bin/java inside it).</p>
+<p>If the extension can't find the java executable, this setting can be used to specify the java home folder (which has <strong>/bin/java</strong> inside it).</p>
 <p><strong>Note</strong>: requires restarting vscode</p>
 </div>
 <div class="section" id="python-pydev-ls-vmargs">
@@ -35,6 +35,11 @@ vscode will be considered a source folder).</p>
 <p><strong>global</strong>: Adds the import to the imports in the top of the module.</p>
 <p><strong>topOfMethod</strong>: Adds the import to the top of the current method.</p>
 <p><strong>lineBeforeUsage</strong>: Adds the import just before the line where the import was requested.</p>
+</div>
+<div class="section" id="editor-formatontype">
+<h1>editor.formatOnType</h1>
+<p>When format on type is turned on, PyDev will automatically add some of its auto-editions (such as adding <strong>self</strong> on a method automatically
+or closing a method with <strong>):</strong>).</p>
 </div>
 </contents_area>
 

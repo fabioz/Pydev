@@ -12,10 +12,10 @@ PyDev for VSCode may be evaluated for 30 days but must be bought for continued u
 See: <a href="license.html">license info</a> for details.<br/>
 <br/>
 
-Licenses may be purchased using Paypal and will be delivered to e-mail specified during the checkout process.<br/>
+Licenses may be purchased using Paypal and will be delivered to the e-mail specified during the checkout process.<br/>
 <br/>
 <br/>
-Promotional launch licensing price is <strong>USD 10.00</strong>.<br/>
+Promotional launch licensing price is <strong>USD 40.00</strong>.<br/>
 <br/>
 <br/>
 
@@ -60,7 +60,7 @@ already leverage many features that make <strong>PyDev</strong> unique inside of
 <h1>PyDev on Visual Studio Code (0.1)</h1>
 <ul class="simple">
 <li><dl class="first docutils">
-<dt><strong>Code-completion</strong></dt>
+<dt>Code-completion</dt>
 <dd><ul class="first last">
 <li>Fast</li>
 <li>Context sensitive</li>
@@ -71,27 +71,29 @@ already leverage many features that make <strong>PyDev</strong> unique inside of
 </dl>
 </li>
 <li><dl class="first docutils">
-<dt><strong>Code analysis</strong></dt>
+<dt>Code formatter</dt>
+<dd><ul class="first last">
+<li>Fast</li>
+<li>Format ranges</li>
+<li>Format on type</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Code analysis</dt>
 <dd><ul class="first last">
 <li>Real time</li>
 </ul>
 </dd>
 </dl>
 </li>
-<li><strong>Go to definition</strong></li>
-<li><dl class="first docutils">
-<dt><strong>Code formatter</strong></dt>
-<dd><ul class="first last">
-<li>Fast</li>
-<li>Works with line ranges</li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><strong>Symbols for Workspace</strong></li>
-<li><strong>Symbols for open editor</strong></li>
-<li><strong>Find references</strong></li>
-<li><strong>Quick fix for undefined variables</strong> (adds missing import)</li>
+<li>Go to definition</li>
+<li>Symbols for Workspace</li>
+<li>Symbols for open editor</li>
+<li>Find references</li>
+<li>Quick fix for undefined variables (adds missing import)</li>
+<li>Navigate to previous or next class or method (Ctrl+Shift+Up, Ctrl+Shift+Down)</li>
 </ul>
 </div>
 <div class="section" id="planned-features-soon">
