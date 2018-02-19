@@ -79,10 +79,14 @@ homepageBase = (
 def template(template, contents, title, **kwargs):
     if_not_specified_in_file = kwargs.pop('if_not_specified_in_file', {})
 
+    relative_path = ''
     if 'target_file' in kwargs:
         target_file = 'final/' + kwargs['target_file']
+        relative_path = '../'
     else:
         target_file = 'final/%s.html' % contents
+        
+    if_not_specified_in_file['relative_path'] = relative_path
 
     try:
         contents_file = file('%s.contents.html' % contents, 'r').read()
@@ -96,7 +100,7 @@ def template(template, contents, title, **kwargs):
 
 
     toReplace = ['contents_area', 'right_area' , 'image_area', 'quote_area',
-                 'prev', 'title_prev', 'next', 'title_next', 'root', 'right_area2']
+                 'prev', 'title_prev', 'next', 'title_next', 'root', 'right_area2', 'relative_path']
 
     for r in toReplace:
         if r not in kwargs:

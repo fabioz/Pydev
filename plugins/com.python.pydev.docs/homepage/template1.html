@@ -39,27 +39,27 @@
 		<td nowrap="nowrap" class="td_top3" width="20%"><br/></td>
 
 		<td nowrap="nowrap" class="td_top3" width="10%">
-			<center><p><a href="index.html" class="white_text">Main</a></p></center>
+			<center><p><a href="%(relative_path)sindex.html" class="white_text">Main</a></p></center>
 		</td>
 
 		<td nowrap="nowrap" class="td_top3" width="10%">
-			<center><p><a href="download.html" class="white_text">Download</a></p></center>
+			<center><p><a href="%(relative_path)sdownload.html" class="white_text">Download</a></p></center>
 		</td>
 
 		<td nowrap="nowrap" class="td_top3" width="10%">
-			<center><p><a href="screenshots.html" class="white_text">Screenshots</a></p></center>
+			<center><p><a href="%(relative_path)sscreenshots.html" class="white_text">Screenshots</a></p></center>
 		</td>
 
 		<td nowrap="nowrap" class="td_top3" width="10%">
-			<center><p><a href="manual.html" class="white_text">Manual</a></p></center>
+			<center><p><a href="%(relative_path)smanual.html" class="white_text">Manual</a></p></center>
 		</td>
 
 		<td nowrap="nowrap" class="td_top3" width="10%">
-			<center><p><a href="developers.html" class="white_text">Developers</a></p></center>
+			<center><p><a href="%(relative_path)sdevelopers.html" class="white_text">Developers</a></p></center>
 		</td>
 
 		<td nowrap="nowrap" class="td_top3" width="10%">
-			<center><p><a href="about.html" class="white_text">About/Sponsorship</a></p></center>
+			<center><p><a href="%(relative_path)sabout.html" class="white_text">About/Sponsorship</a></p></center>
 		</td>
 
 		<td nowrap="nowrap" class="td_top3" width="20%"><br/></td>
@@ -74,8 +74,9 @@
 <tbody>
 		<tr bgcolor="#ffffff" >
 			<TD width="15%" class="td_top2" border="0"></TD>
-			<TD width="40%" class="td_top2" border="0"><img alt="PyDev" src="images/pydev_banner3.png"/></TD>
-			<TD width="20%" class="td_top2" border="0" align="left"><a href="http://www.liclipse.com/"><img alt="LiClipse" src="images/sponsors/also_see_liclipse.png" border="0"/></a></TD>
+			<TD width="20%" class="td_top2" border="0"><img alt="PyDev" src="%(relative_path)simages/pydev_banner3.png"/></TD>
+			<TD width="20%" class="td_top2" border="0" align="right"><a href="%(relative_path)svscode/index.html"><img alt="PyDev on VSCode" src="%(relative_path)simages/sponsors/also_on_vscode.png" border="0"/></a></TD>
+			<TD width="20%" class="td_top2" border="0" align="left"><a href="http://www.liclipse.com/"><img alt="LiClipse" src="%(relative_path)simages/sponsors/also_see_liclipse.png" border="0"/></a></TD>
 			<TD width="10%" class="td_top2" border="0"></TD>
 
 		</tr>
@@ -157,7 +158,7 @@
 
 
 		<td  width="8%" class="td_right2" align="left">
-		<p><IMG src="images/%(image_area)s" border="0" alt=""/></p>
+		<p><IMG src="%(relative_path)simages/%(image_area)s" border="0" alt=""/></p>
 		</td>
 		<td  width="30%" class="td_right2" align="left" valign="center">
 		%(quote_area)s
@@ -235,7 +236,7 @@
 				<!-- end search form -->
 
 			<br/>
-			<a href="http://marketplace.eclipse.org/node/114" title="Favorite at Eclipse Marketplace"><img src="images/marketplace.png" alt="Favorite at Eclipse Marketplace"/></a>
+			<a href="http://marketplace.eclipse.org/node/114" title="Favorite at Eclipse Marketplace"><img src="%(relative_path)simages/marketplace.png" alt="Favorite at Eclipse Marketplace"/></a>
 
 			<br/>
             %(right_area)s
