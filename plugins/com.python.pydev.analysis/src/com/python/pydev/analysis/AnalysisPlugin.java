@@ -153,7 +153,6 @@ public class AnalysisPlugin extends Plugin {
         if (!force) {
             return false;
         }
-        System.err.println("Unable to get for: " + info.getName() + " " + info.getDeclaringModuleName());
         IModule mod;
         String tok;
         mod = manager.getModule(info.getDeclaringModuleName(), nature, true);
