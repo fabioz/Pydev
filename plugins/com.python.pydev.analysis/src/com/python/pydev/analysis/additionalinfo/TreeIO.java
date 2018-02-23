@@ -285,6 +285,7 @@ public class TreeIO {
                                 default:
                                     Log.log("Unexpected type: " + type);
                             }
+                            file = null;
                             break;
                         default:
                             buf.appendResizeOnExc(c);

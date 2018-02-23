@@ -143,11 +143,13 @@ public class AnalysisPlugin extends Plugin {
                 File f = new File(file);
                 int line = info.getLine();
                 int col = info.getCol();
+                if (line > 0 && col > 0) {  // 0 is invalid.
+                    ItemPointer itemPointer = new ItemPointer(f, new Location(line - 1, col - 1),
+                            new Location(line - 1, col - 1), null, null, f.toURI());
+                    pointers.add(itemPointer);
+                    return true;
+                }
 
-                ItemPointer itemPointer = new ItemPointer(f, new Location(line - 1, col - 1),
-                        new Location(line - 1, col - 1), null, null, f.toURI());
-                pointers.add(itemPointer);
-                return true;
             }
         }
         if (!force) {

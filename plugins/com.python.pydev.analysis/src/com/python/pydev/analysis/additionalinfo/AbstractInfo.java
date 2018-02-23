@@ -41,6 +41,7 @@ public abstract class AbstractInfo implements IInfo, Serializable {
 
     public final IPythonNature nature;
 
+    // May be null
     public final String file;
 
     // 1-based
@@ -125,11 +126,13 @@ public abstract class AbstractInfo implements IInfo, Serializable {
         return file;
     }
 
+    // 1-based (0 or negative means invalid)
     @Override
     public int getLine() {
         return line;
     }
 
+    // 1-based (0 or negative means invalid)
     @Override
     public int getCol() {
         return col;
