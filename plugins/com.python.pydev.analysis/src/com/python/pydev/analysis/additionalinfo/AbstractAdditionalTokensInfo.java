@@ -181,7 +181,7 @@ public abstract class AbstractAdditionalTokensInfo {
      * 2: because we've removed some info (the hash is no longer saved)
      * 3: Changed from string-> list to string->set
      * 4: Keeping file, line and column for entries
-     * 4: Fix when restoring information
+     * 5: Fix when restoring information
      */
     protected static final int version = 5;
 
