@@ -602,8 +602,11 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
             } else if (stopReason_i == AbstractDebuggerCommand.CMD_SET_BREAK) {
                 reason = DebugEvent.BREAKPOINT;
 
+            } else if (stopReason_i == AbstractDebuggerCommand.CMD_ADD_EXCEPTION_BREAK) {
+                reason = DebugEvent.BREAKPOINT; // exception breakpoint
+
             } else {
-                PydevDebugPlugin.log(IStatus.ERROR, "Unexpected reason for suspension", null);
+                PydevDebugPlugin.log(IStatus.ERROR, "Unexpected reason for suspension: " + stopReason_i, null);
                 reason = DebugEvent.UNSPECIFIED;
             }
         }
