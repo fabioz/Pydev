@@ -3,6 +3,7 @@ package org.python.pydev.debug.processfactory;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.IProcessFactory;
@@ -58,22 +59,31 @@ public class PyProcessFactory implements IProcessFactory {
         @Override
         public void destroy() {
             if (RunPreferencesPage.getKillSubprocessesWhenTerminatingProcess()) {
+                new Thread() {
+
+                    @Override
+                    public void run() {
+                        try {
+                            AbstractProcess p = ProcessFactory.createProcess(process);
+                            // I.e.: this is the real change in this wrapper: when killing a process, we'll kill the children
+                            // processes too, not only the main process (i.e.: so that we don't have zombie processes alive for
+                            // Django, etc).
+                            // Note: custom build from https://github.com/fabioz/winp (appveyor) to also support unix
+                            p.killRecursively();
+                        } catch (Exception e) {
+                            Log.log(e);
+                        }
+                    };
+                }.start();
                 try {
-                    AbstractProcess p = ProcessFactory.createProcess(process);
-                    // I.e.: this is the real change in this wrapper: when killing a process, we'll kill the children
-                    // processes too, not only the main process (i.e.: so that we don't have zombie processes alive for
-                    // Django, etc).
-                    // Note: custom build from https://github.com/fabioz/winp (appveyor) to also support unix
-                    p.killRecursively();
-                } catch (Exception e) {
-                    Log.log(e);
+                    process.waitFor(1, TimeUnit.SECONDS); // Wait for the processes to die 1 second before going on...
+                } catch (InterruptedException e) {
+
                 }
             }
-            try {
-                process.destroy();
-            } catch (Exception e) {
-                Log.log(e);
-            }
+
+            // Working to kill children or not, use destroyForcibly to make sure the process is killed.
+            process.destroyForcibly();
         }
 
     }
