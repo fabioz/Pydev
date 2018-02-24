@@ -1,7 +1,7 @@
 <project name="jython-parser" default="parser">
 
     <property name="javaccHome" value="c:\bin\javacc-5.0" />
-    <property name="python" value="c:\bin\Python27\python.exe" />
+    <property name="python" value="c:\bin\Python26\python.exe" />
     <property name="basedir" value="." />
     <property name="parser.dir" value="${basedir}" />
 
@@ -12,14 +12,14 @@ If this build.xml is called directly, you have to make sure the property javaccH
 This can be done either inside this build.xml (first top property), or on the command line.
 
 This build only handles javacc.
-        	
+
 Current setting is: ${javaccHome}
         </echo>
     </target>
 
     <!-- checks if work to do / can be done -->
     <target name="pre">
-        <!-- set the property parser.regen.notreq if PythonGrammer.java is more up to date than grammar_fstrings.jjt 
+        <!-- set the property parser.regen.notreq if PythonGrammer.java is more up to date than grammar_fstrings.jjt
         <uptodate property="parser.regen.notreq" targetfile="${parser.dir}/PythonGrammar.java">
             <srcfiles dir="${parser.dir}" includes="grammar_fstrings.jjt" />
         </uptodate>
@@ -74,7 +74,7 @@ Current setting is: ${javaccHome}
             <arg file="${parser.dir}/grammar_fstrings.jj" />
         </java>
         <delete file="${parser.dir}/grammar_fstrings.jj" />
-        	
+
         <echo>Removing the files that are common among versions</echo>
         <delete file="${parser.dir}/CharStream.java" />
         <delete file="${parser.dir}/ParseException.java" />
@@ -86,12 +86,12 @@ Current setting is: ${javaccHome}
         <delete file="${parser.dir}/FStringsGrammarTreeConstants.java" />
         <delete file="${parser.dir}/TokenMgrError.java" />
         -->
-    	
+
         <echo>Updating AbstractTokenManager in file FStringsGrammarTokenManager.java</echo>
-        <replace file="${parser.dir}/FStringsGrammarTokenManager.java" token="public class FStringsGrammarTokenManager implements FStringsGrammarConstants" 
+        <replace file="${parser.dir}/FStringsGrammarTokenManager.java" token="public class FStringsGrammarTokenManager implements FStringsGrammarConstants"
             value="@SuppressWarnings(&quot;unused&quot;) public final class FStringsGrammarTokenManager extends AbstractFStringsTokenManager implements FStringsGrammarConstants"/>
 
-        <replace file="${parser.dir}/FStringsGrammar.java" token="protected JJTFStringsGrammarState jjtree = new JJTFStringsGrammarState()" 
+        <replace file="${parser.dir}/FStringsGrammar.java" token="protected JJTFStringsGrammarState jjtree = new JJTFStringsGrammarState()"
              value="protected final JJTFStringsGrammarState jjtree = new JJTFStringsGrammarState(this)"/>
 
         <echo>Updating jjtree.builder.openNode</echo>
@@ -99,7 +99,7 @@ Current setting is: ${javaccHome}
             <arg value="${parser.dir}/../grammarcommon/optimize_generated_grammar.py" />
             <arg value="${parser.dir}" />
         </exec>
-    	
+
     	<fixcrlf srcdir="${parser.dir}" eol="unix"></fixcrlf>
     </target>
 

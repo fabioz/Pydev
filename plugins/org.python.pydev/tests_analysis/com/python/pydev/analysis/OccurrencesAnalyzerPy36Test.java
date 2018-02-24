@@ -145,4 +145,21 @@ public class OccurrencesAnalyzerPy36Test extends AnalysisTestsBase {
         checkNoError();
     }
 
+    public void testFStringOk() throws Exception {
+        doc = new Document("def fn():\n" +
+                "    f'{{message}}'\n" +
+                "" +
+                "");
+        checkNoError();
+    }
+
+    public void testFStringOk2() throws Exception {
+        doc = new Document("def fn():\n" +
+                "    LOGGERNAME_LENGTH = 17\n" +
+                "    f'{{name:{LOGGERNAME_LENGTH}.{LOGGERNAME_LENGTH}s}} {{message}}'\n" +
+                "" +
+                "");
+        checkNoError();
+    }
+
 }

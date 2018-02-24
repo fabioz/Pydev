@@ -15,7 +15,7 @@ import org.python.pydev.parser.fastparser.grammar_fstrings_common.FStringsAST;
 public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree)*/implements FStringsGrammarTreeConstants, FStringsGrammarConstants {/*@bgen(jjtree)*/
   protected final JJTFStringsGrammarState jjtree = new JJTFStringsGrammarState(this);
 
-// ============= Syntatic/Semantic actions ============= 
+// ============= Syntatic/Semantic actions =============
   final public FStringsAST f_string() throws ParseException {
                          /*@bgen(jjtree) f_string */
                          SimpleNode jjtn000 = (SimpleNode)SimpleNode.jjtCreate(this, JJTF_STRING);
@@ -28,6 +28,8 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case LPAREN:
         case RPAREN:
+        case DOUBLE_LBRACE:
+        case DOUBLE_RBRACE:
         case LBRACE:
         case RBRACE:
         case LBRACKET:
@@ -45,6 +47,12 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
           break label_1;
         }
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case DOUBLE_LBRACE:
+          jj_consume_token(DOUBLE_LBRACE);
+          break;
+        case DOUBLE_RBRACE:
+          jj_consume_token(DOUBLE_RBRACE);
+          break;
         case LBRACE:
           f_string_expr();
           break;
@@ -126,6 +134,8 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
       start = jj_consume_token(LBRACE);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case LPAREN:
+      case DOUBLE_LBRACE:
+      case DOUBLE_RBRACE:
       case LBRACE:
       case LBRACKET:
       case QUOTE:
@@ -259,6 +269,8 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
         initial_balanced_expression_text();
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case LPAREN:
+        case DOUBLE_LBRACE:
+        case DOUBLE_RBRACE:
         case LBRACE:
         case LBRACKET:
         case QUOTE:
@@ -313,6 +325,8 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
         while (true) {
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case LPAREN:
+          case DOUBLE_LBRACE:
+          case DOUBLE_RBRACE:
           case LBRACE:
           case LBRACKET:
           case EXCLAMATION:
@@ -341,6 +355,8 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
         while (true) {
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case LPAREN:
+          case DOUBLE_LBRACE:
+          case DOUBLE_RBRACE:
           case LBRACE:
           case LBRACKET:
           case EXCLAMATION:
@@ -369,6 +385,8 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
         while (true) {
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case LPAREN:
+          case DOUBLE_LBRACE:
+          case DOUBLE_RBRACE:
           case LBRACE:
           case LBRACKET:
           case EXCLAMATION:
@@ -410,6 +428,12 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
             break label_6;
           }
         }
+        break;
+      case DOUBLE_RBRACE:
+        jj_consume_token(DOUBLE_RBRACE);
+        break;
+      case DOUBLE_LBRACE:
+        jj_consume_token(DOUBLE_LBRACE);
         break;
       case BACKSLASH:
         t = jj_consume_token(BACKSLASH);
@@ -461,6 +485,8 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
         while (true) {
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case LPAREN:
+          case DOUBLE_LBRACE:
+          case DOUBLE_RBRACE:
           case LBRACE:
           case LBRACKET:
           case EXCLAMATION:
@@ -489,6 +515,8 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
         while (true) {
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case LPAREN:
+          case DOUBLE_LBRACE:
+          case DOUBLE_RBRACE:
           case LBRACE:
           case LBRACKET:
           case EXCLAMATION:
@@ -517,6 +545,8 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
         while (true) {
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case LPAREN:
+          case DOUBLE_LBRACE:
+          case DOUBLE_RBRACE:
           case LBRACE:
           case LBRACKET:
           case EXCLAMATION:
@@ -545,6 +575,8 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
       case QUOTE2:
         string2();
         break;
+      case DOUBLE_LBRACE:
+      case DOUBLE_RBRACE:
       case EXCLAMATION:
       case COLON:
       case TEXT:
@@ -560,12 +592,20 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
           case COLON:
             jj_consume_token(COLON);
             break;
+          case DOUBLE_RBRACE:
+            jj_consume_token(DOUBLE_RBRACE);
+            break;
+          case DOUBLE_LBRACE:
+            jj_consume_token(DOUBLE_LBRACE);
+            break;
           default:
             jj_la1[16] = jj_gen;
             jj_consume_token(-1);
             throw new ParseException();
           }
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+          case DOUBLE_LBRACE:
+          case DOUBLE_RBRACE:
           case EXCLAMATION:
           case COLON:
           case TEXT:
@@ -626,6 +666,8 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case LPAREN:
         case RPAREN:
+        case DOUBLE_LBRACE:
+        case DOUBLE_RBRACE:
         case LBRACE:
         case RBRACE:
         case LBRACKET:
@@ -650,6 +692,12 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
           break;
         case RPAREN:
           jj_consume_token(RPAREN);
+          break;
+        case DOUBLE_LBRACE:
+          jj_consume_token(DOUBLE_LBRACE);
+          break;
+        case DOUBLE_RBRACE:
+          jj_consume_token(DOUBLE_RBRACE);
           break;
         case LBRACE:
           jj_consume_token(LBRACE);
@@ -708,6 +756,8 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case LPAREN:
         case RPAREN:
+        case DOUBLE_LBRACE:
+        case DOUBLE_RBRACE:
         case LBRACE:
         case RBRACE:
         case LBRACKET:
@@ -732,6 +782,12 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
           break;
         case RPAREN:
           jj_consume_token(RPAREN);
+          break;
+        case DOUBLE_LBRACE:
+          jj_consume_token(DOUBLE_LBRACE);
+          break;
+        case DOUBLE_RBRACE:
+          jj_consume_token(DOUBLE_RBRACE);
           break;
         case LBRACE:
           jj_consume_token(LBRACE);
@@ -791,7 +847,7 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
       jj_la1_init_0();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x1ffe0,0x1ffe0,0x1e2a0,0x800,0x1000,0x10000,0x10000,0x1e2a0,0x1faa0,0x1faa0,0x1faa0,0x10000,0x1e2a0,0x1faa0,0x1faa0,0x1faa0,0x11800,0x11800,0x1faa0,0x1dfe0,0x1dfe0,0x1bfe0,0x1bfe0,};
+      jj_la1_0 = new int[] {0x7ffe0,0x7ffe0,0x78ba0,0x2000,0x4000,0x40000,0x40000,0x78ba0,0x7eba0,0x7eba0,0x7eba0,0x40000,0x78ba0,0x7eba0,0x7eba0,0x7eba0,0x46180,0x46180,0x7eba0,0x77fe0,0x77fe0,0x6ffe0,0x6ffe0,};
    }
 
   /** Constructor with user supplied FastCharStream. */
@@ -866,7 +922,7 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
   /** Generate ParseException. */
   public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[17];
+    boolean[] la1tokens = new boolean[19];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
@@ -880,7 +936,7 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
         }
       }
     }
-    for (int i = 0; i < 17; i++) {
+    for (int i = 0; i < 19; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;

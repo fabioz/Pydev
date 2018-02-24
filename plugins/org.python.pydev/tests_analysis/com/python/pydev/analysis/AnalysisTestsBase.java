@@ -156,14 +156,14 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
 
         HashSet<String> found = new HashSet<String>();
         for (IMessage msg : msgs) {
-            found.add(msg.getMessage());
+            found.add(msg.getMessage().trim());
         }
 
         for (String s : errors) {
-            if (!found.remove(s)) {
+            if (!found.remove(s.trim())) {
                 printMessages(msgs);
-                fail("Could not find error: " + s + " in current errors.\nAvailable:\n"
-                        + StringUtils.join(", ", found));
+                fail("Could not find error: >>" + s + "<< in current errors.\nAvailable:\n"
+                        + ">>" + StringUtils.join("<<\n>>", found) + "<<");
             }
         }
 

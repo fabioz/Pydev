@@ -30,6 +30,15 @@ public class FStringsParserTest extends TestCase {
         return new Tuple<>(ast, parseErrors);
     }
 
+    private void checkNoError(String string) throws ParseException {
+        Tuple<FStringsAST, List> check = check(string);
+        if (check.o2.size() != 0) {
+            List o2 = check.o2;
+            throw new AssertionError(
+                    "Expected no errors. Found: \n" + StringUtils.join("\n", o2));
+        }
+    }
+
     private Tuple<FStringsAST, List> checkExprs(String str, Set<String> exprs)
             throws ParseException, BadLocationException {
         Tuple<FStringsAST, List> ret = check(str);
@@ -66,7 +75,12 @@ public class FStringsParserTest extends TestCase {
     }
 
     public void testFStringParsing() throws ParseException, BadLocationException {
-        checkExprs("{{'c':20}}", ArrayUtils.asSet("{'c':20}"));
+        checkNoError("{{{test}");
+        checkNoError("{{{test}}}");
+        checkNoError("{{name:{LOGGERNAME_LENGTH}.{LOGGERNAME_LENGTH}s}} {{message}}");
+
+        checkExprs("{{'c':20}}", ArrayUtils.asSet()); // {{ is just a single '{' char and }} is a single '}' char, so, this is just text.
+        checkExprs("{'c':20}", ArrayUtils.asSet("'c'"));
 
         checkExprs("a{text}a{text2}b", ArrayUtils.asSet("text", "text2"));
         checkExprs("{text!a}", ArrayUtils.asSet("text"));

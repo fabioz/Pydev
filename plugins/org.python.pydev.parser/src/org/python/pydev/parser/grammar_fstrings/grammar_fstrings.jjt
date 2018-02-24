@@ -1,14 +1,14 @@
 // Notes on the grammar:
 // The target of this grammar is to be able to make the pre-parsing step of f-strings.
-// It tries to handle any error in the parsing to generate a valid AST (and still makes 
+// It tries to handle any error in the parsing to generate a valid AST (and still makes
 // those errors available for processing later on).
 //
-// Unlike the python grammar, it can't make strings a lexical entity because 
-// that's dependent upon the context -- we just want to create strings inside 
+// Unlike the python grammar, it can't make strings a lexical entity because
+// that's dependent upon the context -- we just want to create strings inside
 // the expression part, out of it, we should just handle it as regular text.
 //
 // Also, if we have unbalanced chars for some expression, we generate the AST
-// going to the end of the f-string (so, this would be an open partition) -- while 
+// going to the end of the f-string (so, this would be an open partition) -- while
 // properly generating errors.
 //
 // This grammar is expected to be used along with the regular Python grammar:
@@ -22,7 +22,7 @@
 // a = 10
 // print(f'''{f"{f'{a}'}"}''')
 //
-// are actually possible -- this means that to check for syntax errors we may need to 
+// are actually possible -- this means that to check for syntax errors we may need to
 // recursively check it (although that's a corner case, so, we may skip it initially).
 //
 // Known differences from the 'official version':
@@ -82,20 +82,22 @@ TOKEN_MGR_DECLS:
     }
 }
 
-// ============= Lexical actions ============= 
+// ============= Lexical actions =============
 
 SKIP: { " " | "\t" | "\n" | "\r" }
 TOKEN : // What we care for.
 {
     < LPAREN: "(" >
 |   < RPAREN: ")" >
+|   < DOUBLE_LBRACE: "{{" >
+|   < DOUBLE_RBRACE: "}}" >
 |   < LBRACE: "{" >
 |   < RBRACE: "}" >
 |   < LBRACKET: "[" >
 |   < RBRACKET: "]" >
 |   < EXCLAMATION: "!" >
 |   < COLON: ":" >
-|   < QUOTE: "'" > 
+|   < QUOTE: "'" >
 |   < QUOTE2: "\"" >
 |   < BACKSLASH: "\\" >
 }
@@ -128,12 +130,14 @@ TOKEN : // Anything which is not important but is a visible char should be marke
 ])+ >
 }
 
-// ============= Syntatic/Semantic actions ============= 
+// ============= Syntatic/Semantic actions =============
 
-FStringsAST f_string(): {Token t;} 
+FStringsAST f_string(): {Token t;}
 {
     (
-        f_string_expr()
+		 <DOUBLE_LBRACE>
+    	|<DOUBLE_RBRACE>
+        |f_string_expr()
         |<TEXT>
         |<QUOTE>
         |<QUOTE2>
@@ -146,20 +150,20 @@ FStringsAST f_string(): {Token t;}
         |<RBRACKET>
         |t=<RBRACE> {addParseError(t, "Single '}' not allowed.");}
     )* <EOF>
-    
+
     // jjtree does most things automatically for us, so, just
     // popping its final node should do the trick for a reasonable AST.
-    // Note that we may need to mark the start/end of the nodes we're 
+    // Note that we may need to mark the start/end of the nodes we're
     // interested in (as jjtree.markNodeStartEnd).
-    {return new FStringsAST((SimpleNode)jjtree.popNode());} 
+    {return new FStringsAST((SimpleNode)jjtree.popNode());}
 }
 
 void f_string_expr(): {Token start, end, bStart, bEnd;boolean empty=true;SimpleNode bText;}
 {
     start = <LBRACE>
-    
+
         (
-            {bStart=getToken(1);} 
+            {bStart=getToken(1);}
             bText=balanced_expression_text()
             {
                 bEnd=token;
@@ -169,21 +173,21 @@ void f_string_expr(): {Token start, end, bStart, bEnd;boolean empty=true;SimpleN
         )?
         (type_conversion())?
         (format_spec())?
-        
+
     try{
         end = <RBRACE>
     }catch(ParseException e){
         addParseError(e, "Unbalanced '{'");
         end = token;
     }
-    
+
     {
         jjtree.markNodeStartEnd(jjtThis, start, end);
         if(empty){
             errorPyExprEmpty(jjtThis);
         }
     }
-    
+
 }
 
 void type_conversion(): {Token t;boolean foundText=false;}
@@ -192,11 +196,11 @@ void type_conversion(): {Token t;boolean foundText=false;}
     (
         t=<TEXT> {errorIfTextIsNotASR(t);}
         {foundText=true;}
-        
+
         // It can't really be empty, but we make this node optional to generate a nice AST
         // and then report the error later on.
-    )? 
-    
+    )?
+
     {if(!foundText){errorTypeConversionEmpty(jjtThis);}}
 }
 
@@ -217,8 +221,8 @@ SimpleNode initial_balanced_expression_text(): {Token t;}
 {
     (
         (
-            <LPAREN> 
-            (inner_balanced_expression_text_with_exclamation_and_colon())* 
+            <LPAREN>
+            (inner_balanced_expression_text_with_exclamation_and_colon())*
             try{
                 <RPAREN>
             }catch(ParseException e){
@@ -227,8 +231,8 @@ SimpleNode initial_balanced_expression_text(): {Token t;}
         )
         |
         (
-            <LBRACE> 
-            (inner_balanced_expression_text_with_exclamation_and_colon())* 
+            <LBRACE>
+            (inner_balanced_expression_text_with_exclamation_and_colon())*
             try{
                 <RBRACE>
             }catch(ParseException e){
@@ -237,8 +241,8 @@ SimpleNode initial_balanced_expression_text(): {Token t;}
         )
         |
         (
-            <LBRACKET> 
-            (inner_balanced_expression_text_with_exclamation_and_colon())* 
+            <LBRACKET>
+            (inner_balanced_expression_text_with_exclamation_and_colon())*
             try{
                 <RBRACKET>
             }catch(ParseException e){
@@ -254,6 +258,8 @@ SimpleNode initial_balanced_expression_text(): {Token t;}
         // is that at this level an exclamation or colon shoud not be matched, whereas in the next one it
         // can be matched (so, the user can do f"{{'c':20}}").
         (<TEXT>)+
+        |<DOUBLE_RBRACE>
+        |<DOUBLE_LBRACE>
         |
         t = <BACKSLASH> {errorBackSlashInvalidInFStrings(t);}
     )
@@ -264,8 +270,8 @@ SimpleNode inner_balanced_expression_text_with_exclamation_and_colon(): {Token t
 {
     (
         (
-            <LPAREN> 
-            (inner_balanced_expression_text_with_exclamation_and_colon())* 
+            <LPAREN>
+            (inner_balanced_expression_text_with_exclamation_and_colon())*
             try{
                 <RPAREN>
             }catch(ParseException e){
@@ -274,8 +280,8 @@ SimpleNode inner_balanced_expression_text_with_exclamation_and_colon(): {Token t
         )
         |
         (
-            <LBRACE> 
-            (inner_balanced_expression_text_with_exclamation_and_colon())* 
+            <LBRACE>
+            (inner_balanced_expression_text_with_exclamation_and_colon())*
             try{
                 <RBRACE>
             }catch(ParseException e){
@@ -284,8 +290,8 @@ SimpleNode inner_balanced_expression_text_with_exclamation_and_colon(): {Token t
         )
         |
         (
-            <LBRACKET> 
-            (inner_balanced_expression_text_with_exclamation_and_colon())* 
+            <LBRACKET>
+            (inner_balanced_expression_text_with_exclamation_and_colon())*
             try{
                 <RBRACKET>
             }catch(ParseException e){
@@ -301,6 +307,8 @@ SimpleNode inner_balanced_expression_text_with_exclamation_and_colon(): {Token t
         <TEXT>
         |<EXCLAMATION>
         |<COLON>
+        |<DOUBLE_RBRACE>
+        |<DOUBLE_LBRACE>
         )+
         |
         t = <BACKSLASH> {errorBackSlashInvalidInFStrings(t);}
@@ -311,11 +319,13 @@ SimpleNode inner_balanced_expression_text_with_exclamation_and_colon(): {Token t
 
 void string(): {Token t;}
 {
-    <QUOTE> 
+    <QUOTE>
     (
         <TEXT>
         |<LPAREN>
         |<RPAREN>
+		|<DOUBLE_LBRACE>
+    	|<DOUBLE_RBRACE>
         |<LBRACE>
         |<RBRACE>
         |<LBRACKET>
@@ -324,7 +334,7 @@ void string(): {Token t;}
         |<EXCLAMATION>
         |<COLON>
         |t = <BACKSLASH> {errorBackSlashInvalidInFStrings(t);}
-    )* 
+    )*
     try{
         <QUOTE>
     }catch(ParseException e){
@@ -334,11 +344,13 @@ void string(): {Token t;}
 
 void string2(): {Token t;}
 {
-    <QUOTE2> 
+    <QUOTE2>
     (
         <TEXT>
         |<LPAREN>
         |<RPAREN>
+		|<DOUBLE_LBRACE>
+    	|<DOUBLE_RBRACE>
         |<LBRACE>
         |<RBRACE>
         |<LBRACKET>
@@ -347,7 +359,7 @@ void string2(): {Token t;}
         |<EXCLAMATION>
         |<COLON>
         |t = <BACKSLASH> {errorBackSlashInvalidInFStrings(t);}
-    )* 
+    )*
     try{
         <QUOTE2>
     }catch(ParseException e){
