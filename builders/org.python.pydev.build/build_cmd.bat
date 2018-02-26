@@ -20,9 +20,9 @@ set DEPLOY_DIR=X:\pydev_build\deploy_dir
 set JAVA_HOME=C:\bin\jdk1.8.0_77
 set MAVEN_BIN=C:\bin\apache-maven-3.3.9\bin
 set GIT_EXECUTABLE="p:\git\bin\git.exe"
-set ECLIPSE_CLEAN=C:\bin\eclipse46m7
-set LAUNCHER_PLUGIN=org.eclipse.equinox.launcher_1.3.200.v20160318-1642.jar
-set BUILDER_PLUGIN=org.eclipse.pde.build_3.9.200.v20160204-0642
+set ECLIPSE_CLEAN=C:\bin\eclipse48m3a
+set LAUNCHER_PLUGIN=org.eclipse.equinox.launcher_1.4.0.v20161219-1356
+set BUILDER_PLUGIN=org.eclipse.pde.build_3.9.400.v20170815-0857
 @echo Expected in env var: SIGN_KEYPASS
 @echo Expected in env var: SIGN_STOREPASS
 @echo Expected in env var: SIGN_ALIAS
@@ -43,7 +43,7 @@ set PATH=C:\Windows\system32;%PATH%
 set PATH=%MAVEN_BIN%;%PATH%
 set PATH=%JAVA_HOME%\bin;%PATH%
 set PATH=p:\git\bin;%PATH%
-set PATH=%ECLIPSE_CLEAN%\plugins\org.apache.ant_1.9.6.v201510161327\bin;%PATH%
+set PATH=%ECLIPSE_CLEAN%\plugins\org.apache.ant_1.10.1.v20170504-0840\bin;%PATH%
 
 
 @echo actual build command
