@@ -1,6 +1,6 @@
 <doc>
 <contents_area>
-<h1 class="title">PyDev on Visual Studio Code</h1>
+
 
 <!-- <image_area></image_area>
 
@@ -51,13 +51,16 @@ Promotional launch licensing price is <strong>USD 40.00</strong>.<br/>
 
 </ul>
 </right_area2> -->
+<div class="section" id="pydev-on-visual-studio-code">
+<h1>PyDev on Visual Studio Code</h1>
 <p>Although PyDev is a <strong>Python IDE</strong> commonly used along with <strong>Eclipse</strong>, it's now possible to
 leverage the features from <strong>PyDev</strong> on <strong>Visual Studio Code</strong>.</p>
 <p>While there are some important features to be added (such as the <strong>debugger</strong>), the current version can
 already leverage many features that make <strong>PyDev</strong> unique inside of Visual Studio Code!</p>
 <p>See below which features are available and details on getting it running.</p>
-<div class="section" id="pydev-on-visual-studio-code-0-1">
-<h1>PyDev on Visual Studio Code (0.1)</h1>
+</div>
+<div class="section" id="features">
+<h1>Features</h1>
 <ul class="simple">
 <li><dl class="first docutils">
 <dt>Code-completion</dt>
@@ -95,18 +98,18 @@ already leverage many features that make <strong>PyDev</strong> unique inside of
 <li>Quick fix for undefined variables (adds missing import)</li>
 <li>Navigate to previous or next class or method (Ctrl+Shift+Up, Ctrl+Shift+Down)</li>
 </ul>
-</div>
+<p>See: <a class="reference external" href="history.html">History</a> for details on releases.</p>
 <div class="section" id="planned-features-soon">
-<h1>Planned features (soon)</h1>
+<h2>Planned features (soon)</h2>
 <ul class="simple">
 <li>Launching</li>
 <li>PyDev Debugger integration</li>
 <li>Hover</li>
 </ul>
-<p>For detail on installing it and getting it running, see: <a class="reference external" href="download.html">Download</a></p>
+<p>For details on installing and getting it running, see: <a class="reference external" href="download.html">Download</a></p>
 </div>
 <div class="section" id="customizations">
-<h1>Customizations</h1>
+<h2>Customizations</h2>
 <p>Right now, it is possible to change the Python executable to be a different executable
 (by default, the <strong>python</strong> in the <strong>PATH</strong> will be used). So, if you
 want to use a Python installation which is not the default in the PATH, you can customize the setting:</p>
@@ -114,7 +117,7 @@ want to use a Python installation which is not the default in the PATH, you can 
 <p>to point to a different Python executable.</p>
 </div>
 <div class="section" id="pythonpath-customization">
-<h1>PYTHONPATH customization</h1>
+<h2>PYTHONPATH customization</h2>
 <p>By default, <strong>PyDev</strong> on <strong>Visual Studio Code</strong> will provide code-completion, code-analysis, etc. all based on indexing
 info from the folders which are currently in the <strong>PYTHONPATH</strong>, but if none of the folders in the
 <strong>PYTHONPATH</strong> are available as root folders inside Visual Studio Code, it will also consider each root folder
@@ -124,8 +127,9 @@ from <strong>Visual Studio Code</strong> to be a folder in the <strong>PYTHONPAT
 <p>may be executed from inside <strong>Visual Studio Code</strong>.</p>
 </div>
 <div class="section" id="settings">
-<h1>Settings</h1>
-<p>For information on the settings which affect PyDev on Visual Studio Code see: <a class="reference external" href="settings.html">Settings</a>.</p>
+<h2>Settings</h2>
+<p>For information on the settings which affect PyDev on Visual Studio Code see: <a class="reference external" href="manual.html">Manual</a>.</p>
+</div>
 </div>
 </contents_area>
 

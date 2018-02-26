@@ -61,8 +61,8 @@ already leverage many features that make **PyDev** unique inside of Visual Studi
 
 See below which features are available and details on getting it running.
 
-PyDev on Visual Studio Code (0.1)
---------------------------------------------
+Features
+=============================
 
 * Code-completion
     * Fast
@@ -90,6 +90,10 @@ PyDev on Visual Studio Code (0.1)
 
 * Navigate to previous or next class or method (Ctrl+Shift+Up, Ctrl+Shift+Down)
 
+.. _History: history.html
+
+See: `History`_ for details on releases.
+
 Planned features (soon)
 -------------------------
 
@@ -102,7 +106,7 @@ Planned features (soon)
 
 .. _Download: download.html
 
-For detail on installing it and getting it running, see: `Download`_
+For details on installing and getting it running, see: `Download`_
 
 Customizations
 ----------------
@@ -133,6 +137,6 @@ may be executed from inside **Visual Studio Code**.
 Settings
 --------------------------
 
-.. _Settings: settings.html
+.. _Manual: manual.html
 
-For information on the settings which affect PyDev on Visual Studio Code see: `Settings`_.
+For information on the settings which affect PyDev on Visual Studio Code see: `Manual`_.
