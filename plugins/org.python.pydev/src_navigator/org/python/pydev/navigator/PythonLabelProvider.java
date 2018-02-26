@@ -10,6 +10,7 @@
  */
 package org.python.pydev.navigator;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
@@ -71,17 +72,9 @@ public class PythonLabelProvider implements ILabelProvider {
             PythonFolder folder = (PythonFolder) element;
             IFolder actualObject = folder.getActualObject();
             if (actualObject != null) {
-                final String[] validInitFiles = FileTypesPreferences.getValidInitFiles();
-
-                for (String init : validInitFiles) {
-                    if (actualObject.getFile(init).exists()) {
-                        if (checkParentsHaveInit(folder, validInitFiles)) {
-                            return ImageCache
-                                    .asImage(SharedUiPlugin.getImageCache().get(UIConstants.FOLDER_PACKAGE_ICON));
-                        } else {
-                            break;
-                        }
-                    }
+                if (checkIfValidPackageFolder(folder)) {
+                    return ImageCache
+                            .asImage(SharedUiPlugin.getImageCache().get(UIConstants.FOLDER_PACKAGE_ICON));
                 }
             }
             return provider.getImage(actualObject);
@@ -201,36 +194,27 @@ public class PythonLabelProvider implements ILabelProvider {
     }
 
     /**
-     * Checks if all the parents have the needed __init__ files (needed to consider some folder an actual python module)
-     *
-     * @param pythonFolder the python folder whose hierarchy should be checked (note that the folder itself must have already
-     * been checked at this point)
-     * @param validInitFiles the valid names for the __init__ files (because we can have more than one matching extension)
-     *
-     * @return true if all the parents have the __init__ files and false otherwise.
+     * Checks if the given folder is a valid package.
      */
-    private final boolean checkParentsHaveInit(final PythonFolder pythonFolder, final String[] validInitFiles) {
+    private final boolean checkIfValidPackageFolder(final PythonFolder pythonFolder) {
+        String name = pythonFolder.getActualObject().getName();
+        if (!PythonPathHelper.isValidModuleLastPart(name)) {
+            return false;
+        }
+
         IWrappedResource parentElement = pythonFolder.getParentElement();
         while (parentElement != null) {
             if (parentElement instanceof PythonSourceFolder) {
                 //gotten to the source folder: this one doesn't need to have an __init__.py
                 return true;
             }
-
             Object actualObject = parentElement.getActualObject();
-            if (actualObject instanceof IFolder) {
-                IFolder folder = (IFolder) actualObject;
-                boolean foundInit = false;
-                for (String init : validInitFiles) {
-                    final IFile file = folder.getFile(init);
-                    if (file.exists()) {
-                        foundInit = true;
-                        break;
-                    }
-                }
-                if (!foundInit) {
-                    return false;
-                }
+            if (!(actualObject instanceof IContainer)) {
+                return false;
+            }
+            IContainer iContainer = (IContainer) actualObject;
+            if (!PythonPathHelper.isValidModuleLastPart(iContainer.getName())) {
+                return false;
             }
 
             Object tempParent = parentElement.getParentElement();

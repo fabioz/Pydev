@@ -67,7 +67,6 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.preferences.FileTypesPreferences;
 import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.navigator.elements.PythonFile;
 import org.python.pydev.navigator.elements.PythonFolder;
@@ -1160,9 +1159,6 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
             for (int i = 0; i < addedChildren.length; i++) {
                 final IResourceDelta addedChild = addedChildren[i];
                 addedObjects[i] = addedChild.getResource();
-                if (checkInit(addedObjects[i], runnables)) {
-                    return; // If true, it means a refresh for the parent was issued!
-                }
                 if ((addedChild.getFlags() & IResourceDelta.MOVED_FROM) != 0) {
                     ++numMovedFrom;
                 }
@@ -1177,9 +1173,6 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
             for (int i = 0; i < removedChildren.length; i++) {
                 final IResourceDelta removedChild = removedChildren[i];
                 removedObjects[i] = removedChild.getResource();
-                if (checkInit(removedObjects[i], runnables)) {
-                    return; // If true, it means a refresh for the parent was issued!
-                }
                 if ((removedChild.getFlags() & IResourceDelta.MOVED_TO) != 0) {
                     ++numMovedTo;
                 }
@@ -1252,26 +1245,6 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
             }
         };
         runnables.add(addAndRemove);
-    }
-
-    /**
-     * Checks if a given resource is an __init__ file and if it is, updates its parent (because its icon may have changed)
-     * @return
-     */
-    private boolean checkInit(final IResource resource, final Collection<Runnable> runnables) {
-        if (resource != null) {
-            String name = resource.getName();
-            if (name != null) {
-                for (String init : FileTypesPreferences.getValidInitFiles()) {
-                    if (name.equals(init)) {
-                        //we must make an actual refresh (and not only update) because it'll affect all the children too.
-                        runnables.add(getRefreshRunnable(resource.getParent()));
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
     }
 
     /**
