@@ -187,12 +187,6 @@ This Agreement is governed by the laws of the State of New York and the intellec
          version="6.3.0.qualifier"/>
 
    <plugin
-         id="com.python.pydev"
-         download-size="824"
-         install-size="824"
-         version="6.3.0.qualifier"/>
-
-   <plugin
          id="com.python.pydev.analysis"
          download-size="240"
          install-size="240"
