@@ -391,14 +391,9 @@ public class PyResourceDropAdapterAssistant extends ResourceDropAdapterAssistant
                             if (isDir) {
                                 initFile = PythonPathHelper.getFolderInit(file);
                             }
-                            if (isDir && initFile == null) {
-                                //It's a directory without an __init__.py inside the pythonpath: can't move along with the others...
-                                break;
-                            } else {
-                                if (isDir) {
-                                    //If it's a directory, use the __init__.py instead.
-                                    file = initFile;
-                                }
+                            if (isDir && initFile != null) {
+                                //If it's a directory, and we have an __init__.py, use the __init__.py instead.
+                                file = initFile;
                             }
 
                             resolved += 1;

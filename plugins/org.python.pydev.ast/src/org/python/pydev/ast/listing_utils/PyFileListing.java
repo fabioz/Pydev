@@ -72,12 +72,12 @@ public class PyFileListing {
             String scannedModuleName = this.getPackageName();
 
             String modName;
-            String name = file.getName();
+            String name = PythonPathHelper.getValidName(file.getName());
             if (scannedModuleName.length() != 0) {
                 modName = temp.clear().append(scannedModuleName).append('.')
-                        .append(PythonPathHelper.stripExtension(name)).toString();
+                        .append(name).toString();
             } else {
-                modName = PythonPathHelper.stripExtension(name);
+                modName = name;
             }
             return modName;
         }
@@ -91,7 +91,7 @@ public class PyFileListing {
      * @return An object with the results of making that listing.
      */
     private static PyFileListing getPyFilesBelow(PyFileListing result, File file, FileFilter filter,
-            IProgressMonitor monitor, boolean addSubFolders, int level, boolean checkHasInit, String currModuleRep,
+            IProgressMonitor monitor, boolean addSubFolders, int level, String currModuleRep,
             Set<File> canonicalFolders) {
 
         if (monitor == null) {
@@ -133,8 +133,6 @@ public class PyFileListing {
                     files = file.listFiles();
                 }
 
-                boolean hasInit = false;
-
                 List<File> foldersLater = new LinkedListWarningOnSlowOperations<File>();
 
                 if (files != null) {
@@ -150,34 +148,24 @@ public class PyFileListing {
                             monitor.worked(1);
                             monitor.setTaskName(buf.clear().append("Found:").append(file2.toString()).toString());
 
-                            if (checkHasInit && hasInit == false) {
-                                //only check if it has __init__ if really needed
-                                if (PythonPathHelper.isValidInitFile(file2.getName())) {
-                                    hasInit = true;
-                                }
-                            }
-
                         } else {
                             foldersLater.add(file2);
                         }
                     }
-                    if (!checkHasInit || hasInit || level == 0) {
-                        result.foldersFound.add(file);
+                    result.foldersFound.add(file);
 
-                        for (File folder : foldersLater) {
+                    for (File folder : foldersLater) {
 
-                            if (monitor.isCanceled()) {
-                                break;
-                            }
+                        if (monitor.isCanceled()) {
+                            break;
+                        }
 
-                            if (folder.isDirectory() && addSubFolders) {
+                        if (folder.isDirectory() && addSubFolders) {
 
-                                getPyFilesBelow(result, folder, filter, monitor, addSubFolders, level + 1,
-                                        checkHasInit,
-                                        currModuleRep, canonicalFolders);
+                            getPyFilesBelow(result, folder, filter, monitor, addSubFolders, level + 1,
+                                    currModuleRep, canonicalFolders);
 
-                                monitor.worked(1);
-                            }
+                            monitor.worked(1);
                         }
                     }
                 }
@@ -192,14 +180,13 @@ public class PyFileListing {
     }
 
     private static PyFileListing getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor,
-            boolean addSubFolders, boolean checkHasInit) {
+            boolean addSubFolders) {
         PyFileListing result = new PyFileListing();
-        return getPyFilesBelow(result, file, filter, monitor, addSubFolders, 0, checkHasInit, "", new HashSet<File>());
+        return getPyFilesBelow(result, file, filter, monitor, addSubFolders, 0, "", new HashSet<File>());
     }
 
-    public static PyFileListing getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor,
-            boolean checkHasInit) {
-        return getPyFilesBelow(file, filter, monitor, true, checkHasInit);
+    public static PyFileListing getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor) {
+        return getPyFilesBelow(file, filter, monitor, true);
     }
 
     /**
@@ -242,10 +229,9 @@ public class PyFileListing {
      * @param file
      * @return tuple with files in pos 0 and folders in pos 1
      */
-    public static PyFileListing getPyFilesBelow(File file, IProgressMonitor monitor, final boolean includeDirs,
-            boolean checkHasInit) {
+    public static PyFileListing getPyFilesBelow(File file, IProgressMonitor monitor, final boolean includeDirs) {
         FileFilter filter = getPyFilesFileFilter(includeDirs);
-        return getPyFilesBelow(file, filter, monitor, true, checkHasInit);
+        return getPyFilesBelow(file, filter, monitor, true);
     }
 
     /**

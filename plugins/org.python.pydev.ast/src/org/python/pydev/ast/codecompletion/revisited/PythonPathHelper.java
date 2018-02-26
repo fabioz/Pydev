@@ -15,7 +15,6 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -115,14 +114,14 @@ public final class PythonPathHelper implements IPythonPathHelper {
                     if (pathname.isFile()) {
                         return isValidFileMod(FileUtils.getFileAbsolutePath(pathname));
                     } else if (pathname.isDirectory()) {
-                        return isFolderWithInit(pathname);
+                        return isValidModuleLastPart(pathname.getName());
                     } else {
                         return false;
                     }
                 }
 
             };
-            return PyFileListing.getPyFilesBelow(root, filter, monitor, true);
+            return PyFileListing.getPyFilesBelow(root, filter, monitor);
 
         }
         return null;
@@ -175,10 +174,6 @@ public final class PythonPathHelper implements IPythonPathHelper {
                                     monitor.worked(1);
                                 }
 
-                                if (isValidInitFile(name)) {
-                                    zipContents.pyInitFilesLowerWithoutExtension.add(StringUtils.stripExtension(name)
-                                            .toLowerCase());
-                                }
                                 zipContents.pyFilesLowerToRegular.put(name.toLowerCase(), name);
                             }
 
@@ -264,6 +259,10 @@ public final class PythonPathHelper implements IPythonPathHelper {
         return ret;
     }
 
+    public static String getValidName(String fileName) {
+        return FullRepIterable.getFirstPart(fileName); // if we have something as cx_Oracle.cp36-win_amd64.pyd, we only want the cx_Oracle part.
+    }
+
     /**
      * Resolves an absolute file system location of a module to its name, scoped to the paths in
      * {@link #getPythonpath()}.
@@ -310,11 +309,12 @@ public final class PythonPathHelper implements IPythonPathHelper {
      */
     public String resolveModule(String absoluteModuleLocation, final boolean requireFileToExist,
             List<String> baseLocations, IProject project) {
-        IPath modulePath = Path.fromOSString(absoluteModuleLocation);
-
-        if (requireFileToExist && !modulePath.toFile().exists()) {
+        final File file = new File(absoluteModuleLocation);
+        boolean fileExists = file.exists();
+        if (requireFileToExist && !fileExists) {
             return null;
         }
+        final IPath modulePath = Path.fromOSString(FileUtils.getFileAbsolutePath(file));
 
         // Try to consult each of the resolvers:
         IPythonModuleResolver[] pythonModuleResolvers = getPythonModuleResolvers();
@@ -339,120 +339,35 @@ public final class PythonPathHelper implements IPythonPathHelper {
         }
 
         // If all of the resolvers have delegated, then go forward with the default behavior.
-        absoluteModuleLocation = FileUtils.getFileAbsolutePath(absoluteModuleLocation);
-        absoluteModuleLocation = getDefaultPathStr(absoluteModuleLocation);
-        String fullPathWithoutExtension;
-
-        if (isValidSourceFile(absoluteModuleLocation) || FileTypesPreferences.isValidDll(absoluteModuleLocation)) {
-            fullPathWithoutExtension = FullRepIterable.headAndTail(absoluteModuleLocation)[0];
-        } else {
-            fullPathWithoutExtension = absoluteModuleLocation;
-        }
-
-        final File moduleFile = new File(absoluteModuleLocation);
-        boolean isFile = moduleFile.isFile();
 
         //go through our pythonpath and check the beginning
-        for (String pathEntry : baseLocations) {
+        OUT: for (String pathEntry : baseLocations) {
 
-            String element = getDefaultPathStr(pathEntry);
-            if (absoluteModuleLocation.startsWith(element)) {
-                int len = element.length();
-                String s = absoluteModuleLocation.substring(len);
-                String sWithoutExtension = fullPathWithoutExtension.substring(len);
-
-                if (s.startsWith("/")) {
-                    s = s.substring(1);
-                }
-                if (sWithoutExtension.startsWith("/")) {
-                    sWithoutExtension = sWithoutExtension.substring(1);
-                }
-
-                if (!isValidModuleLastPart(sWithoutExtension)) {
+            IPath element = Path.fromOSString(FileUtils.getFileAbsolutePath(pathEntry));
+            if (element.isPrefixOf(modulePath)) {
+                IPath relative = modulePath.removeFirstSegments(element.segmentCount());
+                if (relative.segmentCount() == 0) {
                     continue;
                 }
 
-                s = s.replaceAll("/", ".");
-                if (s.indexOf(".") != -1) {
-                    File root = new File(element);
-                    if (root.exists() == false) {
-                        continue;
-                    }
-
-                    final List<String> temp = StringUtils.dotSplit(s);
-                    String[] modulesParts = temp.toArray(new String[temp.size()]);
-
-                    //this means that more than 1 module is specified, so, in order to get it,
-                    //we have to go and see if all the folders to that module have __init__.py in it...
-                    if (modulesParts.length > 1 && isFile) {
-                        String[] t = Arrays.copyOf(modulesParts, modulesParts.length - 1);
-                        t[t.length - 1] = t[t.length - 1] + "." + modulesParts[modulesParts.length - 1];
-                        modulesParts = t;
-                    }
-
-                    //here, in modulesParts, we have something like
-                    //["compiler", "ast.py"] - if file
-                    //["pywin","debugger"] - if folder
-                    //
-                    //root starts with the pythonpath folder that starts with the same
-                    //chars as the full path passed in.
-                    boolean isValid = true;
-                    for (int i = 0; i < modulesParts.length && root != null; i++) {
-                        root = new File(FileUtils.getFileAbsolutePath(root) + "/" + modulesParts[i]);
-
-                        //check if file is in root...
-                        if (isValidFileMod(modulesParts[i])) {
-                            if (root.exists() && root.isFile()) {
-                                break;
-                            }
-
-                        } else {
-                            //this part is a folder part... check if it is a valid module (has init).
-                            if (isFolderWithInit(root) == false) {
-                                isValid = false;
-                                break;
-                            }
-                            //go on and check the next part.
-                        }
-                    }
-                    if (isValid) {
-                        if (isFile) {
-                            s = stripExtension(s);
-                        } else if (moduleFile.exists() == false) {
-                            //ok, it does not exist, so isFile will not work, let's just check if it is
-                            //a valid module (ends with .py or .pyw) and if it is, strip the extension
-                            if (isValidFileMod(s)) {
-                                s = stripExtension(s);
-                            }
-                        }
-                        return s;
-                    }
-                } else {
-                    //simple part, we don't have to go into subfolders to check validity...
-                    if (!isFile && moduleFile.isDirectory() && isFolderWithInit(moduleFile) == false) {
-                        return null;
-                    }
-                    return s;
+                final String name = PythonPathHelper.getValidName(relative.lastSegment());
+                if (!isValidModuleLastPart(name)) {
+                    continue;
                 }
-            }
+                if (relative.segmentCount() > 1) {
+                    IPath folderPath = relative.removeLastSegments(1);
+                    int segmentCount = folderPath.segmentCount();
+                    for (int i = 0; i < segmentCount; i++) {
+                        if (!isValidModuleLastPart(folderPath.segment(i))) {
+                            break OUT;
+                        }
+                    }
+                    String[] segments = relative.segments();
+                    segments[segments.length - 1] = name;
+                    return StringUtils.join(".", segments);
 
-        }
-        //ok, it was not found in any existing way, so, if we don't require the file to exist, let's just do some simpler search and get the
-        //first match (if any)... this is useful if the file we are looking for has just been deleted
-        if (!requireFileToExist) {
-            //we have to remove the last part (.py, .pyc, .pyw)
-            for (String element : baseLocations) {
-                element = getDefaultPathStr(element);
-                if (fullPathWithoutExtension.startsWith(element)) {
-                    String s = fullPathWithoutExtension.substring(element.length());
-                    if (s.startsWith("/")) {
-                        s = s.substring(1);
-                    }
-                    if (!isValidModuleLastPart(s)) {
-                        continue;
-                    }
-                    s = s.replaceAll("/", ".");
-                    return s;
+                } else {
+                    return name;
                 }
             }
         }
@@ -469,14 +384,6 @@ public final class PythonPathHelper implements IPythonPathHelper {
             return StringUtils.stripExtension(s);
         }
         return null;
-    }
-
-    /**
-     * @param root this is the folder we're checking
-     * @return true if it is a folder with an __init__ python file
-     */
-    public static boolean isFolderWithInit(File root) {
-        return getFolderInit(root) != null;
     }
 
     /**

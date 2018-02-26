@@ -72,6 +72,7 @@ import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
+import org.python.pydev.shared_core.utils.PlatformUtils;
 
 /**
  * @author Fabio Zadrozny
@@ -232,26 +233,37 @@ public class FileUtils {
     }
 
     /**
-     * This version does not resolve links.
+     * This version does not resolve links on Linux.
      */
     public static String getFileAbsolutePathNotFollowingLinks(File f) {
         try {
-            return f.toPath().toRealPath(LinkOption.NOFOLLOW_LINKS).toString();
+            if (!PlatformUtils.isWindowsPlatform()) {
+                // We don't want to follow links on Linux.
+                return f.toPath().toRealPath(LinkOption.NOFOLLOW_LINKS).toString();
+            } else {
+                // On Windows, this is needed to get the proper case of files (because it's case-preserving
+                // and we have to get the proper case when resolving module names).
+                // Especially annoying if something starts with 'C:' and sometimes is entered with 'c:'.
+                return f.getCanonicalPath();
+            }
         } catch (IOException e) {
             return f.getAbsolutePath();
         }
-
     }
 
     /**
-     * This version resolves links.
+     * Same as: getFileAbsolutePathNotFollowingLinks
      */
     public static String getFileAbsolutePath(File f) {
-        try {
-            return f.getCanonicalPath();
-        } catch (IOException e) {
-            return f.getAbsolutePath();
-        }
+        return getFileAbsolutePathNotFollowingLinks(f);
+        // Old version resolved links, changed because in general we should not follow links (use them in their
+        // default representation, not resolved).
+        //
+        // try {
+        //     return f.getCanonicalPath();
+        // } catch (IOException e) {
+        //     return f.getAbsolutePath();
+        // }
     }
 
     public static void copyFile(String srcFilename, String dstFilename) {

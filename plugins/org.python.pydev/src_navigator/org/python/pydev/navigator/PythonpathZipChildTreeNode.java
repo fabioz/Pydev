@@ -73,12 +73,8 @@ public class PythonpathZipChildTreeNode extends TreeNode<LabelAndImage> implemen
 
                 } else if (parent instanceof PythonpathZipChildTreeNode
                         && ((PythonpathZipChildTreeNode) parent).isPackage) {
-                    for (String s : dirContents) {
-                        if (PythonPathHelper.isValidInitFile(s)) {
-                            isPackage = true;
-                            break;
-                        }
-                    }
+                    // Python 3.6 onwards no longer requires having an __init__.py to be a package.
+                    isPackage = true;
 
                 }
             }

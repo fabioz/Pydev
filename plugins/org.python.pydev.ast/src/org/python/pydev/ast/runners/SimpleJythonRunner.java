@@ -29,6 +29,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.preferences.PydevPrefs;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.process.ProcessUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -74,7 +75,7 @@ public class SimpleJythonRunner extends SimpleRunner {
 
         try {
 
-            String javaLoc = javaExecutable.getCanonicalPath();
+            String javaLoc = FileUtils.getFileAbsolutePath(javaExecutable);
             String[] s;
 
             //In Jython 2.5b0, if we don't set python.home, it won't be able to calculate the correct PYTHONPATH
@@ -120,7 +121,7 @@ public class SimpleJythonRunner extends SimpleRunner {
             String vmArgs, String... args) throws IOException, JDTNotAvailableException, MisconfigurationException {
 
         IInterpreterManager interpreterManager = InterpreterManagersAPI.getJythonInterpreterManager();
-        String javaLoc = JavaVmLocationFinder.findDefaultJavaExecutable().getCanonicalPath();
+        String javaLoc = FileUtils.getFileAbsolutePath(JavaVmLocationFinder.findDefaultJavaExecutable());
 
         File file = new File(javaLoc);
         if (file.exists() == false) {

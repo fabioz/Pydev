@@ -186,11 +186,8 @@ public abstract class ModulesManagerWithBuild extends ModulesManager implements 
             removeModulesBelow(file, project, monitor);
 
         } else {
-            if (file.getName().startsWith("__init__.")) {
-                removeModulesBelow(file.getParentFile(), project, monitor);
-            } else {
-                removeModulesWithFile(file);
-            }
+            // Note: removing __init__ no longer removes modules below (python 3.6)
+            removeModulesWithFile(file);
         }
     }
 

@@ -174,7 +174,7 @@ public class SyncSystemModulesManagerScheduler implements IInterpreterManagerLis
     private static final class PyDirFilter implements FileFilter {
         @Override
         public boolean accept(File pathname) {
-            return PythonPathHelper.isFolderWithInit(pathname);
+            return pathname.isDirectory();
         }
     }
 

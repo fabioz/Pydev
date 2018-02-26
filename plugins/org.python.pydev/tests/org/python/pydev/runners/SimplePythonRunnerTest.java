@@ -20,6 +20,7 @@ import org.python.pydev.ast.runners.SimplePythonRunner;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.ui.BundleInfoStub;
 
 import junit.framework.TestCase;
@@ -62,7 +63,8 @@ public class SimplePythonRunnerTest extends TestCase {
 
         File relativePath = CorePlugin.getBundleInfo().getRelativePath(new Path("pysrc/interpreterInfo.py"));
         String string = new SimplePythonRunner().runAndGetOutput(
-                new String[] { TestDependent.PYTHON_EXE, relativePath.getCanonicalPath() }, null, null, null,
+                new String[] { TestDependent.PYTHON_EXE, FileUtils.getFileAbsolutePath(relativePath) }, null, null,
+                null,
                 "utf-8").o1;
         assertNotNull(string);
         //System.out.println(string);

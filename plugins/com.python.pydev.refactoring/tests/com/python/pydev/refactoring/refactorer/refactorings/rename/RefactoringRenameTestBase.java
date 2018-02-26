@@ -108,7 +108,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
         super.setUp();
         if (filesInRefactoringProject == null) {
             filesInRefactoringProject = PyFileListing.getPyFilesBelow(
-                    new File(TestDependent.TEST_COM_REFACTORING_PYSRC_LOC), new NullProgressMonitor(), true, false)
+                    new File(TestDependent.TEST_COM_REFACTORING_PYSRC_LOC), new NullProgressMonitor(), true)
                     .getFoundPyFileInfos();
 
             ArrayList<Tuple<List<ModulesKey>, IPythonNature>> iFiles = new ArrayList<Tuple<List<ModulesKey>, IPythonNature>>();

@@ -22,6 +22,7 @@ import org.python.pydev.ast.runners.SimpleJythonRunner;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.shared_core.io.FileUtils;
 
 public class SimpleJythonRunnerTest extends JythonCodeCompletionTestsBase {
 
@@ -47,10 +48,8 @@ public class SimpleJythonRunnerTest extends JythonCodeCompletionTestsBase {
         SimpleJythonRunner runner = new SimpleJythonRunner();
         File absoluteFile = CorePlugin.getBundleInfo().getRelativePath(new Path("interpreterInfo.py"))
                 .getAbsoluteFile();
-        String string = runner.runAndGetOutputWithJar(absoluteFile.getCanonicalPath(),
+        String string = runner.runAndGetOutputWithJar(FileUtils.getFileAbsolutePath(absoluteFile),
                 TestDependent.JYTHON_JAR_LOCATION, null, null, null, new NullProgressMonitor(), "utf-8").o1;
-        //        String string = runner.runAndGetOutput(absoluteFile.getCanonicalPath(), (String)null, null);
         assertNotNull(string);
-        //        System.out.println(string);
     }
 }

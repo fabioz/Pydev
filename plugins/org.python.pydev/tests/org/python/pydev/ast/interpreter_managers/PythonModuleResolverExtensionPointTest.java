@@ -8,8 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -19,7 +17,10 @@ import org.python.pydev.ast.codecompletion.revisited.ModulesFoundStructure;
 import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.utils.BaseExtensionHelper;
+
+import junit.framework.TestCase;
 
 /**
  * Tests the org.python.pydev.pydev_python_module_resolver extension point.
@@ -51,9 +52,12 @@ public class PythonModuleResolverExtensionPointTest extends TestCase {
         PythonPathHelper helper = new PythonPathHelper();
         String path = TestDependent.GetCompletePythonLib(true) + "|" + TestDependent.TEST_PYSRC_TESTING_LOC;
         helper.setPythonPath(path);
-        final IPath stubbedModulePath1 = Path.fromOSString("/this/is/a/path/to/a/file1.py");
-        final IPath stubbedModulePath2 = Path.fromOSString("/this/is/a/path/to/a/file2.py");
-        final IPath stubbedNegativeCase = Path.fromOSString("/this/is/a/path/to/another/file.py");
+        final IPath stubbedModulePath1 = Path
+                .fromOSString(FileUtils.getFileAbsolutePath("/this/is/a/path/to/a/file1.py"));
+        final IPath stubbedModulePath2 = Path
+                .fromOSString(FileUtils.getFileAbsolutePath("/this/is/a/path/to/a/file2.py"));
+        final IPath stubbedNegativeCase = Path
+                .fromOSString(FileUtils.getFileAbsolutePath("/this/is/a/path/to/another/file.py"));
         setTestingModuleResolver(new IPythonModuleResolver() {
             @Override
             public String resolveModule(IProject project, IPath moduleLocation,

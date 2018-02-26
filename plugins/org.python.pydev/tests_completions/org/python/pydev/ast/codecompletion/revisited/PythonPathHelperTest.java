@@ -17,9 +17,6 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.text.Document;
-import org.python.pydev.ast.codecompletion.revisited.CompletionState;
-import org.python.pydev.ast.codecompletion.revisited.ModulesFoundStructure;
-import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
@@ -84,10 +81,15 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
 
         IProject project = null;
 
+        assertEquals("extendable.dll.my_dll",
+                helper.resolveModule(TestDependent.TEST_PYSRC_TESTING_LOC + "extendable/dll/my_dll.cp36-win_amd64.pyd",
+                        true, project));
+
         assertEquals("unittest", helper.resolveModule(TestDependent.PYTHON_LIB + "unittest.py", project));
         assertEquals("compiler.ast", helper.resolveModule(TestDependent.PYTHON_LIB + "compiler/ast.py", project));
 
         assertEquals("email", helper.resolveModule(TestDependent.PYTHON_LIB + "email", project));
+
         assertSame(null, helper.resolveModule(TestDependent.PYTHON_LIB + "curses/invalid", true, project));
         assertSame(null, helper.resolveModule(TestDependent.PYTHON_LIB + "invalid", true, project));
 
@@ -101,7 +103,8 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         assertEquals("testlib.unittest.testcase",
                 helper.resolveModule(TestDependent.TEST_PYSRC_TESTING_LOC + "testlib/unittest/testcase.py", project));
         assertEquals(null,
-                helper.resolveModule(TestDependent.TEST_PYSRC_TESTING_LOC + "testlib/unittest/invalid.py", true, project));
+                helper.resolveModule(TestDependent.TEST_PYSRC_TESTING_LOC + "testlib/unittest/invalid.py", true,
+                        project));
 
         assertEquals(
                 null,

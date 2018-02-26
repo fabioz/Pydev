@@ -17,12 +17,11 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * This class contains all the information we need from the folders beneath the pythonpath.
- * 
+ *
  * @author Fabio
  */
 public class ModulesFoundStructure {
@@ -31,7 +30,7 @@ public class ModulesFoundStructure {
 
     /**
      * Inner class to contain what we found within a zip file.
-     * 
+     *
      * @author Fabio
      */
     public static class ZipContents {
@@ -46,11 +45,11 @@ public class ModulesFoundStructure {
 
         /**
          * See constants.
-         * 
+         *
          * Basically it must be one type or the other... if it has .java or .class, it's considered a jar.
-         * 
+         *
          * Now, if it has any .py it is considered a py zip.
-         * 
+         *
          * That's because the handling of that file can be very different from one situation to the other:
          * - If it's a jar, we're going to rely on JDT, which should not be a requisite for those that don't use jython
          * - If it has .py files, we're going to do the handling without any dependency
@@ -58,16 +57,16 @@ public class ModulesFoundStructure {
         public int zipContentsType;
 
         /**
-         * May be any zip file (.zip, .jar, .egg, etc) 
+         * May be any zip file (.zip, .jar, .egg, etc)
          */
         public File zipFile;
 
         /**
          * These are the paths found within the zip file that are valid to be in the pythonpath.
-         * 
+         *
          * If it is a jar file, those are the .class files.
          * If it is a zip file with .py files, those are the actual .py files (or .pyd files -- dlls)
-         * 
+         *
          * Does not support mixing both
          */
         public Set<String> foundFileZipPaths = new HashSet<String>();
@@ -84,14 +83,11 @@ public class ModulesFoundStructure {
 
         public TreeSet<String> pyfoldersLower = new TreeSet<String>(); //folders
 
-        public TreeSet<String> pyInitFilesLowerWithoutExtension = new TreeSet<String>(); //__init__.py (full path in zip)
-
         /**
          * Given the temporary info found, goes on to fill the actual found modules.
          */
         public void consolidatePythonpathInfo(IProgressMonitor monitor) {
             int i = 0;
-            FastStringBuffer buffer = new FastStringBuffer();
             for (Map.Entry<String, String> entry : pyFilesLowerToRegular.entrySet()) {
                 if (i % 15 == 0) {
 
@@ -102,22 +98,24 @@ public class ModulesFoundStructure {
                     monitor.worked(1);
 
                 }
-                String key = entry.getKey();
-                int index = StringUtils.rFind(key, '/');
                 boolean add = true;
-                if (index != -1) {
-                    //If it's in the root, we don't need to check for __init__
-                    buffer.clear();
-                    buffer.append(key.substring(0, index));
-                    if (zipContentsType == ZIP_CONTENTS_TYPE_PY_ZIP) {
-                        //we don't need to check for __init__ if we have a jar
-                        if (buffer.length() > 0) {
-                            buffer.append("/");
-                            buffer.append("__init__");
-                            add = pyInitFilesLowerWithoutExtension.contains(buffer.toString());
-                        }
-                    }
-                }
+
+                // We no longer need to check (Python 3.6 onwards doesn't require a __init__).
+                // String key = entry.getKey();
+                // int index = StringUtils.rFind(key, '/');
+                // if (index != -1) {
+                //     //If it's in the root, we don't need to check for __init__
+                //     buffer.clear();
+                //     buffer.append(key.substring(0, index));
+                //     if (zipContentsType == ZIP_CONTENTS_TYPE_PY_ZIP) {
+                //         //we don't need to check for __init__ if we have a jar
+                //         if (buffer.length() > 0) {
+                //             buffer.append("/");
+                //             buffer.append("__init__");
+                //             add = pyInitFilesLowerWithoutExtension.contains(buffer.toString());
+                //         }
+                //     }
+                // }
 
                 if (add) {
                     String filePath = entry.getValue();
@@ -131,7 +129,6 @@ public class ModulesFoundStructure {
             }
             pyFilesLowerToRegular = null;
             pyfoldersLower = null;
-            pyInitFilesLowerWithoutExtension = null;
         }
 
     }

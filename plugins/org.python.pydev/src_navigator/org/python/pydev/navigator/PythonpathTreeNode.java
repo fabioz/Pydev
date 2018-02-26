@@ -88,12 +88,8 @@ public class PythonpathTreeNode extends TreeNode<LabelAndImage> implements ISort
                     isPackage = true;
 
                 } else if (parent instanceof PythonpathTreeNode && ((PythonpathTreeNode) parent).isPackage) {
-                    for (File file2 : dirFiles) {
-                        if (PythonPathHelper.isValidInitFile(file2.getName())) {
-                            isPackage = true;
-                            break;
-                        }
-                    }
+                    // Python 3.6 onwards no longer requires having an __init__.py to be a package.
+                    isPackage = true;
 
                 }
             }

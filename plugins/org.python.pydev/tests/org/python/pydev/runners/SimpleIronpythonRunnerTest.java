@@ -18,6 +18,7 @@ import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.ast.runners.SimpleIronpythonRunner;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.shared_core.io.FileUtils;
 
 public class SimpleIronpythonRunnerTest extends JythonCodeCompletionTestsBase {
 
@@ -37,9 +38,7 @@ public class SimpleIronpythonRunnerTest extends JythonCodeCompletionTestsBase {
         File absoluteFile = CorePlugin.getBundleInfo().getRelativePath(new Path("interpreterInfo.py"))
                 .getAbsoluteFile();
         String string = runner.runAndGetOutputWithInterpreter(TestDependent.IRONPYTHON_EXE,
-                absoluteFile.getCanonicalPath(), null, null, null, new NullProgressMonitor(), "utf-8").o1;
-        //        String string = runner.runAndGetOutput(absoluteFile.getCanonicalPath(), (String)null, null);
+                FileUtils.getFileAbsolutePath(absoluteFile), null, null, null, new NullProgressMonitor(), "utf-8").o1;
         assertNotNull(string);
-        //        System.out.println(string);
     }
 }

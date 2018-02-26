@@ -72,7 +72,7 @@ public class PyCoverage {
             PyFileListing pyFilesBelow = new PyFileListing();
 
             if (file.exists()) {
-                pyFilesBelow = PyFileListing.getPyFilesBelow(file, monitor, true, false);
+                pyFilesBelow = PyFileListing.getPyFilesBelow(file, monitor, true);
             }
 
             if (pyFilesBelow.getFoundPyFileInfos().size() == 0) { //no files
