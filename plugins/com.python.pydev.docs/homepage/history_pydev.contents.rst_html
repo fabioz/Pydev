@@ -4,6 +4,38 @@
 
 <div class="section" id="history-for-pydev">
 <h1>History For PyDev</h1>
+<div class="section" id="release-6-3-0-2018-02-26">
+<h2>Release 6.3.0 (2018-02-26)</h2>
+<ul>
+<li><p class="first"><strong>Important</strong> PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.</p>
+<blockquote>
+<ul class="simple">
+<li>PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first">Type inference</p>
+<blockquote>
+<ul class="simple">
+<li>Folders no longer require <strong>__init__</strong> to be considered a package.</li>
+<li>Properly recognize <strong>cx_Oracle.cp36-win_amd64.pyd</strong> as <strong>cx_Oracle</strong> (<strong>#PyDev-885</strong>).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first">Handle empty numpy arrays in debugger.</p>
+</li>
+<li><p class="first">Fix getting path to activate conda env on Linux.</p>
+</li>
+<li><p class="first">Fix Debug console freeze when evaluation raises exception with Python 3.5 onwards (<strong>#PyDev-877</strong>).</p>
+</li>
+<li><p class="first">Interactive console accepting new args passed by IPython in showtraceback (<strong>#PyDev-882</strong>).</p>
+</li>
+<li><p class="first">Improve terminating running processes (and children).</p>
+</li>
+<li><p class="first">Properly parsing f-strings which contain double <strong>{{</strong> or <strong>}}</strong> (<strong>#PyDev-884</strong>).</p>
+</li>
+</ul>
+</div>
 <div class="section" id="release-6-2-0-2017-11-28">
 <h2>Release 6.2.0 (2017-11-28)</h2>
 <ul>

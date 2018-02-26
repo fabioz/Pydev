@@ -5,6 +5,30 @@ History For PyDev
 .. _`update sites page`: update_sites/index.html
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
+Release 6.3.0 (2018-02-26)
+=============================
+
+* **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
+
+    * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
+
+* Type inference
+
+	* Folders no longer require **__init__** to be considered a package.
+	* Properly recognize **cx_Oracle.cp36-win_amd64.pyd** as **cx_Oracle** (**#PyDev-885**).
+
+* Handle empty numpy arrays in debugger.
+
+* Fix getting path to activate conda env on Linux.
+
+* Fix Debug console freeze when evaluation raises exception with Python 3.5 onwards (**#PyDev-877**).
+
+* Interactive console accepting new args passed by IPython in showtraceback (**#PyDev-882**).
+
+* Improve terminating running processes (and children).
+
+* Properly parsing f-strings which contain double **{{** or **}}** (**#PyDev-884**).
+
 
 Release 6.2.0 (2017-11-28)
 =============================
