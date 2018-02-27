@@ -90,7 +90,8 @@ public class NatureGroup extends ElementWithChildren {
         for (String string : pythonpath) {
             File file = new File(string);
             if (file.isDirectory()) { //TODO: Handle zip file modules!
-                Collection<PyFileInfo> modulesBelow = PythonPathHelper.getModulesBelow(file, new NullProgressMonitor())
+                Collection<PyFileInfo> modulesBelow = PythonPathHelper
+                        .getModulesBelow(file, new NullProgressMonitor(), pythonpath)
                         .getFoundPyFileInfos();
                 for (PyFileInfo fileInfo : modulesBelow) {
                     File moduleFile = fileInfo.getFile();
@@ -99,7 +100,8 @@ public class NatureGroup extends ElementWithChildren {
                     if (modName != null) {
                         expectedModuleNames.add(new ModulesKey(modName, moduleFile));
                     } else {
-                        if (PythonPathHelper.isValidModuleLastPart(StringUtils.stripExtension((moduleFile.getName())))) {
+                        if (PythonPathHelper
+                                .isValidModuleLastPart(StringUtils.stripExtension((moduleFile.getName())))) {
                             addLeaf(StringUtils.format(
                                     "Unable to resolve module: %s (gotten null module name)",
                                     moduleFile));

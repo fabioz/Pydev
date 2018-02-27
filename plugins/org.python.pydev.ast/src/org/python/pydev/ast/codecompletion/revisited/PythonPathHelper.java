@@ -101,20 +101,31 @@ public final class PythonPathHelper implements IPythonPathHelper {
      * @return the listing with valid module files considering that root is a root path in the pythonpath.
      * May return null if the passed file does not exist or is not a directory (e.g.: zip file)
      */
-    public static PyFileListing getModulesBelow(File root, IProgressMonitor monitor) {
+    public static PyFileListing getModulesBelow(File root, IProgressMonitor monitor,
+            List<String> allPythonpathEntries) {
         if (!root.exists()) {
             return null;
         }
 
         if (root.isDirectory()) {
+            Set<File> otherRoots = new HashSet<>();
+            for (String p : allPythonpathEntries) {
+                otherRoots.add(new File(p));
+            }
+            otherRoots.remove(root);
+
             FileFilter filter = new FileFilter() {
 
                 @Override
-                public boolean accept(File pathname) {
-                    if (pathname.isFile()) {
-                        return isValidFileMod(FileUtils.getFileAbsolutePath(pathname));
-                    } else if (pathname.isDirectory()) {
-                        return isValidModuleLastPart(pathname.getName());
+                public boolean accept(File file) {
+                    if (file.isFile()) {
+                        return isValidFileMod(FileUtils.getFileAbsolutePath(file));
+                    } else if (file.isDirectory()) {
+                        if (otherRoots.contains(file)) {
+                            // We should not go into other roots.
+                            return false;
+                        }
+                        return isValidModuleLastPart(file.getName());
                     } else {
                         return false;
                     }
@@ -338,6 +349,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
             }
         }
 
+        List<String> alternatives = new ArrayList<String>();
         // If all of the resolvers have delegated, then go forward with the default behavior.
 
         //go through our pythonpath and check the beginning
@@ -359,19 +371,36 @@ public final class PythonPathHelper implements IPythonPathHelper {
                     int segmentCount = folderPath.segmentCount();
                     for (int i = 0; i < segmentCount; i++) {
                         if (!isValidModuleLastPart(folderPath.segment(i))) {
-                            break OUT;
+                            continue OUT;
                         }
                     }
                     String[] segments = relative.segments();
                     segments[segments.length - 1] = name;
-                    return StringUtils.join(".", segments);
-
+                    alternatives.add(StringUtils.join(".", segments));
                 } else {
-                    return name;
+                    alternatives.add(name);
                 }
             }
         }
-        return null;
+        int size = alternatives.size();
+        if (size == 1) {
+            return alternatives.get(0);
+        }
+        if (size == 0) {
+            return null;
+        }
+        // We have multiple alternatives. Get the one with the shortest len (if we have multiple pythonpath entries
+        // where one is beneath the other a name may be resolved to multiple names and the correct one is the shortest
+        // name).
+        String ret = null;
+        for (String string : alternatives) {
+            if (ret == null) {
+                ret = string;
+            } else if (string.length() < ret.length()) {
+                ret = string;
+            }
+        }
+        return ret;
     }
 
     /**
@@ -592,7 +621,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
 
             //the slow part is getting the files... not much we can do (I think).
             File root = new File(element);
-            PyFileListing below = getModulesBelow(root, monitor);
+            PyFileListing below = getModulesBelow(root, monitor, pythonpathList);
             if (below != null) {
 
                 Iterator<PyFileInfo> e1 = below.getFoundPyFileInfos().iterator();
@@ -601,7 +630,17 @@ public final class PythonPathHelper implements IPythonPathHelper {
                     File file = pyFileInfo.getFile();
                     String modName = pyFileInfo.getModuleName(tempBuf);
                     if (isValidModuleLastPart(FullRepIterable.getLastPart(modName))) {
-                        ret.regularModules.put(file, modName);
+                        // Only override if the new name is < than the previous name
+                        // (a file may be found multiple times depending on the pythonpath).
+                        String existing = ret.regularModules.get(file);
+                        if (existing != null) {
+                            if (existing.length() < modName.length()) {
+                                ret.regularModules.put(file, modName);
+
+                            }
+                        } else {
+                            ret.regularModules.put(file, modName);
+                        }
                     }
                 }
 

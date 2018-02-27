@@ -97,7 +97,7 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener {
         for (String string : pythonpath) {
             File file = new File(string);
             if (file.exists() && file.isDirectory()) { //TODO: Handle zip file modules!
-                Collection<PyFileInfo> modulesBelow = PythonPathHelper.getModulesBelow(file, monitor)
+                Collection<PyFileInfo> modulesBelow = PythonPathHelper.getModulesBelow(file, monitor, pythonpath)
                         .getFoundPyFileInfos();
                 for (PyFileInfo fileInfo : modulesBelow) {
                     File moduleFile = fileInfo.getFile();

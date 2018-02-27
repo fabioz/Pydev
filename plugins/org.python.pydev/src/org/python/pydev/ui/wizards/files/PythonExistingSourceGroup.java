@@ -7,6 +7,7 @@
 
 package org.python.pydev.ui.wizards.files;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
@@ -193,7 +194,7 @@ public class PythonExistingSourceGroup {
             }
         }
 
-        PyFileListing pyFileListing = PythonPathHelper.getModulesBelow(linkPath.toFile(), null);
+        PyFileListing pyFileListing = PythonPathHelper.getModulesBelow(linkPath.toFile(), null, new ArrayList<>());
         if (pyFileListing == null || pyFileListing.getFoundPyFileInfos().size() == 0) {
             warningMessage = "Folder '" + linkPath.lastSegment()
                     + "' does not contain any Python files.";

@@ -13,6 +13,7 @@
 package org.python.pydev.ui.wizards.project;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.eclipse.core.resources.IProject;
@@ -718,7 +719,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
 
         // Look for existing Python files in the destination folder.
         File locFile = (!useDefaults ? getLocationPath() : getLocationPath().append(projectFieldContents)).toFile();
-        PyFileListing pyFileListing = PythonPathHelper.getModulesBelow(locFile, null);
+        PyFileListing pyFileListing = PythonPathHelper.getModulesBelow(locFile, null, new ArrayList<>());
         if (pyFileListing != null) {
             boolean foundInit = false;
             Collection<PyFileInfo> modulesBelow = pyFileListing.getFoundPyFileInfos();
@@ -726,7 +727,8 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
                 // Only notify existence of init files in the top-level directory.
                 if (PythonPathHelper.isValidInitFile(fileInfo.getFile().getPath())
                         && fileInfo.getFile().getParentFile().equals(locFile)) {
-                    setMessage("Project location contains an __init__.py file. Consider using the location's parent folder instead.");
+                    setMessage(
+                            "Project location contains an __init__.py file. Consider using the location's parent folder instead.");
                     foundInit = true;
                     break;
                 }
