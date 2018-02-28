@@ -95,15 +95,15 @@ mu acp "Updated to 6.3.1"
 		  git push --tags
 
 
+		** update version in eclipse marketplace: http://marketplace.eclipse.org/
+
 		** Add news in forum (same as e-mail)
 
-		** update version in eclipse marketplace: http://marketplace.eclipse.org/
+		** Send e-mail (use contents from sf e-mail -- change title sizes)
 
 		** Add blog post
 
 		** Add to reddit: http://www.reddit.com/r/Python/submit
-
-		** Send e-mail (use contents from sf e-mail -- change title sizes)
 
 		** Twitter
 
