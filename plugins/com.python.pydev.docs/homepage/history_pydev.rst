@@ -5,7 +5,7 @@ History For PyDev
 .. _`update sites page`: update_sites/index.html
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
-Release 6.3.0 (2018-02-26)
+Release 6.3.1 (2018-02-26)
 =============================
 
 * **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.

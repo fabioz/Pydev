@@ -185,7 +185,7 @@ To show your appreciation for PyDev and to keep it going strong, help to crowdfu
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
-Release 6.3.0 (2018-02-26)
+Release 6.3.1 (2018-02-26)
 =============================
 
 * **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.

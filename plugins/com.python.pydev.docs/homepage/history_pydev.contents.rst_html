@@ -4,8 +4,8 @@
 
 <div class="section" id="history-for-pydev">
 <h1>History For PyDev</h1>
-<div class="section" id="release-6-3-0-2018-02-26">
-<h2>Release 6.3.0 (2018-02-26)</h2>
+<div class="section" id="release-6-3-1-2018-02-26">
+<h2>Release 6.3.1 (2018-02-26)</h2>
 <ul>
 <li><p class="first"><strong>Important</strong> PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.</p>
 <blockquote>
