@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,6 +34,7 @@ import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Tuple;
@@ -45,6 +47,7 @@ import org.python.pydev.parser.visitors.TypeInfo;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 import org.python.pydev.shared_core.model.ISimpleNode;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.structure.FastStack;
 
@@ -588,4 +591,33 @@ public class LocalScope implements ILocalScope {
         return this.nature;
     }
 
+    @Override
+    public String getScopeStackPathNames() {
+        ListIterator<SimpleNode> iterator = this.scope.iterator();
+        FastStringBuffer buf = new FastStringBuffer();
+        if (iterator.hasNext()) {
+            SimpleNode next = iterator.next();
+            if (next instanceof Module) {
+                // just skip it
+            } else {
+                String rep = NodeUtils.getRepresentationString(next);
+                if (rep != null && rep.length() > 0) {
+                    buf.append(rep);
+                }
+            }
+        }
+        while (iterator.hasNext()) {
+            SimpleNode next = iterator.next();
+            String rep = NodeUtils.getRepresentationString(next);
+            if (rep != null && rep.length() > 0) {
+                if (!buf.isEmpty()) {
+                    buf.append('.');
+                }
+                buf.append(rep);
+            } else {
+                return "";
+            }
+        }
+        return buf.toString();
+    }
 }

@@ -28,10 +28,10 @@ public class CompletionParticipantsHelper {
 
     /**
      * Get the completions based on the arguments received
-     * 
+     *
      * @param state this is the state used for the completion
      * @param localScope this is the scope we're currently on (may be null)
-     * @throws CompletionRecursionException 
+     * @throws CompletionRecursionException
      */
     public static Collection<IToken> getCompletionsForTokenWithUndefinedType(ICompletionState state,
             ILocalScope localScope) throws CompletionRecursionException {
@@ -51,9 +51,9 @@ public class CompletionParticipantsHelper {
 
     /**
      * If we were unable to find its type, pass that over to other completion participants.
-     * @throws CompletionRecursionException 
+     * @throws CompletionRecursionException
      */
-    public static Collection<IToken> getCompletionsForTokenWithUndefinedTypeFromParticipants(ICompletionState state,
+    private static Collection<IToken> getCompletionsForTokenWithUndefinedTypeFromParticipants(ICompletionState state,
             ILocalScope localScope, Collection<IToken> interfaceForLocal) throws CompletionRecursionException {
         ArrayList<IToken> ret = new ArrayList<IToken>();
 
@@ -67,10 +67,10 @@ public class CompletionParticipantsHelper {
 
     /**
      * Get the completions based on the arguments received
-     * 
+     *
      * @param state this is the state used for the completion
      * @param localScope this is the scope we're currently on (may be null)
-     * @throws CompletionRecursionException 
+     * @throws CompletionRecursionException
      */
     public static Collection<IToken> getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope)
             throws CompletionRecursionException {
@@ -96,7 +96,7 @@ public class CompletionParticipantsHelper {
 
     /**
      * If we were able to find it as a method parameter, this method is called so that clients can extend those completions.
-     * @throws CompletionRecursionException 
+     * @throws CompletionRecursionException
      */
     public static Collection<IToken> getCompletionsForMethodParameterFromParticipants(ICompletionState state,
             ILocalScope localScope, Collection<IToken> interfaceForLocal) throws CompletionRecursionException {

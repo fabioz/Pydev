@@ -200,4 +200,11 @@ public interface IModulesManager {
             AbstractMap<ModulesKey, ModulesKey> keysFound);
 
     public IModulesManager[] getManagersInvolved(boolean checkSystemManager);
+
+    /**
+     * Returns the .pyi module related to the passed module.
+     *
+     * @param completionState the state (just to store if we haven't been able to find it).
+     */
+    public abstract IModule /*SourceModule*/ getPyiStubModule(IModule module, ICompletionState completionState);
 }

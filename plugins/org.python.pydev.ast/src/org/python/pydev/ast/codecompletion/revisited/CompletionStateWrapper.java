@@ -292,4 +292,14 @@ public final class CompletionStateWrapper implements ICompletionState {
     public void popGetCompletionsUnpackingObject() {
         this.wrapped.popGetCompletionsUnpackingObject();
     }
+
+    @Override
+    public ModuleHandleOrNotGotten getPyiStubModule(IModule module) {
+        return this.wrapped.getPyiStubModule(module);
+    }
+
+    @Override
+    public void setPyIStubModule(IModule module, IModule pyIModule) {
+        this.wrapped.setPyIStubModule(pyIModule, pyIModule);
+    }
 }

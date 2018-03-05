@@ -694,6 +694,10 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      */
     public static CallbackWithListeners<ICompletionState> onFindDefinition;
 
+    /**
+     * @param line: starts at 1
+     * @param col: starts at 1
+     */
     @Override
     @SuppressWarnings("rawtypes")
     public Definition[] findDefinition(ICompletionState state, int line, int col, final IPythonNature nature)
@@ -736,10 +740,10 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         //first thing is finding its scope
         FindScopeVisitor scopeVisitor = getScopeVisitor(line, col);
 
-        if (actTok.equals("super")) {
-            Object objClassDef = scopeVisitor.scope.getClassDef();
-            if (objClassDef instanceof ClassDef) {
-                ClassDef classDef = (ClassDef) objClassDef;
+        Object objClassDef = scopeVisitor.scope.getClassDef();
+        if (objClassDef instanceof ClassDef) {
+            ClassDef classDef = (ClassDef) objClassDef;
+            if (actTok.equals("super")) {
                 if (classDef.bases != null) {
                     List<Definition> lst = new ArrayList<>(classDef.bases.length);
                     for (exprType expr : classDef.bases) {
@@ -756,13 +760,9 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                         return lst.toArray(new Definition[lst.size()]);
                     }
                 }
-            }
-            // Didn't find anything for super
-            return new Definition[0];
-        } else if (actTok.startsWith("super()")) {
-            Object objClassDef = scopeVisitor.scope.getClassDef();
-            if (objClassDef instanceof ClassDef) {
-                ClassDef classDef = (ClassDef) objClassDef;
+                // Didn't find anything for super
+                return new Definition[0];
+            } else if (actTok.startsWith("super()")) {
                 if (classDef.bases != null) {
                     List<Definition> lst = new ArrayList<>(classDef.bases.length);
                     for (exprType expr : classDef.bases) {
@@ -779,10 +779,9 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                         return lst.toArray(new Definition[lst.size()]);
                     }
                 }
+                // Just keep going (may get completions globally).
             }
-            // Just keep going (may get completions globally).
         }
-
         //this visitor checks for assigns for the token
         FindDefinitionModelVisitor visitor = getFindDefinitionsScopeVisitor(actTok, line, col, nature);
 

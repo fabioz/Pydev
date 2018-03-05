@@ -96,4 +96,9 @@ public interface ILocalScope {
     public void setFoundAtASTNode(ISimpleNode node);
 
     public ISimpleNode getFoundAtASTNode();
+
+    /**
+     * Returns a dotted name with the path to reach the given local scope.
+     */
+    public String getScopeStackPathNames();
 }

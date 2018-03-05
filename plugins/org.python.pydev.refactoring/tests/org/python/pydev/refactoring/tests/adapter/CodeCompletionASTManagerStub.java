@@ -230,4 +230,9 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
+    public IModule getPyiStubModule(IModule module, ICompletionState completionState) {
+        throw new RuntimeException("Not implemented");
+    }
+
 }

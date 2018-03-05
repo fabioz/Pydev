@@ -337,4 +337,6 @@ public interface ICodeCompletionASTManager {
     public abstract List<IToken> getCompletionFromFuncDefReturn(ICompletionState state, IModule s,
             IDefinition definition, boolean considerYieldTheReturnType) throws CompletionRecursionException;
 
+    public abstract IModule /* SourceModule */ getPyiStubModule(IModule module, ICompletionState completionState);
+
 }

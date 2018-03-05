@@ -160,4 +160,28 @@ public interface ICompletionState extends ICompletionCache {
 
     void setCancelMonitor(IProgressMonitor cancelMonitor);
 
+    public static class ModuleHandleOrNotGotten {
+
+        private IModule module;
+
+        /**
+         * @param module may be null.
+         */
+        public ModuleHandleOrNotGotten(IModule module) {
+            this.module = module;
+        }
+
+        public IModule get() {
+            return module;
+        }
+
+    }
+
+    /**
+     * Return the previously cached version.
+     */
+    ModuleHandleOrNotGotten getPyiStubModule(IModule module);
+
+    void setPyIStubModule(IModule module, IModule pyIModule);
+
 }

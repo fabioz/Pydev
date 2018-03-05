@@ -28,6 +28,7 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
@@ -468,5 +469,10 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
     @Override
     public Tuple<List<ModulesKey>, List<ModulesKey>> diffModules(AbstractMap<ModulesKey, ModulesKey> keysFound) {
         throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public IModule getPyiStubModule(IModule module, ICompletionState completionState) {
+        return null;
     }
 }

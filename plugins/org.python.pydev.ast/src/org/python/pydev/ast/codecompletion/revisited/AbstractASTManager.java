@@ -129,6 +129,11 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     }
 
     @Override
+    public IModule getPyiStubModule(IModule module, ICompletionState completionState) {
+        return getModulesManager().getPyiStubModule(module, completionState);
+    }
+
+    @Override
     public abstract void setProject(IProject project, IPythonNature nature, boolean restoreDeltas);
 
     @Override
@@ -2353,4 +2358,5 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         }
         return new Tuple<IModule, String>(mod, tok);
     }
+
 }

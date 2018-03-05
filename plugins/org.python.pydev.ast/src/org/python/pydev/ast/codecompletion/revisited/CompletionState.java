@@ -634,4 +634,16 @@ public final class CompletionState implements ICompletionState {
     public void popGetCompletionsUnpackingObject() {
         levelGetCompletionsUnpackingObject -= 1;
     }
+
+    private final Map<IModule, ModuleHandleOrNotGotten> pyIStubModule = new HashMap<>();
+
+    @Override
+    public ModuleHandleOrNotGotten getPyiStubModule(IModule module) {
+        return pyIStubModule.get(module);
+    }
+
+    @Override
+    public void setPyIStubModule(IModule module, IModule pyIModule) {
+        this.pyIStubModule.put(module, new ModuleHandleOrNotGotten(pyIModule));
+    }
 }

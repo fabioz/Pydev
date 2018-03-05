@@ -34,6 +34,7 @@ import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Index;
+import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Subscript;
@@ -88,7 +89,7 @@ public class AssignAnalysis {
                                 continue;
                             }
 
-                            if (state.getLine() == definition.line && state.getCol() == definition.col) {
+                            if (state.getLine() + 1 == definition.line && state.getCol() + 1 == definition.col) {
                                 //Check the module
                                 if (definition.module != null && definition.module.equals(s)) {
                                     //initial and final are the same
@@ -109,6 +110,36 @@ public class AssignAnalysis {
                                 List<IToken> found = manager.getCompletionFromFuncDefReturn(state, s, definition,
                                         false);
                                 ret.addAll(found);
+                            } else if (definition.ast instanceof Name) {
+                                Name name = (Name) definition.ast;
+                                if (name.ctx == Name.Param) {
+                                    if (definition.scope != null) {
+                                        String scopeStackPathNames = definition.scope.getScopeStackPathNames();
+                                        if (scopeStackPathNames != null && scopeStackPathNames.length() > 0) {
+                                            IModule pyiStubModule = manager.getPyiStubModule(definition.module, state);
+                                            if (pyiStubModule instanceof SourceModule) {
+                                                SourceModule sourceModule = (SourceModule) pyiStubModule;
+                                                SimpleNode ast = sourceModule.getAst();
+                                                SimpleNode nodeFromPath = NodeUtils.getNodeFromPath(ast,
+                                                        scopeStackPathNames);
+                                                if (nodeFromPath != null) {
+                                                    TypeInfo info = NodeUtils.getTypeForParameterFromAST(
+                                                            NodeUtils.getRepresentationString(name), nodeFromPath);
+                                                    if (info != null) {
+                                                        HashSet<IToken> hashSet = new HashSet<IToken>();
+                                                        List<ITypeInfo> lookForClass = new ArrayList<>();
+                                                        lookForClass.add(info);
+                                                        manager.getCompletionsForClassInLocalScope(sourceModule, state,
+                                                                true, false, lookForClass,
+                                                                hashSet);
+                                                        ret.addAll(hashSet);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                }
                             } else {
                                 List<IToken> found = getNonFunctionDefCompletionsFromAssign(manager, state, s,
                                         definition,
@@ -277,8 +308,8 @@ public class AssignAnalysis {
                 } else {
                     copy.setActivationToken(definition.value);
                 }
-                copy.setLine(definition.line);
-                copy.setCol(definition.col);
+                copy.setLine(definition.line - 1);
+                copy.setCol(definition.col - 1);
                 module = definition.module;
 
                 state.checkDefinitionMemory(module, definition);

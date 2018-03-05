@@ -741,7 +741,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             s = sourceModule.getAst();
         }
         if (s != null) {
-            FindScopeVisitor visitor = new FindScopeVisitor(state.getLine(), 0, state.getNature());
+            FindScopeVisitor visitor = new FindScopeVisitor(state.getLine() + 1, 1, state.getNature());
             try {
                 s.accept(visitor);
                 if (checkIfInCorrectScope) {

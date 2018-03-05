@@ -24,9 +24,6 @@ import java.util.Map;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
-import org.python.pydev.ast.codecompletion.CompletionRequest;
-import org.python.pydev.ast.codecompletion.IPyDevCompletionParticipant;
-import org.python.pydev.ast.codecompletion.PyCodeCompletion;
 import org.python.pydev.ast.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.ast.codecompletion.revisited.CompletionCache;
 import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
@@ -3193,11 +3190,10 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "";
         s = StringUtils.format(original, "");
 
-        ICompletionProposalHandle[] proposals = requestCompl(s, s.length() - 1, -1, new String[] {});
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
         assertEquals(1, proposals.length);
         ICompletionProposalHandle prop = proposals[0];
         assertEquals("Bar(a, b)", prop.getDisplayString());
-
     }
 
     public void testTypingForVariable() throws Exception { // TODO: Fix this test.
@@ -3211,10 +3207,25 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "";
         s = StringUtils.format(original, "");
 
-        ICompletionProposalHandle[] proposals = requestCompl(s, s.length() - 1, -1, new String[] {});
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
         assertEquals(1, proposals.length);
         ICompletionProposalHandle prop = proposals[0];
         assertEquals("m1()", prop.getDisplayString());
+    }
+
+    public void testPyiStubs() throws Exception {
+        String s;
+        String original = "from extendable.pyi_check.my_file import MyMessage\n"
+                + "x = MyMessage('', 1, 2)\n"
+                + "x.msg." +
+                "";
+        s = StringUtils.format(original, "");
+
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        assertEquals(1, proposals.length);
+        ICompletionProposalHandle prop = proposals[0];
+        assertEquals("foo()", prop.getDisplayString());
 
     }
+
 }
