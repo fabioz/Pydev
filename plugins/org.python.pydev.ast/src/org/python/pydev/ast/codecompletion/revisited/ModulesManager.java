@@ -41,6 +41,7 @@ import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.ICompletionState.ModuleHandleOrNotGotten;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
@@ -1181,44 +1182,13 @@ public abstract class ModulesManager implements IModulesManager {
 
     @Override
     public IModule getPyiStubModule(final IModule module, ICompletionState completionState) {
-        throw new RuntimeException("WORK IN PROGRESS! MUST CACHE PROPERLY!");
-        //        File file = module.getFile();
-        //        if (file != null) {
-        //            ModuleHandleOrNotGotten pyiStubModule = completionState.getPyiStubModule(module);
-        //            if (pyiStubModule != null) { // If we've been here previously, return what we had (may be null).
-        //                return pyiStubModule.get();
-        //            }
-        //            File parentFile = file.getParentFile();
-        //            String definitionFileName = file.getName();
-        //            File pyInterfaceFile = new File(parentFile,
-        //                    FullRepIterable.getWithoutLastPart(definitionFileName) + ".pyi");
-        //            if (pyInterfaceFile.exists()) {
-        //                IGrammarVersionProvider grammarVersionProvider = new IGrammarVersionProvider() {
-        //
-        //                    @Override
-        //                    public int getGrammarVersion() throws MisconfigurationException {
-        //                        return IGrammarVersionProvider.LATEST_GRAMMAR_PY3_VERSION;
-        //                    }
-        //
-        //                    @Override
-        //                    public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions()
-        //                            throws MisconfigurationException {
-        //                        return null;
-        //                    }
-        //                };
-        //                try {
-        //                    SourceModule ret = SourceModule.createModuleFromDoc(module.getName(), pyInterfaceFile,
-        //                            FileUtilsFileBuffer.getDocFromFile(pyInterfaceFile), module.getNature(), false,
-        //                            grammarVersionProvider);
-        //                    completionState.setPyIStubModule(module, ret);
-        //                } catch (MisconfigurationException | IOException e) {
-        //                    Log.log(e);
-        //                }
-        //            }
-        //            completionState.setPyIStubModule(module, null);
-        //            return null;
-        //        }
-        //
-        //        return null;
+        ModuleHandleOrNotGotten pyiStubModule = completionState.getPyiStubModule(module);
+        if (pyiStubModule != null) { // If we've been here previously, return what we had.
+            return pyiStubModule.get(); // note that the actual return may be null (we may cache null).
+        }
+        SourceModule ret = cachePyiModules.getPyiStubModule(module);
+        // ret may be null
+        completionState.setPyIStubModule(module, ret);
+        return ret;
     }
 }
