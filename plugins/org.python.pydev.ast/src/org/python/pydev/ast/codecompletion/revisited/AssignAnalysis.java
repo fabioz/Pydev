@@ -107,28 +107,63 @@ public class AssignAnalysis {
                             }
 
                             boolean foundAsParamWithTypingInfo = false;
-                            if (NodeUtils.isParamName(definition.ast) && definition.scope != null) {
-                                Name name = (Name) definition.ast;
-                                String scopeStackPathNames = definition.scope.getScopeStackPathNames();
-                                if (scopeStackPathNames != null && scopeStackPathNames.length() > 0) {
-                                    IModule pyiStubModule = manager.getPyiStubModule(definition.module, state);
-                                    if (pyiStubModule instanceof SourceModule) {
-                                        SourceModule sourceModule = (SourceModule) pyiStubModule;
-                                        SimpleNode ast = sourceModule.getAst();
-                                        SimpleNode nodeFromPath = NodeUtils.getNodeFromPath(ast,
-                                                scopeStackPathNames);
-                                        if (nodeFromPath != null) {
-                                            TypeInfo info = NodeUtils.getTypeForParameterFromAST(
-                                                    NodeUtils.getRepresentationString(name), nodeFromPath);
-                                            if (info != null) {
-                                                HashSet<IToken> hashSet = new HashSet<IToken>();
-                                                List<ITypeInfo> lookForClass = new ArrayList<>();
-                                                lookForClass.add(info);
-                                                manager.getCompletionsForClassInLocalScope(sourceModule, state,
-                                                        true, false, lookForClass,
-                                                        hashSet);
-                                                ret.addAll(hashSet);
-                                                foundAsParamWithTypingInfo = true;
+                            if (definition.scope != null) {
+                                if (NodeUtils.isParamName(definition.ast)) {
+                                    Name name = (Name) definition.ast;
+                                    String scopeStackPathNames = definition.scope.getScopeStackPathNames();
+                                    if (scopeStackPathNames != null && scopeStackPathNames.length() > 0) {
+                                        IModule pyiStubModule = manager.getPyiStubModule(definition.module, state);
+                                        if (pyiStubModule instanceof SourceModule) {
+                                            SourceModule sourceModule = (SourceModule) pyiStubModule;
+                                            SimpleNode ast = sourceModule.getAst();
+                                            SimpleNode nodeFromPath = NodeUtils.getNodeFromPath(ast,
+                                                    scopeStackPathNames);
+                                            if (nodeFromPath != null) {
+                                                TypeInfo info = NodeUtils.getTypeForParameterFromAST(
+                                                        NodeUtils.getRepresentationString(name), nodeFromPath);
+                                                if (info != null) {
+                                                    HashSet<IToken> hashSet = new HashSet<IToken>();
+                                                    List<ITypeInfo> lookForClass = new ArrayList<>();
+                                                    lookForClass.add(info);
+                                                    manager.getCompletionsForClassInLocalScope(sourceModule, state,
+                                                            true, false, lookForClass,
+                                                            hashSet);
+                                                    ret.addAll(hashSet);
+                                                    foundAsParamWithTypingInfo = true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else if (NodeUtils.isSelfAttribute(definition.ast)) {
+                                    String fullRepresentationString = NodeUtils
+                                            .getFullRepresentationString(definition.ast);
+                                    if (fullRepresentationString.contains(".")) {
+                                        // Remove the 'self'
+                                        String attributeWithoutSelf = FullRepIterable
+                                                .getLastPart(fullRepresentationString);
+                                        String scopeStackPathNames = definition.scope
+                                                .getScopeStackPathNamesToLastClassDef();
+                                        if (scopeStackPathNames != null && scopeStackPathNames.length() > 0) {
+                                            IModule pyiStubModule = manager.getPyiStubModule(definition.module, state);
+                                            if (pyiStubModule instanceof SourceModule) {
+                                                SourceModule sourceModule = (SourceModule) pyiStubModule;
+                                                SimpleNode ast = sourceModule.getAst();
+                                                SimpleNode nodeFromPath = NodeUtils.getNodeFromPath(ast,
+                                                        scopeStackPathNames);
+                                                if (nodeFromPath instanceof ClassDef) {
+                                                    TypeInfo info = NodeUtils.getTypeForClassDefAttribute(
+                                                            attributeWithoutSelf, (ClassDef) nodeFromPath);
+                                                    if (info != null) {
+                                                        HashSet<IToken> hashSet = new HashSet<IToken>();
+                                                        List<ITypeInfo> lookForClass = new ArrayList<>();
+                                                        lookForClass.add(info);
+                                                        manager.getCompletionsForClassInLocalScope(sourceModule, state,
+                                                                true, false, lookForClass,
+                                                                hashSet);
+                                                        ret.addAll(hashSet);
+                                                        foundAsParamWithTypingInfo = true;
+                                                    }
+                                                }
                                             }
                                         }
                                     }

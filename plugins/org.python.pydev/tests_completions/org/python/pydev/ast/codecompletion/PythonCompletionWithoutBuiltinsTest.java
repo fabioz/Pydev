@@ -3225,7 +3225,20 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals(1, proposals.length);
         ICompletionProposalHandle prop = proposals[0];
         assertEquals("foo()", prop.getDisplayString());
+    }
 
+    public void testPyiStubs2() throws Exception {
+        String s;
+        String original = "from extendable.pyi_check.my_file2 import MyMessage\n"
+                + "x = MyMessage('', 1, 2)\n"
+                + "x.msg." +
+                "";
+        s = StringUtils.format(original, "");
+
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        assertEquals(1, proposals.length);
+        ICompletionProposalHandle prop = proposals[0];
+        assertEquals("bar()", prop.getDisplayString());
     }
 
 }

@@ -17,7 +17,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -527,7 +526,6 @@ public class LocalScope implements ILocalScope {
                     commentType commentType = (commentType) object;
                     //according to http://sphinx-doc.org/ext/autodoc.html#directive-autoattribute,
                     //to be a valid comment must be before the definition or in the same line.
-                    //                    if (Math.abs(commentType.beginLine - nameDefinition.beginLine) <= 2) { --Not checking it (being a bit more lenient -- and if it's defined once in the context we'll be sure it'll be found.
                     if (commentType.id != null) {
                         String trim = commentType.id.trim();
                         if (trim.startsWith("#")) {
@@ -544,12 +542,10 @@ public class LocalScope implements ILocalScope {
                                 ret.add(new TypeInfo(type));
                             }
                         }
-                        //                        }
                     }
 
                 } else if (object instanceof Str) {
                     Str str = (Str) object;
-                    //                    if (Math.abs(str.beginLine - nameDefinition.beginLine) <= 2) {
                     if (str.s != null) {
                         String trim = str.s.trim();
                         if (trim.startsWith("#")) {
@@ -567,7 +563,6 @@ public class LocalScope implements ILocalScope {
                             }
                         }
                     }
-                    //                    }
                 }
             }
         }
@@ -593,7 +588,11 @@ public class LocalScope implements ILocalScope {
 
     @Override
     public String getScopeStackPathNames() {
-        ListIterator<SimpleNode> iterator = this.scope.iterator();
+        Iterator<SimpleNode> iterator = this.scope.iterator();
+        return nodesIteratorToPathName(iterator);
+    }
+
+    private String nodesIteratorToPathName(Iterator<SimpleNode> iterator) {
         FastStringBuffer buf = new FastStringBuffer();
         if (iterator.hasNext()) {
             SimpleNode next = iterator.next();
@@ -619,5 +618,23 @@ public class LocalScope implements ILocalScope {
             }
         }
         return buf.toString();
+    }
+
+    @Override
+    public String getScopeStackPathNamesToLastClassDef() {
+        ArrayList<SimpleNode> arrayList = new ArrayList<>();
+        boolean found = false;
+        for (Iterator<SimpleNode> it = this.scope.iterator(); it.hasNext();) {
+            SimpleNode node = it.next();
+            arrayList.add(node);
+            if (node instanceof ClassDef) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            return "";
+        }
+        return nodesIteratorToPathName(arrayList.iterator());
     }
 }

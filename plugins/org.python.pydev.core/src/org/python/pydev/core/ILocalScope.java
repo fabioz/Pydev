@@ -101,4 +101,9 @@ public interface ILocalScope {
      * Returns a dotted name with the path to reach the given local scope.
      */
     public String getScopeStackPathNames();
+
+    /**
+     * Returns a dotted name with the path to reach the given local scope.
+     */
+    public String getScopeStackPathNamesToLastClassDef();
 }

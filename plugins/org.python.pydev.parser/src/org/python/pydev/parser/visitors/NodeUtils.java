@@ -33,6 +33,7 @@ import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.BinOp;
 import org.python.pydev.parser.jython.ast.Call;
@@ -79,6 +80,7 @@ import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorWithLoop;
+import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -1529,6 +1531,62 @@ public class NodeUtils {
         return fixType(possible);
     }
 
+    public static TypeInfo getTypeForClassDefAttribute(String attributeWithoutSelf, ClassDef nodeFromPath) {
+        stmtType[] body = nodeFromPath.body;
+        for (int i = 0; i < body.length; i++) {
+            stmtType stmtType = body[i];
+            if (stmtType instanceof Assign) {
+                Assign assign = (Assign) stmtType;
+                if (assign.targets != null && assign.targets.length == 1) {
+                    if (attributeWithoutSelf.equals(getRepresentationString(assign.targets[0]))) {
+                        ArrayList<commentType> collectComments = NodeUtils.collectComments(stmtType);
+                        for (commentType commentType : collectComments) {
+                            if (commentType.id != null) {
+                                FastStringBuffer buf = new FastStringBuffer(commentType.id, 0);
+                                buf.rightTrim();
+                                buf.leftTrim();
+                                if (buf.startsWith('#')) {
+                                    buf.deleteFirst();
+                                }
+                                buf.leftTrim();
+                                if (buf.startsWith("type:")) {
+                                    buf.deleteFirstChars(5);
+                                    buf.leftTrim();
+                                    return new TypeInfo(buf.toString());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private static ArrayList<commentType> collectComments(SimpleNode node) {
+        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(node);
+        Iterator<ASTEntry> iterator = visitor.getIterator();
+        ArrayList<commentType> lst = new ArrayList<>();
+        while (iterator.hasNext()) {
+            ASTEntry entry = iterator.next();
+            if (entry.node.specialsAfter != null) {
+                for (Object o : entry.node.specialsAfter) {
+                    if (o instanceof commentType) {
+                        lst.add((commentType) o);
+                    }
+                }
+            }
+            if (entry.node.specialsBefore != null) {
+                for (Object o : entry.node.specialsBefore) {
+                    if (o instanceof commentType) {
+                        lst.add((commentType) o);
+                    }
+                }
+            }
+        }
+        return lst;
+    }
+
     private static String fixType(String trimmed) {
         if (trimmed != null) {
             trimmed = trimmed.trim();
@@ -2032,4 +2090,15 @@ public class NodeUtils {
         }
         return false;
     }
+
+    public static boolean isSelfAttribute(SimpleNode ast) {
+        if (ast instanceof Attribute) {
+            Attribute attribute = (Attribute) ast;
+            if ("self".equals(getRepresentationString(attribute.value))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

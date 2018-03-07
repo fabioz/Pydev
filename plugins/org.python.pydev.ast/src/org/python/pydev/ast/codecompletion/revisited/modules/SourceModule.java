@@ -1098,6 +1098,10 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         String firstPart = headAndTail[0];
         String rep = headAndTail[1];
 
+        // Maybe better?
+        // ICompletionState copy = state.getCopyWithActTok(firstPart);
+        // Definition[] defs = this.findDefinition(copy, copy.getLine() + 1, copy.getCol() + 1, copy.getNature());
+
         IToken[] tokens = null;
         if (nature != null) {
             tokens = nature.getAstManager().getCompletionsForModule(this, state.getCopyWithActTok(firstPart), true);
