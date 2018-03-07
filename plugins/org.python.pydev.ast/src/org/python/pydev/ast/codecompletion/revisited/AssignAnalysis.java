@@ -106,49 +106,49 @@ public class AssignAnalysis {
                                 assignDefinition = (AssignDefinition) definition;
                             }
 
-                            if (definition.ast instanceof FunctionDef) {
-                                List<IToken> found = manager.getCompletionFromFuncDefReturn(state, s, definition,
-                                        false);
-                                ret.addAll(found);
-                            } else if (definition.ast instanceof Name) {
+                            boolean foundAsParamWithTypingInfo = false;
+                            if (NodeUtils.isParamName(definition.ast) && definition.scope != null) {
                                 Name name = (Name) definition.ast;
-                                if (name.ctx == Name.Param) {
-                                    if (definition.scope != null) {
-                                        String scopeStackPathNames = definition.scope.getScopeStackPathNames();
-                                        if (scopeStackPathNames != null && scopeStackPathNames.length() > 0) {
-                                            IModule pyiStubModule = manager.getPyiStubModule(definition.module, state);
-                                            if (pyiStubModule instanceof SourceModule) {
-                                                SourceModule sourceModule = (SourceModule) pyiStubModule;
-                                                SimpleNode ast = sourceModule.getAst();
-                                                SimpleNode nodeFromPath = NodeUtils.getNodeFromPath(ast,
-                                                        scopeStackPathNames);
-                                                if (nodeFromPath != null) {
-                                                    TypeInfo info = NodeUtils.getTypeForParameterFromAST(
-                                                            NodeUtils.getRepresentationString(name), nodeFromPath);
-                                                    if (info != null) {
-                                                        HashSet<IToken> hashSet = new HashSet<IToken>();
-                                                        List<ITypeInfo> lookForClass = new ArrayList<>();
-                                                        lookForClass.add(info);
-                                                        manager.getCompletionsForClassInLocalScope(sourceModule, state,
-                                                                true, false, lookForClass,
-                                                                hashSet);
-                                                        ret.addAll(hashSet);
-                                                    }
-                                                }
+                                String scopeStackPathNames = definition.scope.getScopeStackPathNames();
+                                if (scopeStackPathNames != null && scopeStackPathNames.length() > 0) {
+                                    IModule pyiStubModule = manager.getPyiStubModule(definition.module, state);
+                                    if (pyiStubModule instanceof SourceModule) {
+                                        SourceModule sourceModule = (SourceModule) pyiStubModule;
+                                        SimpleNode ast = sourceModule.getAst();
+                                        SimpleNode nodeFromPath = NodeUtils.getNodeFromPath(ast,
+                                                scopeStackPathNames);
+                                        if (nodeFromPath != null) {
+                                            TypeInfo info = NodeUtils.getTypeForParameterFromAST(
+                                                    NodeUtils.getRepresentationString(name), nodeFromPath);
+                                            if (info != null) {
+                                                HashSet<IToken> hashSet = new HashSet<IToken>();
+                                                List<ITypeInfo> lookForClass = new ArrayList<>();
+                                                lookForClass.add(info);
+                                                manager.getCompletionsForClassInLocalScope(sourceModule, state,
+                                                        true, false, lookForClass,
+                                                        hashSet);
+                                                ret.addAll(hashSet);
+                                                foundAsParamWithTypingInfo = true;
                                             }
                                         }
                                     }
-
                                 }
-                            } else {
-                                List<IToken> found = getNonFunctionDefCompletionsFromAssign(manager, state, s,
-                                        definition,
-                                        assignDefinition);
-                                //String spaces = new FastStringBuffer().appendN(' ', assignLevel).toString();
-                                //System.out.println(spaces + "Tok: " + state.getActivationToken());
-                                //System.out.println(spaces + "Def: " + definition);
-                                //System.out.println(spaces + "Adding: " + found.size());
-                                ret.addAll(found);
+                            }
+
+                            if (!foundAsParamWithTypingInfo) {
+                                if (definition.ast instanceof FunctionDef) {
+                                    List<IToken> found = manager.getCompletionFromFuncDefReturn(
+                                            state, s, definition, false);
+                                    ret.addAll(found);
+                                } else {
+                                    List<IToken> found = getNonFunctionDefCompletionsFromAssign(manager, state, s,
+                                            definition, assignDefinition);
+                                    //String spaces = new FastStringBuffer().appendN(' ', assignLevel).toString();
+                                    //System.out.println(spaces + "Tok: " + state.getActivationToken());
+                                    //System.out.println(spaces + "Def: " + definition);
+                                    //System.out.println(spaces + "Adding: " + found.size());
+                                    ret.addAll(found);
+                                }
                             }
                         }
                     } else {

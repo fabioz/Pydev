@@ -2022,4 +2022,14 @@ public class NodeUtils {
         }
         return str;
     }
+
+    public static boolean isParamName(SimpleNode ast) {
+        if (ast instanceof Name) {
+            Name name = (Name) ast;
+            if (name.ctx == Name.Param) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
