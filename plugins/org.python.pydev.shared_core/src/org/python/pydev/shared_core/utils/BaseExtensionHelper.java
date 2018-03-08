@@ -92,8 +92,6 @@ public class BaseExtensionHelper {
             }
             if (list == null) {
                 list = new ArrayList<Object>();
-            } else {
-                System.out.println("here");
             }
             return list;
         }
