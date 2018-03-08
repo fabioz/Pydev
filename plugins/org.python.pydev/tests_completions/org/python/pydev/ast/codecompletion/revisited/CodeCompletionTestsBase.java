@@ -37,6 +37,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.core.TokensOrProposalsList;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.editor.codecompletion.proposals.DefaultCompletionProposalFactory;
 import org.python.pydev.plugin.PydevPlugin;
@@ -543,7 +544,7 @@ public class CodeCompletionTestsBase extends TestCase {
         IDocument doc = new Document(strDoc);
         CompletionRequest request = new CompletionRequest(file, nature, doc, documentOffset, codeCompletion, false);
 
-        List<Object> props = codeCompletion.getCodeCompletionProposals(request);
+        TokensOrProposalsList props = codeCompletion.getCodeCompletionProposals(request);
         ICompletionProposalHandle[] codeCompletionProposals = PyCodeCompletionUtils.onlyValid(props, request.qualifier,
                 request.isInCalltip, request.useSubstringMatchInCodeCompletion, null);
         PyCodeCompletionUtils.sort(codeCompletionProposals, request.qualifier, null);

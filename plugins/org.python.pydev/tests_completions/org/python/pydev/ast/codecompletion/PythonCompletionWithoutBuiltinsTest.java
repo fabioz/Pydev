@@ -16,7 +16,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +36,8 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.core.TokensList;
+import org.python.pydev.core.TokensOrProposalsList;
 import org.python.pydev.core.docutils.ImportsSelection;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
@@ -79,84 +80,70 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         participants.put(ExtensionHelper.PYDEV_COMPLETION, Arrays.asList((Object) new IPyDevCompletionParticipant() {
 
             @Override
-            public Collection<Object> getStringGlobalCompletions(CompletionRequest request, ICompletionState state)
+            public TokensOrProposalsList getStringGlobalCompletions(CompletionRequest request, ICompletionState state)
                     throws MisconfigurationException {
-                return new ArrayList<>();
+                return new TokensOrProposalsList();
             }
 
             @Override
-            public Collection<Object> getGlobalCompletions(CompletionRequest request, ICompletionState state)
+            public TokensOrProposalsList getGlobalCompletions(CompletionRequest request, ICompletionState state)
                     throws MisconfigurationException {
-                return new ArrayList<>();
+                return new TokensOrProposalsList();
             }
 
             @Override
-            public Collection<IToken> getCompletionsForType(ICompletionState state)
+            public TokensList getCompletionsForType(ICompletionState state)
                     throws CompletionRecursionException {
-                ArrayList<IToken> ret = new ArrayList<>();
                 if (state.getActivationToken().endsWith("Thread")) {
-                    ret.add(new CompiledToken("run()", "", "", "", 1, null));
+                    return new TokensList(new IToken[] { new CompiledToken("run()", "", "", "", 1, null) });
                 }
-                return ret;
+                return new TokensList();
             }
 
             @Override
-            public Collection<IToken> getCompletionsForTokenWithUndefinedType(ICompletionState state,
-                    ILocalScope localScope,
-                    Collection<IToken> interfaceForLocal) {
-                return new ArrayList<>();
+            public TokensList getCompletionsForTokenWithUndefinedType(ICompletionState state,
+                    ILocalScope localScope, TokensList interfaceForLocal) {
+                return new TokensList();
             }
 
             @Override
-            public Collection<IToken> getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope,
-                    Collection<IToken> interfaceForLocal) {
-                return new ArrayList<>();
+            public TokensList getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope,
+                    TokensList interfaceForLocal) {
+                return new TokensList();
             }
 
-            @Override
-            public Collection<Object> getArgsCompletion(ICompletionState state, ILocalScope localScope,
-                    Collection<IToken> interfaceForLocal) {
-                return new ArrayList<>();
-            }
         }));
         ExtensionHelper.testingParticipants = participants;
     }
 
     private static final class ParticipantWithBarToken implements IPyDevCompletionParticipant {
         @Override
-        public Collection<Object> getStringGlobalCompletions(CompletionRequest request, ICompletionState state)
+        public TokensOrProposalsList getStringGlobalCompletions(CompletionRequest request, ICompletionState state)
                 throws MisconfigurationException {
             throw new RuntimeException("Not implemented");
         }
 
         @Override
-        public Collection<Object> getGlobalCompletions(CompletionRequest request, ICompletionState state)
+        public TokensOrProposalsList getGlobalCompletions(CompletionRequest request, ICompletionState state)
                 throws MisconfigurationException {
             throw new RuntimeException("Not implemented");
         }
 
         @Override
-        public Collection<IToken> getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope,
-                Collection<IToken> interfaceForLocal) {
+        public TokensList getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope,
+                TokensList interfaceForLocal) {
             throw new RuntimeException("Not implemented");
         }
 
         @Override
-        public Collection<IToken> getCompletionsForTokenWithUndefinedType(ICompletionState state,
-                ILocalScope localScope, Collection<IToken> interfaceForLocal) {
-            ArrayList<IToken> ret = new ArrayList<IToken>();
-            ret.add(new SourceToken(null, "bar", null, null, null, IToken.TYPE_ATTR, null));
-            return ret;
+        public TokensList getCompletionsForTokenWithUndefinedType(ICompletionState state,
+                ILocalScope localScope, TokensList interfaceForLocal) {
+            return new TokensList(
+                    new IToken[] { new SourceToken(null, "bar", null, null, null, IToken.TYPE_ATTR, null) });
         }
 
         @Override
-        public Collection<Object> getArgsCompletion(ICompletionState state, ILocalScope localScope,
-                Collection<IToken> interfaceForLocal) {
-            throw new RuntimeException("Not implemented");
-        }
-
-        @Override
-        public Collection<IToken> getCompletionsForType(ICompletionState state) {
+        public TokensList getCompletionsForType(ICompletionState state) {
             throw new RuntimeException("Not implemented");
         }
     }
@@ -3239,6 +3226,26 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals(1, proposals.length);
         ICompletionProposalHandle prop = proposals[0];
         assertEquals("bar()", prop.getDisplayString());
+    }
+
+    public void testPyiStubs3() throws Exception {
+        int initial = GRAMMAR_TO_USE_FOR_PARSING;
+        try {
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+            String s;
+            String original = "from extendable.pyi_check.my_file3 import MyMessage\n"
+                    + "x = MyMessage('', 1, 2)\n"
+                    + "x.msg." +
+                    "";
+            s = StringUtils.format(original, "");
+
+            ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+            assertEquals(1, proposals.length);
+            ICompletionProposalHandle prop = proposals[0];
+            assertEquals("charlie()", prop.getDisplayString());
+        } finally {
+            GRAMMAR_TO_USE_FOR_PARSING = initial;
+        }
     }
 
 }

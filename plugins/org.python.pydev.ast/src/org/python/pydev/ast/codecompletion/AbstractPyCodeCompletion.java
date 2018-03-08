@@ -10,11 +10,12 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.ast.codecompletion.ProposalsComparator.CompareContext;
 import org.python.pydev.ast.codecompletion.revisited.AbstractToken;
+import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.TokensOrProposalsList;
 import org.python.pydev.core.docutils.ImportsSelection;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
@@ -42,7 +43,7 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
      * @param lookingForInstance if looking for instance, we should not add the 'self' as parameter.
      */
     protected void changeItokenToCompletionPropostal(CompletionRequest request,
-            List<ICompletionProposalHandle> convertedProposals, List<Object> iTokenList, boolean importsTip,
+            List<ICompletionProposalHandle> convertedProposals, TokensOrProposalsList iTokenList, boolean importsTip,
             ICompletionState state) {
 
         FastStringBuffer result = new FastStringBuffer();

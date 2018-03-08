@@ -14,10 +14,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.TokensList;
 import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.FastStack;
@@ -128,12 +128,12 @@ public final class Scope implements Iterable<ScopeItems> {
     }
 
     /**
-     * Adds many tokens at once. (created by the same token) 
+     * Adds many tokens at once. (created by the same token)
      * Adding more than one ONLY happens for:
      * - wild imports (kind of obvious)
-     * - imports such as import os.path (one token is created for os and one for os.path) 
+     * - imports such as import os.path (one token is created for os and one for os.path)
      */
-    public void addImportTokens(List<IToken> list, IToken generator, ICompletionCache completionCache) {
+    public void addImportTokens(TokensList list, IToken generator, ICompletionCache completionCache) {
         ScopeItems.TryExceptInfo withinExceptNode = scope.peek().getTryExceptImportError();
 
         //only report undefined imports if we're not inside a try..except ImportError.
@@ -199,12 +199,12 @@ public final class Scope implements Iterable<ScopeItems> {
     /**
      * when adding a token, we also have to check if there is not a token with the same representation
      * added, because if there is, the previous token might not be used at all...
-     * 
+     *
      * @param generator that's the token that generated this representation
      * @param m the current scope items
      * @param o the generator token
-     * @param rep the representation of the token (o) 
-     * @return 
+     * @param rep the representation of the token (o)
+     * @return
      */
     public Found addToken(IToken generator, ScopeItems m, IToken o, String rep) {
         if (generator == null) {
@@ -247,7 +247,7 @@ public final class Scope implements Iterable<ScopeItems> {
             }
         }
 
-        Found newFound = new Found(o, (SourceToken) generator, m.getScopeId(), m);
+        Found newFound = new Found(o, generator, m.getScopeId(), m);
         if (isReimport) {
             if (m.getTryExceptImportError() == null) {
                 //we don't want to add reimport messages if we're within a try..except
@@ -286,7 +286,7 @@ public final class Scope implements Iterable<ScopeItems> {
     }
 
     /**
-     * 
+     *
      * @param name the name to search for
      * @param setUsed indicates if the found tokens should be marked used
      * @return true if a given name was found in any of the scopes we have so far

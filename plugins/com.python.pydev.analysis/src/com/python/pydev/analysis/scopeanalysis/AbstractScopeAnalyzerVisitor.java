@@ -10,7 +10,6 @@
 package com.python.pydev.analysis.scopeanalysis;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -34,6 +33,7 @@ import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.TokensList;
 import org.python.pydev.core.TupleN;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -148,13 +148,14 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
                 .getEmptyCompletionState(nature, new CompletionCache());
         this.completionCache = completionState;
 
-        List<IToken> builtinCompletions = nature.getAstManager().getBuiltinCompletions(completionState,
-                new ArrayList<IToken>());
+        TokensList builtinCompletions = nature.getAstManager().getBuiltinCompletions(completionState,
+                new TokensList());
 
         if (moduleName != null && moduleName.endsWith("__init__")) {
             //__path__ should be added to modules that have __init__
-            builtinCompletions.add(new SourceToken(new Name("__path__", Name.Load, false), "__path__", "", "",
-                    moduleName, nature));
+            builtinCompletions
+                    .addAll(new TokensList(new SourceToken(new Name("__path__", Name.Load, false), "__path__", "", "",
+                            moduleName, nature)));
         }
 
         for (IToken t : builtinCompletions) {
@@ -555,7 +556,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
                 }
             }
         }
-        scope.addImportTokens(list, null, this.completionCache);
+        scope.addImportTokens(new TokensList(list), null, this.completionCache);
         return null;
     }
 
@@ -573,14 +574,14 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
 
                 ICompletionState state = CompletionStateFactory.getEmptyCompletionState(nature, this.completionCache);
                 state.setBuiltinsGotten(true); //we don't want any builtins
-                List<IToken> completionsForWildImport = new ArrayList<IToken>();
+                TokensList completionsForWildImport = new TokensList();
                 if (nature.getAstManager().getCompletionsForWildImport(state, current, completionsForWildImport,
                         wildImport)) {
                     scope.addImportTokens(completionsForWildImport, wildImport, this.completionCache);
                 }
             } else {
                 List<IToken> list = AbstractVisitor.makeImportToken(node, null, moduleName, true, nature);
-                scope.addImportTokens(list, null, this.completionCache);
+                scope.addImportTokens(new TokensList(list), null, this.completionCache);
             }
 
         } catch (Exception e) {
@@ -1206,7 +1207,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
                             if (!isDefinitionUnknown(m, repToCheck)) {
                                 //Check if there's some hasattr (if there is, we'll consider that the token which
                                 //had the hasattr checked will actually have it).
-                                Collection<IToken> interfaceForLocal = this.currentLocalScope.getInterfaceForLocal(
+                                TokensList interfaceForLocal = this.currentLocalScope.getInterfaceForLocal(
                                         foundAsStr, false, true);
                                 boolean foundInHasAttr = false;
                                 for (IToken iToken : interfaceForLocal) {

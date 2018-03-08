@@ -315,7 +315,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
      *
      * May return null if not set
      */
-    IToken[] getBuiltinCompletions();
+    TokensList getBuiltinCompletions();
 
     /**
      * @param toks those are the tokens that are set as builtin completions.

@@ -12,9 +12,7 @@
 package com.python.pydev.analysis.additionalinfo;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.text.Document;
@@ -30,9 +28,10 @@ import org.python.pydev.ast.codecompletion.revisited.ModulesManager;
 import org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.core.ICompletionState;
-import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.TokensList;
+import org.python.pydev.core.TokensOrProposalsList;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -47,7 +46,7 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
     protected IPyDevCompletionParticipant participant;
     protected boolean useOriginalRequestCompl = false;
 
-    protected ArrayList<IToken> imports;
+    protected TokensList imports;
 
     @Override
     public ICompletionProposalHandle[] requestCompl(File file, String strDoc, int documentOffset, int returned,
@@ -67,7 +66,7 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
 
         ICompletionState state = CompletionStateFactory.getEmptyCompletionState(nature, new CompletionCache());
         state.setTokenImportedModules(imports);
-        List<Object> props = new ArrayList<Object>(participant.getGlobalCompletions(request, state));
+        TokensOrProposalsList props = participant.getGlobalCompletions(request, state);
         ICompletionProposalHandle[] codeCompletionProposals = PyCodeCompletionUtils.onlyValid(props, request.qualifier,
                 request.isInCalltip, useSubstringMatchInCodeCompletion, null);
         PyCodeCompletionUtils.sort(codeCompletionProposals, request.qualifier, null);

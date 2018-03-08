@@ -100,7 +100,7 @@ public interface ICodeCompletionASTManager {
      * @throws CompletionRecursionException
      * @throws MisconfigurationException
      */
-    public abstract IToken[] getCompletionsForImport(ImportInfo original, ICompletionRequest request,
+    public abstract TokensList getCompletionsForImport(ImportInfo original, ICompletionRequest request,
             boolean onlyGetDirectModules) throws CompletionRecursionException, MisconfigurationException;
 
     /**
@@ -122,7 +122,7 @@ public interface ICodeCompletionASTManager {
      * @throws CompletionRecursionException
      * @throws MisconfigurationException
      */
-    //    public abstract IToken[] getCompletionsForToken(File file, IDocument doc, ICompletionState state) throws CompletionRecursionException, MisconfigurationException;
+    //    public abstract TokensList getCompletionsForToken(File file, IDocument doc, ICompletionState state) throws CompletionRecursionException, MisconfigurationException;
     //    Clients must now do the createModule part themselves (and call the getCompletionsForModule)
     //    This is because some places were creating the module more than once from the request, so, now the request
     //    creates the module and caches it.
@@ -164,14 +164,14 @@ public interface ICodeCompletionASTManager {
      * 2: actual tok
      * @throws CompletionRecursionException
      */
-    public abstract Tuple3<IModule, String, IToken> findOnImportedMods(IToken[] importedModules,
+    public abstract Tuple3<IModule, String, IToken> findOnImportedMods(TokensList importedModules,
             ICompletionState state, String currentModuleName, IModule current) throws CompletionRecursionException;
 
     /**
      * Finds the tokens on the given imported modules
      * @throws CompletionRecursionException
      */
-    public IToken[] findTokensOnImportedMods(IToken[] importedModules, ICompletionState state, IModule current)
+    public TokensList findTokensOnImportedMods(TokensList importedModules, ICompletionState state, IModule current)
             throws CompletionRecursionException;
 
     /**
@@ -183,7 +183,7 @@ public interface ICodeCompletionASTManager {
      * @param qualifier
      * @return
      */
-    public abstract IToken[] getCompletionsForToken(IDocument doc, ICompletionState state)
+    public abstract TokensList getCompletionsForToken(IDocument doc, ICompletionState state)
             throws CompletionRecursionException;
 
     /**
@@ -194,7 +194,7 @@ public interface ICodeCompletionASTManager {
      * @param col
      * @param line
      */
-    public abstract IToken[] getCompletionsForModule(IModule module, ICompletionState state)
+    public abstract TokensList getCompletionsForModule(IModule module, ICompletionState state)
             throws CompletionRecursionException;
 
     /**
@@ -205,11 +205,11 @@ public interface ICodeCompletionASTManager {
      * @param col
      * @param line
      */
-    public abstract IToken[] getCompletionsForModule(IModule module, ICompletionState state,
+    public abstract TokensList getCompletionsForModule(IModule module, ICompletionState state,
             boolean searchSameLevelMods)
             throws CompletionRecursionException;
 
-    public abstract IToken[] getCompletionsForModule(IModule module, ICompletionState state,
+    public abstract TokensList getCompletionsForModule(IModule module, ICompletionState state,
             boolean searchSameLevelMods, boolean lookForArgumentCompletion) throws CompletionRecursionException;
 
     /**
@@ -223,7 +223,7 @@ public interface ICodeCompletionASTManager {
      *
      * @return true if it was able to find the module and get its completions and false otherwise
      */
-    public boolean getCompletionsForWildImport(ICompletionState state, IModule current, List<IToken> completions,
+    public boolean getCompletionsForWildImport(ICompletionState state, IModule current, TokensList completions,
             IToken wildImport);
 
     /**
@@ -233,7 +233,7 @@ public interface ICodeCompletionASTManager {
      * @param completions OUT this is where the completions are added.
      * @return the same list that has been passed at completions
      */
-    public List<IToken> getBuiltinCompletions(ICompletionState state, List<IToken> completions);
+    public TokensList getBuiltinCompletions(ICompletionState state, TokensList completions);
 
     /**
      * This method can get the global completions for a module (the activation token is usually empty in
@@ -249,8 +249,8 @@ public interface ICodeCompletionASTManager {
      * @param current the current module
      * @return a list of IToken
      */
-    public abstract List<IToken> getGlobalCompletions(IToken[] globalTokens, IToken[] importedModules,
-            IToken[] wildImportedModules, ICompletionState state, IModule current);
+    public abstract TokensList getGlobalCompletions(TokensList globalTokens, TokensList importedModules,
+            TokensList wildImportedModules, ICompletionState state, IModule current);
 
     /**
      * Fills the HashSet passed with completions for the class passed considering the current local scope.
@@ -323,10 +323,10 @@ public interface ICodeCompletionASTManager {
      */
     public void saveToFile(File astOutputFile);
 
-    public abstract IToken[] getCompletionsUnpackingObject(IModule module, ICompletionState copy, ILocalScope scope,
+    public abstract TokensList getCompletionsUnpackingObject(IModule module, ICompletionState copy, ILocalScope scope,
             UnpackInfo unpackPos) throws CompletionRecursionException;
 
-    public IToken[] getCompletionsFromTokenInLocalScope(IModule module, ICompletionState state,
+    public TokensList getCompletionsFromTokenInLocalScope(IModule module, ICompletionState state,
             boolean searchSameLevelMods, boolean lookForArgumentCompletion, ILocalScope localScope)
             throws CompletionRecursionException;
 
@@ -334,7 +334,7 @@ public interface ICodeCompletionASTManager {
      * @param considerYieldTheReturnType if true, any yield call will be considered the return type, otherwise a yield
      * should return as being a generator of the given type.
      */
-    public abstract List<IToken> getCompletionFromFuncDefReturn(ICompletionState state, IModule s,
+    public abstract TokensList getCompletionFromFuncDefReturn(ICompletionState state, IModule s,
             IDefinition definition, boolean considerYieldTheReturnType) throws CompletionRecursionException;
 
     public abstract IModule /* SourceModule */ getPyiStubModule(IModule module, ICompletionState completionState);

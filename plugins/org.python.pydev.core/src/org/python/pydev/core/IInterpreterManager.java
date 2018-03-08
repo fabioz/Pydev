@@ -15,6 +15,7 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 
 /**
  * @author Fabio Zadrozny
@@ -125,7 +126,7 @@ public interface IInterpreterManager {
     //caches for the builtin tokens and module
     public void clearBuiltinCompletions(String projectInterpreterName);
 
-    public IToken[] getBuiltinCompletions(String projectInterpreterName);
+    public TokensList getBuiltinCompletions(String projectInterpreterName);
 
     public IModule getBuiltinMod(String projectInterpreterName);
 

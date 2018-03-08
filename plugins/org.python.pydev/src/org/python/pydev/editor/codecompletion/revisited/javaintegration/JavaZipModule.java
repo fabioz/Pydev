@@ -29,10 +29,10 @@ import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * This is the module wrapper around java files or java packages.
- * 
- * Don't know how to make the completions for java correctly... check: 
+ *
+ * Don't know how to make the completions for java correctly... check:
  * http://www.eclipse.org/newsportal/article.php?id=68521&group=eclipse.platform#68521
- * 
+ *
  * @author Fabio
  */
 public class JavaZipModule extends AbstractJavaClassModule {
@@ -89,7 +89,7 @@ public class JavaZipModule extends AbstractJavaClassModule {
 
     /**
      * Creates a java class module from a .class in a jar.
-     * @param nature 
+     * @param nature
      */
     public JavaZipModule(EmptyModuleForZip emptyModuleForZip, IPythonNature nature) {
         super(emptyModuleForZip.getName());
@@ -101,7 +101,7 @@ public class JavaZipModule extends AbstractJavaClassModule {
             System.out.println("Created JavaZipClassModule: " + name);
         }
         if (isFileInZip) {
-            //we only have tokens for a class 
+            //we only have tokens for a class
             this.tokens = createTokens(name);
         } else {
             //otherwise, it's a folder (which is treated as a module without any tokens -- as an empty __init__.py file)
@@ -128,7 +128,7 @@ public class JavaZipModule extends AbstractJavaClassModule {
 
     /**
      * Gets tuples with the java element and the corresponding completion proposal for that element.
-     * 
+     *
      * @param completeClassDesc the name of the class from where we should get the tokens. E.g. java.lang.Class, javax.swing.JFrame
      * @param filterCompletionName if specified, only return matches from elements that have the name passed (otherwise it should be null)
      * @return a list of tuples corresponding to the element and the proposal for the gotten elements
@@ -169,7 +169,7 @@ public class JavaZipModule extends AbstractJavaClassModule {
 
     /**
      * Gets tuples with the java element and the corresponding completion proposal for that element.
-     * 
+     *
      * @param contents the contents that should be set for doing the code-completion
      * @param completionOffset the offset where the code completion should be requested
      * @param filterCompletionName if specified, only return matches from elements that have the name passed (otherwise it should be null)

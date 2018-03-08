@@ -32,6 +32,7 @@ import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.TokensList;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.JavaElementToken;
@@ -51,7 +52,7 @@ public abstract class AbstractJavaClassModule extends AbstractModule implements 
 
     protected static final CompiledToken[] EMPTY_ITOKEN = new CompiledToken[0];
 
-    protected CompiledToken[] tokens;
+    protected IToken[] tokens;
 
     public static HashMap<String, String> replacementMap = new HashMap<String, String>();
 
@@ -230,8 +231,8 @@ public abstract class AbstractJavaClassModule extends AbstractModule implements 
      * @see org.python.pydev.editor.javacodecompletion.AbstractModule#getWildImportedModules()
      */
     @Override
-    public IToken[] getWildImportedModules() {
-        return EMPTY_ITOKEN;
+    public TokensList getWildImportedModules() {
+        return new TokensList();
     }
 
     /**
@@ -239,19 +240,19 @@ public abstract class AbstractJavaClassModule extends AbstractModule implements 
      * @see org.python.pydev.editor.javacodecompletion.AbstractModule#getTokenImportedModules()
      */
     @Override
-    public IToken[] getTokenImportedModules() {
-        return EMPTY_ITOKEN;
+    public TokensList getTokenImportedModules() {
+        return new TokensList();
     }
 
     /**
      * @see org.python.pydev.editor.javacodecompletion.AbstractModule#getGlobalTokens()
      */
     @Override
-    public IToken[] getGlobalTokens() {
+    public TokensList getGlobalTokens() {
         if (this.tokens == null) {
-            return EMPTY_ITOKEN;
+            return new TokensList();
         }
-        return this.tokens;
+        return new TokensList(this.tokens);
     }
 
     /**
@@ -266,16 +267,16 @@ public abstract class AbstractJavaClassModule extends AbstractModule implements 
      * @see org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule#getGlobalTokens(java.lang.String)
      */
     @Override
-    public IToken[] getGlobalTokens(ICompletionState state, ICodeCompletionASTManager manager) {
+    public TokensList getGlobalTokens(ICompletionState state, ICodeCompletionASTManager manager) {
         String actTok = state.getFullActivationToken();
         if (actTok == null) {
             actTok = state.getActivationToken();
         }
         if (actTok == null) {
-            return new IToken[0];
+            return new TokensList(new IToken[0]);
         }
         String act = new FastStringBuffer(name, 2 + actTok.length()).append('.').append(actTok).toString();
-        return createTokens(act);
+        return new TokensList(createTokens(act));
     }
 
     @Override
@@ -301,13 +302,13 @@ public abstract class AbstractJavaClassModule extends AbstractModule implements 
      *
      * It also works directly with CompiledToken because we want a custom compare (from the representation)
      */
-    private static boolean binaryHasObject(CompiledToken[] a, CompiledToken key) {
+    private static boolean binaryHasObject(IToken[] a, IToken key) {
         int low = 0;
         int high = a.length - 1;
 
         while (low <= high) {
             int mid = (low + high) >> 1;
-            CompiledToken midVal = a[mid];
+            IToken midVal = a[mid];
             int cmp = midVal.getRepresentation().compareTo(key.getRepresentation());
 
             if (cmp < 0) {

@@ -9,7 +9,7 @@ package org.python.pydev.ast.codecompletion;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.python.pydev.ast.codecompletion.PyCodeCompletionUtils;
+import org.python.pydev.core.TokensOrProposalsList;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.editor.codecompletion.proposals.DefaultCompletionProposalFactory;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
@@ -20,9 +20,11 @@ import junit.framework.TestCase;
 public class PyCodeCompletionUtilsTest extends TestCase {
 
     public void testSimpleCompare() throws Exception {
-        List<ICompletionProposalHandle> props = new ArrayList<ICompletionProposalHandle>();
-        props.add(CompletionProposalFactory.get().createPyCompletionProposal("foo1(a, b)", 0, 0, 0, 0));
-        props.add(CompletionProposalFactory.get().createPyCompletionProposal("foo1", 0, 0, 0, 0));
+        TokensOrProposalsList props = new TokensOrProposalsList(
+                new ICompletionProposalHandle[] {
+                        CompletionProposalFactory.get().createPyCompletionProposal("foo1(a, b)", 0, 0, 0, 0),
+                        CompletionProposalFactory.get().createPyCompletionProposal("foo1", 0, 0, 0, 0)
+                });
         String qualifier = "foo";
         boolean onlyForCalltips = false;
 
@@ -45,12 +47,14 @@ public class PyCodeCompletionUtilsTest extends TestCase {
     }
 
     public void testCompareWithUnder() throws Exception {
-        List<ICompletionProposalHandle> props = new ArrayList<ICompletionProposalHandle>();
-        props.add(CompletionProposalFactory.get().createPyCompletionProposal("_foo1(a, b)", 0, 0, 0, 0));
-        props.add(CompletionProposalFactory.get().createPyCompletionProposal("__foo1__", 0, 0, 0, 0));
-        props.add(CompletionProposalFactory.get().createPyCompletionProposal("__foo1__()", 0, 0, 0, 0));
-        props.add(CompletionProposalFactory.get().createPyCompletionProposal("__foo1()", 0, 0, 0, 0));
-        props.add(CompletionProposalFactory.get().createPyCompletionProposal("__foo1 - __something__", 0, 0, 0, 0));
+        TokensOrProposalsList props = new TokensOrProposalsList(
+                new ICompletionProposalHandle[] {
+                        CompletionProposalFactory.get().createPyCompletionProposal("_foo1(a, b)", 0, 0, 0, 0),
+                        CompletionProposalFactory.get().createPyCompletionProposal("__foo1__", 0, 0, 0, 0),
+                        CompletionProposalFactory.get().createPyCompletionProposal("__foo1__()", 0, 0, 0, 0),
+                        CompletionProposalFactory.get().createPyCompletionProposal("__foo1()", 0, 0, 0, 0),
+                        CompletionProposalFactory.get().createPyCompletionProposal("__foo1 - __something__", 0, 0, 0, 0)
+                });
         String qualifier = "_";
         boolean onlyForCalltips = false;
 
@@ -62,9 +66,11 @@ public class PyCodeCompletionUtilsTest extends TestCase {
     }
 
     public void testExactMatches() throws Exception {
-        List<ICompletionProposalHandle> props = new ArrayList<ICompletionProposalHandle>();
-        props.add(CompletionProposalFactory.get().createPyCompletionProposal("SystemError", 0, 0, 0, 0));
-        props.add(CompletionProposalFactory.get().createPyCompletionProposal("system", 0, 0, 0, 0));
+        TokensOrProposalsList props = new TokensOrProposalsList(
+                new ICompletionProposalHandle[] {
+                        CompletionProposalFactory.get().createPyCompletionProposal("SystemError", 0, 0, 0, 0),
+                        CompletionProposalFactory.get().createPyCompletionProposal("system", 0, 0, 0, 0)
+                });
         String qualifier = "sys";
         boolean onlyForCalltips = false;
 

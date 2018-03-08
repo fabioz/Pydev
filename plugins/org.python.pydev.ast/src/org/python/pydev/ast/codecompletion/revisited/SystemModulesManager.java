@@ -41,6 +41,7 @@ import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.TokensList;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -190,7 +191,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
     /**
      * @return true if there is a token that has rep as its representation.
      */
-    private boolean contains(IToken[] tokens, String rep) {
+    private boolean contains(TokensList tokens, String rep) {
         for (IToken token : tokens) {
             if (token.getRepresentation().equals(rep)) {
                 return true;
@@ -346,13 +347,13 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
 
             //ok, just add it if it is some module that actually exists
             n = new CompiledModule(name, this, this.getNature());
-            IToken[] globalTokens = n.getGlobalTokens();
+            TokensList globalTokens = n.getGlobalTokens();
             //if it does not contain the __file__, this means that it's not actually a module
             //(but may be a token from a compiled module, so, clients wanting it must get the module
             //first and only then go on to this token).
             //done: a cache with those tokens should be kept, so that we don't actually have to create
             //the module to see its return values (because that's slow)
-            if (globalTokens.length > 0 && contains(globalTokens, "__file__")) {
+            if (globalTokens.size() > 0 && contains(globalTokens, "__file__")) {
                 doAddSingleModule(new ModulesKey(name, null), n);
                 return n;
             } else {

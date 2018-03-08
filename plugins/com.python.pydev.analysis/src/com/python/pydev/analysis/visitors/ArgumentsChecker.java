@@ -33,6 +33,7 @@ import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.FastStack;
@@ -163,7 +164,7 @@ public final class ArgumentsChecker {
                         int count = StringUtils.count(rep, '.');
 
                         if (count == 1 && rep.startsWith("self.")) {
-                            FastStack<SimpleNode> scopeStack = d.scope.getScopeStack();
+                            FastStack<ISimpleNode> scopeStack = d.scope.getScopeStack();
                             if (scopeStack.size() > 0 && scopeStack.peek() instanceof ClassDef) {
                                 callingBoundMethod = true;
                             } else {
@@ -171,7 +172,7 @@ public final class ArgumentsChecker {
                             }
 
                         } else {
-                            FastStack<SimpleNode> scopeStack = d.scope.getScopeStack();
+                            FastStack<ISimpleNode> scopeStack = d.scope.getScopeStack();
                             if (scopeStack.size() > 1 && scopeStack.peek(1) instanceof ClassDef) {
                                 callingBoundMethod = true;
                                 String withoutLast = FullRepIterable.getWithoutLastPart(rep);
@@ -247,7 +248,8 @@ public final class ArgumentsChecker {
 
     protected void analyzeCallAndFunctionMatch(Call callNode, FunctionDef functionDefinitionReferenced,
             IToken nameToken, boolean callingBoundMethod) throws Exception {
-        int functionArgsLen = functionDefinitionReferenced.args.args != null ? functionDefinitionReferenced.args.args.length
+        int functionArgsLen = functionDefinitionReferenced.args.args != null
+                ? functionDefinitionReferenced.args.args.length
                 : 0;
         Collection<String> functionRequiredArgs = new OrderedSet<String>(functionArgsLen);
         Collection<String> functionOptionalArgs = new OrderedSet<String>(functionArgsLen);
@@ -276,7 +278,8 @@ public final class ArgumentsChecker {
                 continue;
             }
             if (functionDefinitionReferenced.args.defaults == null
-                    || (functionDefinitionReferenced.args.defaults.length > i && functionDefinitionReferenced.args.defaults[i] == null)) {
+                    || (functionDefinitionReferenced.args.defaults.length > i
+                            && functionDefinitionReferenced.args.defaults[i] == null)) {
                 //it's null, so, it's required
                 functionRequiredArgs.add(rep);
             } else {
@@ -349,7 +352,8 @@ public final class ArgumentsChecker {
             }
         }
 
-        if (functionRequiredArgs.size() > 0 || (functionKeywordOnlyArgs != null && functionKeywordOnlyArgs.size() > 0)) {
+        if (functionRequiredArgs.size() > 0
+                || (functionKeywordOnlyArgs != null && functionKeywordOnlyArgs.size() > 0)) {
             if (callNode.kwargs == null && callNode.starargs == null) {
                 //Not all required parameters were consumed!
                 onArgumentsMismatch(nameToken, callNode);

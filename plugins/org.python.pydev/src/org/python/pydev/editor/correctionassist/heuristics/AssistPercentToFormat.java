@@ -30,6 +30,7 @@ import org.python.pydev.ast.codecompletion.AbstractTemplateCodeCompletion;
 import org.python.pydev.ast.codecompletion.CompletionRequest;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.TokensOrProposalsList;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.editor.correctionassist.IAssistProps;
@@ -114,7 +115,7 @@ public class AssistPercentToFormat extends AbstractTemplateCodeCompletion implem
     }
 
     @Override
-    public List<Object> getCodeCompletionProposals(CompletionRequest request)
+    public TokensOrProposalsList getCodeCompletionProposals(CompletionRequest request)
             throws CoreException, BadLocationException {
         throw new RuntimeException("Not implemented: completions should be gotten from the IAssistProps interface.");
     }

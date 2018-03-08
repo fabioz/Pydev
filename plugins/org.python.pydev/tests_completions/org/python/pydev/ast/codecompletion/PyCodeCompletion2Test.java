@@ -11,20 +11,14 @@
  */
 package org.python.pydev.ast.codecompletion;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.jface.text.Document;
-import org.python.pydev.ast.codecompletion.CompletionRequest;
-import org.python.pydev.ast.codecompletion.PyCodeCompletion;
 import org.python.pydev.ast.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.ast.codecompletion.revisited.CompletionState;
 import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.core.ICompletionState;
-import org.python.pydev.core.IToken;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.core.TokensList;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
@@ -54,7 +48,8 @@ public class PyCodeCompletion2Test extends CodeCompletionTestsBase {
 
             @Override
             public Object call(CompletionRecursionException e) {
-                throw new RuntimeException("Recursion error:" + org.python.pydev.shared_core.log.Log.getExceptionStr(e));
+                throw new RuntimeException(
+                        "Recursion error:" + org.python.pydev.shared_core.log.Log.getExceptionStr(e));
             }
 
         };
@@ -79,10 +74,10 @@ public class PyCodeCompletion2Test extends CodeCompletionTestsBase {
                 - ps.getStartLine().getOffset(), null, nature, "");
         CompletionRequest request = new CompletionRequest(null, nature, ps.getDoc(), "self.m1",
                 ps.getAbsoluteCursorOffset(), 0, new PyCodeCompletion(), "", false);
-        List<IToken> selfCompletions = new ArrayList<IToken>();
+        TokensList selfCompletions = new TokensList();
         PyCodeCompletion.getSelfOrClsCompletions(request, selfCompletions, state, false, false, "self.m1");
         assertEquals(1, selfCompletions.size());
-        assertEquals("m2", selfCompletions.get(0).getRepresentation());
+        assertEquals("m2", selfCompletions.getFirst().getRepresentation());
 
     }
 }

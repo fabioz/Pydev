@@ -10,7 +10,6 @@
  */
 package org.python.pydev.core;
 
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -28,19 +27,19 @@ public interface ILocalScope {
     /**
      * @return all the local tokens found
      */
-    public IToken[] getAllLocalTokens();
+    public TokensList getAllLocalTokens();
 
     /**
      * @param endLine tokens will only be recognized if its beginLine is higher than this parameter.
      */
-    public IToken[] getLocalTokens(int endLine, int col, boolean onlyArgs);
+    public TokensList getLocalTokens(int endLine, int col, boolean onlyArgs);
 
     /**
      * @param line: starts at 1
      * @param col: starts at 1
      * @return the modules that are imported in the current (local) scope as tokens
      */
-    public List<IToken> getLocalImportedModules(int line, int col, String moduleName);
+    public TokensList getLocalImportedModules(int line, int col, String moduleName);
 
     /**
      * @return whether the last element found in this scope is a class definition
@@ -51,7 +50,7 @@ public interface ILocalScope {
      * @return the scope stack with simple nodes
      * @note SimpleNode is not declared because we only have it in the parser (and not in the local scope)
      */
-    public FastStack /*<SimpleNode>*/ getScopeStack();
+    public FastStack<ISimpleNode> getScopeStack();
 
     /**
      * @return the list of tokens that are part of the interface for some local variable.
@@ -62,7 +61,7 @@ public interface ILocalScope {
      *
      * a token for 'bar' and a token for 'kkk' will be returned
      */
-    public Collection<IToken> getInterfaceForLocal(String activationToken);
+    public TokensList getInterfaceForLocal(String activationToken);
 
     /**
      * @return Iterator for the nodes in the scope (starting with the last to the first -- or from the inner to the outer)

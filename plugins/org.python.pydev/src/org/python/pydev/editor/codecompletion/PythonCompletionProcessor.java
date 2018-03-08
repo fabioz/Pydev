@@ -37,6 +37,7 @@ import org.python.pydev.core.IPySyntaxHighlightingAndCodeCompletionEditor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
+import org.python.pydev.core.TokensOrProposalsList;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PyDevUiPrefs;
@@ -128,7 +129,6 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#computeCompletionProposals(org.eclipse.jface.text.ITextViewer, int)
      */
     @Override
-    @SuppressWarnings("unchecked")
     public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int documentOffset) {
         updateStatus();
         ICompletionProposalHandle[] proposals;
@@ -138,7 +138,7 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
             IDocument doc = viewer.getDocument();
 
             //list for storing the proposals
-            ArrayList<ICompletionProposalHandle> pythonAndTemplateProposals = new ArrayList<ICompletionProposalHandle>();
+            TokensOrProposalsList pythonAndTemplateProposals = new TokensOrProposalsList();
 
             IPythonNature nature = edit.getPythonNature();
 
@@ -185,7 +185,7 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
 
                 //THIRD: Get template proposals (if asked for)
                 if (request.showTemplates && (activationToken == null || activationToken.trim().length() == 0)) {
-                    List<ICompletionProposalHandle> templateProposals = getTemplateProposals(viewer, documentOffset,
+                    TokensOrProposalsList templateProposals = getTemplateProposals(viewer, documentOffset,
                             activationToken, qualifier);
                     pythonAndTemplateProposals.addAll(templateProposals);
                 }
@@ -221,7 +221,7 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
      * @throws IOException
      * @throws PythonNatureWithoutProjectException
      */
-    private List getPythonProposals(int documentOffset, IDocument doc,
+    private TokensOrProposalsList getPythonProposals(int documentOffset, IDocument doc,
             CompletionRequest request)
             throws CoreException, BadLocationException, IOException, MisconfigurationException,
             PythonNatureWithoutProjectException {
@@ -232,21 +232,20 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
             request.showTemplates = false; //don't show templates if we are in the imports section or inside a calltip.
         }
 
-        List allProposals = request.codeCompletion.getCodeCompletionProposals(request);
+        TokensOrProposalsList allProposals = request.codeCompletion.getCodeCompletionProposals(request);
         return allProposals;
     }
 
     /**
      * Returns the template proposals as a list.
      */
-    private List<ICompletionProposalHandle> getTemplateProposals(ITextViewer viewer, int documentOffset,
-            String activationToken,
-            java.lang.String qualifier) {
+    private TokensOrProposalsList getTemplateProposals(ITextViewer viewer, int documentOffset,
+            String activationToken, java.lang.String qualifier) {
         List<ICompletionProposalHandle> propList = new ArrayList<ICompletionProposalHandle>();
         if (this.templatesCompletion != null) {
             this.templatesCompletion.addTemplateProposals(viewer, documentOffset, propList);
         }
-        return propList;
+        return new TokensOrProposalsList(propList);
     }
 
     /**

@@ -17,8 +17,8 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IInterpreterManagerListener;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.TokensList;
 
 /**
  * Interpreter manager created so that we can use the eclipse process to access the internal jython.
@@ -131,7 +131,7 @@ public class JythonEclipseInterpreterManager implements IInterpreterManager {
     }
 
     @Override
-    public IToken[] getBuiltinCompletions(String projectInterpreterName) {
+    public TokensList getBuiltinCompletions(String projectInterpreterName) {
 
         return null;
     }

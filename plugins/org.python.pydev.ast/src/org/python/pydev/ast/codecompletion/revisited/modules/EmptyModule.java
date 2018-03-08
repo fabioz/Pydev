@@ -18,7 +18,7 @@ import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.IToken;
+import org.python.pydev.core.TokensList;
 
 /**
  * @author Fabio Zadrozny
@@ -55,7 +55,7 @@ public class EmptyModule extends AbstractModule {
      * @see org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule#getWildImportedModules()
      */
     @Override
-    public IToken[] getWildImportedModules() {
+    public TokensList getWildImportedModules() {
         throw new RuntimeException("Not intended to be called");
     }
 
@@ -63,7 +63,7 @@ public class EmptyModule extends AbstractModule {
      * @see org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule#getTokenImportedModules()
      */
     @Override
-    public IToken[] getTokenImportedModules() {
+    public TokensList getTokenImportedModules() {
         throw new RuntimeException("Not intended to be called");
     }
 
@@ -71,7 +71,7 @@ public class EmptyModule extends AbstractModule {
      * @see org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule#getGlobalTokens()
      */
     @Override
-    public IToken[] getGlobalTokens() {
+    public TokensList getGlobalTokens() {
         throw new RuntimeException("Not intended to be called");
     }
 
@@ -87,7 +87,7 @@ public class EmptyModule extends AbstractModule {
      * @see org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule#getGlobalTokens(java.lang.String)
      */
     @Override
-    public IToken[] getGlobalTokens(ICompletionState state, ICodeCompletionASTManager manager) {
+    public TokensList getGlobalTokens(ICompletionState state, ICodeCompletionASTManager manager) {
         throw new RuntimeException("Not intended to be called");
     }
 

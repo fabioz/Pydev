@@ -9,8 +9,6 @@
  */
 package org.python.pydev.core;
 
-import java.util.List;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.core.structure.CompletionRecursionException;
 
@@ -141,12 +139,12 @@ public interface ICompletionState extends ICompletionCache {
      * The attribute that stores it will not be copied when a copy is gotten.
      * If already set, this function should not override a previous value.
      */
-    void setTokenImportedModules(List<IToken> tokenImportedModules);
+    void setTokenImportedModules(TokensList tokenImportedModules);
 
     /**
      * May be null
      */
-    public List<IToken> getTokenImportedModules();
+    public TokensList getTokenImportedModules();
 
     int pushAssign();
 

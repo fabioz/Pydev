@@ -33,6 +33,7 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
+import org.python.pydev.core.TokensList;
 import org.python.pydev.core.TupleN;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.parser.PyParser;
@@ -57,7 +58,7 @@ public abstract class AbstractModule implements IModule {
      * @see org.python.pydev.core.IModule#getWildImportedModules()
      */
     @Override
-    public abstract IToken[] getWildImportedModules();
+    public abstract TokensList getWildImportedModules();
 
     /**
      * @see org.python.pydev.core.IModule#getFile()
@@ -69,13 +70,13 @@ public abstract class AbstractModule implements IModule {
      * @see org.python.pydev.core.IModule#getTokenImportedModules()
      */
     @Override
-    public abstract IToken[] getTokenImportedModules();
+    public abstract TokensList getTokenImportedModules();
 
     /**
      * @see org.python.pydev.core.IModule#getGlobalTokens()
      */
     @Override
-    public abstract IToken[] getGlobalTokens();
+    public abstract TokensList getGlobalTokens();
 
     /**
      * Don't deal with zip files unless specifically specified
@@ -89,8 +90,8 @@ public abstract class AbstractModule implements IModule {
      * @see org.python.pydev.core.IModule#getLocalTokens(int, int, ILocalScope)
      */
     @Override
-    public IToken[] getLocalTokens(int line, int col, ILocalScope scope) {
-        return EMPTY_TOKEN_ARRAY;
+    public TokensList getLocalTokens(int line, int col, ILocalScope scope) {
+        return new TokensList();
     }
 
     /**
@@ -214,7 +215,7 @@ public abstract class AbstractModule implements IModule {
 
         //we don't want to gather builtins in this case.
         state.setBuiltinsGotten(true);
-        IToken[] globalTokens = astManager.getCompletionsForModule(this, state, searchSameLevelMods);
+        TokensList globalTokens = astManager.getCompletionsForModule(this, state, searchSameLevelMods);
         for (IToken token : globalTokens) {
             String rep = token.getRepresentation();
             IToken t = cachedTokens.get(rep);
@@ -243,7 +244,7 @@ public abstract class AbstractModule implements IModule {
      * @see org.python.pydev.core.IModule#getGlobalTokens(org.python.pydev.ast.codecompletion.revisited.CompletionState, org.python.pydev.core.ICodeCompletionASTManager)
      */
     @Override
-    public abstract IToken[] getGlobalTokens(ICompletionState state, ICodeCompletionASTManager manager);
+    public abstract TokensList getGlobalTokens(ICompletionState state, ICodeCompletionASTManager manager);
 
     /**
      * @see org.python.pydev.core.IModule#getDocString()

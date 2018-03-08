@@ -19,13 +19,13 @@ import java.util.Map;
 
 import org.eclipse.jface.text.Document;
 import org.python.pydev.ast.codecompletion.IASTManagerObserver;
-import org.python.pydev.ast.codecompletion.revisited.CompletionState;
 import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.core.TokensList;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
@@ -57,7 +57,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
     private int col;
     private String sDoc;
     private Document doc;
-    private IToken[] comps = null;
+    private TokensList comps = null;
 
     /**
      * @return Returns the manager.
@@ -105,7 +105,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         state = new CompletionState(line, col, token, nature, "");
         comps = getComps();
         checkExpected(1);
-        assertEquals("makeit", comps[0].getRepresentation());
+        assertEquals("makeit", comps.getFirst().getRepresentation());
 
         sDoc = "" +
                 "import unittest       \n" +
@@ -283,25 +283,25 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
     }
 
     private void checkExpected(int expected) {
-        FastStringBuffer buf = new FastStringBuffer(40 * comps.length);
+        FastStringBuffer buf = new FastStringBuffer(40 * comps.size());
         for (IToken t : comps) {
             buf.append(t.getRepresentation());
             buf.append(", ");
         }
         String msg = "Expected " + expected +
                 ". Found: " + buf.toString();
-        assertEquals(msg, expected, comps.length);
+        assertEquals(msg, expected, comps.size());
     }
 
-    private IToken[] getComps() {
+    private TokensList getComps() {
         try {
-            IToken[] completionsForToken = getManager().getCompletionsForToken(doc, state);
+            TokensList completionsForToken = getManager().getCompletionsForToken(doc, state);
             HashMap<String, IToken> map = new HashMap<String, IToken>();
             for (IToken iToken : completionsForToken) {
                 map.put(iToken.getRepresentation(), iToken);
             }
 
-            return map.values().toArray(new IToken[map.size()]);
+            return new TokensList(map.values().toArray(new IToken[map.size()]));
         } catch (CompletionRecursionException e) {
             throw new RuntimeException(e);
         }
@@ -459,11 +459,11 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
      * @param string
      * @param comps
      */
-    public static void assertIsIn(String string, IToken[] comps) {
+    public static void assertIsIn(String string, TokensList comps) {
         StringBuffer buffer = new StringBuffer("Available: \n");
         boolean found = false;
-        for (int i = 0; i < comps.length; i++) {
-            String rep = comps[i].getRepresentation();
+        for (IToken t : comps) {
+            String rep = t.getRepresentation();
             if (string.equals(rep)) {
                 found = true;
             }

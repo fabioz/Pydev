@@ -9,12 +9,11 @@
  */
 package org.python.pydev.ast.codecompletion;
 
-import java.util.Collection;
-
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.ILocalScope;
-import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.TokensList;
+import org.python.pydev.core.TokensOrProposalsList;
 import org.python.pydev.core.structure.CompletionRecursionException;
 
 /**
@@ -37,7 +36,7 @@ public interface IPyDevCompletionParticipant {
      *
      * @see org.python.pydev.core.IToken
      */
-    Collection<Object> getGlobalCompletions(CompletionRequest request, ICompletionState state)
+    TokensOrProposalsList getGlobalCompletions(CompletionRequest request, ICompletionState state)
             throws MisconfigurationException;
 
     /**
@@ -47,7 +46,7 @@ public interface IPyDevCompletionParticipant {
      * @return a list of proposals or tokens
      * @see org.python.pydev.core.IToken
      */
-    Collection<Object> getStringGlobalCompletions(CompletionRequest request, ICompletionState state)
+    TokensOrProposalsList getStringGlobalCompletions(CompletionRequest request, ICompletionState state)
             throws MisconfigurationException;
 
     /**
@@ -64,8 +63,8 @@ public interface IPyDevCompletionParticipant {
      * @throws CompletionRecursionException
      * @see org.python.pydev.core.IToken
      */
-    Collection<IToken> getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope,
-            Collection<IToken> interfaceForLocal) throws CompletionRecursionException;
+    TokensList getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope,
+            TokensList interfaceForLocal) throws CompletionRecursionException;
 
     /**
      * Called when a completion is requested for some token whose type we don't know about
@@ -84,19 +83,8 @@ public interface IPyDevCompletionParticipant {
      * @throws CompletionRecursionException
      * @see org.python.pydev.core.IToken
      */
-    Collection<IToken> getCompletionsForTokenWithUndefinedType(ICompletionState state, ILocalScope localScope,
-            Collection<IToken> interfaceForLocal) throws CompletionRecursionException;
-
-    /**
-     * getCompletionsForMethodParameter is used instead (the name of the method was misleading)
-     *
-     * This method is not called anymore.
-     *
-     * @deprecated
-     */
-    @Deprecated
-    Collection<Object> getArgsCompletion(ICompletionState state, ILocalScope localScope,
-            Collection<IToken> interfaceForLocal);
+    TokensList getCompletionsForTokenWithUndefinedType(ICompletionState state, ILocalScope localScope,
+            TokensList interfaceForLocal) throws CompletionRecursionException;
 
     /**
      * This is usually used to get completions when we only have a class name or path.
@@ -110,6 +98,6 @@ public interface IPyDevCompletionParticipant {
      * @return the completions given the state passed. May be null!
      * @throws CompletionRecursionException
      */
-    Collection<IToken> getCompletionsForType(ICompletionState state) throws CompletionRecursionException;
+    TokensList getCompletionsForType(ICompletionState state) throws CompletionRecursionException;
 
 }

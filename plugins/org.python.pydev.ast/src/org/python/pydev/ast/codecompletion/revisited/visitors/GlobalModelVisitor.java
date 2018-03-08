@@ -35,7 +35,7 @@ import org.python.pydev.shared_core.structure.FastStack;
 
 /**
  * This class visits only the global context. Other visitors should visit contexts inside of this one.
- * 
+ *
  * @author Fabio Zadrozny
  */
 public final class GlobalModelVisitor extends AbstractVisitor {
@@ -118,7 +118,7 @@ public final class GlobalModelVisitor extends AbstractVisitor {
 
     /**
      * Name should be within assign.
-     * 
+     *
      * @see org.python.pydev.parser.jython.ast.VisitorIF#visitAssign(org.python.pydev.parser.jython.ast.Assign)
      */
     @Override
@@ -131,7 +131,7 @@ public final class GlobalModelVisitor extends AbstractVisitor {
 
     /**
      * Visiting some name
-     * 
+     *
      * @see org.python.pydev.parser.jython.ast.VisitorIF#visitName(org.python.pydev.parser.jython.ast.Name)
      */
     @Override
@@ -142,6 +142,8 @@ public final class GlobalModelVisitor extends AbstractVisitor {
                 SourceToken added = addToken(node);
                 if (lastAssign.size() > 0) {
                     Assign last = lastAssign.peek();
+                    added.setFoundInAssign(last);
+
                     if (added.getRepresentation().equals("__all__") && __all__Assign == null) {
                         __all__ = added;
                         __all__Assign = last;
@@ -231,7 +233,7 @@ public final class GlobalModelVisitor extends AbstractVisitor {
 
     /**
      * This method will filter the passed tokens given the __all__ that was found when visiting.
-     * 
+     *
      * @param tokens the tokens to be filtered (IN and OUT parameter)
      */
     public void filterAll(java.util.List<IToken> tokens) {

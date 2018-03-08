@@ -7,7 +7,6 @@
 package org.python.pydev.ast.codecompletion.revisited;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -21,6 +20,7 @@ import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.TokensList;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.shared_core.string.FullRepIterable;
 
@@ -33,15 +33,15 @@ public class CompletionParticipantsHelper {
      * @param localScope this is the scope we're currently on (may be null)
      * @throws CompletionRecursionException
      */
-    public static Collection<IToken> getCompletionsForTokenWithUndefinedType(ICompletionState state,
+    public static TokensList getCompletionsForTokenWithUndefinedType(ICompletionState state,
             ILocalScope localScope) throws CompletionRecursionException {
-        IToken[] localTokens = localScope.getLocalTokens(-1, -1, false); //only to get the args
+        TokensList localTokens = localScope.getLocalTokens(-1, -1, false); //only to get the args
         String activationToken = state.getActivationToken();
         String firstPart = FullRepIterable.getFirstPart(activationToken);
         for (IToken token : localTokens) {
             if (token.getRepresentation().equals(firstPart)) {
-                Collection<IToken> interfaceForLocal = localScope.getInterfaceForLocal(state.getActivationToken());
-                Collection<IToken> argsCompletionFromParticipants = getCompletionsForTokenWithUndefinedTypeFromParticipants(
+                TokensList interfaceForLocal = localScope.getInterfaceForLocal(state.getActivationToken());
+                TokensList argsCompletionFromParticipants = getCompletionsForTokenWithUndefinedTypeFromParticipants(
                         state, localScope, interfaceForLocal);
                 return argsCompletionFromParticipants;
             }
@@ -53,9 +53,9 @@ public class CompletionParticipantsHelper {
      * If we were unable to find its type, pass that over to other completion participants.
      * @throws CompletionRecursionException
      */
-    private static Collection<IToken> getCompletionsForTokenWithUndefinedTypeFromParticipants(ICompletionState state,
-            ILocalScope localScope, Collection<IToken> interfaceForLocal) throws CompletionRecursionException {
-        ArrayList<IToken> ret = new ArrayList<IToken>();
+    private static TokensList getCompletionsForTokenWithUndefinedTypeFromParticipants(ICompletionState state,
+            ILocalScope localScope, TokensList interfaceForLocal) throws CompletionRecursionException {
+        TokensList ret = new TokensList();
 
         List<?> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_COMPLETION);
         for (Iterator<?> iter = participants.iterator(); iter.hasNext();) {
@@ -72,35 +72,36 @@ public class CompletionParticipantsHelper {
      * @param localScope this is the scope we're currently on (may be null)
      * @throws CompletionRecursionException
      */
-    public static Collection<IToken> getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope)
+    public static TokensList getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope)
             throws CompletionRecursionException {
-        IToken[] args = localScope.getLocalTokens(-1, -1, true); //only to get the args
+        TokensList args = localScope.getLocalTokens(-1, -1, true); //only to get the args
         String activationToken = state.getActivationToken();
         String firstPart = FullRepIterable.getFirstPart(activationToken);
         for (IToken token : args) {
             if (token.getRepresentation().equals(firstPart)) {
-                Collection<IToken> interfaceForLocal = localScope.getInterfaceForLocal(state.getActivationToken());
-                Collection<IToken> argsCompletionFromParticipants = getCompletionsForMethodParameterFromParticipants(
-                        state,
-                        localScope, interfaceForLocal);
+                TokensList interfaceForLocal = localScope.getInterfaceForLocal(state.getActivationToken());
+                TokensList argsCompletionFromParticipants = getCompletionsForMethodParameterFromParticipants(
+                        state, localScope, interfaceForLocal);
+                final List<IToken> lst = new ArrayList<>();
                 for (IToken t : interfaceForLocal) {
                     if (!t.getRepresentation().equals(state.getQualifier())) {
-                        argsCompletionFromParticipants.add(t);
+                        lst.add(t);
                     }
                 }
+                argsCompletionFromParticipants.addAll(new TokensList(lst));
                 return argsCompletionFromParticipants;
             }
         }
-        return new ArrayList<IToken>();
+        return new TokensList();
     }
 
     /**
      * If we were able to find it as a method parameter, this method is called so that clients can extend those completions.
      * @throws CompletionRecursionException
      */
-    public static Collection<IToken> getCompletionsForMethodParameterFromParticipants(ICompletionState state,
-            ILocalScope localScope, Collection<IToken> interfaceForLocal) throws CompletionRecursionException {
-        ArrayList<IToken> ret = new ArrayList<IToken>();
+    public static TokensList getCompletionsForMethodParameterFromParticipants(ICompletionState state,
+            ILocalScope localScope, TokensList interfaceForLocal) throws CompletionRecursionException {
+        TokensList ret = new TokensList();
 
         List<?> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_COMPLETION);
         for (Iterator<?> iter = participants.iterator(); iter.hasNext();) {

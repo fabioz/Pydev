@@ -40,9 +40,9 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.ISystemModulesManager;
-import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.NotConfiguredInterpreterException;
+import org.python.pydev.core.TokensList;
 import org.python.pydev.core.interpreters.IInterpreterObserver;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -73,7 +73,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     /**
      * This is used to keep the builtin completions
      */
-    protected final Map<String, IToken[]> builtinCompletions = new HashMap<String, IToken[]>();
+    protected final Map<String, TokensList> builtinCompletions = new HashMap<String, TokensList>();
 
     /**
      * This is used to keep the builtin module
@@ -94,23 +94,26 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     }
 
     @Override
-    public IToken[] getBuiltinCompletions(String projectInterpreterName) {
+    public TokensList getBuiltinCompletions(String projectInterpreterName) {
         //Cache with the internal name.
         projectInterpreterName = getInternalName(projectInterpreterName);
         if (projectInterpreterName == null) {
             return null;
         }
 
-        IToken[] toks = this.builtinCompletions.get(projectInterpreterName);
+        TokensList toks = this.builtinCompletions.get(projectInterpreterName);
 
-        if (toks == null || toks.length == 0) {
+        if (toks == null || toks.size() == 0) {
             IModule builtMod = getBuiltinMod(projectInterpreterName);
             if (builtMod != null) {
                 toks = builtMod.getGlobalTokens();
                 this.builtinCompletions.put(projectInterpreterName, toks);
             }
         }
-        return this.builtinCompletions.get(projectInterpreterName);
+        if (toks != null) {
+            return toks.copy(); // Make sure that the internal cached reference is not changed.
+        }
+        return null;
     }
 
     @Override

@@ -50,6 +50,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ObjectsInternPool;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
+import org.python.pydev.core.TokensList;
 import org.python.pydev.core.concurrency.IRunnableWithMonitor;
 import org.python.pydev.core.concurrency.RunnableAsJobsPoolThread;
 import org.python.pydev.core.log.Log;
@@ -465,8 +466,8 @@ public class CompiledModule extends AbstractModule {
      * @see org.python.pydev.editor.javacodecompletion.AbstractModule#getWildImportedModules()
      */
     @Override
-    public IToken[] getWildImportedModules() {
-        return new IToken[0];
+    public TokensList getWildImportedModules() {
+        return new TokensList();
     }
 
     /**
@@ -474,21 +475,21 @@ public class CompiledModule extends AbstractModule {
      * @see org.python.pydev.editor.javacodecompletion.AbstractModule#getTokenImportedModules()
      */
     @Override
-    public IToken[] getTokenImportedModules() {
-        return new IToken[0];
+    public TokensList getTokenImportedModules() {
+        return new TokensList();
     }
 
     /**
      * @see org.python.pydev.editor.javacodecompletion.AbstractModule#getGlobalTokens()
      */
     @Override
-    public IToken[] getGlobalTokens() {
+    public TokensList getGlobalTokens() {
         if (tokens == null) {
-            return new IToken[0];
+            return new TokensList();
         }
 
         Collection<IToken> values = tokens.values();
-        return values.toArray(new IToken[values.size()]);
+        return new TokensList(values.toArray(new IToken[values.size()]));
     }
 
     /**
@@ -503,7 +504,7 @@ public class CompiledModule extends AbstractModule {
      * @see org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule#getGlobalTokens(java.lang.String)
      */
     @Override
-    public IToken[] getGlobalTokens(ICompletionState state, ICodeCompletionASTManager manager) {
+    public TokensList getGlobalTokens(ICompletionState state, ICodeCompletionASTManager manager) {
         String activationToken = state.getActivationToken();
         if (activationToken.length() == 0) {
             return getGlobalTokens();
@@ -512,7 +513,7 @@ public class CompiledModule extends AbstractModule {
         Map<String, IToken> v = cache.get(activationToken);
         if (v != null) {
             Collection<IToken> values = v.values();
-            return values.toArray(new IToken[values.size()]);
+            return new TokensList(values.toArray(new IToken[values.size()]));
         }
 
         IToken[] toks = new IToken[0];
@@ -537,7 +538,7 @@ public class CompiledModule extends AbstractModule {
                         map.put(token.getRepresentation(), token);
                     }
                     cache.put(activationToken, map);
-                    return cached.o2;
+                    return new TokensList(cached.o2);
                 }
 
                 toks = createInnerFromServer(manager, nature, act, tokenToCompletion);
@@ -551,7 +552,7 @@ public class CompiledModule extends AbstractModule {
                         + manager.getNature().getProject(), e);
             }
         }
-        return toks;
+        return new TokensList(toks);
     }
 
     @Override
@@ -573,7 +574,7 @@ public class CompiledModule extends AbstractModule {
             String[] headAndTail = FullRepIterable.headAndTail(tok);
             state.setActivationToken(headAndTail[0]);
             String head = headAndTail[1];
-            IToken[] globalTokens = getGlobalTokens(state, nature.getAstManager());
+            TokensList globalTokens = getGlobalTokens(state, nature.getAstManager());
             for (IToken token : globalTokens) {
                 if (token.getRepresentation().equals(head)) {
                     return true;

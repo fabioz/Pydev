@@ -40,6 +40,7 @@ import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.prettyprinterv2.MakeAstValidForPrettyPrintingVisitor;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.FastStack;
@@ -116,11 +117,11 @@ public class PyDocstringTextHover extends AbstractPyEditorTextHover {
                     if ((astToPrint instanceof Name || astToPrint instanceof NameTok) && def.scope != null) {
                         //There's no real point in just printing the name, let's see if we're able to actually find
                         //the scope where it's in and print that scope.
-                        FastStack<SimpleNode> scopeStack = def.scope.getScopeStack();
+                        FastStack<ISimpleNode> scopeStack = def.scope.getScopeStack();
                         if (scopeStack != null && scopeStack.size() > 0) {
-                            SimpleNode peek = scopeStack.peek();
+                            ISimpleNode peek = scopeStack.peek();
                             if (peek != null) {
-                                stmtType stmt = NodeUtils.findStmtForNode(peek, astToPrint);
+                                stmtType stmt = NodeUtils.findStmtForNode((SimpleNode) peek, astToPrint);
                                 if (stmt != null) {
                                     astToPrint = stmt;
                                 }

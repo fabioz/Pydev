@@ -11,7 +11,6 @@ package com.python.pydev.codecompletion.participant;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,9 +18,9 @@ import java.util.Set;
 import org.python.pydev.ast.codecompletion.CompletionRequest;
 import org.python.pydev.ast.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.ast.codecompletion.IPyDevCompletionParticipant2;
+import org.python.pydev.ast.codecompletion.ProposalsComparator.CompareContext;
 import org.python.pydev.ast.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.ast.codecompletion.PyCodeCompletionUtils;
-import org.python.pydev.ast.codecompletion.ProposalsComparator.CompareContext;
 import org.python.pydev.ast.codecompletion.PyCodeCompletionUtils.IFilter;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
@@ -32,6 +31,8 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
+import org.python.pydev.core.TokensList;
+import org.python.pydev.core.TokensOrProposalsList;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
 import org.python.pydev.core.interactive_console.IScriptConsoleViewer;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
@@ -163,11 +164,11 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
 
     // Editor completions ----------------------------------------------------------------------------------------------
 
-    private Collection<ICompletionProposalHandle> getThem(CompletionRequest request, ICompletionState state,
+    private TokensOrProposalsList getThem(CompletionRequest request, ICompletionState state,
             boolean addAutoImport) throws MisconfigurationException {
         List<ICompletionProposalHandle> list = new ArrayList<>();
         if (request.isInCalltip) {
-            return list;
+            return new TokensOrProposalsList(list);
         }
 
         if (request.qualifier.length() >= PyCodeCompletionPreferences
@@ -175,7 +176,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
 
             ICodeCompletionASTManager astManager = request.nature.getAstManager();
             if (astManager == null) {
-                return list;
+                return new TokensOrProposalsList(list);
             }
             String initialModule = request.resolveModule();
 
@@ -246,11 +247,11 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
                 }
             }
         }
-        return list;
+        return new TokensOrProposalsList(list);
     }
 
     private HashSet<String> getImportedNames(ICompletionState state) {
-        List<IToken> tokenImportedModules = state.getTokenImportedModules();
+        TokensList tokenImportedModules = state.getTokenImportedModules();
         HashSet<String> importedNames = new HashSet<String>();
         if (tokenImportedModules != null) {
             for (IToken token : tokenImportedModules) {
@@ -261,40 +262,31 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
     }
 
     @Override
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public Collection getGlobalCompletions(CompletionRequest request, ICompletionState state)
+    public TokensOrProposalsList getGlobalCompletions(CompletionRequest request, ICompletionState state)
             throws MisconfigurationException {
         return getThem(request, state, AnalysisPreferences.doAutoImport());
     }
 
     @Override
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public Collection getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope,
-            Collection<IToken> interfaceForLocal) {
-        return Collections.emptyList();
+    public TokensList getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope,
+            TokensList interfaceForLocal) {
+        return new TokensList();
     }
 
     @Override
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public Collection getStringGlobalCompletions(CompletionRequest request, ICompletionState state)
+    public TokensOrProposalsList getStringGlobalCompletions(CompletionRequest request, ICompletionState state)
             throws MisconfigurationException {
         return getThem(request, state, false);
     }
 
     @Override
-    public Collection<Object> getArgsCompletion(ICompletionState state, ILocalScope localScope,
-            Collection<IToken> interfaceForLocal) {
-        throw new RuntimeException("Deprecated");
+    public TokensList getCompletionsForTokenWithUndefinedType(ICompletionState state, ILocalScope localScope,
+            TokensList interfaceForLocal) {
+        return new TokensList();
     }
 
     @Override
-    public Collection<IToken> getCompletionsForTokenWithUndefinedType(ICompletionState state, ILocalScope localScope,
-            Collection<IToken> interfaceForLocal) {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public Collection<IToken> getCompletionsForType(ICompletionState state) {
-        return null;
+    public TokensList getCompletionsForType(ICompletionState state) {
+        return new TokensList();
     }
 }

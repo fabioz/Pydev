@@ -6,17 +6,15 @@
  */
 package org.python.pydev.ast.codecompletion.revisited;
 
-import java.util.ArrayList;
-
 import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
-import org.python.pydev.core.IToken;
+import org.python.pydev.core.TokensList;
 
 public class AssignCompletionInfo {
 
-    public final ArrayList<IToken> completions;
+    public final TokensList completions;
     public final Definition[] defs;
 
-    public AssignCompletionInfo(Definition[] defs, ArrayList<IToken> ret) {
+    public AssignCompletionInfo(Definition[] defs, TokensList ret) {
         this.defs = defs;
         this.completions = ret;
     }

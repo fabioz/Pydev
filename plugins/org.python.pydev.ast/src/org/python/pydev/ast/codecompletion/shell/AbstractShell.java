@@ -30,6 +30,7 @@ import org.python.pydev.ast.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.ast.codecompletion.revisited.modules.CompiledToken;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.concurrency.Semaphore;
@@ -798,7 +799,7 @@ public abstract class AbstractShell {
     /**
      * Gets completions for jedi library (https://github.com/davidhalter/jedi)
      */
-    public List<CompiledToken> getJediCompletions(File editorFile, PySelection ps, String charset,
+    public List<IToken> getJediCompletions(File editorFile, PySelection ps, String charset,
             List<String> pythonpath) throws Exception {
 
         FastStringBuffer read = null;
@@ -816,7 +817,7 @@ public abstract class AbstractShell {
         }
 
         Tuple<String, List<String[]>> theCompletions = ShellConvert.convertStringToCompletions(read);
-        ArrayList<CompiledToken> lst = new ArrayList<>(theCompletions.o2.size());
+        ArrayList<IToken> lst = new ArrayList<>(theCompletions.o2.size());
         for (String[] s : theCompletions.o2) {
             //new CompiledToken(rep, doc, args, parentPackage, type);
             lst.add(new CompiledToken(s[0], s[1], "", "", Integer.parseInt(s[3]), null));

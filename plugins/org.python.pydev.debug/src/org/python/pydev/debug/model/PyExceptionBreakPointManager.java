@@ -15,6 +15,7 @@ import org.python.pydev.ast.interpreter_managers.ChooseInterpreterManager;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.TokensList;
 import org.python.pydev.debug.core.ConfigureExceptionsFileUtils;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.core.PydevDebugPreferencesInitializer;
@@ -89,7 +90,7 @@ public class PyExceptionBreakPointManager {
 
     /**
      * Adds a new custom exception the user entered (note that it just adds it to the list
-     * of custom exceptions, it doesn't really change the exceptions set). 
+     * of custom exceptions, it doesn't really change the exceptions set).
      */
     public void addUserConfiguredException(String userConfiguredException) {
         boolean isAppend = false;
@@ -149,7 +150,7 @@ public class PyExceptionBreakPointManager {
         ArrayList<String> list = new ArrayList<String>();
         IInterpreterManager useManager = ChooseInterpreterManager.chooseInterpreterManager();
         if (useManager != null) {
-            IToken[] pythonTokens = useManager.getBuiltinMod(IPythonNature.DEFAULT_INTERPRETER).getGlobalTokens();
+            TokensList pythonTokens = useManager.getBuiltinMod(IPythonNature.DEFAULT_INTERPRETER).getGlobalTokens();
             for (IToken token : pythonTokens) {
                 String pyToken = token.getRepresentation();
                 String lower = pyToken.toLowerCase();

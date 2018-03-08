@@ -10,7 +10,6 @@
 package com.python.pydev.codecompletion.ctxinsensitive;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -38,6 +37,8 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.TokensList;
+import org.python.pydev.core.TokensOrProposalsList;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
 import org.python.pydev.core.interactive_console.IScriptConsoleViewer;
 import org.python.pydev.core.log.Log;
@@ -50,6 +51,7 @@ import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
+import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.structure.FastStack;
@@ -271,7 +273,7 @@ public class CtxParticipant
      * @return the names that are already imported in the current document
      */
     private HashSet<String> getImportedNames(ICompletionState state) {
-        List<IToken> tokenImportedModules = state.getTokenImportedModules();
+        TokensList tokenImportedModules = state.getTokenImportedModules();
         HashSet<String> importedNames = new HashSet<String>();
         if (tokenImportedModules != null) {
             for (IToken token : tokenImportedModules) {
@@ -282,10 +284,9 @@ public class CtxParticipant
     }
 
     @Override
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public Collection getGlobalCompletions(CompletionRequest request, ICompletionState state)
+    public TokensOrProposalsList getGlobalCompletions(CompletionRequest request, ICompletionState state)
             throws MisconfigurationException {
-        return getThem(request, state, AnalysisPreferences.doAutoImport());
+        return new TokensOrProposalsList(getThem(request, state, AnalysisPreferences.doAutoImport()));
     }
 
     @Override
@@ -357,13 +358,13 @@ public class CtxParticipant
      * @throws CompletionRecursionException
      */
     @Override
-    public Collection<IToken> getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope,
-            Collection<IToken> interfaceForLocal) throws CompletionRecursionException {
+    public TokensList getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope,
+            TokensList interfaceForLocal) throws CompletionRecursionException {
         ArrayList<IToken> ret = new ArrayList<IToken>();
         String qual = state.getQualifier();
         String activationToken = state.getActivationToken();
 
-        FastStack scopeStack = localScope.getScopeStack();
+        FastStack<ISimpleNode> scopeStack = localScope.getScopeStack();
         if (!scopeStack.empty()) {
             Object peek = scopeStack.peek();
             if (peek instanceof FunctionDef) {
@@ -375,9 +376,9 @@ public class CtxParticipant
                         ItemPointer itemPointer = findItemPointerFromPyTestFixture(state.getNature(), state,
                                 activationToken);
                         if (itemPointer != null) {
-                            List<IToken> completionsFromItemPointer = getCompletionsFromItemPointer(state, astManager,
+                            TokensList completionsFromItemPointer = getCompletionsFromItemPointer(state, astManager,
                                     itemPointer);
-                            if (completionsFromItemPointer != null && completionsFromItemPointer.size() > 0) {
+                            if (completionsFromItemPointer != null && completionsFromItemPointer.notEmpty()) {
                                 return completionsFromItemPointer;
                             }
                         }
@@ -400,7 +401,7 @@ public class CtxParticipant
                             AbstractAdditionalTokensInfo.INNER);
                 } catch (MisconfigurationException e) {
                     Log.log(e);
-                    return ret;
+                    return new TokensList(ret);
                 }
                 for (IInfo info : tokensStartingWith) {
                     if (nameFilter.acceptName(info.getName())) {
@@ -414,7 +415,7 @@ public class CtxParticipant
                             AbstractAdditionalTokensInfo.INNER);
                 } catch (MisconfigurationException e) {
                     Log.log(e);
-                    return ret;
+                    return new TokensList(ret);
                 }
                 for (IInfo info : tokensStartingWith) {
                     ret.add(new SourceToken(null, info.getName(), null, null, info.getDeclaringModuleName(),
@@ -423,21 +424,21 @@ public class CtxParticipant
             }
 
         }
-        return ret;
+        return new TokensList(ret);
     }
 
-    private List<IToken> getCompletionsFromItemPointer(ICompletionState state, ICodeCompletionASTManager astManager,
+    private TokensList getCompletionsFromItemPointer(ICompletionState state, ICodeCompletionASTManager astManager,
             ItemPointer itemPointer) throws CompletionRecursionException {
         int initialLookingFor = state.getLookingFor();
         try {
             state.setLookingFor(
                     ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
-            List<IToken> completionFromFuncDefReturn = astManager
+            TokensList completionFromFuncDefReturn = astManager
                     .getCompletionFromFuncDefReturn(state,
                             itemPointer.definition.module,
                             itemPointer.definition, true);
             if (completionFromFuncDefReturn != null
-                    && completionFromFuncDefReturn.size() > 0) {
+                    && completionFromFuncDefReturn.notEmpty()) {
                 return completionFromFuncDefReturn;
             }
         } finally {
@@ -451,26 +452,19 @@ public class CtxParticipant
      * @throws MisconfigurationException
      */
     @Override
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public Collection getStringGlobalCompletions(CompletionRequest request, ICompletionState state)
+    public TokensOrProposalsList getStringGlobalCompletions(CompletionRequest request, ICompletionState state)
             throws MisconfigurationException {
-        return getThem(request, state, false);
+        return new TokensOrProposalsList(getThem(request, state, false));
     }
 
     @Override
-    public Collection<Object> getArgsCompletion(ICompletionState state, ILocalScope localScope,
-            Collection<IToken> interfaceForLocal) {
-        throw new RuntimeException("Deprecated");
-    }
-
-    @Override
-    public Collection<IToken> getCompletionsForTokenWithUndefinedType(ICompletionState state, ILocalScope localScope,
-            Collection<IToken> interfaceForLocal) throws CompletionRecursionException {
+    public TokensList getCompletionsForTokenWithUndefinedType(ICompletionState state, ILocalScope localScope,
+            TokensList interfaceForLocal) throws CompletionRecursionException {
         return getCompletionsForMethodParameter(state, localScope, interfaceForLocal);
     }
 
     @Override
-    public Collection<IToken> getCompletionsForType(ICompletionState state) throws CompletionRecursionException {
+    public TokensList getCompletionsForType(ICompletionState state) throws CompletionRecursionException {
         String activationToken = state.getActivationToken();
         String qual = activationToken;
 
@@ -487,7 +481,7 @@ public class CtxParticipant
                     nature, AbstractAdditionalTokensInfo.TOP_LEVEL | AbstractAdditionalTokensInfo.INNER);
             int size = tokensStartingWith.size();
             if (size == 0) {
-                return null;
+                return new TokensList();
             }
             if (size == 1) {
                 return getCompletionsForIInfo(state, nature, tokensStartingWith.get(0));
@@ -497,8 +491,8 @@ public class CtxParticipant
                 for (int i = 0; i < size; i++) {
                     IInfo iInfo = tokensStartingWith.get(i);
                     if (module.equals(iInfo.getDeclaringModuleName())) {
-                        List<IToken> ret = getCompletionsForIInfo(state, nature, iInfo);
-                        if (ret != null && ret.size() > 0) {
+                        TokensList ret = getCompletionsForIInfo(state, nature, iInfo);
+                        if (ret != null && ret.notEmpty()) {
                             return ret; //seems like we found it.
                         }
                     }
@@ -522,10 +516,10 @@ public class CtxParticipant
                 return getCompletionsForIInfo(state, nature, tokensStartingWith.get(0));
             }
             if (size < 5) { // Don't go for it if we have too many things there!
-                List<IToken> ret = new ArrayList<IToken>();
+                TokensList ret = new TokensList();
                 for (int i = 0; i < size; i++) {
                     IInfo iInfo = tokensStartingWith.get(i);
-                    List<IToken> found = getCompletionsForIInfo(state, nature, iInfo);
+                    TokensList found = getCompletionsForIInfo(state, nature, iInfo);
                     if (found != null) {
                         ret.addAll(found);
                     }
@@ -543,7 +537,7 @@ public class CtxParticipant
     /**
      * Gets completions given a module and related info.
      */
-    private List<IToken> getCompletionsForIInfo(ICompletionState state, IPythonNature nature, IInfo iInfo)
+    private TokensList getCompletionsForIInfo(ICompletionState state, IPythonNature nature, IInfo iInfo)
             throws CompletionRecursionException {
         ICompletionState copy = state.getCopy();
         String path = iInfo.getPath();
@@ -559,9 +553,9 @@ public class CtxParticipant
         if (mod != null) {
 
             state.checkFindDefinitionMemory(mod, iInfo.getDeclaringModuleName() + "." + act);
-            IToken[] tks = manager.getCompletionsForModule(mod, copy);
+            TokensList tks = manager.getCompletionsForModule(mod, copy);
             if (tks != null) {
-                return Arrays.asList(tks);
+                return tks;
             }
         }
         return null;

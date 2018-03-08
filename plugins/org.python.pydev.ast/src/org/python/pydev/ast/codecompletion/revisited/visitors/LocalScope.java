@@ -12,7 +12,6 @@
 package org.python.pydev.ast.codecompletion.revisited.visitors;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -25,6 +24,7 @@ import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.ITypeInfo;
+import org.python.pydev.core.TokensList;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assert;
@@ -56,7 +56,7 @@ import org.python.pydev.shared_core.structure.FastStack;
 public class LocalScope implements ILocalScope {
 
     //the first node from the stack is always the module itself (if it's not there, it means it is a compiled module scope)
-    public FastStack<SimpleNode> scope = new FastStack<SimpleNode>(20);
+    public FastStack<ISimpleNode> scope = new FastStack<ISimpleNode>(20);
 
     public int scopeEndLine = -1;
 
@@ -90,7 +90,7 @@ public class LocalScope implements ILocalScope {
     }
 
     @Override
-    public FastStack<SimpleNode> getScopeStack() {
+    public FastStack<ISimpleNode> getScopeStack() {
         return scope;
     }
 
@@ -135,13 +135,12 @@ public class LocalScope implements ILocalScope {
      * @return if the scope passed as a parameter starts with the same scope we have here. It should not be
      * called if the size of the scope we're checking is bigger than the size of 'this' scope.
      */
-    @SuppressWarnings("unchecked")
     private boolean checkIfScopesMatch(ILocalScope s) {
-        Iterator<SimpleNode> otIt = s.getScopeStack().iterator();
+        Iterator<ISimpleNode> otIt = s.getScopeStack().iterator();
 
-        for (Iterator<SimpleNode> iter = this.scope.iterator(); iter.hasNext();) {
-            SimpleNode element = iter.next();
-            SimpleNode otElement = otIt.next();
+        for (Iterator<ISimpleNode> iter = this.scope.iterator(); iter.hasNext();) {
+            SimpleNode element = (SimpleNode) iter.next();
+            SimpleNode otElement = (SimpleNode) otIt.next();
 
             if (element.beginColumn != otElement.beginColumn) {
                 return false;
@@ -174,7 +173,7 @@ public class LocalScope implements ILocalScope {
      * @see org.python.pydev.core.ILocalScope#getAllLocalTokens()
      */
     @Override
-    public IToken[] getAllLocalTokens() {
+    public TokensList getAllLocalTokens() {
         return getLocalTokens(Integer.MAX_VALUE, Integer.MAX_VALUE, false);
     }
 
@@ -182,11 +181,11 @@ public class LocalScope implements ILocalScope {
      * @see org.python.pydev.core.ILocalScope#getLocalTokens(int, int, boolean)
      */
     @Override
-    public IToken[] getLocalTokens(int endLine, int col, boolean onlyArgs) {
+    public TokensList getLocalTokens(int endLine, int col, boolean onlyArgs) {
         Set<SourceToken> comps = new HashSet<SourceToken>();
 
-        for (Iterator<SimpleNode> iter = this.scope.iterator(); iter.hasNext();) {
-            SimpleNode element = iter.next();
+        for (Iterator<ISimpleNode> iter = this.scope.iterator(); iter.hasNext();) {
+            SimpleNode element = (SimpleNode) iter.next();
 
             stmtType[] body = null;
             if (element instanceof FunctionDef) {
@@ -252,7 +251,7 @@ public class LocalScope implements ILocalScope {
             }
         }
 
-        return comps.toArray(new SourceToken[0]);
+        return new TokensList(comps.toArray(new SourceToken[0]));
     }
 
     /**
@@ -265,26 +264,26 @@ public class LocalScope implements ILocalScope {
      * @return a list of tokens for the local
      */
     @Override
-    public Collection<IToken> getInterfaceForLocal(String activationToken) {
+    public TokensList getInterfaceForLocal(String activationToken) {
         return getInterfaceForLocal(activationToken, true, true);
     }
 
-    public Collection<IToken> getInterfaceForLocal(String activationToken, boolean addAttributeAccess,
+    public TokensList getInterfaceForLocal(String activationToken, boolean addAttributeAccess,
             boolean addLocalsFromHasAttr) {
         Set<SourceToken> comps = new HashSet<SourceToken>();
 
-        Iterator<SimpleNode> it = this.scope.topDownIterator();
+        Iterator<ISimpleNode> it = this.scope.topDownIterator();
         if (!it.hasNext()) {
-            return new ArrayList<IToken>();
+            return new TokensList();
         }
 
-        SimpleNode element = it.next();
+        SimpleNode element = (SimpleNode) it.next();
 
         String dottedActTok = activationToken + '.';
         //ok, that's the scope we have to analyze
         SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(element);
 
-        ArrayList<Class> classes = new ArrayList<Class>(2);
+        ArrayList<Class<? extends SimpleNode>> classes = new ArrayList<>(2);
         if (addAttributeAccess) {
             classes.add(Attribute.class);
 
@@ -325,17 +324,17 @@ public class LocalScope implements ILocalScope {
 
             }
         }
-        return new ArrayList<IToken>(comps);
+        return new TokensList(comps.toArray(new IToken[0]));
     }
 
     /**
      * @see org.python.pydev.core.ILocalScope#getLocalImportedModules(int, int, java.lang.String)
      */
     @Override
-    public List<IToken> getLocalImportedModules(int line, int col, String moduleName) {
+    public TokensList getLocalImportedModules(int line, int col, String moduleName) {
         ArrayList<IToken> importedModules = new ArrayList<IToken>();
-        for (Iterator<SimpleNode> iter = this.scope.iterator(); iter.hasNext();) {
-            SimpleNode element = iter.next();
+        for (Iterator<ISimpleNode> iter = this.scope.iterator(); iter.hasNext();) {
+            SimpleNode element = (SimpleNode) iter.next();
 
             if (element instanceof FunctionDef) {
                 FunctionDef f = (FunctionDef) element;
@@ -348,7 +347,7 @@ public class LocalScope implements ILocalScope {
                 }
             }
         }
-        return importedModules;
+        return new TokensList(importedModules);
     }
 
     /**
@@ -356,8 +355,8 @@ public class LocalScope implements ILocalScope {
      */
     @Override
     public ClassDef getClassDef() {
-        for (Iterator<SimpleNode> it = this.scope.topDownIterator(); it.hasNext();) {
-            SimpleNode node = it.next();
+        for (Iterator<ISimpleNode> it = this.scope.topDownIterator(); it.hasNext();) {
+            SimpleNode node = (SimpleNode) it.next();
             if (node instanceof ClassDef) {
                 return (ClassDef) node;
             }
@@ -377,7 +376,7 @@ public class LocalScope implements ILocalScope {
     }
 
     @Override
-    public Iterator iterator() {
+    public Iterator<ISimpleNode> iterator() {
         return scope.topDownIterator();
     }
 
@@ -429,11 +428,11 @@ public class LocalScope implements ILocalScope {
     public List<ITypeInfo> getPossibleClassesForActivationToken(String actTok) {
         List<ITypeInfo> ret = new ArrayList<>();
 
-        Iterator<SimpleNode> it = this.scope.topDownIterator();
+        Iterator<ISimpleNode> it = this.scope.topDownIterator();
         if (!it.hasNext()) {
             return ret;
         }
-        SimpleNode element = it.next();
+        SimpleNode element = (SimpleNode) it.next();
 
         //ok, that's the scope we have to analyze
 
@@ -588,14 +587,14 @@ public class LocalScope implements ILocalScope {
 
     @Override
     public String getScopeStackPathNames() {
-        Iterator<SimpleNode> iterator = this.scope.iterator();
+        Iterator<ISimpleNode> iterator = this.scope.iterator();
         return nodesIteratorToPathName(iterator);
     }
 
-    private String nodesIteratorToPathName(Iterator<SimpleNode> iterator) {
+    private String nodesIteratorToPathName(Iterator<ISimpleNode> iterator) {
         FastStringBuffer buf = new FastStringBuffer();
         if (iterator.hasNext()) {
-            SimpleNode next = iterator.next();
+            SimpleNode next = (SimpleNode) iterator.next();
             if (next instanceof Module) {
                 // just skip it
             } else {
@@ -606,7 +605,7 @@ public class LocalScope implements ILocalScope {
             }
         }
         while (iterator.hasNext()) {
-            SimpleNode next = iterator.next();
+            SimpleNode next = (SimpleNode) iterator.next();
             String rep = NodeUtils.getRepresentationString(next);
             if (rep != null && rep.length() > 0) {
                 if (!buf.isEmpty()) {
@@ -622,10 +621,10 @@ public class LocalScope implements ILocalScope {
 
     @Override
     public String getScopeStackPathNamesToLastClassDef() {
-        ArrayList<SimpleNode> arrayList = new ArrayList<>();
+        List<ISimpleNode> arrayList = new ArrayList<>();
         boolean found = false;
-        for (Iterator<SimpleNode> it = this.scope.iterator(); it.hasNext();) {
-            SimpleNode node = it.next();
+        for (Iterator<ISimpleNode> it = this.scope.iterator(); it.hasNext();) {
+            SimpleNode node = (SimpleNode) it.next();
             arrayList.add(node);
             if (node instanceof ClassDef) {
                 found = true;

@@ -22,6 +22,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.ITypeInfo;
+import org.python.pydev.core.TokensList;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -44,10 +45,10 @@ public class Definition implements IDefinition {
 
     /**
      * Name of the token.
-     * 
+     *
      * e.g.
      * tok = ClassA()
-     * 
+     *
      * the value equals ClassA
      */
     public final String value;
@@ -84,7 +85,7 @@ public class Definition implements IDefinition {
     /**
      * The ast and scope may be null if the definition points to the module (and not some token defined
      * within it).
-     * 
+     *
      * The line and col are defined starting at 1 (and not 0)
      */
     public Definition(int line, int col, String value, SimpleNode ast, ILocalScope scope, IModule module,
@@ -122,7 +123,7 @@ public class Definition implements IDefinition {
         this.foundAsLocal = foundAsLocal;
     }
 
-    /** 
+    /**
      * @see java.lang.Object#toString()
      */
     @Override
@@ -142,7 +143,7 @@ public class Definition implements IDefinition {
         return buffer.toString();
     }
 
-    /** 
+    /**
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -213,7 +214,7 @@ public class Definition implements IDefinition {
                 String actToken = headAndTail[0];
                 String qualifier = headAndTail[1];
 
-                IToken[] globalTokens = this.module.getGlobalTokens(new CompletionState(line, col, actToken, nature,
+                TokensList globalTokens = this.module.getGlobalTokens(new CompletionState(line, col, actToken, nature,
                         qualifier, cache), manager);
 
                 for (IToken iToken : globalTokens) {

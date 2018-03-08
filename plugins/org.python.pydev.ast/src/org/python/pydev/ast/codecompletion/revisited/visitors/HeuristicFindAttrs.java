@@ -31,14 +31,15 @@ import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.structure.FastStack;
 
 /**
- * This class defines how we should find attributes. 
- * 
+ * This class defines how we should find attributes.
+ *
  * Heuristics provided allow someone to find an attr inside a function definition (IN_INIT or IN_ANY)
  * or inside a method call (e.g. a method called properties.create(x=0) - that's what I use, so, that's specific).
  * Other uses may be customized later, once we know which other uses are done.
- * 
+ *
  * @author Fabio Zadrozny
  */
 public class HeuristicFindAttrs extends AbstractVisitor {
@@ -50,11 +51,13 @@ public class HeuristicFindAttrs extends AbstractVisitor {
 
     private final Map<String, SourceToken> repToTokenWithArgs;
 
+    private FastStack<Assign> lastAssign = new FastStack<Assign>(2);
+
     /**
      * @param where
      * @param how
      * @param methodCall
-     * @param state 
+     * @param state
      */
     public HeuristicFindAttrs(int where, int how, String methodCall, String moduleName, ICompletionState state,
             Map<String, SourceToken> repToTokenWithArgs, IPythonNature nature) {
@@ -187,56 +190,63 @@ public class HeuristicFindAttrs extends AbstractVisitor {
 
     /**
      * Name should be within assign.
-     * 
+     *
      * @see org.python.pydev.parser.jython.ast.VisitorIF#visitAssign(org.python.pydev.parser.jython.ast.Assign)
      */
     @Override
     public Object visitAssign(Assign node) throws Exception {
-        if (how == IN_ASSIGN) {
-            inAssing = true;
+        lastAssign.push(node);
+        try {
+            if (how == IN_ASSIGN) {
+                inAssing = true;
 
-            exprType value = node.value;
-            String rep = NodeUtils.getRepresentationString(value);
-            SourceToken methodTok = null;
-            if (rep != null) {
-                methodTok = repToTokenWithArgs.get(rep);
-                //The use case is the following: we have a method and an assign to it:
-                //def method(a, b):
-                //   ...
-                //other = method
-                //
-                //and later on, we want the arguments for 'other' to be the same arguments for 'method'.
-            }
+                exprType value = node.value;
+                String rep = NodeUtils.getRepresentationString(value);
+                SourceToken methodTok = null;
+                if (rep != null) {
+                    methodTok = repToTokenWithArgs.get(rep);
+                    //The use case is the following: we have a method and an assign to it:
+                    //def method(a, b):
+                    //   ...
+                    //other = method
+                    //
+                    //and later on, we want the arguments for 'other' to be the same arguments for 'method'.
+                }
 
-            for (int i = 0; i < node.targets.length; i++) {
-                if (node.targets[i] instanceof Attribute) {
-                    visitAttribute((Attribute) node.targets[i]);
+                for (int i = 0; i < node.targets.length; i++) {
+                    if (node.targets[i] instanceof Attribute) {
+                        visitAttribute((Attribute) node.targets[i]);
 
-                } else if (node.targets[i] instanceof Name && inFuncDef == false) {
-                    String id = ((Name) node.targets[i]).id;
-                    if (id != null) {
-                        SourceToken added = addToken(node.targets[i]);
-                        if (methodTok != null) {
-                            added.updateAliasToken(methodTok);
-                        }
-                    }
-
-                } else if (node.targets[i] instanceof Tuple && inFuncDef == false) {
-                    //that's for finding the definition: a,b,c = range(3) inside a class definition
-                    Tuple tuple = (Tuple) node.targets[i];
-                    for (exprType t : tuple.elts) {
-                        if (t instanceof Name) {
-                            String id = ((Name) t).id;
-                            if (id != null) {
-                                addToken(t);
+                    } else if (node.targets[i] instanceof Name && inFuncDef == false) {
+                        String id = ((Name) node.targets[i]).id;
+                        if (id != null) {
+                            SourceToken added = addToken(node.targets[i]);
+                            added.setFoundInAssign(node);
+                            if (methodTok != null) {
+                                added.updateAliasToken(methodTok);
                             }
                         }
+
+                    } else if (node.targets[i] instanceof Tuple && inFuncDef == false) {
+                        //that's for finding the definition: a,b,c = range(3) inside a class definition
+                        Tuple tuple = (Tuple) node.targets[i];
+                        for (exprType t : tuple.elts) {
+                            if (t instanceof Name) {
+                                String id = ((Name) t).id;
+                                if (id != null) {
+                                    SourceToken added = addToken(t);
+                                    added.setFoundInAssign(node);
+                                }
+                            }
+                        }
+
                     }
-
                 }
-            }
 
-            inAssing = false;
+                inAssing = false;
+            }
+        } finally {
+            lastAssign.pop();
         }
         return null;
     }
@@ -250,17 +260,23 @@ public class HeuristicFindAttrs extends AbstractVisitor {
             if (node.value instanceof Name) {
                 String id = ((Name) node.value).id;
                 if (id != null) {
+                    SourceToken addToken = null;
                     if (this.discoverSelfAttrs) {
                         if (id.equals("self")) {
-                            addToken(node);
+                            addToken = addToken(node);
 
                         }
                     } else {
                         if (id.equals("cls")) {
-                            addToken(node);
+                            addToken = addToken(node);
+
                         }
                     }
+                    if (addToken != null && !lastAssign.empty()) {
+                        addToken.setFoundInAssign(lastAssign.peek());
+                    }
                 }
+
             }
         }
         return null;

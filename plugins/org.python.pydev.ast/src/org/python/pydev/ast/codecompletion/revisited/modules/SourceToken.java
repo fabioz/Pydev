@@ -17,6 +17,7 @@ import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -263,12 +264,22 @@ public class SourceToken extends AbstractToken {
 
     private Definition definition;
 
+    private Assign foundInAssign;
+
     public void setDefinition(Definition d) {
         this.definition = d;
     }
 
     public Definition getDefinition() {
         return this.definition;
+    }
+
+    public void setFoundInAssign(Assign foundInAssign) {
+        this.foundInAssign = foundInAssign;
+    }
+
+    public Assign getFoundInAssign() {
+        return foundInAssign;
     }
 
 }

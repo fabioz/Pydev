@@ -6,14 +6,13 @@
  */
 package org.python.pydev.ast.codecompletion.revisited;
 
-import java.util.List;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.TokensList;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
@@ -225,12 +224,12 @@ public final class CompletionStateWrapper implements ICompletionState {
     }
 
     @Override
-    public List<IToken> getTokenImportedModules() {
+    public TokensList getTokenImportedModules() {
         return wrapped.getTokenImportedModules();
     }
 
     @Override
-    public void setTokenImportedModules(List<IToken> tokenImportedModules) {
+    public void setTokenImportedModules(TokensList tokenImportedModules) {
         wrapped.setTokenImportedModules(tokenImportedModules);
     }
 

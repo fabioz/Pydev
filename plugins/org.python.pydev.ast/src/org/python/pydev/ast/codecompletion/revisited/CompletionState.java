@@ -11,11 +11,9 @@
  */
 package org.python.pydev.ast.codecompletion.revisited;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
@@ -30,6 +28,7 @@ import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.TokensList;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.structure.Tuple3;
@@ -63,7 +62,7 @@ public final class CompletionState implements ICompletionState {
     private boolean isInCalltip = false;
 
     private int lookingForInstance = LOOKING_FOR_INSTANCE_UNDEFINED;
-    private List<IToken> tokenImportedModules;
+    private TokensList tokenImportedModules;
     private ICompletionCache completionCache;
     private String fullActivationToken;
     private long initialMillis = 0;
@@ -480,16 +479,16 @@ public final class CompletionState implements ICompletionState {
     }
 
     @Override
-    public void setTokenImportedModules(List<IToken> tokenImportedModules) {
+    public void setTokenImportedModules(TokensList tokenImportedModules) {
         if (tokenImportedModules != null) {
             if (this.tokenImportedModules == null) {
-                this.tokenImportedModules = new ArrayList<IToken>(tokenImportedModules); //keep a copy of it
+                this.tokenImportedModules = tokenImportedModules.copy(); //keep a copy of it
             }
         }
     }
 
     @Override
-    public List<IToken> getTokenImportedModules() {
+    public TokensList getTokenImportedModules() {
         return this.tokenImportedModules;
     }
 

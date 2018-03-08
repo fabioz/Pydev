@@ -15,12 +15,12 @@
 *     Fabio Zadrozny <fabiofz@gmail.com>    - initial implementation
 *     Jonah Graham <jonah@kichwacoders.com> - ongoing maintenance
 ******************************************************************************/
-/* 
+/*
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
  * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
  * IFS Institute for Software, HSR Rapperswil, Switzerland
- * 
+ *
  */
 
 package org.python.pydev.refactoring.ast.adapters;
@@ -51,6 +51,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISourceModule;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.TokensList;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
@@ -120,7 +121,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
         return super.equals(obj);
     }
 
-    /* 
+    /*
      * Not sure if this will ever be used, but as the .equals() method has been overwritten
      * a corresponding hashCode() method is considered good style
      */
@@ -183,8 +184,9 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
             try {
                 ICodeCompletionASTManager astManager = nature.getAstManager();
                 if (astManager != null) {
-                    IToken[] tokens = astManager.getCompletionsForModule(this.sourceModule, new CompletionState(-1, -1,
-                            "", nature, ""));
+                    TokensList tokens = astManager.getCompletionsForModule(this.sourceModule,
+                            new CompletionState(-1, -1,
+                                    "", nature, ""));
                     for (IToken token : tokens) {
                         globalNames.add(token.getRepresentation());
                     }
@@ -333,7 +335,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 
     /**
      * @param clazz the class from where we want to get the bases.
-     * 
+     *
      * @return a list of adapters for the base classes of the given class.
      */
     public List<IClassDefAdapter> getBaseClasses(IClassDefAdapter clazz) {
@@ -353,9 +355,9 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 
     /**
      * Get a class adapter for a given class contained in this module.
-     * 
+     *
      * @param name the name of the class we want to resolve.
-     * 
+     *
      * @return an adapter to the class.
      */
     public IClassDefAdapter resolveClass(String name) {
@@ -377,7 +379,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 
     /**
      * Will resolve module and real identifier if an alias is used. The returned import may be a relative one...
-     * 
+     *
      * @param aliasName
      *            Identifier/Token (e.g. foo.classname)
      * @return Array consisting of module and real identifier
@@ -424,14 +426,14 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 
     /**
      * This method fills the bases list (out) with asts for the methods that can be overridden.
-     * 
+     *
      * Still, compiled modules will not have an actual ast, but a list of tokens (that should be used
-     * to know what should be overridden), so, this method should actually be changed so that 
+     * to know what should be overridden), so, this method should actually be changed so that
      * it works with tokens (that are resolved when a completion is requested), so, if we request a completion
      * for each base class, all the tokens from it will be returned, what's missing in this approach is that currently
      * the tokens returned don't have an associated context, so, after getting them, it may be hard to actually
      * tell the whole class structure above it (but this can be considered secondary for now).
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     private Set<IClassDefAdapter> resolveImportedClass(Set<String> importedBase, CompletionCache completionCache)
             throws MisconfigurationException {
@@ -448,7 +450,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 
         for (String baseName : importedBase) {
             ICompletionState state = new CompletionState(-1, -1, baseName, nature, "", completionCache);
-            IToken[] ret = null;
+            TokensList ret = null;
             try {
                 ret = nature.getAstManager().getCompletionsForModule(module, state);
             } catch (CompletionRecursionException e) {

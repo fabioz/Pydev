@@ -20,8 +20,8 @@ import org.eclipse.jface.text.Document;
 import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
-import org.python.pydev.core.IToken;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.core.TokensList;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.io.PyUnsupportedEncodingException;
@@ -136,11 +136,11 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         sDoc = "" + "from testlib import unittest \n" + "                            \n"
                 + "unittest.                   \n";
 
-        IToken[] comps = null;
+        TokensList comps = null;
         Document doc = new Document(sDoc);
         ICompletionState state = new CompletionState(line, col, token, nature, "");
         comps = getComps(doc, state);
-        assertEquals(13, comps.length);
+        assertEquals(13, comps.size());
 
         ASTManagerTest.assertIsIn("__name__", comps);
         ASTManagerTest.assertIsIn("__file__", comps);
@@ -157,7 +157,7 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         ASTManagerTest.assertIsIn("testcase", comps);
     }
 
-    private IToken[] getComps(Document doc, ICompletionState state) {
+    private TokensList getComps(Document doc, ICompletionState state) {
         try {
             return nature.getAstManager().getCompletionsForToken(doc, state);
         } catch (CompletionRecursionException e) {
@@ -172,12 +172,12 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
 
         sDoc = "" + "from testrec.imp1 import * \n" + "                           \n";
 
-        IToken[] comps = null;
+        TokensList comps = null;
         Document doc = new Document(sDoc);
         ICompletionState state = new CompletionState(line, col, token, nature, "");
         ICodeCompletionASTManager a = nature.getAstManager();
         comps = a.getCompletionsForToken(doc, state);
-        assertFalse(comps.length == 0);
+        assertFalse(comps.size() == 0);
 
     }
 
@@ -188,12 +188,12 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
 
         sDoc = "" + "from testrec.imp3 import MethodReturn1 \n" + "i = MethodReturn1()                    \n" + "i.";
 
-        IToken[] comps = null;
+        TokensList comps = null;
         Document doc = new Document(sDoc);
         ICompletionState state = new CompletionState(line, col, token, nature, "");
         ICodeCompletionASTManager a = nature.getAstManager();
         comps = a.getCompletionsForToken(doc, state);
-        assertEquals(0, comps.length);
+        assertEquals(0, comps.size());
 
     }
 
@@ -207,11 +207,11 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
                 + "                                              \n"
                 + "TestCase.                                     \n";
 
-        IToken[] comps = null;
+        TokensList comps = null;
         Document doc = new Document(sDoc);
         ICompletionState state = new CompletionState(line, col, token, nature, "");
         comps = getComps(doc, state);
-        assertTrue(comps.length > 5);
+        assertTrue(comps.size() > 5);
         ASTManagerTest.assertIsIn("assertEquals", comps);
         ASTManagerTest.assertIsIn("assertNotEquals", comps);
         ASTManagerTest.assertIsIn("assertAlmostEquals", comps);
@@ -226,7 +226,7 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         sDoc = "" + "from testlib.unittest import GUITest  \n" + "                                      \n"
                 + "GUITest.                              \n";
 
-        IToken[] comps = null;
+        TokensList comps = null;
         Document doc = new Document(sDoc);
         ICompletionState state = new CompletionState(line, col, token, nature, "");
         comps = getComps(doc, state);
@@ -234,7 +234,7 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         ASTManagerTest.assertIsIn("assertEquals", comps);
         ASTManagerTest.assertIsIn("assertNotEquals", comps);
         ASTManagerTest.assertIsIn("assertAlmostEquals", comps);
-        assertTrue(comps.length > 5);
+        assertTrue(comps.size() > 5);
     }
 
     public void testClassHierarchyCompletion3() {
@@ -246,11 +246,11 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         sDoc = "" + "from testlib.unittest import AnotherTest  \n" + "                                          \n"
                 + "AnotherTest.                              \n";
 
-        IToken[] comps = null;
+        TokensList comps = null;
         Document doc = new Document(sDoc);
         ICompletionState state = new CompletionState(line, col, token, nature, "");
         comps = getComps(doc, state);
-        assertTrue(comps.length > 5);
+        assertTrue(comps.size() > 5);
         ASTManagerTest.assertIsIn("assertEquals", comps);
         ASTManagerTest.assertIsIn("assertNotEquals", comps);
         ASTManagerTest.assertIsIn("assertAlmostEquals", comps);
@@ -265,11 +265,11 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         sDoc = "" + "from testlib import unittest as t \n" + "                                  \n"
                 + "t.                                \n";
 
-        IToken[] comps = null;
+        TokensList comps = null;
         Document doc = new Document(sDoc);
         ICompletionState state = new CompletionState(line, col, token, nature, "");
         comps = getComps(doc, state);
-        assertEquals(13, comps.length);
+        assertEquals(13, comps.size());
 
         ASTManagerTest.assertIsIn("__name__", comps);
         ASTManagerTest.assertIsIn("__file__", comps);
@@ -295,11 +295,11 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
                 + "                                              \n"
                 + "t.                                            \n";
 
-        IToken[] comps = null;
+        TokensList comps = null;
         Document doc = new Document(sDoc);
         ICompletionState state = new CompletionState(line, col, token, nature, "");
         comps = getComps(doc, state);
-        assertTrue(comps.length > 5);
+        assertTrue(comps.size() > 5);
         ASTManagerTest.assertIsIn("assertEquals", comps);
         ASTManagerTest.assertIsIn("assertNotEquals", comps);
         ASTManagerTest.assertIsIn("assertAlmostEquals", comps);
@@ -316,13 +316,13 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
                 + "                                                            \n"
                 + "Derived.                                                    \n";
 
-        IToken[] comps = null;
+        TokensList comps = null;
         Document doc = new Document(sDoc);
         ICompletionState state = new CompletionState(line, col, token, nature, "");
         comps = getComps(doc, state);
         ASTManagerTest.assertIsIn("test1", comps);
         ASTManagerTest.assertIsIn("test2", comps);
-        assertEquals(2, comps.length);
+        assertEquals(2, comps.size());
 
     }
 

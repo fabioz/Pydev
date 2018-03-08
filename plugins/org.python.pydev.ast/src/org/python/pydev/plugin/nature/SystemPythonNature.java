@@ -24,10 +24,10 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
-import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PropertiesHelper;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
+import org.python.pydev.core.TokensList;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.nature.AbstractPythonNature;
 import org.python.pydev.shared_core.structure.OrderedMap;
@@ -299,7 +299,7 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
     //builtin completions
 
     @Override
-    public IToken[] getBuiltinCompletions() {
+    public TokensList getBuiltinCompletions() {
         if (!this.isOkToUse()) {
             return null;
         }

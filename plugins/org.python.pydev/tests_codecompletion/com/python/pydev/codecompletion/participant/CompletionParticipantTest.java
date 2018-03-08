@@ -12,7 +12,6 @@
 package com.python.pydev.codecompletion.participant;
 
 import java.io.File;
-import java.util.ArrayList;
 
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.text.Document;
@@ -21,6 +20,7 @@ import org.python.pydev.ast.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.core.TokensList;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.editor.actions.PySelectionTest;
 import org.python.pydev.editor.codecompletion.proposals.CtxInsensitiveImportComplProposal;
@@ -140,8 +140,7 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
 
         Import importTok = new Import(new aliasType[] { new aliasType(new NameTok("unittest", NameTok.ImportModule),
                 null) });
-        this.imports = new ArrayList<IToken>();
-        this.imports.add(new SourceToken(importTok, "unittest", "", "", "", null));
+        this.imports = new TokensList(new IToken[] { new SourceToken(importTok, "unittest", "", "", "", null) });
 
         requestCompl("import unittest\nunittest", new String[] {}); //none because the import for unittest is already there
         requestCompl("import unittest\nunittes", new String[] {}); //the local import for unittest (won't actually show anything because we're only exercising the participant test)

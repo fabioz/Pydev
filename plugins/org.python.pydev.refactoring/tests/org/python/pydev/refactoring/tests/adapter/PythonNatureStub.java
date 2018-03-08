@@ -30,9 +30,9 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
-import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
+import org.python.pydev.core.TokensList;
 import org.python.pydev.shared_core.structure.Tuple;
 
 public class PythonNatureStub implements IPythonNature {
@@ -52,7 +52,7 @@ public class PythonNatureStub implements IPythonNature {
     }
 
     @Override
-    public IToken[] getBuiltinCompletions() {
+    public TokensList getBuiltinCompletions() {
         throw new RuntimeException("Not implemented");
     }
 

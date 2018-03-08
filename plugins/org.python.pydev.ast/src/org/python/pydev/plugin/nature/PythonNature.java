@@ -53,10 +53,10 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
-import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ProjectMisconfiguredException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
+import org.python.pydev.core.TokensList;
 import org.python.pydev.core.interpreters.IInterpreterObserver;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.nature.AbstractPythonNature;
@@ -1161,7 +1161,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     }
 
     @Override
-    public IToken[] getBuiltinCompletions() {
+    public TokensList getBuiltinCompletions() {
         try {
             return this.getRelatedInterpreterManager().getBuiltinCompletions(this.getProjectInterpreterName());
         } catch (Exception e) {

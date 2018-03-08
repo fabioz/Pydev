@@ -19,6 +19,7 @@ import org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.TokensList;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
@@ -52,16 +53,16 @@ public class ModuleTest extends TestCase {
         SimpleNode n = (SimpleNode) obj.ast;
         IModule module = AbstractModule.createModule(n, null);
 
-        IToken[] globalTokens = module.getGlobalTokens();
-        assertEquals(8, globalTokens.length); //C c D d a __file__ __name__
+        TokensList globalTokens = module.getGlobalTokens();
+        assertEquals(8, globalTokens.size()); //C c D d a __file__ __name__
         compareReps(globalTokens, "__file__ __name__ __dict__ C c D d a");
 
-        IToken[] wildImportedModules = module.getWildImportedModules();
-        assertEquals(1, wildImportedModules.length); //m4
+        TokensList wildImportedModules = module.getWildImportedModules();
+        assertEquals(1, wildImportedModules.size()); //m4
         compareReps(wildImportedModules, "m4");
 
-        IToken[] tokenImportedModules = module.getTokenImportedModules();
-        assertEquals(5, tokenImportedModules.length); //a1, xx, yy, aa
+        TokensList tokenImportedModules = module.getTokenImportedModules();
+        assertEquals(5, tokenImportedModules.size()); //a1, xx, yy, aa
         compareReps(tokenImportedModules, "a1 xx yy aa m3");
 
         assertEquals("docstring for module", module.getDocString());
@@ -79,8 +80,8 @@ public class ModuleTest extends TestCase {
         SimpleNode n = (SimpleNode) obj.ast;
         IModule module = AbstractModule.createModule(n, null);
 
-        IToken[] globalTokens = module.getGlobalTokens();
-        assertEquals(5, globalTokens.length);
+        TokensList globalTokens = module.getGlobalTokens();
+        assertEquals(5, globalTokens.size());
         compareReps(globalTokens, "__file__ __name__ __dict__ method other");
         int found = 0;
         for (IToken t : globalTokens) {
@@ -103,8 +104,8 @@ public class ModuleTest extends TestCase {
         SimpleNode n = (SimpleNode) obj.ast;
         IModule module = AbstractModule.createModule(n, null);
 
-        IToken[] globalTokens = module.getGlobalTokens();
-        assertEquals(6, globalTokens.length);
+        TokensList globalTokens = module.getGlobalTokens();
+        assertEquals(6, globalTokens.size());
         compareReps(globalTokens, "__file__ __name__ __dict__ method other another");
         int found = 0;
         for (IToken t : globalTokens) {
@@ -121,7 +122,7 @@ public class ModuleTest extends TestCase {
      * @param globalTokens
      * @param string
      */
-    private void compareReps(IToken[] globalTokens, String string) {
+    private void compareReps(TokensList globalTokens, String string) {
         String[] strings = string.split(" ");
         HashSet<String> s1 = new HashSet<String>();
         s1.addAll(Arrays.asList(strings));

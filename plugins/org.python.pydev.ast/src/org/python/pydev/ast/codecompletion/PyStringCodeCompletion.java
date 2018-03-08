@@ -7,7 +7,6 @@
 package org.python.pydev.ast.codecompletion;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -22,8 +21,10 @@ import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.TokensOrProposalsList;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.string.DocIterator;
@@ -150,16 +151,19 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
      * @throws MisconfigurationException
      */
     @Override
-    public List<Object> getCodeCompletionProposals(CompletionRequest request) throws CoreException,
+    public TokensOrProposalsList getCodeCompletionProposals(CompletionRequest request) throws CoreException,
             BadLocationException, MisconfigurationException {
-        List<Object> ret = new ArrayList<>();
+        List<ICompletionProposalHandle> completionProposals = new ArrayList<>();
         request.showTemplates = false; //don't show templates in strings
-        fillWithEpydocFields(request, ret);
+        fillWithEpydocFields(request, completionProposals);
 
-        if (ret.size() == 0) {
+        TokensOrProposalsList ret = new TokensOrProposalsList();
+        if (completionProposals.size() == 0) {
             //if the size is not 0, it means that this is a place for the '@' stuff, and not for the 'default' context for a string.
-            ret.addAll(getStringGlobalsFromParticipants(request, CompletionStateFactory.getEmptyCompletionState(
-                    request.activationToken, request.nature, new CompletionCache())));
+            TokensOrProposalsList stringGlobalsFromParticipants = getStringGlobalsFromParticipants(request,
+                    CompletionStateFactory.getEmptyCompletionState(
+                            request.activationToken, request.nature, new CompletionCache()));
+            ret.addAll(stringGlobalsFromParticipants);
 
             //the code-below does not work well because the module may not have an actual import for the activation token,
             //so, it is useless too many times
@@ -169,14 +173,15 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
             //}
         }
 
-        fillWithParams(request, ret);
+        fillWithParams(request, completionProposals);
+        ret.addAll(new TokensOrProposalsList(completionProposals));
         return ret;
     }
 
     /**
      * @param ret OUT: this is where the completions are stored
      */
-    private void fillWithParams(CompletionRequest request, List<Object> ret) {
+    private void fillWithParams(CompletionRequest request, List<ICompletionProposalHandle> ret) {
         PySelection ps = new PySelection(request.doc, request.documentOffset);
         try {
             String lineContentsToCursor = ps.getLineContentsToCursor();
@@ -226,7 +231,7 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
      * @param ret OUT: this is where the completions are stored
      */
     private void fillWithEpydocFields(CompletionRequest request,
-            List<Object> ret) {
+            List<ICompletionProposalHandle> ret) {
         try {
             Region region = new Region(request.documentOffset - request.qlen, request.qlen);
             IImageHandle image = PyCodeCompletionImages.getImageForType(IToken.TYPE_EPYDOC);
@@ -265,9 +270,9 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
      * @return completions added from contributors
      * @throws MisconfigurationException
      */
-    private Collection<Object> getStringGlobalsFromParticipants(CompletionRequest request, ICompletionState state)
+    private TokensOrProposalsList getStringGlobalsFromParticipants(CompletionRequest request, ICompletionState state)
             throws MisconfigurationException {
-        List<Object> ret = new ArrayList<>();
+        TokensOrProposalsList ret = new TokensOrProposalsList();
 
         @SuppressWarnings("unchecked")
         List<IPyDevCompletionParticipant> participants = ExtensionHelper

@@ -7,13 +7,13 @@
 package org.python.pydev.ast.codecompletion;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
+import org.python.pydev.core.TokensOrProposalsList;
 
 public interface IPyCodeCompletion {
 
@@ -34,7 +34,7 @@ public interface IPyCodeCompletion {
      * @throws IOException
      * @throws PythonNatureWithoutProjectException
      */
-    public abstract List<Object> getCodeCompletionProposals(CompletionRequest request)
+    public abstract TokensOrProposalsList getCodeCompletionProposals(CompletionRequest request)
             throws CoreException, BadLocationException, IOException, MisconfigurationException,
             PythonNatureWithoutProjectException;
 

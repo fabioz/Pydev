@@ -39,6 +39,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ObjectsInternPool;
 import org.python.pydev.core.ObjectsInternPool.ObjectsPoolMap;
+import org.python.pydev.core.TokensList;
 import org.python.pydev.core.cache.CompleteIndexKey;
 import org.python.pydev.core.cache.DiskCache;
 import org.python.pydev.core.log.Log;
@@ -284,10 +285,10 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
     }
 
     private void addAstForCompiledModule(IModule module, InterpreterInfo info, ModulesKey newKey, boolean removeFirst) {
-        IToken[] globalTokens = module.getGlobalTokens();
+        TokensList globalTokens = module.getGlobalTokens();
         PyAstFactory astFactory = new PyAstFactory(new AdapterPrefs("\n", info.getModulesManager().getNature()));
 
-        List<stmtType> body = new ArrayList<>(globalTokens.length);
+        List<stmtType> body = new ArrayList<>(globalTokens.size());
 
         for (IToken token : globalTokens) {
             switch (token.getType()) {

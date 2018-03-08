@@ -15,6 +15,7 @@ import org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.TokensList;
 
 public class ForcedLibGroup extends ElementWithChildren {
 
@@ -36,7 +37,7 @@ public class ForcedLibGroup extends ElementWithChildren {
     protected void calculateChildren() throws MisconfigurationException {
         SystemModulesManager m = (SystemModulesManager) this.interpreterInfo.getModulesManager();
         AbstractModule builtinModule = m.getBuiltinModule(forcedLib, true);
-        IToken[] globalTokens = builtinModule.getGlobalTokens();
+        TokensList globalTokens = builtinModule.getGlobalTokens();
 
         ArrayList<LeafElement> lst = new ArrayList<LeafElement>();
 

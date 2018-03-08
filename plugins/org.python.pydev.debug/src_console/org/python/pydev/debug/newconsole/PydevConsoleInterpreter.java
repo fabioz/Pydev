@@ -34,6 +34,7 @@ import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.TokensList;
 import org.python.pydev.core.docutils.ImportsSelection;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
@@ -147,7 +148,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
             //Check all the natures.
             for (final IPythonNature nature : natureAndRelatedNatures) {
                 ICodeCompletionASTManager astManager = nature.getAstManager();
-                IToken[] importTokens = astManager.getCompletionsForImport(importsTipper, new ICompletionRequest() {
+                TokensList importTokens = astManager.getCompletionsForImport(importsTipper, new ICompletionRequest() {
 
                     @Override
                     public IPythonNature getNature() {
@@ -166,7 +167,9 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
                 }, onlyGetDirectModules);
 
                 //only get all modules for the 1st one we analyze (no need to get on the others)
-                tokens.addAll(Arrays.asList(importTokens));
+                for (IToken iToken : importTokens) {
+                    tokens.add(iToken);
+                }
             }
 
             int qlen = tokenAndQual.qualifier.length();

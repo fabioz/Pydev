@@ -18,6 +18,7 @@ import java.util.Set;
 import org.eclipse.core.resources.IProject;
 import org.python.pydev.ast.codecompletion.ProposalsComparator.CompareContext;
 import org.python.pydev.core.IModulesManager;
+import org.python.pydev.core.TokensOrProposalsList;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
 
@@ -30,7 +31,8 @@ public class PyCodeCompletionUtils {
      * @param onlyForCalltips if we should filter having in mind that we're going to show it for a calltip
      * @return the completions to show to the user
      */
-    public static ICompletionProposalHandle[] onlyValid(List pythonAndTemplateProposals, String qualifier,
+    public static ICompletionProposalHandle[] onlyValid(TokensOrProposalsList pythonAndTemplateProposals,
+            String qualifier,
             boolean onlyForCalltips, boolean useSubstringMatchInCodeCompletion, IProject project) {
         //FOURTH: Now, we have all the proposals, only thing is deciding which ones are valid (depending on
         //qualifier) and sorting them correctly.
@@ -38,8 +40,7 @@ public class PyCodeCompletionUtils {
 
         int len = pythonAndTemplateProposals.size();
         IFilter nameFilter = getNameFilter(useSubstringMatchInCodeCompletion, qualifier);
-        for (int i = 0; i < len; i++) {
-            Object o = pythonAndTemplateProposals.get(i);
+        for (Object o : pythonAndTemplateProposals) {
             if (o instanceof ICompletionProposalHandle) {
                 ICompletionProposalHandle proposal = (ICompletionProposalHandle) o;
 

@@ -7,8 +7,6 @@
 package org.python.pydev.ast.codecompletion.revisited;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -24,6 +22,7 @@ import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.ITypeInfo;
+import org.python.pydev.core.TokensList;
 import org.python.pydev.core.UnpackInfo;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
@@ -69,7 +68,7 @@ public class AssignAnalysis {
             ICompletionState state, ILocalScope localScope) {
         int assignLevel = state.pushAssign();
         try {
-            ArrayList<IToken> ret = new ArrayList<IToken>();
+            TokensList ret = new TokensList();
             Definition[] defs = new Definition[0];
             if (module instanceof SourceModule) {
                 SourceModule s = (SourceModule) module;
@@ -112,26 +111,14 @@ public class AssignAnalysis {
                                     Name name = (Name) definition.ast;
                                     String scopeStackPathNames = definition.scope.getScopeStackPathNames();
                                     if (scopeStackPathNames != null && scopeStackPathNames.length() > 0) {
-                                        IModule pyiStubModule = manager.getPyiStubModule(definition.module, state);
-                                        if (pyiStubModule instanceof SourceModule) {
-                                            SourceModule sourceModule = (SourceModule) pyiStubModule;
-                                            SimpleNode ast = sourceModule.getAst();
-                                            SimpleNode nodeFromPath = NodeUtils.getNodeFromPath(ast,
-                                                    scopeStackPathNames);
-                                            if (nodeFromPath != null) {
-                                                TypeInfo info = NodeUtils.getTypeForParameterFromAST(
-                                                        NodeUtils.getRepresentationString(name), nodeFromPath);
-                                                if (info != null) {
-                                                    HashSet<IToken> hashSet = new HashSet<IToken>();
-                                                    List<ITypeInfo> lookForClass = new ArrayList<>();
-                                                    lookForClass.add(info);
-                                                    manager.getCompletionsForClassInLocalScope(sourceModule, state,
-                                                            true, false, lookForClass,
-                                                            hashSet);
-                                                    ret.addAll(hashSet);
-                                                    foundAsParamWithTypingInfo = true;
-                                                }
-                                            }
+                                        foundAsParamWithTypingInfo = computeCompletionsFromParameterTypingInfo(
+                                                manager, state, ret, foundAsParamWithTypingInfo, name,
+                                                scopeStackPathNames, definition.module);
+                                        if (!foundAsParamWithTypingInfo) {
+                                            IModule pyiStubModule = manager.getPyiStubModule(definition.module, state);
+                                            foundAsParamWithTypingInfo = computeCompletionsFromParameterTypingInfo(
+                                                    manager, state, ret, foundAsParamWithTypingInfo, name,
+                                                    scopeStackPathNames, pyiStubModule);
                                         }
                                     }
                                 } else if (NodeUtils.isSelfAttribute(definition.ast)) {
@@ -144,26 +131,15 @@ public class AssignAnalysis {
                                         String scopeStackPathNames = definition.scope
                                                 .getScopeStackPathNamesToLastClassDef();
                                         if (scopeStackPathNames != null && scopeStackPathNames.length() > 0) {
-                                            IModule pyiStubModule = manager.getPyiStubModule(definition.module, state);
-                                            if (pyiStubModule instanceof SourceModule) {
-                                                SourceModule sourceModule = (SourceModule) pyiStubModule;
-                                                SimpleNode ast = sourceModule.getAst();
-                                                SimpleNode nodeFromPath = NodeUtils.getNodeFromPath(ast,
-                                                        scopeStackPathNames);
-                                                if (nodeFromPath instanceof ClassDef) {
-                                                    TypeInfo info = NodeUtils.getTypeForClassDefAttribute(
-                                                            attributeWithoutSelf, (ClassDef) nodeFromPath);
-                                                    if (info != null) {
-                                                        HashSet<IToken> hashSet = new HashSet<IToken>();
-                                                        List<ITypeInfo> lookForClass = new ArrayList<>();
-                                                        lookForClass.add(info);
-                                                        manager.getCompletionsForClassInLocalScope(sourceModule, state,
-                                                                true, false, lookForClass,
-                                                                hashSet);
-                                                        ret.addAll(hashSet);
-                                                        foundAsParamWithTypingInfo = true;
-                                                    }
-                                                }
+                                            foundAsParamWithTypingInfo = computeCompletionsFromAttributeTypingInfo(
+                                                    manager, state, ret, foundAsParamWithTypingInfo,
+                                                    attributeWithoutSelf, scopeStackPathNames, definition.module);
+                                            if (!foundAsParamWithTypingInfo) {
+                                                IModule pyiStubModule = manager.getPyiStubModule(definition.module,
+                                                        state);
+                                                foundAsParamWithTypingInfo = computeCompletionsFromAttributeTypingInfo(
+                                                        manager, state, ret, foundAsParamWithTypingInfo,
+                                                        attributeWithoutSelf, scopeStackPathNames, pyiStubModule);
                                             }
                                         }
                                     }
@@ -172,11 +148,11 @@ public class AssignAnalysis {
 
                             if (!foundAsParamWithTypingInfo) {
                                 if (definition.ast instanceof FunctionDef) {
-                                    List<IToken> found = manager.getCompletionFromFuncDefReturn(
+                                    TokensList found = manager.getCompletionFromFuncDefReturn(
                                             state, s, definition, false);
                                     ret.addAll(found);
                                 } else {
-                                    List<IToken> found = getNonFunctionDefCompletionsFromAssign(manager, state, s,
+                                    TokensList found = getNonFunctionDefCompletionsFromAssign(manager, state, s,
                                             definition, assignDefinition);
                                     //String spaces = new FastStringBuffer().appendN(' ', assignLevel).toString();
                                     //System.out.println(spaces + "Tok: " + state.getActivationToken());
@@ -188,11 +164,11 @@ public class AssignAnalysis {
                         }
                     } else {
                         if (localScope != null) {
-                            IToken[] tokens = searchInLocalTokens(manager, state, true, state.getLine() + 1,
+                            TokensList tokens = searchInLocalTokens(manager, state, true, state.getLine() + 1,
                                     state.getCol() + 1,
                                     module, localScope, state.getActivationToken());
                             if (tokens != null) {
-                                ret.addAll(Arrays.asList(tokens));
+                                ret.addAll(tokens);
                             }
                         }
                     }
@@ -210,6 +186,58 @@ public class AssignAnalysis {
         } finally {
             state.popAssign();
         }
+    }
+
+    private boolean computeCompletionsFromParameterTypingInfo(ICodeCompletionASTManager manager, ICompletionState state,
+            TokensList ret, boolean foundAsParamWithTypingInfo, Name name, String scopeStackPathNames,
+            IModule pyiStubModule) throws CompletionRecursionException {
+        if (pyiStubModule instanceof SourceModule) {
+            SourceModule sourceModule = (SourceModule) pyiStubModule;
+            SimpleNode ast = sourceModule.getAst();
+            SimpleNode nodeFromPath = NodeUtils.getNodeFromPath(ast,
+                    scopeStackPathNames);
+            if (nodeFromPath != null) {
+                TypeInfo info = NodeUtils.getTypeForParameterFromAST(
+                        NodeUtils.getRepresentationString(name), nodeFromPath);
+                if (info != null) {
+                    HashSet<IToken> hashSet = new HashSet<IToken>();
+                    List<ITypeInfo> lookForClass = new ArrayList<>();
+                    lookForClass.add(info);
+                    manager.getCompletionsForClassInLocalScope(sourceModule, state,
+                            true, false, lookForClass,
+                            hashSet);
+                    ret.addAll(new TokensList(hashSet));
+                    foundAsParamWithTypingInfo = true;
+                }
+            }
+        }
+        return foundAsParamWithTypingInfo;
+    }
+
+    private boolean computeCompletionsFromAttributeTypingInfo(ICodeCompletionASTManager manager, ICompletionState state,
+            TokensList ret, boolean foundAsParamWithTypingInfo, String attributeWithoutSelf,
+            String scopeStackPathNames, IModule pyiStubModule) throws CompletionRecursionException {
+        if (pyiStubModule instanceof SourceModule) {
+            SourceModule sourceModule = (SourceModule) pyiStubModule;
+            SimpleNode ast = sourceModule.getAst();
+            SimpleNode nodeFromPath = NodeUtils.getNodeFromPath(ast,
+                    scopeStackPathNames);
+            if (nodeFromPath instanceof ClassDef) {
+                TypeInfo info = NodeUtils.getTypeForClassDefAttribute(
+                        attributeWithoutSelf, (ClassDef) nodeFromPath);
+                if (info != null) {
+                    HashSet<IToken> hashSet = new HashSet<IToken>();
+                    List<ITypeInfo> lookForClass = new ArrayList<>();
+                    lookForClass.add(info);
+                    manager.getCompletionsForClassInLocalScope(sourceModule, state,
+                            true, false, lookForClass,
+                            hashSet);
+                    ret.addAll(new TokensList(hashSet));
+                    foundAsParamWithTypingInfo = true;
+                }
+            }
+        }
+        return foundAsParamWithTypingInfo;
     }
 
     /**
@@ -236,12 +264,12 @@ public class AssignAnalysis {
      * @param assignDefinition may be null if it was not actually found as an assign
      * @return
      */
-    private List<IToken> getNonFunctionDefCompletionsFromAssign(ICodeCompletionASTManager manager,
+    private TokensList getNonFunctionDefCompletionsFromAssign(ICodeCompletionASTManager manager,
             ICompletionState state,
             SourceModule sourceModule, Definition definition, AssignDefinition assignDefinition)
             throws CompletionRecursionException {
         IModule module;
-        ArrayList<IToken> ret = new ArrayList<IToken>();
+        TokensList ret = new TokensList();
         if (definition.ast instanceof ClassDef) {
             state.setLookingFor(ICompletionState.LOOKING_FOR_UNBOUND_VARIABLE);
             ret.addAll(((SourceModule) definition.module).getClassToks(state, manager, definition.ast));
@@ -278,8 +306,9 @@ public class AssignAnalysis {
                             if (elts != null) {
                                 for (exprType exprType : elts) {
                                     if (exprType instanceof Str) {
-                                        ret.add(new SourceToken(exprType, ((Str) exprType).s, "",
-                                                "", sourceModule.getName(), sourceModule.getNature()));
+                                        ret.addAll(new TokensList(
+                                                new IToken[] { new SourceToken(exprType, ((Str) exprType).s, "",
+                                                        "", sourceModule.getName(), sourceModule.getNature()) }));
                                     }
                                 }
                                 return ret;
@@ -294,8 +323,9 @@ public class AssignAnalysis {
                                             if (str.s != null) {
                                                 List<String> split = StringUtils.split(str.s, " ");
                                                 for (String string : split) {
-                                                    ret.add(new SourceToken(str, string, "",
-                                                            "", sourceModule.getName(), sourceModule.getNature()));
+                                                    ret.addAll(new TokensList(new IToken[] { new SourceToken(str,
+                                                            string, "",
+                                                            "", sourceModule.getName(), sourceModule.getNature()) }));
                                                 }
                                                 return ret;
                                             }
@@ -318,17 +348,17 @@ public class AssignAnalysis {
                                 hashSet);
                         if (hashSet.size() > 0) {
                             lookForAssign = false;
-                            ret.addAll(hashSet);
+                            ret.addAll(new TokensList(hashSet));
                         }
                     }
                 }
 
                 if (lookForAssign) {
-                    IToken[] tokens = searchInLocalTokens(manager, state, lookForAssign,
+                    TokensList tokens = searchInLocalTokens(manager, state, lookForAssign,
                             definition.line, definition.col, definition.module, assignDefinition.scope,
                             assignDefinition.value);
-                    if (tokens != null && tokens.length > 0) {
-                        ret.addAll(Arrays.asList(tokens));
+                    if (tokens != null && tokens.size() > 0) {
+                        ret.addAll(tokens);
                         lookForAssign = false;
                     }
                 }
@@ -350,7 +380,7 @@ public class AssignAnalysis {
                 state.checkDefinitionMemory(module, definition);
 
                 if (assignDefinition != null) {
-                    Collection<IToken> interfaceForLocal = assignDefinition.scope
+                    TokensList interfaceForLocal = assignDefinition.scope
                             .getInterfaceForLocal(assignDefinition.target);
                     ret.addAll(interfaceForLocal);
                 }
@@ -393,15 +423,15 @@ public class AssignAnalysis {
                     }
                 }
                 if (assignDefinition != null && unpackPos >= 0) {
-                    IToken[] tks = manager.getCompletionsUnpackingObject(
+                    TokensList tks = manager.getCompletionsUnpackingObject(
                             module, copy, assignDefinition.scope,
                             new UnpackInfo(false, unpackPos, unpackBackwards));
                     if (tks != null) {
-                        ret.addAll(Arrays.asList(tks));
+                        ret.addAll(tks);
                     }
                 } else {
-                    IToken[] tks = manager.getCompletionsForModule(module, copy, true, true);
-                    ret.addAll(Arrays.asList(tks));
+                    TokensList tks = manager.getCompletionsForModule(module, copy, true, true);
+                    ret.addAll(tks);
                 }
             }
         }
@@ -420,21 +450,21 @@ public class AssignAnalysis {
      * @return
      * @throws CompletionRecursionException
      */
-    public IToken[] searchInLocalTokens(ICodeCompletionASTManager manager, ICompletionState state,
+    public TokensList searchInLocalTokens(ICodeCompletionASTManager manager, ICompletionState state,
             boolean lookForAssign, int line, int col, IModule module, ILocalScope scope, String activationToken)
             throws CompletionRecursionException {
         //it may be declared as a global with a class defined in the local scope
-        IToken[] allLocalTokens = scope.getAllLocalTokens();
+        TokensList allLocalTokens = scope.getAllLocalTokens();
         for (IToken token : allLocalTokens) {
             if (token.getRepresentation().equals(activationToken)) {
                 if (token instanceof SourceToken) {
                     SourceToken srcToken = (SourceToken) token;
                     SimpleNode ast = srcToken.getAst();
                     if (ast instanceof ClassDef && module instanceof SourceModule) {
-                        List<IToken> classToks = ((SourceModule) module).getClassToks(
+                        TokensList classToks = ((SourceModule) module).getClassToks(
                                 state, manager, ast);
-                        if (classToks.size() > 0) {
-                            return classToks.toArray(new IToken[0]);
+                        if (classToks.notEmpty()) {
+                            return classToks;
                         }
                     }
                 }
@@ -446,9 +476,9 @@ public class AssignAnalysis {
         copy.setCol(col);
         copy.setActivationToken(activationToken);
 
-        IToken[] tokens = manager.getCompletionsFromTokenInLocalScope(module, copy, false, false,
+        TokensList tokens = manager.getCompletionsFromTokenInLocalScope(module, copy, false, false,
                 scope);
-        if (tokens != null && tokens.length > 0) {
+        if (tokens != null && tokens.size() > 0) {
             return tokens;
         }
         return null;
