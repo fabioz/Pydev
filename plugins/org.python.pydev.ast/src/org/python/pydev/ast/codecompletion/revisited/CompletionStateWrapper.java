@@ -12,6 +12,7 @@ import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.NoExceptionCloseable;
 import org.python.pydev.core.TokensList;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -184,7 +185,7 @@ public final class CompletionStateWrapper implements ICompletionState {
     }
 
     @Override
-    public int getLookingFor() {
+    public LookingFor getLookingFor() {
         return wrapped.getLookingFor();
     }
 
@@ -204,12 +205,12 @@ public final class CompletionStateWrapper implements ICompletionState {
     }
 
     @Override
-    public void setLookingFor(int b) {
+    public void setLookingFor(LookingFor b) {
         wrapped.setLookingFor(b);
     }
 
     @Override
-    public void setLookingFor(int b, boolean force) {
+    public void setLookingFor(LookingFor b, boolean force) {
         wrapped.setLookingFor(b, force);
     }
 
@@ -300,5 +301,10 @@ public final class CompletionStateWrapper implements ICompletionState {
     @Override
     public void setPyIStubModule(IModule module, IModule pyIModule) {
         this.wrapped.setPyIStubModule(pyIModule, pyIModule);
+    }
+
+    @Override
+    public NoExceptionCloseable pushLookingFor(LookingFor lookingForInstancedVariable) {
+        return this.wrapped.pushLookingFor(lookingForInstancedVariable);
     }
 }

@@ -22,6 +22,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.ITypeInfo;
+import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.TokensList;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -217,7 +218,8 @@ public class Definition implements IDefinition {
                 TokensList globalTokens = this.module.getGlobalTokens(new CompletionState(line, col, actToken, nature,
                         qualifier, cache), manager);
 
-                for (IToken iToken : globalTokens) {
+                for (IterTokenEntry entry : globalTokens) {
+                    IToken iToken = entry.getToken();
                     String rep = iToken.getRepresentation();
                     //if the value is file.readlines, when a compiled module is asked, it'll return
                     //the module __builtin__ with a parent package of __builtin__.file and a representation

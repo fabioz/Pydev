@@ -19,6 +19,7 @@ import org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.TokensList;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -84,7 +85,8 @@ public class ModuleTest extends TestCase {
         assertEquals(5, globalTokens.size());
         compareReps(globalTokens, "__file__ __name__ __dict__ method other");
         int found = 0;
-        for (IToken t : globalTokens) {
+        for (IterTokenEntry entry : globalTokens) {
+            IToken t = entry.getToken();
             if (t.getRepresentation().equals("method") || t.getRepresentation().equals("other")) {
                 assertEquals("( a, b )", t.getArgs());
                 found += 1;
@@ -108,7 +110,8 @@ public class ModuleTest extends TestCase {
         assertEquals(6, globalTokens.size());
         compareReps(globalTokens, "__file__ __name__ __dict__ method other another");
         int found = 0;
-        for (IToken t : globalTokens) {
+        for (IterTokenEntry entry : globalTokens) {
+            IToken t = entry.getToken();
             if (t.getRepresentation().equals("method") || t.getRepresentation().equals("other")
                     || t.getRepresentation().equals("another")) {
                 assertEquals("( a, b )", t.getArgs());
@@ -128,7 +131,8 @@ public class ModuleTest extends TestCase {
         s1.addAll(Arrays.asList(strings));
 
         HashSet<String> s2 = new HashSet<String>();
-        for (IToken t : globalTokens) {
+        for (IterTokenEntry entry : globalTokens) {
+            IToken t = entry.getToken();
             s2.add(t.getRepresentation());
         }
         assertEquals(s1, s2);

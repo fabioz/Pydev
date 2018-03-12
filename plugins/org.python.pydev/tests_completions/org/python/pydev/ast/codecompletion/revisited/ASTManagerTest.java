@@ -24,6 +24,7 @@ import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.TokensList;
 import org.python.pydev.core.structure.CompletionRecursionException;
@@ -275,7 +276,8 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
             assertIsIn(s, comps);
         }
         List<String> asList = Arrays.asList(expected);
-        for (IToken t : comps) {
+        for (IterTokenEntry entry : comps) {
+            IToken t = entry.getToken();
             assertContains(asList, t.getRepresentation());
         }
         checkExpected(expected.length);
@@ -284,7 +286,8 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
 
     private void checkExpected(int expected) {
         FastStringBuffer buf = new FastStringBuffer(40 * comps.size());
-        for (IToken t : comps) {
+        for (IterTokenEntry entry : comps) {
+            IToken t = entry.getToken();
             buf.append(t.getRepresentation());
             buf.append(", ");
         }
@@ -297,7 +300,8 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         try {
             TokensList completionsForToken = getManager().getCompletionsForToken(doc, state);
             HashMap<String, IToken> map = new HashMap<String, IToken>();
-            for (IToken iToken : completionsForToken) {
+            for (IterTokenEntry entry : completionsForToken) {
+                IToken iToken = entry.getToken();
                 map.put(iToken.getRepresentation(), iToken);
             }
 
@@ -462,7 +466,8 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
     public static void assertIsIn(String string, TokensList comps) {
         StringBuffer buffer = new StringBuffer("Available: \n");
         boolean found = false;
-        for (IToken t : comps) {
+        for (IterTokenEntry entry : comps) {
+            IToken t = entry.getToken();
             String rep = t.getRepresentation();
             if (string.equals(rep)) {
                 found = true;

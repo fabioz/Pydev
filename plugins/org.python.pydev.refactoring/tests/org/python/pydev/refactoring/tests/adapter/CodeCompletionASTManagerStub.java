@@ -19,7 +19,6 @@
 package org.python.pydev.refactoring.tests.adapter;
 
 import java.io.File;
-import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
@@ -167,8 +166,8 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
     }
 
     @Override
-    public void getCompletionsForClassInLocalScope(IModule module, ICompletionState state, boolean searchSameLevelMods,
-            boolean lookForArgumentCompletion, List<ITypeInfo> lookForClass, HashSet<IToken> hashSet)
+    public TokensList getCompletionsForClassInLocalScope(IModule module, ICompletionState state,
+            boolean searchSameLevelMods, boolean lookForArgumentCompletion, List<ITypeInfo> lookForClass)
             throws CompletionRecursionException {
         throw new RuntimeException("Not implemented");
     }

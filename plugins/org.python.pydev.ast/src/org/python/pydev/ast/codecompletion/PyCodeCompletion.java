@@ -40,15 +40,20 @@ import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.ICompletionState.LookingFor;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.ITokenCompletionRequest;
+import org.python.pydev.core.IterEntry;
+import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.NoExceptionCloseable;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.TokensList;
+import org.python.pydev.core.TokensListMixedLookingFor;
 import org.python.pydev.core.TokensOrProposalsList;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
@@ -152,7 +157,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             state.setCancelMonitor(request.getCancelMonitor());
             state.setIsInCalltip(request.isInCalltip);
 
-            Map<String, IToken> alreadyChecked = new HashMap<String, IToken>();
+            Map<String, IterTokenEntry> alreadyChecked = new HashMap<>();
 
             boolean importsTip = false;
 
@@ -179,6 +184,10 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
 
             } else {
                 //go to globals
+                if (request.isInCalltip) {
+                    // # SomeCall(|<- here) 
+                    state.setLookingFor(ICompletionState.LookingFor.LOOKING_FOR_INSTANCED_VARIABLE);
+                }
                 doGlobalsCompletion(request, astManager, tokensList, state);
 
                 //At this point, after doing the globals completion, we may also need to check if we need to show
@@ -198,7 +207,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                     int i = 0;
                     analyzedTokens = new ArrayList<Object>();
                     // Note: later on we'll clear the tokensList and re-add the tokens on alreadyChecked.
-                    for (Iterator<Object> it = tokensList.iterator(); it.hasNext();) {
+                    for (Iterator<IterEntry> it = tokensList.iterator(); it.hasNext();) {
                         i++;
                         if (i > 10000) {
                             Log.logWarn(StringUtils.format(
@@ -207,15 +216,22 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                             break;
                         }
 
-                        Object o = it.next();
+                        IterEntry entry = it.next();
+                        Object o = entry.object;
                         if (!(o instanceof IToken)) {
-                            analyzedTokens.add(o); // Don't check things that are already a token
+                            analyzedTokens.add(o); // Don't check things that are not tokens
                         } else {
                             IToken initialToken = (IToken) o;
 
                             IToken token = initialToken;
                             String strRep = token.getRepresentation();
-                            IToken prev = alreadyChecked.get(strRep);
+                            IterTokenEntry iterTokenEntry = alreadyChecked.get(strRep);
+                            IToken prev;
+                            if (iterTokenEntry == null) {
+                                prev = null;
+                            } else {
+                                prev = iterTokenEntry.getToken();
+                            }
 
                             if (prev != null) {
                                 if (prev.getArgs().length() != 0) {
@@ -297,7 +313,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
 
                                                     OUT: for (int j = 0; j < classDef.bases.length; j++) {
                                                         try {
-                                                            int lookingFor = state.getLookingFor();
+                                                            LookingFor lookingFor = state.getLookingFor();
                                                             TokensList completions;
                                                             try {
                                                                 completions = sourceModule.getCompletionsForBase(
@@ -308,7 +324,8 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                                                                 state.setLookingFor(lookingFor, true);
                                                             }
                                                             if (completions != null && completions.size() > 0) {
-                                                                for (IToken comp : completions) {
+                                                                for (IterTokenEntry entry1 : completions) {
+                                                                    IToken comp = entry1.getToken();
                                                                     if ("__init__".equals(comp.getRepresentation())) {
                                                                         if (comp.getArgs().length() > 0) {
                                                                             initialToken.setArgs(comp.getArgs());
@@ -328,7 +345,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                                 }
                             }
 
-                            alreadyChecked.put(strRep, initialToken);
+                            alreadyChecked.put(strRep, new IterTokenEntry(initialToken, entry.lookingFor));
                         }
                     }
 
@@ -338,10 +355,10 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             }
 
             if (analyzedTokens == null) {
-                tokensList.addAll(new TokensList(alreadyChecked.values()));
+                tokensList.addAll(new TokensListMixedLookingFor(alreadyChecked.values()));
             } else {
-                analyzedTokens.addAll(alreadyChecked.values());
                 tokensList = new TokensOrProposalsList(analyzedTokens.toArray(new Object[0]));
+                tokensList.addAll(new TokensListMixedLookingFor(alreadyChecked.values()));
             }
             changeItokenToCompletionPropostal(request, ret, tokensList, importsTip, state);
         } catch (CompletionRecursionException e) {
@@ -399,8 +416,13 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                         if (module == null) {
                             continue;
                         }
-                        TokensList comps = astManager.getCompletionsForModule(module, state, true, true);
-                        tokensList.addAll(comps);
+                        try (NoExceptionCloseable c = state
+                                .pushLookingFor(ICompletionState.LookingFor.LOOKING_FOR_INSTANCED_VARIABLE)) {
+                            LookingFor lookingFor = state.getLookingFor();
+                            TokensList comps = astManager.getCompletionsForModule(module, state, true, true);
+                            tokensList.addAll(comps);
+                            comps.setLookingFor(lookingFor);
+                        }
                     }
                 }
             }
@@ -448,7 +470,8 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                                 continue;
                             }
                             TokensList comps = astManager.getCompletionsForModule(module, state, true, true);
-                            for (IToken iToken : comps) {
+                            for (IterTokenEntry entry : comps) {
+                                IToken iToken = entry.getToken();
                                 String representation = iToken.getRepresentation();
                                 ImmutableTuple<IToken, String> curr = map.get(representation);
                                 if (curr != null && curr.o1 instanceof SourceToken) {
@@ -548,7 +571,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
         tokensList.addAll(new TokensList(completions));
     }
 
-    private void handleKeywordParam(CompletionRequest request, int line, Map<String, IToken> alreadyChecked)
+    private void handleKeywordParam(CompletionRequest request, int line, Map<String, IterTokenEntry> alreadyChecked)
             throws BadLocationException, CompletionRecursionException {
         if (request.isInMethodKeywordParam) {
 
@@ -586,7 +609,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                             SourceToken sourceToken = new SourceToken(node, kwParam, "", "", "", IToken.TYPE_LOCAL,
                                     definition.module != null ? definition.module.getNature() : null);
                             sourceToken.setDocStr(fullArgs);
-                            alreadyChecked.put(kwParam, sourceToken);
+                            alreadyChecked.put(kwParam, new IterTokenEntry(sourceToken));
                         }
                     }
                 }
@@ -723,7 +746,6 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
      * @return true if we actually tried to get the completions for self or cls.
      * @throws MisconfigurationException
      */
-    @SuppressWarnings("unchecked")
     public static boolean getSelfOrClsCompletions(ITokenCompletionRequest request, TokensList theList,
             ICompletionState state,
             boolean getOnlySupers, boolean checkIfInCorrectScope, String lookForRep) throws MisconfigurationException {
@@ -760,12 +782,19 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                         return false;
                     }
                 }
+                TokensList tokensList = new TokensList();
+                LookingFor lookingFor;
                 if (lookForRep.equals("self")) {
-                    state.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
+                    state.setLookingFor(ICompletionState.LookingFor.LOOKING_FOR_INSTANCED_VARIABLE);
                 } else {
-                    state.setLookingFor(ICompletionState.LOOKING_FOR_CLASSMETHOD_VARIABLE);
+                    state.setLookingFor(ICompletionState.LookingFor.LOOKING_FOR_CLASSMETHOD_VARIABLE);
                 }
-                getSelfOrClsCompletions(visitor.scope, request, theList, state, getOnlySupers);
+                lookingFor = state.getLookingFor();
+                getSelfOrClsCompletions(visitor.scope, request, tokensList, state, getOnlySupers);
+                if (tokensList.notEmpty()) {
+                    tokensList.setLookingFor(lookingFor);
+                    theList.addAll(tokensList);
+                }
             } catch (Exception e1) {
                 Log.log(e1);
             }
@@ -778,7 +807,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
      * Get self completions when you already have a scope
      * @throws MisconfigurationException
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({ "unchecked" })
     public static void getSelfOrClsCompletions(ILocalScope scope, ITokenCompletionRequest request, TokensList theList,
             ICompletionState state, boolean getOnlySupers) throws BadLocationException, MisconfigurationException {
         for (Iterator<SimpleNode> it = scope.iterator(); it.hasNext();) {

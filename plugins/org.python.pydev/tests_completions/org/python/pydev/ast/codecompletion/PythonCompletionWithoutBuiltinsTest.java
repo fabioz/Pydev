@@ -517,6 +517,14 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         s = "" +
                 "from extendable.nested2 import hub\n" +
                 "hub.c1.b.";
+        requestCompl(s, s.length(), -1, new String[] { "another(self)" });
+    }
+
+    public void testDeepNested2A() throws Exception {
+        String s;
+        s = "" +
+                "from extendable.nested2 import hub\n" +
+                "hub.c1.b2.";
         requestCompl(s, s.length(), -1, new String[] { "another()" });
     }
 
@@ -525,7 +533,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         s = "" +
                 "from extendable.nested2 import hub\n" +
                 "hub.c1.c.";
-        requestCompl(s, s.length(), -1, new String[] { "another()" });
+        requestCompl(s, s.length(), -1, new String[] { "another(self)" });
     }
 
     public void testDeepNested4() throws Exception {
@@ -1147,19 +1155,16 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         String s0 = "class Foo:\n" +
                 "    def __init__(self):\n" +
                 "        self.myvar = 10\n" +
-                "\n"
-                +
+                "\n" +
                 "    def method3(self, a, b):\n" +
                 "        pass\n" +
                 "\n" +
                 "    myvar3=10\n" +
-                "    @classmethod\n"
-                +
+                "    @classmethod\n" +
                 "    def method2(cls, a, b):\n" +
                 "        cls.myvar2 = 20\n" +
                 "\n" +
-                "    @classmethod\n"
-                +
+                "    @classmethod\n" +
                 "    def method1(cls, a, b):\n" +
                 "        cls.m%s";
 

@@ -28,6 +28,7 @@ import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.NoExceptionCloseable;
 import org.python.pydev.core.TokensList;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.shared_core.SharedCorePlugin;
@@ -61,7 +62,7 @@ public final class CompletionState implements ICompletionState {
     private boolean localImportsGotten = false;
     private boolean isInCalltip = false;
 
-    private int lookingForInstance = LOOKING_FOR_INSTANCE_UNDEFINED;
+    private LookingFor lookingForInstance = LookingFor.LOOKING_FOR_INSTANCE_UNDEFINED;
     private TokensList tokenImportedModules;
     private ICompletionCache completionCache;
     private String fullActivationToken;
@@ -444,20 +445,20 @@ public final class CompletionState implements ICompletionState {
     }
 
     @Override
-    public void setLookingFor(int b) {
+    public void setLookingFor(LookingFor b) {
         this.setLookingFor(b, false);
     }
 
     @Override
-    public void setLookingFor(int b, boolean force) {
+    public void setLookingFor(LookingFor b, boolean force) {
         //the 1st is the one that counts (or it can be forced)
-        if (this.lookingForInstance == ICompletionState.LOOKING_FOR_INSTANCE_UNDEFINED || force) {
+        if (this.lookingForInstance == ICompletionState.LookingFor.LOOKING_FOR_INSTANCE_UNDEFINED || force) {
             this.lookingForInstance = b;
         }
     }
 
     @Override
-    public int getLookingFor() {
+    public LookingFor getLookingFor() {
         return this.lookingForInstance;
     }
 
@@ -644,5 +645,20 @@ public final class CompletionState implements ICompletionState {
     @Override
     public void setPyIStubModule(IModule module, IModule pyIModule) {
         this.pyIStubModule.put(module, new ModuleHandleOrNotGotten(pyIModule));
+    }
+
+    @Override
+    public NoExceptionCloseable pushLookingFor(LookingFor lookingFor) {
+        LookingFor prev = getLookingFor();
+        if (lookingFor != null) {
+            setLookingFor(lookingFor, true);
+        }
+        return new NoExceptionCloseable() {
+
+            @Override
+            public void close() {
+                setLookingFor(prev, true);
+            }
+        };
     }
 }

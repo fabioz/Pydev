@@ -30,6 +30,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
@@ -216,7 +217,8 @@ public abstract class AbstractModule implements IModule {
         //we don't want to gather builtins in this case.
         state.setBuiltinsGotten(true);
         TokensList globalTokens = astManager.getCompletionsForModule(this, state, searchSameLevelMods);
-        for (IToken token : globalTokens) {
+        for (IterTokenEntry entry : globalTokens) {
+            IToken token = entry.getToken();
             String rep = token.getRepresentation();
             IToken t = cachedTokens.get(rep);
             if (t != null) {

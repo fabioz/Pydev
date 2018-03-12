@@ -14,7 +14,9 @@ import org.python.pydev.ast.codecompletion.ProposalsComparator.CompareContext;
 import org.python.pydev.ast.codecompletion.revisited.AbstractToken;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.ICompletionState.LookingFor;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.IterEntry;
 import org.python.pydev.core.TokensOrProposalsList;
 import org.python.pydev.core.docutils.ImportsSelection;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
@@ -68,13 +70,14 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
         }
 
         int i = 0;
-        for (Iterator<Object> iter = iTokenList.iterator(); iter.hasNext();) {
+        for (Iterator<IterEntry> iter = iTokenList.iterator(); iter.hasNext();) {
             i++;
             if (i > 10000) {
                 break;
             }
 
-            Object obj = iter.next();
+            IterEntry entry = iter.next();
+            Object obj = entry.object;
 
             if (obj instanceof IToken) {
                 IToken element = (IToken) obj;
@@ -96,7 +99,7 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
                         getIt = false;
                     }
                     if (getIt) {
-                        args = getArgs(element, state);
+                        args = getArgs(element, entry.lookingFor);
                         if (args.length() > 0) {
                             l++; //cursor position is name + '('
                         }
@@ -231,12 +234,7 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
         result.append(temp);
     }
 
-    protected static String getArgs(IToken element, ICompletionState state) {
-        int lookingFor = state.getLookingFor();
-        return getArgs(element, lookingFor);
-    }
-
-    private static String getArgs(IToken element, int lookingFor) {
+    private static String getArgs(IToken element, LookingFor lookingFor) {
         return getArgs(element.getArgs(), element.getType(), lookingFor);
     }
 
@@ -245,11 +243,12 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
      *
      * E.g.: >>(self, a, b)<< Returns (a, b)
      */
-    public static String getArgs(String argsReceived, int type, int lookingFor) {
+    public static String getArgs(String argsReceived, int type, LookingFor lookingFor) {
         String args = "";
-        boolean lookingForInstance = lookingFor == ICompletionState.LOOKING_FOR_INSTANCE_UNDEFINED
-                || lookingFor == ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE
-                || lookingFor == ICompletionState.LOOKING_FOR_ASSIGN;
+        boolean lookingForInstance = lookingFor == ICompletionState.LookingFor.LOOKING_FOR_INSTANCE_UNDEFINED
+                || lookingFor == null
+                || lookingFor == ICompletionState.LookingFor.LOOKING_FOR_INSTANCED_VARIABLE
+                || lookingFor == ICompletionState.LookingFor.LOOKING_FOR_ASSIGN;
         String trimmed = argsReceived.trim();
         if (trimmed.length() > 0) {
             FastStringBuffer buffer = new FastStringBuffer("(", 128);

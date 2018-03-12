@@ -17,6 +17,7 @@ import java.util.Map;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.TokensList;
 import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -156,8 +157,8 @@ public final class Scope implements Iterable<ScopeItems> {
         }
 
         ScopeItems m = scope.peek();
-        for (Iterator<IToken> iter = list.iterator(); iter.hasNext();) {
-            IToken o = iter.next();
+        for (IterTokenEntry entry : list) {
+            IToken o = entry.getToken();
             //System.out.println("adding: "+o.getRepresentation());
             Found found = addToken(generator, m, o, o.getRepresentation());
             if (withinExceptNode != null) {

@@ -564,7 +564,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                     String docStr = (String) comp[1];
                     int type = extractInt(comp[3]);
                     String args = AbstractPyCodeCompletion.getArgs((String) comp[2], type,
-                            ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
+                            ICompletionState.LookingFor.LOOKING_FOR_INSTANCED_VARIABLE);
                     String nameAndArgs = name + args;
 
                     int priority = IPyCompletionProposal.PRIORITY_DEFAULT;

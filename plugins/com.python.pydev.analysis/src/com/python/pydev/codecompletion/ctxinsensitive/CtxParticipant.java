@@ -30,13 +30,16 @@ import org.python.pydev.ast.item_pointer.ItemPointer;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.ICompletionState.LookingFor;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IInfo;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.NoExceptionCloseable;
 import org.python.pydev.core.TokensList;
 import org.python.pydev.core.TokensOrProposalsList;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
@@ -276,7 +279,8 @@ public class CtxParticipant
         TokensList tokenImportedModules = state.getTokenImportedModules();
         HashSet<String> importedNames = new HashSet<String>();
         if (tokenImportedModules != null) {
-            for (IToken token : tokenImportedModules) {
+            for (IterTokenEntry entry : tokenImportedModules) {
+                IToken token = entry.getToken();
                 importedNames.add(token.getRepresentation());
             }
         }
@@ -429,20 +433,18 @@ public class CtxParticipant
 
     private TokensList getCompletionsFromItemPointer(ICompletionState state, ICodeCompletionASTManager astManager,
             ItemPointer itemPointer) throws CompletionRecursionException {
-        int initialLookingFor = state.getLookingFor();
-        try {
-            state.setLookingFor(
-                    ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
+        try (NoExceptionCloseable x = state.pushLookingFor(
+                ICompletionState.LookingFor.LOOKING_FOR_INSTANCED_VARIABLE)) {
+            LookingFor currLookingFor = state.getLookingFor();
             TokensList completionFromFuncDefReturn = astManager
                     .getCompletionFromFuncDefReturn(state,
                             itemPointer.definition.module,
                             itemPointer.definition, true);
             if (completionFromFuncDefReturn != null
                     && completionFromFuncDefReturn.notEmpty()) {
+                completionFromFuncDefReturn.setLookingFor(currLookingFor);
                 return completionFromFuncDefReturn;
             }
-        } finally {
-            state.setLookingFor(initialLookingFor, true);
         }
         return null;
     }

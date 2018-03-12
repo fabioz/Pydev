@@ -29,6 +29,7 @@ import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.TokensList;
@@ -254,7 +255,8 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
         TokensList tokenImportedModules = state.getTokenImportedModules();
         HashSet<String> importedNames = new HashSet<String>();
         if (tokenImportedModules != null) {
-            for (IToken token : tokenImportedModules) {
+            for (IterTokenEntry entry : tokenImportedModules) {
+                IToken token = entry.getToken();
                 importedNames.add(token.getRepresentation());
             }
         }

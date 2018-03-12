@@ -33,6 +33,7 @@ import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.TokensList;
 import org.python.pydev.core.TupleN;
 import org.python.pydev.core.log.Log;
@@ -158,7 +159,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
                             moduleName, nature)));
         }
 
-        for (IToken t : builtinCompletions) {
+        for (IterTokenEntry entry : builtinCompletions) {
+            IToken t = entry.getToken();
             Found found = makeFound(t);
             org.python.pydev.shared_core.structure.Tuple<IToken, Found> tup = new org.python.pydev.shared_core.structure.Tuple<IToken, Found>(
                     t, found);
@@ -1210,7 +1212,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
                                 TokensList interfaceForLocal = this.currentLocalScope.getInterfaceForLocal(
                                         foundAsStr, false, true);
                                 boolean foundInHasAttr = false;
-                                for (IToken iToken : interfaceForLocal) {
+                                for (IterTokenEntry entry : interfaceForLocal) {
+                                    IToken iToken = entry.getToken();
                                     if (iToken.getRepresentation().equals(repToCheck)) {
                                         foundInHasAttr = true;
                                         break;

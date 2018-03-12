@@ -19,6 +19,7 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
+import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Import;
@@ -73,7 +74,7 @@ public class SourceToken extends AbstractToken {
     }
 
     /**
-     * 
+     *
      * @return the completion type depending on the syntax tree.
      */
     public static int getType(SimpleNode ast) {
@@ -229,7 +230,7 @@ public class SourceToken extends AbstractToken {
     }
 
     /**
-     * This representation may not be accurate depending on which tokens we are dealing with. 
+     * This representation may not be accurate depending on which tokens we are dealing with.
      */
     @Override
     public int[] getLineColEnd() {
@@ -266,6 +267,8 @@ public class SourceToken extends AbstractToken {
 
     private Assign foundInAssign;
 
+    private Call foundInCall;
+
     public void setDefinition(Definition d) {
         this.definition = d;
     }
@@ -280,6 +283,14 @@ public class SourceToken extends AbstractToken {
 
     public Assign getFoundInAssign() {
         return foundInAssign;
+    }
+
+    public void setFoundInCall(Call foundInCall) {
+        this.foundInCall = foundInCall;
+    }
+
+    public Call getFoundInCall() {
+        return foundInCall;
     }
 
 }

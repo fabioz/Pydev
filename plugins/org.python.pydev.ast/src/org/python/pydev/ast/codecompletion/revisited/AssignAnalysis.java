@@ -8,7 +8,6 @@ package org.python.pydev.ast.codecompletion.revisited;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -18,10 +17,13 @@ import org.python.pydev.ast.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.ICompletionState.LookingFor;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.ITypeInfo;
+import org.python.pydev.core.IterTokenEntry;
+import org.python.pydev.core.NoExceptionCloseable;
 import org.python.pydev.core.TokensList;
 import org.python.pydev.core.UnpackInfo;
 import org.python.pydev.core.log.Log;
@@ -66,7 +68,7 @@ public class AssignAnalysis {
      */
     public AssignCompletionInfo getAssignCompletions(ICodeCompletionASTManager manager, IModule module,
             ICompletionState state, ILocalScope localScope) {
-        int assignLevel = state.pushAssign();
+        state.pushAssign();
         try {
             TokensList ret = new TokensList();
             Definition[] defs = new Definition[0];
@@ -80,8 +82,7 @@ public class AssignAnalysis {
                             //go through all definitions found and make a merge of it...
                             Definition definition = defs[i];
                             if (state.getAlreadySearchedInAssign(definition.line, definition.col, definition.module,
-                                    definition.value,
-                                    state.getActivationToken())) {
+                                    definition.value, state.getActivationToken())) {
                                 // It's possible that we have many assigns where it may be normal to have loops
                                 // i.e.: cp = self.x[:] ... self.x = cp, so, let's mark those places so that we don't recurse.
                                 // System.out.println("Skip: " + definition);
@@ -107,8 +108,15 @@ public class AssignAnalysis {
 
                             boolean foundAsParamWithTypingInfo = false;
                             if (definition.scope != null) {
-                                if (NodeUtils.isParamName(definition.ast)) {
-                                    Name name = (Name) definition.ast;
+                                SimpleNode ast = definition.ast;
+                                if (ast instanceof Assign) {
+                                    Assign assign = (Assign) ast;
+                                    if (assign.targets != null) {
+                                        ast = assign.targets[0];
+                                    }
+                                }
+                                if (NodeUtils.isParamName(ast)) {
+                                    Name name = (Name) ast;
                                     String scopeStackPathNames = definition.scope.getScopeStackPathNames();
                                     if (scopeStackPathNames != null && scopeStackPathNames.length() > 0) {
                                         foundAsParamWithTypingInfo = computeCompletionsFromParameterTypingInfo(
@@ -121,9 +129,9 @@ public class AssignAnalysis {
                                                     scopeStackPathNames, pyiStubModule);
                                         }
                                     }
-                                } else if (NodeUtils.isSelfAttribute(definition.ast)) {
+                                } else if (NodeUtils.isSelfAttribute(ast)) {
                                     String fullRepresentationString = NodeUtils
-                                            .getFullRepresentationString(definition.ast);
+                                            .getFullRepresentationString(ast);
                                     if (fullRepresentationString.contains(".")) {
                                         // Remove the 'self'
                                         String attributeWithoutSelf = FullRepIterable
@@ -200,13 +208,10 @@ public class AssignAnalysis {
                 TypeInfo info = NodeUtils.getTypeForParameterFromAST(
                         NodeUtils.getRepresentationString(name), nodeFromPath);
                 if (info != null) {
-                    HashSet<IToken> hashSet = new HashSet<IToken>();
                     List<ITypeInfo> lookForClass = new ArrayList<>();
                     lookForClass.add(info);
-                    manager.getCompletionsForClassInLocalScope(sourceModule, state,
-                            true, false, lookForClass,
-                            hashSet);
-                    ret.addAll(new TokensList(hashSet));
+                    ret.addAll(manager.getCompletionsForClassInLocalScope(sourceModule, state,
+                            true, false, lookForClass));
                     foundAsParamWithTypingInfo = true;
                 }
             }
@@ -226,13 +231,10 @@ public class AssignAnalysis {
                 TypeInfo info = NodeUtils.getTypeForClassDefAttribute(
                         attributeWithoutSelf, (ClassDef) nodeFromPath);
                 if (info != null) {
-                    HashSet<IToken> hashSet = new HashSet<IToken>();
                     List<ITypeInfo> lookForClass = new ArrayList<>();
                     lookForClass.add(info);
-                    manager.getCompletionsForClassInLocalScope(sourceModule, state,
-                            true, false, lookForClass,
-                            hashSet);
-                    ret.addAll(new TokensList(hashSet));
+                    ret.addAll(manager.getCompletionsForClassInLocalScope(sourceModule, state,
+                            true, false, lookForClass));
                     foundAsParamWithTypingInfo = true;
                 }
             }
@@ -271,8 +273,9 @@ public class AssignAnalysis {
         IModule module;
         TokensList ret = new TokensList();
         if (definition.ast instanceof ClassDef) {
-            state.setLookingFor(ICompletionState.LOOKING_FOR_UNBOUND_VARIABLE);
-            ret.addAll(((SourceModule) definition.module).getClassToks(state, manager, definition.ast));
+            try (NoExceptionCloseable x = state.pushLookingFor(LookingFor.LOOKING_FOR_UNBOUND_VARIABLE)) {
+                ret.addAll(((SourceModule) definition.module).getClassToks(state, manager, definition.ast));
+            }
 
         } else {
             boolean lookForAssign = true;
@@ -340,15 +343,14 @@ public class AssignAnalysis {
                     if (parameterIndex != null && call.args.length >= parameterIndex) {
                         String rep = NodeUtils.getFullRepresentationString(call.args[parameterIndex - 1]);
 
-                        HashSet<IToken> hashSet = new HashSet<IToken>();
                         List<ITypeInfo> lookForClass = new ArrayList<>();
                         lookForClass.add(new TypeInfo(rep));
 
-                        manager.getCompletionsForClassInLocalScope(sourceModule, state, true, false, lookForClass,
-                                hashSet);
-                        if (hashSet.size() > 0) {
+                        TokensList completionsForClassInLocalScope = manager
+                                .getCompletionsForClassInLocalScope(sourceModule, state, true, false, lookForClass);
+                        if (completionsForClassInLocalScope.size() > 0) {
                             lookForAssign = false;
-                            ret.addAll(new TokensList(hashSet));
+                            ret.addAll(completionsForClassInLocalScope);
                         }
                     }
                 }
@@ -366,7 +368,7 @@ public class AssignAnalysis {
 
             if (lookForAssign) {
                 //TODO: we might want to extend that later to check the return of some function for code-completion purposes...
-                state.setLookingFor(ICompletionState.LOOKING_FOR_ASSIGN);
+                state.setLookingFor(ICompletionState.LookingFor.LOOKING_FOR_ASSIGN);
                 ICompletionState copy = state.getCopy();
                 if (definition.ast instanceof Attribute) {
                     copy.setActivationToken(NodeUtils.getFullRepresentationString(definition.ast));
@@ -455,7 +457,8 @@ public class AssignAnalysis {
             throws CompletionRecursionException {
         //it may be declared as a global with a class defined in the local scope
         TokensList allLocalTokens = scope.getAllLocalTokens();
-        for (IToken token : allLocalTokens) {
+        for (IterTokenEntry entry : allLocalTokens) {
+            IToken token = entry.getToken();
             if (token.getRepresentation().equals(activationToken)) {
                 if (token instanceof SourceToken) {
                     SourceToken srcToken = (SourceToken) token;

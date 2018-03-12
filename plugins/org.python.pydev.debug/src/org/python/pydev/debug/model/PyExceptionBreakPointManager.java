@@ -15,6 +15,7 @@ import org.python.pydev.ast.interpreter_managers.ChooseInterpreterManager;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.TokensList;
 import org.python.pydev.debug.core.ConfigureExceptionsFileUtils;
 import org.python.pydev.debug.core.PydevDebugPlugin;
@@ -151,7 +152,8 @@ public class PyExceptionBreakPointManager {
         IInterpreterManager useManager = ChooseInterpreterManager.chooseInterpreterManager();
         if (useManager != null) {
             TokensList pythonTokens = useManager.getBuiltinMod(IPythonNature.DEFAULT_INTERPRETER).getGlobalTokens();
-            for (IToken token : pythonTokens) {
+            for (IterTokenEntry entry : pythonTokens) {
+                IToken token = entry.getToken();
                 String pyToken = token.getRepresentation();
                 String lower = pyToken.toLowerCase();
                 if (lower.contains("error") || lower.contains("exception") || lower.contains("warning")) {

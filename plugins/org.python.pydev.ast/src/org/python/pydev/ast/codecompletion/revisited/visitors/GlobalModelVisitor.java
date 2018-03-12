@@ -42,6 +42,7 @@ public final class GlobalModelVisitor extends AbstractVisitor {
 
     private final int visitWhat;
     private final FastStack<Assign> lastAssign = new FastStack<Assign>(20);
+    private final FastStack<Call> lastCall = new FastStack<Call>(20);
     private final boolean onlyAllowTokensIn__all__;
     private final Map<String, SourceToken> repToTokenWithArgs = new HashMap<String, SourceToken>();
 
@@ -129,6 +130,14 @@ public final class GlobalModelVisitor extends AbstractVisitor {
         return null;
     }
 
+    @Override
+    public Object visitCall(Call node) throws Exception {
+        lastCall.push(node);
+        node.traverse(this);
+        lastCall.pop();
+        return null;
+    }
+
     /**
      * Visiting some name
      *
@@ -140,6 +149,9 @@ public final class GlobalModelVisitor extends AbstractVisitor {
         if ((this.visitWhat & GLOBAL_TOKENS) != 0) {
             if (node.ctx == Name.Store) {
                 SourceToken added = addToken(node);
+                if (lastCall.size() > 0) {
+                    added.setFoundInCall(lastCall.peek());
+                }
                 if (lastAssign.size() > 0) {
                     Assign last = lastAssign.peek();
                     added.setFoundInAssign(last);

@@ -102,28 +102,26 @@ public interface ICompletionState extends ICompletionCache {
 
     boolean getIsInCalltip();
 
-    public static final int LOOKING_FOR_INSTANCE_UNDEFINED = 0;
-    public static final int LOOKING_FOR_INSTANCED_VARIABLE = 1;
-    public static final int LOOKING_FOR_UNBOUND_VARIABLE = 2;
-    public static final int LOOKING_FOR_CLASSMETHOD_VARIABLE = 3;
-    public static final int LOOKING_FOR_ASSIGN = 4;
+    public enum LookingFor {
+        LOOKING_FOR_INSTANCE_UNDEFINED, LOOKING_FOR_INSTANCED_VARIABLE, LOOKING_FOR_UNBOUND_VARIABLE, LOOKING_FOR_CLASSMETHOD_VARIABLE, LOOKING_FOR_ASSIGN
+    };
 
     /**
      * Identifies if we should be looking for an instance (in which case, self should not
      * be added to the parameters -- otherwise, it should)
      */
-    void setLookingFor(int lookingFor);
+    void setLookingFor(LookingFor lookingFor);
 
     /**
      * Used so that we can force it...
      */
-    void setLookingFor(int lookingFor, boolean force);
+    void setLookingFor(LookingFor lookingFor, boolean force);
 
     ICompletionState getCopyWithActTok(String value);
 
     String getQualifier();
 
-    int getLookingFor();
+    LookingFor getLookingFor();
 
     void setIsInCalltip(boolean isInCalltip);
 
@@ -181,5 +179,7 @@ public interface ICompletionState extends ICompletionCache {
     ModuleHandleOrNotGotten getPyiStubModule(IModule module);
 
     void setPyIStubModule(IModule module, IModule pyIModule);
+
+    NoExceptionCloseable pushLookingFor(LookingFor lookingForInstancedVariable);
 
 }

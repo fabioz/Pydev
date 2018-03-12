@@ -35,6 +35,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ObjectsInternPool;
@@ -290,7 +291,8 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
 
         List<stmtType> body = new ArrayList<>(globalTokens.size());
 
-        for (IToken token : globalTokens) {
+        for (IterTokenEntry entry : globalTokens) {
+            IToken token = entry.getToken();
             switch (token.getType()) {
 
                 case IToken.TYPE_CLASS:

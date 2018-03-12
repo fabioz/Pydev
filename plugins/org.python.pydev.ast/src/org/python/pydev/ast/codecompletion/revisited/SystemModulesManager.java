@@ -39,6 +39,7 @@ import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.TokensList;
@@ -192,7 +193,8 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
      * @return true if there is a token that has rep as its representation.
      */
     private boolean contains(TokensList tokens, String rep) {
-        for (IToken token : tokens) {
+        for (IterTokenEntry entry : tokens) {
+            IToken token = entry.getToken();
             if (token.getRepresentation().equals(rep)) {
                 return true;
             }

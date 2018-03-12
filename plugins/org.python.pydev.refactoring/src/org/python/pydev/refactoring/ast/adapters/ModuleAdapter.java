@@ -50,6 +50,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISourceModule;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TokensList;
 import org.python.pydev.core.docutils.PySelection;
@@ -187,7 +188,8 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
                     TokensList tokens = astManager.getCompletionsForModule(this.sourceModule,
                             new CompletionState(-1, -1,
                                     "", nature, ""));
-                    for (IToken token : tokens) {
+                    for (IterTokenEntry entry : tokens) {
+                        IToken token = entry.getToken();
                         globalNames.add(token.getRepresentation());
                     }
                 }
@@ -460,7 +462,8 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
             Map<String, List<IToken>> map = new HashMap<String, List<IToken>>();
             Set<ClassDef> classDefAsts = new HashSet<ClassDef>();
 
-            for (IToken tok : ret) {
+            for (IterTokenEntry entry : ret) {
+                IToken tok = entry.getToken();
                 if (tok instanceof SourceToken) {
                     SourceToken token = (SourceToken) tok;
                     SimpleNode ast = token.getAst();

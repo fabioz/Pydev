@@ -33,6 +33,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TokensList;
 import org.python.pydev.core.docutils.ImportsSelection;
@@ -167,7 +168,8 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
                 }, onlyGetDirectModules);
 
                 //only get all modules for the 1st one we analyze (no need to get on the others)
-                for (IToken iToken : importTokens) {
+                for (IterTokenEntry entry : importTokens) {
+                    IToken iToken = entry.getToken();
                     tokens.add(iToken);
                 }
             }

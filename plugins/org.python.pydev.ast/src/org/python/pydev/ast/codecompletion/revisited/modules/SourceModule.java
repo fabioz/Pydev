@@ -36,6 +36,7 @@ import org.python.pydev.ast.codecompletion.revisited.visitors.StopVisitingExcept
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.ICompletionState.LookingFor;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
@@ -43,8 +44,10 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISourceModule;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.ITypeInfo;
+import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
+import org.python.pydev.core.NoExceptionCloseable;
 import org.python.pydev.core.TokensList;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.preferences.FileTypesPreferences;
@@ -188,7 +191,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         if (hasFutureImportAbsoluteImportDeclared == null) {
             hasFutureImportAbsoluteImportDeclared = false;
             TokensList tokenImportedModules = getTokenImportedModules();
-            for (IToken iToken : tokenImportedModules) {
+            for (IterTokenEntry entry : tokenImportedModules) {
+                IToken iToken = entry.getToken();
                 if ("__future__.absolute_import".equals(iToken.getOriginalRep())) {
                     hasFutureImportAbsoluteImportDeclared = true;
                     break;
@@ -408,6 +412,18 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     @Override
     public TokensList getGlobalTokens(ICompletionState initialState, ICodeCompletionASTManager manager) {
         String activationToken = initialState.getActivationToken();
+        Tuple<String, SourceModule> key = new Tuple(activationToken, this);
+        TokensList curr = (TokensList) initialState.getObj(key);
+        if (curr != null) {
+            return curr;
+        }
+        TokensList tokens = internalCalculateGlobalTokens(initialState, manager);
+        initialState.add(key, tokens.copy());
+        return tokens;
+    }
+
+    public TokensList internalCalculateGlobalTokens(ICompletionState initialState, ICodeCompletionASTManager manager) {
+        String activationToken = initialState.getActivationToken();
         final int activationTokenLen = activationToken.length();
         final List<String> actToks = StringUtils.dotSplit(activationToken);
         final int actToksLen = actToks.size();
@@ -417,6 +433,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
             goFor = actToks.get(0);
         }
         IToken[] t = getTokens(GlobalModelVisitor.GLOBAL_TOKENS, null, goFor);
+        LookingFor lookingFor = null;
 
         for (int i = 0; i < t.length; i++) {
             SourceToken token = (SourceToken) t[i];
@@ -453,12 +470,18 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                 Definition d = definitions[0];
                                 if (d.ast instanceof Assign) {
                                     Assign assign = (Assign) d.ast;
+                                    if (assign.value instanceof Call) {
+                                        lookingFor = LookingFor.LOOKING_FOR_INSTANCED_VARIABLE;
+                                    }
                                     value = NodeUtils.getRepresentationString(assign.value);
                                     definitions = findDefinition(initialState.getCopyWithActTok(value), d.line, d.col,
                                             manager.getNature());
                                 } else if (d.ast instanceof ClassDef) {
                                     TokensList toks = ((SourceModule) d.module).getClassToks(initialState,
                                             manager, d.ast);
+                                    if (lookingFor != null) {
+                                        toks.setLookingFor(lookingFor);
+                                    }
                                     if (iActTok == actToksLen - 1) {
                                         return toks;
                                     }
@@ -507,7 +530,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                             //    objects = my.module.Class()
                                             //
                                             //This happens when completing on A.objects.
-                                            initialState.setLookingFor(ICompletionState.LOOKING_FOR_ASSIGN, true);
+                                            initialState.setLookingFor(ICompletionState.LookingFor.LOOKING_FOR_ASSIGN,
+                                                    true);
                                             return getValueCompletions(initialState, manager, value, d.module);
                                         }
                                     } else {
@@ -546,12 +570,13 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                     }
                 }
             } else if (rep.equals(activationToken)) {
-                if (ast instanceof ClassDef) {
-                    initialState.setLookingFor(ICompletionState.LOOKING_FOR_UNBOUND_VARIABLE);
-                }
                 TokensList classToks = getClassToks(initialState, manager, ast);
+                if (ast instanceof ClassDef) {
+                    initialState.setLookingFor(ICompletionState.LookingFor.LOOKING_FOR_UNBOUND_VARIABLE);
+                    classToks.setLookingFor(initialState.getLookingFor());
+                }
                 if (classToks.empty()) {
-                    if (initialState.getLookingFor() == ICompletionState.LOOKING_FOR_ASSIGN) {
+                    if (initialState.getLookingFor() == ICompletionState.LookingFor.LOOKING_FOR_ASSIGN) {
                         continue;
                     }
                     //otherwise, return it empty anyway...
@@ -602,6 +627,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         } catch (CompletionRecursionException e) {
             // let's return what we have so far...
         }
+        modToks.setLookingFor(initialState.getLookingFor());
         return modToks;
     }
 
@@ -702,10 +728,10 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     @SuppressWarnings("rawtypes")
     public Definition[] findDefinition(ICompletionState state, int line, int col, final IPythonNature nature)
             throws Exception {
-        int lookingFor = state.getLookingFor();
-        Definition[] ret = findDefinition(state, line, col, nature, new HashSet());
-        state.setLookingFor(lookingFor, true); // When finding definition, don't change what we're looking for.
-        return ret;
+        try (NoExceptionCloseable x = state.pushLookingFor(LookingFor.LOOKING_FOR_INSTANCE_UNDEFINED)) {
+            Definition[] ret = findDefinition(state, line, col, nature, new HashSet());
+            return ret;
+        }
     }
 
     /**
@@ -713,7 +739,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * @param col: starts at 1
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public Definition[] findDefinition(ICompletionState state, int line, int col, final IPythonNature nature,
+    private Definition[] findDefinition(ICompletionState state, int line, int col, final IPythonNature nature,
             Set innerFindPaths) throws Exception {
         state.checkMaxTimeForCompletion();
 
@@ -815,7 +841,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         //now, check for locals
         TokensList localTokens = scopeVisitor.scope.getAllLocalTokens();
         int len = localTokens.size();
-        for (IToken tok : localTokens) {
+        for (IterTokenEntry entry : localTokens) {
+            IToken tok = entry.getToken();
 
             final String tokenRep = tok.getRepresentation();
             if (tokenRep.equals(actTok)) {
@@ -905,7 +932,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                                 state, Arrays.asList(possibleClass), this);
 
                                 int length = completionsFromTypeRepresentation.size();
-                                for (IToken iToken : completionsFromTypeRepresentation) {
+                                for (IterTokenEntry entry1 : completionsFromTypeRepresentation) {
+                                    IToken iToken = entry1.getToken();
                                     if (remainder.equals(iToken.getRepresentation())) {
                                         String parentPackage = iToken.getParentPackage();
                                         IModule module;
@@ -930,7 +958,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         //not found... check as local imports
         TokensList localImportedModules = scopeVisitor.scope.getLocalImportedModules(line, col, this.name);
         ICodeCompletionASTManager astManager = nature.getAstManager();
-        for (IToken tok : localImportedModules) {
+        for (IterTokenEntry entry : localImportedModules) {
+            IToken tok = entry.getToken();
             String importRep = tok.getRepresentation();
             if (importRep.equals(actTok) || actTok.startsWith(importRep + ".")) {
                 Tuple3<IModule, String, IToken> o = astManager.findOnImportedMods(new TokensList(new IToken[] { tok }),
@@ -963,7 +992,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                             astManager);
 
                     String withoutSelf = actTok.substring(5);
-                    for (IToken token : globalTokens) {
+                    for (IterTokenEntry entry : globalTokens) {
+                        IToken token = entry.getToken();
                         if (token.getRepresentation().equals(withoutSelf)) {
                             String parentPackage = token.getParentPackage();
                             IModule module = astManager.getModule(parentPackage, nature, true);
@@ -1098,9 +1128,10 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         String firstPart = headAndTail[0];
         String rep = headAndTail[1];
 
-        // Maybe better?
-        // ICompletionState copy = state.getCopyWithActTok(firstPart);
-        // Definition[] defs = this.findDefinition(copy, copy.getLine() + 1, copy.getCol() + 1, copy.getNature());
+        // if (firstPart.length() > 0) {
+        //     ICompletionState copy = state.getCopyWithActTok(firstPart);
+        //     Definition[] defs = this.findDefinition(copy, copy.getLine() + 1, copy.getCol() + 1, copy.getNature());
+        // }
 
         TokensList tokens = null;
         if (nature != null) {
@@ -1108,7 +1139,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         } else {
             tokens = getGlobalTokens();
         }
-        for (IToken token : tokens) {
+        for (IterTokenEntry entry : tokens) {
+            IToken token = entry.getToken();
             boolean sameRep = token.getRepresentation().equals(rep);
             if (sameRep) {
                 if (token instanceof SourceToken) {
@@ -1137,6 +1169,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                     if (module instanceof SourceModule) {
                         //this is just to get its scope...
                         SourceModule m = (SourceModule) module;
+
                         FindScopeVisitor scopeVisitor = m.getScopeVisitor(a.beginLine, a.beginColumn);
                         Assign foundInAssign = sourceToken.getFoundInAssign();
                         if (foundInAssign != null) {
@@ -1391,7 +1424,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         if (bootstrap == null) {
             TokensList ret = getGlobalTokens();
             if (ret != null && (ret.size() == 1 || ret.size() == 2 || ret.size() == 3) && this.file != null) { //also checking 2 or 3 tokens because of __file__ and __name__
-                for (IToken tok : ret) {
+                for (IterTokenEntry entry : ret) {
+                    IToken tok = entry.getToken();
                     if ("__bootstrap__".equals(tok.getRepresentation())) {
                         //if we get here, we already know that it defined a __bootstrap__, so, let's see if it was also called
                         SimpleNode ast = this.getAst();

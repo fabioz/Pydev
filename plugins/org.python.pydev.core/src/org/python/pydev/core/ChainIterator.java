@@ -1,25 +1,28 @@
 package org.python.pydev.core;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 public class ChainIterator<T> implements Iterator<T> {
 
-    private final Iterator<Iterator<T>> chain;
+    private List<IObjectsList> lst = new ArrayList<>();
     private Iterator<T> currentIterator;
+    private Iterator<IObjectsList> chain;
 
-    public ChainIterator(List<Iterator<T>> lst) {
-        this.chain = lst.iterator();
+    public ChainIterator() {
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean hasNext() {
         while (currentIterator == null || !currentIterator.hasNext()) {
             if (!chain.hasNext()) {
                 return false;
             }
-            currentIterator = chain.next();
+            IObjectsList next = chain.next();
+            currentIterator = next.buildIterator();
         }
         return true;
     }
@@ -35,5 +38,13 @@ public class ChainIterator<T> implements Iterator<T> {
     @Override
     public void remove() {
         throw new UnsupportedOperationException();
+    }
+
+    public void add(IObjectsList tokensList) {
+        lst.add(tokensList);
+    }
+
+    public void build() {
+        this.chain = lst.iterator();
     }
 }

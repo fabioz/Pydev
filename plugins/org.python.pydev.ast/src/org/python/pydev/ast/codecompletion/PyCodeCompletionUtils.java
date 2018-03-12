@@ -18,6 +18,7 @@ import java.util.Set;
 import org.eclipse.core.resources.IProject;
 import org.python.pydev.ast.codecompletion.ProposalsComparator.CompareContext;
 import org.python.pydev.core.IModulesManager;
+import org.python.pydev.core.IterEntry;
 import org.python.pydev.core.TokensOrProposalsList;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
@@ -40,7 +41,8 @@ public class PyCodeCompletionUtils {
 
         int len = pythonAndTemplateProposals.size();
         IFilter nameFilter = getNameFilter(useSubstringMatchInCodeCompletion, qualifier);
-        for (Object o : pythonAndTemplateProposals) {
+        for (IterEntry entry : pythonAndTemplateProposals) {
+            Object o = entry.object;
             if (o instanceof ICompletionProposalHandle) {
                 ICompletionProposalHandle proposal = (ICompletionProposalHandle) o;
 

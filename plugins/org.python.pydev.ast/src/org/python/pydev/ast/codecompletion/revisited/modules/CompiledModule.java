@@ -46,6 +46,7 @@ import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ObjectsInternPool;
@@ -575,7 +576,8 @@ public class CompiledModule extends AbstractModule {
             state.setActivationToken(headAndTail[0]);
             String head = headAndTail[1];
             TokensList globalTokens = getGlobalTokens(state, nature.getAstManager());
-            for (IToken token : globalTokens) {
+            for (IterTokenEntry entry : globalTokens) {
+                IToken token = entry.getToken();
                 if (token.getRepresentation().equals(head)) {
                     return true;
                 }

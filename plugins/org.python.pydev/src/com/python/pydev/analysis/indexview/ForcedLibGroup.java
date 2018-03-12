@@ -14,6 +14,7 @@ import org.python.pydev.ast.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TokensList;
 
@@ -41,7 +42,8 @@ public class ForcedLibGroup extends ElementWithChildren {
 
         ArrayList<LeafElement> lst = new ArrayList<LeafElement>();
 
-        for (IToken iToken : globalTokens) {
+        for (IterTokenEntry entry : globalTokens) {
+            IToken iToken = entry.getToken();
             lst.add(new LeafElement(this, iToken.getRepresentation()));
         }
         Collections.sort(lst, new Comparator<LeafElement>() {

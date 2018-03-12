@@ -7,8 +7,6 @@
 package org.python.pydev.ast.codecompletion;
 
 import org.eclipse.jface.text.Document;
-import org.python.pydev.ast.codecompletion.AbstractPyCodeCompletion;
-import org.python.pydev.ast.codecompletion.PyCodeCompletion;
 import org.python.pydev.ast.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.core.ICompletionState;
@@ -352,20 +350,20 @@ public class PythonCompletionCalltipsTest extends CodeCompletionTestsBase {
 
     public void testCalltipsArgs() throws Exception {
         assertEquals("()", AbstractPyCodeCompletion.getArgs("", IToken.TYPE_FUNCTION,
-                ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE));
+                ICompletionState.LookingFor.LOOKING_FOR_INSTANCED_VARIABLE));
         assertEquals("()", AbstractPyCodeCompletion.getArgs("(", IToken.TYPE_FUNCTION,
-                ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE));
+                ICompletionState.LookingFor.LOOKING_FOR_INSTANCED_VARIABLE));
         assertEquals("()", AbstractPyCodeCompletion.getArgs(")", IToken.TYPE_FUNCTION,
-                ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE));
+                ICompletionState.LookingFor.LOOKING_FOR_INSTANCED_VARIABLE));
         assertEquals("(a, b)", AbstractPyCodeCompletion.getArgs("(a, b)", IToken.TYPE_FUNCTION,
-                ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE));
+                ICompletionState.LookingFor.LOOKING_FOR_INSTANCED_VARIABLE));
         assertEquals("(a, b)", AbstractPyCodeCompletion.getArgs("(self, a, b)", IToken.TYPE_FUNCTION,
-                ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE));
+                ICompletionState.LookingFor.LOOKING_FOR_INSTANCED_VARIABLE));
         assertEquals("(a, b)", AbstractPyCodeCompletion.getArgs("(cls, a, b)", IToken.TYPE_FUNCTION,
-                ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE));
+                ICompletionState.LookingFor.LOOKING_FOR_INSTANCED_VARIABLE));
         assertEquals("(clsParam, a, b)", AbstractPyCodeCompletion.getArgs("(clsParam, a, b)", IToken.TYPE_FUNCTION,
-                ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE));
+                ICompletionState.LookingFor.LOOKING_FOR_INSTANCED_VARIABLE));
         assertEquals("(selfParam, a, b)", AbstractPyCodeCompletion.getArgs("(selfParam, a, b)", IToken.TYPE_FUNCTION,
-                ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE));
+                ICompletionState.LookingFor.LOOKING_FOR_INSTANCED_VARIABLE));
     }
 }

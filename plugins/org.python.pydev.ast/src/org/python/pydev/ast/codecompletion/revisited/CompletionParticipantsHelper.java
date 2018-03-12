@@ -20,6 +20,7 @@ import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.TokensList;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.shared_core.string.FullRepIterable;
@@ -38,7 +39,8 @@ public class CompletionParticipantsHelper {
         TokensList localTokens = localScope.getLocalTokens(-1, -1, false); //only to get the args
         String activationToken = state.getActivationToken();
         String firstPart = FullRepIterable.getFirstPart(activationToken);
-        for (IToken token : localTokens) {
+        for (IterTokenEntry entry : localTokens) {
+            IToken token = entry.getToken();
             if (token.getRepresentation().equals(firstPart)) {
                 TokensList interfaceForLocal = localScope.getInterfaceForLocal(state.getActivationToken());
                 TokensList argsCompletionFromParticipants = getCompletionsForTokenWithUndefinedTypeFromParticipants(
@@ -77,13 +79,15 @@ public class CompletionParticipantsHelper {
         TokensList args = localScope.getLocalTokens(-1, -1, true); //only to get the args
         String activationToken = state.getActivationToken();
         String firstPart = FullRepIterable.getFirstPart(activationToken);
-        for (IToken token : args) {
+        for (IterTokenEntry entry : args) {
+            IToken token = entry.getToken();
             if (token.getRepresentation().equals(firstPart)) {
                 TokensList interfaceForLocal = localScope.getInterfaceForLocal(state.getActivationToken());
                 TokensList argsCompletionFromParticipants = getCompletionsForMethodParameterFromParticipants(
                         state, localScope, interfaceForLocal);
                 final List<IToken> lst = new ArrayList<>();
-                for (IToken t : interfaceForLocal) {
+                for (IterTokenEntry entry1 : interfaceForLocal) {
+                    IToken t = entry1.getToken();
                     if (!t.getRepresentation().equals(state.getQualifier())) {
                         lst.add(t);
                     }
