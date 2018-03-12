@@ -114,10 +114,6 @@ public class TokensList implements IObjectsList, Iterable<IterTokenEntry> {
     }
 
     public void setLookingFor(LookingFor lookingFor) {
-        if (lookingFor == LookingFor.LOOKING_FOR_UNBOUND_VARIABLE
-                || lookingFor == LookingFor.LOOKING_FOR_CLASSMETHOD_VARIABLE) {
-            System.out.println("here");
-        }
         this.freeze(); // When we set what we're looking for we freeze our contents (because we set on our contents too).
         this.lookingFor = lookingFor;
         for (TokensList t : appended) {
