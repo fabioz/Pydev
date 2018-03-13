@@ -24,6 +24,8 @@ import java.util.TreeMap;
 
 import org.python.pydev.ast.codecompletion.revisited.AbstractASTManager;
 import org.python.pydev.ast.codecompletion.revisited.AbstractToken;
+import org.python.pydev.ast.codecompletion.revisited.AssignAnalysis;
+import org.python.pydev.ast.codecompletion.revisited.AssignCompletionInfo;
 import org.python.pydev.ast.codecompletion.revisited.CompletionState;
 import org.python.pydev.ast.codecompletion.revisited.ConcreteToken;
 import org.python.pydev.ast.codecompletion.revisited.visitors.AssignDefinition;
@@ -49,6 +51,7 @@ import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.NoExceptionCloseable;
 import org.python.pydev.core.TokensList;
+import org.python.pydev.core.TupleN;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.preferences.FileTypesPreferences;
 import org.python.pydev.core.structure.CompletionRecursionException;
@@ -728,8 +731,14 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     @SuppressWarnings("rawtypes")
     public Definition[] findDefinition(ICompletionState state, int line, int col, final IPythonNature nature)
             throws Exception {
+        Object key = new TupleN(state.getActivationToken(), line, col, this);
+        Definition[] found = (Definition[]) state.getObj(key);
+        if (found != null) {
+            return found;
+        }
         try (NoExceptionCloseable x = state.pushLookingFor(LookingFor.LOOKING_FOR_INSTANCE_UNDEFINED)) {
             Definition[] ret = findDefinition(state, line, col, nature, new HashSet());
+            state.add(key, ret);
             return ret;
         }
     }
@@ -1128,10 +1137,17 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         String firstPart = headAndTail[0];
         String rep = headAndTail[1];
 
-        // if (firstPart.length() > 0) {
-        //     ICompletionState copy = state.getCopyWithActTok(firstPart);
-        //     Definition[] defs = this.findDefinition(copy, copy.getLine() + 1, copy.getCol() + 1, copy.getNature());
-        // }
+        if (firstPart.length() > 0) {
+throw new AssertionError("finish this");
+            ICompletionState copy = state.getCopyWithActTok(firstPart);
+            Definition[] defs = this.findDefinition(copy, copy.getLine() + 1, copy.getCol() + 1, copy.getNature());
+            AssignAnalysis assignAnalysis = new AssignAnalysis();
+            for (Definition definition : defs) {
+                AssignCompletionInfo assignCompletions = assignAnalysis.getAssignCompletions(nature.getAstManager(),
+                        this, copy, null);
+                System.out.println(assignAnalysis);
+            }
+        }
 
         TokensList tokens = null;
         if (nature != null) {
