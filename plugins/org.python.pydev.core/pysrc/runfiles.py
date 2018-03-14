@@ -213,6 +213,7 @@ def main():
                     os.chdir(path)
                     break
 
+            remove = []
             for i in xrange(len(argv)):
                 arg = argv[i]
                 # Workaround bug in py.test: if we pass the full path it ends up importing conftest
@@ -232,6 +233,11 @@ def main():
                         pass
                     else:
                         argv[i] = arg
+                elif '<unable to get>' in arg:
+                    remove.append(i)
+
+            for i in reversed(remove):
+                del argv[i]
 
             # To find our runfile helpers (i.e.: plugin)...
             d = os.path.dirname(__file__)
