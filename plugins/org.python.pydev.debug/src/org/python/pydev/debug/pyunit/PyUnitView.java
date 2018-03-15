@@ -803,7 +803,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
         String string = tempOnSelectResult.toString();
         testOutputText.setFont(JFaceResources.getFont(IDebugUIConstants.PREF_CONSOLE_FONT));
 
-        testOutputText.setText(string);
+        testOutputText.setText(string + "\n\n\n"); // Add a few lines to the test output so that we can scroll a bit more.
         testOutputText.setStyleRange(new StyleRange());
 
         if (addedErrors) {
