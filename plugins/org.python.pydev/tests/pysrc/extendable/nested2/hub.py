@@ -10,6 +10,9 @@ class SomeA(object):
 class C1(object):
     a = SomeA()
     b = AnotherTest
+    b2 = AnotherTest()
+    x, b3 = '', AnotherTest()
+    b4, y = AnotherTest(), ''
     c = anothertest.AnotherTest
     d = anothertest
     e = testlib.unittest.TestCase

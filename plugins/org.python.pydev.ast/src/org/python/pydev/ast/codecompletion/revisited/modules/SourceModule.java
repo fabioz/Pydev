@@ -24,8 +24,6 @@ import java.util.TreeMap;
 
 import org.python.pydev.ast.codecompletion.revisited.AbstractASTManager;
 import org.python.pydev.ast.codecompletion.revisited.AbstractToken;
-import org.python.pydev.ast.codecompletion.revisited.AssignAnalysis;
-import org.python.pydev.ast.codecompletion.revisited.AssignCompletionInfo;
 import org.python.pydev.ast.codecompletion.revisited.CompletionState;
 import org.python.pydev.ast.codecompletion.revisited.ConcreteToken;
 import org.python.pydev.ast.codecompletion.revisited.visitors.AssignDefinition;
@@ -35,6 +33,7 @@ import org.python.pydev.ast.codecompletion.revisited.visitors.FindScopeVisitor;
 import org.python.pydev.ast.codecompletion.revisited.visitors.GlobalModelVisitor;
 import org.python.pydev.ast.codecompletion.revisited.visitors.LocalScope;
 import org.python.pydev.ast.codecompletion.revisited.visitors.StopVisitingException;
+import org.python.pydev.ast.codecompletion.revisited.visitors.TypeInfoDefinition;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.ICompletionState;
@@ -68,6 +67,7 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.parser.visitors.TypeInfo;
 import org.python.pydev.shared_core.cache.Cache;
 import org.python.pydev.shared_core.cache.LRUCache;
 import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
@@ -471,6 +471,20 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                     token.getLineDefinition(), token.getColDefinition() + 1, manager.getNature());
                             if (definitions.length == 1) {
                                 Definition d = definitions[0];
+                                if (d instanceof TypeInfoDefinition) {
+                                    TypeInfoDefinition typeInfoDefinition = (TypeInfoDefinition) d;
+                                    List<ITypeInfo> lookForClass = new ArrayList<>();
+                                    TypeInfo info = typeInfoDefinition.info;
+                                    lookForClass.add(info);
+                                    TokensList completionsForClassInLocalScope = manager
+                                            .getCompletionsForClassInLocalScope(
+                                                    d.module, initialState.getCopyWithActTok(info.getActTok()), true,
+                                                    false, lookForClass);
+                                    completionsForClassInLocalScope
+                                            .setLookingFor(LookingFor.LOOKING_FOR_INSTANCED_VARIABLE);
+                                    return completionsForClassInLocalScope;
+
+                                }
                                 if (d.ast instanceof Assign) {
                                     Assign assign = (Assign) d.ast;
                                     if (assign.value instanceof Call) {
@@ -940,7 +954,6 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                         .getCompletionsFromTypeRepresentation(
                                                 state, Arrays.asList(possibleClass), this);
 
-                                int length = completionsFromTypeRepresentation.size();
                                 for (IterTokenEntry entry1 : completionsFromTypeRepresentation) {
                                     IToken iToken = entry1.getToken();
                                     if (remainder.equals(iToken.getRepresentation())) {
@@ -1131,30 +1144,33 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * @return
      * @throws Exception
      */
-    public Definition findGlobalTokDef(ICompletionState state, IPythonNature nature) throws Exception {
+    private Definition findGlobalTokDef(ICompletionState state, IPythonNature nature) throws Exception {
         String tok = state.getActivationToken();
         String[] headAndTail = FullRepIterable.headAndTail(tok);
         String firstPart = headAndTail[0];
         String rep = headAndTail[1];
 
-        if (firstPart.length() > 0) {
-throw new AssertionError("finish this");
-            ICompletionState copy = state.getCopyWithActTok(firstPart);
-            Definition[] defs = this.findDefinition(copy, copy.getLine() + 1, copy.getCol() + 1, copy.getNature());
-            AssignAnalysis assignAnalysis = new AssignAnalysis();
-            for (Definition definition : defs) {
-                AssignCompletionInfo assignCompletions = assignAnalysis.getAssignCompletions(nature.getAstManager(),
-                        this, copy, null);
-                System.out.println(assignAnalysis);
+        TokensList tokens = null;
+
+        // Could use commented code...
+        // DefinitionAndCompletions assignCompletions = null;
+        // AssignAnalysis assignAnalysis = new AssignAnalysis();
+        // 
+        // if (firstPart.length() > 0) {
+        //     ICompletionState copy = state.getCopyWithActTok(firstPart);
+        //     assignCompletions = assignAnalysis.getAssignCompletions(nature.getAstManager(),
+        //             this, copy, null);
+        // 
+        //     tokens = assignCompletions.completions;
+        // }
+        if (tokens == null || tokens.empty()) {
+            if (nature != null) {
+                tokens = nature.getAstManager().getCompletionsForModule(this, state.getCopyWithActTok(firstPart), true);
+            } else {
+                tokens = getGlobalTokens();
             }
         }
 
-        TokensList tokens = null;
-        if (nature != null) {
-            tokens = nature.getAstManager().getCompletionsForModule(this, state.getCopyWithActTok(firstPart), true);
-        } else {
-            tokens = getGlobalTokens();
-        }
         for (IterTokenEntry entry : tokens) {
             IToken token = entry.getToken();
             boolean sameRep = token.getRepresentation().equals(rep);
@@ -1189,17 +1205,35 @@ throw new AssertionError("finish this");
                         FindScopeVisitor scopeVisitor = m.getScopeVisitor(a.beginLine, a.beginColumn);
                         Assign foundInAssign = sourceToken.getFoundInAssign();
                         if (foundInAssign != null) {
-                            int unpackPos = -1; // TODO: make this better
-                            int targetPos = 0; // TODO: make this better
-
-                            exprType nodeValue = foundInAssign.value;
-                            String value = NodeUtils.getFullRepresentationString(nodeValue);
-                            if (value == null) {
-                                value = "";
+                            Definition ret = findDefinitionsInAssignStatementUncached(nature, rep, m,
+                                    foundInAssign);
+                            if (ret == null) {
+                                String fullRep = NodeUtils.getFullRepresentationString(sourceToken.getAst());
+                                if (!rep.equals(fullRep)) {
+                                    ret = findDefinitionsInAssignStatementUncached(nature, fullRep, m,
+                                            foundInAssign);
+                                }
+                            }
+                            if (ret != null) {
+                                // Note: we must fix the scope because we visited only the assign in this case (so
+                                // it's not correct).
+                                ret.scope = scopeVisitor.scope;
                             }
 
-                            return new AssignDefinition(value, rep, targetPos, foundInAssign, def.o1, def.o2,
-                                    scopeVisitor.scope, module, nodeValue, unpackPos);
+                            // int unpackPos = -1;
+                            // int targetPos = 0;
+                            //
+                            // exprType nodeValue = foundInAssign.value;
+                            // String value = NodeUtils.getFullRepresentationString(nodeValue);
+                            // if (value == null) {
+                            //     value = "";
+                            // }
+                            //
+                            // AssignDefinition newRet = new AssignDefinition(value, rep, targetPos, foundInAssign, def.o1,
+                            //         def.o2,
+                            //         scopeVisitor.scope, module, nodeValue, unpackPos);
+                            return ret;
+
                         } else {
                             return new Definition(def.o1, def.o2, rep, a, scopeVisitor.scope, module);
                         }
@@ -1262,7 +1296,59 @@ throw new AssertionError("finish this");
             }
         }
 
+        // Unable to find the definition... if we previously had a definition, let's try to get typing info from it.
+        // if (assignCompletions != null && !rep.contains(".") && !rep.isEmpty()) {
+        //     Definition[] parentDefinition = assignCompletions.defs;
+        //     for (Definition definition : parentDefinition) {
+        //         if (definition instanceof AssignDefinition) {
+        //             ArrayList<IDefinition> found = new ArrayList<>();
+        //             // Pointing to some other place... let's follow it.
+        //             PyRefactoringFindDefinition.findActualDefinition(null, definition.module,
+        //                     definition.value, found, definition.line, definition.col,
+        //                     state.getNature(), state.getCopyWithActTok(definition.value));
+        //             for (IDefinition f : found) {
+        //                 if (f instanceof Definition) {
+        //                     Definition d = (Definition) f;
+        //                     if (d.ast instanceof ClassDef) {
+        //                         TypeInfo info = NodeUtils.getTypeForClassDefAttribute(
+        //                                 rep, (ClassDef) d.ast);
+        //                         if (info != null) {
+        //                             return new TypeInfoDefinition(d, d.module, info);
+        //                         }
+        //                         if (info == null && d.module != null) {
+        //                             IModule pyiStubModule = nature.getAstManager().getPyiStubModule(d.module,
+        //                                     state);
+        //                             if (pyiStubModule instanceof SourceModule) {
+        //                                 SourceModule sourceModule = (SourceModule) pyiStubModule;
+        //                                 // SimpleNode nodeFromPath = NodeUtils.getNodeFromPath(sourceModule.getAst(),
+        //                                 // scopeStackPathNames);
+        //                             }
+        //                         }
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
+
         return null;
+    }
+
+    private Definition findDefinitionsInAssignStatementUncached(IPythonNature nature, String rep, SourceModule m,
+            Assign foundInAssign) throws Exception {
+        // Note: don't use cache because we'll visit just the assign.
+        FindDefinitionModelVisitor visitor = new FindDefinitionModelVisitor(rep,
+                foundInAssign.beginLine, foundInAssign.beginColumn, m, nature);
+        try {
+            foundInAssign.accept(visitor);
+        } catch (StopVisitingException e) {
+            //expected exception
+        }
+        List<Definition> definitions = visitor.definitions;
+        if (definitions == null || definitions.size() == 0) {
+            return null;
+        }
+        return definitions.get(0);
     }
 
     public Tuple<Integer, Integer> getLineColForDefinition(SimpleNode a) {

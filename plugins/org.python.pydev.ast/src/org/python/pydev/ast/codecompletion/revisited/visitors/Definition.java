@@ -67,7 +67,7 @@ public class Definition implements IDefinition {
     /**
      * Node with the path of classes / funcs to get to an assign.
      */
-    public final ILocalScope scope;
+    public ILocalScope scope;
 
     /**
      * Determines whether this definition was found as a local.

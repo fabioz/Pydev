@@ -1154,10 +1154,11 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                                 // Ok, couldn't get possible classes, let's see if the definition is a dict
                                 if (iDefinition instanceof AssignDefinition) {
                                     AssignDefinition assignDefinition = (AssignDefinition) iDefinition;
-                                    TokensList tokens = getCompletionsFromAssignDefinition(module, state,
-                                            unpackPos, assignDefinition);
-                                    if (tokens != null && tokens.size() > 0) {
-                                        return tokens;
+                                    DefinitionAndCompletions assignInfo = getCompletionsFromAssignDefinition(module,
+                                            state, unpackPos, assignDefinition);
+                                    if (assignInfo.completions != null && assignInfo.completions != null
+                                            && assignInfo.completions.size() > 0) {
+                                        return assignInfo.completions;
                                     }
                                 }
 
@@ -1229,9 +1230,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         state.pushGetCompletionsUnpackingObject();
         try {
             PyRefactoringFindDefinition.findActualDefinition(null, module, state.getActivationToken(),
-                    selected,
-                    state.getLine() + 1, state.getCol() + 1, state.getNature(),
-                    state);
+                    selected, state.getLine() + 1, state.getCol() + 1, state.getNature(), state);
             for (Iterator<IDefinition> iterator = selected.iterator(); iterator.hasNext();) {
                 IDefinition iDefinition = iterator.next();
                 if (!(iDefinition instanceof AssignDefinition) && iDefinition instanceof Definition) {
@@ -1262,9 +1261,10 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
                 } else if (iDefinition instanceof AssignDefinition) {
                     AssignDefinition assignDefinition = (AssignDefinition) iDefinition;
-                    TokensList tokens = getCompletionsFromAssignDefinition(module, state, unpackPos, assignDefinition);
-                    if (tokens != null && tokens.size() > 0) {
-                        return tokens;
+                    DefinitionAndCompletions assignInfo = getCompletionsFromAssignDefinition(module, state, unpackPos,
+                            assignDefinition);
+                    if (assignInfo != null && assignInfo.completions != null && assignInfo.completions.size() > 0) {
+                        return assignInfo.completions;
                     }
                 }
             }
@@ -1311,8 +1311,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         return null;
     }
 
-    private TokensList getCompletionsFromAssignDefinition(IModule module, ICompletionState state, UnpackInfo unpackPos,
-            AssignDefinition assignDefinition) throws CompletionRecursionException, Exception {
+    public DefinitionAndCompletions getCompletionsFromAssignDefinition(IModule module, ICompletionState state,
+            UnpackInfo unpackPos, AssignDefinition assignDefinition) throws CompletionRecursionException, Exception {
         exprType[] elts = null;
         if (assignDefinition.ast instanceof Assign) {
             Assign assign = (Assign) assignDefinition.ast;
@@ -1328,16 +1328,14 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             TokensList completionsFromUnpackedList = getCompletionsFromUnpackedCompoundObject(module, state,
                     elts, unpackPos);
             if (completionsFromUnpackedList != null) {
-                return completionsFromUnpackedList;
+                // Completions from that same definition
+                return new DefinitionAndCompletions(new Definition[] { assignDefinition }, completionsFromUnpackedList);
             }
         } else {
             ArrayList<IDefinition> found = new ArrayList<>();
             // Pointing to some other place... let's follow it.
-            PyRefactoringFindDefinition.findActualDefinition(null, assignDefinition.module,
-                    assignDefinition.value,
-                    found,
-                    assignDefinition.line, assignDefinition.col, state.getNature(),
-                    state);
+            PyRefactoringFindDefinition.findActualDefinition(null, assignDefinition.module, assignDefinition.value,
+                    found, assignDefinition.line, assignDefinition.col, state.getNature(), state);
             for (IDefinition f : found) {
                 if (f instanceof Definition) {
                     Definition definition = (Definition) f;
@@ -1350,7 +1348,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                         //    a.
                         TokensList ret = getCompletionsUnpackingAST(definition, state, unpackPos);
                         if (ret != null && ret.size() > 0) {
-                            return ret;
+                            // Had to follow reference
+                            return new DefinitionAndCompletions(new Definition[] { definition }, ret);
                         }
                     }
                 }
@@ -1644,7 +1643,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     private TokensList getAssignCompletions(IModule module, ICompletionState state, boolean lookForArgumentCompletion,
             ILocalScope localScope) throws CompletionRecursionException {
         state.checkMaxTimeForCompletion();
-        AssignCompletionInfo assignCompletions = assignAnalysis.getAssignCompletions(this, module, state, localScope);
+        DefinitionAndCompletions assignCompletions = assignAnalysis.getAssignCompletions(this, module, state,
+                localScope);
 
         boolean useExtensions = assignCompletions.completions.empty();
 

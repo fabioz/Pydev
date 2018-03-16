@@ -66,108 +66,25 @@ public class AssignAnalysis {
      * that we can search in other scopes as well).
      * @param localScope
      */
-    public AssignCompletionInfo getAssignCompletions(ICodeCompletionASTManager manager, IModule module,
+    public DefinitionAndCompletions getAssignCompletions(ICodeCompletionASTManager manager, IModule module,
             ICompletionState state, ILocalScope localScope) {
         state.pushAssign();
         try {
             TokensList ret = new TokensList();
             Definition[] defs = new Definition[0];
             if (module instanceof SourceModule) {
-                SourceModule s = (SourceModule) module;
+                SourceModule sourceModule = (SourceModule) module;
 
                 try {
-                    defs = s.findDefinition(state, state.getLine() + 1, state.getCol() + 1, state.getNature());
+                    defs = sourceModule.findDefinition(state, state.getLine() + 1, state.getCol() + 1,
+                            state.getNature());
                     if (defs.length > 0) {
                         for (int i = 0; i < defs.length; i++) {
                             //go through all definitions found and make a merge of it...
-                            Definition definition = defs[i];
-                            if (state.getAlreadySearchedInAssign(definition.line, definition.col, definition.module,
-                                    definition.value, state.getActivationToken())) {
-                                // It's possible that we have many assigns where it may be normal to have loops
-                                // i.e.: cp = self.x[:] ... self.x = cp, so, let's mark those places so that we don't recurse.
-                                // System.out.println("Skip: " + definition);
-                                continue;
-                            }
-
-                            if (state.getLine() + 1 == definition.line && state.getCol() + 1 == definition.col) {
-                                //Check the module
-                                if (definition.module != null && definition.module.equals(s)) {
-                                    //initial and final are the same
-                                    if (state.checkFoudSameDefinition(definition.line, definition.col,
-                                            definition.module)) {
-                                        //We found the same place we found previously (so, we're recursing here... Just go on)
-                                        continue;
-                                    }
-                                }
-                            }
-
-                            AssignDefinition assignDefinition = null;
-                            if (definition instanceof AssignDefinition) {
-                                assignDefinition = (AssignDefinition) definition;
-                            }
-
-                            boolean foundAsParamWithTypingInfo = false;
-                            if (definition.scope != null) {
-                                SimpleNode ast = definition.ast;
-                                if (ast instanceof Assign) {
-                                    Assign assign = (Assign) ast;
-                                    if (assign.targets != null) {
-                                        ast = assign.targets[0];
-                                    }
-                                }
-                                if (NodeUtils.isParamName(ast)) {
-                                    Name name = (Name) ast;
-                                    String scopeStackPathNames = definition.scope.getScopeStackPathNames();
-                                    if (scopeStackPathNames != null && scopeStackPathNames.length() > 0) {
-                                        foundAsParamWithTypingInfo = computeCompletionsFromParameterTypingInfo(
-                                                manager, state, ret, foundAsParamWithTypingInfo, name,
-                                                scopeStackPathNames, definition.module);
-                                        if (!foundAsParamWithTypingInfo) {
-                                            IModule pyiStubModule = manager.getPyiStubModule(definition.module, state);
-                                            foundAsParamWithTypingInfo = computeCompletionsFromParameterTypingInfo(
-                                                    manager, state, ret, foundAsParamWithTypingInfo, name,
-                                                    scopeStackPathNames, pyiStubModule);
-                                        }
-                                    }
-                                } else if (NodeUtils.isSelfAttribute(ast)) {
-                                    String fullRepresentationString = NodeUtils
-                                            .getFullRepresentationString(ast);
-                                    if (fullRepresentationString.contains(".")) {
-                                        // Remove the 'self'
-                                        String attributeWithoutSelf = FullRepIterable
-                                                .getLastPart(fullRepresentationString);
-                                        String scopeStackPathNames = definition.scope
-                                                .getScopeStackPathNamesToLastClassDef();
-                                        if (scopeStackPathNames != null && scopeStackPathNames.length() > 0) {
-                                            foundAsParamWithTypingInfo = computeCompletionsFromAttributeTypingInfo(
-                                                    manager, state, ret, foundAsParamWithTypingInfo,
-                                                    attributeWithoutSelf, scopeStackPathNames, definition.module);
-                                            if (!foundAsParamWithTypingInfo) {
-                                                IModule pyiStubModule = manager.getPyiStubModule(definition.module,
-                                                        state);
-                                                foundAsParamWithTypingInfo = computeCompletionsFromAttributeTypingInfo(
-                                                        manager, state, ret, foundAsParamWithTypingInfo,
-                                                        attributeWithoutSelf, scopeStackPathNames, pyiStubModule);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (!foundAsParamWithTypingInfo) {
-                                if (definition.ast instanceof FunctionDef) {
-                                    TokensList found = manager.getCompletionFromFuncDefReturn(
-                                            state, s, definition, false);
-                                    ret.addAll(found);
-                                } else {
-                                    TokensList found = getNonFunctionDefCompletionsFromAssign(manager, state, s,
-                                            definition, assignDefinition);
-                                    //String spaces = new FastStringBuffer().appendN(' ', assignLevel).toString();
-                                    //System.out.println(spaces + "Tok: " + state.getActivationToken());
-                                    //System.out.println(spaces + "Def: " + definition);
-                                    //System.out.println(spaces + "Adding: " + found.size());
-                                    ret.addAll(found);
-                                }
+                            TokensList completionsFromDefinition = getCompletionsFromDefinition(defs[i], state,
+                                    sourceModule, manager);
+                            if (completionsFromDefinition != null && completionsFromDefinition.notEmpty()) {
+                                ret.addAll(completionsFromDefinition);
                             }
                         }
                     } else {
@@ -190,10 +107,112 @@ public class AssignAnalysis {
                     throw new RuntimeException("A throwable exception has been detected " + t.getClass());
                 }
             }
-            return new AssignCompletionInfo(defs, ret);
+            return new DefinitionAndCompletions(defs, ret);
         } finally {
             state.popAssign();
         }
+    }
+
+    /**
+     * @param definition
+     * @param state
+     * @param sourceModule this is not the definition module, but the module where we started searching for the definition.
+     * @param manager
+     * @return
+     * @throws CompletionRecursionException
+     */
+    public TokensList getCompletionsFromDefinition(Definition definition, ICompletionState state,
+            SourceModule sourceModule, ICodeCompletionASTManager manager) throws CompletionRecursionException {
+        TokensList ret = new TokensList();
+        if (state.getAlreadySearchedInAssign(definition.line, definition.col, definition.module,
+                definition.value, state.getActivationToken())) {
+            // It's possible that we have many assigns where it may be normal to have loops
+            // i.e.: cp = self.x[:] ... self.x = cp, so, let's mark those places so that we don't recurse.
+            // System.out.println("Skip: " + definition);
+            return ret;
+        }
+
+        if (state.getLine() + 1 == definition.line && state.getCol() + 1 == definition.col) {
+            //Check the module
+            if (definition.module != null && definition.module.equals(sourceModule)) {
+                //initial and final are the same
+                if (state.checkFoudSameDefinition(definition.line, definition.col,
+                        definition.module)) {
+                    //We found the same place we found previously (so, we're recursing here... Just go on)
+                    return ret;
+                }
+            }
+        }
+
+        AssignDefinition assignDefinition = null;
+        if (definition instanceof AssignDefinition) {
+            assignDefinition = (AssignDefinition) definition;
+        }
+
+        boolean foundAsParamWithTypingInfo = false;
+        if (definition.scope != null) {
+            SimpleNode ast = definition.ast;
+            if (ast instanceof Assign) {
+                Assign assign = (Assign) ast;
+                if (assign.targets != null) {
+                    ast = assign.targets[0];
+                }
+            }
+            if (NodeUtils.isParamName(ast)) {
+                Name name = (Name) ast;
+                String scopeStackPathNames = definition.scope.getScopeStackPathNames();
+                if (scopeStackPathNames != null && scopeStackPathNames.length() > 0) {
+                    foundAsParamWithTypingInfo = computeCompletionsFromParameterTypingInfo(
+                            manager, state, ret, foundAsParamWithTypingInfo, name,
+                            scopeStackPathNames, definition.module);
+                    if (!foundAsParamWithTypingInfo) {
+                        IModule pyiStubModule = manager.getPyiStubModule(definition.module, state);
+                        foundAsParamWithTypingInfo = computeCompletionsFromParameterTypingInfo(
+                                manager, state, ret, foundAsParamWithTypingInfo, name,
+                                scopeStackPathNames, pyiStubModule);
+                    }
+                }
+            } else if (NodeUtils.isSelfAttribute(ast)) {
+                String fullRepresentationString = NodeUtils
+                        .getFullRepresentationString(ast);
+                if (fullRepresentationString.contains(".")) {
+                    // Remove the 'self'
+                    String attributeWithoutSelf = FullRepIterable
+                            .getLastPart(fullRepresentationString);
+                    String scopeStackPathNames = definition.scope
+                            .getScopeStackPathNamesToLastClassDef();
+                    if (scopeStackPathNames != null && scopeStackPathNames.length() > 0) {
+                        foundAsParamWithTypingInfo = computeCompletionsFromAttributeTypingInfo(
+                                manager, state, ret, foundAsParamWithTypingInfo,
+                                attributeWithoutSelf, scopeStackPathNames, definition.module);
+                        if (!foundAsParamWithTypingInfo) {
+                            IModule pyiStubModule = manager.getPyiStubModule(definition.module,
+                                    state);
+                            foundAsParamWithTypingInfo = computeCompletionsFromAttributeTypingInfo(
+                                    manager, state, ret, foundAsParamWithTypingInfo,
+                                    attributeWithoutSelf, scopeStackPathNames, pyiStubModule);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!foundAsParamWithTypingInfo) {
+            if (definition.ast instanceof FunctionDef) {
+                TokensList found = manager.getCompletionFromFuncDefReturn(
+                        state, sourceModule, definition, false);
+                ret.addAll(found);
+            } else {
+                TokensList found = getNonFunctionDefCompletionsFromAssign(manager, state, sourceModule,
+                        definition, assignDefinition);
+                //String spaces = new FastStringBuffer().appendN(' ', assignLevel).toString();
+                //System.out.println(spaces + "Tok: " + state.getActivationToken());
+                //System.out.println(spaces + "Def: " + definition);
+                //System.out.println(spaces + "Adding: " + found.size());
+                ret.addAll(found);
+            }
+        }
+        return ret;
     }
 
     private boolean computeCompletionsFromParameterTypingInfo(ICodeCompletionASTManager manager, ICompletionState state,

@@ -528,6 +528,22 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         requestCompl(s, s.length(), -1, new String[] { "another()" });
     }
 
+    public void testDeepNested2Ab() throws Exception {
+        String s;
+        s = "" +
+                "from extendable.nested2 import hub\n" +
+                "hub.c1.b3.";
+        requestCompl(s, s.length(), -1, new String[] { "another()" });
+    }
+
+    public void testDeepNested2Ac() throws Exception {
+        String s;
+        s = "" +
+                "from extendable.nested2 import hub\n" +
+                "hub.c1.b4.";
+        requestCompl(s, s.length(), -1, new String[] { "another()" });
+    }
+
     public void testDeepNested3() throws Exception {
         String s;
         s = "" +
@@ -1625,7 +1641,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "";
         int initial = GRAMMAR_TO_USE_FOR_PARSING;
         try {
-            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.LATEST_GRAMMAR_PY3_VERSION;
             requestCompl(s, -1, new String[] { "arg", "arg2" });
         } finally {
             GRAMMAR_TO_USE_FOR_PARSING = initial;
@@ -3236,9 +3252,29 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     public void testPyiStubs3() throws Exception {
         int initial = GRAMMAR_TO_USE_FOR_PARSING;
         try {
-            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.LATEST_GRAMMAR_PY3_VERSION;
             String s;
             String original = "from extendable.pyi_check.my_file3 import MyMessage\n"
+                    + "x = MyMessage('', 1, 2)\n"
+                    + "x.msg." +
+                    "";
+            s = StringUtils.format(original, "");
+
+            ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+            assertEquals(1, proposals.length);
+            ICompletionProposalHandle prop = proposals[0];
+            assertEquals("charlie()", prop.getDisplayString());
+        } finally {
+            GRAMMAR_TO_USE_FOR_PARSING = initial;
+        }
+    }
+
+    public void testPyiStubs3a() throws Exception {
+        int initial = GRAMMAR_TO_USE_FOR_PARSING;
+        try {
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.LATEST_GRAMMAR_PY3_VERSION;
+            String s;
+            String original = "from extendable.pyi_check.my_file4 import MyMessage\n"
                     + "x = MyMessage('', 1, 2)\n"
                     + "x.msg." +
                     "";

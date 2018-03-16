@@ -205,8 +205,7 @@ public interface ICodeCompletionASTManager {
      * @param line
      */
     public abstract TokensList getCompletionsForModule(IModule module, ICompletionState state,
-            boolean searchSameLevelMods)
-            throws CompletionRecursionException;
+            boolean searchSameLevelMods) throws CompletionRecursionException;
 
     public abstract TokensList getCompletionsForModule(IModule module, ICompletionState state,
             boolean searchSameLevelMods, boolean lookForArgumentCompletion) throws CompletionRecursionException;

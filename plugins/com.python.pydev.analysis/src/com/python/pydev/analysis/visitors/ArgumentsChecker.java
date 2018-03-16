@@ -131,7 +131,6 @@ public final class ArgumentsChecker {
         return NO_STATIC_NOR_CLASSMETHOD;
     }
 
-    @SuppressWarnings("unchecked")
     /*default*/void checkAttrFound(Call callNode, TokenFoundStructure found) throws Exception,
             CompletionRecursionException {
         FunctionDef functionDefinitionReferenced;
