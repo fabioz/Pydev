@@ -1156,7 +1156,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                                     AssignDefinition assignDefinition = (AssignDefinition) iDefinition;
                                     DefinitionAndCompletions assignInfo = getCompletionsFromAssignDefinition(module,
                                             state, unpackPos, assignDefinition);
-                                    if (assignInfo.completions != null && assignInfo.completions != null
+                                    if (assignInfo != null && assignInfo.completions != null
+                                            && assignInfo.completions != null
                                             && assignInfo.completions.size() > 0) {
                                         return assignInfo.completions;
                                     }

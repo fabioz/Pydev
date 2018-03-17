@@ -7,7 +7,6 @@ Bundle-ClassPath: pydev-debug.jar,
  libs/winp-1.26.0.7.jar
 Bundle-Activator: org.python.pydev.debug.core.PydevDebugPlugin
 Bundle-Vendor: Brainwy Software Ltda
-Bundle-Localization: plugin
 Eclipse-BundleShape: dir
 Require-Bundle: org.junit;bundle-version="4.0.0";resolution:=optional,
  org.eclipse.ui,

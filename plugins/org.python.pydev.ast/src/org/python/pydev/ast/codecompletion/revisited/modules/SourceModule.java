@@ -415,7 +415,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     @Override
     public TokensList getGlobalTokens(ICompletionState initialState, ICodeCompletionASTManager manager) {
         String activationToken = initialState.getActivationToken();
-        Tuple<String, SourceModule> key = new Tuple(activationToken, this);
+        Tuple3<String, String, SourceModule> key = new Tuple3<>("getGlobalTokens", activationToken, this);
         TokensList curr = (TokensList) initialState.getObj(key);
         if (curr != null) {
             return curr;
@@ -487,6 +487,18 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                 }
                                 if (d.ast instanceof Assign) {
                                     Assign assign = (Assign) d.ast;
+                                    if (assign.targets.length == 1 && assign.targets[0] instanceof Name) {
+                                        ClassDef classDef = (ClassDef) d.scope.getClassDef();
+                                        if (NodeUtils.isEnum(classDef)) {
+                                            return new TokensList(new IToken[] {
+                                                    new ConcreteToken("name", "Enum name", "", "enum",
+                                                            ConcreteToken.TYPE_ATTR, manager.getNature()),
+                                                    new ConcreteToken("value", "Enum value", "", "enum",
+                                                            ConcreteToken.TYPE_ATTR, manager.getNature())
+                                            });
+                                        }
+                                    }
+
                                     if (assign.value instanceof Call) {
                                         lookingFor = LookingFor.LOOKING_FOR_INSTANCED_VARIABLE;
                                     }
@@ -507,21 +519,13 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                 } else if (d.ast instanceof Name) {
                                     ClassDef classDef = (ClassDef) d.scope.getClassDef();
                                     if (classDef != null) {
-                                        ClassDef classDef2 = classDef;
-                                        if (classDef2.bases != null) {
-                                            for (int j = 0; j < classDef2.bases.length; j++) {
-                                                String representationString = NodeUtils
-                                                        .getRepresentationString(classDef2.bases[j]);
-                                                if ("Enum".equals(representationString)
-                                                        || "IntEnum".equals(representationString)) {
-                                                    return new TokensList(new IToken[] {
-                                                            new ConcreteToken("name", "Enum name", "", "enum",
-                                                                    ConcreteToken.TYPE_ATTR, manager.getNature()),
-                                                            new ConcreteToken("value", "Enum value", "", "enum",
-                                                                    ConcreteToken.TYPE_ATTR, manager.getNature())
-                                                    });
-                                                }
-                                            }
+                                        if (NodeUtils.isEnum(classDef)) {
+                                            return new TokensList(new IToken[] {
+                                                    new ConcreteToken("name", "Enum name", "", "enum",
+                                                            ConcreteToken.TYPE_ATTR, manager.getNature()),
+                                                    new ConcreteToken("value", "Enum value", "", "enum",
+                                                            ConcreteToken.TYPE_ATTR, manager.getNature())
+                                            });
                                         }
 
                                         FindDefinitionModelVisitor visitor = new FindDefinitionModelVisitor(
@@ -1138,13 +1142,38 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         return null;
     }
 
+    private class DefinitionRef {
+
+        private Definition found;
+
+        public DefinitionRef(Definition found) {
+            this.found = found; // may be null;
+        }
+
+        public Definition get() {
+            return this.found;
+        }
+
+    }
+
+    private Definition findGlobalTokDef(ICompletionState state, IPythonNature nature) throws Exception {
+        Object key = new Tuple3<>("findGlobalTokDef", state.getActivationToken(), this);
+        Object obj = state.getObj(key);
+        if (obj != null) {
+            return ((DefinitionRef) obj).get();
+        }
+        Definition found = this.internalFindGlobalTokDef(state, nature);
+        state.add(key, new DefinitionRef(found));
+        return found;
+    }
+
     /**
      * @param tok
      * @param nature
      * @return
      * @throws Exception
      */
-    private Definition findGlobalTokDef(ICompletionState state, IPythonNature nature) throws Exception {
+    private Definition internalFindGlobalTokDef(ICompletionState state, IPythonNature nature) throws Exception {
         String tok = state.getActivationToken();
         String[] headAndTail = FullRepIterable.headAndTail(tok);
         String firstPart = headAndTail[0];
@@ -1155,12 +1184,12 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         // Could use commented code...
         // DefinitionAndCompletions assignCompletions = null;
         // AssignAnalysis assignAnalysis = new AssignAnalysis();
-        // 
+        //
         // if (firstPart.length() > 0) {
         //     ICompletionState copy = state.getCopyWithActTok(firstPart);
         //     assignCompletions = assignAnalysis.getAssignCompletions(nature.getAstManager(),
         //             this, copy, null);
-        // 
+        //
         //     tokens = assignCompletions.completions;
         // }
         if (tokens == null || tokens.empty()) {

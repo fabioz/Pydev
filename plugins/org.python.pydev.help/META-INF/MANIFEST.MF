@@ -4,6 +4,5 @@ Bundle-Name: Pydev Online Help
 Bundle-SymbolicName: org.python.pydev.help; singleton:=true
 Bundle-Version: 6.3.1.qualifier
 Bundle-Vendor: Brainwy Software Ltda
-Bundle-Localization: plugin
 Bundle-ActivationPolicy: lazy
 Eclipse-BundleShape: dir

@@ -443,7 +443,7 @@
 
       <page
             name="Code Completion"
-            class="org.python.pydev.ast.codecompletion.PyCodeCompletionPreferencesPage"
+            class="org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage"
             category="org.python.pydev.prefs.editor"
             id="org.python.pydev.prefs.PyCodeCompletionPage"/>
       <page

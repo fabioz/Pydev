@@ -2107,4 +2107,18 @@ public class NodeUtils {
         return false;
     }
 
+    public static boolean isEnum(ClassDef classDef) {
+        if (classDef != null && classDef.bases != null) {
+            for (int j = 0; j < classDef.bases.length; j++) {
+                String representationString = NodeUtils
+                        .getRepresentationString(classDef.bases[j]);
+                if ("Enum".equals(representationString)
+                        || "IntEnum".equals(representationString)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 }

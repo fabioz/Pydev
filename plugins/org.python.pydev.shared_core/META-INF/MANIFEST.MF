@@ -8,7 +8,6 @@ Bundle-ClassPath: shared_core.jar,
  libs/lucene-analyzers-common-6.1.0.jar,
  libs/lucene-core-6.1.0.jar
 Bundle-Activator: org.python.pydev.shared_core.SharedCorePlugin
-Bundle-Localization: plugin
 Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.core.runtime,
  org.junit;bundle-version="4.0";resolution:=optional,

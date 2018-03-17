@@ -5,7 +5,6 @@ Bundle-SymbolicName: org.python.pydev.customizations; singleton:=true
 Bundle-Version: 6.3.1.qualifier
 Bundle-ClassPath: customizations.jar
 Bundle-Activator: org.python.pydev.customizations.CustomizationsPlugin
-Bundle-Localization: plugin
 Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,

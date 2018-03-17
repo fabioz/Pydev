@@ -5,7 +5,6 @@ Bundle-SymbolicName: com.python.pydev.debug; singleton:=true
 Bundle-Version: 6.3.1.qualifier
 Bundle-Activator: com.python.pydev.debug.DebugPlugin
 Bundle-Vendor: Brainwy Software Ltda
-Bundle-Localization: plugin
 Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,

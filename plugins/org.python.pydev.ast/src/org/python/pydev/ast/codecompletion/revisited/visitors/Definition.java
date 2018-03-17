@@ -94,6 +94,10 @@ public class Definition implements IDefinition {
         Assert.isNotNull(value, "Invalid value.");
         Assert.isNotNull(module, "Invalid Module.");
 
+        if (scope == null) {
+            scope = new LocalScope(module.getNature());
+        }
+
         this.line = line;
         this.col = col;
         this.value = value;
@@ -119,6 +123,11 @@ public class Definition implements IDefinition {
         } else {
             this.ast = null;
         }
+
+        if (scope == null) {
+            scope = new LocalScope(module.getNature());
+        }
+
         this.scope = scope;
         this.module = module;
         this.foundAsLocal = foundAsLocal;

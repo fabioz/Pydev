@@ -7,7 +7,6 @@ Bundle-ClassPath: pydev-jython.jar,
  jython.jar
 Bundle-Activator: org.python.pydev.jython.JythonPlugin
 Bundle-Vendor: Brainwy Software Ltda
-Bundle-Localization: plugin
 Eclipse-BundleShape: dir
 Eclipse-BuddyPolicy: global
 Require-Bundle: org.eclipse.core.runtime,

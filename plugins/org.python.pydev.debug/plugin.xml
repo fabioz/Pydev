@@ -624,12 +624,12 @@
  <objectContribution
        adaptable="false"
        id="org.python.pydev.debug.PythonBreakPointActions"
-       objectClass="org.python.pydev.debug.core.IPythonBreakpoint">
+       objectClass="org.python.pydev.debug.model.PyBreakpoint">
     <action
           class="org.python.pydev.debug.ui.actions.PythonBreakpointPropertiesRulerAction"
           enablesFor="1"
           helpContextId="breakpoint_suspend_policy_toggle_action_context"
-          icon="icons/full/elcl16/suspend_co.gif"
+          icon="icons/breakmarker_conditional.gif"
           id="org.python.pydev.debug.PythonBreakpointProperties"
           label="%breakpointPropertiesAction.label"
           menubarPath="emptyBreakpointGroup"/>
