@@ -3,6 +3,22 @@ History For PyDev on VSCode
 
 
 
+Release 0.1.4 (2018-03-17)
+=============================
+
+* Fixed issue starting language server when no workspace is opened.
+
+* Upgraded to PyDev 6.3.2
+
+	* Improvements in type inference.
+
+Release 0.1.3 (2018-02-26)
+=============================
+
+* Upgraded to PyDev 6.3.1
+
+	* Improvements in type inference.
+
 Release 0.1.2 (2018-02-26)
 =============================
 

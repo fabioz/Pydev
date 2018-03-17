@@ -2,6 +2,32 @@
 <contents_area>
 <h1 class="title">History For PyDev on VSCode</h1>
 
+<div class="section" id="release-0-1-4-2018-03-17">
+<h1>Release 0.1.4 (2018-03-17)</h1>
+<ul>
+<li><p class="first">Fixed issue starting language server when no workspace is opened.</p>
+</li>
+<li><p class="first">Upgraded to PyDev 6.3.2</p>
+<blockquote>
+<ul class="simple">
+<li>Improvements in type inference.</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</div>
+<div class="section" id="release-0-1-3-2018-02-26">
+<h1>Release 0.1.3 (2018-02-26)</h1>
+<ul>
+<li><p class="first">Upgraded to PyDev 6.3.1</p>
+<blockquote>
+<ul class="simple">
+<li>Improvements in type inference.</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</div>
 <div class="section" id="release-0-1-2-2018-02-26">
 <h1>Release 0.1.2 (2018-02-26)</h1>
 <ul class="simple">

@@ -42,8 +42,6 @@ C:\tools\Miniconda\envs\tests_py27\python.exe X:\release_tools\pydev_uploader_bi
 copy X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository\features\*.jar X:\pydev_build\update_site_dir\updates\features /Y
 copy X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository\plugins\*.jar X:\pydev_build\update_site_dir\updates\plugins /Y
 
-		Update the site.xml at X:\pydev_build\update_site_dir\updates
-
 		** Create zips to distribute
 
 x:
