@@ -31,14 +31,11 @@
         <!--Added 2017-08-24-->
         <a href="https://protoolzone.com/" border=0><img class="sponsors" src="images/sponsors/protoolzone_2.png" style="width:150px;height:60px;" alt="Best tool reviews" title="https://protoolzone.com" /></a>
 
-        <!--Added 2016-12-24-->
-        <a href="http://www.givemedeals.com/?utm_source=PYD&utm_medium=donate&utm_campaign=PyDev" border=0><img class="sponsors" src="images/sponsors/give_me_deals.png" style="width:150px;height:60px;" alt="Give Me Deals" title="http://www.givemedeals.com/?utm_source=PYD&utm_medium=donate&utm_campaign=PyDev" /></a>
-
         <div class="section" id="bronze-sponsors">
         <h1>Bronze Sponsors</h1>
         <!-- Added 2018-03-07 -->
         <a href="https://www.immigrationlawofmt.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/immigrationlawofmt.png" alt="immigrationlawofmt" title="https://www.immigrationlawofmt.com" /></a>
-        
+
         <!-- Added 2017-10-27 -->
         <a href="https://superbwebsitebuilders.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/superbwebsitebuilders.png" alt="superbwebsitebuilders" title="https://superbwebsitebuilders.com/" /></a>
         <!-- Added 2017-04-11 -->
@@ -187,6 +184,20 @@ To show your appreciation for PyDev and to keep it going strong, help to crowdfu
 .. _`update sites page`: update_sites/index.html
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
+
+Release 6.3.2 (2018-03-17)
+=============================
+
+* **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
+
+    * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
+
+* Type inference
+
+	* Initial support for .pyi stub files (#PyDev-903) -- note that currently .pyi needs to be along the typed .py file.
+	* Improvements to determine if a completion references a bound or unbound method.
+
+* Fixed issue opening code completion preferences page.
 
 Release 6.3.1 (2018-02-26)
 =============================
