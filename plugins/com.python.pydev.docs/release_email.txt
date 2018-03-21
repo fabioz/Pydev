@@ -1,28 +1,15 @@
-PyDev 6.3.1 Released
+PyDev 6.3.2 Released
 
-PyDev 6.3.1 Release Highlights
+PyDev 6.3.2 Release Highlights
 -------------------------------
-
-* PyDev is now also available for Python coding on Visual Studio Code -- see: http://www.pydev.org/vscode/ for more details.
 
 PyDev changes:
 
 * Type inference
 
-	* Folders no longer require **__init__** to be considered a package.
-	* Properly recognize **cx_Oracle.cp36-win_amd64.pyd** as **cx_Oracle** (**#PyDev-885**).
+	* PyDev can now uses information on .pyi (when along the typed .py file) for type inference.
 
-* Empty numpy arrays properly handled in debugger.
-
-* Fix to get path to activate conda env on Linux.
-
-* Fix debug console freeze when evaluation raises exception with Python 3.5 onwards (**#PyDev-877**).
-
-* Interactive console accepting new args passed by IPython in showtraceback (**#PyDev-882**).
-
-* Improve terminating running processes (and children).
-
-* Properly parsing f-strings which contain double **{{** or **}}** (**#PyDev-884**).
+* Fixed issue opening code completion preferences page.
 
 
 About PyDev
@@ -32,7 +19,7 @@ PyDev is an open-source Python IDE on top of Eclipse for Python, Jython and Iron
 
 It comes with goodies such as code completion, syntax highlighting, syntax analysis, code analysis, refactor, debug, interactive console, etc.
 
-It is also available as a standalone through LiClipse with goodies such as Multiple cursors, theming and support for many other languages, such as Django Templates, Jinja2, Html, JavaScript, etc.
+It is also available as a standalone through LiClipse with goodies such as multiple cursors, theming and support for many other languages, such as Django Templates, Jinja2, Html, JavaScript, etc.
 
 Links:
 
