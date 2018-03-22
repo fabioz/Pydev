@@ -424,63 +424,50 @@ public class MyEnvWorkingCopy implements ILaunchConfigurationWorkingCopy {
         throw new RuntimeException();
     }
 
-    @Override
     public void delete(int flag) throws CoreException {
         throw new RuntimeException();
-
     }
 
-    @Override
     public ILaunchConfiguration getPrototype() throws CoreException {
         return null;
     }
 
-    @Override
     public boolean isAttributeModified(String attribute) throws CoreException {
         return false;
     }
 
-    @Override
     public boolean isPrototype() {
         return false;
     }
 
-    @Override
     public Collection<ILaunchConfiguration> getPrototypeChildren() throws CoreException {
         throw new RuntimeException();
     }
 
-    @Override
     public int getKind() throws CoreException {
         throw new RuntimeException();
     }
 
-    @Override
     public Set<String> getPrototypeVisibleAttributes() throws CoreException {
         throw new RuntimeException();
     }
 
-    @Override
     public void setPrototypeAttributeVisibility(String attribute, boolean visible) throws CoreException {
         throw new RuntimeException();
     }
 
-    @Override
     public ILaunchConfiguration doSave(int flag) throws CoreException {
         throw new RuntimeException();
     }
 
-    @Override
     public void setAttribute(String attributeName, Object value) {
         throw new RuntimeException();
     }
 
-    @Override
     public void copyAttributes(ILaunchConfiguration prototype) throws CoreException {
         throw new RuntimeException();
     }
 
-    @Override
     public void setPrototype(ILaunchConfiguration prototype, boolean copy) throws CoreException {
         throw new RuntimeException();
     }
