@@ -1,11 +1,12 @@
 /**
- * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
 package org.python.pydev.ui.pythonpathconf;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +57,8 @@ public class MyEnvWorkingCopy implements ILaunchConfigurationWorkingCopy {
             return;
         }
 
-        Map<String, String> existing = (Map<String, String>) this.attributes.get(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES);
+        Map<String, String> existing = (Map<String, String>) this.attributes
+                .get(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES);
         HashMap<String, String> map = null;
         if (existing != null) {
             map = new HashMap<String, String>(existing);
@@ -419,6 +421,67 @@ public class MyEnvWorkingCopy implements ILaunchConfigurationWorkingCopy {
 
     @Override
     public Object getAdapter(Class adapter) {
+        throw new RuntimeException();
+    }
+
+    @Override
+    public void delete(int flag) throws CoreException {
+        throw new RuntimeException();
+
+    }
+
+    @Override
+    public ILaunchConfiguration getPrototype() throws CoreException {
+        return null;
+    }
+
+    @Override
+    public boolean isAttributeModified(String attribute) throws CoreException {
+        return false;
+    }
+
+    @Override
+    public boolean isPrototype() {
+        return false;
+    }
+
+    @Override
+    public Collection<ILaunchConfiguration> getPrototypeChildren() throws CoreException {
+        throw new RuntimeException();
+    }
+
+    @Override
+    public int getKind() throws CoreException {
+        throw new RuntimeException();
+    }
+
+    @Override
+    public Set<String> getPrototypeVisibleAttributes() throws CoreException {
+        throw new RuntimeException();
+    }
+
+    @Override
+    public void setPrototypeAttributeVisibility(String attribute, boolean visible) throws CoreException {
+        throw new RuntimeException();
+    }
+
+    @Override
+    public ILaunchConfiguration doSave(int flag) throws CoreException {
+        throw new RuntimeException();
+    }
+
+    @Override
+    public void setAttribute(String attributeName, Object value) {
+        throw new RuntimeException();
+    }
+
+    @Override
+    public void copyAttributes(ILaunchConfiguration prototype) throws CoreException {
+        throw new RuntimeException();
+    }
+
+    @Override
+    public void setPrototype(ILaunchConfiguration prototype, boolean copy) throws CoreException {
         throw new RuntimeException();
     }
 
