@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -26,10 +26,6 @@ public class PyFilteredTree extends FilteredTree {
         super(parent, treeStyle, filter, useNewLook);
     }
 
-    private PyFilteredTree(Composite parent, int treeStyle, PatternFilter filter) {
-        super(parent, treeStyle, filter);
-    }
-
     public static PyFilteredTree create(Composite parent, PatternFilter filter, boolean border) {
         int treeStyle = SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL;
         if (border) {
@@ -39,13 +35,7 @@ public class PyFilteredTree extends FilteredTree {
     }
 
     public static PyFilteredTree create(Composite parent, int treeStyle, PatternFilter filter) {
-        PyFilteredTree ret;
-
-        try {
-            ret = new PyFilteredTree(parent, treeStyle, filter, true);
-        } catch (Throwable e) {
-            ret = new PyFilteredTree(parent, treeStyle, filter);
-        }
+        PyFilteredTree ret = new PyFilteredTree(parent, treeStyle, filter, true);
 
         final TreeViewer viewer = ret.getViewer();
         ret.getFilterControl().addKeyListener(new KeyAdapter() {
