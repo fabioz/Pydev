@@ -22,9 +22,9 @@ import org.python.pydev.shared_ui.editor.IPyEditListener;
 /**
  * This class is used for scripting in Pydev.
  * It listens to the PyEdit actions and passes what is needed for the interpreter.
- * 
+ *
  * A new PyEditScripting is created for each editor. Therefore, we have one interpreter for each editor.
- * 
+ *
  * @author Fabio
  */
 public class PyEditScripting implements IPyEditListener {
@@ -32,6 +32,7 @@ public class PyEditScripting implements IPyEditListener {
     private IPythonInterpreter interpreter;
 
     private static Object systemGlobals = null;
+    private final Object lock = new Object();
 
     public PyEditScripting() {
         createInterpreter();
@@ -48,10 +49,11 @@ public class PyEditScripting implements IPyEditListener {
     }
 
     private void doExec(HashMap<String, Object> locals) {
-        createInterpreter();
         locals.put("systemGlobals", systemGlobals);
-        JythonPlugin.execAll(locals, "pyedit", interpreter); //execute all the files that start with 'pyedit' that are located beneath
-                                                             //the org.python.pydev.jython/jysrc directory and some user specified dir (if any).
+        synchronized (lock) {
+            JythonPlugin.execAll(locals, "pyedit", interpreter); //execute all the files that start with 'pyedit' that are located beneath
+            //the org.python.pydev.jython/jysrc directory and some user specified dir (if any).
+        }
     }
 
     @Override
