@@ -82,7 +82,8 @@ public class ScriptConsolePage extends TextConsolePage implements IScriptConsole
         // saveSessionAction = new SaveConsoleSessionAction((ScriptConsole) getConsole(),
         //        ScriptConsoleMessages.SaveSessionAction, ScriptConsoleMessages.SaveSessionTooltip);
 
-        wordWrapAction = new WordWrapAction((ScriptConsole) getConsole(), "Word Wrap", "Toggles word-wrap in console.");
+        wordWrapAction = new WordWrapAction((ScriptConsole) getConsole(),
+                ScriptConsoleMessages.WordWrapConsoleAction, ScriptConsoleMessages.WordWrapConsoleTooltip);
 
         closeConsoleAction = new CloseScriptConsoleAction((ScriptConsole) getConsole(),
                 ScriptConsoleMessages.TerminateConsoleAction, ScriptConsoleMessages.TerminateConsoleTooltip);
