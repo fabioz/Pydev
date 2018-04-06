@@ -338,6 +338,7 @@ public class InterpreterInfo implements IInterpreterInfo {
                     List<String> envVars = new ArrayList<String>();
                     List<String> predefinedPaths = new ArrayList<String>();
                     Properties stringSubstitutionVars = new Properties();
+                    String libPrefix = "";
 
                     DefaultPathsForInterpreterInfo defaultPaths = new DefaultPathsForInterpreterInfo();
 
@@ -353,6 +354,17 @@ public class InterpreterInfo implements IInterpreterInfo {
 
                         } else if ("executable".equals(name)) {
                             infoExecutable = data;
+                            if (userSpecifiedExecutable != null) {
+                                // Determine if the interpreter's self-reported executable name is the same as what was
+                                // requested, if there is an extra prefix then that needs to also be prefixed to every
+                                // lib that is returned
+                                if (!userSpecifiedExecutable.equals(infoExecutable)
+                                        && userSpecifiedExecutable.endsWith(infoExecutable)) {
+                                    libPrefix = userSpecifiedExecutable.substring(0,
+                                            userSpecifiedExecutable.length() - infoExecutable.length());
+                                }
+                                infoExecutable = userSpecifiedExecutable;
+                            }
 
                         } else if ("activate_conda".equals(name)) {
                             activateCondaEnv = data.equals("true");
@@ -360,19 +372,20 @@ public class InterpreterInfo implements IInterpreterInfo {
                         } else if ("lib".equals(name)) {
                             NamedNodeMap attributes = xmlChild.getAttributes();
                             Node pathIncludeItem = attributes.getNamedItem("path");
+                            String libPath = libPrefix + data;
 
                             if (pathIncludeItem != null) {
-                                if (defaultPaths.exists(data)) {
+                                if (defaultPaths.exists(libPath)) {
                                     //The python backend is expected to put path='ins' or path='out'
                                     //While our own toString() is not expected to do that.
                                     //This is probably not a very good heuristic, but it maps the current state of affairs.
                                     fromPythonBackend = true;
                                     if (askUserInOutPath) {
-                                        toAsk.add(data);
+                                        toAsk.add(libPath);
                                     }
                                     //Select only if path is not child of a root path
-                                    if (defaultPaths.selectByDefault(data)) {
-                                        selection.add(data);
+                                    if (defaultPaths.selectByDefault(libPath)) {
+                                        selection.add(libPath);
                                     }
                                 }
 
@@ -380,7 +393,7 @@ public class InterpreterInfo implements IInterpreterInfo {
                                 //If not specified, included by default (i.e.: if the path="ins" or path="out" is not
                                 //given, this string was generated internally and not from the python backend, meaning
                                 //that we want to keep it exactly as the user selected).
-                                selection.add(data);
+                                selection.add(libPath);
                             }
 
                         } else if ("forced_lib".equals(name)) {
@@ -459,9 +472,6 @@ public class InterpreterInfo implements IInterpreterInfo {
                         return null;
                     }
 
-                    if (userSpecifiedExecutable != null) {
-                        infoExecutable = userSpecifiedExecutable;
-                    }
                     InterpreterInfo info = new InterpreterInfo(infoVersion, infoExecutable, selection,
                             new ArrayList<String>(), forcedLibs, envVars, stringSubstitutionVars);
                     info.setName(infoName);
