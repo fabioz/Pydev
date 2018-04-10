@@ -33,6 +33,10 @@
 
         <div class="section" id="bronze-sponsors">
         <h1>Bronze Sponsors</h1>
+
+        <!-- Added 2018-04-10 -->
+        <a href="https://allesrefurbished.nl" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/alles_refurbished.png" alt="Alles Refurbished - overview of refurbished tablets, telephones and more (in Dutch)" title="Alles Refurbished - overview of refurbished tablets, telephones and more (in Dutch)" /></a>
+
         <!-- Added 2018-03-07 -->
         <a href="https://www.immigrationlawofmt.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/immigrationlawofmt.png" alt="immigrationlawofmt" title="https://www.immigrationlawofmt.com" /></a>
 
@@ -43,10 +47,10 @@
 
         <!-- Added 2016-12-21 -->
         <a href="https://www.vpsserver.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/vpsserver50-50.png" alt="vpsserver" title="https://www.vpsserver.com" /></a>
+		<br/>
 
         <!-- Added 2016-12-22 -->
         <a href="https://ultimatewebtraffic.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/ultimatewebtraffic.png" alt="ultimawebtraffic" title="https://ultimatewebtraffic.com" /></a>
-		<br/>
         <a href="https://webtrafficgeeks.org" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/webtrafficgeeks.png" alt="webtrafficgeeks" title="https://webtrafficgeeks.org" /></a>
         <a href="https://buywebtrafficexperts.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/buywebtrafficexperts.png" alt="buywebtrafficexperts" title="https://buywebtrafficexperts.com" /></a>
 
