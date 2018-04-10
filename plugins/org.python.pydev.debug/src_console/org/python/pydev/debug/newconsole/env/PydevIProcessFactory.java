@@ -48,6 +48,7 @@ import org.python.pydev.debug.newconsole.prefs.InteractiveConsoleUMDPrefs;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.shared_core.net.SocketUtil;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.utils.PlatformUtils;
 import org.python.pydev.ui.pythonpathconf.AbstractInterpreterPreferencesPage;
 
 /**
@@ -190,7 +191,7 @@ public class PydevIProcessFactory {
 
     public static String getEncodingFromFrame(PyStackFrame selectedFrame) {
         try {
-            IDebugTarget adapter = (IDebugTarget) selectedFrame.getAdapter(IDebugTarget.class);
+            IDebugTarget adapter = selectedFrame.getAdapter(IDebugTarget.class);
             if (adapter == null) {
                 return "UTF-8";
             }
@@ -303,9 +304,10 @@ public class PydevIProcessFactory {
             env = SimpleRunner.createEnvWithPythonpath(pythonpathEnv, interpreter.getExecutableOrJar(),
                     interpreterManager, nature);
             // Add in UMD settings
-            String[] s = new String[env.length + 4];
+            String[] s = new String[env.length + 5];
             System.arraycopy(env, 0, s, 0, env.length);
 
+            s[s.length - 5] = "PYDEV_ECLIPSE_PID=" + PlatformUtils.getPid();
             s[s.length - 4] = "PYTHONIOENCODING=" + encoding;
             s[s.length - 3] = "PYDEV_UMD_ENABLED="
                     + Boolean.toString(InteractiveConsoleUMDPrefs.isUMDEnabled());
