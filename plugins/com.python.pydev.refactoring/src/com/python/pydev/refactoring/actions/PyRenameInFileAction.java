@@ -29,6 +29,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.jface.text.link.ILinkedModeListener;
 import org.eclipse.jface.text.link.LinkedModeModel;
 import org.eclipse.jface.text.link.LinkedModeUI;
 import org.eclipse.jface.text.link.LinkedPositionGroup;
@@ -40,6 +41,7 @@ import org.python.pydev.ast.refactoring.RefactoringRequest;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.editor.MacroModeStateHandler;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.PySelectionFromEditor;
 import org.python.pydev.parser.PyParser;
@@ -99,6 +101,24 @@ public class PyRenameInFileAction extends Action {
                             ui.setCyclingMode(LinkedModeUI.CYCLE_ALWAYS);
                             ui.setExitPosition(viewer, currToken.o2 + currToken.o1.length(), 0,
                                     0 /*ordered so that 0 is current pos*/);
+
+                            final MacroModeStateHandler handler = new MacroModeStateHandler(pyEdit);
+                            handler.enterMacroMode();
+                            model.addLinkingListener(new ILinkedModeListener() {
+
+                                @Override
+                                public void suspend(LinkedModeModel model) {
+                                }
+
+                                @Override
+                                public void resume(LinkedModeModel model, int flags) {
+                                }
+
+                                @Override
+                                public void left(LinkedModeModel model, int flags) {
+                                    handler.leaveMacroMode();
+                                }
+                            });
                             ui.enter();
                         }
                     } catch (BadLocationException e) {
