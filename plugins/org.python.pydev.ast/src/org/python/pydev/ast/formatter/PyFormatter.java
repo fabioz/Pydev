@@ -190,6 +190,38 @@ public class PyFormatter {
                     c = cs[i];
                     break;
 
+                case '@':
+                    // @ can mean either a decorator or matrix multiplication,
+                    // If decorator, do nothing, for matrix multiplication, '@' is an operator which
+                    // may or may not be followed by an '='
+                    String append = "@";
+                    if (i < length - 1 && cs[i + 1] == '=') {
+                        // @= found
+                        i++;
+                        append = "@=";
+                    } else if (buf.getLastWord().trim().isEmpty()) {
+                        //decorator
+                        buf.append('@');
+                        break;
+
+                    }
+
+                    while (buf.length() > 0 && buf.lastChar() == ' ') {
+                        buf.deleteLast();
+                    }
+
+                    if (std.operatorsWithSpace) {
+                        buf.append(' ');
+                    }
+                    buf.append(append);
+                    //add space after
+                    if (std.operatorsWithSpace) {
+                        buf.append(' ');
+                    }
+
+                    i = parsingUtils.eatWhitespaces(null, i + 1);
+                    break;
+
                 //check for = and == (other cases that have an = as the operator should already be treated)
                 case '=':
                     if (i < length - 1 && cs[i + 1] == '=') {

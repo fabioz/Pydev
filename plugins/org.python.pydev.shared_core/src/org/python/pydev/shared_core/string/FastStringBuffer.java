@@ -893,7 +893,8 @@ public final class FastStringBuffer implements CharSequence {
         int i;
         //skip whitespaces in the end
         for (i = this.count - 1; i >= 0; i--) {
-            if (!Character.isWhitespace(this.value[i])) {
+            char c = this.value[i];
+            if (!Character.isWhitespace(c) || c == '\n' || c == '\r') {
                 break;
             }
         }

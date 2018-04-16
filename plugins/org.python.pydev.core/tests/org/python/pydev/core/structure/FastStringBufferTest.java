@@ -199,6 +199,17 @@ public class FastStringBufferTest extends TestCase {
         assertEquals("some1", buf.getLastWord());
     }
 
+    public void testGetLastWord2() throws Exception {
+        FastStringBuffer buf = new FastStringBuffer(0);
+        assertEquals("", buf.getLastWord());
+        buf.append("b");
+        assertEquals("b", buf.getLastWord());
+        buf.append("\n");
+        assertEquals("", buf.getLastWord());
+        buf.append("1");
+        assertEquals("1", buf.getLastWord());
+    }
+
     public void testRemoveWhitespaces() throws Exception {
         FastStringBuffer buf = new FastStringBuffer(0);
         buf.removeWhitespaces();

@@ -289,6 +289,40 @@ public class PyFormatStdTest extends TestCase {
         checkFormatResults(s, s2);
     }
 
+    public void testFormatMatMul() {
+        std.spaceAfterComma = true;
+        std.operatorsWithSpace = true;
+        std.assignWithSpaceInsideParens = false;
+
+        String s = "" +
+                "a@2\n" +
+                "a@=2\n" +
+                "@method" +
+                "";
+
+        String s1 = "" +
+                "a @ 2\n" +
+                "a @= 2\n" +
+                "@method" +
+                "";
+
+        checkFormatResults(s, s1);
+    }
+
+    public void testFormatMatMul2() {
+        std.spaceAfterComma = true;
+        std.operatorsWithSpace = true;
+        std.assignWithSpaceInsideParens = false;
+
+        String s = "" +
+                "(a\n"
+                + "@\n"
+                + "2)\n" +
+                "";
+
+        checkFormatResults(s, s);
+    }
+
     public void testFormatInnerParams() {
         std.spaceAfterComma = true;
         std.parametersWithSpace = false;
