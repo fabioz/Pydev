@@ -112,7 +112,12 @@
             categoryId="org.python.pydev.ui.category.run"
             name="Terminate all launches">
       </command>
-	  <command id="org.python.pydev.debug.command.Display" name="Display Command">
+	  <command
+            description="Display text evaluation from debugger"
+	        id="org.python.pydev.debug.command.Display"
+            categoryId="org.python.pydev.ui.category.run"
+	  	    name="Display text evaluation from debugger"
+	  	    >
       </command>
 </extension>
 
