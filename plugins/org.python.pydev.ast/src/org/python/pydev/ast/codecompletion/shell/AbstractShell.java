@@ -695,7 +695,7 @@ public abstract class AbstractShell {
             }
 
         } catch (Exception e) {
-            String message = "ERROR reading shell. Message sent: " + str + "\n";
+            String message = "ERROR reading shell. Message sent: " + StringUtils.join("", str) + "\n";
             if (process != null) {
                 message += "\n" + process.getProcessLog();
             }
