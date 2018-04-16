@@ -17,7 +17,6 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.CheckDefaultPreferencesDialog.CheckInfo;
 import org.python.pydev.shared_core.string.StringUtils;
-import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.dialogs.DialogHelpers;
 import org.python.pydev.shared_ui.field_editors.ButtonFieldEditor;
 
@@ -54,7 +53,7 @@ public class PydevRootPrefs extends FieldEditorPreferencePage implements IWorkbe
                             "Preferences in Eclipse already match preferred PyDev settings.");
                     return;
                 }
-                Shell shell = EditorUtils.getShell();
+                Shell shell = getShell();
                 CheckDefaultPreferencesDialog dialog = new CheckDefaultPreferencesDialog(shell, missing);
                 dialog.open();
                 booleanField.load();
