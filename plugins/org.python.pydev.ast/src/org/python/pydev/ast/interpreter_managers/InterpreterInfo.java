@@ -1649,7 +1649,7 @@ public class InterpreterInfo implements IInterpreterInfo {
                     Log.log(e);
                 }
             } else {
-                Log.log("Expected: " + new File(condaPrefix, "/etc/conda/activate.d")
+                Log.logInfo("Expected: " + new File(condaPrefix, "/etc/conda/activate.d")
                         + " to exist to activate conda env.");
             }
         }

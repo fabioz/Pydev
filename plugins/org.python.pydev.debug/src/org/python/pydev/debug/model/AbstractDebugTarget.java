@@ -8,8 +8,10 @@ package org.python.pydev.debug.model;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IMarker;
@@ -112,6 +114,8 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
 
     public AbstractDebugTarget() {
     }
+
+    private Set<Integer> currentBreakpointsAdded = new HashSet<>();
 
     @Override
     public abstract boolean canTerminate();
@@ -343,6 +347,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
                     if (file2 == null || line == null) {
                         Log.log("Trying to add breakpoint with invalid file: " + file2 + " or line: " + line);
                     } else {
+                        this.currentBreakpointsAdded.add(b.breakpointId);
                         SetBreakpointCommand cmd = new SetBreakpointCommand(this, b.breakpointId, file2, line,
                                 condition, b.getFunctionName(), b.getType());
                         this.postCommand(cmd);
@@ -361,8 +366,12 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
     public void breakpointRemoved(IBreakpoint breakpoint, IMarkerDelta delta) {
         if (breakpoint instanceof PyBreakpoint) {
             PyBreakpoint b = (PyBreakpoint) breakpoint;
-            RemoveBreakpointCommand cmd = new RemoveBreakpointCommand(this, b.breakpointId, b.getFile(), b.getType());
-            this.postCommand(cmd);
+            if (currentBreakpointsAdded.contains(b.breakpointId)) {
+                currentBreakpointsAdded.remove(b.breakpointId);
+                RemoveBreakpointCommand cmd = new RemoveBreakpointCommand(this, b.breakpointId, b.getFile(),
+                        b.getType());
+                this.postCommand(cmd);
+            }
         }
     }
 
