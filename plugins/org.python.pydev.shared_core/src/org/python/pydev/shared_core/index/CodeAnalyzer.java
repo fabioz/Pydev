@@ -1,5 +1,5 @@
 /******************************************************************************
-* Copyright (C) 2015  Fabio Zadrozny and others
+* Copyright (C) 2015, 2018  Fabio Zadrozny and others
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
@@ -15,11 +15,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.core.LowerCaseFilter;
 import org.apache.lucene.analysis.core.StopFilter;
-import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.analysis.util.CharTokenizer;
 
 /**
