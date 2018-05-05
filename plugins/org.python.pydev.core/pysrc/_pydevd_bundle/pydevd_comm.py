@@ -515,12 +515,12 @@ def start_server(port):
 
     try:
         s.listen(1)
-        new_sock, _addr = s.accept()
+        newSock, _addr = s.accept()
         pydevd_log(1, "Connection accepted")
         # closing server socket is not necessary but we don't need it
         s.shutdown(SHUT_RDWR)
         s.close()
-        return new_sock
+        return newSock
 
     except:
         sys.stderr.write("Could not bind to port: %s\n" % (port,))

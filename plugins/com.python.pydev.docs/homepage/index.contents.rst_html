@@ -157,6 +157,39 @@ LiClipse you directly support the development of PyDev).</p>
 <p>Thank you to all PyDev supporters: <a class="reference external" href="https://www.brainwy.com/supporters/PyDev">https://www.brainwy.com/supporters/PyDev</a>.</p>
 <p>To show your appreciation for PyDev and to keep it going strong, help to crowdfund through <a class="reference external" href="https://www.patreon.com/fabioz">https://www.patreon.com/fabioz</a>.</p>
 </div>
+<div class="section" id="release-6-3-3-2018-05-05">
+<h1>Release 6.3.3 (2018-05-05)</h1>
+<ul>
+<li><p class="first"><strong>Important</strong> PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.</p>
+<blockquote>
+<ul class="simple">
+<li>PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Debugger</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Command which evaluates selected text in debugger is now properly categorized.</li>
+<li>Warning is no longer shown when a breakpoint is disabled and later removed.</li>
+<li>Fixed issue evaluating conditional breakpoints.</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first">Fixed racing condition when executing scripts which could make some scripts not be executed properly (which could break sending contents to the interactive console).</p>
+</li>
+<li><p class="first">Autocomplete disabled when renaming symbols (<strong>#PyDev-766</strong>).</p>
+</li>
+<li><p class="first">Interactive console exits properly when Eclipse is not properly closed (<strong>#PyDev-860</strong>).</p>
+</li>
+<li><p class="first">Code-formatter properly dealing with matrix multiplication operator <strong>&#64;=</strong> (<strong>#PyDev-904</strong>).</p>
+</li>
+<li><p class="first">Fixed issue where the <strong>default preferences</strong> window had no focus (<strong>#PyDev-702</strong>).</p>
+</li>
+<li><p class="first">Translations fixed for the interactive console view (patch by Mat Booth).</p>
+</li>
+</ul>
+</div>
 <div class="section" id="release-6-3-2-2018-03-17">
 <h1>Release 6.3.2 (2018-03-17)</h1>
 <ul>
@@ -208,46 +241,6 @@ LiClipse you directly support the development of PyDev).</p>
 <li><p class="first">Improve terminating running processes (and children).</p>
 </li>
 <li><p class="first">Properly parsing f-strings which contain double <strong>{{</strong> or <strong>}}</strong> (<strong>#PyDev-884</strong>).</p>
-</li>
-</ul>
-</div>
-<div class="section" id="release-6-2-0-2017-11-28">
-<h1>Release 6.2.0 (2017-11-28)</h1>
-<ul>
-<li><p class="first"><strong>Important</strong> PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.</p>
-<blockquote>
-<ul class="simple">
-<li>PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).</li>
-</ul>
-</blockquote>
-</li>
-<li><p class="first"><strong>Interactive Console</strong></p>
-<blockquote>
-<ul class="simple">
-<li>It's possible to use word-wrapping in the PyDev interactive console (<strong>#PyDev-862</strong>).</li>
-</ul>
-</blockquote>
-</li>
-<li><p class="first"><strong>Code Completion</strong></p>
-<blockquote>
-<ul class="simple">
-<li>Checking list unpacking with user specified types.</li>
-<li>Code completion aware of variable typing from Python 3.6 (<strong>#PyDev-866</strong>).</li>
-</ul>
-</blockquote>
-</li>
-<li><p class="first"><strong>Others</strong></p>
-<blockquote>
-<ul class="simple">
-<li>Properly terminating child processes of launched python processes on Linux with Java 9 (<strong>#PyDev-871</strong>).</li>
-<li>Comments with 3 dashes properly appear in outline in all cases (<strong>#PyDev-868</strong>).</li>
-<li>Properly hyperlinking pytest output.</li>
-<li>Accepting <strong>noqa</strong> as a way to skip errors (<strong>#PyDev-814</strong>).</li>
-<li>If there's a <strong>flake8: noqa</strong> in the first 3 lines of the file, don't analyze it (<strong>#PyDev-814</strong>).</li>
-<li>Fixed issue where a closing peer character was skiped when it was actually not a matching closing peer (<strong>#PyDev-869</strong>).</li>
-<li>Fixed issue where line indentation was not correct on a new line with multiple open parenthesis.</li>
-</ul>
-</blockquote>
 </li>
 </ul>
 <p><a class="reference external" href="history_pydev.html">View release notes for previous releases</a></p>

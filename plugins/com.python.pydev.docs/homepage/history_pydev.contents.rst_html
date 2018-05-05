@@ -4,6 +4,61 @@
 
 <div class="section" id="history-for-pydev">
 <h1>History For PyDev</h1>
+<div class="section" id="release-6-3-3-2018-05-05">
+<h2>Release 6.3.3 (2018-05-05)</h2>
+<ul>
+<li><p class="first"><strong>Important</strong> PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.</p>
+<blockquote>
+<ul class="simple">
+<li>PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Debugger</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Command which evaluates selected text in debugger is now properly categorized.</li>
+<li>Warning is no longer shown when a breakpoint is disabled and later removed.</li>
+<li>Fixed issue evaluating conditional breakpoints.</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first">Fixed racing condition when executing scripts which could make some scripts not be executed properly (which could break sending contents to the interactive console).</p>
+</li>
+<li><p class="first">Autocomplete disabled when renaming symbols (<strong>#PyDev-766</strong>).</p>
+</li>
+<li><p class="first">Interactive console exits properly when Eclipse is not properly closed (<strong>#PyDev-860</strong>).</p>
+</li>
+<li><p class="first">Code-formatter properly dealing with matrix multiplication operator <strong>&#64;=</strong> (<strong>#PyDev-904</strong>).</p>
+</li>
+<li><p class="first">Fixed issue where the <strong>default preferences</strong> window had no focus (<strong>#PyDev-702</strong>).</p>
+</li>
+<li><p class="first">Translations fixed for the interactive console view (patch by Mat Booth).</p>
+</li>
+</ul>
+</div>
+<div class="section" id="release-6-3-2-2018-03-17">
+<h2>Release 6.3.2 (2018-03-17)</h2>
+<ul>
+<li><p class="first"><strong>Important</strong> PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.</p>
+<blockquote>
+<ul class="simple">
+<li>PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first">Type inference</p>
+<blockquote>
+<ul class="simple">
+<li>Initial support for .pyi stub files (#PyDev-903) -- note that currently .pyi needs to be along the typed .py file.</li>
+<li>Improvements to determine if a completion references a bound or unbound method.</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first">Fixed issue opening code completion preferences page.</p>
+</li>
+</ul>
+</div>
 <div class="section" id="release-6-3-1-2018-02-26">
 <h2>Release 6.3.1 (2018-02-26)</h2>
 <ul>

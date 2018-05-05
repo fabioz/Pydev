@@ -5,6 +5,42 @@ History For PyDev
 .. _`update sites page`: update_sites/index.html
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
+
+Release 6.3.3 (2018-05-05)
+=============================
+
+* **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
+
+    * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
+
+* **Debugger**
+
+	* Command which evaluates selected text in debugger is now properly categorized.
+	* Warning is no longer shown when a breakpoint is disabled and later removed.
+	* Fixed issue evaluating conditional breakpoints.
+
+* Fixed racing condition when executing scripts which could make some scripts not be executed properly (which could break sending contents to the interactive console).
+* Autocomplete disabled when renaming symbols (**#PyDev-766**).
+* Interactive console exits properly when Eclipse is not properly closed (**#PyDev-860**).
+* Code-formatter properly dealing with matrix multiplication operator **@=** (**#PyDev-904**).
+* Fixed issue where the **default preferences** window had no focus (**#PyDev-702**).
+* Translations fixed for the interactive console view (patch by Mat Booth).
+
+Release 6.3.2 (2018-03-17)
+=============================
+
+* **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
+
+    * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
+
+* Type inference
+
+	* Initial support for .pyi stub files (#PyDev-903) -- note that currently .pyi needs to be along the typed .py file.
+	* Improvements to determine if a completion references a bound or unbound method.
+
+* Fixed issue opening code completion preferences page.
+
+
 Release 6.3.1 (2018-02-26)
 =============================
 

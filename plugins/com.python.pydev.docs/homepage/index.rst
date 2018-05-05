@@ -189,6 +189,26 @@ To show your appreciation for PyDev and to keep it going strong, help to crowdfu
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
+Release 6.3.3 (2018-05-05)
+=============================
+
+* **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
+
+    * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
+
+* **Debugger**
+
+	* Command which evaluates selected text in debugger is now properly categorized.
+	* Warning is no longer shown when a breakpoint is disabled and later removed.
+	* Fixed issue evaluating conditional breakpoints.
+
+* Fixed racing condition when executing scripts which could make some scripts not be executed properly (which could break sending contents to the interactive console).
+* Autocomplete disabled when renaming symbols (**#PyDev-766**).
+* Interactive console exits properly when Eclipse is not properly closed (**#PyDev-860**).
+* Code-formatter properly dealing with matrix multiplication operator **@=** (**#PyDev-904**).
+* Fixed issue where the **default preferences** window had no focus (**#PyDev-702**).
+* Translations fixed for the interactive console view (patch by Mat Booth).
+
 Release 6.3.2 (2018-03-17)
 =============================
 
@@ -226,32 +246,6 @@ Release 6.3.1 (2018-02-26)
 * Improve terminating running processes (and children).
 
 * Properly parsing f-strings which contain double **{{** or **}}** (**#PyDev-884**).
-
-Release 6.2.0 (2017-11-28)
-=============================
-
-* **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
-
-    * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
-
-* **Interactive Console**
-
-	* It's possible to use word-wrapping in the PyDev interactive console (**#PyDev-862**).
-
-* **Code Completion**
-
-	* Checking list unpacking with user specified types.
-	* Code completion aware of variable typing from Python 3.6 (**#PyDev-866**).
-
-* **Others**
-
-	* Properly terminating child processes of launched python processes on Linux with Java 9 (**#PyDev-871**).
-	* Comments with 3 dashes properly appear in outline in all cases (**#PyDev-868**).
-	* Properly hyperlinking pytest output.
-	* Accepting **noqa** as a way to skip errors (**#PyDev-814**).
-	* If there's a **flake8: noqa** in the first 3 lines of the file, don't analyze it (**#PyDev-814**).
-	* Fixed issue where a closing peer character was skiped when it was actually not a matching closing peer (**#PyDev-869**).
-	* Fixed issue where line indentation was not correct on a new line with multiple open parenthesis.
 
 `View release notes for previous releases`_
 
