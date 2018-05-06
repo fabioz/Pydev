@@ -3,6 +3,15 @@ History For PyDev on VSCode
 
 
 
+Release 0.1.5 (2018-05-05)
+=============================
+
+* Fixed issue validating license
+
+* Upgraded to PyDev 6.3.3
+
+	* Code-formatter properly working with matrix multiplication **@=**
+
 Release 0.1.4 (2018-03-17)
 =============================
 

@@ -2,6 +2,20 @@
 <contents_area>
 <h1 class="title">History For PyDev on VSCode</h1>
 
+<div class="section" id="release-0-1-5-2018-05-05">
+<h1>Release 0.1.5 (2018-05-05)</h1>
+<ul>
+<li><p class="first">Fixed issue validating license</p>
+</li>
+<li><p class="first">Upgraded to PyDev 6.3.3</p>
+<blockquote>
+<ul class="simple">
+<li>Code-formatter properly working with matrix multiplication <strong>&#64;=</strong></li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</div>
 <div class="section" id="release-0-1-4-2018-03-17">
 <h1>Release 0.1.4 (2018-03-17)</h1>
 <ul>
