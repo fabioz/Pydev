@@ -34,6 +34,9 @@
         <div class="section" id="bronze-sponsors">
         <h1>Bronze Sponsors</h1>
 
+        <!-- Added 2018-05-09 -->
+        <a href="https://www.parcelabc.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/parcelabc-logo.jpg" alt="ParcelABC" title="ParcelABC" /></a>
+
         <!-- Added 2018-04-10 -->
         <a href="https://allesrefurbished.nl" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/alles_refurbished.png" alt="Alles Refurbished - overview of refurbished tablets, telephones and more (in Dutch)" title="Alles Refurbished - overview of refurbished tablets, telephones and more (in Dutch)" /></a>
 
@@ -42,16 +45,21 @@
 
         <!-- Added 2017-10-27 -->
         <a href="https://superbwebsitebuilders.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/superbwebsitebuilders.png" alt="superbwebsitebuilders" title="https://superbwebsitebuilders.com/" /></a>
+
+		<br/>
+
         <!-- Added 2017-04-11 -->
         <a href="http://www.ukwebhostreview.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/ukwebhostreview.png" alt="ukwebhostreview" title="http://www.ukwebhostreview.com" /></a>
 
         <!-- Added 2016-12-21 -->
         <a href="https://www.vpsserver.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/vpsserver50-50.png" alt="vpsserver" title="https://www.vpsserver.com" /></a>
-		<br/>
 
         <!-- Added 2016-12-22 -->
         <a href="https://ultimatewebtraffic.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/ultimatewebtraffic.png" alt="ultimawebtraffic" title="https://ultimatewebtraffic.com" /></a>
         <a href="https://webtrafficgeeks.org" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/webtrafficgeeks.png" alt="webtrafficgeeks" title="https://webtrafficgeeks.org" /></a>
+
+		<br/>
+
         <a href="https://buywebtrafficexperts.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/buywebtrafficexperts.png" alt="buywebtrafficexperts" title="https://buywebtrafficexperts.com" /></a>
 
         <!-- Added 2016-10-06 -->
