@@ -9,10 +9,14 @@ package org.python.pydev.core.docutils;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
 import java.util.Stack;
 
 import org.eclipse.core.resources.IPathVariableManager;
@@ -33,6 +37,17 @@ import org.python.pydev.shared_core.string.StringUtils;
 public class StringSubstitution {
 
     private Map<String, String> variableSubstitution = null;
+
+    public Map<String, String> getStringSubstitutionVariables() {
+        if (variableSubstitution == null) {
+            return new HashMap<>();
+        }
+        return new HashMap<>(variableSubstitution);
+    }
+
+    public StringSubstitution(Map<String, String> vars) {
+        this.variableSubstitution = vars;
+    }
 
     public StringSubstitution(IPythonNature nature) {
         if (nature != null) {
@@ -94,6 +109,18 @@ public class StringSubstitution {
                 }
             } catch (Exception e) {
                 Log.log(e);
+            }
+        }
+    }
+
+    public void addAdditionalStringSubstitutionVariables(Properties stringSubstitutionVariables) {
+        if (stringSubstitutionVariables != null) {
+            if (variableSubstitution == null) {
+                variableSubstitution = new HashMap<>();
+            }
+            Set<Entry<Object, Object>> entrySet = stringSubstitutionVariables.entrySet();
+            for (Entry<Object, Object> entry : entrySet) {
+                variableSubstitution.put(entry.getKey().toString(), entry.getValue().toString());
             }
         }
     }
@@ -254,7 +281,7 @@ public class StringSubstitution {
          */
         private HashSet<String> substitute(String expression, boolean resolveVariables,
                 Map<String, String> variableSubstitution)
-                        throws CoreException {
+                throws CoreException {
             fResult = new StringBuffer(expression.length());
             fStack = new Stack<VariableReference>();
             fSubs = false;
@@ -356,7 +383,7 @@ public class StringSubstitution {
          */
         private String resolve(VariableReference var, boolean resolveVariables,
                 Map<String, String> variableSubstitution)
-                        throws CoreException {
+                throws CoreException {
             String text = var.getText();
             int pos = text.indexOf(VARIABLE_ARG);
             String name = null;
