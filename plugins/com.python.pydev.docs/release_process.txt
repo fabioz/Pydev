@@ -88,6 +88,8 @@ cd /D X:\pydevsite.github.io
 mu st
 mu acp "Updated to 6.3.3"
 
+p:\FileZilla\filezilla.exe sftp://fabioz,pydev@frs.sourceforge.net/home/project-web/pydev/htdocs --local="x:\pydev\plugins\com.python.pydev.docs\homepage\final"
+
 		** Tag repository:
 		  git tag pydev_6_3_3 -a -m "PyDev 6.3.3"
 		  git push --tags
