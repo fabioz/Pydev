@@ -34,6 +34,9 @@
         <div class="section" id="bronze-sponsors">
         <h1>Bronze Sponsors</h1>
 
+        <!-- Added 2018-06-04 -->
+        <a href="http://smålånutensikkerhet.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/skazani_logo.png" alt="http://smålånutensikkerhet.com/" title="http://smålånutensikkerhet.com/" /></a>
+
         <!-- Added 2018-05-16 -->
         <a href="https://www.websitehostingrating.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/webhostingrating.png" alt="websitehostingrating" title="https://www.websitehostingrating.com/" /></a>
 
