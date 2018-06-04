@@ -1,5 +1,9 @@
 package org.python.pydev.ast.formatter;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -936,5 +940,130 @@ public class PyFormatter {
             //let's try to apply only the differences
             TextSelectionUtils.setOnlyDifferentCode(doc, contents, formatted);
         }
+    }
+
+    /**
+     * Read from stdin and write to stdout.
+     */
+    public static void main(String[] args) {
+        try {
+            if (args.length != 1) {
+                throw new AssertionError("Expected either -multiple or -single in args.");
+            }
+            FormatStd formatStd = new FormatStd();
+            formatStd.spaceAfterComma = true;
+            formatStd.parametersWithSpace = false;
+            formatStd.assignWithSpaceInsideParens = false;
+            formatStd.operatorsWithSpace = true;
+            formatStd.addNewLineAtEndOfFile = true;
+            formatStd.trimLines = true;
+            formatStd.trimMultilineLiterals = true;
+            formatStd.spacesBeforeComment = 2;
+            formatStd.spacesInStartComment = 1;
+            formatStd.manageBlankLines = true;
+            formatStd.blankLinesTopLevel = 2;
+            formatStd.blankLinesInner = 1;
+
+            if (args[0].equals("-multiple")) {
+
+                // Continuously read contents from the input using an http-like protocol.
+                // i.e.:
+                //    Receives Content-Length: xxx\r\nCONTENTS_TO_FORMAT
+                //    Writes Result: Ok|Result:SyntaxError\r\nContent-Length: xxx\r\nFORMATTED_CONTENTS
+                // Note: Contents must be given in UTF-8 and len is in bytes.
+                FastStringBuffer buf = new FastStringBuffer();
+                while (true) {
+                    String line = readLine(System.in, buf);
+                    if (line == null) {
+                        break; // stdin closed
+                    }
+                    if (!line.startsWith("Content-Length: ")) {
+                        throw new AssertionError("Unexpected header (expected Content-Length: ) --> " + line);
+                    }
+                    String emptyLine = readLine(System.in, buf);
+                    if (!emptyLine.isEmpty()) {
+                        throw new AssertionError("expected Content-Length: and empty line afterwards (got: " + line
+                                + " instead of empty line).");
+                    }
+
+                    // Note that we want printed not the number of bytes but number of chars.
+                    String bytesToRead = line.substring("Content-Length: ".length());
+                    byte[] buffer = new byte[Integer.parseInt(bytesToRead)];
+                    System.in.read(buffer);
+                    String initialContent = new String(buffer, StandardCharsets.UTF_8);
+                    Document newDoc = new Document(initialContent);
+
+                    String delimiter = PySelection.getDelimiter(newDoc);
+                    boolean allowChangingLines = true;
+                    String newDocContents = "";
+                    try {
+                        newDocContents = PyFormatter.formatStrAutopep8OrPyDev(formatStd, true, newDoc, delimiter,
+                                allowChangingLines);
+                    } catch (SyntaxErrorException e) {
+                        // Don't format: syntax is not Ok.
+                        System.out.write(("Content-Length: 0\r\n").getBytes());
+                        System.out.write(("Result: SyntaxError\r\n\r\n").getBytes());
+                        System.out.flush();
+                        continue;
+                    }
+
+                    System.out.write(("Result: Ok\r\n").getBytes());
+                    byte[] bytes = newDocContents.getBytes(StandardCharsets.UTF_8);
+                    System.out.write(("Content-Length: " + bytes.length + "\r\n\r\n").getBytes());
+                    System.out.flush();
+                    System.out.write(bytes);
+                    System.out.flush();
+                }
+            } else if (args[0].equals("-single")) {
+                // Read once from stdin and print result to stdout
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                byte[] buffer = new byte[32 * 1024];
+
+                int bytesRead;
+                while ((bytesRead = System.in.read(buffer)) > 0) {
+                    baos.write(buffer, 0, bytesRead);
+                }
+                byte[] bytes = baos.toByteArray();
+                String initialContent = new String(bytes, StandardCharsets.UTF_8);
+
+                Document newDoc = new Document(initialContent);
+                String delimiter = PySelection.getDelimiter(newDoc);
+                boolean allowChangingLines = true;
+                String newDocContents = "";
+                try {
+                    newDocContents = PyFormatter.formatStrAutopep8OrPyDev(formatStd, true, newDoc, delimiter,
+                            allowChangingLines);
+                } catch (SyntaxErrorException e) {
+                    // Don't format: syntax is not Ok.
+                    System.exit(1);
+                }
+                System.out.write(newDocContents.getBytes(StandardCharsets.UTF_8));
+                System.out.flush();
+                System.exit(0);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+
+    private static String readLine(InputStream in, FastStringBuffer buf) throws IOException {
+        buf.clear();
+        while (true) {
+            char c = (char) in.read();
+            if (c == -1) {
+                break;
+            }
+            if (c == '\r') {
+                c = (char) in.read();
+                if (c != '\n') {
+                    throw new IOException("Expected line to end with \\r\\n.");
+                }
+                return buf.toString();
+            }
+            buf.append(c);
+        }
+        throw new AssertionError("Should not get here.");
     }
 }
