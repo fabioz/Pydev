@@ -875,6 +875,34 @@ class WriterThreadCase3(debugger_unittest.AbstractWriterThread):
         self.finished_ok = True
 
 #=======================================================================================================================
+# WriterThreadCaseUnhandledExceptions
+#=======================================================================================================================
+class WriterThreadCaseUnhandledExceptions(debugger_unittest.AbstractWriterThread):
+
+    # Note: expecting unhandled exceptions to be printed to stdout.
+    TEST_FILE = debugger_unittest._get_debugger_test_file('_debugger_case_unhandled_exceptions.py')
+
+    def run(self):
+        self.start_socket()
+        self.write_add_exception_breakpoint_with_policy('Exception', "0", "1", "0")
+        self.write_make_initial_run()
+
+        # Will stop in 2 background threads
+        thread_id1, frame_id = self.wait_for_breakpoint_hit('122')
+        thread_id2, frame_id = self.wait_for_breakpoint_hit('122')
+
+        self.write_run_thread(thread_id1)
+        self.write_run_thread(thread_id2)
+
+        # Will stop in main thread
+        thread_id3, frame_id = self.wait_for_breakpoint_hit('122')
+        self.write_run_thread(thread_id3)
+
+        self.log.append('Marking finished ok.')
+        self.finished_ok = True
+        
+        
+#=======================================================================================================================
 # WriterThreadCase2
 #=======================================================================================================================
 class WriterThreadCase2(debugger_unittest.AbstractWriterThread):
@@ -1295,6 +1323,29 @@ class WriterThreadCaseThreadCreationDeadlock(debugger_unittest.AbstractWriterThr
         self.finished_ok = True
 
 #=======================================================================================================================
+# WriterThreadCaseSkipBreakpointInExceptions - fix case where breakpoint is skipped after an exception is raised over it 
+#======================================================================================================================
+class WriterThreadCaseSkipBreakpointInExceptions(debugger_unittest.AbstractWriterThread):
+
+    TEST_FILE = debugger_unittest._get_debugger_test_file('_debugger_case_skip_breakpoint_in_exceptions.py')
+
+    def run(self):
+        self.start_socket()
+        self.write_add_breakpoint(5, None)
+        self.write_make_initial_run()
+
+        thread_id, frame_id, line = self.wait_for_breakpoint_hit('111', True)
+        assert line == 5, 'Expected return to be in line 5, was: %s' % line
+        self.write_run_thread(thread_id)
+
+        thread_id, frame_id, line = self.wait_for_breakpoint_hit('111', True)
+        assert line == 5, 'Expected return to be in line 5, was: %s' % line
+        self.write_run_thread(thread_id)
+
+
+        self.finished_ok = True
+
+#=======================================================================================================================
 # Test
 #=======================================================================================================================
 class Test(unittest.TestCase, debugger_unittest.DebuggerRunner):
@@ -1456,6 +1507,9 @@ class Test(unittest.TestCase, debugger_unittest.DebuggerRunner):
     def test_module_entry_point(self):
         self.check_case(WriterThreadCaseModuleWithEntryPoint)
 
+    def test_unhandled_exceptions(self):
+        self.check_case(WriterThreadCaseUnhandledExceptions)
+
     @pytest.mark.skipif(not IS_CPYTHON or (IS_PY36 and sys.platform != 'win32'), reason='Only for Python (failing on 3.6 on travis (linux) -- needs to be investigated).')
     def test_case_set_next_statement(self):
         self.check_case(WriterThreadCaseSetNextStatement)
@@ -1470,6 +1524,9 @@ class Test(unittest.TestCase, debugger_unittest.DebuggerRunner):
 
     def test_case_writer_thread_creation_deadlock(self):
         self.check_case(WriterThreadCaseThreadCreationDeadlock)
+
+    def test_case_skip_breakpoints_in_exceptions(self):
+        self.check_case(WriterThreadCaseSkipBreakpointInExceptions)
 
 @pytest.mark.skipif(not IS_CPYTHON, reason='CPython only test.')
 class TestPythonRemoteDebugger(unittest.TestCase, debugger_unittest.DebuggerRunner):
