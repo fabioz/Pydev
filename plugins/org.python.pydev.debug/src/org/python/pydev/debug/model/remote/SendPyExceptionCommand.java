@@ -24,12 +24,14 @@ public class SendPyExceptionCommand extends AbstractDebuggerCommand {
         boolean breakOnUncaught = instance.getBreakOnUncaughtExceptions();
         boolean breakOnCaught = instance.getBreakOnCaughtExceptions();
         boolean skipCaughtExceptionsInSameFunction = instance.getSkipCaughtExceptionsInSameFunction();
+        boolean skipCaughtExceptionsInLibraries = instance.getSkipCaughtExceptionsInLibraries();
         boolean ignoreExceptionsThrownInLinesWithIgnoreException = instance
                 .getIgnoreExceptionsThrownInLinesWithIgnoreException();
 
         return makeCommand(AbstractDebuggerCommand.CMD_SET_PY_EXCEPTION, sequence,
                 StringUtils.join(ConfigureExceptionsFileUtils.DELIMITER,
                         breakOnUncaught, breakOnCaught, skipCaughtExceptionsInSameFunction,
-                        ignoreExceptionsThrownInLinesWithIgnoreException, pyExceptions));
+                        ignoreExceptionsThrownInLinesWithIgnoreException, skipCaughtExceptionsInLibraries,
+                        pyExceptions));
     }
 }

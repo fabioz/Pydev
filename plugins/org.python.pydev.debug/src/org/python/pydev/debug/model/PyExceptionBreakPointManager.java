@@ -165,6 +165,16 @@ public class PyExceptionBreakPointManager {
         return list;
     }
 
+    public boolean getSkipCaughtExceptionsInLibraries() {
+        return PydevDebugPlugin.getDefault().getPreferenceStore()
+                .getBoolean(PydevDebugPreferencesInitializer.SKIP_CAUGHT_EXCEPTIONS_IN_LIBRARIES);
+    }
+
+    public void setSkipCaughtExceptionsInLibraries(boolean b) {
+        PydevDebugPlugin.getDefault().getPreferenceStore()
+                .setValue(PydevDebugPreferencesInitializer.SKIP_CAUGHT_EXCEPTIONS_IN_LIBRARIES, b);
+    }
+
     public boolean getSkipCaughtExceptionsInSameFunction() {
         return PydevDebugPlugin.getDefault().getPreferenceStore()
                 .getBoolean(PydevDebugPreferencesInitializer.SKIP_CAUGHT_EXCEPTIONS_IN_SAME_FUNCTION);

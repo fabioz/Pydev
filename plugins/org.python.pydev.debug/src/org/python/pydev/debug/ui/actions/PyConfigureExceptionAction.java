@@ -40,6 +40,7 @@ public class PyConfigureExceptionAction extends PyAction implements IWorkbenchWi
 
             //must be done before setBreakOn (where listeners will be notified).
             instance.setSkipCaughtExceptionsInSameFunction(dialog.getResultStopOnExceptionsHandledInSameContext());
+            instance.setSkipCaughtExceptionsInLibraries(dialog.getResultSkipCaughtExceptionsInLibraries());
             instance.setIgnoreExceptionsThrownInLinesWithIgnoreException(dialog
                     .getResultIgnoreExceptionsThrownInLinesWithIgnoreException());
 

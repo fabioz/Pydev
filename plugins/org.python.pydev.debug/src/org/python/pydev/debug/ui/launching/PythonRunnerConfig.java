@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -503,6 +504,15 @@ public class PythonRunnerConfig {
         if (geventSupport) {
             envp = StringUtils.addString(envp, "GEVENT_SUPPORT=True");
         }
+        Set<IResource> projectSourcePathFolderSet = pythonNature.getPythonPathNature().getProjectSourcePathFolderSet();
+        List<String> ideProjectRoots = new ArrayList<>();
+        for (IResource iResource : projectSourcePathFolderSet) {
+            String iResourceOSString = SharedCorePlugin.getIResourceOSString(iResource);
+            if (iResourceOSString != null && !iResourceOSString.isEmpty()) {
+                ideProjectRoots.add(iResourceOSString);
+            }
+        }
+        envp = StringUtils.addString(envp, "IDE_PROJECT_ROOTS=" + StringUtils.join(File.separator, ideProjectRoots));
         this.pythonpathUsed = p;
     }
 
