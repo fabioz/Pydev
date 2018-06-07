@@ -16,6 +16,21 @@ class CallableTemplateVariableResolver(PyTemplateVariableResolver):
             v = [v]
         return v
     
+    def resolve(self, variable, context):
+        params = variable.getVariableType().getParams()
+        
+        if params.size() >= 1 and params.get(0) != None:
+            try:
+                ret = self._callable(context, list(params))
+                variable.setValue(ret)
+                variable.setUnambiguous(True)
+                variable.setResolved(True)
+                return
+            except: 
+                pass
+        
+        super(CallableTemplateVariableResolver, self).resolve(variable, context)
+     
     def resolveAll(self, context):
         ret = self._callable(context)
         
@@ -23,7 +38,7 @@ class CallableTemplateVariableResolver(PyTemplateVariableResolver):
             ret = '' #This is a safeguard.
         
         return self.asList(ret)
-
+     
 
 #===================================================================================================
 # AddTemplateVariable

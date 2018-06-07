@@ -21,7 +21,8 @@ http://pydev.org/manual_articles_scripting.html
 
 context passed as parameter: org.python.pydev.editor.codecompletion.templates.PyDocumentTemplateContext
 '''
-
+import os
+import os.path
 import time
 
 import template_helper
@@ -280,3 +281,33 @@ def GetSuperclass(context):
 
 template_helper.AddTemplateVariable(
     py_context_type, 'superclass', 'Superclass of the current class', GetSuperclass)
+    
+    
+#===================================================================================================
+# Project Info
+#===================================================================================================
+def GetProjectName(context):   
+    return context.viewer.edit.project.description.name
+
+template_helper.AddTemplateVariable(py_context_type, 'project_name', 'Project name from Eclipse.', GetProjectName)
+
+def GetProjectComment(context):
+    return context.viewer.edit.project.description.comment
+
+template_helper.AddTemplateVariable(py_context_type, 'project_comment', 'Project comment from Eclipse.', GetProjectComment)
+
+def GetProjectFileContent(context, params):
+    with open(os.path.join(context.viewer.edit.project.store.filePath, params[0]), 'r') as f:
+        return f.read()
+
+template_helper.AddTemplateVariable(py_context_type, 'project_file', 'Project file content. Use ${id:project_file(<rel_path>)}.', GetProjectFileContent)
+
+#===================================================================================================
+# Environment Variables
+#===================================================================================================
+def GetEnvironmentVariable(context, params):
+    return os.environ.get(params[0], '')
+
+template_helper.AddTemplateVariable(py_context_type, 'env_var', 'Environment variable. Use ${id:env_var(<name>)}.', GetEnvironmentVariable)
+
+
