@@ -512,7 +512,8 @@ public class PythonRunnerConfig {
                 ideProjectRoots.add(iResourceOSString);
             }
         }
-        envp = StringUtils.addString(envp, "IDE_PROJECT_ROOTS=" + StringUtils.join(File.separator, ideProjectRoots));
+        envp = StringUtils.addString(envp,
+                "IDE_PROJECT_ROOTS=" + StringUtils.join(File.pathSeparator, ideProjectRoots));
         this.pythonpathUsed = p;
     }
 
