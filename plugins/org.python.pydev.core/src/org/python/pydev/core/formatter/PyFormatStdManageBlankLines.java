@@ -46,6 +46,8 @@ public class PyFormatStdManageBlankLines {
         }
     }
 
+    private final boolean DEBUG = false;
+
     private final FormatStd std;
     private final IDocument doc;
     private final FastStringBuffer initialFormatting;
@@ -240,7 +242,7 @@ public class PyFormatStdManageBlankLines {
 
                             // When we find a class, we have to make sure that we have
                             // exactly 2 empty lines before it (keeping comment blocks before it).
-                            markBlankLinesNeededAt(currLogicLine, blankLinesNeeded);
+                            markBlankLinesNeededAt(currLogicLine, blankLinesNeeded, "on declaration found");
                             offset = matchI - 1;
                         }
                         break;
@@ -248,10 +250,10 @@ public class PyFormatStdManageBlankLines {
 
             }
 
-            if (!nextScopeStartRealLineTopLevel.empty() && currRealLine >= nextScopeStartRealLineTopLevel.peek()) {
+            if (!nextScopeStartRealLineTopLevel.empty() && currRealLine == nextScopeStartRealLineTopLevel.peek()) {
                 nextScopeStartRealLineTopLevel.pop();
                 nextScopeStartRealLineInnerLevel.clear(); // if a top-level was found, the inner should be cleared.
-                markBlankLinesNeededAt(currLogicLine, std.blankLinesTopLevel);
+                markBlankLinesNeededAt(currLogicLine, std.blankLinesTopLevel, "on top level");
             } else {
                 if (!nextScopeStartRealLineInnerLevel.empty()
                         && currRealLine >= nextScopeStartRealLineInnerLevel.peek()) {
@@ -261,7 +263,7 @@ public class PyFormatStdManageBlankLines {
                         // if we have many ending at the same line, consume them.
                         nextScopeStartRealLineInnerLevel.pop();
                     }
-                    markBlankLinesNeededAt(currLogicLine, std.blankLinesInner);
+                    markBlankLinesNeededAt(currLogicLine, std.blankLinesInner, "on declaration end");
                 }
             }
         }
@@ -273,6 +275,10 @@ public class PyFormatStdManageBlankLines {
             try {
                 int endLine = PySelection.getEndLineOfCurrentDeclaration(doc, offset) + 1;
                 if (offset == 0 || cs[offset - 1] == '\n' || cs[offset - 1] == '\r') {
+                    if (DEBUG) {
+                        System.out.println("Start scope at line:" + doc.getLineOfOffset(offset));
+                        System.out.println("End scope at line: " + endLine);
+                    }
                     nextScopeStartRealLineTopLevel.push(endLine);
                 } else {
                     nextScopeStartRealLineInnerLevel.push(endLine);
@@ -304,7 +310,11 @@ public class PyFormatStdManageBlankLines {
         }
     }
 
-    private void markBlankLinesNeededAt(int currLogicLine, int blankLinesNeeded) {
+    private void markBlankLinesNeededAt(int currLogicLine, int blankLinesNeeded, String debugInfo) {
+        if (DEBUG) {
+            System.out.println("markBlankLinesNeededAt: " + currLogicLine + " blankLinesNeeded: " + blankLinesNeeded
+                    + " " + debugInfo);
+        }
         if (logicalLinesInfo.size() > 1) {
             // lst.size() == 1 means first line, so, no point in adding new line
             // lst.size() < 1 should never happen.

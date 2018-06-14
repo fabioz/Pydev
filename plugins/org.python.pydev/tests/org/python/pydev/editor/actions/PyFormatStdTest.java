@@ -1033,7 +1033,6 @@ public class PyFormatStdTest extends TestCase {
     private void checkFormatResults(String s, String expected) {
         //default check (defined with \n)
         try {
-            final PyFormatAction pyFormatStd = new PyFormatAction();
             Document doc = new Document(s);
             PyFormatter.formatAll(doc, null, true, std, false, true);
             String formatStr = doc.get();
@@ -2024,7 +2023,6 @@ public class PyFormatStdTest extends TestCase {
         std.manageBlankLines = true;
         std.trimLines = true;
 
-        final PyFormatAction pyFormatStd = new PyFormatAction();
         String s = "" +
                 "a  =  10  \n" +
                 "\n" +
@@ -2069,7 +2067,6 @@ public class PyFormatStdTest extends TestCase {
                 + "    def foo():\n"
                 + "";
 
-        final PyFormatAction pyFormatStd = new PyFormatAction();
         std.manageBlankLines = true;
         std.trimLines = true;
         Document doc = new Document(input);
@@ -2107,7 +2104,6 @@ public class PyFormatStdTest extends TestCase {
                 + "    def foo():\n"
                 + "";
 
-        final PyFormatAction pyFormatStd = new PyFormatAction();
         std.manageBlankLines = true;
         std.trimLines = true;
         Document doc = new Document(input);
@@ -2136,7 +2132,6 @@ public class PyFormatStdTest extends TestCase {
                 + "        a = 10\n"
                 + "";
 
-        final PyFormatAction pyFormatStd = new PyFormatAction();
         std.manageBlankLines = true;
         std.trimLines = true;
         std.blankLinesInner = 2;
@@ -2144,5 +2139,39 @@ public class PyFormatStdTest extends TestCase {
         int[] regionsForSave = new int[] { 3 };
         PyFormatter.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
         assertEquals(expected, doc.get());
+    }
+
+    public void testUpdateBlankLinesInTry() throws Exception {
+        String input = "" +
+                "def a():\n" +
+                "    pass\n" +
+                "\n" +
+                "\n" +
+                "def b():\n" +
+                "    pass\n" +
+                "\n" +
+                "\n" +
+                "def c():\n" +
+                "    pass\n" +
+                "\n" +
+                "\n" +
+                "def d():\n" +
+                "    pass\n" +
+                "\n" +
+                "\n" +
+                "def e():\n" +
+                "    pass\n" +
+                "\n" +
+                "\n" +
+                "try:\n" +
+                "    Err\n" +
+                "except foo:\n" +
+                "    pass\n" +
+                "\n"
+                + "";
+
+        std.updateAutopep8();
+        std.manageBlankLines = true;
+        checkFormatResults(input);
     }
 }
