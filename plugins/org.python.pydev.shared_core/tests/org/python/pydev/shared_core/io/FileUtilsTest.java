@@ -116,4 +116,17 @@ public class FileUtilsTest extends TestCase {
         lastModifiedTimeFromDir = FileUtils.getLastModifiedTimeFromDir(baseDir, acceptOnlyTxt, acceptOnlyDir1, 2);
         assertEquals(lastModifiedTimeFromDir, FileUtils.lastModified(f1a));
     }
+
+    public void testGetPythonFileEncodingBytes() throws Exception {
+        assertEquals("utf-8", FileUtils.getPythonFileEncoding("#coding: utf-8\n".getBytes()));
+        assertEquals("utf-8", FileUtils.getPythonFileEncoding("\n#coding: utf-8\n".getBytes()));
+        assertEquals("utf-8", FileUtils.getPythonFileEncoding("#coding: utf-8".getBytes()));
+        assertEquals("utf-8", FileUtils.getPythonFileEncoding("#coding: utf-8\r".getBytes()));
+        assertEquals("utf-8", FileUtils.getPythonFileEncoding("\n#coding: utf-8\r\n".getBytes()));
+        assertEquals("utf-8", FileUtils.getPythonFileEncoding("\r#coding: utf-8\r\n".getBytes()));
+        assertEquals("utf-8", FileUtils.getPythonFileEncoding("#coding: utf-8".getBytes()));
+        assertEquals(null, FileUtils.getPythonFileEncoding("".getBytes()));
+        assertEquals("latin1", FileUtils.getPythonFileEncoding("#coding: latin1\n\n\nfoo".getBytes()));
+        assertEquals(null, FileUtils.getPythonFileEncoding("\n\n\n\n\r#coding: latin1\n\n\nfoo".getBytes()));
+    }
 }

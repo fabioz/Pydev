@@ -3,7 +3,6 @@ package org.python.pydev.ast.formatter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -990,7 +989,12 @@ public class PyFormatter {
                     String bytesToRead = line.substring("Content-Length: ".length());
                     byte[] buffer = new byte[Integer.parseInt(bytesToRead)];
                     System.in.read(buffer);
-                    String initialContent = new String(buffer, StandardCharsets.UTF_8);
+                    String encoding = FileUtils.getPythonFileEncoding(buffer);
+                    if (encoding == null) {
+                        encoding = "utf-8";
+                    }
+
+                    String initialContent = new String(buffer, encoding);
                     Document newDoc = new Document(initialContent);
 
                     String delimiter = PySelection.getDelimiter(newDoc);
@@ -1008,7 +1012,7 @@ public class PyFormatter {
                     }
 
                     System.out.write(("Result: Ok\r\n").getBytes());
-                    byte[] bytes = newDocContents.getBytes(StandardCharsets.UTF_8);
+                    byte[] bytes = newDocContents.getBytes(encoding);
                     System.out.write(("Content-Length: " + bytes.length + "\r\n\r\n").getBytes());
                     System.out.flush();
                     System.out.write(bytes);
@@ -1024,7 +1028,11 @@ public class PyFormatter {
                     baos.write(buffer, 0, bytesRead);
                 }
                 byte[] bytes = baos.toByteArray();
-                String initialContent = new String(bytes, StandardCharsets.UTF_8);
+                String encoding = FileUtils.getPythonFileEncoding(bytes);
+                if (encoding == null) {
+                    encoding = "utf-8";
+                }
+                String initialContent = new String(bytes, encoding);
 
                 Document newDoc = new Document(initialContent);
                 String delimiter = PySelection.getDelimiter(newDoc);
@@ -1037,7 +1045,7 @@ public class PyFormatter {
                     // Don't format: syntax is not Ok.
                     System.exit(1);
                 }
-                System.out.write(newDocContents.getBytes(StandardCharsets.UTF_8));
+                System.out.write(newDocContents.getBytes(encoding));
                 System.out.flush();
                 System.exit(0);
             }

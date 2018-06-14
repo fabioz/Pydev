@@ -1145,4 +1145,30 @@ public class FileUtils {
         return new ReadLines(lines, cbuf, nChars);
     }
 
+    public static String getPythonFileEncoding(byte[] buffer) throws PyUnsupportedEncodingException {
+        int foundLines = 0;
+        int lastByte = -1;
+        for (int i = 0; i < buffer.length; i++) {
+            if (buffer[i] == '\r') {
+                if (i + 1 < buffer.length && buffer[i] + 1 == '\n') {
+                    i++;
+                }
+                foundLines++;
+            }
+            if (buffer[i] == '\n') {
+                foundLines++;
+            }
+            if (foundLines == 2) {
+                lastByte = i;
+                break;
+            }
+        }
+        if (lastByte == -1) {
+            lastByte = buffer.length;
+        }
+        String s = new String(buffer, 0, lastByte);
+        return getPythonFileEncoding(s, "");
+
+    }
+
 }
