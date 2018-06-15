@@ -987,8 +987,23 @@ public class PyFormatter {
 
                     // Note that we want printed not the number of bytes but number of chars.
                     String bytesToRead = line.substring("Content-Length: ".length());
-                    byte[] buffer = new byte[Integer.parseInt(bytesToRead)];
-                    System.in.read(buffer);
+                    int totalBytes = Integer.parseInt(bytesToRead);
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(totalBytes);
+
+                    byte[] tempData = new byte[Math.min(totalBytes, 8 * 1024)];
+                    int remainingBytesToRead = totalBytes;
+                    while (true) {
+                        int bytesRead = System.in.read(tempData, 0, Math.min(tempData.length, remainingBytesToRead));
+                        byteArrayOutputStream.write(tempData, 0, bytesRead);
+                        remainingBytesToRead -= bytesRead;
+                        if (remainingBytesToRead <= 0) {
+                            break;
+                        }
+                    }
+
+                    byteArrayOutputStream.flush();
+                    byte[] buffer = byteArrayOutputStream.toByteArray();
+
                     String encoding = FileUtils.getPythonFileEncoding(buffer);
                     if (encoding == null) {
                         encoding = "utf-8";
