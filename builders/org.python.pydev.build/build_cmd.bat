@@ -42,7 +42,7 @@ set PATH=p:\FastCopy211;%PATH%
 set PATH=C:\Windows\system32;%PATH%
 set PATH=%MAVEN_BIN%;%PATH%
 set PATH=%JAVA_HOME%\bin;%PATH%
-set PATH="C:\Program Files\Git\bin\"%PATH%
+set PATH="C:\Program Files\Git\bin\";%PATH%
 set PATH=%ECLIPSE_CLEAN%\plugins\org.apache.ant_1.10.1.v20170504-0840\bin;%PATH%
 
 
@@ -58,6 +58,7 @@ git reset --hard
 git clean -f -d -x
 git checkout -f
 git remote update
+git fetch
 git checkout %BRANCH%
 git pull origin %BRANCH%
 @echo If copied/pasted into cmd.exe, it will break here
@@ -68,7 +69,7 @@ C:\bin\Miniconda\envs\py27_32\python %BUILD_DIR%/Pydev/plugins/org.python.pydev/
 C:\bin\Miniconda\envs\py27_32\python %BUILD_DIR%/Pydev/plugins/org.python.pydev/pysrc/build_tools/build_binaries_windows.py
 
 @echo to clean after the build: -DcleanAfter.set=true
-mvn install -e -X
+mvn install -o
 
 
 
