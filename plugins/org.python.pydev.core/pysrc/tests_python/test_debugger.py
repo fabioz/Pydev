@@ -1491,6 +1491,28 @@ class WriterThreadCaseHandledExceptions3(debugger_unittest.AbstractWriterThread)
         self.finished_ok = True
 
 #=======================================================================================================================
+# WriterCaseSetTrace
+#======================================================================================================================
+class WriterCaseSetTrace(debugger_unittest.AbstractWriterThread):
+
+    TEST_FILE = debugger_unittest._get_debugger_test_file('_debugger_case_settrace.py')
+
+    def run(self):
+        self.start_socket()
+            
+        self.write_make_initial_run()
+        
+        thread_id, frame_id, line = self.wait_for_breakpoint_hit('108', True)
+        assert line == 12, 'Expected return to be in line 12, was: %s' % line
+        self.write_run_thread(thread_id)
+        
+        thread_id, frame_id, line = self.wait_for_breakpoint_hit('105', True)
+        assert line == 7, 'Expected return to be in line 7, was: %s' % line
+        self.write_run_thread(thread_id)
+
+        self.finished_ok = True
+
+#=======================================================================================================================
 # WriterThreadCaseRedirectOutput
 #======================================================================================================================
 class WriterThreadCaseRedirectOutput(debugger_unittest.AbstractWriterThread):
@@ -1578,6 +1600,43 @@ class WriterThreadCaseListThreads(debugger_unittest.AbstractWriterThread):
         threads = self.wait_for_list_threads(seq)
         assert len(threads) == 1
         self.write_run_thread(thread_id)
+        self.finished_ok = True
+
+#=======================================================================================================================
+# WriterCasePrint
+#======================================================================================================================
+class WriterCasePrint(debugger_unittest.AbstractWriterThread):
+
+    TEST_FILE = debugger_unittest._get_debugger_test_file('_debugger_case_print.py')
+    
+    def run(self):
+        self.start_socket()
+        self.write_add_breakpoint(1, 'None')
+        self.write_make_initial_run()
+        
+        thread_id, _frame_id = self.wait_for_breakpoint_hit()
+        
+        self.write_run_thread(thread_id)
+        
+        self.finished_ok = True
+
+#=======================================================================================================================
+# WriterCaseLamda
+#======================================================================================================================
+class WriterCaseLamda(debugger_unittest.AbstractWriterThread):
+
+    TEST_FILE = debugger_unittest._get_debugger_test_file('_debugger_case_lamda.py')
+    
+    def run(self):
+        self.start_socket()
+        self.write_add_breakpoint(1, 'None')
+        self.write_make_initial_run()
+        
+        for _ in range(3): # We'll hit the same breakpoint 3 times.
+            thread_id, _frame_id = self.wait_for_breakpoint_hit()
+            
+            self.write_run_thread(thread_id)
+        
         self.finished_ok = True
 
 
@@ -1780,6 +1839,9 @@ class Test(unittest.TestCase, debugger_unittest.DebuggerRunner):
     def test_case_handled_exceptions3(self):
         self.check_case(WriterThreadCaseHandledExceptions3)
         
+    def test_case_settrace(self):
+        self.check_case(WriterCaseSetTrace)
+
     def test_redirect_output(self):
         self.check_case(WriterThreadCaseRedirectOutput)
 
@@ -1788,6 +1850,12 @@ class Test(unittest.TestCase, debugger_unittest.DebuggerRunner):
 
     def test_list_threads(self):
         self.check_case(WriterThreadCaseListThreads)
+
+    def test_case_print(self):
+        self.check_case(WriterCasePrint)
+
+    def test_case_lamdda(self):
+        self.check_case(WriterCaseLamda)
 
 @pytest.mark.skipif(not IS_CPYTHON, reason='CPython only test.')
 class TestPythonRemoteDebugger(unittest.TestCase, debugger_unittest.DebuggerRunner):
