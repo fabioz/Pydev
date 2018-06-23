@@ -179,6 +179,8 @@ LiClipse you directly support the development of PyDev).</p>
 <li>Fixed case where breakpoint was missed if an exception was raised in a given line.</li>
 <li>Properly break on unhandled exceptions on threads.</li>
 <li>Add missing import which affected repl with IPython.</li>
+<li>Fix for case where breakpoints could be missed.</li>
+<li>Additional fix in release 6.4.1: pydevd.settrace() could end up not stopping the debugger properly.</li>
 </ul>
 </blockquote>
 </li>

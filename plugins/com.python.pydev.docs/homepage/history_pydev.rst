@@ -5,7 +5,34 @@ History For PyDev
 .. _`update sites page`: update_sites/index.html
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
+Release 6.4.0 (2018-06-18)
+=============================
 
+* **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
+
+    * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
+
+* **Debugger**
+
+	* Notification of threads is done as they're created instead of synchronized afterwards.
+	* Support for using frame evaluation disabled by default as it made the debugger much slower on some cases.
+	* Fixed case where breakpoint was missed if an exception was raised in a given line.
+	* Properly break on unhandled exceptions on threads.
+	* Add missing import which affected repl with IPython.
+	* Fix for case where breakpoints could be missed.
+	* Additional fix in release 6.4.1: pydevd.settrace() could end up not stopping the debugger properly.
+
+* **Code Formatter**
+
+	* It's now possible to use the PyDev code formatter using the command line.
+		* Install with: **pip install pydevf**
+		* Fixes many common formatter errors.
+		* Tries to keep code close to the original formatting.
+		* see: https://github.com/fabioz/PyDev.Formatter for more details.
+
+	* Fixed issue where blank line was being put in the wrong place in the PyDev code formatter.
+
+* Fixed issue sending current line to interactive console (F2).
 
 Release 6.3.3 (2018-05-05)
 =============================
