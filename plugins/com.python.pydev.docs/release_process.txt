@@ -10,6 +10,12 @@ C:\bin\Miniconda\envs\tests_py27\python.exe X:\release_tools\pydev_uploader_bint
 
 
 --------- For full build ---------
+		Make sure debugger builtins are updated and commited:
+
+			cd /D x:\PyDev.Debugger
+			set PYTHONPATH=x:\PyDev.Debugger
+			C:\bin\Miniconda\envs\py27_32\python build_tools\build.py
+			C:\bin\Miniconda\envs\py27_32\python build_tools\build_binaries_windows.py
 
 		Update homepage
 			- index.rst
