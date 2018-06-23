@@ -15,29 +15,25 @@ public interface FStringsGrammarConstants {
   /** RegularExpression Id. */
   int RPAREN = 6;
   /** RegularExpression Id. */
-  int DOUBLE_LBRACE = 7;
+  int LBRACE = 7;
   /** RegularExpression Id. */
-  int DOUBLE_RBRACE = 8;
+  int RBRACE = 8;
   /** RegularExpression Id. */
-  int LBRACE = 9;
+  int LBRACKET = 9;
   /** RegularExpression Id. */
-  int RBRACE = 10;
+  int RBRACKET = 10;
   /** RegularExpression Id. */
-  int LBRACKET = 11;
+  int EXCLAMATION = 11;
   /** RegularExpression Id. */
-  int RBRACKET = 12;
+  int COLON = 12;
   /** RegularExpression Id. */
-  int EXCLAMATION = 13;
+  int QUOTE = 13;
   /** RegularExpression Id. */
-  int COLON = 14;
+  int QUOTE2 = 14;
   /** RegularExpression Id. */
-  int QUOTE = 15;
+  int BACKSLASH = 15;
   /** RegularExpression Id. */
-  int QUOTE2 = 16;
-  /** RegularExpression Id. */
-  int BACKSLASH = 17;
-  /** RegularExpression Id. */
-  int TEXT = 18;
+  int TEXT = 16;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -51,8 +47,6 @@ public interface FStringsGrammarConstants {
     "\"\\r\"",
     "\"(\"",
     "\")\"",
-    "\"{{\"",
-    "\"}}\"",
     "\"{\"",
     "\"}\"",
     "\"[\"",

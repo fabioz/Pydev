@@ -117,6 +117,17 @@ public class OccurrencesAnalyzerPy36Test extends AnalysisTestsBase {
         assertEquals(12, messages[0].getEndCol(doc));
     }
 
+    public void testFstringVarNotDeclared() throws Exception {
+        ParseException.verboseExceptions = false;
+        doc = new Document("f'{{{test}}}'");
+        //        IMessage[] messages = checkError("SyntaxError: invalid syntax");
+        //        assertEquals(1, messages.length);
+        //        assertEquals(4, messages[0].getStartLine(doc));
+        //        assertEquals(4, messages[0].getEndLine(doc));
+        //        assertEquals(11, messages[0].getStartCol(doc));
+        //        assertEquals(12, messages[0].getEndCol(doc));
+    }
+
     public void testSemanticAnalysisOfFStrings() throws Exception {
         ParseException.verboseExceptions = false;
         doc = new Document("a = 10\nf'{a}'" +
