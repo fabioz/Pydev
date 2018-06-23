@@ -120,12 +120,23 @@ public class OccurrencesAnalyzerPy36Test extends AnalysisTestsBase {
     public void testFstringVarNotDeclared() throws Exception {
         ParseException.verboseExceptions = false;
         doc = new Document("f'{{{test}}}'");
-        //        IMessage[] messages = checkError("SyntaxError: invalid syntax");
-        //        assertEquals(1, messages.length);
-        //        assertEquals(4, messages[0].getStartLine(doc));
-        //        assertEquals(4, messages[0].getEndLine(doc));
-        //        assertEquals(11, messages[0].getStartCol(doc));
-        //        assertEquals(12, messages[0].getEndCol(doc));
+        IMessage[] messages = checkError("Undefined variable: test");
+        assertEquals(1, messages.length);
+        assertEquals(1, messages[0].getStartLine(doc));
+        assertEquals(1, messages[0].getEndLine(doc));
+        assertEquals(6, messages[0].getStartCol(doc));
+        assertEquals(10, messages[0].getEndCol(doc));
+    }
+
+    public void testFstringVarNotDeclared2() throws Exception {
+        ParseException.verboseExceptions = false;
+        doc = new Document("f'{{ {test}}}'");
+        IMessage[] messages = checkError("Undefined variable: test");
+        assertEquals(1, messages.length);
+        assertEquals(1, messages[0].getStartLine(doc));
+        assertEquals(1, messages[0].getEndLine(doc));
+        assertEquals(7, messages[0].getStartCol(doc));
+        assertEquals(11, messages[0].getEndCol(doc));
     }
 
     public void testSemanticAnalysisOfFStrings() throws Exception {
