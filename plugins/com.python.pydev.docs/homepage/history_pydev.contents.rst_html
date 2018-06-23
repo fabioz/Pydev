@@ -4,6 +4,28 @@
 
 <div class="section" id="history-for-pydev">
 <h1>History For PyDev</h1>
+<div class="section" id="release-6-4-1-2018-06-23">
+<h2>Release 6.4.1 (2018-06-23)</h2>
+<ul>
+<li><p class="first"><strong>Important</strong> PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.</p>
+<blockquote>
+<ul class="simple">
+<li>PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Debugger</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Fixed issue tracing lamda functions.</li>
+<li>pydevd.settrace() could end up not stopping the debugger properly.</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first">Grammar: fixed issue parsing f-strings.</p>
+</li>
+</ul>
+</div>
 <div class="section" id="release-6-4-0-2018-06-18">
 <h2>Release 6.4.0 (2018-06-18)</h2>
 <ul>
@@ -23,7 +45,6 @@
 <li>Properly break on unhandled exceptions on threads.</li>
 <li>Add missing import which affected repl with IPython.</li>
 <li>Fix for case where breakpoints could be missed.</li>
-<li>Additional fix in release 6.4.1: pydevd.settrace() could end up not stopping the debugger properly.</li>
 </ul>
 </blockquote>
 </li>

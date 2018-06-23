@@ -193,12 +193,18 @@ To show your appreciation for PyDev and to keep it going strong, help to crowdfu
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
-Release 6.4.0 (2018-06-18)
+Release 6.4.1 (2018-06-23)
 =============================
 
-* **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
+* **Debugger**
 
-    * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
+	* Fixed issue tracing lamda functions.
+	* pydevd.settrace() could end up not stopping the debugger properly.
+
+* Grammar: fixed issue parsing f-strings.
+
+Release 6.4.0 (2018-06-18)
+=============================
 
 * **Debugger**
 
@@ -208,7 +214,6 @@ Release 6.4.0 (2018-06-18)
 	* Properly break on unhandled exceptions on threads.
 	* Add missing import which affected repl with IPython.
 	* Fix for case where breakpoints could be missed.
-	* Additional fix in release 6.4.1: pydevd.settrace() could end up not stopping the debugger properly.
 
 * **Code Formatter**
 
@@ -224,10 +229,6 @@ Release 6.4.0 (2018-06-18)
 
 Release 6.3.3 (2018-05-05)
 =============================
-
-* **Important** PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.
-
-    * PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).
 
 * **Debugger**
 

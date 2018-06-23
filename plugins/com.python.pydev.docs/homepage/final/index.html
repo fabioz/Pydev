@@ -515,6 +515,28 @@ LiClipse you directly support the development of PyDev).</p>
 <p>Thank you to all PyDev supporters: <a class="reference external" href="https://www.brainwy.com/supporters/PyDev">https://www.brainwy.com/supporters/PyDev</a>.</p>
 <p>To show your appreciation for PyDev and to keep it going strong, help to crowdfund through <a class="reference external" href="https://www.patreon.com/fabioz">https://www.patreon.com/fabioz</a>.</p>
 </div>
+<div class="section" id="release-6-4-1-2018-06-23">
+<h1>Release 6.4.1 (2018-06-23)</h1>
+<ul>
+<li><p class="first"><strong>Important</strong> PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.</p>
+<blockquote>
+<ul class="simple">
+<li>PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Debugger</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Fixed issue tracing lamda functions.</li>
+<li>pydevd.settrace() could end up not stopping the debugger properly.</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first">Grammar: fixed issue parsing f-strings.</p>
+</li>
+</ul>
+</div>
 <div class="section" id="release-6-4-0-2018-06-18">
 <h1>Release 6.4.0 (2018-06-18)</h1>
 <ul>
@@ -534,7 +556,6 @@ LiClipse you directly support the development of PyDev).</p>
 <li>Properly break on unhandled exceptions on threads.</li>
 <li>Add missing import which affected repl with IPython.</li>
 <li>Fix for case where breakpoints could be missed.</li>
-<li>Additional fix in release 6.4.1: pydevd.settrace() could end up not stopping the debugger properly.</li>
 </ul>
 </blockquote>
 </li>
