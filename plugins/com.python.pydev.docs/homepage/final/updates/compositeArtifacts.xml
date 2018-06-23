@@ -3,7 +3,7 @@
 <repository name='&quot;Eclipse Project Test Site&quot;'
     type='org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository' version='1.0.0'>
   <properties size='1'>
-    <property name='p2.timestamp' value='1529756273'/>
+    <property name='p2.timestamp' value='1529756348'/>
   </properties>
   <children size='3'>
     <child location='https://dl.bintray.com/fabioz/pydev/6.4.1'/>

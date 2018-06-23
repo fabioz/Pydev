@@ -164,13 +164,6 @@ LiClipse you directly support the development of PyDev).</p>
 <div class="section" id="release-6-4-1-2018-06-23">
 <h1>Release 6.4.1 (2018-06-23)</h1>
 <ul>
-<li><p class="first"><strong>Important</strong> PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.</p>
-<blockquote>
-<ul class="simple">
-<li>PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).</li>
-</ul>
-</blockquote>
-</li>
 <li><p class="first"><strong>Debugger</strong></p>
 <blockquote>
 <ul class="simple">
@@ -186,13 +179,6 @@ LiClipse you directly support the development of PyDev).</p>
 <div class="section" id="release-6-4-0-2018-06-18">
 <h1>Release 6.4.0 (2018-06-18)</h1>
 <ul>
-<li><p class="first"><strong>Important</strong> PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.</p>
-<blockquote>
-<ul class="simple">
-<li>PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).</li>
-</ul>
-</blockquote>
-</li>
 <li><p class="first"><strong>Debugger</strong></p>
 <blockquote>
 <ul class="simple">
@@ -230,13 +216,6 @@ LiClipse you directly support the development of PyDev).</p>
 <div class="section" id="release-6-3-3-2018-05-05">
 <h1>Release 6.3.3 (2018-05-05)</h1>
 <ul>
-<li><p class="first"><strong>Important</strong> PyDev now requires Java 8 and Eclipse 4.6 (Neon) onwards.</p>
-<blockquote>
-<ul class="simple">
-<li>PyDev 5.2.0 is the last release supporting Eclipse 4.5 (Mars).</li>
-</ul>
-</blockquote>
-</li>
 <li><p class="first"><strong>Debugger</strong></p>
 <blockquote>
 <ul class="simple">
