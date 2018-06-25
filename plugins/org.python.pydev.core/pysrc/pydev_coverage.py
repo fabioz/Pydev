@@ -10,15 +10,15 @@ def is_valid_py_file(path):
     '''
     import os
 
-    isValid = False
+    is_valid = False
     if os.path.isfile(path) and not os.path.splitext(path)[1] == '.pyx':
         try:
             with open(path, 'r') as f:
                 compile(f.read(), path, 'exec')
-                isValid = True
+                is_valid = True
         except:
             pass
-    return isValid
+    return is_valid
 
 
 def execute():
@@ -41,10 +41,14 @@ def execute():
                 s = input()
             s = s.replace('\r', '')
             s = s.replace('\n', '')
-            all_files = s.split('|')
 
-            files = [v for v in all_files if is_valid_py_file(v)]
-            invalid_files = [v for v in all_files if v and v not in files]
+            files = []
+            invalid_files = []
+            for v in s.split('|'):
+                if is_valid_py_file(v):
+                    files.append(v)
+                else:
+                    invalid_files.append(v)
             if invalid_files:
                 sys.stderr.write('Invalid files not passed to coverage: %s'
                                  % ', '.join(invalid_files))
