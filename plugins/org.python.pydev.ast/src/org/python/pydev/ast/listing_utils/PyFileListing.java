@@ -23,7 +23,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
-import org.python.pydev.core.log.Log;
 import org.python.pydev.core.preferences.FileTypesPreferences;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -122,7 +121,13 @@ public class PyFileListing {
                     }
                     canonicalFolders.add(canonicalizedDir);
                 } catch (IOException e) {
-                    Log.log(e);
+                    // See: https://www.brainwy.com/tracker/PyDev/921
+                    // java.io.IOException: Too many levels of symbolic links at java.io.UnixFileSystem.canonicalize0(Native Method)
+                    // at java.io.UnixFileSystem.canonicalize(UnixFileSystem.java:172)
+                    // at java.io.File.getCanonicalPath(File.java:618)
+                    // at java.io.File.getCanonicalFile(File.java:643)
+                    // at org.python.pydev.ast.listing_utils.PyFileListing.getPyFilesBelow(PyFileListing.java:117)
+                    return result;
                 }
 
                 File[] files;
