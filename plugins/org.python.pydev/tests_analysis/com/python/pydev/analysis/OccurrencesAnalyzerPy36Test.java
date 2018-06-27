@@ -184,4 +184,13 @@ public class OccurrencesAnalyzerPy36Test extends AnalysisTestsBase {
         checkNoError();
     }
 
+    public void testFStringOk3() throws Exception {
+        doc = new Document("def fn():\n" +
+                "    var = 'element'\n" +
+                "    width = 11\n" +
+                "    print(f'{var:>{width}}')" +
+                "");
+        checkNoError();
+    }
+
 }
