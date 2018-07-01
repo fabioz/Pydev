@@ -5,7 +5,7 @@ from _pydev_imps._pydev_saved_modules import threading
 from _pydevd_bundle.pydevd_comm import get_global_debugger, CMD_SET_BREAK, CMD_SET_NEXT_STATEMENT
 from pydevd_file_utils import get_abs_path_real_path_and_base_from_frame, NORM_PATHS_AND_BASE_CONTAINER
 from _pydevd_bundle.pydevd_frame import handle_breakpoint_condition, handle_breakpoint_expression
-
+import os
 
 class DummyTracingHolder:
     dummy_trace_func = None
@@ -25,15 +25,18 @@ def update_globals_dict(globals_dict):
 def handle_breakpoint(frame, thread, global_debugger, breakpoint):
     # ok, hit breakpoint, now, we have to discover if it is a conditional breakpoint
     new_frame = frame
-    condition = breakpoint.condition
     info = thread.additional_info
-    if condition is not None:
+    if breakpoint.has_condition:
         eval_result = handle_breakpoint_condition(global_debugger, info, breakpoint, new_frame)
         if not eval_result:
             return False
 
     if breakpoint.expression is not None:
         handle_breakpoint_expression(breakpoint, info, new_frame)
+        if breakpoint.is_logpoint and info.pydev_message is not None and len(info.pydev_message) > 0:
+            cmd = global_debugger.cmd_factory.make_io_message(info.pydev_message + os.linesep, '1')
+            global_debugger.writer.add_command(cmd)
+            return False
 
     if breakpoint.suspend_policy == "ALL":
         global_debugger.suspend_all_other_threads(thread)

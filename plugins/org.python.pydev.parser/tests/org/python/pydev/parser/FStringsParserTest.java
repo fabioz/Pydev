@@ -75,13 +75,17 @@ public class FStringsParserTest extends TestCase {
     }
 
     public void testFStringParsing() throws ParseException, BadLocationException {
+        checkNoError("{a:>{width}}");
         checkNoError("{{{test}");
         checkNoError("{{{test}}}");
+        checkNoError("{a:{width}}");
         checkNoError("{{name:{LOGGERNAME_LENGTH}.{LOGGERNAME_LENGTH}s}} {{message}}");
+        checkNoError("name:{LOGGERNAME_LENGTH}.{LOGGERNAME_LENGTH}s message");
 
         checkExprs("{{'c':20}}", ArrayUtils.asSet()); // {{ is just a single '{' char and }} is a single '}' char, so, this is just text.
         checkExprs("{'c':20}", ArrayUtils.asSet("'c'"));
 
+        checkExprs("a{ {text} }", ArrayUtils.asSet("{text}"));
         checkExprs("a{text}a{text2}b", ArrayUtils.asSet("text", "text2"));
         checkExprs("{text!a}", ArrayUtils.asSet("text"));
         checkExprs("{text!s}", ArrayUtils.asSet("text"));

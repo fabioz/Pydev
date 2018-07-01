@@ -5,6 +5,7 @@ except ImportError:
 
 
 import os
+import re
 import socket
 import subprocess
 import sys
@@ -50,8 +51,6 @@ CMD_SMART_STEP_INTO = 128
 CMD_EXIT = 129
 CMD_SIGNATURE_CALL_TRACE = 130
 
-
-
 CMD_SET_PY_EXCEPTION = 131
 CMD_GET_FILE_CONTENTS = 132
 CMD_SET_PROPERTY_TRACE = 133
@@ -69,6 +68,10 @@ CMD_SHOW_CONSOLE = 142
 CMD_GET_ARRAY = 143
 CMD_STEP_INTO_MY_CODE = 144
 CMD_GET_CONCURRENCY_EVENT = 145
+
+CMD_REDIRECT_OUTPUT = 200
+CMD_GET_NEXT_STATEMENT_TARGETS = 201
+CMD_SET_PROJECT_ROOTS = 202
 
 CMD_VERSION = 501
 CMD_RETURN = 502
@@ -233,7 +236,7 @@ class DebuggerRunner(object):
                     if finish[0]:
                         return
                     if IS_PY3K:
-                        line = line.decode('utf-8')
+                        line = line.decode('utf-8', errors='replace')
 
                     if SHOW_STDOUT:
                         sys.stdout.write('stdout: %s' % (line,))
@@ -414,6 +417,23 @@ class AbstractWriterThread(threading.Thread):
         thread_id = splitted[3]
         return thread_id
 
+    def wait_for_output(self):
+        # Something as:
+        # <xml><io s="TEST SUCEEDED%2521" ctx="1"/></xml>
+        while True:
+            msg = self.reader_thread.get_next_message('wait_output')
+            if "<xml><io s=" in msg:
+                if 'ctx="1"' in msg:
+                    ctx='stdout'
+                elif 'ctx="2"' in msg:
+                    ctx='stderr'
+                else:
+                    raise AssertionError('IO message without ctx.')
+                    
+                msg = unquote_plus(unquote_plus(msg.split('"')[1]))
+                return msg, ctx
+
+        
     def wait_for_breakpoint_hit(self, *args, **kwargs):
         return self.wait_for_breakpoint_hit_with_suspend_type(*args, **kwargs)[:-1]
 
@@ -433,24 +453,38 @@ class AbstractWriterThread(threading.Thread):
         splitted = last.split('"')
         suspend_type = splitted[7]
         thread_id = splitted[1]
-        frameId = splitted[9]
+        frame_id = splitted[9]
         name = splitted[11]
         if get_line:
             self.log.append('End(0): wait_for_breakpoint_hit: %s' % (last,))
             try:
                 if not get_name:
-                    return thread_id, frameId, int(splitted[15]), suspend_type
+                    return thread_id, frame_id, int(splitted[15]), suspend_type
                 else:
-                    return thread_id, frameId, int(splitted[15]), name, suspend_type
+                    return thread_id, frame_id, int(splitted[15]), name, suspend_type
             except:
                 raise AssertionError('Error with: %s, %s, %s.\nLast: %s.\n\nAll: %s\n\nSplitted: %s' % (
-                    thread_id, frameId, splitted[13], last, '\n'.join(self.reader_thread.all_received), splitted))
+                    thread_id, frame_id, splitted[13], last, '\n'.join(self.reader_thread.all_received), splitted))
 
         self.log.append('End(1): wait_for_breakpoint_hit: %s' % (last,))
         if not get_name:
-            return thread_id, frameId, suspend_type
+            return thread_id, frame_id, suspend_type
         else:
-            return thread_id, frameId, name, suspend_type
+            return thread_id, frame_id, name, suspend_type
+
+    def wait_for_get_next_statement_targets(self):
+        last = ''
+        while not '<xml><line>' in last:
+            last = self.reader_thread.get_next_message('wait_for_get_next_statement_targets')
+
+        matches = re.finditer(r"(<line>([0-9]*)<\/line>)", last, re.IGNORECASE)
+        lines = []
+        for _, match in enumerate(matches):
+            try:
+                lines.append(int(match.group(2)))
+            except ValueError:
+                pass
+        return set(lines)
 
     def wait_for_custom_operation(self, expected):
         # wait for custom operation response, the response is double encoded
@@ -532,7 +566,7 @@ class AbstractWriterThread(threading.Thread):
         return breakpoint_id
 
     def write_add_exception_breakpoint(self, exception):
-        self.write("122\t%s\t%s" % (self.next_seq(), exception))
+        self.write("%s\t%s\t%s" % (CMD_ADD_EXCEPTION_BREAK, self.next_seq(), exception))
         self.log.append('write_add_exception_breakpoint: %s' % (exception,))
 
     def write_set_py_exception_globals(
@@ -555,41 +589,49 @@ class AbstractWriterThread(threading.Thread):
         )))
         self.log.append('write_set_py_exception_globals')
 
+    def write_start_redirect(self):
+        self.write("%s\t%s\t%s" % (CMD_REDIRECT_OUTPUT, self.next_seq(), 'STDERR STDOUT'))
+
+    def write_set_project_roots(self, project_roots):
+        self.write("%s\t%s\t%s" % (CMD_SET_PROJECT_ROOTS, self.next_seq(), '\t'.join(str(x) for x in project_roots)))
+        
     def write_add_exception_breakpoint_with_policy(self, exception, notify_on_handled_exceptions, notify_on_unhandled_exceptions, ignore_libraries):
-        self.write("122\t%s\t%s" % (self.next_seq(), '\t'.join(str(x) for x in [exception, notify_on_handled_exceptions, notify_on_unhandled_exceptions, ignore_libraries])))
+        self.write("%s\t%s\t%s" % (CMD_ADD_EXCEPTION_BREAK, self.next_seq(), '\t'.join(str(x) for x in [exception, notify_on_handled_exceptions, notify_on_unhandled_exceptions, ignore_libraries])))
         self.log.append('write_add_exception_breakpoint: %s' % (exception,))
 
     def write_remove_breakpoint(self, breakpoint_id):
-        self.write("112\t%s\t%s\t%s\t%s" % (self.next_seq(), 'python-line', self.get_main_filename(), breakpoint_id))
+        self.write("%s\t%s\t%s\t%s\t%s" % (
+            CMD_REMOVE_BREAK, self.next_seq(), 'python-line', self.get_main_filename(), breakpoint_id))
 
     def write_change_variable(self, thread_id, frame_id, varname, value):
-        self.write("117\t%s\t%s\t%s\t%s\t%s\t%s" % (self.next_seq(), thread_id, frame_id, 'FRAME', varname, value))
+        self.write("%s\t%s\t%s\t%s\t%s\t%s\t%s" % (
+            CMD_CHANGE_VARIABLE, self.next_seq(), thread_id, frame_id, 'FRAME', varname, value))
 
-    def write_get_frame(self, thread_id, frameId):
-        self.write("114\t%s\t%s\t%s\tFRAME" % (self.next_seq(), thread_id, frameId))
+    def write_get_frame(self, thread_id, frame_id):
+        self.write("%s\t%s\t%s\t%s\tFRAME" % (CMD_GET_FRAME, self.next_seq(), thread_id, frame_id))
         self.log.append('write_get_frame')
 
-    def write_get_variable(self, thread_id, frameId, var_attrs):
-        self.write("110\t%s\t%s\t%s\tFRAME\t%s" % (self.next_seq(), thread_id, frameId, var_attrs))
+    def write_get_variable(self, thread_id, frame_id, var_attrs):
+        self.write("%s\t%s\t%s\t%s\tFRAME\t%s" % (CMD_GET_VARIABLE, self.next_seq(), thread_id, frame_id, var_attrs))
 
     def write_step_over(self, thread_id):
-        self.write("108\t%s\t%s" % (self.next_seq(), thread_id,))
+        self.write("%s\t%s\t%s" % (CMD_STEP_OVER, self.next_seq(), thread_id,))
 
     def write_step_in(self, thread_id):
-        self.write("107\t%s\t%s" % (self.next_seq(), thread_id,))
+        self.write("%s\t%s\t%s" % (CMD_STEP_INTO, self.next_seq(), thread_id,))
 
     def write_step_return(self, thread_id):
-        self.write("109\t%s\t%s" % (self.next_seq(), thread_id,))
+        self.write("%s\t%s\t%s" % (CMD_STEP_RETURN, self.next_seq(), thread_id,))
 
     def write_suspend_thread(self, thread_id):
-        self.write("105\t%s\t%s" % (self.next_seq(), thread_id,))
+        self.write("%s\t%s\t%s" % (CMD_THREAD_SUSPEND, self.next_seq(), thread_id,))
 
     def write_run_thread(self, thread_id):
         self.log.append('write_run_thread')
-        self.write("106\t%s\t%s" % (self.next_seq(), thread_id,))
+        self.write("%s\t%s\t%s" % (CMD_THREAD_RUN, self.next_seq(), thread_id,))
 
     def write_kill_thread(self, thread_id):
-        self.write("104\t%s\t%s" % (self.next_seq(), thread_id,))
+        self.write("%s\t%s\t%s" % (CMD_THREAD_KILL, self.next_seq(), thread_id,))
 
     def write_set_next_statement(self, thread_id, line, func_name):
         self.write("%s\t%s\t%s\t%s\t%s" % (CMD_SET_NEXT_STATEMENT, self.next_seq(), thread_id, line, func_name,))
@@ -598,10 +640,11 @@ class AbstractWriterThread(threading.Thread):
         self.write("%s\t%s\t%s" % (CMD_EVALUATE_CONSOLE_EXPRESSION, self.next_seq(), locator))
 
     def write_custom_operation(self, locator, style, codeOrFile, operation_fn_name):
-        self.write("%s\t%s\t%s||%s\t%s\t%s" % (CMD_RUN_CUSTOM_OPERATION, self.next_seq(), locator, style, codeOrFile, operation_fn_name))
+        self.write("%s\t%s\t%s||%s\t%s\t%s" % (
+            CMD_RUN_CUSTOM_OPERATION, self.next_seq(), locator, style, codeOrFile, operation_fn_name))
 
     def write_evaluate_expression(self, locator, expression):
-        self.write("113\t%s\t%s\t%s\t1" % (self.next_seq(), locator, expression))
+        self.write("%s\t%s\t%s\t%s\t1" % (CMD_EVALUATE_EXPRESSION, self.next_seq(), locator, expression))
 
     def write_enable_dont_trace(self, enable):
         if enable:
@@ -609,6 +652,24 @@ class AbstractWriterThread(threading.Thread):
         else:
             enable = 'false'
         self.write("%s\t%s\t%s" % (CMD_ENABLE_DONT_TRACE, self.next_seq(), enable))
+
+    def write_get_next_statement_targets(self, thread_id, frame_id):
+        self.write("201\t%s\t%s\t%s" % (self.next_seq(), thread_id, frame_id))
+        self.log.append('write_get_next_statement_targets')
+        
+    def write_list_threads(self):
+        seq = self.next_seq()
+        self.write("%s\t%s\t" % (CMD_LIST_THREADS, seq))
+        return seq
+        
+    def wait_for_list_threads(self, seq):
+        while True: 
+            # Note: get_next_message would timeout if there's no message.
+            last = self.reader_thread.get_next_message('wait_list_threads')
+            if last.startswith('502\t%s' % (seq,)):
+                return re.findall(r'\bid=\"(\w+)\"', last)
+                
+
 
 def _get_debugger_test_file(filename):
     try:

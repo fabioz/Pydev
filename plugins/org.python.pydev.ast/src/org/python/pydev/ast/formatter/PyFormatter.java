@@ -3,7 +3,6 @@ package org.python.pydev.ast.formatter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -988,9 +987,29 @@ public class PyFormatter {
 
                     // Note that we want printed not the number of bytes but number of chars.
                     String bytesToRead = line.substring("Content-Length: ".length());
-                    byte[] buffer = new byte[Integer.parseInt(bytesToRead)];
-                    System.in.read(buffer);
-                    String initialContent = new String(buffer, StandardCharsets.UTF_8);
+                    int totalBytes = Integer.parseInt(bytesToRead);
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(totalBytes);
+
+                    byte[] tempData = new byte[Math.min(totalBytes, 8 * 1024)];
+                    int remainingBytesToRead = totalBytes;
+                    while (true) {
+                        int bytesRead = System.in.read(tempData, 0, Math.min(tempData.length, remainingBytesToRead));
+                        byteArrayOutputStream.write(tempData, 0, bytesRead);
+                        remainingBytesToRead -= bytesRead;
+                        if (remainingBytesToRead <= 0) {
+                            break;
+                        }
+                    }
+
+                    byteArrayOutputStream.flush();
+                    byte[] buffer = byteArrayOutputStream.toByteArray();
+
+                    String encoding = FileUtils.getPythonFileEncoding(buffer);
+                    if (encoding == null) {
+                        encoding = "utf-8";
+                    }
+
+                    String initialContent = new String(buffer, encoding);
                     Document newDoc = new Document(initialContent);
 
                     String delimiter = PySelection.getDelimiter(newDoc);
@@ -1008,7 +1027,7 @@ public class PyFormatter {
                     }
 
                     System.out.write(("Result: Ok\r\n").getBytes());
-                    byte[] bytes = newDocContents.getBytes(StandardCharsets.UTF_8);
+                    byte[] bytes = newDocContents.getBytes(encoding);
                     System.out.write(("Content-Length: " + bytes.length + "\r\n\r\n").getBytes());
                     System.out.flush();
                     System.out.write(bytes);
@@ -1024,7 +1043,11 @@ public class PyFormatter {
                     baos.write(buffer, 0, bytesRead);
                 }
                 byte[] bytes = baos.toByteArray();
-                String initialContent = new String(bytes, StandardCharsets.UTF_8);
+                String encoding = FileUtils.getPythonFileEncoding(bytes);
+                if (encoding == null) {
+                    encoding = "utf-8";
+                }
+                String initialContent = new String(bytes, encoding);
 
                 Document newDoc = new Document(initialContent);
                 String delimiter = PySelection.getDelimiter(newDoc);
@@ -1037,7 +1060,7 @@ public class PyFormatter {
                     // Don't format: syntax is not Ok.
                     System.exit(1);
                 }
-                System.out.write(newDocContents.getBytes(StandardCharsets.UTF_8));
+                System.out.write(newDocContents.getBytes(encoding));
                 System.out.flush();
                 System.exit(0);
             }

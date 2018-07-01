@@ -16,6 +16,14 @@ public class AbstractFStringsGrammar {
 
     }
 
+    public static class DoubleLBraceFound extends Exception {
+
+        private static final long serialVersionUID = 1L;
+
+    }
+
+    protected final DoubleLBraceFound DOUBLE_LBRACE_FOUND = new DoubleLBraceFound();
+
     /**
      * List with the errors we handled during the parsing
      */

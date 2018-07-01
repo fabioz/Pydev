@@ -15,6 +15,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,7 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
+import org.python.pydev.ast.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
 import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.ast.listing_utils.JavaVmLocationFinder;
@@ -504,7 +506,19 @@ public class PythonRunnerConfig {
         if (geventSupport) {
             envp = StringUtils.addString(envp, "GEVENT_SUPPORT=True");
         }
-        Set<IResource> projectSourcePathFolderSet = pythonNature.getPythonPathNature().getProjectSourcePathFolderSet();
+
+        // Get project and dependencies to calculate IDE_PROJECT_ROOTS.
+        Set<IProject> projects = new HashSet<>();
+        projects.add(project);
+        projects.addAll(ProjectModulesManager.getReferencedProjects(project));
+        Set<IResource> projectSourcePathFolderSet = new HashSet<>();
+        for (IProject iProject : projects) {
+            PythonNature n = PythonNature.getPythonNature(iProject);
+            if (n != null) {
+                projectSourcePathFolderSet.addAll(n.getPythonPathNature().getProjectSourcePathFolderSet());
+            }
+        }
+
         List<String> ideProjectRoots = new ArrayList<>();
         for (IResource iResource : projectSourcePathFolderSet) {
             String iResourceOSString = SharedCorePlugin.getIResourceOSString(iResource);
@@ -512,7 +526,8 @@ public class PythonRunnerConfig {
                 ideProjectRoots.add(iResourceOSString);
             }
         }
-        envp = StringUtils.addString(envp, "IDE_PROJECT_ROOTS=" + StringUtils.join(File.separator, ideProjectRoots));
+        envp = StringUtils.addString(envp,
+                "IDE_PROJECT_ROOTS=" + StringUtils.join(File.pathSeparator, ideProjectRoots));
         this.pythonpathUsed = p;
     }
 
