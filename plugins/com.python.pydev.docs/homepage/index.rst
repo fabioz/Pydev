@@ -193,6 +193,11 @@ To show your appreciation for PyDev and to keep it going strong, help to crowdfu
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
+Release 6.4.2 (2018-07-02)
+=============================
+
+* Critical error parsing f-strings solved.
+
 Release 6.4.1 (2018-06-23)
 =============================
 
