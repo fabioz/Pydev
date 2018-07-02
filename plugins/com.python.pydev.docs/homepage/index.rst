@@ -196,7 +196,7 @@ To show your appreciation for PyDev and to keep it going strong, help to crowdfu
 Release 6.4.2 (2018-07-02)
 =============================
 
-* Critical error parsing f-strings solved.
+* Fixed critical error parsing f-strings.
 
 Release 6.4.1 (2018-06-23)
 =============================

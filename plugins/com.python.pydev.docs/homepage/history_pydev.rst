@@ -5,6 +5,11 @@ History For PyDev
 .. _`update sites page`: update_sites/index.html
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
+Release 6.4.2 (2018-07-02)
+=============================
+
+* Fixed critical error parsing f-strings.
+
 Release 6.4.1 (2018-06-23)
 =============================
 

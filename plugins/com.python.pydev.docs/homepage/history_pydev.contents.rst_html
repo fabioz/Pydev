@@ -4,6 +4,12 @@
 
 <div class="section" id="history-for-pydev">
 <h1>History For PyDev</h1>
+<div class="section" id="release-6-4-2-2018-07-02">
+<h2>Release 6.4.2 (2018-07-02)</h2>
+<ul class="simple">
+<li>Fixed critical error parsing f-strings.</li>
+</ul>
+</div>
 <div class="section" id="release-6-4-1-2018-06-23">
 <h2>Release 6.4.1 (2018-06-23)</h2>
 <ul>
