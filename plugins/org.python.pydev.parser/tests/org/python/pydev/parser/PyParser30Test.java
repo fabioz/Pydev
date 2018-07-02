@@ -47,7 +47,7 @@ public class PyParser30Test extends PyParserTestBase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_3_0);
+        setDefaultVersion(IPythonNature.LATEST_GRAMMAR_PY3_VERSION);
     }
 
     public void testTryExceptAs() {
