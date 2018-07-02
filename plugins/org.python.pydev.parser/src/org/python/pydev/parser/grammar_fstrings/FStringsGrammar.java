@@ -130,10 +130,10 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
                        SimpleNode jjtn000 = (SimpleNode)SimpleNode.jjtCreate(this, JJTF_STRING_EXPR);
                        boolean jjtc000 = true;
                        jjtree.openNodeScope(jjtn000);
-                       jjtreeOpenNodeScope(jjtn000);Token start, end, bStart, bEnd;boolean empty=true;SimpleNode bText;
+                       jjtreeOpenNodeScope(jjtn000);Token start, end, bStart;boolean empty=true;SimpleNode bText;
     try {
+      start = jj_consume_token(LBRACE);
       try {
-        start = jj_consume_token(LBRACE);
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case LPAREN:
         case LBRACE:
@@ -149,9 +149,7 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
                                 {if (true) throw DOUBLE_LBRACE_FOUND;}
                              }
           bText = balanced_expression_text();
-                                bEnd=token;
                                 empty=false;
-                                jjtree.markNodeStartEnd(bText, bStart, bEnd);
           break;
         default:
           jj_la1[3] = jj_gen;
@@ -179,35 +177,33 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
                         addParseError(e, "Unbalanced '{'");
                         end = token;
         }
-                      jjtree.closeNodeScope(jjtn000, true);
-                      jjtc000 = false;
-                      jjtreeCloseNodeScope(jjtn000);
                         jjtree.markNodeStartEnd(jjtn000, start, end);
                         if(empty){
                             errorPyExprEmpty(jjtn000);
                         }
       } catch (DoubleLBraceFound e) {
-
+                // Found double brace (not really an expression).
+                jjtree.markNodeStartEnd(jjtn000, start, start);
       }
     } catch (Throwable jjte000) {
-          if (jjtc000) {
-            jjtree.clearNodeScope(jjtn000);
-            jjtc000 = false;
-          } else {
-            jjtree.popNode();
-          }
-          if (jjte000 instanceof RuntimeException) {
-            {if (true) throw (RuntimeException)jjte000;}
-          }
-          if (jjte000 instanceof ParseException) {
-            {if (true) throw (ParseException)jjte000;}
-          }
-          {if (true) throw (Error)jjte000;}
+      if (jjtc000) {
+        jjtree.clearNodeScope(jjtn000);
+        jjtc000 = false;
+      } else {
+        jjtree.popNode();
+      }
+      if (jjte000 instanceof RuntimeException) {
+        {if (true) throw (RuntimeException)jjte000;}
+      }
+      if (jjte000 instanceof ParseException) {
+        {if (true) throw (ParseException)jjte000;}
+      }
+      {if (true) throw (Error)jjte000;}
     } finally {
-          if (jjtc000) {
-            jjtree.closeNodeScope(jjtn000, true);
-            jjtreeCloseNodeScope(jjtn000);
-          }
+      if (jjtc000) {
+        jjtree.closeNodeScope(jjtn000, true);
+        jjtreeCloseNodeScope(jjtn000);
+      }
     }
   }
 
@@ -310,8 +306,9 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
                                         SimpleNode jjtn000 = (SimpleNode)SimpleNode.jjtCreate(this, JJTBALANCED_EXPRESSION_TEXT);
                                         boolean jjtc000 = true;
                                         jjtree.openNodeScope(jjtn000);
-                                        jjtreeOpenNodeScope(jjtn000);Token t;
+                                        jjtreeOpenNodeScope(jjtn000);Token start; Token end;
     try {
+                start = getToken(1);
       label_3:
       while (true) {
         initial_balanced_expression_text();
@@ -330,29 +327,31 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
           break label_3;
         }
       }
+            end = token;
+            jjtree.markNodeStartEnd(jjtn000, start, end);
       jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
       jjtreeCloseNodeScope(jjtn000);
      {if (true) return (SimpleNode)jjtree.peekNode();}
     } catch (Throwable jjte000) {
-      if (jjtc000) {
-        jjtree.clearNodeScope(jjtn000);
-        jjtc000 = false;
-      } else {
-        jjtree.popNode();
-      }
-      if (jjte000 instanceof RuntimeException) {
-        {if (true) throw (RuntimeException)jjte000;}
-      }
-      if (jjte000 instanceof ParseException) {
-        {if (true) throw (ParseException)jjte000;}
-      }
-      {if (true) throw (Error)jjte000;}
+          if (jjtc000) {
+            jjtree.clearNodeScope(jjtn000);
+            jjtc000 = false;
+          } else {
+            jjtree.popNode();
+          }
+          if (jjte000 instanceof RuntimeException) {
+            {if (true) throw (RuntimeException)jjte000;}
+          }
+          if (jjte000 instanceof ParseException) {
+            {if (true) throw (ParseException)jjte000;}
+          }
+          {if (true) throw (Error)jjte000;}
     } finally {
-      if (jjtc000) {
-        jjtree.closeNodeScope(jjtn000, true);
-        jjtreeCloseNodeScope(jjtn000);
-      }
+          if (jjtc000) {
+            jjtree.closeNodeScope(jjtn000, true);
+            jjtreeCloseNodeScope(jjtn000);
+          }
     }
     throw new Error("Missing return statement in function");
   }

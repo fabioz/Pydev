@@ -193,4 +193,34 @@ public class OccurrencesAnalyzerPy36Test extends AnalysisTestsBase {
         checkNoError();
     }
 
+    public void testFStringNotOk3() throws Exception {
+        doc = new Document("def fn():\n" +
+                "    width = 11\n" +
+                "    print(f'{var:>{width}}')" +
+                "");
+        checkError("Undefined variable: var");
+    }
+
+    public void testFStringNotOk3a() throws Exception {
+        doc = new Document("def fn():\n" +
+                "    var = 11\n" +
+                "    print(f'{var:>{width}}')" +
+                "");
+        checkError("Undefined variable: width");
+    }
+
+    public void testFStringErr() throws Exception {
+        doc = new Document("xxxx = 'foo'\n" +
+                "y = f'{{x}} is {x}'" +
+                "");
+        checkError("Undefined variable: x");
+    }
+
+    public void testFStringNoErr() throws Exception {
+        doc = new Document("xxxx = 'foo'\n" +
+                "y = f'{{x}} is {xxxx}'" +
+                "");
+        checkNoError();
+    }
+
 }

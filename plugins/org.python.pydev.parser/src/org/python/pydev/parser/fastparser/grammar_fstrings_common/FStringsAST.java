@@ -8,6 +8,7 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.grammar_fstrings.FStringsGrammarTreeConstants;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
+import org.python.pydev.shared_core.structure.LowMemoryArrayList;
 
 public class FStringsAST {
 
@@ -47,13 +48,26 @@ public class FStringsAST {
     }
 
     public Iterable<SimpleNode> getBalancedExpressions() {
-        List<SimpleNode> ret = new ArrayList<>(this.rootNode.jjtGetNumChildren());
-        for (SimpleNode n : childNodesOfId(FStringsGrammarTreeConstants.JJTF_STRING_EXPR)) {
-            for (SimpleNode n2 : childNodesOfId(n, FStringsGrammarTreeConstants.JJTBALANCED_EXPRESSION_TEXT)) {
-                ret.add(n2);
+        List<SimpleNode> ret = new LowMemoryArrayList<SimpleNode>();
+        this.collect(rootNode, FStringsGrammarTreeConstants.JJTBALANCED_EXPRESSION_TEXT, ret);
+        return ret;
+    }
+
+    /**
+     * Visits the whole tree collecting nodes of a given id.
+     */
+    public void collect(SimpleNode n, int id, List<SimpleNode> ret) {
+        if (n != null) {
+            if (n.id == id) {
+                ret.add(n);
+            }
+            int numChildren = n.jjtGetNumChildren();
+            for (int i = 0; i < numChildren; i++) {
+                SimpleNode child = (SimpleNode) n.jjtGetChild(i);
+                collect(child, id, ret);
             }
         }
-        return ret;
+
     }
 
     public static class FStringExpressionContent {
@@ -95,8 +109,14 @@ public class FStringsAST {
             int endOffset = TextSelectionUtils.getAbsoluteCursorOffset(doc, simpleNode.endLine - 1,
                     simpleNode.endColumn);
             try {
-                lst.add(new FStringExpressionContent(doc.get(startOffset, endOffset - startOffset), startOffset,
-                        endOffset, simpleNode.beginLine, simpleNode.beginColumn, simpleNode.endLine,
+                String string = doc.get(startOffset, endOffset - startOffset);
+                lst.add(new FStringExpressionContent(
+                        string,
+                        startOffset,
+                        endOffset,
+                        simpleNode.beginLine,
+                        simpleNode.beginColumn,
+                        simpleNode.endLine,
                         simpleNode.endColumn));
             } catch (BadLocationException e) {
                 Log.log(e);

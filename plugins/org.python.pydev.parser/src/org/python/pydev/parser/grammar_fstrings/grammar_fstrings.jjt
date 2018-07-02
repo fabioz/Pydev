@@ -156,10 +156,10 @@ FStringsAST f_string(): {Token t; Token doubleRbrace=null;}
     {return new FStringsAST((SimpleNode)jjtree.popNode());}
 }
 
-void f_string_expr(): {Token start, end, bStart, bEnd;boolean empty=true;SimpleNode bText;}
+void f_string_expr(): {Token start, end, bStart;boolean empty=true;SimpleNode bText;}
 {
+    start = <LBRACE>
 	try{
-	    start = <LBRACE>
 	    (
 
 		        (
@@ -173,9 +173,7 @@ void f_string_expr(): {Token start, end, bStart, bEnd;boolean empty=true;SimpleN
 		            }
 		            bText=balanced_expression_text()
 		            {
-		                bEnd=token;
 		                empty=false;
-		                jjtree.markNodeStartEnd(bText, bStart, bEnd);
 		            }
 		        )?
 		        (type_conversion())?
@@ -196,7 +194,8 @@ void f_string_expr(): {Token start, end, bStart, bEnd;boolean empty=true;SimpleN
 		    }
 		)
 	}catch(DoubleLBraceFound e){
-		// Ok, ignore and keep on going.
+		// Found double brace (not really an expression).
+		jjtree.markNodeStartEnd(jjtThis, start, start);
 	}
 
 }
@@ -224,11 +223,20 @@ void format_spec(): {}
     )*
 }
 
-SimpleNode balanced_expression_text(): {Token t;}
+SimpleNode balanced_expression_text(): {Token start; Token end;}
 {
+	{
+		start = getToken(1);
+	}
     (
         initial_balanced_expression_text()
     )+
+
+    {
+	    end = token;
+	    jjtree.markNodeStartEnd(jjtThis, start, end);
+
+    }
     {return (SimpleNode)jjtree.peekNode();}
 }
 

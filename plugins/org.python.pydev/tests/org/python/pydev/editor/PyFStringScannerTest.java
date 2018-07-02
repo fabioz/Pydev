@@ -37,7 +37,7 @@ public class PyFStringScannerTest extends TestCase {
                 "f'''{",
                 "" +
                         "unicode:0:4\n" +
-                        "string:4:1\n" +
+                        "unicode:4:1\n" +
                         "");
     }
 
@@ -137,6 +137,17 @@ public class PyFStringScannerTest extends TestCase {
                         "unicode:0:2\n" +
                         "unicode:2:3\n" +
                         "string:5:4\n" +
+                        "");
+
+    }
+
+    public void testFStringTokenScanner10() {
+        check(
+                "f'{{x}} is {x}'",
+                "unicode:0:2\n" +
+                        "unicode:2:9\n" +
+                        "string:11:3\n" +
+                        "unicode:14:1\n" +
                         "");
 
     }
