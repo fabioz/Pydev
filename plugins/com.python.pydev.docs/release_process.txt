@@ -97,7 +97,7 @@ mu acp "Updated to 6.4.2"
 "C:\Program Files\FileZilla FTP Client\filezilla.exe" sftp://fabioz,pydev@frs.sourceforge.net/home/project-web/pydev/htdocs --local="x:\pydev\plugins\com.python.pydev.docs\homepage\final"
 
 		** Tag repository:
-		  git tag pydev_6_4_1 -a -m "PyDev 6.4.2"
+		  git tag pydev_6_4_2 -a -m "PyDev 6.4.2"
 		  git push --tags
 
 
