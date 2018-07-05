@@ -193,6 +193,11 @@ To show your appreciation for PyDev and to keep it going strong, help to crowdfu
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
+Release 6.4.3 (2018-07-04)
+=============================
+
+* Fixed critical error on debugger (could deadlock when creating a new thread).
+
 Release 6.4.2 (2018-07-02)
 =============================
 
