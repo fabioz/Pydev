@@ -59,6 +59,7 @@ install:
                 "%PYTHON%\\python.exe -m pip install django>=1.7,<1.8"
             }
         }
+  - cmd: IF "%TEST_IRONPYTHON%"=="" (%PYTHON_EXE% -m pip install scapy==2.4.0 --no-warn-script-location)
   - cmd: "set PYTHONPATH=%PYTHONPATH%;%APPVEYOR_BUILD_FOLDER%"
 
 build_script:

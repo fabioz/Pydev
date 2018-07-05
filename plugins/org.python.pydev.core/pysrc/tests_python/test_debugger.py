@@ -24,6 +24,7 @@ CMD_SET_PROPERTY_TRACE, CMD_EVALUATE_CONSOLE_EXPRESSION, CMD_RUN_CUSTOM_OPERATIO
 IS_CPYTHON = platform.python_implementation() == 'CPython'
 IS_IRONPYTHON = platform.python_implementation() == 'IronPython'
 IS_JYTHON = platform.python_implementation() == 'Jython'
+IS_APPVEYOR = os.environ.get('APPVEYOR', '') in ('True', 'true', '1')
 
 try:
     xrange
@@ -44,6 +45,8 @@ IS_PY2 = False
 if sys.version_info[0] == 2:
     IS_PY2 = True
 
+IS_PY26 = sys.version_info[:2] == (2, 6)
+    
 if IS_PY2:
     builtin_qualifier = "__builtin__"
 else:
@@ -1107,7 +1110,7 @@ class WriterThreadCase1(debugger_unittest.AbstractWriterThread):
 #=======================================================================================================================
 class WriterThreadCaseMSwitch(debugger_unittest.AbstractWriterThread):
 
-    TEST_FILE = 'tests_python._debugger_case_m_switch'
+    TEST_FILE = 'tests_python.resources._debugger_case_m_switch'
     IS_MODULE = True
 
     def get_environ(self):
@@ -1155,7 +1158,7 @@ class WriterThreadCaseMSwitch(debugger_unittest.AbstractWriterThread):
 # WriterThreadCaseModuleWithEntryPoint
 # =======================================================================================================================
 class WriterThreadCaseModuleWithEntryPoint(WriterThreadCaseMSwitch):
-    TEST_FILE = 'tests_python._debugger_case_module_entry_point:main'
+    TEST_FILE = 'tests_python.resources._debugger_case_module_entry_point:main'
     IS_MODULE = True
 
     def get_main_filename(self):
@@ -1573,7 +1576,7 @@ class WriterThreadCasePathTranslation(debugger_unittest.AbstractWriterThread):
     def __get_file_in_client(self):
         # Instead of using: test_python/_debugger_case_path_translation.py
         # we'll set the breakpoints at foo/_debugger_case_path_translation.py
-        file_in_client = os.path.dirname(self.TEST_FILE)
+        file_in_client = os.path.dirname(os.path.dirname(self.TEST_FILE))
         return os.path.join(os.path.dirname(file_in_client), 'foo', '_debugger_case_path_translation.py')
     
     def get_environ(self):
@@ -1630,8 +1633,25 @@ class WriterThreadCasePathTranslation(debugger_unittest.AbstractWriterThread):
 
 
 #=======================================================================================================================
+# WriterThreadCaseScapy
+#=======================================================================================================================
+class WriterThreadCaseScapy(debugger_unittest.AbstractWriterThread):
+
+    TEST_FILE = debugger_unittest._get_debugger_test_file('_debugger_case_scapy.py')
+    
+    def run(self):
+        self.start_socket()
+        self.write_add_breakpoint(2, None)
+        self.write_make_initial_run()
+        
+        thread_id, frame_id = self.wait_for_breakpoint_hit()
+        
+        self.write_run_thread(thread_id)
+        self.finished_ok = True
+
+#=======================================================================================================================
 # WriterThreadCaseEvaluateErrors
-#======================================================================================================================
+#=======================================================================================================================
 class WriterThreadCaseEvaluateErrors(debugger_unittest.AbstractWriterThread):
 
     TEST_FILE = debugger_unittest._get_debugger_test_file('_debugger_case7.py')
@@ -1907,7 +1927,12 @@ class Test(unittest.TestCase, debugger_unittest.DebuggerRunner):
         
     def test_case_settrace(self):
         self.check_case(WriterCaseSetTrace)
+        
+    @pytest.mark.skipif(IS_PY26, reason='scapy only supports 2.7 onwards.')
+    def test_case_scapy(self):
+        self.check_case(WriterThreadCaseScapy)
 
+    @pytest.mark.skipif(IS_APPVEYOR, reason='Flaky on appveyor.')
     def test_redirect_output(self):
         self.check_case(WriterThreadCaseRedirectOutput)
 

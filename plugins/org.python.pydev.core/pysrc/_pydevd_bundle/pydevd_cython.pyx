@@ -952,8 +952,8 @@ from cpython.ref cimport Py_INCREF, Py_XDECREF
 # ELSE
 # from _pydevd_bundle.pydevd_additional_thread_info import set_additional_thread_info
 # from _pydevd_bundle.pydevd_frame import PyDBFrame
-# 
 # ENDIF
+from os.path import basename, splitext
 
 threadingCurrentThread = threading.currentThread
 get_file_type = DONT_TRACE.get
@@ -979,7 +979,7 @@ def trace_dispatch(py_db, frame, event, arg):
     thread = None
     # Cache the frame which should be traced to deal with unhandled exceptions.
     # (i.e.: thread entry-points).
-    from os.path import basename, splitext
+
     f_unhandled = frame
     only_trace_for_unhandled_exceptions = True
     # print('called at', f_unhandled.f_code.co_name, f_unhandled.f_code.co_filename, f_unhandled.f_code.co_firstlineno)
