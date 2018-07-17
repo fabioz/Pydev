@@ -2,14 +2,19 @@
 /* JavaCCOptions:MULTI=false,NODE_USES_PARSER=true,VISITOR=false,TRACK_TOKENS=false,NODE_PREFIX=AST,NODE_EXTENDS=,NODE_FACTORY=*,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package org.python.pydev.parser.fastparser.grammar_fstrings_common;
 
+import java.util.Iterator;
+import java.util.List;
+
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.grammar_fstrings.FStringsGrammar;
 import org.python.pydev.parser.grammar_fstrings.FStringsGrammarTreeConstants;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
+import org.python.pydev.shared_core.structure.LowMemoryArrayList;
 
-public class SimpleNode implements Node {
+public class SimpleNode implements Node, Iterable<SimpleNode> {
 
     protected Node parent;
     protected Node[] children;
@@ -97,21 +102,76 @@ public class SimpleNode implements Node {
      out its children. */
 
     public void dump(String prefix) {
-        System.out.println(toString(prefix));
+        this.dump(prefix, null);
+    }
+
+    public void dump(String prefix, IDocument doc) {
+        String contentsFromString = "";
+        if (doc != null) {
+            if (this.beginColumn > 0 && this.beginLine > 0) {
+                try {
+                    contentsFromString = " - " + getContentsFromString(doc);
+                } catch (BadLocationException | RuntimeException e) {
+                    Log.log(e);
+                }
+            }
+        }
+        System.out.println(toString(prefix) + contentsFromString);
         if (children != null) {
             for (int i = 0; i < children.length; ++i) {
                 SimpleNode n = (SimpleNode) children[i];
                 if (n != null) {
-                    n.dump(prefix + " ");
+                    n.dump(prefix + " ", doc);
                 }
             }
         }
     }
 
-    public String getContentsFromString(String str, Document doc) throws BadLocationException {
+    public String getContentsFromString(IDocument doc) throws BadLocationException {
         int offset1 = TextSelectionUtils.getAbsoluteCursorOffset(doc, this.beginLine - 1, this.beginColumn - 1);
         int offset2 = TextSelectionUtils.getAbsoluteCursorOffset(doc, this.endLine - 1, this.endColumn);
         return doc.get(offset1, offset2 - offset1);
+    }
+
+    @Override
+    public Iterator<SimpleNode> iterator() {
+        return new Iterator<SimpleNode>() {
+            int i = 0;
+
+            @Override
+            public boolean hasNext() {
+                return i < jjtGetNumChildren();
+            }
+
+            @Override
+            public SimpleNode next() {
+                SimpleNode child = (SimpleNode) jjtGetChild(i);
+                i++;
+                return child;
+            }
+        };
+    }
+
+    public List<SimpleNode> collectChildren(int id) {
+        LowMemoryArrayList<SimpleNode> ret = new LowMemoryArrayList<SimpleNode>();
+        this.collectChildren(id, ret);
+        return ret;
+    }
+
+    /**
+     * Visits the whole tree collecting nodes of a given id.
+     */
+    public void collectChildren(int id, List<SimpleNode> ret) {
+        if (this != null) {
+            int numChildren = this.jjtGetNumChildren();
+            for (int i = 0; i < numChildren; i++) {
+                SimpleNode child = (SimpleNode) this.jjtGetChild(i);
+                if (child.id == id) {
+                    ret.add(child);
+                }
+                child.collectChildren(id, ret);
+            }
+        }
     }
 }
 

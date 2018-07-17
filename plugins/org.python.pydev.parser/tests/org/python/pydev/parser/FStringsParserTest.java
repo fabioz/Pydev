@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IDocument;
 import org.python.pydev.parser.fastparser.grammar_fstrings_common.FStringsAST;
 import org.python.pydev.parser.fastparser.grammar_fstrings_common.SimpleNode;
 import org.python.pydev.parser.grammar_fstrings.FStringsGrammar;
@@ -30,23 +31,24 @@ public class FStringsParserTest extends TestCase {
         return new Tuple<>(ast, parseErrors);
     }
 
-    private void checkNoError(String string) throws ParseException {
+    private Tuple<FStringsAST, List> checkNoError(String string) throws ParseException {
         Tuple<FStringsAST, List> check = check(string);
         if (check.o2.size() != 0) {
             List o2 = check.o2;
             throw new AssertionError(
                     "Expected no errors. Found: \n" + StringUtils.join("\n", o2));
         }
+        return check;
     }
 
     private Tuple<FStringsAST, List> checkExprs(String str, Set<String> exprs)
             throws ParseException, BadLocationException {
-        Tuple<FStringsAST, List> ret = check(str);
-        //        ret.o1.dump();
-        Document doc = new Document(str);
+        Tuple<FStringsAST, List> ret = checkNoError(str);
+        IDocument doc = new Document(str);
+        // ret.o1.dump(doc);
         Set<String> found = new HashSet<>();
-        for (SimpleNode b : ret.o1.getBalancedExpressions()) {
-            String contents = b.getContentsFromString(str, doc);
+        for (SimpleNode b : ret.o1.getBalancedExpressionsToBeEvaluatedInRegularGrammar()) {
+            String contents = b.getContentsFromString(doc);
             found.add(contents);
         }
         assertEquals(exprs, found);
@@ -75,17 +77,25 @@ public class FStringsParserTest extends TestCase {
     }
 
     public void testFStringParsing() throws ParseException, BadLocationException {
-        checkNoError("{a:>{width}}");
-        checkNoError("{{{test}");
-        checkNoError("{{{test}}}");
-        checkNoError("{a:{width}}");
-        checkNoError("{{name:{LOGGERNAME_LENGTH}.{LOGGERNAME_LENGTH}s}} {{message}}");
-        checkNoError("name:{LOGGERNAME_LENGTH}.{LOGGERNAME_LENGTH}s message");
+        checkExprs("{val:{width}.{precision}f}", ArrayUtils.asSet("val", "width", "precision"));
+        checkExprs("{a:>{width}}", ArrayUtils.asSet("a", "width"));
+        checkExprs("{a:>{{width}}}", ArrayUtils.asSet("a"));
+        checkExprs("{{{test}", ArrayUtils.asSet("test"));
+        checkExprs("{{{test}}}", ArrayUtils.asSet("test"));
+        checkExprs("{a:{width}}", ArrayUtils.asSet("a", "width"));
+        checkExprs("{{name:{var1}.{var2}s}} {{message}}", ArrayUtils.asSet("var1", "var2"));
+        checkExprs("name:{var1}.{var2}s message", ArrayUtils.asSet("var1", "var2"));
 
+        checkExprs("{var:>{width}}", ArrayUtils.asSet("var", "width"));
         checkExprs("{{'c':20}}", ArrayUtils.asSet()); // {{ is just a single '{' char and }} is a single '}' char, so, this is just text.
-        checkExprs("{'c':20}", ArrayUtils.asSet("'c'"));
+        checkExprs("{'c':20}", ArrayUtils.asSet("'c'")); // Just a 'c' char
+        checkExprs("{c:20}", ArrayUtils.asSet("c")); // c name
+        checkExprs("{call(b,c)}", ArrayUtils.asSet("call(b,c)"));
+        checkExprs("{call(b|c)}", ArrayUtils.asSet("call(b|c)"));
+        checkExprs("{call({b},c)}", ArrayUtils.asSet("call({b},c)"));
 
-        checkExprs("a{ {text} }", ArrayUtils.asSet("{text}"));
+        checkExprs("{val:{width}.{precision}f}", ArrayUtils.asSet("val", "width", "precision"));
+        checkExprs("a{ {text} }", ArrayUtils.asSet("{text}")); // {text} == set([text])
         checkExprs("a{text}a{text2}b", ArrayUtils.asSet("text", "text2"));
         checkExprs("{text!a}", ArrayUtils.asSet("text"));
         checkExprs("{text!s}", ArrayUtils.asSet("text"));
@@ -94,6 +104,9 @@ public class FStringsParserTest extends TestCase {
         checkExprs("{text:#.6f}", ArrayUtils.asSet("text"));
         checkExprs("{text#.6f}", ArrayUtils.asSet("text#.6f"));
         checkExprs("{text:}", ArrayUtils.asSet("text"));
+        checkExprs("newline: {call({b})}", ArrayUtils.asSet("call({b})"));
+        checkExprs("newline: {call({b},{c})}", ArrayUtils.asSet("call({b},{c})"));
+        checkExprs("newline: {call(\"{b}\")}", ArrayUtils.asSet("call(\"{b}\")"));
         checkExprs("newline: {call('{}')}", ArrayUtils.asSet("call('{}')"));
         checkExprs("'.nhunsoeth{'{uoesnth{ueo:{}''}'}", ArrayUtils.asSet("'{uoesnth{ueo:{}''}'"));
         checkExprs("\".nhunsoeth{'{uoesnth{ueo:{}''}'}", ArrayUtils.asSet("'{uoesnth{ueo:{}''}'"));

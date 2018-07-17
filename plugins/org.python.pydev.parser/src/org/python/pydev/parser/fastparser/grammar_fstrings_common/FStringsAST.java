@@ -8,7 +8,6 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.grammar_fstrings.FStringsGrammarTreeConstants;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
-import org.python.pydev.shared_core.structure.LowMemoryArrayList;
 
 public class FStringsAST {
 
@@ -20,6 +19,10 @@ public class FStringsAST {
 
     public void dump() {
         this.rootNode.dump("");
+    }
+
+    public void dump(IDocument doc) {
+        this.rootNode.dump("", doc);
     }
 
     public boolean hasChildren() {
@@ -47,27 +50,9 @@ public class FStringsAST {
         return childNodesOfId(FStringsGrammarTreeConstants.JJTF_STRING_EXPR);
     }
 
-    public Iterable<SimpleNode> getBalancedExpressions() {
-        List<SimpleNode> ret = new LowMemoryArrayList<SimpleNode>();
-        this.collect(rootNode, FStringsGrammarTreeConstants.JJTBALANCED_EXPRESSION_TEXT, ret);
-        return ret;
-    }
-
-    /**
-     * Visits the whole tree collecting nodes of a given id.
-     */
-    public void collect(SimpleNode n, int id, List<SimpleNode> ret) {
-        if (n != null) {
-            if (n.id == id) {
-                ret.add(n);
-            }
-            int numChildren = n.jjtGetNumChildren();
-            for (int i = 0; i < numChildren; i++) {
-                SimpleNode child = (SimpleNode) n.jjtGetChild(i);
-                collect(child, id, ret);
-            }
-        }
-
+    public Iterable<SimpleNode> getBalancedExpressionsToBeEvaluatedInRegularGrammar() {
+        return rootNode
+                .collectChildren(FStringsGrammarTreeConstants.JJTBALANCED_EXPRESSION_TEXT);
     }
 
     public static class FStringExpressionContent {
@@ -101,14 +86,14 @@ public class FStringsAST {
     }
 
     public Iterable<FStringExpressionContent> getFStringExpressionsContent(IDocument doc) {
-        Iterable<SimpleNode> fStringExpressions = this.getBalancedExpressions();
+        Iterable<SimpleNode> fStringExpressions = this.getBalancedExpressionsToBeEvaluatedInRegularGrammar();
         ArrayList<FStringExpressionContent> lst = new ArrayList<>(this.rootNode.jjtGetNumChildren());
         for (SimpleNode simpleNode : fStringExpressions) {
-            int startOffset = TextSelectionUtils.getAbsoluteCursorOffset(doc, simpleNode.beginLine - 1,
-                    simpleNode.beginColumn - 1);
-            int endOffset = TextSelectionUtils.getAbsoluteCursorOffset(doc, simpleNode.endLine - 1,
-                    simpleNode.endColumn);
             try {
+                int startOffset = TextSelectionUtils.getAbsoluteCursorOffset(doc, simpleNode.beginLine - 1,
+                        simpleNode.beginColumn - 1);
+                int endOffset = TextSelectionUtils.getAbsoluteCursorOffset(doc, simpleNode.endLine - 1,
+                        simpleNode.endColumn);
                 String string = doc.get(startOffset, endOffset - startOffset);
                 lst.add(new FStringExpressionContent(
                         string,
@@ -118,7 +103,7 @@ public class FStringsAST {
                         simpleNode.beginColumn,
                         simpleNode.endLine,
                         simpleNode.endColumn));
-            } catch (BadLocationException e) {
+            } catch (BadLocationException | RuntimeException e) {
                 Log.log(e);
             }
         }
