@@ -307,4 +307,13 @@ public class OccurrencesAnalyzerPy36Test extends AnalysisTestsBase {
         checkError("Unused variable: x", "Undefined variable: not_found");
     }
 
+    public void testFStringErr9() throws Exception {
+        doc = new Document(
+                "def method():\n" +
+                        "    d = {0:'zero'}\n" +
+                        "    f'{d[\ny]}'" +
+                        "");
+        checkError("Undefined variable: y");
+    }
+
 }
