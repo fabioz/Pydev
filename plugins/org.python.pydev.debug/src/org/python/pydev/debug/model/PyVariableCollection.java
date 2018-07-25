@@ -29,11 +29,6 @@ public class PyVariableCollection extends PyVariable
 
     private final ContainerOfVariables variableContainer = new ContainerOfVariables(this, false);
 
-    /**
-     * Defines whether object is variable or watchExpression
-     */
-    boolean isWatchExpression = false;
-
     public PyVariableCollection(AbstractDebugTarget target, String name, String type, String value,
             IVariableLocator locator) {
         super(target, name, type, value, locator);
