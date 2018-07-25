@@ -84,6 +84,18 @@ public class XMLUtils {
         return null;
     }
 
+    private static String decodeIgnoreError(String value) {
+        try {
+            if (value != null) {
+                // this may fail beyond the scope of UTF-8 not found (= serious problem); for example, value is invalid.
+                return URLDecoder.decode(value, "UTF-8");
+            }
+        } catch (Exception e) {
+            Log.log(e);
+        }
+        return value;
+    }
+
     /**
      * SAX parser for thread info
      * <xml><thread name="name" id="id"/><xml>
@@ -134,29 +146,17 @@ public class XMLUtils {
      */
     static PyVariable createVariable(AbstractDebugTarget target, IVariableLocator locator, Attributes attributes) {
         PyVariable var;
-        String name = attributes.getValue("name");
+        String name = decodeIgnoreError(attributes.getValue("name"));
         String type = attributes.getValue("type");
-        String value = attributes.getValue("value");
-        try {
-            if (value != null) {
-                value = URLDecoder.decode(value, "UTF-8");
-            }
-        } catch (Exception e) {
-            Log.log(e);
-        }
-        try {
-            if (name != null) {
-                name = URLDecoder.decode(name, "UTF-8");
-            }
-        } catch (Exception e) {
-            Log.log(e);
-        }
+        String qualifier = decodeIgnoreError(attributes.getValue("qualifier"));
+        String value = decodeIgnoreError(attributes.getValue("value"));
         String isContainer = attributes.getValue("isContainer");
         if ("True".equals(isContainer)) {
             var = new PyVariableCollection(target, name, type, value, locator);
         } else {
             var = new PyVariable(target, name, type, value, locator);
         }
+        var.setQualifier(qualifier);
         String isRetVal = attributes.getValue("isRetVal");
         if ("True".equals(isRetVal)) {
             var.setIsReturnValue(true);
@@ -169,6 +169,7 @@ public class XMLUtils {
         if ("True".equals(isErrorOnEval)) {
             var.setIsErrorOnEval(true);
         }
+
         return var;
     }
 

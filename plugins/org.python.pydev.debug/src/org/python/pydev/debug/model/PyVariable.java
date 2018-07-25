@@ -35,13 +35,14 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
 
     protected String name;
     protected String type;
+    protected String qualifier;
     protected String value;
     protected AbstractDebugTarget target;
     protected boolean isModified;
     protected IVariableLocator locator;
 
     //Only create one instance of an empty array to be returned
-    private static final IVariable[] EMPTY_IVARIABLE_ARRAY = new IVariable[0];
+    static final IVariable[] EMPTY_IVARIABLE_ARRAY = new IVariable[0];
 
     public PyVariable(AbstractDebugTarget target, String name, String type, String value, IVariableLocator locator) {
         this.value = value;
@@ -264,4 +265,13 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
     public boolean isErrorOnEval() {
         return isErrorOnEval;
     }
+
+    public String getQualifier() {
+        return qualifier;
+    }
+
+    public void setQualifier(String qualifier) {
+        this.qualifier = qualifier;
+    }
+
 }
