@@ -41,7 +41,7 @@ r'''
         machine for the paths that'll actually have breakpoints).
 '''
 
-from _pydevd_bundle.pydevd_constants import IS_PY2, IS_PY3K, DebugInfoHolder
+from _pydevd_bundle.pydevd_constants import IS_PY2, IS_PY3K, DebugInfoHolder, IS_WINDOWS, IS_JYTHON
 from _pydev_bundle._pydev_filesystem_encoding import getfilesystemencoding
 import json
 import os.path
@@ -144,24 +144,40 @@ if sys.platform == 'win32':
         convert_to_long_pathname = _convert_to_long_pathname
         convert_to_short_pathname = _convert_to_short_pathname
         get_path_with_real_case = _get_path_with_real_case
+        
+elif IS_JYTHON and IS_WINDOWS:
+    def get_path_with_real_case(filename):
+        from java.io import File
+        f = File(filename)
+        ret = f.getCanonicalPath()
+        if IS_PY2 and not isinstance(ret, str):
+            return ret.encode(getfilesystemencoding())
+        return ret
+    
 
-if sys.platform == 'win32':
+if IS_WINDOWS:
 
-    def normcase(filename):
-        # `normcase` doesn't lower case on Python 2 for non-English locale, but Java
-        # side does it, so we should do it manually.
-        if '~' in filename:
-            filename = convert_to_long_pathname(filename)
+    if IS_JYTHON:
+        def normcase(filename):
+            return filename.lower()
+        
+    else:
 
-        filename = _os_normcase(filename)
-        return filename.lower()
+        def normcase(filename):
+            # `normcase` doesn't lower case on Python 2 for non-English locale, but Java
+            # side does it, so we should do it manually.
+            if '~' in filename:
+                filename = convert_to_long_pathname(filename)
+    
+            filename = _os_normcase(filename)
+            return filename.lower()
 
 else:
 
     def normcase(filename):
         return filename  # no-op
 
-_ide_os = 'WINDOWS' if sys.platform == 'win32' else 'UNIX'
+_ide_os = 'WINDOWS' if IS_WINDOWS else 'UNIX'
 
 
 def set_ide_os(os):
@@ -201,6 +217,8 @@ def _NormPaths(filename):
     try:
         return NORM_PATHS_CONTAINER[filename]
     except KeyError:
+        if filename.__class__ != str:
+            raise AssertionError('Paths passed to _NormPaths must be str. Found: %s (%s)' % (filename, type(filename)))
         abs_path = _NormPath(filename, os.path.abspath)
         real_path = _NormPath(filename, rPath)
 
@@ -217,18 +235,28 @@ def _NormPath(filename, normpath):
     if ind != -1:
         ind += 4
         zip_path = r[:ind]
-        if r[ind] == "!":
-            ind += 1
         inner_path = r[ind:]
+        if inner_path.startswith('!'):
+            # Note (fabioz): although I can replicate this by creating a file ending as
+            # .zip! or .egg!, I don't really know what's the real-world case for this
+            # (still kept as it was added by @jetbrains, but it should probably be reviewed
+            # later on).
+            # Note 2: it goes hand-in-hand with 'exists'.
+            inner_path = inner_path[1:]
+            zip_path = zip_path + '!'
+
         if inner_path.startswith('/') or inner_path.startswith('\\'):
             inner_path = inner_path[1:]
-        r = join(normcase(zip_path), inner_path)
-    else:
-        r = normcase(r)
+        if inner_path:
+            r = join(normcase(zip_path), inner_path)
+            return r
+
+    r = normcase(r)
     return r
 
 
-ZIP_SEARCH_CACHE = {}
+_ZIP_SEARCH_CACHE = {}
+_NOT_FOUND_SENTINEL = object()
 
 
 def exists(file):
@@ -242,24 +270,33 @@ def exists(file):
     if ind != -1:
         ind += 4
         zip_path = file[:ind]
-        if file[ind] == "!":
-            ind += 1
         inner_path = file[ind:]
-        try:
-            zip = ZIP_SEARCH_CACHE[zip_path]
-        except KeyError:
+        if inner_path.startswith("!"):
+            # Note (fabioz): although I can replicate this by creating a file ending as
+            # .zip! or .egg!, I don't really know what's the real-world case for this
+            # (still kept as it was added by @jetbrains, but it should probably be reviewed
+            # later on).
+            # Note 2: it goes hand-in-hand with '_NormPath'.
+            inner_path = inner_path[1:]
+            zip_path = zip_path + '!'
+
+        zip_file_obj = _ZIP_SEARCH_CACHE.get(zip_path, _NOT_FOUND_SENTINEL)
+        if zip_file_obj is None:
+            return False
+        elif zip_file_obj is _NOT_FOUND_SENTINEL:
             try:
                 import zipfile
-                zip = zipfile.ZipFile(zip_path, 'r')
-                ZIP_SEARCH_CACHE[zip_path] = zip
-            except :
-                return None
+                zip_file_obj = zipfile.ZipFile(zip_path, 'r')
+                _ZIP_SEARCH_CACHE[zip_path] = zip_file_obj
+            except:
+                _ZIP_SEARCH_CACHE[zip_path] = _NOT_FOUND_SENTINEL
+                return False
 
         try:
             if inner_path.startswith('/') or inner_path.startswith('\\'):
                 inner_path = inner_path[1:]
 
-            info = zip.getinfo(inner_path.replace('\\', '/'))
+            _info = zip_file_obj.getinfo(inner_path.replace('\\', '/'))
 
             return join(zip_path, inner_path)
         except KeyError:
@@ -345,8 +382,14 @@ def setup_client_server_paths(paths):
 
     # Apply normcase to the existing paths to follow the os preferences.
 
-    for i, path in enumerate(paths_from_eclipse_to_python[:]):
-        paths_from_eclipse_to_python[i] = (normcase(path[0]), normcase(path[1]))
+    for i, (path0, path1) in enumerate(paths_from_eclipse_to_python[:]):
+        if IS_PY2:
+            if isinstance(path0, unicode):
+                path0 = path0.encode(sys.getfilesystemencoding())
+            if isinstance(path1, unicode):
+                path1 = path1.encode(sys.getfilesystemencoding())
+
+        paths_from_eclipse_to_python[i] = (normcase(path0), normcase(path1))
 
     if not paths_from_eclipse_to_python:
         # no translation step needed (just inline the calls)
@@ -355,7 +398,7 @@ def setup_client_server_paths(paths):
         return
 
     # Work on the client and server slashes.
-    python_sep = '\\' if sys.platform == 'win32' else '/'
+    python_sep = '\\' if IS_WINDOWS else '/'
     eclipse_sep = '\\' if _ide_os == 'WINDOWS' else '/'
 
     # only setup translation functions if absolutely needed!
@@ -403,7 +446,7 @@ def setup_client_server_paths(paths):
             translated_proper_case = get_path_with_real_case(translated)
             translated = _NormFile(translated_proper_case)
 
-            if sys.platform == 'win32':
+            if IS_WINDOWS:
                 if translated.lower() != translated_proper_case.lower():
                     translated_proper_case = translated
                     if DEBUG_CLIENT_SERVER_TRANSLATION:

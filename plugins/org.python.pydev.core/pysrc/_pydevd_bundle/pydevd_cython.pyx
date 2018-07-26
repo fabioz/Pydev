@@ -81,6 +81,7 @@ cdef class PyDBAdditionalThreadInfo:
     cdef public int suspend_type;
     cdef public int pydev_next_line;
     cdef public str pydev_func_name;
+    cdef public bint suspended_at_unhandled;
     # ELSE
 #     __slots__ = [
 #         'pydev_state',
@@ -97,6 +98,7 @@ cdef class PyDBAdditionalThreadInfo:
 #         'suspend_type',
 #         'pydev_next_line',
 #         'pydev_func_name',
+#         'suspended_at_unhandled',
 #     ]
     # ENDIF
 
@@ -115,14 +117,17 @@ cdef class PyDBAdditionalThreadInfo:
         self.suspend_type = PYTHON_SUSPEND
         self.pydev_next_line = -1
         self.pydev_func_name = '.invalid.'  # Must match the type in cython
+        self.suspended_at_unhandled = False
 
-    def iter_frames(self, t):
+    def get_topmost_frame(self, thread):
+        '''
+        Gets the topmost frame for the given thread. Note that it may be None
+        and callers should remove the reference to the frame as soon as possible
+        to avoid disturbing user code.
+        '''
         # sys._current_frames(): dictionary with thread id -> topmost frame
         current_frames = _current_frames()
-        v = current_frames.get(t.ident)
-        if v is not None:
-            return [v]
-        return []
+        return current_frames.get(thread.ident)
 
     def __str__(self):
         return 'State:%s Stop:%s Cmd: %s Kill:%s' % (
@@ -551,6 +556,8 @@ cdef class PyDBFrame:
         cdef bint is_line;
         cdef bint is_call;
         cdef bint is_return;
+        cdef bint should_stop;
+        cdef dict breakpoints_for_file;
         cdef str curr_func_name;
         cdef bint exist_result;
         cdef dict frame_skips_cache;
@@ -989,7 +996,7 @@ def trace_dispatch(py_db, frame, event, arg):
         if name == 'threading':
             if f_unhandled.f_code.co_name in ('__bootstrap', '_bootstrap'):
                 # We need __bootstrap_inner, not __bootstrap.
-                return py_db.trace_dispatch
+                return None
             
             elif f_unhandled.f_code.co_name in ('__bootstrap_inner', '_bootstrap_inner'):
                 # Note: be careful not to use threading.currentThread to avoid creating a dummy thread.
@@ -1000,6 +1007,10 @@ def trace_dispatch(py_db, frame, event, arg):
                     break
             
         elif name == 'pydevd':
+            if f_unhandled.f_code.co_name in ('run', 'main'):
+                # We need to get to _exec
+                return None
+            
             if f_unhandled.f_code.co_name == '_exec':
                 only_trace_for_unhandled_exceptions = True
                 break
@@ -1030,7 +1041,7 @@ def trace_dispatch(py_db, frame, event, arg):
     thread_tracer = ThreadTracer((py_db, thread, additional_info, global_cache_skips, global_cache_frame_skips))
     
     if f_unhandled is not None:
-        # print(' --> found', f_unhandled.f_code.co_name, f_unhandled.f_code.co_filename, f_unhandled.f_code.co_firstlineno)
+        # print(' --> found to trace unhandled', f_unhandled.f_code.co_name, f_unhandled.f_code.co_filename, f_unhandled.f_code.co_firstlineno)
         if only_trace_for_unhandled_exceptions:
             f_trace = thread_tracer.trace_unhandled_exceptions
         else:
@@ -1073,7 +1084,9 @@ cdef class PyDbFrameTraceAndUnhandledExceptionsTrace(object):
         self._unhandled_trace = unhandled_trace
     
     def trace_dispatch(self, frame, event, arg):
+        # print('PyDbFrameTraceAndUnhandledExceptionsTrace', event, frame.f_code.co_name, frame.f_code.co_filename, frame.f_code.co_firstlineno)
         if event == 'exception' and arg is not None:
+            # print('self._unhandled_trace', self._unhandled_trace)
             self._unhandled_trace(frame, event, arg)
         else:
             self._pydb_frame_trace(frame, event, arg)
@@ -1109,12 +1122,17 @@ cdef class ThreadTracer:
 
     def trace_unhandled_exceptions(self, frame, event, arg):
         # Note that we ignore the frame as this tracing method should only be put in topmost frames already.
+        # print('trace_unhandled_exceptions', event, frame.f_code.co_name, frame.f_code.co_filename, frame.f_code.co_firstlineno)
         if event == 'exception' and arg is not None:
             from _pydevd_bundle.pydevd_breakpoints import stop_on_unhandled_exception
             py_db, t, additional_info = self._args[0:3]
             if arg is not None:
-                exctype, value, tb = arg
-                stop_on_unhandled_exception(py_db, t, additional_info, exctype, value, tb)        
+                if not additional_info.suspended_at_unhandled:
+                    if frame.f_back is not None:
+                        additional_info.suspended_at_unhandled = True
+                    
+                    exctype, value, tb = arg
+                    stop_on_unhandled_exception(py_db, t, additional_info, exctype, value, tb)        
         # IFDEF CYTHON -- DONT EDIT THIS FILE (it is automatically generated)
         return SafeCallWrapper(self.trace_unhandled_exceptions)
         # ELSE
@@ -1122,6 +1140,7 @@ cdef class ThreadTracer:
         # ENDIF
     
     def trace_dispatch_and_unhandled_exceptions(self, frame, event, arg):
+        # print('trace_dispatch_and_unhandled_exceptions', event, frame.f_code.co_name, frame.f_code.co_filename, frame.f_code.co_firstlineno)
         if event == 'exception' and arg is not None:
             self.trace_unhandled_exceptions(frame, event, arg)
             ret = self.trace_dispatch_and_unhandled_exceptions
@@ -1135,7 +1154,7 @@ cdef class ThreadTracer:
                 # Ok, this frame needs to be traced and needs to deal with unhandled exceptions. Create
                 # a class which does this for us.
                 py_db_frame_trace_and_unhandled_exceptions_trace = PyDbFrameTraceAndUnhandledExceptionsTrace(
-                    self.trace_dispatch_and_unhandled_exceptions, pydb_frame_trace)
+                    pydb_frame_trace, self.trace_dispatch_and_unhandled_exceptions)
                 ret = py_db_frame_trace_and_unhandled_exceptions_trace.trace_dispatch
         # IFDEF CYTHON -- DONT EDIT THIS FILE (it is automatically generated)
         return SafeCallWrapper(ret)
