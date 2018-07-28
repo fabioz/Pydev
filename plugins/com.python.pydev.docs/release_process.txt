@@ -77,7 +77,7 @@ cd org.python.pydev.p2-repo-6.4.4-SNAPSHOT
 
 "C:\Program Files\7-Zip\7z" x ..\org.python.pydev.p2-repo-6.4.4-SNAPSHOT.zip
 
-C:\bin\Miniconda\envs\tests_py27\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-6.4.4-SNAPSHOT -d https://api.bintray.com/content/fabioz/pydev/nightly/
+C:\bin\Miniconda\envs\py27_tests\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-6.4.4-SNAPSHOT -d https://api.bintray.com/content/fabioz/pydev/nightly/
 Note: if unable to send: remove at https://bintray.com/fabioz/pydev/pydev/nightly/edit add back at https://bintray.com/fabioz/pydev/pydev/new/version
 
 
