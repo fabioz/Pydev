@@ -19,8 +19,8 @@
 	<tr align="center" bgcolor="#eeeeee" valign="top">
 		<td nowrap="nowrap" class="td_top">
 		<center>
-		<p class="header_text">Last Site Update: July 4th, 2018 |
-		Latest Version: 6.4.3</p>
+		<p class="header_text">Last Site Update: July 28th, 2018 |
+		Latest Version: 6.4.4</p>
 		</center>
 		</td>
 	</tr>
@@ -235,6 +235,9 @@ and add those to the system installation. </p>
 button and select the Python executable in the virtual environment -- just take care to <strong>double check the folders</strong> which are selected
 when the virtual environment executable is used to make sure that you leave checked the <strong>/Lib</strong> folder from the base interpreter <strong>if</strong> the virtual environment
 inherits the <strong>PYTHONPATH</strong> from a base installation).</p> 
+	
+<p> <strong>venv</strong> is the recommended way of managing virtual environments starting from Python 3.5. By default, venv will only symlinks to Python interpreter, and this
+will cause the pip of the created virtual environments in Pydev showing all system installed site-packages. To get it displayed correctly, you will need to append "--copies" to the "python3 -m venv /path/to/venv"</p>
 
 
 <h1><a name="PyDevInterpreterConfiguration-Whatifitisnotcorrect%3F"></a>What if it is not correct?</h1>

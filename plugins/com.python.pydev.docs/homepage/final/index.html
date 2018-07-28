@@ -20,8 +20,8 @@
 	<tr align="center" bgcolor="#eeeeee" valign="top">
 		<td nowrap="nowrap" class="td_top">
 		<center>
-		<p class="header_text">Last Site Update: July 4th, 2018 |
-		Latest Version: 6.4.3</p>
+		<p class="header_text">Last Site Update: July 28th, 2018 |
+		Latest Version: 6.4.4</p>
 		</center>
 		</td>
 	</tr>
@@ -515,6 +515,29 @@ LiClipse you directly support the development of PyDev).</p>
 <p>Thank you to all PyDev supporters: <a class="reference external" href="https://www.brainwy.com/supporters/PyDev">https://www.brainwy.com/supporters/PyDev</a>.</p>
 <p>To show your appreciation for PyDev and to keep it going strong, help to crowdfund through <a class="reference external" href="https://www.patreon.com/fabioz">https://www.patreon.com/fabioz</a>.</p>
 </div>
+<div class="section" id="release-6-4-4-2018-07-28">
+<h1>Release 6.4.4 (2018-07-28)</h1>
+<ul>
+<li><p class="first"><strong>Debugger</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Fixed issue where a unicode could be used where a string was expected.</li>
+<li>Providing wheel for Python 3.7.</li>
+<li>Fixed issue running Jython.</li>
+<li>No longer showing <strong>pydevd</strong> internals in the stack.</li>
+<li>Fixed issue with interactive console and debugger integration.</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Editor</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Fixed issue parsing and analyzing f-strings.</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</div>
 <div class="section" id="release-6-4-3-2018-07-04">
 <h1>Release 6.4.3 (2018-07-04)</h1>
 <ul class="simple">
@@ -576,32 +599,6 @@ LiClipse you directly support the development of PyDev).</p>
 </blockquote>
 </li>
 <li><p class="first">Fixed issue sending current line to interactive console (F2).</p>
-</li>
-</ul>
-</div>
-<div class="section" id="release-6-3-3-2018-05-05">
-<h1>Release 6.3.3 (2018-05-05)</h1>
-<ul>
-<li><p class="first"><strong>Debugger</strong></p>
-<blockquote>
-<ul class="simple">
-<li>Command which evaluates selected text in debugger is now properly categorized.</li>
-<li>Warning is no longer shown when a breakpoint is disabled and later removed.</li>
-<li>Fixed issue evaluating conditional breakpoints.</li>
-</ul>
-</blockquote>
-</li>
-<li><p class="first">Fixed racing condition when executing scripts which could make some scripts not be executed properly (which could break sending contents to the interactive console).</p>
-</li>
-<li><p class="first">Autocomplete disabled when renaming symbols (<strong>#PyDev-766</strong>).</p>
-</li>
-<li><p class="first">Interactive console exits properly when Eclipse is not properly closed (<strong>#PyDev-860</strong>).</p>
-</li>
-<li><p class="first">Code-formatter properly dealing with matrix multiplication operator <strong>&#64;=</strong> (<strong>#PyDev-904</strong>).</p>
-</li>
-<li><p class="first">Fixed issue where the <strong>default preferences</strong> window had no focus (<strong>#PyDev-702</strong>).</p>
-</li>
-<li><p class="first">Translations fixed for the interactive console view (patch by Mat Booth).</p>
 </li>
 </ul>
 <p><a class="reference external" href="history_pydev.html">View release notes for previous releases</a></p>

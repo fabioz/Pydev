@@ -193,6 +193,21 @@ To show your appreciation for PyDev and to keep it going strong, help to crowdfu
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
+Release 6.4.4 (2018-07-28)
+=============================
+
+* **Debugger**
+
+	* Fixed issue where a unicode could be used where a string was expected.
+	* Providing wheel for Python 3.7.
+	* Fixed issue running Jython.
+	* No longer showing **pydevd** internals in the stack.
+	* Fixed issue with interactive console and debugger integration.
+
+* **Editor**
+
+	* Fixed issue parsing and analyzing f-strings.
+
 Release 6.4.3 (2018-07-04)
 =============================
 
@@ -236,23 +251,6 @@ Release 6.4.0 (2018-06-18)
 	* Fixed issue where blank line was being put in the wrong place in the PyDev code formatter.
 
 * Fixed issue sending current line to interactive console (F2).
-
-Release 6.3.3 (2018-05-05)
-=============================
-
-* **Debugger**
-
-	* Command which evaluates selected text in debugger is now properly categorized.
-	* Warning is no longer shown when a breakpoint is disabled and later removed.
-	* Fixed issue evaluating conditional breakpoints.
-
-* Fixed racing condition when executing scripts which could make some scripts not be executed properly (which could break sending contents to the interactive console).
-* Autocomplete disabled when renaming symbols (**#PyDev-766**).
-* Interactive console exits properly when Eclipse is not properly closed (**#PyDev-860**).
-* Code-formatter properly dealing with matrix multiplication operator **@=** (**#PyDev-904**).
-* Fixed issue where the **default preferences** window had no focus (**#PyDev-702**).
-* Translations fixed for the interactive console view (patch by Mat Booth).
-
 
 `View release notes for previous releases`_
 

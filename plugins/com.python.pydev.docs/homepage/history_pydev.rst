@@ -6,6 +6,21 @@ History For PyDev
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
+Release 6.4.4 (2018-07-28)
+=============================
+
+* **Debugger**
+
+	* Fixed issue where a unicode could be used where a string was expected.
+	* Providing wheel for Python 3.7.
+	* Fixed issue running Jython.
+	* No longer showing **pydevd** internals in the stack.
+	* Fixed issue with interactive console and debugger integration.
+
+* **Editor**
+
+	* Fixed issue parsing and analyzing f-strings.
+
 Release 6.4.3 (2018-07-04)
 =============================
 

@@ -4,6 +4,29 @@
 
 <div class="section" id="history-for-pydev">
 <h1>History For PyDev</h1>
+<div class="section" id="release-6-4-4-2018-07-28">
+<h2>Release 6.4.4 (2018-07-28)</h2>
+<ul>
+<li><p class="first"><strong>Debugger</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Fixed issue where a unicode could be used where a string was expected.</li>
+<li>Providing wheel for Python 3.7.</li>
+<li>Fixed issue running Jython.</li>
+<li>No longer showing <strong>pydevd</strong> internals in the stack.</li>
+<li>Fixed issue with interactive console and debugger integration.</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Editor</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Fixed issue parsing and analyzing f-strings.</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</div>
 <div class="section" id="release-6-4-3-2018-07-04">
 <h2>Release 6.4.3 (2018-07-04)</h2>
 <ul class="simple">
