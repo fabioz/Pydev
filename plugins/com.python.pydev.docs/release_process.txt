@@ -14,8 +14,8 @@ C:\bin\Miniconda\envs\tests_py27\python.exe X:\release_tools\pydev_uploader_bint
 
 			cd /D x:\PyDev.Debugger
 			set PYTHONPATH=x:\PyDev.Debugger
-			C:\bin\Miniconda\envs\py27_32\python build_tools\build.py
-			C:\bin\Miniconda\envs\py27_32\python build_tools\build_binaries_windows.py
+			C:\bin\Miniconda\envs\py36_64\python build_tools\build.py
+			C:\bin\Miniconda\envs\py36_64\python build_tools\build_binaries_windows.py
 
 		Update homepage
 			- index.rst
@@ -37,7 +37,7 @@ C:\bin\Miniconda\envs\tests_py27\python.exe X:\release_tools\pydev_uploader_bint
 
 		Check that
 
-			C:\bin\Miniconda\envs\py27_32\python -c "import pydevd"
+			C:\bin\Miniconda\envs\py36_64\python -c "import pydevd"
 
 		throws an exception (it cannot be installed in the environment)
 
