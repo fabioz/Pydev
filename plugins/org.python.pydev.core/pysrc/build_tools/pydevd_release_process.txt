@@ -37,6 +37,13 @@ pip install -U "setuptools>=0.9"
 pip install -U "pip>=1.4" "wheel>=0.21" twine
 deactivate
 
+conda create -y -f -n py37_32 python=3.7 cython numpy pip
+activate py37_32
+pip install "django>=1.9"
+pip install -U "setuptools>=0.9"
+pip install -U "pip>=1.4" "wheel>=0.21" twine
+deactivate
+
 set CONDA_FORCE_32BIT=
 
 conda create -y -f -n py27_64 python=2.7 cython numpy nose ipython pip
@@ -68,7 +75,16 @@ pip install -U "setuptools>=0.9"
 pip install -U "pip>=1.4" "wheel>=0.21" twine
 deactivate
 
+conda create -y -f -n py37_64 python=3.7 cython numpy nose ipython pip
+activate py37_64
+pip install "django>=1.9"
+pip install -U "setuptools>=0.9"
+pip install -U "pip>=1.4" "wheel>=0.21" twine
+deactivate
+
 ### UPDATE CYTHON
+
+set CONDA_FORCE_32BIT=1
 
 activate py27_32
 conda update -y cython
@@ -86,6 +102,12 @@ activate py36_32
 conda update -y cython
 deactivate
 
+activate py37_32
+conda update -y cython
+deactivate
+
+set CONDA_FORCE_32BIT=
+
 activate py27_64
 conda update -y cython
 deactivate
@@ -102,12 +124,16 @@ activate py36_64
 conda update -y cython
 deactivate
 
+activate py37_64
+conda update -y cython
+deactivate
+
 4. Regenerate the .pyx and .c
 ===============================
 
 cd /D x:\PyDev.Debugger
 set PYTHONPATH=x:\PyDev.Debugger
-C:\bin\Miniconda\envs\py27_32\python build_tools\build.py
+C:\bin\Miniconda\envs\py36_64\python build_tools\build.py
 
 
 3. Generate new version
@@ -117,8 +143,8 @@ cd /D x:\PyDev.Debugger
 
 set PYTHONPATH=x:\PyDev.Debugger
 deactivate
-C:\bin\Miniconda\envs\py27_32\python build_tools\build.py
-C:\bin\Miniconda\envs\py27_32\python build_tools\build_binaries_windows.py
+C:\bin\Miniconda\envs\py36_64\python build_tools\build.py
+C:\bin\Miniconda\envs\py36_64\python build_tools\build_binaries_windows.py
 
 rm dist/pydevd*
 
@@ -142,6 +168,11 @@ python setup.py sdist bdist_wheel
 deactivate
 dir dist
 
+activate py37_32
+python setup.py sdist bdist_wheel
+deactivate
+dir dist
+
 activate py27_64
 python setup.py sdist bdist_wheel
 deactivate
@@ -162,9 +193,14 @@ python setup.py sdist bdist_wheel
 deactivate
 dir dist
 
+activate py37_64
+python setup.py sdist bdist_wheel
+deactivate
+dir dist
+
 # Note: uploading with twine gives an error in the end, but apparently it works (check final result in pypi).
 twine upload dist/pydevd*
 
-git tag pydev_debugger_1_3_1 -a -m "PyDev.Debugger 1.3.1"
+git tag pydev_debugger_1_3_3 -a -m "PyDev.Debugger 1.3.3"
 git push --tags
 

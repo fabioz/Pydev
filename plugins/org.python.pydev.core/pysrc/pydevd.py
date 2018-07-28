@@ -46,7 +46,7 @@ from pydevd_concurrency_analyser.pydevd_thread_wrappers import wrap_threads
 from pydevd_file_utils import get_fullname, rPath
 import pydev_ipython  # @UnusedImport
 
-__version_info__ = (1, 3, 2)
+__version_info__ = (1, 3, 3)
 __version_info_str__ = []
 for v in __version_info__:
     __version_info_str__.append(str(v))
@@ -261,6 +261,7 @@ class PyDB:
 
         # this flag disables frame evaluation even if it's available
         self.do_not_use_frame_eval = False
+        self.stop_on_start = False
 
     def get_plugin_lazy_init(self):
         if self.plugin is None and SUPPORT_PLUGINS:
@@ -1038,6 +1039,10 @@ class PyDB:
         thread_id = get_thread_id(t)
         self.notify_thread_created(thread_id, t)
 
+        if self.stop_on_start:
+            info = set_additional_thread_info(t)
+            t.additional_info.pydev_step_cmd = CMD_STEP_INTO_MY_CODE
+            
         # Note: important: set the tracing right before calling _exec.
         if set_trace:
             pydevd_tracing.SetTrace(self.trace_dispatch, self.frame_eval_func, self.dummy_trace_dispatch)
