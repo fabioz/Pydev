@@ -161,7 +161,7 @@ public class DocstringsPrefPage extends FieldEditorPreferencePage implements IWo
         RadioGroupFieldEditor docstringStyleEditor = new RadioGroupFieldEditor(P_DOCSTRINGSTYLE, "Docstring style", 1,
                 new String[][] { { "Sphinx (:tag name:)", DOCSTRINGSTYLE_SPHINX },
                         { "EpyDoc (@tag name:)", DOCSTRINGSTYLE_EPYDOC },
-                        { "EpyDoc (name:)", DOCSTRINGSTYLE_GOOGLE } },
+                        { "Google (name:)", DOCSTRINGSTYLE_GOOGLE } },
                 p2, true);
         addField(docstringStyleEditor);
 
