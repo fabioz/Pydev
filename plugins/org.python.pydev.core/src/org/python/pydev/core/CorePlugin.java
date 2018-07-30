@@ -14,6 +14,8 @@ import java.io.Reader;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -188,6 +190,12 @@ public class CorePlugin extends Plugin {
         try {
             editorID = file.getPersistentProperty(EDITOR_KEY);
             if (editorID == null) {
+                // Ignore zero-length files
+                IFileStore store = EFS.getStore(file.getLocationURI());
+                if (store != null && store.fetchInfo().getLength() <= 0) {
+                    return false;
+                }
+
                 InputStream contents = file.getContents(true);
                 Reader inputStreamReader = new InputStreamReader(new BufferedInputStream(contents));
                 if (FileUtils.hasPythonShebang(inputStreamReader)) {
