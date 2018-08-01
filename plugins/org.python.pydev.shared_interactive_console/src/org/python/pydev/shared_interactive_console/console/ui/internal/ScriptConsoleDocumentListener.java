@@ -110,6 +110,11 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      */
     private List<IConsoleLineTracker> consoleLineTrackers;
 
+    /**
+     * scrollLock state flag, controls revealEndOfDocument().
+     */
+    private boolean scrollLock = false;
+
     public IHandleScriptAutoEditStrategy getIndentStrategy() {
         return strategy;
     }
@@ -414,7 +419,9 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
                 Log.log(e);
             }
         }
-        revealEndOfDocument();
+        if (!this.scrollLock) {
+            revealEndOfDocument();
+        }
     }
 
     /**
@@ -1065,6 +1072,14 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
         } finally {
             stopDisconnected();
         }
+    }
+
+    /**
+     * control ScrollLock state.
+     * @param scrollLock state true or false.
+     */
+    public void setScrollLock(boolean state) {
+        this.scrollLock = state;
     }
 
 }
