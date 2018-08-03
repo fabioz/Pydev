@@ -183,6 +183,10 @@ public class AssistDocString implements IAssistProps {
         Pattern otherPattern = Pattern
                 .compile("\\s*" + Pattern.quote(docstringStyle) + "(\\w)+(\\b)");
 
+        // Google docstring
+        Pattern googlePattern = Pattern.compile("\\s*(\\w)*:");
+        boolean isGooglePattern = false;
+
         Map<String, ParamInfo> paramInfos = new HashMap<>();
 
         List<String> splitted = StringUtils.splitInLines(baseDocstring, false);
@@ -223,6 +227,13 @@ public class AssistDocString implements IAssistProps {
                         Matcher otherMatcher = otherPattern.matcher(s);
                         if (otherMatcher.lookingAt()) {
                             otherMatches.add(i);
+                        } else {
+                            Matcher googleMatcher = googlePattern.matcher(s);
+                            if (googleMatcher.lookingAt()) {
+                                String paramName = googleMatcher.group(1);
+                                getParamInfo(paramInfos, paramName).paramLine = i;
+                                isGooglePattern = true;
+                            }
                         }
                     }
                 }
@@ -248,8 +259,8 @@ public class AssistDocString implements IAssistProps {
             }
             boolean hasType = existingInfo != null && existingInfo.typeLine != -1;
 
-            if (hasParam && hasType) {
-                // Both there (keep on going, nothing to do).
+            if ((hasParam && hasType) || isGooglePattern) {
+                // Both there (keep on going, nothing to do). Or if this is a google style doc, nothing to do
             } else if (!hasParam && !hasType) {
                 ParamInfo newParamInfo = null;
                 if (existingInfo == null) {
@@ -290,7 +301,7 @@ public class AssistDocString implements IAssistProps {
                         existingInfo.typeLine = addIndex;
                     }
                 } else {
-                    // Add only the param before the existing type.
+                    // Add only the param before the existing type
                     int addIndex = existingInfo.typeLine;
                     splitted.add(addIndex, buf.append(indent).append(docstringStyle).append("param ")
                             .append(paramName).append(":").toString());

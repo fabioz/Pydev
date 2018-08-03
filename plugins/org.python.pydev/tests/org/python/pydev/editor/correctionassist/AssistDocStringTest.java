@@ -401,7 +401,6 @@ public class AssistDocStringTest extends TestCase {
     }
 
     public void testUpdateDocstringSphinx2() {
-
         assertEquals("'''\n"
                 + "    :param str a: var a\n"
                 + "    :param b: var b\n"
@@ -412,6 +411,17 @@ public class AssistDocStringTest extends TestCase {
                         + "    :param str a: var a\n"
                         + "    :param b: var b\n"
                         + "    :param test:\n"
+                        + "'''", Arrays.asList("a", "b"), "\n", "    ", ":"));
+    }
+
+    public void testUpdateDocstringGoogle() {
+        assertEquals("'''\n"
+                + "    a: var a\n"
+                + "    b: var b\n"
+                + "    '''",
+                AssistDocString.updatedDocstring("'''\n"
+                        + "    a: var a\n"
+                        + "    b: var b\n"
                         + "'''", Arrays.asList("a", "b"), "\n", "    ", ":"));
     }
 }
