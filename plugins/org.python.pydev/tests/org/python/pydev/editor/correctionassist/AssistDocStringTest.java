@@ -414,4 +414,15 @@ public class AssistDocStringTest extends TestCase {
                         + "    :param test:\n"
                         + "'''", Arrays.asList("a", "b"), "\n", "    ", ":"));
     }
+
+    public void testUpdateDocstringGoogle() {
+        assertEquals("'''\n"
+                + "    a: var a\n"
+                + "    b: var b\n"
+                + "    '''",
+                AssistDocString.updatedDocstring("'''\n"
+                        + "    a: var a\n"
+                        + "    b: var b\n"
+                        + "'''", Arrays.asList("a", "b"), "\n", "    ", ":"));
+    }
 }
