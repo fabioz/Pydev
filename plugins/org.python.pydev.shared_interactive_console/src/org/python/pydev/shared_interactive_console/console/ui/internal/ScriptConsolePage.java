@@ -26,6 +26,7 @@ import org.eclipse.ui.console.actions.TextViewerAction;
 import org.python.pydev.shared_interactive_console.console.ui.ScriptConsole;
 import org.python.pydev.shared_interactive_console.console.ui.internal.actions.CloseScriptConsoleAction;
 import org.python.pydev.shared_interactive_console.console.ui.internal.actions.InterruptScriptConsoleAction;
+import org.python.pydev.shared_interactive_console.console.ui.internal.actions.ScrollLockAction;
 import org.python.pydev.shared_interactive_console.console.ui.internal.actions.WordWrapAction;
 
 public class ScriptConsolePage extends TextConsolePage implements IScriptConsoleContentHandler {
@@ -72,6 +73,8 @@ public class ScriptConsolePage extends TextConsolePage implements IScriptConsole
 
     private WordWrapAction wordWrapAction;
 
+    private ScrollLockAction scrollLockAction;
+
     @Override
     protected void createActions() {
         super.createActions();
@@ -81,6 +84,9 @@ public class ScriptConsolePage extends TextConsolePage implements IScriptConsole
 
         // saveSessionAction = new SaveConsoleSessionAction((ScriptConsole) getConsole(),
         //        ScriptConsoleMessages.SaveSessionAction, ScriptConsoleMessages.SaveSessionTooltip);
+
+        scrollLockAction = new ScrollLockAction((ScriptConsole) getConsole(),
+                ScriptConsoleMessages.ScrollLockConsoleAction, ScriptConsoleMessages.ScrollLockConsoleTooltip);
 
         wordWrapAction = new WordWrapAction((ScriptConsole) getConsole(),
                 ScriptConsoleMessages.WordWrapConsoleAction, ScriptConsoleMessages.WordWrapConsoleTooltip);
@@ -103,6 +109,8 @@ public class ScriptConsolePage extends TextConsolePage implements IScriptConsole
         // toolbarManager.appendToGroup(SCRIPT_GROUP, saveSessionAction);
 
         toolbarManager.appendToGroup(SCRIPT_GROUP, interruptConsoleAction);
+
+        toolbarManager.appendToGroup(SCRIPT_GROUP, scrollLockAction);
 
         toolbarManager.appendToGroup(SCRIPT_GROUP, wordWrapAction);
 

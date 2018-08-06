@@ -978,4 +978,12 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
     public void discardCommandLine() {
         listener.discardCommandLine();
     }
+
+    public void setScrollLock(boolean scrollLock) {
+        listener.setScrollLock(scrollLock);
+    }
+
+    public boolean getScrollLock() {
+        return listener.getScrollLock();
+    }
 }
