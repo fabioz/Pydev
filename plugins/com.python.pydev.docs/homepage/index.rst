@@ -22,46 +22,36 @@
 		<div class="section" id="silver-sponsors">
 		<h1>Silver Sponsors</h1>
 
-        <!--Added 2017-09-26 -->
         <a href="https://makeawebsitehub.com" border=0><img class="sponsors" src="images/sponsors/websitehub.png" style="width:150px;height:60px;" alt="makeawebsitehub.com" title="https://makeawebsitehub.com" /></a>
 
         <!--Added 2017-09-02 -- patreon -->
         <a href="https://www.voucher365.co.uk" border=0><img class="sponsors" src="images/sponsors/voucher_365.png" style="width:150px;height:60px;" alt="Voucher 365" title="https://www.voucher365.co.uk" /></a>
 
-        <!--Added 2017-08-24-->
         <a href="https://protoolzone.com/" border=0><img class="sponsors" src="images/sponsors/protoolzone_2.png" style="width:150px;height:60px;" alt="Best tool reviews" title="https://protoolzone.com" /></a>
 
         <div class="section" id="bronze-sponsors">
         <h1>Bronze Sponsors</h1>
 
-        <!-- Added 2018-06-04 -->
+        <a href="https://www.redfin.com/city/16163/WA/Seattle" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/redfin.png" alt="Redfin" title="https://www.redfin.com/city/16163/WA/Seattle" /></a>
+
         <a href="http://smålånutensikkerhet.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/skazani_logo.png" alt="http://smålånutensikkerhet.com/" title="http://smålånutensikkerhet.com/" /></a>
 
-        <!-- Added 2018-05-16 -->
         <a href="https://www.websitehostingrating.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/webhostingrating.png" alt="websitehostingrating" title="https://www.websitehostingrating.com/" /></a>
 
-        <!-- Added 2018-05-09 -->
         <a href="https://www.parcelabc.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/parcelabc-logo.jpg" alt="ParcelABC" title="ParcelABC" /></a>
 
-        <!-- Added 2018-04-10 -->
         <a href="https://allesrefurbished.nl" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/alles_refurbished.png" alt="Alles Refurbished - overview of refurbished tablets, telephones and more (in Dutch)" title="Alles Refurbished - overview of refurbished tablets, telephones and more (in Dutch)" /></a>
 
-        <!-- Added 2018-03-07 -->
+		<br/>
+		
         <a href="https://www.immigrationlawofmt.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/immigrationlawofmt.png" alt="immigrationlawofmt" title="https://www.immigrationlawofmt.com" /></a>
 
-		<br/>
-
-        <!-- Added 2017-10-27 -->
         <a href="https://superbwebsitebuilders.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/superbwebsitebuilders.png" alt="superbwebsitebuilders" title="https://superbwebsitebuilders.com/" /></a>
 
-        <!-- Added 2016-12-21 -->
         <a href="https://www.vpsserver.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/vpsserver50-50.png" alt="vpsserver" title="https://www.vpsserver.com" /></a>
 
-
-        <!-- Added 2016-10-06 -->
         <a href="https://acemypaper.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/ace_my_paper_50_50.png" alt="Ace My Paper" title="https://acemypaper.com/" /></a>
 
-        <!-- Added 2018-01-12 -->
         <a href="https://netotraffic.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/netotraffic.png" alt="Netotraffic" title="https://netotraffic.com/" /></a>
         </div>
 
