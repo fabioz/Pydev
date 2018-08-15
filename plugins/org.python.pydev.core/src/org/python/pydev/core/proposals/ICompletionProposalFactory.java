@@ -9,6 +9,7 @@ import org.eclipse.jface.text.templates.TemplateContext;
 import org.python.pydev.core.ICompletionRequest;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.DocstringInfo;
 import org.python.pydev.core.formatter.FormatStd;
@@ -121,5 +122,9 @@ public interface ICompletionProposalFactory {
             int contextInformationOffset);
 
     int getShellId();
+
+    ICompletionProposalHandle createMoveImportsToLocalCompletionProposal(
+            /*RefactoringRequest*/ Object refactoringRequest, String importedToken, ImportHandleInfo importHandleInfo,
+            IImageHandle iImageHandle, String displayString);
 
 }

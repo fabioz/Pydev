@@ -10,9 +10,11 @@ import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContext;
 import org.eclipse.swt.widgets.Display;
 import org.python.pydev.ast.codecompletion.shell.AbstractShell;
+import org.python.pydev.ast.refactoring.RefactoringRequest;
 import org.python.pydev.core.ICompletionRequest;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.DocstringInfo;
 import org.python.pydev.core.formatter.FormatStd;
@@ -245,6 +247,13 @@ public class DefaultCompletionProposalFactory implements ICompletionProposalFact
     @Override
     public int getShellId() {
         return Display.getCurrent() != null ? AbstractShell.MAIN_THREAD_SHELL : AbstractShell.OTHER_THREADS_SHELL;
+    }
+
+    @Override
+    public ICompletionProposalHandle createMoveImportsToLocalCompletionProposal(Object refactoringRequest,
+            String importedToken, ImportHandleInfo importHandleInfo, IImageHandle iImageHandle, String displayString) {
+        return new PyMoveImportsToLocalCompletionProposal((RefactoringRequest) refactoringRequest, importedToken,
+                importHandleInfo, iImageHandle, displayString);
     }
 
 }

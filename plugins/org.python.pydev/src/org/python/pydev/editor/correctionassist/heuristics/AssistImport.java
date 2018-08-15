@@ -41,7 +41,7 @@ public class AssistImport implements IAssistProps {
             IPythonNature nature,
             IPyEdit edit, int offset) throws BadLocationException {
         ArrayList<ICompletionProposalHandle> l = new ArrayList<>();
-        String sel = PyAction.getLineWithoutComments(ps).trim();
+        String sel = PyAction.getLineWithoutComments(ps);
 
         int i = sel.indexOf("import");
         if (ps.getStartLineIndex() != ps.getEndLineIndex()) {
@@ -49,15 +49,16 @@ public class AssistImport implements IAssistProps {
         }
 
         String delimiter = PyAction.getDelimiter(ps.getDoc());
-        boolean isFuture = PySelection.isFutureImportLine(sel);
+        boolean isFuture = PySelection.isFutureImportLine(sel.trim());
 
         int lineToMoveImport = ps.getLineAvailableForImport(isFuture);
 
         try {
             int lineToMoveOffset = ps.getDoc().getLineOffset(lineToMoveImport);
 
-            if (i >= 0) {
-                l.add(CompletionProposalFactory.get().createFixCompletionProposal(sel + delimiter, lineToMoveOffset, 0,
+            if (i >= 0 && Character.isWhitespace(sel.charAt(0))) {
+                l.add(CompletionProposalFactory.get().createFixCompletionProposal(sel.trim() + delimiter,
+                        lineToMoveOffset, 0,
                         ps.getStartLine().getOffset(),
                         imageCache
                                 .get(UIConstants.ASSIST_MOVE_IMPORT),
