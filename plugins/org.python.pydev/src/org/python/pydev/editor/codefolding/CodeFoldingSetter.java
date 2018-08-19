@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListResourceBundle;
 import java.util.Map;
+import java.util.Stack;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
@@ -360,6 +361,9 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener, IPy
                     TryExcept.class, TryFinally.class);
         }
 
+        String regionStartString = "#region";
+        String regionEndString = "#endregion";
+
         //and at last, get the comments
         if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_COMMENTS, PyDevCodeFoldingPrefPage.DEFAULT_FOLD_COMMENTS)) {
             boolean collapseComments = foldInitial
@@ -369,10 +373,38 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener, IPy
             DocIterator it = new DocIterator(true, new PySelection(doc, 0));
             while (it.hasNext()) {
                 String string = it.next();
-                if (string.trim().startsWith("#")) {
+                if (string.trim().startsWith("#") && !string.trim().startsWith(regionStartString)
+                        && !string.trim().startsWith(regionEndString)) {
                     int l = it.getCurrentLine() - 1;
                     addFoldingEntry(ret, new FoldingEntry(FoldingEntry.TYPE_COMMENT, l, l + 1, new ASTEntry(null,
                             new commentType(string)), collapseComments));
+                }
+            }
+        }
+
+        // ticket 694: Fold for #region ... #endregion
+        if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_REGION, PyDevCodeFoldingPrefPage.DEFAULT_FOLD_REGION)) {
+            boolean collapseComments = foldInitial ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_REGION,
+                    PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_REGION) : false;
+
+            DocIterator it = new DocIterator(true, new PySelection(doc, 0));
+            Stack<Integer> stack = new Stack<Integer>();
+            int l, l_start;
+            while (it.hasNext()) {
+                String string = it.next();
+                if (string.trim().startsWith(regionStartString)) {
+                    l = it.getCurrentLine() - 1;
+                    //add line number to stack
+                    stack.push(l);
+                }
+                if (string.trim().startsWith(regionEndString)) {
+                    l = it.getCurrentLine() - 1;
+                    // pop start of region line number from stack and call addFoldingEntry
+                    if (stack.size() > 0) {
+                        l_start = stack.pop();
+                        addFoldingEntry(ret, new FoldingEntry(FoldingEntry.TYPE_REGION, l_start, l + 1,
+                                new ASTEntry(null, new commentType(string)), collapseComments));
+                    }
                 }
             }
         }
@@ -573,6 +605,9 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener, IPy
                     && prev.endLine == foldingEntry.startLine) {
                 prev.endLine = foldingEntry.endLine;
             } else {
+                ret.add(foldingEntry);
+            }
+            if (foldingEntry.type == FoldingEntry.TYPE_REGION) {
                 ret.add(foldingEntry);
             }
         } else {
