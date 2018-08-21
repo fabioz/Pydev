@@ -1171,4 +1171,24 @@ public class FileUtils {
 
     }
 
+    // Reads up to a \n (adds it to the output).
+    public static void readLine(InputStream in, FastStringBuffer contents) throws IOException {
+        char c;
+        while (true) {
+            c = readChar(in);
+            contents.append(c);
+
+            if (c == '\n') {
+                return;
+            }
+        }
+    }
+
+    private static char readChar(InputStream in) throws IOException {
+        int i = in.read();
+        if (i == -1) {
+            throw new IOException("Done");
+        }
+        return (char) i;
+    }
 }

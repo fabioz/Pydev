@@ -14,6 +14,7 @@ import org.eclipse.ui.console.IOConsole;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.model.remote.DebuggerReader;
 import org.python.pydev.debug.model.remote.DebuggerWriter;
+import org.python.pydev.debug.model.remote.SetProtocolCommand;
 
 public class AbstractDebugTargetWithTransmission extends PlatformObject {
 
@@ -82,9 +83,12 @@ public class AbstractDebugTargetWithTransmission extends PlatformObject {
 
     public void startTransmission(Socket socket2) throws IOException {
         this.socket = socket2;
-        //socket = connector.getSocket();
+
         this.reader = new DebuggerReader(socket, this);
         this.writer = new DebuggerWriter(socket);
+
+        this.writer.postCommand(new SetProtocolCommand((AbstractDebugTarget) this));
+
         Thread t = new Thread(reader, "pydevd.reader");
         t.start();
         t = new Thread(writer, "pydevd.writer");

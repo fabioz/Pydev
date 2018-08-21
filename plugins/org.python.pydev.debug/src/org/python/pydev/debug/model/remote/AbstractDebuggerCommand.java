@@ -90,6 +90,7 @@ public abstract class AbstractDebuggerCommand {
     static public final int CMD_ERROR = 901;
     static public final int CMD_VERSION = 501;
     static public final int CMD_RETURN = 502;
+    static public final int CMD_SET_PROTOCOL = 503;
 
     protected AbstractDebugTarget target;
     protected ICommandResponseListener responseListener;

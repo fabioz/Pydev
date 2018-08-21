@@ -10,8 +10,9 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import org.python.pydev.core.log.Log;
 
@@ -29,7 +30,7 @@ public class DebuggerWriter implements Runnable {
     /**
      * a list of RemoteDebuggerCommands
      */
-    private List<AbstractDebuggerCommand> cmdQueue = new ArrayList<AbstractDebuggerCommand>();
+    private BlockingQueue<AbstractDebuggerCommand> cmdQueue = new ArrayBlockingQueue<>(64);
 
     private OutputStreamWriter out;
 
@@ -37,11 +38,6 @@ public class DebuggerWriter implements Runnable {
      * Volatile, as multiple threads may ask it to be 'done'
      */
     private volatile boolean done = false;
-
-    /**
-     * Lock object for sleeping.
-     */
-    private Object lock = new Object();
 
     public DebuggerWriter(Socket s) throws IOException {
         socket = s;
@@ -52,9 +48,7 @@ public class DebuggerWriter implements Runnable {
      * Add command for processing
      */
     public void postCommand(AbstractDebuggerCommand cmd) {
-        synchronized (cmdQueue) {
-            cmdQueue.add(cmd);
-        }
+        cmdQueue.offer(cmd);
     }
 
     public void done() {
@@ -70,7 +64,12 @@ public class DebuggerWriter implements Runnable {
             AbstractDebuggerCommand cmd = null;
             synchronized (cmdQueue) {
                 if (cmdQueue.size() > 0) {
-                    cmd = cmdQueue.remove(0);
+                    try {
+                        cmd = cmdQueue.poll(100, TimeUnit.MILLISECONDS);
+                    } catch (InterruptedException e) {
+                        cmd = null;
+                        Log.log(e);
+                    }
                 }
             }
             try {
@@ -91,10 +90,7 @@ public class DebuggerWriter implements Runnable {
                     out.write("\n");
                     out.flush();
                 }
-                synchronized (lock) {
-                    Thread.sleep(100);
-                }
-            } catch (InterruptedException | IOException e) {
+            } catch (IOException e) {
                 done = true;
             } catch (Throwable e1) {
                 Log.log(e1); //Unexpected error (but not done).
