@@ -62,15 +62,11 @@ public class DebuggerWriter implements Runnable {
     public void run() {
         while (!done) {
             AbstractDebuggerCommand cmd = null;
-            synchronized (cmdQueue) {
-                if (cmdQueue.size() > 0) {
-                    try {
-                        cmd = cmdQueue.poll(100, TimeUnit.MILLISECONDS);
-                    } catch (InterruptedException e) {
-                        cmd = null;
-                        Log.log(e);
-                    }
-                }
+            try {
+                cmd = cmdQueue.poll(100, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                cmd = null;
+                Log.log(e);
             }
             try {
                 if (cmd != null) {

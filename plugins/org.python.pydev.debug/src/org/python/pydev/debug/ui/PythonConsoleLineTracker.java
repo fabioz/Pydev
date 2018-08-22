@@ -135,6 +135,10 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
 
             @Override
             public void addLink(IHyperlink link, int offset, int length) {
+                if (length <= 0) {
+                    Log.log("Trying to create link with invalid len: " + length);
+                    return;
+                }
                 console.addLink(link, offset, length);
             }
 
@@ -269,7 +273,6 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
 
     private boolean checkMapFilenameToHyperlink(int lineOffset, int matchStartCol, int endCol, String filename,
             int lineNumberInt) {
-        final String initialFilename = filename;
         if (new File(filename).exists()) {
             if (createHyperlink(lineOffset, matchStartCol, endCol, filename, lineNumberInt)) {
                 return true;
@@ -346,23 +349,33 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
                 lst.add(getProject().getLocation());
             }
 
-            for (IPath workingDirectory : lst) {
-                if (workingDirectory != null) {
-                    IPath pathCopy = (IPath) path.clone();
-                    while (pathCopy.segmentCount() > 0) {
-                        IPath appended = workingDirectory.append(pathCopy);
-                        File checkFile = appended.toFile();
-                        if (checkFile.exists()) {
-                            if (createHyperlink(lineOffset,
-                                    matchStartCol + (initialFilename.length() - pathCopy.toString().length()),
-                                    endCol, checkFile.getAbsolutePath(), lineNumberInt)) {
-                                return true;
+            if (path.getDevice() == null) {
+                for (IPath workingDirectory : lst) {
+                    if (workingDirectory != null) {
+                        IPath pathCopy = (IPath) path.clone();
+                        while (pathCopy.segmentCount() > 0) {
+                            IPath appended = workingDirectory.append(pathCopy);
+                            File checkFile = appended.toFile();
+                            if (checkFile.exists()) {
+                                int startCol = matchStartCol + (endCol - pathCopy.toString().length());
+                                if (startCol >= endCol) {
+                                    startCol = matchStartCol;
+                                }
+                                if (endCol > startCol) {
+                                    if (createHyperlink(lineOffset,
+                                            startCol, endCol,
+                                            checkFile.getAbsolutePath(),
+                                            lineNumberInt)) {
+                                        return true;
+                                    }
+                                }
                             }
+                            pathCopy = pathCopy.removeFirstSegments(1);
                         }
-                        pathCopy = pathCopy.removeFirstSegments(1);
                     }
                 }
             }
+
         } catch (Exception e) {
             Log.log(e);
         }

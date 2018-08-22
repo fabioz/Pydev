@@ -6,7 +6,16 @@
  */
 package org.python.pydev.debug.ui;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
+
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.Region;
+import org.eclipse.ui.console.IHyperlink;
 
 import junit.framework.TestCase;
 
@@ -60,6 +69,38 @@ public class PythonConsoleLineTrackerTest extends TestCase {
         Matcher matcher = PythonConsoleLineTracker.insideQuotesMatcher2.matcher("sss'yyy:82'zzz");
         assertTrue(matcher.matches());
         assertEquals("yyy:82", matcher.group(1));
+    }
+
+    private static class LinkContainer implements ILinkContainer {
+
+        private IDocument doc;
+        public final List<IRegion> linkRegions = new ArrayList<>();
+
+        public LinkContainer(String contents) {
+            this.doc = new Document(contents);
+        }
+
+        @Override
+        public void addLink(IHyperlink link, int offset, int length) {
+            linkRegions.add(new Region(offset, length));
+        }
+
+        @Override
+        public String getContents(int lineOffset, int lineLength) throws BadLocationException {
+            if (lineLength <= 0) {
+                return "";
+            }
+            return this.doc.get(lineOffset, lineLength);
+        }
+    };
+
+    public void testLineAppended() {
+        PythonConsoleLineTracker pythonConsoleLineTracker = new PythonConsoleLineTracker();
+        String contents = "File \"/home/users/foo/test_it2.py\", line 45, in testAnotherCase";
+        LinkContainer linkContainer = new LinkContainer(contents);
+        pythonConsoleLineTracker.init(null, linkContainer);
+        pythonConsoleLineTracker.splitInLinesAndAppendToLineTracker(contents);
+        // assertEquals(1, linkContainer.linkRegions.size());
     }
 
 }
