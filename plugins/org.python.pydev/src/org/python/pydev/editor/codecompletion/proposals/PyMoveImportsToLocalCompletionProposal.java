@@ -17,6 +17,7 @@ import org.eclipse.jface.text.contentassist.ICompletionProposalExtension2;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.python.pydev.ast.refactoring.AbstractPyRefactoring;
 import org.python.pydev.ast.refactoring.IPyRefactoring2;
@@ -75,13 +76,14 @@ public class PyMoveImportsToLocalCompletionProposal
         RefactoringRequest req = refactoringRequest;
         final IPyRefactoring2 r = (IPyRefactoring2) AbstractPyRefactoring.getPyRefactoring();
         if (req.initialName != null && req.initialName.trim().length() > 0) {
-            Map<Tuple<String, File>, HashSet<ASTEntry>> occurrences;
             try {
-                occurrences = r.findAllOccurrences(req);
-                Set<Entry<Tuple<String, File>, HashSet<ASTEntry>>> entrySet = occurrences
+                final Map<Tuple<String, File>, HashSet<ASTEntry>> occurrences = r.findAllOccurrences(req);
+                final Set<Entry<Tuple<String, File>, HashSet<ASTEntry>>> entrySet = occurrences
                         .entrySet();
+                final MultiTextEdit multiTextEdit = new MultiTextEdit();
+                final IDocument document = req.getDoc();
+                final Set<Integer> appliedContextLines = new HashSet<Integer>();
 
-                Set<Integer> appliedContextLines = new HashSet<Integer>();
                 for (Map.Entry<Tuple<String, File>, HashSet<ASTEntry>> o : entrySet) {
                     HashSet<ASTEntry> entries = o.getValue();
                     ASTEntry[] ordered = entries.toArray(new ASTEntry[0]);
@@ -92,7 +94,6 @@ public class PyMoveImportsToLocalCompletionProposal
                     for (ASTEntry entry : entries) {
                         if (entry.node != null) {
                             int beginLine = entry.node.beginLine;
-                            IDocument document = req.getDoc();
 
                             int useLine = beginLine - 1;
 
@@ -154,16 +155,19 @@ public class PyMoveImportsToLocalCompletionProposal
                                 appliedContextLines.add(previousLineThatStartsScope.iLineStartingScope);
                                 t.createTextEdit(computedInfo);
                                 for (ReplaceEdit edit : computedInfo.replaceEdit) {
-                                    try {
-                                        edit.apply(document);
-                                    } catch (Exception e) {
-                                        Log.log(e);
-                                    }
+                                    multiTextEdit.addChild(edit);
                                 }
                             }
                         }
                     }
                 }
+
+                try {
+                    multiTextEdit.apply(document);
+                } catch (Exception e) {
+                    Log.log(e);
+                }
+
             } catch (OperationCanceledException | CoreException e) {
                 Log.log(e);
             }
