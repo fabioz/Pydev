@@ -23,6 +23,7 @@ import org.python.pydev.ast.refactoring.IPyRefactoring2;
 import org.python.pydev.ast.refactoring.RefactoringRequest;
 import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codefolding.PySourceViewer;
@@ -80,7 +81,7 @@ public class PyMoveImportsToLocalCompletionProposal
                 Set<Entry<Tuple<String, File>, HashSet<ASTEntry>>> entrySet = occurrences
                         .entrySet();
 
-                Set<Integer> appliedOffsets = new HashSet<Integer>();
+                Set<Integer> appliedContextLines = new HashSet<Integer>();
                 for (Map.Entry<Tuple<String, File>, HashSet<ASTEntry>> o : entrySet) {
                     HashSet<ASTEntry> entries = o.getValue();
                     ASTEntry[] ordered = entries.toArray(new ASTEntry[0]);
@@ -142,12 +143,17 @@ public class PyMoveImportsToLocalCompletionProposal
                             this.appliedWithTrigger = computedInfo.appliedWithTrigger;
                             this.importLen = computedInfo.importLen;
 
-                            new AddTokenAndImportStatement(document, trigger, offset, addLocalImport,
-                                    addLocalImportsOnTopOfMethod, groupImports, maxCols)
-                                            .createTextEdit(computedInfo);
-                            for (ReplaceEdit edit : computedInfo.replaceEdit) {
-                                if (!appliedOffsets.contains(edit.getOffset())) {
-                                    appliedOffsets.add(edit.getOffset());
+                            AddTokenAndImportStatement t = new AddTokenAndImportStatement(document, trigger, offset,
+                                    addLocalImport,
+                                    addLocalImportsOnTopOfMethod, groupImports, maxCols);
+                            LineStartingScope previousLineThatStartsScope = t.getPreviousLineThatStartsScope();
+                            if (previousLineThatStartsScope != null) {
+                                if (appliedContextLines.contains(previousLineThatStartsScope.iLineStartingScope)) {
+                                    continue;
+                                }
+                                appliedContextLines.add(previousLineThatStartsScope.iLineStartingScope);
+                                t.createTextEdit(computedInfo);
+                                for (ReplaceEdit edit : computedInfo.replaceEdit) {
                                     try {
                                         edit.apply(document);
                                     } catch (Exception e) {

@@ -30,11 +30,20 @@ public class AssistImportToLocal implements IAssistProps {
     public List<ICompletionProposalHandle> getProps(PySelection ps, IImageCache imageCache, File f,
             IPythonNature nature, IPyEdit edit, int offset) throws BadLocationException, MisconfigurationException {
         boolean addOnlyGlobalImports = true;
+        boolean allowBadInput = false;
         Tuple<String, Integer> currToken = ps.getCurrToken();
         List<ICompletionProposalHandle> ret = new ArrayList<ICompletionProposalHandle>();
 
         if (currToken.o1 != null && currToken.o1.length() > 0) {
-            PyImportsIterator pyImportsIterator = new PyImportsIterator(ps.getDoc(), addOnlyGlobalImports);
+
+            int startOfImportLine = ps.getStartOfImportLine();
+            if (startOfImportLine == -1) {
+                return ret;
+            }
+            int startOffset = ps.getLineOffset(startOfImportLine);
+            PyImportsIterator pyImportsIterator = new PyImportsIterator(ps.getDoc(), addOnlyGlobalImports,
+                    allowBadInput, startOffset);
+
             OUT: while (pyImportsIterator.hasNext()) {
                 ImportHandle handle = pyImportsIterator.next();
                 List<ImportHandleInfo> importInfo = handle.getImportInfo();
@@ -42,10 +51,10 @@ public class AssistImportToLocal implements IAssistProps {
                     List<String> importedStr = importHandleInfo.getImportedStr();
                     int startLine = importHandleInfo.getStartLine();
                     int endLine = importHandleInfo.getEndLine();
-                    if (ps.getLineOfOffset() > startLine) {
+                    if (ps.getLineOfOffset() < startLine) {
                         continue;
                     }
-                    if (ps.getLineOfOffset() < endLine) {
+                    if (ps.getLineOfOffset() > endLine) {
                         break OUT; // Stop iterating.
                     }
                     for (String s : importedStr) {
@@ -76,7 +85,7 @@ public class AssistImportToLocal implements IAssistProps {
 
     @Override
     public boolean isValid(PySelection ps, String sel, IPyEdit edit, int offset) {
-        return true;
+        return true; // getProps() will always be called (even if empty is returned).
     }
 
 }
