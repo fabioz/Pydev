@@ -613,14 +613,14 @@ public class CodeFoldingSetterTest extends TestCase {
                 "#region 03 nested inside region 2\n" +
                 "\n" +
                 "txt 3\n" +
-                "#endregion03\n" +
+                "#endregion 03\n" +
                 "txt\n" +
                 "\n" +
                 "#endregion 02" +
                 "\n");
 
         List<FoldingEntry> marks = getMarks(doc);
-        System.out.println(marks);
+
         Iterator<FoldingEntry> it = marks.iterator();
         assertEquals(new FoldingEntry(FoldingEntry.TYPE_IMPORT, 0, 2, null), it.next());
         assertEquals(new FoldingEntry(FoldingEntry.TYPE_COMMENT, 3, 6, null), it.next());
