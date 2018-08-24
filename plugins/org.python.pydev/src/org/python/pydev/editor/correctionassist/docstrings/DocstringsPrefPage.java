@@ -42,8 +42,6 @@ public class DocstringsPrefPage extends FieldEditorPreferencePage implements IWo
 
     public static final String DOCSTRINGSTYLE_EPYDOC = "@";
 
-    public static final String DOCSTRINGSTYLE_GOOGLE = "";
-
     public static final String DEFAULT_P_DOCSTIRNGSTYLE = DOCSTRINGSTYLE_SPHINX;
 
     public static final String TYPETAG_GENERATION_NEVER = "Never";
@@ -160,8 +158,8 @@ public class DocstringsPrefPage extends FieldEditorPreferencePage implements IWo
 
         RadioGroupFieldEditor docstringStyleEditor = new RadioGroupFieldEditor(P_DOCSTRINGSTYLE, "Docstring style", 1,
                 new String[][] { { "Sphinx (:tag name:)", DOCSTRINGSTYLE_SPHINX },
-                        { "EpyDoc (@tag name:)", DOCSTRINGSTYLE_EPYDOC },
-                        { "Google (name:)", DOCSTRINGSTYLE_GOOGLE } },
+                        { "EpyDoc (@tag name:)", DOCSTRINGSTYLE_EPYDOC }
+                },
                 p2, true);
         addField(docstringStyleEditor);
 

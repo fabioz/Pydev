@@ -289,6 +289,9 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener, IPy
         }
     }
 
+    private static final Pattern regionStartPattern = Pattern.compile("#(\\s)*\\bregion\\b");
+    private static final Pattern regionEndPattern = Pattern.compile("#(\\s)*\\bendregion\\b");
+
     /**
      * To get the marks, we work a little with the ast and a little with the doc... the ast is good to give us all things but the comments,
      * and the doc will give us the comments.
@@ -363,14 +366,12 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener, IPy
                     TryExcept.class, TryFinally.class);
         }
 
-        Pattern regionStartPattern = Pattern.compile("#(\\s)*\\bregion\\b");
-        Pattern regionEndPattern = Pattern.compile("#(\\s)*\\bendregion\\b");
-
         //and at last, get the comments
-        if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_COMMENTS, PyDevCodeFoldingPrefPage.DEFAULT_FOLD_COMMENTS)
-                ||
-                prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_REGION,
-                        PyDevCodeFoldingPrefPage.DEFAULT_FOLD_REGION)) {
+        final boolean foldComments = prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_COMMENTS,
+                PyDevCodeFoldingPrefPage.DEFAULT_FOLD_COMMENTS);
+        final boolean foldRegions = prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_REGION,
+                PyDevCodeFoldingPrefPage.DEFAULT_FOLD_REGION);
+        if (foldComments || foldRegions) {
             boolean collapseComments = foldInitial
                     ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_COMMENTS,
                             PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_COMMENTS)
@@ -388,24 +389,24 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener, IPy
                 String string = it.next();
                 Matcher regionStartMatcher = regionStartPattern.matcher(string);
                 Matcher regionEndMatcher = regionEndPattern.matcher(string);
-                if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_COMMENTS,
-                        PyDevCodeFoldingPrefPage.DEFAULT_FOLD_COMMENTS)
+                final boolean isLookingAtRegionStart = regionStartMatcher.lookingAt();
+                final boolean isLookingAtRegionEnd = regionEndMatcher.lookingAt();
+                if (foldComments
                         && string.trim().startsWith("#")
-                        && !regionStartMatcher.lookingAt()
-                        && !regionEndMatcher.lookingAt()) {
+                        && !isLookingAtRegionStart
+                        && !isLookingAtRegionEnd) {
                     l = it.getCurrentLine() - 1;
                     addFoldingEntry(ret, new FoldingEntry(FoldingEntry.TYPE_COMMENT, l, l + 1, new ASTEntry(null,
                             new commentType(string)), collapseComments));
                 }
                 // ticket 694: Fold for #region ... #endregion
-                if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_REGION,
-                        PyDevCodeFoldingPrefPage.DEFAULT_FOLD_REGION)) {
-                    if (regionStartMatcher.lookingAt()) {
+                if (foldRegions) {
+                    if (isLookingAtRegionStart) {
                         l = it.getCurrentLine() - 1;
                         //add line number to stack
                         stack.push(l);
                     }
-                    if (regionEndMatcher.lookingAt()) {
+                    if (isLookingAtRegionEnd) {
                         l = it.getCurrentLine() - 1;
                         // pop start of region line number from stack and call addFoldingEntry
                         if (stack.size() > 0) {
@@ -614,9 +615,6 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener, IPy
                     && prev.endLine == foldingEntry.startLine) {
                 prev.endLine = foldingEntry.endLine;
             } else {
-                ret.add(foldingEntry);
-            }
-            if (foldingEntry.type == FoldingEntry.TYPE_REGION) {
                 ret.add(foldingEntry);
             }
         } else {
