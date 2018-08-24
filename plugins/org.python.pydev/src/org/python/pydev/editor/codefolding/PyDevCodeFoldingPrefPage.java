@@ -126,6 +126,14 @@ public class PyDevCodeFoldingPrefPage extends PreferencePage implements IWorkben
 
     public static final boolean DEFAULT_INITIALLY_FOLD_FOR = false;
 
+    public static final String FOLD_REGION = "FOLD_REGION";
+
+    public static final boolean DEFAULT_FOLD_REGION = false;
+
+    public static final String INITIALLY_FOLD_REGION = "INITIALLY_FOLD_REGION";
+
+    public static final boolean DEFAULT_INITIALLY_FOLD_REGION = false;
+
     /**
      * 
      */
@@ -225,6 +233,10 @@ public class PyDevCodeFoldingPrefPage extends PreferencePage implements IWorkben
         Button slaveFoldFor = addCheckBox(top, "Fold For statements?", FOLD_FOR, 0);
         Button slaveInitialCollapseFoldFor = addCheckBox(top, "Initially Fold For statements?", INITIALLY_FOLD_FOR, 0);
         createDependency(new Button[] { master, slaveFoldFor }, slaveInitialCollapseFoldFor, USE_CODE_FOLDING, FOLD_FOR);
+
+        Button slaveFoldRegion = addCheckBox(top, "Fold #region?", FOLD_REGION, 0);
+        Button slaveInitialCollapseFoldRegion = addCheckBox(top, "Initially Fold For #region?", INITIALLY_FOLD_REGION, 0);
+        createDependency(new Button[] { master, slaveFoldRegion }, slaveInitialCollapseFoldRegion, USE_CODE_FOLDING, FOLD_REGION);
 
         //[[[end]]]
 
@@ -395,6 +407,9 @@ public class PyDevCodeFoldingPrefPage extends PreferencePage implements IWorkben
 
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, FOLD_FOR));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, INITIALLY_FOLD_FOR));
+
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, FOLD_REGION));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, INITIALLY_FOLD_REGION));
 
         //[[[end]]]
 
