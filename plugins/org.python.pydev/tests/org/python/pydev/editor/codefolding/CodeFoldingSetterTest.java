@@ -144,6 +144,7 @@ public class CodeFoldingSetterTest extends TestCase {
         preferences.putBoolean(PyDevCodeFoldingPrefPage.FOLD_TRY, value);
         preferences.putBoolean(PyDevCodeFoldingPrefPage.FOLD_WHILE, value);
         preferences.putBoolean(PyDevCodeFoldingPrefPage.FOLD_WITH, value);
+        preferences.putBoolean(PyDevCodeFoldingPrefPage.FOLD_REGION, value);
     }
 
     private void setOptionTrue(String option) {
@@ -587,4 +588,46 @@ public class CodeFoldingSetterTest extends TestCase {
 
         assertTrue(it.hasNext() == false);
     }
+
+    public void testRegion() throws Exception {
+        setOptionTrue(PyDevCodeFoldingPrefPage.FOLD_REGION);
+        setOptionTrue(PyDevCodeFoldingPrefPage.FOLD_COMMENTS);
+        setOptionTrue(PyDevCodeFoldingPrefPage.FOLD_IMPORTS);
+        setOptionTrue(PyDevCodeFoldingPrefPage.USE_CODE_FOLDING);
+        Document doc = new Document("" +
+                "import foo\n" +
+                "import foo2 \n" +
+                "\n" +
+                "#comment1\n" +
+                "#comment2\n" +
+                "#comment3\n" +
+                "\n" +
+                "#region 01\n" +
+                "some text\n" +
+                "#endregion 01\n" +
+                "\n" +
+                "\n" +
+                "#region 02 nested top level\n" +
+                "txt \n" +
+                "\n" +
+                "#region 03 nested inside region 2\n" +
+                "\n" +
+                "txt 3\n" +
+                "#endregion 03\n" +
+                "txt\n" +
+                "\n" +
+                "#endregion 02" +
+                "\n");
+
+        List<FoldingEntry> marks = getMarks(doc);
+
+        Iterator<FoldingEntry> it = marks.iterator();
+        assertEquals(new FoldingEntry(FoldingEntry.TYPE_IMPORT, 0, 2, null), it.next());
+        assertEquals(new FoldingEntry(FoldingEntry.TYPE_COMMENT, 3, 6, null), it.next());
+        assertEquals(new FoldingEntry(FoldingEntry.TYPE_REGION, 7, 10, null), it.next());
+        assertEquals(new FoldingEntry(FoldingEntry.TYPE_REGION, 12, 22, null), it.next());
+        assertEquals(new FoldingEntry(FoldingEntry.TYPE_REGION, 15, 19, null), it.next());
+        assertTrue(it.hasNext() == false);
+    }
+
 }

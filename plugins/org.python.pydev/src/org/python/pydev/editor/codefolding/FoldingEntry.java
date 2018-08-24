@@ -38,6 +38,7 @@ public class FoldingEntry {
     public final static int TYPE_ELSE = 6;
     public final static int TYPE_EXCEPT = 7;
     public final static int TYPE_FINALLY = 8;
+    public final static int TYPE_REGION = 9;
     public int type;
     public int startLine;
     public int endLine;
