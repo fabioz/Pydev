@@ -17,6 +17,7 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.ListenerList;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
@@ -27,9 +28,10 @@ import org.eclipse.debug.ui.IValueDetailListener;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.ide.IDE;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editorinput.EditorInputFactory;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -301,11 +303,20 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
     }
 
     /**
-     * @see org.eclipse.debug.ui.ISourcePresentation#getEditorInput
+     * This was copied from {@link org.eclipse.jdt.internal.debug.ui.JDIModelPresentation.getEditorId(IEditorInput, Object)}.
+     * <p>
+     * Use {@link IDE#getEditorDescriptor(String)} rather than sending a static String; this'll open the editior
+     * attached to the file instead of always Python editor (which expect Python code).
+     * 
+     * @see <a href="http://git.eclipse.org/c/jdt/eclipse.jdt.debug.git/tree/org.eclipse.jdt.debug.ui/ui/org/eclipse/jdt/internal/debug/ui/JDIModelPresentation.java#n1216">JDIModelPresentation</a>
      */
     @Override
-    public String getEditorId(IEditorInput input, Object element) {
-        return PyEdit.EDITOR_ID;
+    public String getEditorId(final IEditorInput input, final Object element) {
+        try {
+            return IDE.getEditorDescriptor(input.getName(), true, false).getId();
+        } catch (@SuppressWarnings("unused") PartInitException | OperationCanceledException ignored) {
+            return null;
+        }
     }
 
     @Override
