@@ -60,6 +60,10 @@ import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.dialogs.ListDialog;
+import org.eclipse.ui.dialogs.SelectionDialog;
 import org.python.copiedfromeclipsesrc.PythonListEditor;
 import org.python.pydev.ast.interpreter_managers.IInterpreterProviderFactory;
 import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
@@ -1121,4 +1125,57 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
         }
     }
 
+    public void restoreInterpreterInfos(boolean editorChanged,
+            Shell shell, IInterpreterManager iInterpreterManager) {
+        final Set<String> interpreterNamesToRestore = this.getInterpreterExeOrJarToRestoreAndClear();
+        final IInterpreterInfo[] exesList = this.getExesList();
+
+        if (!editorChanged && interpreterNamesToRestore.size() == 0) {
+            IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+            SelectionDialog listDialog = AbstractInterpreterPreferencesPage.createChooseIntepreterInfoDialog(
+                    workbenchWindow, exesList,
+                    "Select interpreters to be restored", true);
+
+            int open = listDialog.open();
+            if (open != ListDialog.OK) {
+                return;
+            }
+            Object[] result = listDialog.getResult();
+            if (result == null || result.length == 0) {
+                return;
+
+            }
+            for (Object o : result) {
+                interpreterNamesToRestore.add(((IInterpreterInfo) o).getExecutableOrJar());
+            }
+
+        }
+
+        //this is the default interpreter
+        ProgressMonitorDialog monitorDialog = new AsynchronousProgressMonitorDialog(shell);
+        monitorDialog.setBlockOnOpen(false);
+
+        try {
+            IRunnableWithProgress operation = new IRunnableWithProgress() {
+
+                @Override
+                public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+                    monitor.beginTask("Restoring PYTHONPATH", IProgressMonitor.UNKNOWN);
+                    try {
+                        pushExpectedSetInfos();
+                        //clear all but the ones that appear
+                        iInterpreterManager.setInfos(exesList, interpreterNamesToRestore, monitor);
+                    } finally {
+                        popExpectedSetInfos();
+                        monitor.done();
+                    }
+                }
+            };
+
+            monitorDialog.run(true, true, operation);
+
+        } catch (Exception e) {
+            Log.log(e);
+        }
+    }
 }

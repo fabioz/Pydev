@@ -633,6 +633,12 @@
                id="org.python.pydev.editor.actions.navigation.pyShowOutline">
          </action>
          <action
+               definitionId="org.python.pydev.editor.actions.pySelectInterpreter"
+               label="Select default interpreter"
+               class="org.python.pydev.editor.actions.PySelectInterpreter"
+               id="org.python.pydev.editor.actions.pySelectInterpreter">
+         </action>
+         <action
                definitionId="org.python.pydev.editor.actions.pyShowBrowser"
                label="Show Global Tokens Browser"
                class="org.python.pydev.editor.actions.PyShowBrowser"
@@ -858,6 +864,13 @@
             categoryId="org.python.pydev.ui.category.source"
             id="org.python.pydev.editor.actions.pyShowOutline">
       </command>
+<!-- command: Select default interpreter-->
+      <command
+            name="PyDev: Select default interpreter"
+            description="Select the default interpreter to be used."
+            categoryId="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.pySelectInterpreter">
+      </command>
 <!-- command: Show browser-->
       <command
             name="Python Show Global Tokens (Editor)"
@@ -1054,6 +1067,12 @@
             sequence="M1+O"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.pyShowOutline"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            sequence="M1+M2+M3+I"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="org.python.pydev.editor.actions.pySelectInterpreter"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
