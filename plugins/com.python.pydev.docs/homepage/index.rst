@@ -35,7 +35,7 @@
         <a href="https://www.exporthub.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/exporthub.jpg" alt="ExportHub" title="https://www.exporthub.com/" /></a>
 
         <a href="http://smålånutensikkerhet.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/skazani_logo.png" alt="http://smålånutensikkerhet.com/" title="http://smålånutensikkerhet.com/" /></a>
-        
+
         <a href="https://www.redfin.com/city/16163/WA/Seattle" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/redfin.png" alt="Redfin" title="https://www.redfin.com/city/16163/WA/Seattle" /></a>
 
         <a href="https://www.websitehostingrating.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/webhostingrating.png" alt="websitehostingrating" title="https://www.websitehostingrating.com/" /></a>
@@ -44,7 +44,7 @@
         <a href="https://www.vpsserver.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/vpsserver50-50.png" alt="vpsserver" title="https://www.vpsserver.com" /></a>
 
         <a href="https://allesrefurbished.nl" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/alles_refurbished.png" alt="Alles Refurbished - overview of refurbished tablets, telephones and more (in Dutch)" title="Alles Refurbished - overview of refurbished tablets, telephones and more (in Dutch)" /></a>
-        
+
         <a href="https://www.immigrationlawofmt.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/immigrationlawofmt.png" alt="immigrationlawofmt" title="https://www.immigrationlawofmt.com" /></a>
 
 
@@ -186,6 +186,25 @@ To show your appreciation for PyDev and to keep it going strong, help to crowdfu
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
+Release 6.5.0 (2018-09-01)
+=============================
+
+* **Debugger**
+
+	* Debugger is **much** more responsive (fixed bug in reader/writer on the PyDev side).
+	* **breakpoint()** builtin is now supported to add a programmatic breakpoint (on any Python version).
+	* Watch expression no longer giving error if evaluation is empty (patch by glhez).
+
+* **Editor**
+
+	* Code folding of **#region/#endregion** regions (patch by ghbcode).
+	* There's a new action which allows creating local imports from a global import (use **Ctrl+1** on top of global import name).
+
+
+* It's now possible to change the default interpreter through an action (default binding: **Ctrl+Shift+Alt+I**).
+* The interactive console now has scroll lock (patch by bongibong).
+
+
 Release 6.4.4 (2018-07-28)
 =============================
 
@@ -201,49 +220,6 @@ Release 6.4.4 (2018-07-28)
 
 	* Fixed issue parsing and analyzing f-strings.
 
-Release 6.4.3 (2018-07-04)
-=============================
-
-* Fixed critical error on debugger (could deadlock when creating a new thread).
-
-Release 6.4.2 (2018-07-02)
-=============================
-
-* Fixed critical error parsing f-strings.
-
-Release 6.4.1 (2018-06-23)
-=============================
-
-* **Debugger**
-
-	* Fixed issue tracing lamda functions.
-	* pydevd.settrace() could end up not stopping the debugger properly.
-
-* Grammar: fixed issue parsing f-strings.
-
-Release 6.4.0 (2018-06-18)
-=============================
-
-* **Debugger**
-
-	* Notification of threads is done as they're created instead of synchronized afterwards.
-	* Support for using frame evaluation disabled by default as it made the debugger much slower on some cases.
-	* Fixed case where breakpoint was missed if an exception was raised in a given line.
-	* Properly break on unhandled exceptions on threads.
-	* Add missing import which affected repl with IPython.
-	* Fix for case where breakpoints could be missed.
-
-* **Code Formatter**
-
-	* It's now possible to use the PyDev code formatter using the command line.
-		* Install with: **pip install pydevf**
-		* Fixes many common formatter errors.
-		* Tries to keep code close to the original formatting.
-		* see: https://github.com/fabioz/PyDev.Formatter for more details.
-
-	* Fixed issue where blank line was being put in the wrong place in the PyDev code formatter.
-
-* Fixed issue sending current line to interactive console (F2).
 
 `View release notes for previous releases`_
 

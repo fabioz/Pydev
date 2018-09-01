@@ -5,6 +5,24 @@ History For PyDev
 .. _`update sites page`: update_sites/index.html
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
+Release 6.5.0 (2018-09-01)
+=============================
+
+
+* **Debugger**
+
+	* Debugger is **much** more responsive (fixed bug in reader/writer on the PyDev side).
+	* **breakpoint()** builtin is now supported to add a programmatic breakpoint (on any Python version).
+	* Watch expression no longer giving error if evaluation is empty (patch by glhez).
+
+* **Editor**
+
+	* Code folding of **#region/#endregion** regions (patch by ghbcode).
+	* There's a new action which allows creating local imports from a global import (use **Ctrl+1** on top of global import name).
+
+
+* It's now possible to change the default interpreter through an action (default binding: **Ctrl+Shift+Alt+I**).
+* The interactive console now has scroll lock (patch by bongibong).
 
 Release 6.4.4 (2018-07-28)
 =============================

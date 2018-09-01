@@ -154,6 +154,32 @@ LiClipse you directly support the development of PyDev).</p>
 <p>Thank you to all PyDev supporters: <a class="reference external" href="https://www.brainwy.com/supporters/PyDev">https://www.brainwy.com/supporters/PyDev</a>.</p>
 <p>To show your appreciation for PyDev and to keep it going strong, help to crowdfund through <a class="reference external" href="https://www.patreon.com/fabioz">https://www.patreon.com/fabioz</a>.</p>
 </div>
+<div class="section" id="release-6-5-0-2018-09-01">
+<h1>Release 6.5.0 (2018-09-01)</h1>
+<ul>
+<li><p class="first"><strong>Debugger</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Debugger is <strong>much</strong> more responsive (fixed bug in reader/writer on the PyDev side).</li>
+<li><strong>breakpoint()</strong> builtin is now supported to add a programmatic breakpoint (on any Python version).</li>
+<li>Watch expression no longer giving error if evaluation is empty (patch by glhez).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Editor</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Code folding of <strong>#region/#endregion</strong> regions (patch by ghbcode).</li>
+<li>There's a new action which allows creating local imports from a global import (use <strong>Ctrl+1</strong> on top of global import name).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first">It's now possible to change the default interpreter through an action (default binding: <strong>Ctrl+Shift+Alt+I</strong>).</p>
+</li>
+<li><p class="first">The interactive console now has scroll lock (patch by bongibong).</p>
+</li>
+</ul>
+</div>
 <div class="section" id="release-6-4-4-2018-07-28">
 <h1>Release 6.4.4 (2018-07-28)</h1>
 <ul>
@@ -174,70 +200,6 @@ LiClipse you directly support the development of PyDev).</p>
 <li>Fixed issue parsing and analyzing f-strings.</li>
 </ul>
 </blockquote>
-</li>
-</ul>
-</div>
-<div class="section" id="release-6-4-3-2018-07-04">
-<h1>Release 6.4.3 (2018-07-04)</h1>
-<ul class="simple">
-<li>Fixed critical error on debugger (could deadlock when creating a new thread).</li>
-</ul>
-</div>
-<div class="section" id="release-6-4-2-2018-07-02">
-<h1>Release 6.4.2 (2018-07-02)</h1>
-<ul class="simple">
-<li>Fixed critical error parsing f-strings.</li>
-</ul>
-</div>
-<div class="section" id="release-6-4-1-2018-06-23">
-<h1>Release 6.4.1 (2018-06-23)</h1>
-<ul>
-<li><p class="first"><strong>Debugger</strong></p>
-<blockquote>
-<ul class="simple">
-<li>Fixed issue tracing lamda functions.</li>
-<li>pydevd.settrace() could end up not stopping the debugger properly.</li>
-</ul>
-</blockquote>
-</li>
-<li><p class="first">Grammar: fixed issue parsing f-strings.</p>
-</li>
-</ul>
-</div>
-<div class="section" id="release-6-4-0-2018-06-18">
-<h1>Release 6.4.0 (2018-06-18)</h1>
-<ul>
-<li><p class="first"><strong>Debugger</strong></p>
-<blockquote>
-<ul class="simple">
-<li>Notification of threads is done as they're created instead of synchronized afterwards.</li>
-<li>Support for using frame evaluation disabled by default as it made the debugger much slower on some cases.</li>
-<li>Fixed case where breakpoint was missed if an exception was raised in a given line.</li>
-<li>Properly break on unhandled exceptions on threads.</li>
-<li>Add missing import which affected repl with IPython.</li>
-<li>Fix for case where breakpoints could be missed.</li>
-</ul>
-</blockquote>
-</li>
-<li><p class="first"><strong>Code Formatter</strong></p>
-<blockquote>
-<ul class="simple">
-<li><dl class="first docutils">
-<dt>It's now possible to use the PyDev code formatter using the command line.</dt>
-<dd><ul class="first last">
-<li>Install with: <strong>pip install pydevf</strong></li>
-<li>Fixes many common formatter errors.</li>
-<li>Tries to keep code close to the original formatting.</li>
-<li>see: <a class="reference external" href="https://github.com/fabioz/PyDev.Formatter">https://github.com/fabioz/PyDev.Formatter</a> for more details.</li>
-</ul>
-</dd>
-</dl>
-</li>
-<li>Fixed issue where blank line was being put in the wrong place in the PyDev code formatter.</li>
-</ul>
-</blockquote>
-</li>
-<li><p class="first">Fixed issue sending current line to interactive console (F2).</p>
 </li>
 </ul>
 <p><a class="reference external" href="history_pydev.html">View release notes for previous releases</a></p>
