@@ -60,12 +60,17 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
     private ILinkContainer linkContainer; // console we are attached to
     private boolean onlyCreateLinksForExistingFiles = true;
     private IProject project;
+    private boolean updatedProjectAndWorkingDir = false;
 
     private void updateProjectAndWorkingDir() {
+        if (updatedProjectAndWorkingDir) {
+            return;
+        }
         IProcess process = DebugUITools.getCurrentProcess();
         if (process != null) {
             ILaunch launch = process.getLaunch();
             if (launch != null) {
+                updatedProjectAndWorkingDir = true;
                 ILaunchConfiguration lc = launch.getLaunchConfiguration();
                 initLaunchConfiguration(lc);
             }
@@ -82,6 +87,9 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
 
     private IPath workingDirectory;
 
+    /**
+     * @return may be null.
+     */
     public IPath getWorkingDirectory() {
         if (workingDirectory == null) {
             updateProjectAndWorkingDir();
@@ -161,8 +169,11 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
                 mappedResources = launchConfiguration.getMappedResources();
                 if (mappedResources != null && mappedResources.length > 0) {
                     this.project = mappedResources[0].getProject();
-                    this.workingDirectory = PythonRunnerConfig.getWorkingDirectory(launchConfiguration,
-                            PythonNature.getPythonNature(project));
+                    final PythonNature nature = PythonNature.getPythonNature(project);
+                    if (nature != null) {
+                        this.workingDirectory = PythonRunnerConfig.getWorkingDirectory(launchConfiguration,
+                                nature);
+                    }
                 }
             } catch (Exception e) {
                 Log.log(e);
