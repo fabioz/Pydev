@@ -41,6 +41,7 @@ import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.FontUtils;
 import org.python.pydev.shared_ui.IFontUsage;
+import org.python.pydev.shared_ui.dialogs.InputDialogWithLongMessage;
 
 /**
  * Applies 2to3.py in the selected folder(s)/file(s)
@@ -116,7 +117,8 @@ public class Py2To3 extends PyResourceAction implements IObjectActionDelegate {
         }
         final int maxChars = max;
 
-        InputDialog d = new InputDialog(EditorUtils.getShell(), "Parameters for 2to3.py", msg, "", null) {
+        InputDialogWithLongMessage d = new InputDialogWithLongMessage(EditorUtils.getShell(), "Parameters for 2to3.py",
+                msg, "", null) {
             int averageCharWidth;
             int height;
 
