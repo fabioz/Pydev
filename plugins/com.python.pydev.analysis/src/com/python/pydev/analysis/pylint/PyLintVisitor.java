@@ -12,7 +12,6 @@
 package com.python.pydev.analysis.pylint;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
@@ -36,9 +35,8 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
  *
  * @author Fabio Zadrozny
  */
-/*default*/ final class PyLintVisitor extends OnlyRemoveMarkersPyLintVisitor {
+/*default*/ public final class PyLintVisitor extends OnlyRemoveMarkersPyLintVisitor {
 
-    private static Object lock = new Object();
     private IDocument document;
     private IProgressMonitor monitor;
 
@@ -47,30 +45,6 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
         super(resource);
         this.document = document;
         this.monitor = monitor;
-    }
-
-    static void write(String cmdLineToExe, IExternalCodeAnalysisStream out, Object... args) {
-        try {
-            if (out != null) {
-                synchronized (lock) {
-                    if (args != null) {
-                        for (Object arg : args) {
-                            if (arg instanceof String) {
-                                cmdLineToExe += " " + arg;
-                            } else if (arg instanceof String[]) {
-                                String[] strings = (String[]) arg;
-                                for (String string : strings) {
-                                    cmdLineToExe += " " + string;
-                                }
-                            }
-                        }
-                    }
-                    out.write(cmdLineToExe + "\n");
-                }
-            }
-        } catch (IOException e) {
-            Log.log(e);
-        }
     }
 
     private PyLintAnalysis pyLintRunnable;

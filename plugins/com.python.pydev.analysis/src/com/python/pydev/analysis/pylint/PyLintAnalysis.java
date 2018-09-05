@@ -24,17 +24,19 @@ import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.io.FileUtils;
-import org.python.pydev.shared_core.io.ThreadStreamReader;
 import org.python.pydev.shared_core.markers.PyMarkerUtils;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
+import com.python.pydev.analysis.external.ExternalAnalizerProcessWatchDoc;
+import com.python.pydev.analysis.external.IExternalAnalyzer;
 import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
+import com.python.pydev.analysis.external.WriteToStreamHelper;
 
 /**
  * Helper class which will start a process to collect PyLint information and process it.
  */
-/*default*/ final class PyLintAnalysis {
+/*default*/ final class PyLintAnalysis implements IExternalAnalyzer {
 
     private IResource resource;
     private IDocument document;
@@ -42,7 +44,6 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
 
     List<PyMarkerUtils.MarkerInfo> markers = new ArrayList<PyMarkerUtils.MarkerInfo>();
     private IProgressMonitor monitor;
-    private Process process;
     private Thread processWatchDoc;
     private File pyLintLocation;
 
@@ -98,7 +99,7 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
         // run pylint in project location
         IProject project = resource.getProject();
         File workingDir = project.getLocation().toFile();
-
+        Process process;
         if (isPyScript) {
             // run Python script (lint.py) with the interpreter of current project
             PythonNature nature = PythonNature.getPythonNature(project);
@@ -108,78 +109,28 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
                 return;
             }
             String interpreter = nature.getProjectInterpreter().getExecutableOrJar();
-            PyLintVisitor.write("PyLint: Executing command line:", out, script, args);
+            WriteToStreamHelper.write("PyLint: Executing command line:", out, script, args);
             SimplePythonRunner runner = new SimplePythonRunner();
             String[] parameters = SimplePythonRunner.preparePythonCallParameters(interpreter, script, args);
 
             Tuple<Process, String> r = runner.run(parameters, workingDir, nature, monitor);
-            this.process = r.o1;
+            process = r.o1;
         } else {
             // run executable command (pylint or pylint.bat or pylint.exe)
-            PyLintVisitor.write("PyLint: Executing command line:", out, (Object) args);
+            WriteToStreamHelper.write("PyLint: Executing command line:", out, (Object) args);
             SimpleRunner simpleRunner = new SimpleRunner();
             Tuple<Process, String> r = simpleRunner.run(args, workingDir, PythonNature.getPythonNature(project),
                     null);
-            this.process = r.o1;
+            process = r.o1;
         }
-        this.processWatchDoc = new Thread() {
-            @Override
-            public void run() {
-                //No need to synchronize as we'll waitFor() the process before getting the contents.
-                ThreadStreamReader std = new ThreadStreamReader(process.getInputStream(), false, null);
-                ThreadStreamReader err = new ThreadStreamReader(process.getErrorStream(), false, null);
-
-                std.start();
-                err.start();
-
-                while (process.isAlive()) {
-                    if (monitor.isCanceled()) {
-                        std.stopGettingOutput();
-                        err.stopGettingOutput();
-                        return;
-                    }
-                    synchronized (this) {
-                        try {
-                            this.wait(20);
-                        } catch (InterruptedException e) {
-                            // Just proceed to another check.
-                        }
-                    }
-                }
-
-                if (monitor.isCanceled()) {
-                    std.stopGettingOutput();
-                    err.stopGettingOutput();
-                    return;
-                }
-
-                // Wait for the other threads to finish getting the output
-                try {
-                    std.join();
-                } catch (InterruptedException e) {
-                }
-                try {
-                    err.join();
-                } catch (InterruptedException e) {
-                }
-
-                if (monitor.isCanceled()) {
-                    std.stopGettingOutput();
-                    err.stopGettingOutput();
-                    return;
-                }
-
-                String output = std.getAndClearContents();
-                String errors = err.getAndClearContents();
-                afterRunProcess(output, errors, out);
-            }
-        };
+        this.processWatchDoc = new ExternalAnalizerProcessWatchDoc(out, monitor, process, this);
         this.processWatchDoc.start();
     }
 
+    @Override
     public void afterRunProcess(String output, String errors, IExternalCodeAnalysisStream out) {
-        PyLintVisitor.write("PyLint: The stdout of the command line is:", out, output);
-        PyLintVisitor.write("PyLint: The stderr of the command line is:", out, errors);
+        WriteToStreamHelper.write("PyLint: The stdout of the command line is:", out, output);
+        WriteToStreamHelper.write("PyLint: The stderr of the command line is:", out, errors);
 
         StringTokenizer tokenizer = new StringTokenizer(output, "\r\n");
 
@@ -288,6 +239,7 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
      * Waits for the PyLint processing to finish (note that canceling the monitor should also
      * stop the analysis/kill the related process).
      */
+    @Override
     public void join() {
         if (processWatchDoc != null) {
             try {
