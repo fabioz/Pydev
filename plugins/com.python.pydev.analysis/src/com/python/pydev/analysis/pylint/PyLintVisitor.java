@@ -20,7 +20,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
@@ -28,6 +27,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.markers.PyMarkerUtils;
+import org.python.pydev.shared_core.progress.NullProgressMonitorWrapper;
 
 import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
 
@@ -71,24 +71,6 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
         } catch (IOException e) {
             Log.log(e);
         }
-    }
-
-    /**
-     * Helper class to monitor the cancel state of another monitor.
-     */
-    private static class NullProgressMonitorWrapper extends NullProgressMonitor {
-
-        private IProgressMonitor wrap;
-
-        public NullProgressMonitorWrapper(IProgressMonitor monitor) {
-            this.wrap = monitor;
-        }
-
-        @Override
-        public boolean isCanceled() {
-            return super.isCanceled() || this.wrap.isCanceled();
-        }
-
     }
 
     private PyLintAnalysis pyLintRunnable;
