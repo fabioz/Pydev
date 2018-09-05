@@ -46,7 +46,7 @@ public class InputDialogWithLongMessage extends Dialog {
     /**
      * The input value; the empty string by default.
      */
-    private String value = "";//$NON-NLS-1$
+    protected String value = "";//$NON-NLS-1$
 
     /**
      * The input validator, or <code>null</code> if none.
@@ -56,12 +56,12 @@ public class InputDialogWithLongMessage extends Dialog {
     /**
      * Ok button widget.
      */
-    private Button okButton;
+    protected Button okButton;
 
     /**
      * Input text widget.
      */
-    private Text text;
+    protected Text text;
 
     /**
      * Error message label widget.
@@ -122,8 +122,7 @@ public class InputDialogWithLongMessage extends Dialog {
     @Override
     protected void createButtonsForButtonBar(Composite parent) {
         // create OK and Cancel buttons by default
-        okButton = createButton(parent, IDialogConstants.OK_ID,
-                IDialogConstants.OK_LABEL, true);
+        okButton = createOKButton(parent);
         createButton(parent, IDialogConstants.CANCEL_ID,
                 IDialogConstants.CANCEL_LABEL, false);
         //do this here because setting the text will set enablement on the ok
@@ -133,6 +132,15 @@ public class InputDialogWithLongMessage extends Dialog {
             text.setText(value);
             text.selectAll();
         }
+    }
+
+    protected Button createOKButton(Composite parent) {
+        return createButton(parent, IDialogConstants.OK_ID,
+                getOkButtonLabel(), true);
+    }
+
+    protected String getOkButtonLabel() {
+        return IDialogConstants.OK_LABEL;
     }
 
     @Override

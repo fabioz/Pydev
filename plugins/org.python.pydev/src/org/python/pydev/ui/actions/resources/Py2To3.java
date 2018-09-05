@@ -128,6 +128,11 @@ public class Py2To3 extends PyResourceAction implements IObjectActionDelegate {
             }
 
             @Override
+            protected String getOkButtonLabel() {
+                return "Run with specified parameters";
+            }
+
+            @Override
             protected Control createDialogArea(Composite parent) {
                 try {
                     FontData labelFontData = FontUtils.getFontData(IFontUsage.DIALOG, false);
@@ -156,8 +161,9 @@ public class Py2To3 extends PyResourceAction implements IObjectActionDelegate {
                     result.x = (int) (averageCharWidth * maxChars * 1.15);
                 }
                 if (height > 0 && splitInLines.size() > 0) {
-                    result.y = height * (splitInLines.size() + 6); //put some lines extra (we need the input line too)
+                    result.y = Math.max(height * (int) (splitInLines.size() * 1.5), result.y); //put some lines extra (we need the input line too)
                 }
+
                 return result;
             }
         };
