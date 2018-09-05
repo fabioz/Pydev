@@ -43,7 +43,7 @@ import com.python.pydev.analysis.AnalysisPreferences;
 import com.python.pydev.analysis.OccurrencesAnalyzer;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
-import com.python.pydev.analysis.pylint.IPyLintVisitor;
+import com.python.pydev.analysis.external.IExternalCodeAnalysisVisitor;
 import com.python.pydev.analysis.pylint.PyLintVisitorFactory;
 
 /**
@@ -65,7 +65,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
     private IResource resource;
     private ICallback<IModule, Integer> module;
     private int moduleRequest;
-    private IPyLintVisitor pyLintVisitor;
+    private IExternalCodeAnalysisVisitor pyLintVisitor;
 
     private boolean onlyRecreateCtxInsensitiveInfo;
 

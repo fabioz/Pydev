@@ -12,15 +12,17 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IModule;
 import org.python.pydev.shared_core.callbacks.ICallback;
 
+import com.python.pydev.analysis.external.IExternalCodeAnalysisVisitor;
+
 public class PyLintVisitorFactory {
 
-    public static IPyLintVisitor create(IResource resource, IDocument document, ICallback<IModule, Integer> module,
+    public static IExternalCodeAnalysisVisitor create(IResource resource, IDocument document,
+            ICallback<IModule, Integer> module,
             IProgressMonitor internalCancelMonitor) {
         if (PyLintPreferences.usePyLint() == false) {
             return new OnlyRemoveMarkersPyLintVisitor(resource);
         } else {
             return new PyLintVisitor(resource, document, module, internalCancelMonitor);
         }
-
     }
 }

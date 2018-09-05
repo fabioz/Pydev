@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.python.pydev.analysis.pylint;
+package com.python.pydev.analysis.external;
 
 import java.util.List;
 
@@ -13,7 +13,7 @@ import org.python.pydev.shared_core.markers.PyMarkerUtils;
 /**
  * See: org.python.pydev.ast.builder.pylint.PyLintVisitorFactory to create PyLint visitors.
  */
-public interface IPyLintVisitor {
+public interface IExternalCodeAnalysisVisitor {
 
     /**
      * Deletes any related markers.

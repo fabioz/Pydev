@@ -1,8 +1,8 @@
-package com.python.pydev.analysis.pylint;
+package com.python.pydev.analysis.external;
 
 import java.io.IOException;
 
-public interface IPyLintStream {
+public interface IExternalCodeAnalysisStream {
 
     void write(String string) throws IOException; // IOConsoleOutputStream
 
