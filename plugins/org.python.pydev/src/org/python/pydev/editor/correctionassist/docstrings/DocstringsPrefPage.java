@@ -42,7 +42,7 @@ public class DocstringsPrefPage extends FieldEditorPreferencePage implements IWo
 
     public static final String DOCSTRINGSTYLE_EPYDOC = "@";
 
-    public static final String DOCSTRINGSTYLE_GOOGLE = "";
+    public static final String DOCSTRINGSTYLE_GOOGLE = "G";
 
     public static final String DEFAULT_P_DOCSTIRNGSTYLE = DOCSTRINGSTYLE_SPHINX;
 
