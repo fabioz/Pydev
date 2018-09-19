@@ -42,7 +42,9 @@ public class DocstringsPrefPage extends FieldEditorPreferencePage implements IWo
 
     public static final String DOCSTRINGSTYLE_EPYDOC = "@";
 
-    public static final String DEFAULT_P_DOCSTIRNGSTYLE = DOCSTRINGSTYLE_SPHINX;
+    public static final String DOCSTRINGSTYLE_GOOGLE = "G";
+
+    public static final String DEFAULT_P_DOCSTRINGSTYLE = DOCSTRINGSTYLE_SPHINX;
 
     public static final String TYPETAG_GENERATION_NEVER = "Never";
 
@@ -82,7 +84,7 @@ public class DocstringsPrefPage extends FieldEditorPreferencePage implements IWo
             return ":"; //testing
         }
 
-        return PydevPrefs.getEclipsePreferences().get(P_DOCSTRINGSTYLE, DEFAULT_P_DOCSTIRNGSTYLE);
+        return PydevPrefs.getEclipsePreferences().get(P_DOCSTRINGSTYLE, DEFAULT_P_DOCSTRINGSTYLE);
     }
 
     private final static Map<String, String> strToMarker = new HashMap<String, String>();
@@ -158,7 +160,8 @@ public class DocstringsPrefPage extends FieldEditorPreferencePage implements IWo
 
         RadioGroupFieldEditor docstringStyleEditor = new RadioGroupFieldEditor(P_DOCSTRINGSTYLE, "Docstring style", 1,
                 new String[][] { { "Sphinx (:tag name:)", DOCSTRINGSTYLE_SPHINX },
-                        { "EpyDoc (@tag name:)", DOCSTRINGSTYLE_EPYDOC }
+                        { "EpyDoc (@tag name:)", DOCSTRINGSTYLE_EPYDOC },
+                        { "Google (name:)", DOCSTRINGSTYLE_GOOGLE }
                 },
                 p2, true);
         addField(docstringStyleEditor);

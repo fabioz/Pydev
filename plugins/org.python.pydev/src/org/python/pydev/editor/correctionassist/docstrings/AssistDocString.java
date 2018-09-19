@@ -110,12 +110,16 @@ public class AssistDocString implements IAssistProps {
         }
 
         final String preferredDocstringStyle2 = preferredDocstringStyle;
-
-        l.add(CompletionProposalFactory.get().createAssistDocstringCompletionProposal("", offsetPosToAdd, 0, newOffset,
+        if (preferredDocstringStyle.equals(DocstringsPrefPage.DOCSTRINGSTYLE_GOOGLE)) {
+            buf.append("Args:");
+        }
+        l.add(CompletionProposalFactory.get().createAssistDocstringCompletionProposal("", offsetPosToAdd, 0,
+                newOffset,
                 image,
                 finalDocstringFromFunction != null ? "Update docstring" : "Make docstring", null, null,
                 IPyCompletionProposal.PRIORITY_DEFAULT, null, initial, delimiter, docStringMarker, delimiterAndIndent,
                 preferredDocstringStyle2, inFunctionLine, finalDocstringFromFunction, indentation, buf, params));
+
         return l;
     }
 
@@ -183,6 +187,9 @@ public class AssistDocString implements IAssistProps {
         Pattern otherPattern = Pattern
                 .compile("\\s*" + Pattern.quote(docstringStyle) + "(\\w)+(\\b)");
 
+        // Google docstring .compile("\\s*(\\w)*:");
+        Pattern googlePattern = Pattern.compile("\\s*(\\w)*:");
+
         Map<String, ParamInfo> paramInfos = new HashMap<>();
 
         List<String> splitted = StringUtils.splitInLines(baseDocstring, false);
@@ -223,6 +230,12 @@ public class AssistDocString implements IAssistProps {
                         Matcher otherMatcher = otherPattern.matcher(s);
                         if (otherMatcher.lookingAt()) {
                             otherMatches.add(i);
+                        } else {
+                            Matcher googleMatcher = googlePattern.matcher(s);
+                            if (googleMatcher.lookingAt()) {
+                                String paramName = googleMatcher.group(1);
+                                getParamInfo(paramInfos, paramName).paramLine = i;
+                            }
                         }
                     }
                 }
@@ -258,8 +271,13 @@ public class AssistDocString implements IAssistProps {
 
                 int addIndex = getAddIndex(paramName, params, paramI, paramInfos, otherMatches, splitted);
                 // neither is present, so, add both at a given location (if needed).
-                splitted.add(addIndex, buf.append(indent).append(docstringStyle).append("param ")
-                        .append(paramName).append(":").toString());
+                if (docstringStyle.equals(Character.toString('G'))) {
+                    splitted.add(addIndex,
+                            buf.append(indent).append(indent).append(paramName).append(":").toString());
+                } else {
+                    splitted.add(addIndex, buf.append(indent).append(docstringStyle).append("param ")
+                            .append(paramName).append(":").toString());
+                }
                 buf.clear();
                 incrementExistingLines(paramInfos, otherMatches, addIndex);
                 if (newParamInfo != null) {
@@ -282,9 +300,12 @@ public class AssistDocString implements IAssistProps {
                     // Add only the type after the existing param (if it has to be added)
                     if (addTypeForParam) {
                         int addIndex = existingInfo.paramLine + 1;
-
-                        splitted.add(addIndex, buf.append(indent).append(docstringStyle).append("type ")
-                                .append(paramName).append(":").toString());
+                        if (docstringStyle.equals(Character.toString('G'))) {
+                            splitted.add(addIndex, buf.append(indent).append(paramName).append(":").toString());
+                        } else {
+                            splitted.add(addIndex, buf.append(indent).append(docstringStyle).append("type ")
+                                    .append(paramName).append(":").toString());
+                        }
                         buf.clear();
                         incrementExistingLines(paramInfos, otherMatches, addIndex);
                         existingInfo.typeLine = addIndex;

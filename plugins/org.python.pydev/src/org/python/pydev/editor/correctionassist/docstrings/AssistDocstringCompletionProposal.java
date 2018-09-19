@@ -70,9 +70,13 @@ public class AssistDocstringCompletionProposal extends PyCompletionProposal {
                     if (!PySelection.isIdentifier(paramName)) {
                         continue;
                     }
-                    buf.append(delimiterAndIndent).append(preferredDocstringStyle2).append("param ")
-                            .append(paramName)
-                            .append(":");
+                    if (this.preferredDocstringStyle2.equals("G")) {
+                        buf.append(delimiterAndIndent).append(indentation).append(paramName).append(":");
+                    } else {
+                        buf.append(delimiterAndIndent).append(preferredDocstringStyle2).append("param ")
+                                .append(paramName)
+                                .append(":");
+                    }
                     if (DocstringsPrefPage.getTypeTagShouldBeGenerated(paramName)) {
                         buf.append(delimiterAndIndent).append(preferredDocstringStyle2).append("type ")
                                 .append(paramName)
