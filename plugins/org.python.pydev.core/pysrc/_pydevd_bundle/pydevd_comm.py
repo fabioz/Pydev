@@ -255,6 +255,7 @@ ID_TO_MEANING = {
 
     '200': 'CMD_REDIRECT_OUTPUT',
     '201': 'CMD_GET_NEXT_STATEMENT_TARGETS',
+    '202': 'CMD_SET_PROJECT_ROOTS',
 
     '501': 'CMD_VERSION',
     '502': 'CMD_RETURN',
@@ -751,7 +752,7 @@ class NetCommandFactory:
                 v = v[0:MAX_IO_MSG_SIZE]
                 v += '...'
 
-            v = pydevd_xml.make_valid_xml_value(quote(v, '/>_= \t'))
+            v = pydevd_xml.make_valid_xml_value(quote(v, '/>_= '))
             return NetCommand(str(CMD_WRITE_TO_CONSOLE), 0, '<xml><io s="%s" ctx="%s"/></xml>' % (v, ctx))
         except:
             return self.make_error_message(0, get_exception_traceback_str())
@@ -1021,7 +1022,7 @@ class NetCommandFactory:
 
     def make_input_requested_message(self, started):
         try:
-            return NetCommand(CMD_INPUT_REQUESTED, 0, started)
+            return NetCommand(CMD_INPUT_REQUESTED, 0, str(started))
         except:
             return self.make_error_message(0, get_exception_traceback_str())
 
