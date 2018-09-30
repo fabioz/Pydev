@@ -37,8 +37,8 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.dialogs.ListDialog;
 import org.python.pydev.ast.interpreter_managers.IInterpreterProvider;
 import org.python.pydev.ast.interpreter_managers.IInterpreterProviderFactory;
-import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.ast.interpreter_managers.IInterpreterProviderFactory.InterpreterType;
+import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
@@ -48,7 +48,6 @@ import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_core.progress.AsynchronousProgressMonitorWrapper;
 import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
-import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.ImageCache;
@@ -193,8 +192,12 @@ public class AutoConfigMaker {
      * @return The interpreter found by quick auto-config, or the one chosen by the user for advanced auto-config.
      */
     public ObtainInterpreterInfoOperation autoConfigSearch() {
-        // get the possible interpreters
         final List<PossibleInterpreter> possibleInterpreters = getPossibleInterpreters();
+        return autoConfigSearch(possibleInterpreters);
+    }
+
+    private ObtainInterpreterInfoOperation autoConfigSearch(final List<PossibleInterpreter> possibleInterpreters) {
+        // get the possible interpreters
         // keep track of the selected item
         PossibleInterpreter selectedFromPossible = null;
 
@@ -230,7 +233,7 @@ public class AutoConfigMaker {
     private class PossibleInterpreter {
         private IInterpreterProvider provider;
         private ObtainInterpreterInfoOperation quickOperation;
-        private Tuple<String, String> interpreterNameAndExecutable;
+        private NameAndExecutable interpreterNameAndExecutable;
 
         public PossibleInterpreter(IInterpreterProvider provider) {
             this.provider = provider;
@@ -263,7 +266,7 @@ public class AutoConfigMaker {
                     showErrors, logger, EditorUtils.getShell());
         }
 
-        private Tuple<String, String> getNameAndExecutable() throws Exception {
+        private NameAndExecutable getNameAndExecutable() throws Exception {
             if (interpreterNameAndExecutable != null) {
                 return interpreterNameAndExecutable;
             }
@@ -276,7 +279,7 @@ public class AutoConfigMaker {
                 if (nameToInfo != null) {
                     name = InterpreterConfigHelpers.getUniqueInterpreterName(name, nameToInfo);
                 }
-                interpreterNameAndExecutable = new Tuple<String, String>(name, executable);
+                interpreterNameAndExecutable = new NameAndExecutable(name, executable);
             } else {
                 throw new Exception("Provider is invalid because it returned null from getExecutableOrJar()");
             }

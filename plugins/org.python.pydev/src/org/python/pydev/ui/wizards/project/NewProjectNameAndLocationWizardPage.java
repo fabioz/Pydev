@@ -54,14 +54,13 @@ import org.python.pydev.plugin.PyStructureConfigHelpers;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.PyProjectPythonDetails;
 import org.python.pydev.ui.wizards.gettingstarted.AbstractNewProjectPage;
-import org.python.pydev.utils.ICallback;
 
 /**
  * First page for the new project creation wizard. This page
  * collects the name and location of the new project.
- * 
- * NOTE: COPIED FROM org.eclipse.ui.internal.ide.dialogs.WizardNewProjectNameAndLocationPage 
- * Changed to add the details for the python project type 
+ *
+ * NOTE: COPIED FROM org.eclipse.ui.internal.ide.dialogs.WizardNewProjectNameAndLocationPage
+ * Changed to add the details for the python project type
  */
 
 public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage implements
@@ -91,7 +90,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
 
     /**
      * @return a string as specified in the constants in IPythonNature
-     * @see IPythonNature#PYTHON_VERSION_XXX 
+     * @see IPythonNature#PYTHON_VERSION_XXX
      * @see IPythonNature#JYTHON_VERSION_XXX
      * @see IPythonNature#IRONPYTHON_VERSION_XXX
      */
@@ -362,15 +361,15 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
         projectTypeLabel.setFont(font);
         projectTypeLabel.setText("Project type");
         //let him choose the type of the project
-        details = new PyProjectPythonDetails.ProjectInterpreterAndGrammarConfig(new ICallback() {
-
-            //Whenever the configuration changes there, we must evaluate whether the page is complete
-            @Override
-            public Object call(Object args) throws Exception {
-                setPageComplete(NewProjectNameAndLocationWizardPage.this.validatePage());
-                return null;
-            }
-        });
+        details = new PyProjectPythonDetails.ProjectInterpreterAndGrammarConfig(
+                () -> {
+                    //Whenever the configuration changes there, we must evaluate whether the page is complete
+                    setPageComplete(NewProjectNameAndLocationWizardPage.this.validatePage());
+                    return null;
+                },
+                () -> {
+                    return getProjectLocationFieldValue();
+                });
 
         Control createdOn = details.doCreateContents(projectDetails);
         details.setDefaultSelection();
@@ -512,7 +511,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
     }
 
     /**
-     * Returns the current project location path as entered by 
+     * Returns the current project location path as entered by
      * the user, or its anticipated initial value.
      *
      * @return the project location path, its anticipated initial value, or <code>null</code>
@@ -560,7 +559,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
     /**
      * Returns the value of the project name field
      * with leading and trailing spaces removed.
-     * 
+     *
      * @return the project name in the field
      */
     private String getProjectNameFieldValue() {
@@ -574,7 +573,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
     /**
      * Returns the value of the project location field
      * with leading and trailing spaces removed.
-     * 
+     *
      * @return the project location directory in the field
      */
     private String getProjectLocationFieldValue() {
@@ -623,7 +622,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
      * created. The name is ignored if the createControl(Composite)
      * method has already been called. Leading and trailing spaces
      * in the name are ignored.
-     * 
+     *
      * @param name initial project name for this page
      */
     /* package */void setInitialProjectName(String name) {
@@ -645,7 +644,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
     }
 
     /**
-     * Returns whether this page's controls currently all contain valid 
+     * Returns whether this page's controls currently all contain valid
      * values.
      *
      * @return <code>true</code> if all controls are valid, and

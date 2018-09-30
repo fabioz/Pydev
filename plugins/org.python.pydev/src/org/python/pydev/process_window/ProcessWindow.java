@@ -102,6 +102,7 @@ public abstract class ProcessWindow extends Dialog {
 
     private final int NUMBER_OF_COLUMNS = 10;
     private Label commandToExecuteLabel;
+    private boolean autoRun;
 
     /**
      * This thread is responsible for reading from the process and writing to it asynchronously.
@@ -279,22 +280,26 @@ public abstract class ProcessWindow extends Dialog {
         createLabel(composite, "Arguments to pass to: " + targetExecutable.getAbsolutePath());
         createLabel(composite, "The command line can be changed as needed.");
 
-        Link link = new Link(composite, SWT.None);
-        link.setText("See <a>" + getSeeURL() + "</a>");
-        link.addSelectionListener(new SelectionListener() {
+        String seeURL = getSeeURL();
+        GridData gridData;
+        if (seeURL != null) {
+            Link link = new Link(composite, SWT.None);
+            link.setText("See <a>" + seeURL + "</a>");
+            link.addSelectionListener(new SelectionListener() {
 
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
-            }
+                @Override
+                public void widgetDefaultSelected(SelectionEvent e) {
+                }
 
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                Program.launch(getSeeURL());
-            }
-        });
-        GridData gridData = new GridData(GridData.FILL_HORIZONTAL);
-        gridData.horizontalSpan = NUMBER_OF_COLUMNS;
-        link.setLayoutData(gridData);
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    Program.launch(seeURL);
+                }
+            });
+            gridData = new GridData(GridData.FILL_HORIZONTAL);
+            gridData.horizontalSpan = NUMBER_OF_COLUMNS;
+            link.setLayoutData(gridData);
+        }
 
         //--- Command to execute
         commandToExecuteLabel = createLabel(composite, COMMAND_TO_EXECUTE_LABEL, 1);
@@ -426,6 +431,11 @@ public abstract class ProcessWindow extends Dialog {
     protected void constrainShellSize() {
         getShell().setSize(800, 600);
         super.constrainShellSize();
+        if (autoRun) {
+            RunInUiThread.async(() -> {
+                this.okPressed();
+            }, false);
+        }
     }
 
     @Override
@@ -614,6 +624,10 @@ public abstract class ProcessWindow extends Dialog {
 
     public void setInitialCommandToRun(String initialCommand) {
         this.initialCommand = initialCommand;
+    }
+
+    public void setAutoRun(boolean autoRun) {
+        this.autoRun = autoRun;
     }
 
 }

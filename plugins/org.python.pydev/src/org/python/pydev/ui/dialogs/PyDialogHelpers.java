@@ -100,6 +100,16 @@ public class PyDialogHelpers {
         return dialog.open();
     }
 
+    /**
+     * @return the index chosen or -1 if it was canceled.
+     */
+    public static int openQuestionWithChoices(String title, String message, String... choices) {
+        Shell shell = EditorUtils.getShell();
+        MessageDialog dialog = new MessageDialog(shell, title, null, message, MessageDialog.QUESTION_WITH_CANCEL,
+                choices, 0);
+        return dialog.open();
+    }
+
     public final static int INTERPRETER_CANCEL_CONFIG = -1;
 
     private static MessageDialog dialog = null;

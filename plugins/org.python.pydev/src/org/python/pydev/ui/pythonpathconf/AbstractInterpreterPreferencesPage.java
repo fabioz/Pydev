@@ -11,6 +11,7 @@
  */
 package org.python.pydev.ui.pythonpathconf;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -57,6 +58,11 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
     }
 
     protected abstract AbstractInterpreterEditor getInterpreterEditor(Composite p);
+
+    public void setDefaultProjectLocation(String defaultProjectLocation) {
+        Assert.isNotNull(this.pathEditor, "This method may only be called after the pathEditor is already created.");
+        this.pathEditor.setDefaultProjectLocation(defaultProjectLocation);
+    }
 
     /**
      * Creates a dialog that'll choose from a list of interpreter infos.

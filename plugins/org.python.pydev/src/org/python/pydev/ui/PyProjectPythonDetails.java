@@ -50,14 +50,15 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.utils.ArrayUtils;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.dialogs.SelectNDialog;
+import org.python.pydev.ui.pythonpathconf.AbstractInterpreterPreferencesPage;
 import org.python.pydev.ui.pythonpathconf.AutoConfigMaker;
 import org.python.pydev.ui.pythonpathconf.InterpreterConfigHelpers;
-import org.python.pydev.utils.ICallback;
 
 /**
  * @author Fabio Zadrozny
@@ -83,20 +84,23 @@ public class PyProjectPythonDetails extends PropertyPage {
         public Combo interpretersChoice;
         private Link interpreterNoteText;
         private SelectionListener selectionListener;
-        private ICallback onSelectionChanged;
+        private ICallback0<Object> onSelectionChanged;
         private Label interpreterLabel;
         private Label labelAdditionalGrammarsSelected;
+        private ICallback0<String> getProjectLocation;
 
-        public ProjectInterpreterAndGrammarConfig() {
+        public ProjectInterpreterAndGrammarConfig(ICallback0<String> getProjectLocation) {
             //Don't want to display "config interpreter" dialog when this dialog does that already.
             PyDialogHelpers.enableAskInterpreterStep(false);
+            this.getProjectLocation = getProjectLocation;
         }
 
         /**
          * Optionally, a callback may be passed to be called whenever the selection of the project type changes.
          */
-        public ProjectInterpreterAndGrammarConfig(ICallback callback) {
+        public ProjectInterpreterAndGrammarConfig(ICallback0<Object> callback, ICallback0<String> getProjectLocation) {
             this.onSelectionChanged = callback;
+            this.getProjectLocation = getProjectLocation;
         }
 
         public Control doCreateContents(Composite p) {
@@ -241,11 +245,31 @@ public class PyProjectPythonDetails extends PropertyPage {
                 public void widgetSelected(SelectionEvent e) {
                     String interpreterName = getProjectInterpreter();
                     if (interpreterName != null) {
+                        int USE_PIPENV = 1;
+                        int openQuestionWithChoices = PyDialogHelpers.openQuestionWithChoices(
+                                "How to config interpreter?",
+                                "How would you like to add a new interpreter?",
+                                "Open interpreter preferences page", // 0
+                                "Create using pipenv"); // 1
+
+                        if (openQuestionWithChoices == -1) { // Cancelled.
+                            return;
+                        }
+
                         PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(
                                 null, idToConfig[0], null, null);
-                        dialog.open();
+                        AbstractInterpreterPreferencesPage selectedPage = (AbstractInterpreterPreferencesPage) dialog
+                                .getSelectedPage();
+                        selectedPage.setDefaultProjectLocation(getProjectLocation.call());
+                        if (openQuestionWithChoices == USE_PIPENV) {
+                            // TODO: finish
+                            throw new AssertionError("finish");
+                        } else {
+                            dialog.open();
+                        }
                         //just to re-update it again
                         selectionListener.widgetSelected(null);
+
                     } else {
                         MessageDialog mdialog = new MessageDialog(null, "Configure interpreter", null,
                                 "How would you like to configure the interpreter?", MessageDialog.QUESTION,
@@ -347,7 +371,7 @@ public class PyProjectPythonDetails extends PropertyPage {
         private void triggerCallback() {
             if (onSelectionChanged != null) {
                 try {
-                    onSelectionChanged.call(null);
+                    onSelectionChanged.call();
                 } catch (Exception e1) {
                     Log.log(e1);
                 }
@@ -431,7 +455,10 @@ public class PyProjectPythonDetails extends PropertyPage {
      * The element.
      */
     public IAdaptable element;
-    public ProjectInterpreterAndGrammarConfig projectConfig = new ProjectInterpreterAndGrammarConfig();
+    public ProjectInterpreterAndGrammarConfig projectConfig = new ProjectInterpreterAndGrammarConfig(
+            () -> {
+                return getProject().getLocation().toOSString();
+            });
 
     /*
      *  (non-Javadoc)

@@ -64,23 +64,25 @@ public class PythonInterpreterProviderFactory extends AbstractInterpreterProvide
                         try {
                             @SuppressWarnings("rawtypes")
                             List l = regor.listKeys(key);
-                            for (Object o : l) {
-                                Key openKey = regor.openKey(key, (String) o + "\\InstallPath", Regor.KEY_READ);
-                                if (openKey != null) {
-                                    try {
-                                        byte buf[] = regor.readValue(openKey, "");
-                                        if (buf != null) {
-                                            String parseValue = Regor.parseValue(buf);
-                                            // Ok, this should be the directory
-                                            // where it's installed, try to find
-                                            // a 'python.exe' there...
-                                            File file = new File(parseValue, "python.exe");
-                                            if (file.isFile()) {
-                                                foundVersions.add(file.toString());
+                            if (l != null) {
+                                for (Object o : l) {
+                                    Key openKey = regor.openKey(key, (String) o + "\\InstallPath", Regor.KEY_READ);
+                                    if (openKey != null) {
+                                        try {
+                                            byte buf[] = regor.readValue(openKey, "");
+                                            if (buf != null) {
+                                                String parseValue = Regor.parseValue(buf);
+                                                // Ok, this should be the directory
+                                                // where it's installed, try to find
+                                                // a 'python.exe' there...
+                                                File file = new File(parseValue, "python.exe");
+                                                if (file.isFile()) {
+                                                    foundVersions.add(file.toString());
+                                                }
                                             }
+                                        } finally {
+                                            regor.closeKey(openKey);
                                         }
-                                    } finally {
-                                        regor.closeKey(openKey);
                                     }
                                 }
                             }
