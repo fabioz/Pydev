@@ -31,6 +31,8 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
+import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_ui.ImageCache;
@@ -73,7 +75,7 @@ public abstract class PythonListEditor extends FieldEditor {
     protected Button autoConfigButton;
 
     /**
-     * The Pipenv config button.
+     * The Pipenv config button (may be null as it's only available for cpython).
      */
     protected Button pipenvConfigButton;
 
@@ -106,6 +108,8 @@ public abstract class PythonListEditor extends FieldEditor {
      * The image to be shown in each interpreter.
      */
     private Image imageInterpreter;
+
+    protected abstract IInterpreterManager getInterpreterManager();
 
     /**
      * Creates a new list field editor
@@ -181,12 +185,14 @@ public abstract class PythonListEditor extends FieldEditor {
      */
     private void createButtons(Composite box) {
         addButton = createPushButton(box, "Select executable");//$NON-NLS-1$
-        pipenvConfigButton = createPushButton(box,
-                InterpreterConfigHelpers.CONFIG_NAMES[InterpreterConfigHelpers.CONFIG_PIPENV]);
+        if (getInterpreterManager().getInterpreterType() == IPythonNature.INTERPRETER_TYPE_PYTHON) {
+            pipenvConfigButton = createPushButton(box,
+                    InterpreterConfigHelpers.CONFIG_PIPENV_NAME);
+        }
         autoConfigButton = createPushButton(box,
-                InterpreterConfigHelpers.CONFIG_NAMES[InterpreterConfigHelpers.CONFIG_AUTO]);
+                InterpreterConfigHelpers.CONFIG_AUTO_NAME);
         advAutoConfigButton = createPushButton(box,
-                InterpreterConfigHelpers.CONFIG_NAMES[InterpreterConfigHelpers.CONFIG_ADV_AUTO]);
+                InterpreterConfigHelpers.CONFIG_ADV_AUTO_NAME);
         removeButton = createPushButton(box, "ListEditor.remove");//$NON-NLS-1$
         upButton = createPushButton(box, "ListEditor.up");//$NON-NLS-1$
         downButton = createPushButton(box, "ListEditor.down");//$NON-NLS-1$
@@ -234,7 +240,7 @@ public abstract class PythonListEditor extends FieldEditor {
                     addPressed(InterpreterConfigHelpers.CONFIG_MANUAL);
                 } else if (widget == autoConfigButton) {
                     addPressed(InterpreterConfigHelpers.CONFIG_AUTO);
-                } else if (widget == pipenvConfigButton) {
+                } else if (pipenvConfigButton != null && widget == pipenvConfigButton) {
                     addPressed(InterpreterConfigHelpers.CONFIG_PIPENV);
                 } else if (widget == advAutoConfigButton) {
                     addPressed(InterpreterConfigHelpers.CONFIG_ADV_AUTO);
@@ -512,7 +518,9 @@ public abstract class PythonListEditor extends FieldEditor {
         getListControl(parent).setEnabled(enabled);
         addButton.setEnabled(enabled);
         autoConfigButton.setEnabled(enabled);
-        pipenvConfigButton.setEnabled(enabled);
+        if (pipenvConfigButton != null) {
+            pipenvConfigButton.setEnabled(enabled);
+        }
         removeButton.setEnabled(enabled);
         upButton.setEnabled(enabled);
         downButton.setEnabled(enabled);

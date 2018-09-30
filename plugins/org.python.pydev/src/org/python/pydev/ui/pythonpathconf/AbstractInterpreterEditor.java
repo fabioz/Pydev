@@ -228,6 +228,11 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
         updateTree();
     }
 
+    @Override
+    protected IInterpreterManager getInterpreterManager() {
+        return interpreterManager;
+    }
+
     /**
      * @see org.eclipse.jface.preference.FieldEditor#createControl(org.eclipse.swt.widgets.Composite)
      */
@@ -985,7 +990,8 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
             ObtainInterpreterInfoOperation operation = null;
             if (configType == InterpreterConfigHelpers.CONFIG_PIPENV) {
                 IInterpreterInfo[] interpreterInfos = getExesList();
-                operation = InterpreterConfigHelpers.createPipenvInterpreter(interpreterInfos, getShell(), logger, nameToInfo,
+                operation = InterpreterConfigHelpers.createPipenvInterpreter(interpreterInfos, getShell(), logger,
+                        nameToInfo,
                         defaultProjectLocation, interpreterManager);
 
             } else if (configType != InterpreterConfigHelpers.CONFIG_MANUAL) {
@@ -1001,7 +1007,8 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
                 if (interpreterNameAndExecutable == null) {
                     return null;
                 }
-                boolean foundError = InterpreterConfigHelpers.canAddNameAndExecutable(logger, interpreterNameAndExecutable, nameToInfo,
+                boolean foundError = InterpreterConfigHelpers.canAddNameAndExecutable(logger,
+                        interpreterNameAndExecutable, nameToInfo,
                         getShell());
 
                 if (foundError) {

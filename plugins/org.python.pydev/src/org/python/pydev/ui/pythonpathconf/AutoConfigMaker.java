@@ -49,6 +49,7 @@ import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_core.progress.AsynchronousProgressMonitorWrapper;
 import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 import org.python.pydev.shared_core.structure.Tuple3;
+import org.python.pydev.shared_core.utils.ArrayUtils;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
@@ -124,6 +125,11 @@ public class AutoConfigMaker {
         if (operation == null) {
             return false;
         }
+        return applyOperation(onConfigComplete, operation, interpreterManager, charWriter, true);
+    }
+
+    public static boolean applyOperation(JobChangeAdapter onConfigComplete, ObtainInterpreterInfoOperation operation,
+            IInterpreterManager interpreterManager, CharArrayWriter charWriter, boolean replaceExistingInfos) {
         try {
             final IInterpreterInfo interpreterInfo = operation.result.makeCopy();
             final Set<String> interpreterNamesToRestore = new HashSet<String>(
@@ -139,8 +145,11 @@ public class AutoConfigMaker {
                     monitor.beginTask("Restoring PYTHONPATH", IProgressMonitor.UNKNOWN);
                     try {
                         //set this interpreter as the only interpreter, since none existed before this one
-                        interpreterManager.setInfos(new IInterpreterInfo[] { interpreterInfo },
-                                interpreterNamesToRestore, monitor);
+                        IInterpreterInfo[] infos = new IInterpreterInfo[] { interpreterInfo };
+                        if (!replaceExistingInfos) {
+                            infos = ArrayUtils.concatArrays(interpreterManager.getInterpreterInfos(), infos);
+                        }
+                        interpreterManager.setInfos(infos, interpreterNamesToRestore, monitor);
                     } catch (Exception e) {
                         Log.log(e);
                         //show the user a message (so that it does not fail silently)...

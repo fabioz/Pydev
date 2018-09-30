@@ -94,6 +94,15 @@ public class InterpreterInfoTest extends TestCase {
         check(info8);
     }
 
+    public void testInfoPipenv() throws Exception {
+        InterpreterInfo info = new InterpreterInfo("3.7", "C:\\bin\\python3.7.exe", new ArrayList<String>());
+        info.setPipenvTargetDir("c:\\foo");
+        assertEquals(info.getPipenvTargetDir(), "c:\\foo");
+        InterpreterInfo fromString = InterpreterInfo.fromString(info.toString(), false);
+        assertEquals(info, fromString);
+        assertEquals(fromString.getPipenvTargetDir(), "c:\\foo");
+    }
+
     /**
      * 
      */

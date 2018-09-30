@@ -19,10 +19,10 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.python.pydev.core.IInterpreterInfo;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_ui.field_editors.DirectoryFieldEditorCustom;
 import org.python.pydev.shared_ui.field_editors.FileFieldEditorCustom;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
-import org.python.pydev.ui.pythonpathconf.package_manager.PipenvPackageManager;
 
 public class PipenvDialog extends Dialog {
 
@@ -45,7 +45,7 @@ public class PipenvDialog extends Dialog {
         Assert.isTrue(interpreterInfos.length > 0, "Must pass at least one IInterpreterInfo.");
         this.interpreterInfos = interpreterInfos;
         if (defaultPipenvLocation == null) {
-            defaultPipenvLocation = PipenvPackageManager.searchDefaultPipenvLocation(interpreterInfos[0]);
+            defaultPipenvLocation = PythonNature.searchDefaultPipenvLocation(interpreterInfos[0]);
         }
         this.defaultPipenvLocation = defaultPipenvLocation == null ? "" : defaultPipenvLocation;
         this.defaultProjectLocation = defaultProjectLocation == null ? "" : defaultProjectLocation;

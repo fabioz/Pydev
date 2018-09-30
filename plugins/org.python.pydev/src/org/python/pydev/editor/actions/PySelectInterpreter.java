@@ -85,33 +85,38 @@ public class PySelectInterpreter extends PyAction {
 
                     Shell shell = EditorUtils.getShell();
 
-                    //this is the default interpreter
-                    ProgressMonitorDialog monitorDialog = new AsynchronousProgressMonitorDialog(shell);
-                    monitorDialog.setBlockOnOpen(false);
-
-                    try {
-                        IRunnableWithProgress operation = new IRunnableWithProgress() {
-
-                            @Override
-                            public void run(IProgressMonitor monitor)
-                                    throws InvocationTargetException, InterruptedException {
-                                monitor.beginTask("Restoring PYTHONPATH", IProgressMonitor.UNKNOWN);
-                                try {
-                                    Set<String> interpreterNamesToRestore = new HashSet<>(); // i.e.: don't restore the PYTHONPATH (only order was changed).
-                                    interpreterManager.setInfos(interpreterInfos, interpreterNamesToRestore, monitor);
-                                } finally {
-                                    monitor.done();
-                                }
-                            }
-                        };
-
-                        monitorDialog.run(true, true, operation);
-
-                    } catch (Exception e) {
-                        Log.log(e);
-                    }
+                    setInterpreterInfosWithProgressDialog(interpreterManager, interpreterInfos, shell);
                 }
             }
+        } catch (Exception e) {
+            Log.log(e);
+        }
+    }
+
+    public void setInterpreterInfosWithProgressDialog(IInterpreterManager interpreterManager,
+            final IInterpreterInfo[] interpreterInfos, Shell shell) {
+        //this is the default interpreter
+        ProgressMonitorDialog monitorDialog = new AsynchronousProgressMonitorDialog(shell);
+        monitorDialog.setBlockOnOpen(false);
+
+        try {
+            IRunnableWithProgress operation = new IRunnableWithProgress() {
+
+                @Override
+                public void run(IProgressMonitor monitor)
+                        throws InvocationTargetException, InterruptedException {
+                    monitor.beginTask("Restoring PYTHONPATH", IProgressMonitor.UNKNOWN);
+                    try {
+                        Set<String> interpreterNamesToRestore = new HashSet<>(); // i.e.: don't restore the PYTHONPATH (only order was changed).
+                        interpreterManager.setInfos(interpreterInfos, interpreterNamesToRestore, monitor);
+                    } finally {
+                        monitor.done();
+                    }
+                }
+            };
+
+            monitorDialog.run(true, true, operation);
+
         } catch (Exception e) {
             Log.log(e);
         }

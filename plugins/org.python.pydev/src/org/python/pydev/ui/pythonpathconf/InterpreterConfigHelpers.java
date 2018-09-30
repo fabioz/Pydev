@@ -33,6 +33,7 @@ import org.python.pydev.ast.runners.SimpleJythonRunner;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.preferences.FileTypesPreferences;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -48,13 +49,20 @@ import org.python.pydev.ui.pythonpathconf.package_manager.PipenvPackageManager;
  * @author Andrew Ferrazzutti
  */
 public class InterpreterConfigHelpers {
+
     public final static int CONFIG_MANUAL = 0;
     public final static int CONFIG_AUTO = 1;
     public final static int CONFIG_ADV_AUTO = 2;
     public final static int CONFIG_PIPENV = 3;
-    public final static String[] CONFIG_NAMES = new String[] { "Manual Config", "Select first in PATH",
-            "Select one from PATH", "New with Pipenv" };
-    public final static int NUM_CONFIG_TYPES = 3;
+
+    public static final String CONFIG_MANUAL_CONFIG = "Manual config";
+    public static final String CONFIG_AUTO_NAME = "Select first in PATH";
+    public static final String CONFIG_ADV_AUTO_NAME = "Select one from PATH";
+    public static final String CONFIG_PIPENV_NAME = "New with Pipenv";
+
+    public final static String[] CONFIG_NAMES_FOR_FIRST_INTERPRETER = new String[] { CONFIG_MANUAL_CONFIG,
+            CONFIG_AUTO_NAME,
+            CONFIG_ADV_AUTO_NAME }; // Note: pipenv requires a base interpreter configured and thus doesn't appear here.
 
     public final static String ERMSG_NOLIBS = "The interpreter's standard libraries (typically in a Lib/ folder) are missing: ";
 
@@ -342,17 +350,17 @@ public class InterpreterConfigHelpers {
             final String projectLocation = pipenvDialog.getProjectLocation();
             final SimpleExeRunner simpleExeRunner = new SimpleExeRunner();
             final SystemPythonNature nature = new SystemPythonNature(interpreterManager, baseInterpreter);
-    
-            File pythonVenvFromLocation = PipenvPackageManager.getPythonVenvFromLocation(pipenvLocation,
+
+            File pythonVenvFromLocation = PythonNature.getPythonPipenvFromLocation(pipenvLocation,
                     new File(projectLocation));
             if (pythonVenvFromLocation == null) {
                 PipenvPackageManager.create(executableOrJar, pipenvLocation, projectLocation, simpleExeRunner,
                         nature);
                 // Get the one just created.
-                pythonVenvFromLocation = PipenvPackageManager.getPythonVenvFromLocation(pipenvLocation,
+                pythonVenvFromLocation = PythonNature.getPythonPipenvFromLocation(pipenvLocation,
                         new File(projectLocation));
             }
-    
+
             if (pythonVenvFromLocation != null) {
                 NameAndExecutable interpreterNameAndExecutable = new NameAndExecutable(
                         new File(projectLocation).getName() + " (pipenv)",
@@ -361,17 +369,44 @@ public class InterpreterConfigHelpers {
                 if (foundError) {
                     return null;
                 }
-    
+
                 logger.println("- Chosen interpreter (name and file):'" + interpreterNameAndExecutable);
-    
+
                 if (interpreterNameAndExecutable != null && interpreterNameAndExecutable.o2 != null) {
                     //ok, now that we got the file, let's see if it is valid and get the library info.
-                    return tryInterpreter(
+                    ObtainInterpreterInfoOperation ret = tryInterpreter(
                             interpreterNameAndExecutable, interpreterManager,
                             false, true, logger, shell);
+                    if (ret != null && ret.result != null) {
+                        ret.result.setPipenvTargetDir(projectLocation);
+                    }
+                    return ret;
                 }
             }
         }
         return null;
     }
+
+    public static String getConfigPageIdFromInterpreterType(int interpreterType) {
+        String configPageId;
+        switch (interpreterType) {
+            case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
+                configPageId = "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPagePython";
+                break;
+
+            case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
+                configPageId = "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageJython";
+                break;
+
+            case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
+                configPageId = "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageIronpython";
+                break;
+
+            default:
+                throw new RuntimeException("Cannot recognize type: " + interpreterType);
+
+        }
+        return configPageId;
+    }
+
 }

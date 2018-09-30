@@ -140,5 +140,11 @@ public interface IInterpreterInfo {
 
     void setActivateCondaEnv(boolean b);
 
-    public String toString(boolean forceShowActivateCondaEnv);
+    @Override
+    public String toString();
+
+    public void setPipenvTargetDir(String pipenvTargetDir);
+
+    public String getPipenvTargetDir();
+
 }

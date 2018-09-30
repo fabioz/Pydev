@@ -52,6 +52,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.plugin.PyStructureConfigHelpers;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 import org.python.pydev.ui.PyProjectPythonDetails;
 import org.python.pydev.ui.wizards.gettingstarted.AbstractNewProjectPage;
 
@@ -361,6 +362,14 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
         projectTypeLabel.setFont(font);
         projectTypeLabel.setText("Project type");
         //let him choose the type of the project
+        CallbackWithListeners<Event> onLocationChanged = new CallbackWithListeners<Event>();
+        locationPathField.addListener(SWT.Modify, new Listener() {
+
+            @Override
+            public void handleEvent(Event event) {
+                onLocationChanged.call(event);
+            }
+        });
         details = new PyProjectPythonDetails.ProjectInterpreterAndGrammarConfig(
                 () -> {
                     //Whenever the configuration changes there, we must evaluate whether the page is complete
@@ -369,7 +378,8 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
                 },
                 () -> {
                     return getProjectLocationFieldValue();
-                });
+                },
+                onLocationChanged);
 
         Control createdOn = details.doCreateContents(projectDetails);
         details.setDefaultSelection();
