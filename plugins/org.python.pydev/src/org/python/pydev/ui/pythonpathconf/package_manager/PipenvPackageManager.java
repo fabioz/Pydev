@@ -6,8 +6,8 @@ import java.util.List;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.ast.codecompletion.shell.AbstractShell;
-import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
 import org.python.pydev.ast.runners.SimpleExeRunner;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.plugin.nature.PipenvHelper;
@@ -26,7 +26,7 @@ public class PipenvPackageManager extends AbstractPackageManager {
     private final String pipenvTargetDir;
     private final SystemPythonNature nature;
 
-    public PipenvPackageManager(final InterpreterInfo interpreterInfo, IInterpreterManager interpreterManager)
+    public PipenvPackageManager(final IInterpreterInfo interpreterInfo, IInterpreterManager interpreterManager)
             throws PipenvUnconfiguredException {
         super(interpreterInfo);
 
@@ -73,7 +73,7 @@ public class PipenvPackageManager extends AbstractPackageManager {
     }
 
     private static String checkPipenvInfoCompatible(String pipenvLocation, String projectLocation,
-            InterpreterInfo interpreterInfo) {
+            IInterpreterInfo interpreterInfo) {
         // Check that the given location is valid for the given interpreter.
         File pythonPipenvFromLocation = PipenvHelper.getPythonPipenvFromLocation(pipenvLocation,
                 new File(projectLocation));
@@ -100,7 +100,14 @@ public class PipenvPackageManager extends AbstractPackageManager {
 
     @Override
     public void manage() {
-        new PipenvProcessWindow(UIUtils.getActiveShell(), pipenvLocation, pipenvTargetDir, nature).open();
+        this.manage(new String[0], false);
+    }
+
+    public void manage(String[] initialCommands, boolean autoRun) {
+        PipenvProcessWindow p = new PipenvProcessWindow(UIUtils.getActiveShell(), pipenvLocation, pipenvTargetDir,
+                nature, initialCommands);
+        p.setAutoRun(autoRun);
+        p.open();
     }
 
     private static class PipenvProcessWindow extends ProcessWindow {
@@ -108,13 +115,15 @@ public class PipenvPackageManager extends AbstractPackageManager {
         private String pipenvLocation;
         private String projectLocation;
         private IPythonNature nature;
+        private String[] initialCommands;
 
         public PipenvProcessWindow(Shell parentShell, final String pipenvLocation, final String projectLocation,
-                final IPythonNature nature) {
+                final IPythonNature nature, String[] initialCommands) {
             super(parentShell);
             this.pipenvLocation = pipenvLocation;
             this.projectLocation = projectLocation;
             this.nature = nature;
+            this.initialCommands = initialCommands;
 
             this.setParameters(null, nature.getPythonPathNature(), new File(pipenvLocation), new File(projectLocation));
         }
@@ -142,7 +151,7 @@ public class PipenvPackageManager extends AbstractPackageManager {
 
         @Override
         protected String[] getAvailableCommands() {
-            return new String[] {
+            return ArrayUtils.concatArrays(this.initialCommands, new String[] {
                     "install <package>",
                     "uninstall <package>",
                     "check",
@@ -151,7 +160,7 @@ public class PipenvPackageManager extends AbstractPackageManager {
                     "lock",
                     "sync",
                     "update",
-            };
+            });
         }
 
         @Override
@@ -163,19 +172,12 @@ public class PipenvPackageManager extends AbstractPackageManager {
     public static void create(final String executableOrJar, final String pipenvLocation, final String projectLocation,
             final SystemPythonNature nature) {
         PipenvProcessWindow processWindow = new PipenvProcessWindow(UIUtils.getActiveShell(), pipenvLocation,
-                projectLocation, nature) {
+                projectLocation, nature, new String[] { "--python " + executableOrJar }) {
 
             @Override
             protected void configureShell(Shell shell) {
                 super.configureShell(shell);
                 shell.setText("Create interpreter using Pipenv");
-            }
-
-            @Override
-            protected String[] getAvailableCommands() {
-                return ArrayUtils.concatArrays(new String[] {
-                        "--python " + executableOrJar,
-                }, super.getAvailableCommands());
             }
 
             @Override
@@ -188,4 +190,5 @@ public class PipenvPackageManager extends AbstractPackageManager {
         processWindow.setAutoRun(true);
         processWindow.open();
     }
+
 }
