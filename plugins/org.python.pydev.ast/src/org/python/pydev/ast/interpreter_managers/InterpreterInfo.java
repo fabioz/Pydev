@@ -241,6 +241,21 @@ public class InterpreterInfo implements IInterpreterInfo {
             return false;
         }
 
+        if (this.pipenvTargetDir != null) {
+            if (info.pipenvTargetDir == null) {
+                return false;
+            }
+            //both not null
+            if (!this.pipenvTargetDir.equals(info.pipenvTargetDir)) {
+                return false;
+            }
+        } else {
+            //it is null -- the other must be too
+            if (info.pipenvTargetDir != null) {
+                return false;
+            }
+        }
+
         if (this.envVariables != null) {
             if (info.envVariables == null) {
                 return false;
@@ -1984,10 +1999,12 @@ public class InterpreterInfo implements IInterpreterInfo {
         return null;
     }
 
+    @Override
     public void setPipenvTargetDir(String pipenvTargetDir) {
         this.pipenvTargetDir = pipenvTargetDir;
     }
 
+    @Override
     public String getPipenvTargetDir() {
         return this.pipenvTargetDir;
     }

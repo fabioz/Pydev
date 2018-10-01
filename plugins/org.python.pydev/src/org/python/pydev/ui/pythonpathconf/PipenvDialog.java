@@ -37,10 +37,15 @@ public class PipenvDialog extends Dialog {
     private String projectLocation;
     private String pipenvLocation;
     private IInterpreterInfo baseInterpreter;
+    private String dialogTitle;
+    private boolean showBaseInterpreter;
 
-    protected PipenvDialog(Shell parentShell, IInterpreterInfo[] interpreterInfos, String defaultPipenvLocation,
-            String defaultProjectLocation, IInterpreterManager interpreterManager) {
+    public PipenvDialog(Shell parentShell, IInterpreterInfo[] interpreterInfos, String defaultPipenvLocation,
+            String defaultProjectLocation, IInterpreterManager interpreterManager, String dialogTitle,
+            boolean showBaseInterpreter) {
         super(parentShell);
+        this.showBaseInterpreter = showBaseInterpreter;
+        this.dialogTitle = dialogTitle;
         setShellStyle(SWT.CLOSE | SWT.MODELESS | SWT.BORDER | SWT.TITLE | SWT.RESIZE | SWT.MAX);
         Assert.isTrue(interpreterInfos != null, "IInterpreterInfo must not be null.");
         Assert.isTrue(interpreterInfos.length > 0, "Must pass at least one IInterpreterInfo.");
@@ -55,7 +60,7 @@ public class PipenvDialog extends Dialog {
     @Override
     protected void configureShell(Shell shell) {
         super.configureShell(shell);
-        shell.setText("New Pipenv interpreter");
+        shell.setText(dialogTitle);
     }
 
     @Override
@@ -73,17 +78,19 @@ public class PipenvDialog extends Dialog {
         projectLocationFieldEditor.setStringValue(defaultProjectLocation);
         projectLocationFieldEditor.setEmptyStringAllowed(false);
 
-        Label label = new Label(composite, SWT.NONE);
-        label.setText("Base Interpreter:");
-        label.setLayoutData(createGridData(numberOfColumns));
+        if (this.showBaseInterpreter) {
+            Label label = new Label(composite, SWT.NONE);
+            label.setText("Base Interpreter:");
+            label.setLayoutData(createGridData(numberOfColumns));
 
-        comboBaseInterpreter = new Combo(composite, SWT.READ_ONLY);
-        comboBaseInterpreter.setLayoutData(createGridData(numberOfColumns));
-        for (IInterpreterInfo info : interpreterInfos) {
-            comboBaseInterpreter.add(info.getNameForUI());
-            comboBaseInterpreter.setData(info.getNameForUI(), info);
+            comboBaseInterpreter = new Combo(composite, SWT.READ_ONLY);
+            comboBaseInterpreter.setLayoutData(createGridData(numberOfColumns));
+            for (IInterpreterInfo info : interpreterInfos) {
+                comboBaseInterpreter.add(info.getNameForUI());
+                comboBaseInterpreter.setData(info.getNameForUI(), info);
+            }
+            comboBaseInterpreter.setText(interpreterInfos[0].getNameForUI());
         }
-        comboBaseInterpreter.setText(interpreterInfos[0].getNameForUI());
 
         fileFieldEditor = new FileFieldEditorCustom("unused", "pipenv executable", composite);
         fileFieldEditor.fillIntoGrid(composite, numberOfColumns);
@@ -94,7 +101,9 @@ public class PipenvDialog extends Dialog {
         errorMessageText = new Text(composite, SWT.READ_ONLY);
         errorMessageText.setBackground(errorMessageText.getDisplay().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
         errorMessageText.setForeground(errorMessageText.getDisplay().getSystemColor(SWT.COLOR_RED));
-        errorMessageText.setLayoutData(createGridData(numberOfColumns));
+        GridData gridData = createGridData(numberOfColumns);
+        gridData.heightHint = 60;
+        errorMessageText.setLayoutData(gridData);
 
         composite.setLayout(new GridLayout(numberOfColumns, false));
         return top;
@@ -119,11 +128,18 @@ public class PipenvDialog extends Dialog {
             }
             this.projectLocation = check("Project location", projectLocationFieldEditor);
             this.pipenvLocation = check("pipenv location", fileFieldEditor);
-            this.baseInterpreter = (IInterpreterInfo) comboBaseInterpreter.getData(comboBaseInterpreter.getText());
+            if (this.showBaseInterpreter) {
+                this.baseInterpreter = (IInterpreterInfo) comboBaseInterpreter.getData(comboBaseInterpreter.getText());
+            }
+            this.additionalValidation();
             super.okPressed();
         } catch (ValidationFailedException e) {
             // Exception just for the flow.
         }
+    }
+
+    protected void additionalValidation() throws ValidationFailedException {
+        // Subclasses may override for additional validation.
     }
 
     public String getProjectLocation() {
@@ -142,20 +158,29 @@ public class PipenvDialog extends Dialog {
         if (!fileFieldEditor.isValid()) {
             String errorMessage = fileFieldEditor.getErrorMessage();
             if (errorMessage != null && !errorMessage.isEmpty()) {
-                errorMessageText.setText(title + ": " + errorMessage);
+                final String msg = title + ": " + errorMessage;
+                setErrorMessage(msg);
                 throw new ValidationFailedException();
             }
         }
         return fileFieldEditor.getStringValue();
     }
 
+    protected void setErrorMessage(final String msg) {
+        errorMessageText.setText(msg);
+    }
+
     @Override
     protected Button createButton(Composite parent, int id, String label, boolean defaultButton) {
         if (id == IDialogConstants.OK_ID) {
-            label = "Create Pipenv interpreter";
+            label = getOkButtonText();
         }
         Button button = super.createButton(parent, id, label, defaultButton);
         return button;
+    }
+
+    protected String getOkButtonText() {
+        return "Create Pipenv interpreter";
     }
 
     private GridData createGridData(int horizontalSpan) {
@@ -168,7 +193,8 @@ public class PipenvDialog extends Dialog {
     public static void main(String[] args) {
         Display display = new Display();
         Shell shell = new Shell(display);
-        PipenvDialog dialog = new PipenvDialog(shell, new IInterpreterInfo[0], null, null, null);
+        PipenvDialog dialog = new PipenvDialog(shell, new IInterpreterInfo[0], null, null, null,
+                "New Pipenv interpreter", true);
 
         dialog.open();
     }

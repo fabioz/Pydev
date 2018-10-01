@@ -184,8 +184,27 @@ public abstract class PythonListEditor extends FieldEditor {
      * @param box the box for the buttons
      */
     private void createButtons(Composite box) {
-        addButton = createPushButton(box, "Select executable");//$NON-NLS-1$
-        if (getInterpreterManager().getInterpreterType() == IPythonNature.INTERPRETER_TYPE_PYTHON) {
+        final int interpreterType = getInterpreterManager().getInterpreterType();
+        String selectTitle = "";
+        switch (interpreterType) {
+            case IPythonNature.INTERPRETER_TYPE_PYTHON:
+                selectTitle = "Select python/pypy exe";
+                break;
+            case IPythonNature.INTERPRETER_TYPE_JYTHON:
+                selectTitle = "Select Jython jar";
+                break;
+            case IPythonNature.INTERPRETER_TYPE_IRONPYTHON:
+                selectTitle = "Select ipy exe";
+                break;
+
+            default:
+                Log.log("Unhandled type: " + interpreterType);
+                selectTitle = "Select executable";
+        }
+
+        addButton = createPushButton(box, selectTitle);
+
+        if (interpreterType == IPythonNature.INTERPRETER_TYPE_PYTHON) {
             pipenvConfigButton = createPushButton(box,
                     InterpreterConfigHelpers.CONFIG_PIPENV_NAME);
         }

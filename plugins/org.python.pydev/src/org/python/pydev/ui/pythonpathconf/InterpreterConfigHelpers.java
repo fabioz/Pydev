@@ -28,7 +28,6 @@ import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
-import org.python.pydev.ast.runners.SimpleExeRunner;
 import org.python.pydev.ast.runners.SimpleJythonRunner;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
@@ -342,20 +341,18 @@ public class InterpreterConfigHelpers {
             return null;
         }
         PipenvDialog pipenvDialog = new PipenvDialog(shell, interpreterInfos, null,
-                defaultProjectLocation, interpreterManager);
+                defaultProjectLocation, interpreterManager, "New Pipenv interpreter", true);
         if (pipenvDialog.open() == Dialog.OK) {
             final IInterpreterInfo baseInterpreter = pipenvDialog.getBaseInterpreter();
             final String executableOrJar = baseInterpreter.getExecutableOrJar();
             final String pipenvLocation = pipenvDialog.getPipenvLocation();
             final String projectLocation = pipenvDialog.getProjectLocation();
-            final SimpleExeRunner simpleExeRunner = new SimpleExeRunner();
             final SystemPythonNature nature = new SystemPythonNature(interpreterManager, baseInterpreter);
 
             File pythonVenvFromLocation = PipenvHelper.getPythonPipenvFromLocation(pipenvLocation,
                     new File(projectLocation));
             if (pythonVenvFromLocation == null) {
-                PipenvPackageManager.create(executableOrJar, pipenvLocation, projectLocation, simpleExeRunner,
-                        nature);
+                PipenvPackageManager.create(executableOrJar, pipenvLocation, projectLocation, nature);
                 // Get the one just created.
                 pythonVenvFromLocation = PipenvHelper.getPythonPipenvFromLocation(pipenvLocation,
                         new File(projectLocation));

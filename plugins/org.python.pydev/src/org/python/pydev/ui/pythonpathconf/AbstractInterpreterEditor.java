@@ -408,7 +408,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
 
         try {
             if (this.getShowPackageTab()) {
-                packageTab.createPackageControlTab(tabFolder, exeOrJarOfInterpretersToRestore);
+                packageTab.createPackageControlTab(tabFolder, exeOrJarOfInterpretersToRestore, interpreterManager);
             }
         } catch (Exception e1) {
             Log.log(e1); // Not really expected, just new code, so, let's protect until it matures.
