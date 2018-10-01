@@ -2,12 +2,14 @@ package org.python.pydev.ui.pythonpathconf.package_manager;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.ast.codecompletion.shell.AbstractShell;
 import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
 import org.python.pydev.ast.runners.SimpleRunner;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterInfo.UnableToFindExecutableException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -28,7 +30,7 @@ public class CondaPackageManager extends AbstractPackageManager {
 
     private File prefix;
 
-    public CondaPackageManager(InterpreterInfo interpreterInfo, File prefix) {
+    public CondaPackageManager(IInterpreterInfo interpreterInfo, File prefix) {
         super(interpreterInfo);
         this.prefix = prefix;
     }
@@ -140,6 +142,10 @@ public class CondaPackageManager extends AbstractPackageManager {
 
     @Override
     public void manage() {
+        manage(new String[0], false, null);
+    }
+
+    public void manage(String[] initialCommands, boolean autoRun, File workingDir) {
         final File condaExecutable;
         try {
             condaExecutable = findCondaExecutable();
@@ -158,10 +164,27 @@ public class CondaPackageManager extends AbstractPackageManager {
 
             @Override
             protected String[] getAvailableCommands() {
-                return new String[] {
-                        "install -p " + new File(interpreterInfo.getExecutableOrJar()).getParent() + " <package>",
-                        "uninstall -p " + new File(interpreterInfo.getExecutableOrJar()).getParent() + " <package>"
-                };
+                List<String> lst = new ArrayList<>(Arrays.asList(initialCommands));
+                final String prefixDir = new File(interpreterInfo.getExecutableOrJar()).getParent();
+                String prefixInfo = " -p " + prefixDir;
+                for (int i = 0; i < lst.size(); i++) {
+                    String existing = lst.get(i);
+                    if (!existing.contains("-p")) {
+                        existing = existing.trim();
+                        if (existing.startsWith("install") || existing.startsWith("uninstall")
+                                || existing.startsWith("upgrade") || existing.startsWith("update")
+                                || existing.startsWith("clean") || existing.startsWith("list")
+                                || existing.startsWith("package") || existing.startsWith("remove")
+                                || existing.startsWith("search")) {
+                            existing += prefixInfo;
+                        }
+                        lst.set(i, existing);
+                    }
+                }
+                return ArrayUtils.concatArrays(lst.toArray(new String[0]), new String[] {
+                        "install -p " + prefixDir + " <package>",
+                        "uninstall -p " + prefixDir + " <package>"
+                });
             }
 
             @Override
@@ -179,8 +202,12 @@ public class CondaPackageManager extends AbstractPackageManager {
                 return new SimpleRunner().run(cmdLine, workingDir, null, null);
             }
         };
-        processWindow.setParameters(null, null, condaExecutable, condaExecutable.getParentFile());
+        if (workingDir == null) {
+            workingDir = condaExecutable.getParentFile();
+        }
+        processWindow.setParameters(null, null, condaExecutable, workingDir);
+        processWindow.setAutoRun(autoRun);
         processWindow.open();
-
     }
+
 }

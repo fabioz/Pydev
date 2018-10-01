@@ -147,4 +147,6 @@ public interface IInterpreterInfo {
 
     public String getPipenvTargetDir();
 
+    public File getCondaPrefix();
+
 }

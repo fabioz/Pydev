@@ -36,6 +36,8 @@ public class ActionCreatorPyEditListener implements IPyEditListener {
 
         edit.addOfflineActionListener("pipenv", new PyPipenvEditorAction(edit), "Execute pipenv actions", true);
 
+        edit.addOfflineActionListener("conda", new CondaEditorAction(edit), "Execute conda actions", true);
+
         //	Experimental code for creating a class derived of a class that's not public! -- depends on javassist.
         //        try {
         //			ClassLoader classLoader = IEditorStatusLine.class.getClassLoader();
