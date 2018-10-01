@@ -55,6 +55,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.plugin.nature.PipenvHelper;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 import org.python.pydev.shared_core.callbacks.ICallback0;
@@ -198,8 +199,9 @@ public class PyProjectPythonDetails extends PropertyPage {
 
                         if (interpreterType == IInterpreterManager.INTERPRETER_TYPE_PYTHON) {
                             File projectlocation = new File(getProjectLocation.call());
-                            IInterpreterInfo pipenvInterpreterInfoForProjectLocation = PythonNature
-                                    .getPipenvInterpreterInfoForProjectLocation(interpretersInfo, projectlocation);
+                            IInterpreterInfo pipenvInterpreterInfoForProjectLocation = PipenvHelper
+                                    .getPipenvInterpreterInfoForProjectLocation(interpretersInfo, projectlocation,
+                                            interpreterManager);
                             if (pipenvInterpreterInfoForProjectLocation != null) {
                                 defaultEntry = DEFAULT_PREFIX + pipenvInterpreterInfoForProjectLocation.getName();
                             }

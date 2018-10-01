@@ -43,7 +43,7 @@ public class PipenvPackageManager extends AbstractPackageManager {
             @Override
             protected void configureShell(Shell shell) {
                 super.configureShell(shell);
-                shell.setText("Create pipenv");
+                shell.setText("Create interpreter using Pipenv");
             }
 
             @Override
@@ -53,6 +53,12 @@ public class PipenvPackageManager extends AbstractPackageManager {
                         "install <package>",
                         "uninstall <package>",
                 };
+            }
+
+            @Override
+            protected String getDescription() {
+                return "It's possible to make additional calls to install other libraries with pipenv.\n"
+                        + "Close dialog to proceed with the interpreter configuration.";
             }
 
             @Override

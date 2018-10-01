@@ -33,7 +33,7 @@ import org.python.pydev.ast.runners.SimpleJythonRunner;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.preferences.FileTypesPreferences;
-import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.plugin.nature.PipenvHelper;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -342,7 +342,7 @@ public class InterpreterConfigHelpers {
             return null;
         }
         PipenvDialog pipenvDialog = new PipenvDialog(shell, interpreterInfos, null,
-                defaultProjectLocation);
+                defaultProjectLocation, interpreterManager);
         if (pipenvDialog.open() == Dialog.OK) {
             final IInterpreterInfo baseInterpreter = pipenvDialog.getBaseInterpreter();
             final String executableOrJar = baseInterpreter.getExecutableOrJar();
@@ -351,13 +351,13 @@ public class InterpreterConfigHelpers {
             final SimpleExeRunner simpleExeRunner = new SimpleExeRunner();
             final SystemPythonNature nature = new SystemPythonNature(interpreterManager, baseInterpreter);
 
-            File pythonVenvFromLocation = PythonNature.getPythonPipenvFromLocation(pipenvLocation,
+            File pythonVenvFromLocation = PipenvHelper.getPythonPipenvFromLocation(pipenvLocation,
                     new File(projectLocation));
             if (pythonVenvFromLocation == null) {
                 PipenvPackageManager.create(executableOrJar, pipenvLocation, projectLocation, simpleExeRunner,
                         nature);
                 // Get the one just created.
-                pythonVenvFromLocation = PythonNature.getPythonPipenvFromLocation(pipenvLocation,
+                pythonVenvFromLocation = PipenvHelper.getPythonPipenvFromLocation(pipenvLocation,
                         new File(projectLocation));
             }
 

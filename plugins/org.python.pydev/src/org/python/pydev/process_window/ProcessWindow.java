@@ -278,7 +278,7 @@ public abstract class ProcessWindow extends Dialog {
         composite.setLayout(new GridLayout(NUMBER_OF_COLUMNS, false));
 
         createLabel(composite, "Arguments to pass to: " + targetExecutable.getAbsolutePath());
-        createLabel(composite, "The command line can be changed as needed.");
+        createLabel(composite, getDescription());
 
         String seeURL = getSeeURL();
         GridData gridData;
@@ -397,6 +397,10 @@ public abstract class ProcessWindow extends Dialog {
         });
 
         return top;
+    }
+
+    protected String getDescription() {
+        return "The command line can be changed as needed.";
     }
 
     private void onSelected(SelectionEvent unused) {

@@ -19,7 +19,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.python.pydev.core.IInterpreterInfo;
-import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.plugin.nature.PipenvHelper;
 import org.python.pydev.shared_ui.field_editors.DirectoryFieldEditorCustom;
 import org.python.pydev.shared_ui.field_editors.FileFieldEditorCustom;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
@@ -38,14 +39,14 @@ public class PipenvDialog extends Dialog {
     private IInterpreterInfo baseInterpreter;
 
     protected PipenvDialog(Shell parentShell, IInterpreterInfo[] interpreterInfos, String defaultPipenvLocation,
-            String defaultProjectLocation) {
+            String defaultProjectLocation, IInterpreterManager interpreterManager) {
         super(parentShell);
         setShellStyle(SWT.CLOSE | SWT.MODELESS | SWT.BORDER | SWT.TITLE | SWT.RESIZE | SWT.MAX);
         Assert.isTrue(interpreterInfos != null, "IInterpreterInfo must not be null.");
         Assert.isTrue(interpreterInfos.length > 0, "Must pass at least one IInterpreterInfo.");
         this.interpreterInfos = interpreterInfos;
         if (defaultPipenvLocation == null) {
-            defaultPipenvLocation = PythonNature.searchDefaultPipenvLocation(interpreterInfos[0]);
+            defaultPipenvLocation = PipenvHelper.searchDefaultPipenvLocation(interpreterInfos[0], interpreterManager);
         }
         this.defaultPipenvLocation = defaultPipenvLocation == null ? "" : defaultPipenvLocation;
         this.defaultProjectLocation = defaultProjectLocation == null ? "" : defaultProjectLocation;
@@ -167,7 +168,7 @@ public class PipenvDialog extends Dialog {
     public static void main(String[] args) {
         Display display = new Display();
         Shell shell = new Shell(display);
-        PipenvDialog dialog = new PipenvDialog(shell, new IInterpreterInfo[0], null, null);
+        PipenvDialog dialog = new PipenvDialog(shell, new IInterpreterInfo[0], null, null, null);
 
         dialog.open();
     }
