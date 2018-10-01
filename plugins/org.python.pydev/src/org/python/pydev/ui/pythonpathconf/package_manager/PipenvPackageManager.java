@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.swt.widgets.Shell;
+import org.python.pydev.ast.codecompletion.shell.AbstractShell;
 import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
 import org.python.pydev.ast.runners.SimpleExeRunner;
 import org.python.pydev.core.IInterpreterManager;
@@ -127,6 +128,9 @@ public class PipenvPackageManager extends AbstractPackageManager {
         @Override
         public Tuple<Process, String> createProcess(String[] arguments) {
             clearOutput();
+
+            AbstractShell.restartAllShells();
+
             // note: not using the nature passed because we want to get the info from the system
             // so that pipenv can run properly and not from the configured python interpreter.
             final SimpleExeRunner simpleExeRunner = new SimpleExeRunner();

@@ -6,10 +6,11 @@ import java.util.List;
 
 import org.eclipse.swt.widgets.Shell;
 import org.osgi.framework.Version;
-import org.python.pydev.core.IInterpreterInfo.UnableToFindExecutableException;
-import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
+import org.python.pydev.ast.codecompletion.shell.AbstractShell;
 import org.python.pydev.ast.runners.SimplePythonRunner;
 import org.python.pydev.ast.runners.SimpleRunner;
+import org.python.pydev.core.IInterpreterInfo;
+import org.python.pydev.core.IInterpreterInfo.UnableToFindExecutableException;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.process_window.ProcessWindow;
@@ -20,7 +21,7 @@ import org.python.pydev.shared_ui.utils.UIUtils;
 
 public class PipPackageManager extends AbstractPackageManager {
 
-    public PipPackageManager(InterpreterInfo interpreterInfo) {
+    public PipPackageManager(IInterpreterInfo interpreterInfo) {
         super(interpreterInfo);
     }
 
@@ -42,7 +43,7 @@ public class PipPackageManager extends AbstractPackageManager {
             IPythonNature nature = new SystemPythonNature(interpreterInfo.getModulesManager().getInterpreterManager(),
                     interpreterInfo);
             String[] parameters = SimplePythonRunner.preparePythonCallParameters(
-                    interpreterInfo.executableOrJar, "-m",
+                    interpreterInfo.getExecutableOrJar(), "-m",
                     new String[] { getPipModuleName(interpreterInfo), "list", "--format=columns" });
 
             output = new SimplePythonRunner().runAndGetOutput(
@@ -78,7 +79,7 @@ public class PipPackageManager extends AbstractPackageManager {
         return listed;
     }
 
-    private static String getPipModuleName(InterpreterInfo interpreterInfo) {
+    private static String getPipModuleName(IInterpreterInfo interpreterInfo) {
         String version = interpreterInfo.getVersion();
         Version version2 = new Version(version);
         if (version2.getMajor() <= 2 && version2.getMinor() <= 6) {
@@ -94,6 +95,10 @@ public class PipPackageManager extends AbstractPackageManager {
 
     @Override
     public void manage() {
+        manage(new String[0], false);
+    }
+
+    public void manage(final String[] initialCommand, final boolean autoRun) {
         File pipExecutable;
         String[] availableCommands = new String[] {
                 "install <package>",
@@ -108,7 +113,7 @@ public class PipPackageManager extends AbstractPackageManager {
             };
             pipExecutable = new File(interpreterInfo.getExecutableOrJar());
         }
-        final String[] availableCommandsFinal = availableCommands;
+        final String[] availableCommandsFinal = ArrayUtils.concatArrays(initialCommand, availableCommands);
         final File pipExecutableFinal = pipExecutable;
 
         ProcessWindow processWindow = new ProcessWindow(UIUtils.getActiveShell()) {
@@ -132,11 +137,15 @@ public class PipPackageManager extends AbstractPackageManager {
             @Override
             public Tuple<Process, String> createProcess(String[] arguments) {
                 clearOutput();
+
+                AbstractShell.restartAllShells();
+
                 String[] cmdLine = ArrayUtils.concatArrays(new String[] { pipExecutableFinal.toString() }, arguments);
                 return new SimpleRunner().run(cmdLine, workingDir, null, null);
             }
         };
         processWindow.setParameters(null, null, pipExecutableFinal, pipExecutableFinal.getParentFile());
+        processWindow.setAutoRun(autoRun);
         processWindow.open();
 
     }

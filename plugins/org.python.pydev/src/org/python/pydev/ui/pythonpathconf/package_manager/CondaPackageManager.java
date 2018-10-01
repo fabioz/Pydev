@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.widgets.Shell;
+import org.python.pydev.ast.codecompletion.shell.AbstractShell;
 import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
 import org.python.pydev.ast.runners.SimpleRunner;
 import org.python.pydev.core.IInterpreterInfo.UnableToFindExecutableException;
@@ -171,6 +172,9 @@ public class CondaPackageManager extends AbstractPackageManager {
             @Override
             public Tuple<Process, String> createProcess(String[] arguments) {
                 clearOutput();
+
+                AbstractShell.restartAllShells();
+
                 String[] cmdLine = ArrayUtils.concatArrays(new String[] { condaExecutable.toString() }, arguments);
                 return new SimpleRunner().run(cmdLine, workingDir, null, null);
             }
