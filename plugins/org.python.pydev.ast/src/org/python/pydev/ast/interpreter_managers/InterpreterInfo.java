@@ -241,6 +241,21 @@ public class InterpreterInfo implements IInterpreterInfo {
             return false;
         }
 
+        if (this.pipenvTargetDir != null) {
+            if (info.pipenvTargetDir == null) {
+                return false;
+            }
+            //both not null
+            if (!this.pipenvTargetDir.equals(info.pipenvTargetDir)) {
+                return false;
+            }
+        } else {
+            //it is null -- the other must be too
+            if (info.pipenvTargetDir != null) {
+                return false;
+            }
+        }
+
         if (this.envVariables != null) {
             if (info.envVariables == null) {
                 return false;
@@ -331,6 +346,7 @@ public class InterpreterInfo implements IInterpreterInfo {
                     String infoExecutable = null;
                     String infoName = null;
                     String infoVersion = null;
+                    String pipenvTargetDir = null;
                     boolean activateCondaEnv = false;
                     List<String> selection = new ArrayList<String>();
                     List<String> toAsk = new ArrayList<String>();
@@ -353,6 +369,9 @@ public class InterpreterInfo implements IInterpreterInfo {
 
                         } else if ("executable".equals(name)) {
                             infoExecutable = data;
+
+                        } else if ("pipenv_target_dir".equals(name)) {
+                            pipenvTargetDir = data;
 
                         } else if ("activate_conda".equals(name)) {
                             activateCondaEnv = data.equals("true");
@@ -466,6 +485,7 @@ public class InterpreterInfo implements IInterpreterInfo {
                             new ArrayList<String>(), forcedLibs, envVars, stringSubstitutionVars);
                     info.setName(infoName);
                     info.setActivateCondaEnv(activateCondaEnv);
+                    info.pipenvTargetDir = pipenvTargetDir;
                     for (String s : predefinedPaths) {
                         info.addPredefinedCompletionsPath(s);
                     }
@@ -731,14 +751,6 @@ public class InterpreterInfo implements IInterpreterInfo {
      */
     @Override
     public String toString() {
-        return toString(false);
-    }
-
-    /**
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString(boolean forceShowActivateCondaEnv) {
         FastStringBuffer buffer = new FastStringBuffer();
         buffer.append("<xml>\n");
         if (this.name != null) {
@@ -754,10 +766,16 @@ public class InterpreterInfo implements IInterpreterInfo {
         buffer.append(escape(executableOrJar));
         buffer.append("</executable>\n");
 
-        if (activateCondaEnv || forceShowActivateCondaEnv) {
+        if (activateCondaEnv) {
             // Only add tag if actually true or forced (otherwise, just omit it so that backward compatibility
             // is preserved).
             buffer.append("<activate_conda>" + activateCondaEnv + "</activate_conda>\n");
+        }
+
+        if (pipenvTargetDir != null) {
+            buffer.append("<pipenv_target_dir>");
+            buffer.append(escape(pipenvTargetDir));
+            buffer.append("</pipenv_target_dir>\n");
         }
 
         for (Iterator<String> iter = libs.iterator(); iter.hasNext();) {
@@ -1873,6 +1891,8 @@ public class InterpreterInfo implements IInterpreterInfo {
 
     private boolean activateCondaEnv;
 
+    private String pipenvTargetDir;
+
     public void setLoadFinished(boolean b) {
         this.loadFinished = b;
     }
@@ -1977,5 +1997,15 @@ public class InterpreterInfo implements IInterpreterInfo {
             parentFile = parentFile.getParentFile();
         }
         return null;
+    }
+
+    @Override
+    public void setPipenvTargetDir(String pipenvTargetDir) {
+        this.pipenvTargetDir = pipenvTargetDir;
+    }
+
+    @Override
+    public String getPipenvTargetDir() {
+        return this.pipenvTargetDir;
     }
 }

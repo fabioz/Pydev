@@ -7,20 +7,20 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
-import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterInfo.UnableToFindExecutableException;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.string.WrapAndCaseUtils;
 
 public abstract class AbstractPackageManager {
 
-    protected InterpreterInfo interpreterInfo;
+    protected IInterpreterInfo interpreterInfo;
 
-    public AbstractPackageManager(InterpreterInfo interpreterInfo) {
+    public AbstractPackageManager(IInterpreterInfo interpreterInfo) {
         this.interpreterInfo = interpreterInfo;
     }
 
-    public static AbstractPackageManager createPackageManager(InterpreterInfo interpreterInfo) {
+    public static AbstractPackageManager createPackageManager(IInterpreterInfo interpreterInfo) {
         File condaPrefix = interpreterInfo.getCondaPrefix();
         if (condaPrefix != null) {
             return new CondaPackageManager(interpreterInfo, condaPrefix);

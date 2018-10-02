@@ -19,8 +19,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.internal.resources.Project;
 import org.eclipse.core.internal.resources.ProjectInfo;
@@ -44,6 +46,7 @@ import org.python.pydev.ast.codecompletion.revisited.ModulesManager;
 import org.python.pydev.ast.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
+import org.python.pydev.ast.runners.SimpleRunner;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IGrammarVersionProvider;
@@ -68,6 +71,7 @@ import org.python.pydev.shared_core.progress.JobProgressComunicator;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.utils.PlatformUtils;
 
 /**
  * PythonNature is currently used as a marker class.
@@ -1325,7 +1329,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
         try {
             String projectInterpreterName = getProjectInterpreterName();
-            IInterpreterInfo ret;
+            IInterpreterInfo ret = null;
             IInterpreterManager relatedInterpreterManager = getRelatedInterpreterManager();
             if (relatedInterpreterManager == null) {
                 if (IN_TESTS) {
@@ -1335,8 +1339,15 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             }
 
             if (IPythonNature.DEFAULT_INTERPRETER.equals(projectInterpreterName)) {
-                //if it's the default, let's translate it to the outside world
-                ret = relatedInterpreterManager.getDefaultInterpreterInfo(true);
+                if (relatedInterpreterManager.getInterpreterType() == IPythonNature.INTERPRETER_TYPE_PYTHON) {
+                    File projectLocation = this.getProject().getLocation().toFile();
+                    ret = PipenvHelper.getPipenvInterpreterInfoForProjectLocation(relatedInterpreterManager.getInterpreterInfos(),
+                            projectLocation, relatedInterpreterManager);
+                }
+                if (ret == null) {
+                    //if it's the default, let's translate it to the outside world
+                    ret = relatedInterpreterManager.getDefaultInterpreterInfo(true);
+                }
             } else {
                 ret = relatedInterpreterManager.getInterpreterInfo(projectInterpreterName, null);
             }
@@ -1396,6 +1407,37 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             return (T) this.project;
         }
         return null;
+    }
+
+    public static Set<String> getPathsToSearch() {
+        Set<String> pathsToSearch = new LinkedHashSet<String>();
+        try {
+            Map<String, String> env = SimpleRunner.getDefaultSystemEnv(null);
+            if (env.containsKey("PYTHON_HOME")) {
+                pathsToSearch.add(env.get("PYTHON_HOME"));
+            }
+            if (env.containsKey("PYTHONHOME")) {
+                pathsToSearch.add(env.get("PYTHONHOME"));
+            }
+            if (env.containsKey("PATH")) {
+                String path = env.get("PATH");
+                String separator = SimpleRunner.getPythonPathSeparator();
+                final List<String> split = StringUtils.split(path, separator);
+                pathsToSearch.addAll(split);
+            }
+        } catch (CoreException e) {
+            Log.log(e);
+        }
+        if (!PlatformUtils.isWindowsPlatform()) {
+            // Paths to search on linux/mac
+            pathsToSearch.add("/usr/bin");
+            pathsToSearch.add("/usr/local/bin");
+        }
+        if (PlatformUtils.isMacOsPlatform()) {
+            // Path to search on mac
+            pathsToSearch.add("/Library/Frameworks/Python.framework/Versions/Current/bin");
+        }
+        return pathsToSearch;
     }
 
 }

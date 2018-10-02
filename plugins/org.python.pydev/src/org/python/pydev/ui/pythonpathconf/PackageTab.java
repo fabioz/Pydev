@@ -23,6 +23,8 @@ import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
 import org.python.pydev.core.IInterpreterInfo;
+import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_ui.ImageCache;
@@ -31,6 +33,8 @@ import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.ui.pythonpathconf.package_manager.AbstractPackageManager;
 import org.python.pydev.ui.pythonpathconf.package_manager.CondaPackageManager;
 import org.python.pydev.ui.pythonpathconf.package_manager.PipPackageManager;
+import org.python.pydev.ui.pythonpathconf.package_manager.PipenvPackageManager;
+import org.python.pydev.ui.pythonpathconf.package_manager.PipenvUnconfiguredException;
 
 public class PackageTab {
 
@@ -40,13 +44,15 @@ public class PackageTab {
 
     AbstractPackageManager packageManager;
     private Button btConda;
+    private Button btPipenv;
     private Button btPip;
     private Button checkUseConda; // may be null
 
     /**
      * @param exeOrJarOfInterpretersToRestore if the info is changed, the executable should be added to exeOrJarOfInterpretersToRestore.
      */
-    public void createPackageControlTab(TabFolder tabFolder, Set<String> exeOrJarOfInterpretersToRestore) {
+    public void createPackageControlTab(TabFolder tabFolder, Set<String> exeOrJarOfInterpretersToRestore,
+            IInterpreterManager interpreterManager) {
         Composite parent;
         GridData gd;
         TabItem tabItem = new TabItem(tabFolder, SWT.None);
@@ -72,7 +78,7 @@ public class PackageTab {
         tree.setLayoutData(gd);
 
         //buttons at the side of the tree
-        Composite control = getButtonBoxPackage(parent);
+        Composite control = getButtonBoxPackage(parent, interpreterManager);
         gd = new GridData();
         gd.verticalAlignment = GridData.BEGINNING;
         control.setLayoutData(gd);
@@ -80,13 +86,13 @@ public class PackageTab {
         tabItem.setControl(composite);
     }
 
-    public Composite getButtonBoxPackage(Composite parent) {
+    public Composite getButtonBoxPackage(Composite parent, IInterpreterManager interpreterManager) {
         if (boxPackage == null) {
             boxPackage = new Composite(parent, SWT.NULL);
             GridLayout layout = new GridLayout();
             layout.marginWidth = 0;
             boxPackage.setLayout(layout);
-            btPip = AbstractInterpreterEditor.createBt(boxPackage, "Install/Uninstall with pip",
+            btPip = AbstractInterpreterEditor.createBt(boxPackage, "Manage with pip",
                     new SelectionAdapter() {
                         @Override
                         public void widgetSelected(SelectionEvent e) {
@@ -95,7 +101,7 @@ public class PackageTab {
                             update();
                         }
                     });
-            btConda = AbstractInterpreterEditor.createBt(boxPackage, "Install/Uninstall with conda",
+            btConda = AbstractInterpreterEditor.createBt(boxPackage, "Manage with conda",
                     new SelectionAdapter() {
                         @Override
                         public void widgetSelected(SelectionEvent e) {
@@ -105,6 +111,24 @@ public class PackageTab {
                             update();
                         }
                     });
+
+            if (interpreterManager.getInterpreterType() == IPythonNature.INTERPRETER_TYPE_PYTHON) {
+                btPipenv = AbstractInterpreterEditor.createBt(boxPackage, "Manage with pipenv",
+                        new SelectionAdapter() {
+                            @Override
+                            public void widgetSelected(SelectionEvent e) {
+                                AbstractPackageManager packageManager;
+                                try {
+                                    packageManager = new PipenvPackageManager(interpreterInfo,
+                                            interpreterManager);
+                                } catch (PipenvUnconfiguredException e1) {
+                                    return;
+                                }
+                                packageManager.manage();
+                                update();
+                            }
+                        });
+            }
             // Commented out for now (needs more time to properly integrate).
             // In this case we'd do wrappers and launch using them instead of launching Python itself -- see:
             // https://github.com/gqmelo/exec-wrappers/blob/master/exec_wrappers/templates/conda/run-in.bat
@@ -174,6 +198,9 @@ public class PackageTab {
         tree.clearAll(true);
         tree.setItemCount(0);
         btConda.setEnabled(false);
+        if (btPipenv != null) {
+            btPipenv.setEnabled(false);
+        }
         btPip.setEnabled(false);
         if (checkUseConda != null) {
             checkUseConda.setEnabled(false);
@@ -206,6 +233,7 @@ public class PackageTab {
                 makeUIClean();
                 packageManager.updateTree(tree, list);
                 btPip.setEnabled(true);
+                btPipenv.setEnabled(true);
                 if (packageManager instanceof CondaPackageManager) {
                     btConda.setEnabled(true);
                     if (checkUseConda != null) {

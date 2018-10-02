@@ -228,6 +228,11 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
         updateTree();
     }
 
+    @Override
+    protected IInterpreterManager getInterpreterManager() {
+        return interpreterManager;
+    }
+
     /**
      * @see org.eclipse.jface.preference.FieldEditor#createControl(org.eclipse.swt.widgets.Composite)
      */
@@ -383,6 +388,8 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
 
     private AbstractListWithNewRemoveControl predefinedCompletions;
 
+    private String defaultProjectLocation;
+
     /**
      * @see org.eclipse.jface.preference.ListEditor#doFillIntoGrid(org.eclipse.swt.widgets.Composite, int)
      */
@@ -401,7 +408,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
 
         try {
             if (this.getShowPackageTab()) {
-                packageTab.createPackageControlTab(tabFolder, exeOrJarOfInterpretersToRestore);
+                packageTab.createPackageControlTab(tabFolder, exeOrJarOfInterpretersToRestore, interpreterManager);
             }
         } catch (Exception e1) {
             Log.log(e1); // Not really expected, just new code, so, let's protect until it matures.
@@ -971,13 +978,23 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
      */
     public abstract IInterpreterProviderFactory.InterpreterType getInterpreterType();
 
+    public void setDefaultProjectLocation(String defaultProjectLocation) {
+        this.defaultProjectLocation = defaultProjectLocation;
+    }
+
     @Override
-    protected Tuple<String, String> getNewInputObject(int configType) {
+    protected NameAndExecutable getNewInputObject(int configType) {
         CharArrayWriter charWriter = new CharArrayWriter();
         PrintWriter logger = new PrintWriter(charWriter);
         try {
             ObtainInterpreterInfoOperation operation = null;
-            if (configType != InterpreterConfigHelpers.CONFIG_MANUAL) {
+            if (configType == InterpreterConfigHelpers.CONFIG_PIPENV) {
+                IInterpreterInfo[] interpreterInfos = getExesList();
+                operation = InterpreterConfigHelpers.createPipenvInterpreter(interpreterInfos, getShell(), logger,
+                        nameToInfo,
+                        defaultProjectLocation, interpreterManager);
+
+            } else if (configType != InterpreterConfigHelpers.CONFIG_MANUAL) {
                 //Auto-config
                 AutoConfigMaker a = new AutoConfigMaker(getInterpreterType(),
                         configType == InterpreterConfigHelpers.CONFIG_ADV_AUTO, logger,
@@ -986,15 +1003,13 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
             } else {
                 //Manual config
                 logger.println("Information about process of adding new interpreter:");
-                Tuple<String, String> interpreterNameAndExecutable = newConfig(logger);
+                NameAndExecutable interpreterNameAndExecutable = newConfig(logger);
                 if (interpreterNameAndExecutable == null) {
                     return null;
                 }
-                interpreterNameAndExecutable.o1 = InterpreterConfigHelpers.getUniqueInterpreterName(
-                        interpreterNameAndExecutable.o1, nameToInfo);
-                boolean foundError = InterpreterConfigHelpers.checkInterpreterNameAndExecutable(
-                        interpreterNameAndExecutable, logger, "Error getting info on interpreter",
-                        nameToInfo, this.getShell());
+                boolean foundError = InterpreterConfigHelpers.canAddNameAndExecutable(logger,
+                        interpreterNameAndExecutable, nameToInfo,
+                        getShell());
 
                 if (foundError) {
                     return null;
@@ -1015,7 +1030,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
                 this.nameToInfo.put(newName, operation.result.makeCopy());
                 exeOrJarOfInterpretersToRestore.add(operation.result.executableOrJar);
 
-                return new Tuple<String, String>(operation.result.getName(),
+                return new NameAndExecutable(operation.result.getName(),
                         operation.result.executableOrJar);
             }
 
@@ -1032,7 +1047,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
         return null;
     }
 
-    private Tuple<String, String> newConfig(PrintWriter logger) {
+    private NameAndExecutable newConfig(PrintWriter logger) {
         InterpreterInputDialog dialog = new InterpreterInputDialog(getShell(), "Select interpreter",
                 "Enter the name and executable of your interpreter", this);
 
@@ -1040,7 +1055,8 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
         int result = dialog.open();
 
         if (result == Window.OK) {
-            return dialog.getKeyAndValueEntered();
+            Tuple<String, String> tup = dialog.getKeyAndValueEntered();
+            return new NameAndExecutable(tup.o1, tup.o2);
         }
         return null;
 
