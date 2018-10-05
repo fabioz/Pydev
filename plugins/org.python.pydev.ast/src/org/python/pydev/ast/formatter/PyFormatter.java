@@ -751,26 +751,31 @@ public class PyFormatter {
         //        formatter.formatSelection(doc, startLine, endLineIndex, edit, ps);
         Assert.isTrue(regionsForSave != null);
 
-        if (formatStd.formatWithAutopep8) {
-            // get a copy of formatStd to avoid being overwritten by settings
-            FormatStd formatStdNew = (FormatStd) (edit != null ? edit.getFormatStd()
-                    : PyFormatterPreferences.getFormatStd(null));
-            // no need to remember old values, as they'll always be created from scratch
-            try {
-                // assume it's a continuous region
-                if (regionsForSave.length > 0) { // at least one line selected
-                    int firstSelectedLine = regionsForSave[0] + 1;
-                    int lastSelectedLine = regionsForSave[regionsForSave.length - 1] + 1;
-                    // hack, use global settings to pass down argument to formatStr
-                    // that possibly overwrites other --range options, but that's highly unlikely
-                    // autopep8 says that it accepts line-range, but then it complains in runtime
-                    // so range is used instead
-                    formatStdNew.autopep8Parameters += " --range " + firstSelectedLine + " " + lastSelectedLine;
+        switch (formatStd.formatterStyle) {
+            case AUTOPEP8:
+                // get a copy of formatStd to avoid being overwritten by settings
+                FormatStd formatStdNew = (FormatStd) (edit != null ? edit.getFormatStd()
+                        : PyFormatterPreferences.getFormatStd(null));
+                // no need to remember old values, as they'll always be created from scratch
+                try {
+                    // assume it's a continuous region
+                    if (regionsForSave.length > 0) { // at least one line selected
+                        int firstSelectedLine = regionsForSave[0] + 1;
+                        int lastSelectedLine = regionsForSave[regionsForSave.length - 1] + 1;
+                        // hack, use global settings to pass down argument to formatStr
+                        // that possibly overwrites other --range options, but that's highly unlikely
+                        // autopep8 says that it accepts line-range, but then it complains in runtime
+                        // so range is used instead
+                        formatStdNew.autopep8Parameters += " --range " + firstSelectedLine + " " + lastSelectedLine;
+                    }
+                    formatAll(doc, edit, true, formatStdNew, true, false);
+                } catch (SyntaxErrorException e) {
                 }
-                formatAll(doc, edit, true, formatStdNew, true, false);
-            } catch (SyntaxErrorException e) {
-            }
-            return;
+                return;
+            case BLACK:
+                throw new AssertionError("FINISH IT");
+            case PYDEVF:
+                //fallthrough
         }
 
         String delimiter = PySelection.getDelimiter(doc);
@@ -879,26 +884,29 @@ public class PyFormatter {
     /*default*/public static String formatStrAutopep8OrPyDev(IDocument doc, FormatStd std, String delimiter,
             boolean throwSyntaxError,
             boolean allowChangingBlankLines) throws SyntaxErrorException {
-        if (std.formatWithAutopep8) {
-            String parameters = std.autopep8Parameters;
-            String formatted = Pep8Runner.runWithPep8BaseScript(doc, parameters, "autopep8.py");
-            if (formatted == null) {
-                formatted = doc.get();
-            }
+        switch (std.formatterStyle) {
+            case AUTOPEP8:
+                String parameters = std.autopep8Parameters;
+                String formatted = Pep8Runner.runWithPep8BaseScript(doc, parameters, "autopep8.py");
+                if (formatted == null) {
+                    formatted = doc.get();
+                }
 
-            formatted = StringUtils.replaceNewLines(formatted, delimiter);
+                formatted = StringUtils.replaceNewLines(formatted, delimiter);
 
-            return formatted;
-        } else {
-            FastStringBuffer buf = formatStr(doc.get(), std, 0, delimiter, throwSyntaxError);
-            if (allowChangingBlankLines && std.manageBlankLines) {
-                List<LineOffsetAndInfo> computed = PyFormatStdManageBlankLines
-                        .computeBlankLinesAmongMethodsAndClasses(std, buf, delimiter);
-                return PyFormatStdManageBlankLines
-                        .fixBlankLinesAmongMethodsAndClasses(computed, std, doc, buf, delimiter).toString();
-            } else {
-                return buf.toString();
-            }
+                return formatted;
+            case BLACK:
+                throw new AssertionError("finish it");
+            default:
+                FastStringBuffer buf = formatStr(doc.get(), std, 0, delimiter, throwSyntaxError);
+                if (allowChangingBlankLines && std.manageBlankLines) {
+                    List<LineOffsetAndInfo> computed = PyFormatStdManageBlankLines
+                            .computeBlankLinesAmongMethodsAndClasses(std, buf, delimiter);
+                    return PyFormatStdManageBlankLines
+                            .fixBlankLinesAmongMethodsAndClasses(computed, std, doc, buf, delimiter).toString();
+                } else {
+                    return buf.toString();
+                }
         }
     }
 

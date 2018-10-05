@@ -5,6 +5,9 @@ import org.python.pydev.core.preferences.PyScopedPreferences;
 
 public class PyFormatterPreferences {
 
+    public static final String FORMATTER_STYLE = "FORMATTER_STYLE";
+
+    // DEPRECATED IN FAVOR OF FORMATTER_STYLE
     public static final String FORMAT_WITH_AUTOPEP8 = "FORMAT_WITH_AUTOPEP8";
     public static final boolean DEFAULT_FORMAT_WITH_AUTOPEP8 = false;
 

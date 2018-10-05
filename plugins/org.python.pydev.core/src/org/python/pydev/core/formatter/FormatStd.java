@@ -7,10 +7,18 @@ package org.python.pydev.core.formatter;
  */
 public class FormatStd {
 
+    public enum FormatterEnum {
+        PYDEVF, AUTOPEP8, BLACK,
+    }
+
+    public static final String PYDEFV = "PYDEFV";
+    public static final String AUTOPEP8 = "AUTOPEP8";
+    public static final String BLACK = "BLACK";
+
     /**
-     * Format with autopep8.py?
+     * Format with pydevf,autopep8,black?
      */
-    public boolean formatWithAutopep8;
+    public FormatterEnum formatterStyle;
 
     /**
      * Parameters for autopep8.
@@ -72,7 +80,8 @@ public class FormatStd {
      * This method should be called after all related attributes are set when autopep8 is set to true.
      */
     public void updateAutopep8() {
-        if (formatWithAutopep8) {
+        if (formatterStyle != FormatterEnum.PYDEVF) {
+            // Other formatters are not configurable.
             spaceAfterComma = true;
             parametersWithSpace = false;
             assignWithSpaceInsideParens = false;
