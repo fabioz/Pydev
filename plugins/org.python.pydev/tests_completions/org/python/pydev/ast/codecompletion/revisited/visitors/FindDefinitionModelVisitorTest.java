@@ -311,7 +311,7 @@ public class FindDefinitionModelVisitorTest extends CodeCompletionTestsBase {
     public void testPython30() throws Exception {
         int initial = GRAMMAR_TO_USE_FOR_PARSING;
         try {
-            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
             String d = "" +
                     "def func(arg, *, arg2=None):\n" +
                     "    arg2" +

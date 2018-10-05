@@ -15,7 +15,6 @@ Bundle-ActivationPolicy: lazy
 Export-Package: org.python.pydev.parser,
  org.python.pydev.parser.fastparser,
  org.python.pydev.parser.fastparser.grammar_fstrings_common,
- org.python.pydev.parser.grammar24,
  org.python.pydev.parser.grammar25,
  org.python.pydev.parser.grammar26,
  org.python.pydev.parser.grammar27,

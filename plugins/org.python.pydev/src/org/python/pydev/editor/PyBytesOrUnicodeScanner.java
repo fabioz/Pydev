@@ -78,7 +78,7 @@ public class PyBytesOrUnicodeScanner extends AbstractStringScanner {
         if (hasFromFutureImportUnicode) {
             return setDefaultIsUnicode(true);
         }
-        int grammarVersion = IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;
+        int grammarVersion = IGrammarVersionProvider.LATEST_GRAMMAR_PY3_VERSION;
         IGrammarVersionProvider g = grammarVersionProvider;
         if (g != null) {
             try {
@@ -86,7 +86,7 @@ public class PyBytesOrUnicodeScanner extends AbstractStringScanner {
             } catch (MisconfigurationException e) {
             }
         }
-        if (grammarVersion >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0) {
+        if (grammarVersion >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5) {
             return setDefaultIsUnicode(true);
         } else {
             return setDefaultIsUnicode(false);

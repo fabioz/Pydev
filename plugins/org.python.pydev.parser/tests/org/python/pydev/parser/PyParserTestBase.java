@@ -62,7 +62,7 @@ public class PyParserTestBase extends TestCase {
         PyParser.ENABLE_TRACING = true;
         ParseException.verboseExceptions = true;
         parser = new PyParser(versionProvider);
-        setDefaultVersion(IPythonNature.LATEST_GRAMMAR_VERSION);
+        setDefaultVersion(IPythonNature.LATEST_GRAMMAR_PY2_VERSION);
         super.setUp();
     }
 

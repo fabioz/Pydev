@@ -53,7 +53,7 @@ public class PythonCompletionWithPredefinedBuiltinsTest extends CodeCompletionTe
 
             @Override
             public int getGrammarVersion() {
-                return IPythonNature.LATEST_GRAMMAR_VERSION;
+                return IPythonNature.LATEST_GRAMMAR_PY2_VERSION;
             }
 
             @Override

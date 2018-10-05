@@ -384,7 +384,7 @@ public class MatchImportsVisitor extends VisitorBase {
             s.add(new Tuple<String, Boolean>(modRep, false));
         } else {
             //Treat imports as relative on Python 2.x variants without the from __future__ import absolute_import statement.
-            if (nature.getGrammarVersion() < IPythonNature.GRAMMAR_PYTHON_VERSION_3_0 && !acceptOnlyAbsoluteImports) {
+            if (nature.getGrammarVersion() < IPythonNature.GRAMMAR_PYTHON_VERSION_3_5 && !acceptOnlyAbsoluteImports) {
                 s.add(new Tuple<String, Boolean>(modRep, false));
                 s.add(new Tuple<String, Boolean>(makeRelative(1, modRep), true));
             }
@@ -559,7 +559,7 @@ public class MatchImportsVisitor extends VisitorBase {
         aliasType[] names = node.names;
         boolean matched = handleNames(node, names, "", false);
         //Treat imports as relative on Python 2.x variants without the from __future__ import absolute_import statement.
-        if (!matched && nature.getGrammarVersion() < IPythonNature.GRAMMAR_PYTHON_VERSION_3_0) {
+        if (!matched && nature.getGrammarVersion() < IPythonNature.GRAMMAR_PYTHON_VERSION_3_5) {
             String relative = makeRelative(1, "");
             handleNames(node, names, relative, true);
         }

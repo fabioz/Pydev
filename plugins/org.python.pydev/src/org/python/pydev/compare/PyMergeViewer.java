@@ -276,7 +276,7 @@ public class PyMergeViewer extends TextMergeViewer {
                 IPythonNature pythonNature = this.getPythonNature();
                 if (pythonNature == null) {
                     Log.logInfo("Expected to get the PythonNature at this point...");
-                    return IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;
+                    return IGrammarVersionProvider.LATEST_GRAMMAR_PY3_VERSION;
                 }
                 return pythonNature.getGrammarVersion();
             }

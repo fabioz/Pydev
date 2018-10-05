@@ -51,7 +51,7 @@ public class PythonCompletionWithBuiltinsPython3Test extends CodeCompletionTests
 
             @Override
             public int getGrammarVersion() {
-                return IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+                return IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
             }
 
             @Override

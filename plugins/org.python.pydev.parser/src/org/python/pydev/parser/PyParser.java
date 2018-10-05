@@ -40,7 +40,6 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.parser.IPyParser;
 import org.python.pydev.parser.fastparser.FastParser;
-import org.python.pydev.parser.grammar24.PythonGrammar24;
 import org.python.pydev.parser.grammar25.PythonGrammar25;
 import org.python.pydev.parser.grammar26.PythonGrammar26;
 import org.python.pydev.parser.grammar27.PythonGrammar27;
@@ -104,10 +103,7 @@ public class PyParser extends BaseParser implements IPyParser {
     private final IGrammarVersionProvider grammarVersionProvider;
 
     public static String getGrammarVersionStr(int grammarVersion) {
-        if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4) {
-            return "grammar: Python 2.4";
-
-        } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5) {
+        if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5) {
             return "grammar: Python 2.5";
 
         } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6) {
@@ -116,11 +112,14 @@ public class PyParser extends BaseParser implements IPyParser {
         } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7) {
             return "grammar: Python 2.7";
 
-        } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0) {
-            return "grammar: Python 3.0 - 3.5";
+        } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5) {
+            return "grammar: Python 3.5";
 
         } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_6) {
             return "grammar: Python 3.6";
+
+        } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_7) {
+            return "grammar: Python 3.7";
 
         } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_CYTHON) {
             return "grammar: Cython";
@@ -143,7 +142,7 @@ public class PyParser extends BaseParser implements IPyParser {
             grammarVersionProvider = new IGrammarVersionProvider() {
                 @Override
                 public int getGrammarVersion() {
-                    return IPythonNature.LATEST_GRAMMAR_VERSION;
+                    return IPythonNature.LATEST_GRAMMAR_PY3_VERSION;
                 }
 
                 @Override
@@ -281,7 +280,7 @@ public class PyParser extends BaseParser implements IPyParser {
             additionalGrammarsToCheck = grammarVersionProvider.getAdditionalGrammarVersions();
         } catch (MisconfigurationException e1) {
             //Ok, we cannot get it... let's put on the default
-            version = IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;
+            version = IGrammarVersionProvider.LATEST_GRAMMAR_PY3_VERSION;
         }
         long documentTime = System.currentTimeMillis();
         ParseOutput obj = reparseDocument(new ParserInfo(document, version, true, additionalGrammarsToCheck));
@@ -483,9 +482,6 @@ public class PyParser extends BaseParser implements IPyParser {
         IGrammar grammar;
         FastCharStream in = new FastCharStream(charArray);
         switch (grammarVersion) {
-            case IPythonNature.GRAMMAR_PYTHON_VERSION_2_4:
-                grammar = new PythonGrammar24(generateTree, in);
-                break;
             case IPythonNature.GRAMMAR_PYTHON_VERSION_2_5:
                 grammar = new PythonGrammar25(generateTree, in);
                 break;
@@ -495,10 +491,11 @@ public class PyParser extends BaseParser implements IPyParser {
             case IPythonNature.GRAMMAR_PYTHON_VERSION_2_7:
                 grammar = new PythonGrammar27(generateTree, in);
                 break;
-            case IPythonNature.GRAMMAR_PYTHON_VERSION_3_0:
+            case IPythonNature.GRAMMAR_PYTHON_VERSION_3_5:
                 grammar = new PythonGrammar30(generateTree, in);
                 break;
             case IPythonNature.GRAMMAR_PYTHON_VERSION_3_6:
+            case IPythonNature.GRAMMAR_PYTHON_VERSION_3_7:
                 grammar = new PythonGrammar36(generateTree, in);
                 break;
             //case CYTHON: not treated here (only in reparseDocument).

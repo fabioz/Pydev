@@ -93,7 +93,7 @@ public class OverrideMethodCompletionProposal extends AbstractPyCompletionPropos
 
                 @Override
                 public int getGrammarVersion() throws MisconfigurationException {
-                    return IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;
+                    return IGrammarVersionProvider.LATEST_GRAMMAR_PY3_VERSION;
                 }
 
                 @Override

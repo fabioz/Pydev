@@ -120,7 +120,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
 
             @Override
             public int getGrammarVersion() throws MisconfigurationException {
-                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0;
+                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5;
             }
 
             @Override
@@ -128,7 +128,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
                 return null;
             }
         };
-        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5);
         Module node = (Module) parseLegalDocStr(s);
         FunctionDef funcDef = (FunctionDef) node.body[0];
         String result = PrettyPrinterV2.printArguments(p, funcDef.args);
@@ -145,7 +145,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
 
             @Override
             public int getGrammarVersion() throws MisconfigurationException {
-                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0;
+                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5;
             }
 
             @Override
@@ -153,7 +153,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
                 return null;
             }
         };
-        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5);
         Module node = (Module) parseLegalDocStr(s);
         FunctionDef funcDef = (FunctionDef) node.body[0];
         String result = PrettyPrinterV2.printArguments(p, funcDef.args);
@@ -165,7 +165,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
                 "...\n" +
                 "";
 
-        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5);
         checkPrettyPrintEqual(s, s);
     }
 
@@ -176,7 +176,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
                 "...\n" +
                 "";
 
-        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5);
         checkPrettyPrintEqual(s, s);
     }
 
@@ -188,7 +188,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
                 "...\n" +
                 "";
 
-        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5);
         checkPrettyPrintEqual(s, s);
     }
 
@@ -211,7 +211,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
                 "...\n" +
                 "";
 
-        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5);
         checkPrettyPrintEqual(s, s);
     }
 
@@ -228,7 +228,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
 
             @Override
             public Boolean call(Integer version) {
-                if (version != IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4) {
+                if (version != IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5) {
                     checkPrettyPrintEqual(s, s, v2);
                 }
                 return true;
@@ -288,7 +288,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
 
             @Override
             public Boolean call(Integer version) {
-                if (version >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0) {
+                if (version >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5) {
                     checkPrettyPrintEqual(s, "exec('a=1')\n");
 
                 } else {
@@ -310,7 +310,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
 
             @Override
             public Boolean call(Integer version) {
-                if (version >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0) {
+                if (version >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5) {
                     checkPrettyPrintEqual(s, s);
 
                 }
@@ -489,7 +489,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
 
             @Override
             public Boolean call(Integer version) {
-                if (version >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0) {
+                if (version >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5) {
                     checkPrettyPrintEqual(s);
                 }
                 return true;
@@ -505,7 +505,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
 
             @Override
             public Boolean call(Integer version) {
-                if (version != IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4) {
+                if (version != IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5) {
                     checkPrettyPrintEqual(s);
                 }
                 return true;
@@ -519,7 +519,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
 
             @Override
             public Boolean call(Integer version) {
-                if (version >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0) {
+                if (version >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5) {
                     checkPrettyPrintEqual(s);
                 }
                 return true;
@@ -568,7 +568,6 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
     }
 
     public void testTryFinallyBeginNode() throws Exception {
-        doTryFinallyBeginNode(IPythonNature.GRAMMAR_PYTHON_VERSION_2_4);
         doTryFinallyBeginNode(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
     }
 
@@ -1898,7 +1897,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
 
             @Override
             public Boolean call(Integer version) {
-                if (version < IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0) {
+                if (version < IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5) {
                     checkPrettyPrintEqual(s);
                 }
                 return true;
@@ -3036,7 +3035,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
 
             @Override
             public Boolean call(Integer version) {
-                if (version < IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0) {
+                if (version < IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5) {
                     checkPrettyPrintEqual(s);
                 }
                 return true;
@@ -3198,7 +3197,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
                 "    pass\n" +
                 "";
 
-        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5);
         checkPrettyPrintEqual(s);
 
     }
@@ -3207,7 +3206,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
         String s = "s = {1,}\n";
         String expected = "s = {1}\n"; //yes, when creating a copy we loose the specials (and end without the comma).
 
-        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5);
         checkPrettyPrintEqual(s, s, expected);
 
     }
@@ -3217,7 +3216,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
                 + "    raise call() from None\n";
         String expected = s;
 
-        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5);
         checkPrettyPrintEqual(s, s, expected);
 
     }
