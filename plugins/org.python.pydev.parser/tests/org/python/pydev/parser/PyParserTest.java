@@ -186,25 +186,6 @@ public class PyParserTest extends PyParserTestBase {
 
     }
 
-    public void testEmptyBaseForClass() throws Throwable {
-        final String s = "" +
-                "class B2(): pass\n" +
-                "\n" +
-                "";
-        checkWithAllGrammars(new ICallback<Boolean, Integer>() {
-
-            @Override
-            public Boolean call(Integer arg) {
-                if (arg == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5) {
-                    parseILegalDocSuccessfully(s);
-                } else {
-                    parseLegalDocStr(s);
-                }
-                return true;
-            }
-        });
-    }
-
     public void testFor2() throws Throwable {
         final String s = "" +
                 "[x for x in 1,2,3,4]\n" +

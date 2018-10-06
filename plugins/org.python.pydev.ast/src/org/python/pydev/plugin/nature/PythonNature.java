@@ -1344,10 +1344,13 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
             if (IPythonNature.DEFAULT_INTERPRETER.equals(projectInterpreterName)) {
                 if (relatedInterpreterManager.getInterpreterType() == IPythonNature.INTERPRETER_TYPE_PYTHON) {
-                    File projectLocation = this.getProject().getLocation().toFile();
-                    ret = PipenvHelper.getPipenvInterpreterInfoForProjectLocation(
-                            relatedInterpreterManager.getInterpreterInfos(),
-                            projectLocation, relatedInterpreterManager);
+                    IPath location = this.project.getLocation();
+                    if (location != null) {
+                        File projectLocation = location.toFile();
+                        ret = PipenvHelper.getPipenvInterpreterInfoForProjectLocation(
+                                relatedInterpreterManager.getInterpreterInfos(),
+                                projectLocation, relatedInterpreterManager);
+                    }
                 }
                 if (ret == null) {
                     //if it's the default, let's translate it to the outside world

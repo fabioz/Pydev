@@ -260,15 +260,6 @@ public class PyParser25Test extends PyParserTestBase {
     /**
      * This test checks that the old version still gives an error
      */
-    public void testConditionalExp1err() {
-        setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
-        String str = "a = 1 if True else 2\n";
-        parseILegalDoc(new Document(str));
-    }
-
-    /**
-     * This test checks that the old version still gives an error
-     */
     public void testWith() {
         setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
         String str = "" +
