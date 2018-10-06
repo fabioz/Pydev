@@ -123,6 +123,20 @@ public class UniversalRunner {
 
             return new SimpleRunner().run(getCommandLine(cmd), workingDir, nature, monitor);
         }
+
+        public Tuple<Process, String> createProcessFromModuleName(String moduleName, String[] args, File workingDir,
+                IProgressMonitor monitor) {
+            if (args == null) {
+                args = new String[0];
+            }
+
+            List<String> cmd = new ArrayList<String>();
+            cmd.add("-m");
+            cmd.add(moduleName);
+            cmd.addAll(Arrays.asList(args));
+
+            return new SimpleRunner().run(getCommandLine(cmd), workingDir, nature, monitor);
+        }
     }
 
     /**
