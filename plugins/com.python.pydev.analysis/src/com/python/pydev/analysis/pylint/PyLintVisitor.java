@@ -114,4 +114,9 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
         return pyLintRunnable.markers;
     }
 
+    @Override
+    public boolean getRequiresAnalysis() {
+        return true;
+    }
+
 }

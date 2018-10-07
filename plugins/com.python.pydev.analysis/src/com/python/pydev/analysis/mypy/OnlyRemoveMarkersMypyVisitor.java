@@ -21,8 +21,13 @@ public class OnlyRemoveMarkersMypyVisitor extends AbstractExternalCodeAnalysisOn
     public static final String MYPY_MESSAGE_ID = IMiscConstants.MYPY_MESSAGE_ID;
 
     @Override
-    protected String getProblemMarkerId() {
+    public String getProblemMarkerId() {
         return MYPY_PROBLEM_MARKER;
+    }
+
+    @Override
+    public String getMessageId() {
+        return MYPY_MESSAGE_ID;
     }
 
 }

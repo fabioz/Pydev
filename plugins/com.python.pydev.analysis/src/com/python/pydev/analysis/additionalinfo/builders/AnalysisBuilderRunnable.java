@@ -33,7 +33,6 @@ import org.python.pydev.core.editor.OpenEditors;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.logging.DebugSettings;
 import org.python.pydev.parser.preferences.PyDevBuilderPreferences;
-import org.python.pydev.shared_core.IMiscConstants;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.markers.PyMarkerUtils;
 import org.python.pydev.shared_core.markers.PyMarkerUtils.MarkerInfo;
@@ -219,17 +218,28 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
             boolean makeAnalysis = runner.canDoAnalysis(document) && PyDevBuilderVisitor.isInPythonPath(r) && //just get problems in resources that are in the pythonpath
                     analysisPreferences.makeCodeAnalysis();
 
+            boolean anotherVisitorRequiresAnalysis = false;
+            for (IExternalCodeAnalysisVisitor visitor : allVisitors) {
+                anotherVisitorRequiresAnalysis |= visitor.getRequiresAnalysis();
+            }
+
             if (!makeAnalysis) {
                 //let's see if we should do code analysis
-                AnalysisRunner.deleteMarkers(r);
                 if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
                     org.python.pydev.shared_core.log.ToLogFile.toLogFile(this,
                             "Skipping: !makeAnalysis -- " + moduleName);
                 }
-                return;
+                if (!anotherVisitorRequiresAnalysis) {
+                    AnalysisRunner.deleteMarkers(r);
+                    return;
+                } else {
+                    // Only delete pydev markers (others will be deleted by the respective visitors later on).
+                    boolean onlyPydevAnalysisMarkers = true;
+                    AnalysisRunner.deleteMarkers(r, onlyPydevAnalysisMarkers);
+                }
             }
 
-            if (onlyRecreateCtxInsensitiveInfo) {
+            if (makeAnalysis && onlyRecreateCtxInsensitiveInfo) {
                 if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
                     org.python.pydev.shared_core.log.ToLogFile.toLogFile(this,
                             "Skipping: !forceAnalysis && analysisCause == ANALYSIS_CAUSE_BUILDER && "
@@ -249,7 +259,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
                 return;
             }
 
-            if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
+            if (makeAnalysis && DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
                 org.python.pydev.shared_core.log.ToLogFile.toLogFile(this,
                         "makeAnalysis:" + makeAnalysis + " " + "analysisCause: " + getAnalysisCauseStr()
                                 + " -- " + moduleName);
@@ -265,16 +275,13 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
                 //We don't want to check derived resources (but we want to remove any analysis messages that
                 //might be already there)
                 if (r != null) {
-                    runner.setMarkers(r, document, new IMessage[0], this.internalCancelMonitor);
-                    for (IExternalCodeAnalysisVisitor visitor : allVisitors) {
-                        visitor.deleteMarkers();
-                    }
+                    AnalysisRunner.deleteMarkers(r);
                 }
                 return;
             }
 
-            // Currently, the PyLint visitor can only analyze the contents saved, so, if the contents on the doc
-            // changed in the meanwhile, skip doing this visit for PyLint.
+            // Currently, the PyLint/Mypy visitor can only analyze the contents saved, so, if the contents on the doc
+            // changed in the meanwhile, skip doing this visit.
             // Maybe we can improve that when https://github.com/PyCQA/pylint/pull/1189 is done.
             if (!DocumentChanged.hasDocumentChanged(resource, document)) {
                 for (IExternalCodeAnalysisVisitor visitor : allVisitors) {
@@ -284,44 +291,50 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
                 for (IExternalCodeAnalysisVisitor visitor : allVisitors) {
                     visitor.deleteMarkers();
                 }
-            }
-            OccurrencesAnalyzer analyzer = new OccurrencesAnalyzer();
-            checkStop();
-            SourceModule module = (SourceModule) this.module.call(moduleRequest);
-            IMessage[] messages = analyzer.analyzeDocument(nature, module, analysisPreferences, document,
-                    this.internalCancelMonitor, DefaultIndentPrefs.get(this.resource));
-
-            checkStop();
-            if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "Adding markers for module: " + moduleName);
-                //for (IMessage message : messages) {
-                //    Log.toLogFile(this, message.toString());
-                //}
-            }
-
-            //last chance to stop...
-            checkStop();
-
-            List<MarkerInfo> markersFromCodeAnalysis = null;
-
-            //don't stop after setting to add / remove the markers
-            if (r != null) {
-                boolean analyzeOnlyActiveEditor = PyDevBuilderPreferences.getAnalyzeOnlyActiveEditor();
-                if (forceAnalysis
-                        || !analyzeOnlyActiveEditor
-                        || (analyzeOnlyActiveEditor
-                                && (!PyDevBuilderPreferences.getRemoveErrorsWhenEditorIsClosed() || OpenEditors
-                                        .isEditorOpenForResource(r)))) {
-                    markersFromCodeAnalysis = runner.setMarkers(r, document, messages, this.internalCancelMonitor);
-                } else {
-                    if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                        org.python.pydev.shared_core.log.ToLogFile.toLogFile(this,
-                                "Skipped adding markers for module: " + moduleName
-                                        + " (editor not opened).");
-                    }
+                if (!makeAnalysis) {
+                    return;
                 }
             }
 
+            List<MarkerInfo> markersFromCodeAnalysis = null;
+            if (makeAnalysis) {
+                OccurrencesAnalyzer analyzer = new OccurrencesAnalyzer();
+                checkStop();
+                SourceModule module = (SourceModule) this.module.call(moduleRequest);
+                IMessage[] messages = analyzer.analyzeDocument(nature, module, analysisPreferences, document,
+                        this.internalCancelMonitor, DefaultIndentPrefs.get(this.resource));
+
+                checkStop();
+                if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
+                    org.python.pydev.shared_core.log.ToLogFile.toLogFile(this,
+                            "Adding markers for module: " + moduleName);
+                    //for (IMessage message : messages) {
+                    //    Log.toLogFile(this, message.toString());
+                    //}
+                }
+
+                //last chance to stop...
+                checkStop();
+
+                //don't stop after setting to add / remove the markers
+                if (r != null) {
+                    boolean analyzeOnlyActiveEditor = PyDevBuilderPreferences.getAnalyzeOnlyActiveEditor();
+                    if (forceAnalysis
+                            || !analyzeOnlyActiveEditor
+                            || (analyzeOnlyActiveEditor
+                                    && (!PyDevBuilderPreferences.getRemoveErrorsWhenEditorIsClosed() || OpenEditors
+                                            .isEditorOpenForResource(r)))) {
+                        markersFromCodeAnalysis = runner.setMarkers(r, document, messages, this.internalCancelMonitor);
+                    } else {
+                        if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
+                            org.python.pydev.shared_core.log.ToLogFile.toLogFile(this,
+                                    "Skipped adding markers for module: " + moduleName
+                                            + " (editor not opened).");
+                        }
+                    }
+                }
+
+            }
             //if there are callbacks registered, call them if we still didn't return (mostly for tests)
             for (ICallback<Object, IResource> callback : analysisBuilderListeners) {
                 try {
@@ -339,15 +352,8 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
             checkStop();
             if (r != null) {
                 for (IExternalCodeAnalysisVisitor visitor : allVisitors) {
-                    String problemMarker;
-                    String messageId;
-                    if (visitor == pyLintVisitor) {
-                        problemMarker = IMiscConstants.PYLINT_PROBLEM_MARKER;
-                        messageId = IMiscConstants.PYLINT_MESSAGE_ID;
-                    } else {
-                        problemMarker = IMiscConstants.MYPY_PROBLEM_MARKER;
-                        messageId = IMiscConstants.MYPY_MESSAGE_ID;
-                    }
+                    String problemMarker = visitor.getProblemMarkerId();
+                    String messageId = visitor.getMessageId();
 
                     List<MarkerInfo> markersFromVisitor = visitor.getMarkers();
                     if (markersFromVisitor != null && markersFromVisitor.size() > 0) {

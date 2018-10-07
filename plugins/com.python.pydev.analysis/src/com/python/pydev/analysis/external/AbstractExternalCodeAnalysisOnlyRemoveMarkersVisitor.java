@@ -42,6 +42,9 @@ public abstract class AbstractExternalCodeAnalysisOnlyRemoveMarkersVisitor imple
         }
     }
 
-    protected abstract String getProblemMarkerId();
+    @Override
+    public boolean getRequiresAnalysis() {
+        return false; // If only to remove does not require analysis.
+    }
 
 }

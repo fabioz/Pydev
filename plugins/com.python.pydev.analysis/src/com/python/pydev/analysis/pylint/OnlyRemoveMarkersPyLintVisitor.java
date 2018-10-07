@@ -22,8 +22,13 @@ public class OnlyRemoveMarkersPyLintVisitor extends AbstractExternalCodeAnalysis
     public static final String PYLINT_MESSAGE_ID = IMiscConstants.PYLINT_MESSAGE_ID;
 
     @Override
-    protected String getProblemMarkerId() {
+    public String getProblemMarkerId() {
         return PYLINT_PROBLEM_MARKER;
+    }
+
+    @Override
+    public String getMessageId() {
+        return PYLINT_MESSAGE_ID;
     }
 
 }

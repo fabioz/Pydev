@@ -38,4 +38,10 @@ public interface IExternalCodeAnalysisVisitor {
      */
     List<PyMarkerUtils.MarkerInfo> getMarkers();
 
+    boolean getRequiresAnalysis();
+
+    String getProblemMarkerId();
+
+    String getMessageId();
+
 }

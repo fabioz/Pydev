@@ -112,4 +112,9 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
         return mypyRunnable.markers;
     }
 
+    @Override
+    public boolean getRequiresAnalysis() {
+        return true;
+    }
+
 }
