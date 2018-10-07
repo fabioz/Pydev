@@ -21,8 +21,8 @@ import org.eclipse.swt.widgets.Text;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.plugin.nature.PipenvHelper;
-import org.python.pydev.shared_ui.field_editors.DirectoryFieldEditorCustom;
 import org.python.pydev.shared_ui.field_editors.FileFieldEditorCustom;
+import org.python.pydev.shared_ui.field_editors.ProjectDirectoryFieldEditorCustom;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
 
 public class PipenvDialog extends Dialog {
@@ -30,7 +30,7 @@ public class PipenvDialog extends Dialog {
     private FileFieldEditor fileFieldEditor;
     private Combo comboBaseInterpreter;
     private IInterpreterInfo[] interpreterInfos;
-    private DirectoryFieldEditorCustom projectLocationFieldEditor;
+    private ProjectDirectoryFieldEditorCustom projectLocationFieldEditor;
     private Text errorMessageText;
     private String defaultPipenvLocation;
     private String defaultProjectLocation;
@@ -72,7 +72,7 @@ public class PipenvDialog extends Dialog {
 
         int numberOfColumns = 2;
 
-        projectLocationFieldEditor = new DirectoryFieldEditorCustom("unused", "Project location", composite);
+        projectLocationFieldEditor = new ProjectDirectoryFieldEditorCustom("unused", "Project location", composite);
         projectLocationFieldEditor.fillIntoGrid(composite, numberOfColumns);
         projectLocationFieldEditor.setChangeButtonText("...");
         projectLocationFieldEditor.setStringValue(defaultProjectLocation);

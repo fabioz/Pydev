@@ -62,7 +62,7 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
         File mypyLocation = MypyPreferences.getMypyLocation(pythonNature);
         if (mypyLocation == null || !mypyLocation.exists()) {
             if (mypyLocation == null) {
-                Log.log("Unable to find mypy. Project" + project.getName());
+                Log.log("Unable to find mypy. Project: " + project.getName());
             } else {
                 Log.log("mypy location does not exist: " + mypyLocation);
             }

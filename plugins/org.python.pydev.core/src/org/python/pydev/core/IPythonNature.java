@@ -57,6 +57,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
             ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_2_7);
             ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_3_0);
             ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_3_6);
+            ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_3_7);
             ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_INTERPRETER);
 
             ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_2_5);
@@ -64,6 +65,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
             ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_2_7);
             ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_0);
             ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_6);
+            ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_7);
             ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_INTERPRETER);
 
             ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_2_5);
@@ -71,6 +73,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
             ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_2_7);
             ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_3_0);
             ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_3_6);
+            ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_3_7);
             ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_INTERPRETER);
 
             ALL_VERSIONS_ANY_FLAVOR.addAll(ALL_JYTHON_VERSIONS);

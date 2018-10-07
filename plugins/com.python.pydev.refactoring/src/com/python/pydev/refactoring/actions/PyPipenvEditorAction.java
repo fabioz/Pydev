@@ -18,7 +18,7 @@ public class PyPipenvEditorAction extends AbstractManageEnvEditorAction {
         PipenvPackageManager manager;
         try {
             manager = new PipenvPackageManager(projectInterpreter,
-                    pythonNature.getRelatedInterpreterManager());
+                    pythonNature.getRelatedInterpreterManager(), null);
         } catch (PipenvUnconfiguredException e) {
             return; // Ignore
         }
