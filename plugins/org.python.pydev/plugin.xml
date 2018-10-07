@@ -462,6 +462,11 @@
             name="PyLint"
             id="org.python.pydev.prefs.pylint"/>
       <page
+            class="org.python.pydev.builder.mypy.MypyPrefPage"
+            category="org.python.pydev.prefs.extensions.analysis"
+            name="Mypy"
+            id="org.python.pydev.prefs.mypy"/>
+      <page
             class="org.python.pydev.builder.todo.PyTodoPrefPage"
             category="org.python.pydev.prefs"
             name="Task Tags"

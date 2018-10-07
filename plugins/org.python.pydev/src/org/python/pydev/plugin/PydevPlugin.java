@@ -17,6 +17,7 @@ import java.util.Set;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -100,6 +101,7 @@ import org.python.pydev.ui.dialogs.SelectNDialog;
 import org.python.pydev.ui.dialogs.TreeNodeLabelProvider;
 import org.python.pydev.ui.pythonpathconf.PythonSelectionLibrariesDialog;
 
+import com.python.pydev.analysis.mypy.MypyPreferences;
 import com.python.pydev.analysis.pylint.PyLintPreferences;
 
 /**
@@ -191,7 +193,20 @@ public class PydevPlugin extends AbstractUIPlugin {
                 IOConsoleOutputStream console = MessageConsoles.getConsoleOutputStream("PyLint",
                         UIConstants.PY_LINT_ICON);
 
-                return ((string) -> { // IPyLintStream
+                return ((string) -> {
+                    console.write(string);
+                });
+            } else {
+                return null;
+            }
+        });
+
+        MypyPreferences.createMypyStream = ((IAdaptable projectAdaptable) -> {
+            if (MypyPreferences.useMypyConsole(projectAdaptable)) {
+                IOConsoleOutputStream console = MessageConsoles.getConsoleOutputStream("Mypy",
+                        UIConstants.MYPY_ICON);
+
+                return ((string) -> {
                     console.write(string);
                 });
             } else {

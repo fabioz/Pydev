@@ -31,6 +31,7 @@ public interface IMiscConstants {
     String PYLINT_MESSAGE_ID = "pylint_message_id";
 
     String MYPY_PROBLEM_MARKER = "org.python.pydev.mypyproblemmarker";
+    String MYPY_MESSAGE_ID = "mypy_message_id";
 
     int TYPE_UNUSED_IMPORT = 1;
     int TYPE_UNUSED_VARIABLE = 2;

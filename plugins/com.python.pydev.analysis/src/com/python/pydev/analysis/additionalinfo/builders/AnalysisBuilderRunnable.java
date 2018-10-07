@@ -44,6 +44,7 @@ import com.python.pydev.analysis.OccurrencesAnalyzer;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.external.IExternalCodeAnalysisVisitor;
+import com.python.pydev.analysis.mypy.MypyVisitorFactory;
 import com.python.pydev.analysis.pylint.PyLintVisitorFactory;
 
 /**
@@ -66,8 +67,11 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
     private ICallback<IModule, Integer> module;
     private int moduleRequest;
     private IExternalCodeAnalysisVisitor pyLintVisitor;
+    private IExternalCodeAnalysisVisitor mypyVisitor;
 
     private boolean onlyRecreateCtxInsensitiveInfo;
+
+    private IExternalCodeAnalysisVisitor[] allVisitors;
 
     // ---------------------------------------------------------------------------------------- END ATTRIBUTES
 
@@ -121,6 +125,8 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
         this.resource = resource;
         this.module = module;
         this.pyLintVisitor = PyLintVisitorFactory.create(resource, document, module, internalCancelMonitor);
+        this.mypyVisitor = MypyVisitorFactory.create(resource, document, module, internalCancelMonitor);
+        this.allVisitors = new IExternalCodeAnalysisVisitor[] { this.pyLintVisitor, this.mypyVisitor };
 
         // Important: we can only update the index if it was a builder... if it was the parser,
         // we can't update it otherwise we could end up with data that's not saved in the index.
@@ -260,7 +266,9 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
                 //might be already there)
                 if (r != null) {
                     runner.setMarkers(r, document, new IMessage[0], this.internalCancelMonitor);
-                    pyLintVisitor.deleteMarkers();
+                    for (IExternalCodeAnalysisVisitor visitor : allVisitors) {
+                        visitor.deleteMarkers();
+                    }
                 }
                 return;
             }
@@ -269,9 +277,13 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
             // changed in the meanwhile, skip doing this visit for PyLint.
             // Maybe we can improve that when https://github.com/PyCQA/pylint/pull/1189 is done.
             if (!DocumentChanged.hasDocumentChanged(resource, document)) {
-                pyLintVisitor.startVisit();
+                for (IExternalCodeAnalysisVisitor visitor : allVisitors) {
+                    visitor.startVisit();
+                }
             } else {
-                pyLintVisitor.deleteMarkers();
+                for (IExternalCodeAnalysisVisitor visitor : allVisitors) {
+                    visitor.deleteMarkers();
+                }
             }
             OccurrencesAnalyzer analyzer = new OccurrencesAnalyzer();
             checkStop();
@@ -320,59 +332,76 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
             }
 
             checkStop();
-            pyLintVisitor.join();
+            for (IExternalCodeAnalysisVisitor visitor : allVisitors) {
+                visitor.join();
+            }
 
             checkStop();
             if (r != null) {
-                List<MarkerInfo> markersFromPyLint = pyLintVisitor.getMarkers();
-                if (markersFromPyLint != null && markersFromPyLint.size() > 0) {
-
-                    Map<Integer, List<MarkerInfo>> lineToMarkerInfo = new HashMap<>();
-                    if (markersFromCodeAnalysis != null) {
-                        for (MarkerInfo codeAnalysisMarkerInfo : markersFromCodeAnalysis) {
-                            List<MarkerInfo> list = lineToMarkerInfo.get(codeAnalysisMarkerInfo.lineStart);
-                            if (list == null) {
-                                list = new ArrayList<>(2);
-                                lineToMarkerInfo.put(codeAnalysisMarkerInfo.lineStart, list);
-                            }
-                            list.add(codeAnalysisMarkerInfo);
-                        }
+                for (IExternalCodeAnalysisVisitor visitor : allVisitors) {
+                    String problemMarker;
+                    String messageId;
+                    if (visitor == pyLintVisitor) {
+                        problemMarker = IMiscConstants.PYLINT_PROBLEM_MARKER;
+                        messageId = IMiscConstants.PYLINT_MESSAGE_ID;
+                    } else {
+                        problemMarker = IMiscConstants.MYPY_PROBLEM_MARKER;
+                        messageId = IMiscConstants.MYPY_MESSAGE_ID;
                     }
 
-                    // I.e.: if the error is already generated in the PyDev code-analysis, skip the same error on PyLint
-                    // (there's no real point in putting an error twice).
-                    for (Iterator<MarkerInfo> pyLintMarkerInfoIterator = markersFromPyLint
-                            .iterator(); pyLintMarkerInfoIterator
-                                    .hasNext();) {
-                        MarkerInfo pyLintMarkerInfo = pyLintMarkerInfoIterator.next();
-                        List<MarkerInfo> codeAnalysisMarkers = lineToMarkerInfo.get(pyLintMarkerInfo.lineStart);
-                        if (codeAnalysisMarkers != null && codeAnalysisMarkers.size() > 0) {
-                            for (MarkerInfo codeAnalysisMarker : codeAnalysisMarkers) {
-                                if (codeAnalysisMarker.severity < IMarker.SEVERITY_INFO) {
-                                    // Don't consider if it shouldn't be shown.
-                                    continue;
+                    List<MarkerInfo> markersFromVisitor = visitor.getMarkers();
+                    if (markersFromVisitor != null && markersFromVisitor.size() > 0) {
+
+                        Map<Integer, List<MarkerInfo>> lineToMarkerInfo = new HashMap<>();
+                        if (markersFromCodeAnalysis != null) {
+                            for (MarkerInfo codeAnalysisMarkerInfo : markersFromCodeAnalysis) {
+                                List<MarkerInfo> list = lineToMarkerInfo.get(codeAnalysisMarkerInfo.lineStart);
+                                if (list == null) {
+                                    list = new ArrayList<>(2);
+                                    lineToMarkerInfo.put(codeAnalysisMarkerInfo.lineStart, list);
                                 }
-                                Map<String, Object> additionalInfo = codeAnalysisMarker.additionalInfo;
-                                if (additionalInfo != null) {
-                                    Object analysisType = additionalInfo.get(AnalysisRunner.PYDEV_ANALYSIS_TYPE);
-                                    if (analysisType != null && analysisType instanceof Integer) {
-                                        String pyLintMessageId = CheckAnalysisErrors
-                                                .getPyLintMessageIdForPyDevAnalysisType((int) analysisType);
-                                        if (pyLintMessageId != null
-                                                && pyLintMessageId.equals(pyLintMarkerInfo.additionalInfo
-                                                        .get(IMiscConstants.PYLINT_MESSAGE_ID))) {
-                                            pyLintMarkerInfoIterator.remove();
-                                            break; // Stop the for (we've already removed it).
+                                list.add(codeAnalysisMarkerInfo);
+                            }
+                        }
+
+                        if (visitor == pyLintVisitor) {
+                            // I.e.: if the error is already generated in the PyDev code-analysis, skip the same error on PyLint
+                            // (there's no real point in putting an error twice).
+                            for (Iterator<MarkerInfo> visitorMarkerInfoIterator = markersFromVisitor
+                                    .iterator(); visitorMarkerInfoIterator.hasNext();) {
+                                MarkerInfo visitorMarkerInfo = visitorMarkerInfoIterator.next();
+                                List<MarkerInfo> codeAnalysisMarkers = lineToMarkerInfo
+                                        .get(visitorMarkerInfo.lineStart);
+                                if (codeAnalysisMarkers != null && codeAnalysisMarkers.size() > 0) {
+                                    for (MarkerInfo codeAnalysisMarker : codeAnalysisMarkers) {
+                                        if (codeAnalysisMarker.severity < IMarker.SEVERITY_INFO) {
+                                            // Don't consider if it shouldn't be shown.
+                                            continue;
+                                        }
+                                        Map<String, Object> additionalInfo = codeAnalysisMarker.additionalInfo;
+                                        if (additionalInfo != null) {
+                                            Object analysisType = additionalInfo
+                                                    .get(AnalysisRunner.PYDEV_ANALYSIS_TYPE);
+                                            if (analysisType != null && analysisType instanceof Integer) {
+                                                String pyLintMessageId = CheckAnalysisErrors
+                                                        .getPyLintMessageIdForPyDevAnalysisType((int) analysisType);
+                                                if (pyLintMessageId != null
+                                                        && pyLintMessageId.equals(visitorMarkerInfo.additionalInfo
+                                                                .get(messageId))) {
+                                                    visitorMarkerInfoIterator.remove();
+                                                    break; // Stop the for (we've already removed it).
+                                                }
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
+                        PyMarkerUtils.replaceMarkers(markersFromVisitor, resource, problemMarker,
+                                true, this.internalCancelMonitor);
+                    } else {
+                        visitor.deleteMarkers();
                     }
-                    PyMarkerUtils.replaceMarkers(markersFromPyLint, resource, IMiscConstants.PYLINT_PROBLEM_MARKER,
-                            true, this.internalCancelMonitor);
-                } else {
-                    pyLintVisitor.deleteMarkers();
                 }
             }
 

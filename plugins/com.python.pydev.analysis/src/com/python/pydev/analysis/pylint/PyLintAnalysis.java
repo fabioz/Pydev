@@ -129,8 +129,14 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
 
     @Override
     public void afterRunProcess(String output, String errors, IExternalCodeAnalysisStream out) {
-        WriteToStreamHelper.write("PyLint: The stdout of the command line is:", out, output);
-        WriteToStreamHelper.write("PyLint: The stderr of the command line is:", out, errors);
+        output = output.trim();
+        errors = errors.trim();
+        if (!output.isEmpty()) {
+            WriteToStreamHelper.write("PyLint: The stdout of the command line is:\n", out, output);
+        }
+        if (!errors.isEmpty()) {
+            WriteToStreamHelper.write("PyLint: The stderr of the command line is:\n", out, errors);
+        }
 
         StringTokenizer tokenizer = new StringTokenizer(output, "\r\n");
 
@@ -223,6 +229,10 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
             }
         }
     }
+
+    // Notes:
+    // \A = beginning of the input
+    // \Z = end of the input
 
     private static Pattern PYLINT_MATCH_PATTERN = Pattern
             .compile("\\A[CRWEF]:\\s*(\\d+)\\s*,\\s*(\\d+)\\s*:(.*)\\((.*)\\)\\s*\\Z");
