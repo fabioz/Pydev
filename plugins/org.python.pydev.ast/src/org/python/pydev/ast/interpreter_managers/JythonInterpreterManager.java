@@ -48,7 +48,7 @@ public class JythonInterpreterManager extends AbstractInterpreterManager {
 
     @Override
     public String getPreferencesPageId() {
-        return "org.python.pydev.ast.interpreter_managers.interpreterPreferencesPageJython";
+        return "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageJython";
     }
 
     /**

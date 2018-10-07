@@ -26,9 +26,14 @@ public class PipenvPackageManager extends AbstractPackageManager {
     private final String pipenvTargetDir;
     private final SystemPythonNature nature;
 
-    public PipenvPackageManager(final IInterpreterInfo interpreterInfo, IInterpreterManager interpreterManager)
+    public PipenvPackageManager(final IInterpreterInfo interpreterInfo, IInterpreterManager interpreterManager,
+            IInterpreterInfo[] existingInfos)
             throws PipenvUnconfiguredException {
         super(interpreterInfo);
+
+        if (existingInfos == null) {
+            existingInfos = interpreterManager.getInterpreterInfos();
+        }
 
         String pipenvLocation = PipenvHelper.searchDefaultPipenvLocation(interpreterInfo, interpreterManager);
         String pipenvTargetDir = interpreterInfo.getPipenvTargetDir();
@@ -42,7 +47,7 @@ public class PipenvPackageManager extends AbstractPackageManager {
         if (needsInfo) {
             boolean showBaseInterpreter = false;
             PipenvDialog pipenvDialog = new PipenvDialog(UIUtils.getActiveShell(),
-                    interpreterManager.getInterpreterInfos(),
+                    existingInfos,
                     pipenvLocation,
                     null, interpreterManager, "Pipenv information required for interpreter.", showBaseInterpreter) {
 

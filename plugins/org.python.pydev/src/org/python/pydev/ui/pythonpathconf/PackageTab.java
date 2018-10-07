@@ -47,6 +47,11 @@ public class PackageTab {
     private Button btPipenv;
     private Button btPip;
     private Button checkUseConda; // may be null
+    private AbstractInterpreterEditor abstractInterpreterEditor;
+
+    public PackageTab(AbstractInterpreterEditor abstractInterpreterEditor) {
+        this.abstractInterpreterEditor = abstractInterpreterEditor;
+    }
 
     /**
      * @param exeOrJarOfInterpretersToRestore if the info is changed, the executable should be added to exeOrJarOfInterpretersToRestore.
@@ -120,7 +125,8 @@ public class PackageTab {
                                 AbstractPackageManager packageManager;
                                 try {
                                     packageManager = new PipenvPackageManager(interpreterInfo,
-                                            interpreterManager);
+                                            interpreterManager, abstractInterpreterEditor.getNameToInfo().values()
+                                                    .toArray(new IInterpreterInfo[0]));
                                 } catch (PipenvUnconfiguredException e1) {
                                     return;
                                 }

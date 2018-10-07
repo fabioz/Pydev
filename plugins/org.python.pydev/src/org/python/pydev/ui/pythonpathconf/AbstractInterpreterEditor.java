@@ -138,7 +138,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
 
     private Map<String, IInterpreterInfo> nameToInfo = new HashMap<String, IInterpreterInfo>();
 
-    private PackageTab packageTab = new PackageTab();
+    private PackageTab packageTab = new PackageTab(this);
 
     public Map<String, IInterpreterInfo> getNameToInfo() {
         return nameToInfo;

@@ -43,7 +43,7 @@ public class IronpythonInterpreterManager extends AbstractInterpreterManager {
 
     @Override
     public String getPreferencesPageId() {
-        return "org.python.pydev.ast.interpreter_managers.interpreterPreferencesPageIronpython";
+        return "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageIronpython";
     }
 
     /**

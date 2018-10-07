@@ -6,7 +6,6 @@ import java.util.Set;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.progress.UIJob;
 import org.python.pydev.ast.interpreter_managers.AbstractInterpreterManager;
@@ -42,9 +41,8 @@ public class ConfigureInterpreterJob extends UIJob {
                 int ret = PyDialogHelpers.openQuestionConfigureInterpreter(m);
                 if (ret != PyDialogHelpers.INTERPRETER_CANCEL_CONFIG) {
                     if (ret == InterpreterConfigHelpers.CONFIG_MANUAL) {
-                        PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(null,
-                                m.getPreferencesPageId(), null, null);
-                        dialog.open();
+
+                        PreferencesUtil.createPreferenceDialogOn(null, m.getPreferencesPageId(), null, null).open();
                     } else if (ret == InterpreterConfigHelpers.CONFIG_ADV_AUTO
                             || ret == InterpreterConfigHelpers.CONFIG_AUTO) {
                         InterpreterType interpreterType;

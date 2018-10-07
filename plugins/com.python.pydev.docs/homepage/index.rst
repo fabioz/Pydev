@@ -212,7 +212,7 @@ Release 7.0.0 (2018-10-XX)
 
 * The 2to3 integration shows a better dialog.
 
-* It's possible to autogenerate docstring parameters using the Google Code formate (patch by ghbcode).
+* It's possible to autogenerate docstring parameters using the Google Code format (patch by ghbcode).
 
 
 Release 6.5.0 (2018-09-01)

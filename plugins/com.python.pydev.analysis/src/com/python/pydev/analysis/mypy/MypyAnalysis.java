@@ -157,10 +157,10 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                     region = document.getLineInformation(line - 1);
                 } catch (Exception e) {
                 }
-                String docLineContents = document.get(region.getOffset(), region.getLength());
-
-                addToMarkers(message, markerSeverity, messageId, line - 1, column, docLineContents);
-
+                if (region != null && document != null) {
+                    String docLineContents = document.get(region.getOffset(), region.getLength());
+                    addToMarkers(message, markerSeverity, messageId, line - 1, column, docLineContents);
+                }
             } catch (Exception e) {
                 Log.log(e);
             }
