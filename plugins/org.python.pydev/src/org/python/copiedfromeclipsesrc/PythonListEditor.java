@@ -188,13 +188,13 @@ public abstract class PythonListEditor extends FieldEditor {
         String selectTitle = "";
         switch (interpreterType) {
             case IPythonNature.INTERPRETER_TYPE_PYTHON:
-                selectTitle = "Select python/pypy exe";
+                selectTitle = "Brows&e for python/pypy exe";
                 break;
             case IPythonNature.INTERPRETER_TYPE_JYTHON:
-                selectTitle = "Select Jython jar";
+                selectTitle = "Brows&e for Jython jar";
                 break;
             case IPythonNature.INTERPRETER_TYPE_IRONPYTHON:
-                selectTitle = "Select ipy exe";
+                selectTitle = "Brows&e for ipy exe";
                 break;
 
             default:

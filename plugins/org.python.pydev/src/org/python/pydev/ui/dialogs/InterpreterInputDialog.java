@@ -5,7 +5,7 @@
  * Any modifications to this file must keep this entire header intact.
  */
 /**
- * 
+ *
  */
 package org.python.pydev.ui.dialogs;
 
@@ -17,7 +17,9 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.ui.pythonpathconf.AbstractInterpreterEditor;
 import org.python.pydev.ui.pythonpathconf.InterpreterConfigHelpers;
 
@@ -28,6 +30,7 @@ import org.python.pydev.ui.pythonpathconf.InterpreterConfigHelpers;
 public class InterpreterInputDialog extends AbstractKeyValueDialog {
 
     private AbstractInterpreterEditor editor;
+    private boolean autoPressBrowse;
 
     /**
      * @param shell the shell.
@@ -38,6 +41,21 @@ public class InterpreterInputDialog extends AbstractKeyValueDialog {
             AbstractInterpreterEditor editor) {
         super(shell, dialogTitle, dialogMessage);
         this.editor = editor;
+    }
+
+    public void setAutoPressBrowse(boolean autoPressBrowse) {
+        this.autoPressBrowse = autoPressBrowse;
+    }
+
+    @Override
+    protected void constrainShellSize() {
+        super.constrainShellSize();
+        if (autoPressBrowse) {
+            RunInUiThread.async(() -> {
+                browserButton.notifyListeners(SWT.Selection, new Event());
+            }, false);
+        }
+
     }
 
     @Override
@@ -118,7 +136,7 @@ public class InterpreterInputDialog extends AbstractKeyValueDialog {
     @Override
     protected void setValueField(String file) {
         if (keyField.getText().trim().equals("")) {
-            keyField.setText(file);
+            keyField.setText(FullRepIterable.getWithoutLastPart(new File(file).getName()));
         }
         super.setValueField(file);
     }

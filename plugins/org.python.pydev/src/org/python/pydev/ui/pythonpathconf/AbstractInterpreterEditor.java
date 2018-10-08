@@ -1052,6 +1052,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
                 "Enter the name and executable of your interpreter", this);
 
         logger.println("- Opening dialog to request executable (or jar).");
+        dialog.setAutoPressBrowse(true);
         int result = dialog.open();
 
         if (result == Window.OK) {
