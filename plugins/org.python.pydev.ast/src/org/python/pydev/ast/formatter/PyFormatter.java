@@ -932,9 +932,6 @@ public class PyFormatter {
         }
     }
 
-    /**
-     * @param nature may be null (used for formatting with black).
-     */
     public static String formatStrAutopep8OrPyDev(IPythonNature nature, FormatStd formatStd, boolean throwSyntaxError,
             IDocument doc, String delimiter, boolean allowChangingBlankLines)
             throws SyntaxErrorException {
@@ -948,6 +945,16 @@ public class PyFormatter {
                 }
             }
         }
+        return formatStrAutopep8OrPyDev(nature, formatStd, throwSyntaxError,
+                doc, delimiter, allowChangingBlankLines, workingDir);
+    }
+
+    /**
+     * @param nature may be null (used for formatting with black).
+     */
+    public static String formatStrAutopep8OrPyDev(IPythonNature nature, FormatStd formatStd, boolean throwSyntaxError,
+            IDocument doc, String delimiter, boolean allowChangingBlankLines, File workingDir)
+            throws SyntaxErrorException {
         String formatted = formatStrAutopep8OrPyDev(nature, doc, formatStd, delimiter, throwSyntaxError,
                 allowChangingBlankLines, workingDir);
         //To finish, check the end of line.
