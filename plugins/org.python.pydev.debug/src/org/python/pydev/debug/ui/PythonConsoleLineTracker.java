@@ -368,10 +368,7 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
                             IPath appended = workingDirectory.append(pathCopy);
                             File checkFile = appended.toFile();
                             if (checkFile.exists()) {
-                                int startCol = matchStartCol + (endCol - pathCopy.toString().length());
-                                if (startCol >= endCol) {
-                                    startCol = matchStartCol;
-                                }
+                                int startCol = matchStartCol;
                                 if (endCol > startCol) {
                                     if (createHyperlink(lineOffset,
                                             startCol, endCol,
