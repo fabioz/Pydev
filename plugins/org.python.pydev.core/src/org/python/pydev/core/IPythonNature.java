@@ -171,6 +171,28 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
             }
             throw new AssertionError("Should never get here. Initial version: " + initialVersion);
         }
+
+        private static List<Integer> grammarVersions = GrammarsIterator.createList();
+
+        private static Map<String, Integer> grammarRepToVersion = GrammarsIterator.createStrToInt();
+
+        public static List<Integer> getSupportedInternalGrammarVersions() {
+            return grammarVersions;
+        }
+
+        /**
+         * @param version Just "3.0", "2.7", etc.
+         */
+        public static boolean supportsVersion(String version) {
+            return mappedVersions.containsKey(version);
+        }
+
+        /**
+         * @param version Just "3.0", "2.7", etc.
+         */
+        public static int getInternalVersion(String version) {
+            return grammarRepToVersion.get(mappedVersions.get(version));
+        }
     }
 
     /**

@@ -49,7 +49,6 @@ import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.ast.runners.SimpleRunner;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICodeCompletionASTManager;
-import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
@@ -970,14 +969,14 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             FastStringBuffer buf = new FastStringBuffer(additionalGrammarValidation.length());
             for (String version : StringUtils.split(additionalGrammarValidation, ',')) {
                 version = version.trim();
-                if (!IGrammarVersionProvider.grammarRepToVersion.containsKey(version)) {
+                if (!Versions.supportsVersion(version)) {
                     Log.log("Grammar version not handled: " + version + " project: " + this.project);
                     continue;
                 }
                 if (buf.length() > 0) {
                     buf.append(", ");
                 }
-                additionalValidations.add(IGrammarVersionProvider.grammarRepToVersion.get(version));
+                additionalValidations.add(Versions.getInternalVersion(version));
                 buf.append(version);
             }
 

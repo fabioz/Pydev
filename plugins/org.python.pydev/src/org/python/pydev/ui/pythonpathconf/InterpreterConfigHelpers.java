@@ -349,12 +349,12 @@ public class InterpreterConfigHelpers {
             final String projectLocation = pipenvDialog.getProjectLocation();
             final SystemPythonNature nature = new SystemPythonNature(interpreterManager, baseInterpreter);
 
-            File pythonVenvFromLocation = PipenvHelper.getPythonPipenvFromLocation(pipenvLocation,
+            File pythonVenvFromLocation = PipenvHelper.getPythonExecutableFromProjectLocationWithPipenv(pipenvLocation,
                     new File(projectLocation));
             if (pythonVenvFromLocation == null) {
                 PipenvPackageManager.create(executableOrJar, pipenvLocation, projectLocation, nature);
                 // Get the one just created.
-                pythonVenvFromLocation = PipenvHelper.getPythonPipenvFromLocation(pipenvLocation,
+                pythonVenvFromLocation = PipenvHelper.getPythonExecutableFromProjectLocationWithPipenv(pipenvLocation,
                         new File(projectLocation));
             }
 

@@ -12,6 +12,7 @@ import org.python.pydev.ast.runners.SimpleExeRunner;
 import org.python.pydev.ast.runners.SimpleRunner;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.preferences.PydevPrefs;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.PlatformUtils;
 
@@ -28,7 +29,8 @@ public class PipenvHelper {
             // the info was not marked as a pipenv project (but it's valid anyways).
             String pipenvLocation = PipenvHelper.searchDefaultPipenvLocation(interpretersInfo[0], interpreterManager);
             if (pipenvLocation != null) {
-                File pythonVenvFromLocation = PipenvHelper.getPythonPipenvFromLocation(pipenvLocation, projectlocation);
+                File pythonVenvFromLocation = PipenvHelper
+                        .getPythonExecutableFromProjectLocationWithPipenv(pipenvLocation, projectlocation);
                 for (IInterpreterInfo tempInfo : interpretersInfo) {
                     if (new File(tempInfo.getExecutableOrJar()).equals(pythonVenvFromLocation)) {
                         return tempInfo;
@@ -95,8 +97,15 @@ public class PipenvHelper {
                 }
             }
         }
+        String ret = PydevPrefs.getEclipsePreferences().get("DEFAULT_PIPENV_LOCATION", "");
+        if (ret.trim().isEmpty()) {
+            return null;
+        }
+        return ret;
+    }
 
-        return null;
+    public static void storeDefaultPipenvLocation(String pipenvLocation) {
+        PydevPrefs.getEclipsePreferences().put("DEFAULT_PIPENV_LOCATION", pipenvLocation);
     }
 
     private static Object projectLocationToPipenvPythonLocationChacheLock = new Object();
@@ -107,7 +116,8 @@ public class PipenvHelper {
      * @param projectlocation the location for the target project directory (i.e.: c:\\my\\project)
      * @return the python executable for the given project.
      */
-    public static File getPythonPipenvFromLocation(final String pipenvLocation, final File projectlocation) {
+    public static File getPythonExecutableFromProjectLocationWithPipenv(final String pipenvLocation,
+            final File projectlocation) {
         synchronized (PipenvHelper.projectLocationToPipenvPythonLocationChacheLock) {
             File pipenvPythonLocation = PipenvHelper.projectLocationToPipenvPythonLocationChache.get(projectlocation);
             if (pipenvPythonLocation != null) {

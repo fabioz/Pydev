@@ -55,11 +55,7 @@ public interface IGrammarVersionProvider {
      */
     public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException;
 
-    public static List<Integer> grammarVersions = GrammarsIterator.createList();
-
     public static Map<Integer, String> grammarVersionToRep = GrammarsIterator.createDict();
-
-    public static Map<String, Integer> grammarRepToVersion = GrammarsIterator.createStrToInt();
 
     public static List<String> grammarVersionsRep = GrammarsIterator.createStr();
 
@@ -74,7 +70,6 @@ public interface IGrammarVersionProvider {
         public Set<Integer> getGrammarVersions() {
             return grammarVersionsToCheck;
         }
-
     }
 
 }

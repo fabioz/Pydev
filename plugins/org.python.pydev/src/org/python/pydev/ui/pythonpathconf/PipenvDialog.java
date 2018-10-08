@@ -128,6 +128,7 @@ public class PipenvDialog extends Dialog {
             }
             this.projectLocation = check("Project location", projectLocationFieldEditor);
             this.pipenvLocation = check("pipenv location", fileFieldEditor);
+            PipenvHelper.storeDefaultPipenvLocation(this.pipenvLocation);
             if (this.showBaseInterpreter) {
                 this.baseInterpreter = (IInterpreterInfo) comboBaseInterpreter.getData(comboBaseInterpreter.getText());
             }

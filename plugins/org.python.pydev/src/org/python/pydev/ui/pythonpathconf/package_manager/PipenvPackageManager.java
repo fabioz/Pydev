@@ -80,7 +80,7 @@ public class PipenvPackageManager extends AbstractPackageManager {
     private static String checkPipenvInfoCompatible(String pipenvLocation, String projectLocation,
             IInterpreterInfo interpreterInfo) {
         // Check that the given location is valid for the given interpreter.
-        File pythonPipenvFromLocation = PipenvHelper.getPythonPipenvFromLocation(pipenvLocation,
+        File pythonPipenvFromLocation = PipenvHelper.getPythonExecutableFromProjectLocationWithPipenv(pipenvLocation,
                 new File(projectLocation));
         if (pythonPipenvFromLocation == null) {
             return "Unable to get the target python env from the location: " + projectLocation;
