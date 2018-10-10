@@ -24,6 +24,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.ISynchronizable;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.utils.diff_match_patch.Patch;
 
@@ -96,12 +97,21 @@ public class DocUtils {
 
     /**
      * @param docUpdateAPI any document mutation is done through this parameter (so, it's possible to record any changes done).
+     * @throws BadLocationException
      */
     public static void updateDocRangeWithContents(final IDocumentUpdateAPI docUpdateAPI, final IDocument docToUpdate,
             final String docContents, final String newDocContents, final String endLineDelimiter) {
         diff_match_patch diff_match_patch = new diff_match_patch();
+        diff_match_patch.Diff_Timeout = 0.5f;
+        diff_match_patch.Match_Distance = 200;
+        diff_match_patch.Patch_Margin = 10;
+        diff_match_patch.Diff_EditCost = 8;
         LinkedList<Patch> patches = diff_match_patch.patch_make(docContents, newDocContents);
-        diff_match_patch.patch_apply(patches, docContents, docUpdateAPI);
+        try {
+            diff_match_patch.patch_apply(patches, docContents, docUpdateAPI);
+        } catch (BadLocationException e) {
+            Log.log(e);
+        }
     }
 
     public static class EmptyLinesComputer {

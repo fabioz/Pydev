@@ -35,6 +35,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.jface.text.BadLocationException;
+import org.python.pydev.shared_core.utils.DocUtils.IDocumentUpdateAPI;
+
 /*
  * Functions for diff, match and patch.
  * Computes the difference between two texts to create a patch.
@@ -1916,19 +1919,107 @@ public class diff_match_patch {
      * as an array of true/false values indicating which patches were applied.
      * @param patches Array of Patch objects
      * @param text Old text.
+     * @param docUpdateAPI
      * @return Two element Object array, containing the new text and an array of
      *      boolean values.
+     * @throws BadLocationException
      */
-    public Object[] patch_apply(LinkedList<Patch> patches, String text) {
+    public Object[] patch_apply(LinkedList<Patch> patches, String text) throws BadLocationException {
+        return patch_apply(patches, text, new IDocumentUpdateAPI() {
+
+            @Override
+            public void set(String text) throws BadLocationException {
+
+            }
+
+            @Override
+            public void replace(int offset, int length, String text) throws BadLocationException {
+
+            }
+        });
+    }
+
+    private static class TextWrapper {
+
+        private String text;
+        private IDocumentUpdateAPI docUpdateAPI;
+        private String addedToStart = null;
+        private String addedToEnd = null;
+
+        public TextWrapper(String text, IDocumentUpdateAPI docUpdateAPI) {
+            this.text = text;
+            this.docUpdateAPI = docUpdateAPI;
+        }
+
+        public void addToStart(String s) throws BadLocationException {
+            text = s + text;
+            if (s.length() > 0) {
+                addedToStart = s;
+            }
+        }
+
+        public void addToEnd(String s) throws BadLocationException {
+            text = text + s;
+            if (s.length() > 0) {
+                addedToEnd = s;
+            }
+        }
+
+        public void removeFromStart(int length) {
+            text = text.substring(length, text.length());
+            addedToStart = null;
+        }
+
+        public void removeFromEnd(int length) {
+            text = text.substring(0, text.length() - length);
+            addedToEnd = null;
+        }
+
+        public void replace(int start_loc, int len, String diff_text2) throws BadLocationException {
+            int currDocLen = text.length() - (addedToStart.length() + addedToEnd.length());
+            text = text.substring(0, start_loc) + diff_text2 + text.substring(start_loc + len);
+
+            if (addedToStart != null) {
+                if (start_loc < addedToStart.length()) {
+                    int delta = addedToStart.length() - start_loc;
+                    diff_text2 = diff_text2.substring(delta);
+                    len -= delta;
+                    start_loc = 0;
+                } else {
+                    start_loc -= addedToStart.length();
+                }
+            }
+            if (addedToEnd != null) {
+                if (start_loc + len > currDocLen) {
+                    int delta = ((start_loc + len) - currDocLen);
+                    len -= delta;
+                    diff_text2 = diff_text2.substring(0, diff_text2.length() - delta);
+                }
+            }
+            docUpdateAPI.replace(start_loc, len, diff_text2);
+        }
+
+    }
+
+    public Object[] patch_apply(LinkedList<Patch> patches, String _text, IDocumentUpdateAPI docUpdateAPI)
+            throws BadLocationException {
+        TextWrapper text = new TextWrapper(_text, docUpdateAPI);
         if (patches.isEmpty()) {
-            return new Object[] { text, new boolean[0] };
+            // Nothing to do
+            return new Object[] { text.text, new boolean[0] };
         }
 
         // Deep copy the patches so that no changes are made to originals.
         patches = patch_deepCopy(patches);
 
         String nullPadding = patch_addPadding(patches);
-        text = nullPadding + text + nullPadding;
+
+        // Apply in text and doc api
+        text.addToStart(nullPadding);
+
+        // Apply in text and doc api
+        text.addToEnd(nullPadding);
+
         patch_splitMax(patches);
 
         int x = 0;
@@ -1946,10 +2037,10 @@ public class diff_match_patch {
             if (text1.length() > this.Match_MaxBits) {
                 // patch_splitMax will only provide an oversized pattern in the case of
                 // a monster delete.
-                start_loc = match_main(text,
+                start_loc = match_main(text.text,
                         text1.substring(0, this.Match_MaxBits), expected_loc);
                 if (start_loc != -1) {
-                    end_loc = match_main(text,
+                    end_loc = match_main(text.text,
                             text1.substring(text1.length() - this.Match_MaxBits),
                             expected_loc + text1.length() - this.Match_MaxBits);
                     if (end_loc == -1 || start_loc >= end_loc) {
@@ -1958,7 +2049,7 @@ public class diff_match_patch {
                     }
                 }
             } else {
-                start_loc = match_main(text, text1, expected_loc);
+                start_loc = match_main(text.text, text1, expected_loc);
             }
             if (start_loc == -1) {
                 // No match found.  :(
@@ -1971,16 +2062,16 @@ public class diff_match_patch {
                 delta = start_loc - expected_loc;
                 String text2;
                 if (end_loc == -1) {
-                    text2 = text.substring(start_loc,
-                            Math.min(start_loc + text1.length(), text.length()));
+                    text2 = text.text.substring(start_loc,
+                            Math.min(start_loc + text1.length(), text.text.length()));
                 } else {
-                    text2 = text.substring(start_loc,
-                            Math.min(end_loc + this.Match_MaxBits, text.length()));
+                    text2 = text.text.substring(start_loc,
+                            Math.min(end_loc + this.Match_MaxBits, text.text.length()));
                 }
                 if (text1.equals(text2)) {
                     // Perfect match, just shove the replacement text in.
-                    text = text.substring(0, start_loc) + diff_text2(aPatch.diffs)
-                            + text.substring(start_loc + text1.length());
+                    // text = text.substring(0, start_loc) + diff_text2(aPatch.diffs) + text.substring(start_loc + text1.length());
+                    text.replace(start_loc, text1.length(), diff_text2(aPatch.diffs));
                 } else {
                     // Imperfect match.  Run a diff to get a framework of equivalent
                     // indices.
@@ -1997,13 +2088,13 @@ public class diff_match_patch {
                                 int index2 = diff_xIndex(diffs, index1);
                                 if (aDiff.operation == Operation.INSERT) {
                                     // Insertion
-                                    text = text.substring(0, start_loc + index2) + aDiff.text
-                                            + text.substring(start_loc + index2);
+                                    text.replace(start_loc + index2, 0, aDiff.text);
+                                    // text = text.substring(0, start_loc + index2) + aDiff.text + text.substring(start_loc + index2);
                                 } else if (aDiff.operation == Operation.DELETE) {
                                     // Deletion
-                                    text = text.substring(0, start_loc + index2)
-                                            + text.substring(start_loc + diff_xIndex(diffs,
-                                                    index1 + aDiff.text.length()));
+                                    text.replace(start_loc + index2,
+                                            diff_xIndex(diffs, index1 + aDiff.text.length()) - index2, "");
+                                    // text = text.substring(0, start_loc + index2) + text.substring(start_loc + diff_xIndex(diffs, index1 + aDiff.text.length()));
                                 }
                             }
                             if (aDiff.operation != Operation.DELETE) {
@@ -2016,9 +2107,9 @@ public class diff_match_patch {
             x++;
         }
         // Strip the padding off.
-        text = text.substring(nullPadding.length(), text.length()
-                - nullPadding.length());
-        return new Object[] { text, results };
+        text.removeFromStart(nullPadding.length());
+        text.removeFromEnd(nullPadding.length());
+        return new Object[] { text.text, results };
     }
 
     /**
