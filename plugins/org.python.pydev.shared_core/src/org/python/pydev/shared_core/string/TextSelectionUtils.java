@@ -23,6 +23,7 @@ import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.utils.DocUtils;
 
 public class TextSelectionUtils {
 
@@ -190,7 +191,7 @@ public class TextSelectionUtils {
 
     /**
      * @return the Selected text
-     * @throws BadLocationException 
+     * @throws BadLocationException
      */
     public String getSelectedText() throws BadLocationException {
         ICoreTextSelection txtSel = getTextSelection();
@@ -1069,37 +1070,7 @@ public class TextSelectionUtils {
      * @param docContents should be == doc.get() (just optimizing if the user already did that before).
      */
     public static void setOnlyDifferentCode(IDocument doc, String docContents, String newContents) {
-        // Could be: DocUtils.updateDocRangeWithContents(doc, docContents, newContents, TextSelectionUtils.getDelimiter(doc));
-        String contents = docContents;
-        if (contents == null) {
-            contents = doc.get();
-        }
-        int minorLen;
-        int contentsLen = contents.length();
-        if (contentsLen > newContents.length()) {
-            minorLen = newContents.length();
-        } else {
-            minorLen = contentsLen;
-        }
-        int applyFrom = 0;
-        for (; applyFrom < minorLen; applyFrom++) {
-            if (contents.charAt(applyFrom) == newContents.charAt(applyFrom)) {
-                continue;
-            } else {
-                //different
-                break;
-            }
-        }
-
-        if (applyFrom >= contentsLen) {
-            //Document is the same.
-            return;
-        }
-        try {
-            doc.replace(applyFrom, contentsLen - applyFrom, newContents.substring(applyFrom));
-        } catch (BadLocationException e) {
-            Log.log(e);
-        }
+        DocUtils.updateDocRangeWithContents(doc, docContents, newContents, TextSelectionUtils.getDelimiter(doc));
     }
 
     public Tuple<String, Integer> getCurrDottedStatement(ICharacterPairMatcher2 pairMatcher)
