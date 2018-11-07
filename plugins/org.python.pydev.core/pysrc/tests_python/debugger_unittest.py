@@ -14,10 +14,13 @@ import sys
 import threading
 import time
 import traceback
+import platform
 
 from _pydev_bundle import pydev_localhost
 
 IS_PY3K = sys.version_info[0] >= 3
+IS_PY36_OR_GREATER = sys.version_info[0:2] >= (3, 6)
+IS_CPYTHON = platform.python_implementation() == 'CPython'
 
 # Note: copied (don't import because we want it to be independent on the actual code because of backward compatibility).
 CMD_RUN = 101
@@ -75,7 +78,10 @@ CMD_GET_THREAD_STACK = 152
 CMD_THREAD_DUMP_TO_STDERR = 153  # This is mostly for unit-tests to diagnose errors on ci.
 CMD_STOP_ON_START = 154
 CMD_GET_EXCEPTION_DETAILS = 155
-CMD_SUSPEND_ON_BREAKPOINT_EXCEPTION = 156
+CMD_PYDEVD_JSON_CONFIG = 156
+
+CMD_THREAD_SUSPEND_SINGLE_NOTIFICATION = 157
+CMD_THREAD_RESUME_SINGLE_NOTIFICATION = 158
 
 CMD_REDIRECT_OUTPUT = 200
 CMD_GET_NEXT_STATEMENT_TARGETS = 201
@@ -90,6 +96,7 @@ REASON_UNCAUGHT_EXCEPTION = CMD_ADD_EXCEPTION_BREAK
 REASON_STOP_ON_BREAKPOINT = CMD_SET_BREAK
 REASON_THREAD_SUSPEND = CMD_THREAD_SUSPEND
 REASON_STEP_INTO_MY_CODE = CMD_STEP_INTO_MY_CODE
+REASON_STEP_OVER = CMD_STEP_OVER
 
 # Always True (because otherwise when we do have an error, it's hard to diagnose).
 SHOW_WRITES_AND_READS = True
@@ -138,6 +145,10 @@ def overrides(method):
 TIMEOUT = 20
 
 
+class TimeoutError(RuntimeError):
+    pass
+
+
 def wait_for_condition(condition, msg=None, timeout=TIMEOUT, sleep=.05):
     curtime = time.time()
     while True:
@@ -152,7 +163,7 @@ def wait_for_condition(condition, msg=None, timeout=TIMEOUT, sleep=.05):
                 else:
                     error_msg += str(msg)
 
-            raise AssertionError(error_msg)
+            raise TimeoutError(error_msg)
         time.sleep(sleep)
 
 
@@ -179,13 +190,15 @@ class ReaderThread(threading.Thread):
     def set_messages_timeout(self, timeout):
         self.MESSAGES_TIMEOUT = timeout
 
-    def get_next_message(self, context_message):
+    def get_next_message(self, context_message, timeout=None):
+        if timeout is None:
+            timeout = self.MESSAGES_TIMEOUT
         try:
-            msg = self._queue.get(block=True, timeout=self.MESSAGES_TIMEOUT)
+            msg = self._queue.get(block=True, timeout=timeout)
         except:
-            raise AssertionError('No message was written in %s seconds. Error message:\n%s' % (self.MESSAGES_TIMEOUT, context_message,))
+            raise TimeoutError('No message was written in %s seconds. Error message:\n%s' % (timeout, context_message,))
         else:
-            frame = sys._getframe().f_back
+            frame = sys._getframe().f_back.f_back
             frame_info = ''
             i = 3
             while frame:
@@ -305,10 +318,18 @@ class DebuggerRunner(object):
                 print('executing', ' '.join(args))
 
             with self.run_process(args, writer) as dct_with_stdout_stder:
-                wait_for_condition(lambda: writer.finished_initialization)
-
-                writer.get_stdout = lambda: ''.join(dct_with_stdout_stder['stdout'])
-                writer.get_stderr = lambda: ''.join(dct_with_stdout_stder['stderr'])
+                try:
+                    wait_for_condition(lambda: writer.finished_initialization)
+                except TimeoutError:
+                    sys.stderr.write('Timed out waiting for initialization\n')
+                    sys.stderr.write('stdout:\n%s\n\nstderr:\n%s\n' % (
+                        ''.join(dct_with_stdout_stder['stdout']),
+                        ''.join(dct_with_stdout_stder['stderr']),
+                    ))
+                    raise
+                finally:
+                    writer.get_stdout = lambda: ''.join(dct_with_stdout_stder['stdout'])
+                    writer.get_stderr = lambda: ''.join(dct_with_stdout_stder['stderr'])
 
                 yield writer
         finally:
@@ -360,6 +381,14 @@ class DebuggerRunner(object):
 
             while True:
                 if process.poll() is not None:
+                    if writer.EXPECTED_RETURNCODE != 'any':
+                        expected_returncode = writer.EXPECTED_RETURNCODE
+                        if not isinstance(expected_returncode, (list, tuple)):
+                            expected_returncode = (expected_returncode,)
+                            
+                        if process.returncode not in expected_returncode:
+                            self.fail_with_message('Expected process.returncode to be %s. Found: %s' % (
+                                writer.EXPECTED_RETURNCODE, process.returncode), stdout, stderr, writer)
                     break
                 else:
                     if writer is not None:
@@ -403,6 +432,10 @@ class DebuggerRunner(object):
                             self.fail_with_message("TEST SUCEEDED not found.", stdout, stderr, writer)
                         time.sleep(.1)
 
+        except TimeoutError:
+            writer.write_dump_threads()
+            time.sleep(.2)
+            raise
         finally:
             finish[0] = True
 
@@ -421,6 +454,7 @@ class AbstractWriterThread(threading.Thread):
     FORCE_KILL_PROCESS_WHEN_FINISHED_OK = False
     IS_MODULE = False
     TEST_FILE = None
+    EXPECTED_RETURNCODE = 0
 
     def __init__(self, *args, **kwargs):
         threading.Thread.__init__(self, *args, **kwargs)
@@ -463,6 +497,8 @@ class AbstractWriterThread(threading.Thread):
                 'java.lang.UnsupportedOperationException',
                 "RuntimeWarning: Parent module '_pydevd_bundle' not found while handling absolute import",
                 'from _pydevd_bundle.pydevd_additional_thread_info_regular import _current_frames',
+                'import org.python.core as PyCore #@UnresolvedImport',
+                'from _pydevd_bundle.pydevd_additional_thread_info import set_additional_thread_info',
                 ):
                 if expected in line:
                     return True
@@ -473,12 +509,17 @@ class AbstractWriterThread(threading.Thread):
         return False
 
     def additional_output_checks(self, stdout, stderr):
+        lines_with_error = []
         for line in stderr.splitlines():
             line = line.strip()
             if not line:
                 continue
             if not self._ignore_stderr_line(line):
-                raise AssertionError('Did not expect to have line in stderr:\n\n%s\n\nFull stderr:\n\n%s' % (line, stderr))
+                lines_with_error.append(line)
+
+        if lines_with_error:
+            raise AssertionError('Did not expect to have line(s) in stderr:\n\n%s\n\nFull stderr:\n\n%s' % (
+                '\n'.join(lines_with_error), stderr))
 
     def get_environ(self):
         return None
@@ -525,9 +566,18 @@ class AbstractWriterThread(threading.Thread):
         if SHOW_WRITES_AND_READS:
             print('Test Writer Thread Written %s%s' % (meaning, s,))
         msg = s + '\n'
+
+        if not hasattr(self, 'sock'):
+            print('%s.sock not available when sending: %s' % (self, msg))
+            return
+
         if IS_PY3K:
             msg = msg.encode('utf-8')
+
         self.sock.send(msg)
+
+    def get_next_message(self, context_message, timeout=None):
+        return self.reader_thread.get_next_message(context_message, timeout=timeout)
 
     def start_socket(self, port=None):
         assert not hasattr(self, 'port'), 'Socket already initialized.'
@@ -535,6 +585,7 @@ class AbstractWriterThread(threading.Thread):
         if SHOW_WRITES_AND_READS:
             print('start_socket')
 
+        self._sequence = -1
         if port is None:
             socket_name = get_socket_name(close=True)
         else:
@@ -555,7 +606,6 @@ class AbstractWriterThread(threading.Thread):
         reader_thread.start()
         self.sock = new_sock
 
-        self._sequence = -1
         # initial command is always the version
         self.write_version()
         self.log.append('start_socket')
@@ -573,7 +623,7 @@ class AbstractWriterThread(threading.Thread):
         # wait for hit breakpoint
         last = ''
         while not '<xml><thread name="' in last or '<xml><thread name="pydevd.' in last:
-            last = self.reader_thread.get_next_message('wait_for_new_thread')
+            last = self.get_next_message('wait_for_new_thread')
 
         # we have something like <xml><thread name="MainThread" id="12103472" /></xml>
         splitted = last.split('"')
@@ -584,7 +634,7 @@ class AbstractWriterThread(threading.Thread):
         # Something as:
         # <xml><io s="TEST SUCEEDED%2521" ctx="1"/></xml>
         while True:
-            msg = self.reader_thread.get_next_message('wait_output')
+            msg = self.get_next_message('wait_output')
             if "<xml><io s=" in msg:
                 if 'ctx="1"' in msg:
                     ctx = 'stdout'
@@ -596,7 +646,12 @@ class AbstractWriterThread(threading.Thread):
                 msg = unquote_plus(unquote_plus(msg.split('"')[1]))
                 return msg, ctx
 
-    def wait_for_breakpoint_hit(self, reason=REASON_STOP_ON_BREAKPOINT, **kwargs):
+    def get_current_stack_hit(self, thread_id):
+        self.write_get_thread_stack(thread_id)
+        msg = self.wait_for_message(CMD_GET_THREAD_STACK)
+        return self._get_stack_as_hit(msg)
+
+    def wait_for_breakpoint_hit(self, reason=REASON_STOP_ON_BREAKPOINT, timeout=None, **kwargs):
         '''
         108 is over
         109 is return
@@ -619,8 +674,10 @@ class AbstractWriterThread(threading.Thread):
                     return True
             return False
 
-        msg = self.wait_for_message(accept_message)
+        msg = self.wait_for_message(accept_message, timeout=timeout)
+        return self._get_stack_as_hit(msg, file, line)
 
+    def _get_stack_as_hit(self, msg, file=None, line=None):
         # we have something like <xml><thread id="12152656" stop_reason="111"><frame id="12453120" name="encode" ...
         if len(msg.thread.frame) == 0:
             frame = msg.thread.frame
@@ -647,7 +704,7 @@ class AbstractWriterThread(threading.Thread):
     def wait_for_get_next_statement_targets(self):
         last = ''
         while not '<xml><line>' in last:
-            last = self.reader_thread.get_next_message('wait_for_get_next_statement_targets')
+            last = self.get_next_message('wait_for_get_next_statement_targets')
 
         matches = re.finditer(r"(<line>([0-9]*)<\/line>)", last, re.IGNORECASE)
         lines = []
@@ -663,7 +720,7 @@ class AbstractWriterThread(threading.Thread):
         expected_encoded = quote(quote_plus(expected))
         last = ''
         while not expected_encoded in last:
-            last = self.reader_thread.get_next_message('wait_for_custom_operation. Expected (encoded): %s' % (expected_encoded,))
+            last = self.get_next_message('wait_for_custom_operation. Expected (encoded): %s' % (expected_encoded,))
 
         return True
 
@@ -691,7 +748,7 @@ class AbstractWriterThread(threading.Thread):
 
         while True:
             try:
-                last = self.reader_thread.get_next_message('wait_for_multiple_vars: %s' % (expected_vars,))
+                last = self.get_next_message('wait_for_multiple_vars: %s' % (expected_vars,))
             except:
                 missing = []
                 for v in expected_vars:
@@ -761,12 +818,20 @@ class AbstractWriterThread(threading.Thread):
         self.log.append('write_add_breakpoint: %s line: %s func: %s' % (breakpoint_id, line, func))
         return breakpoint_id
 
-    def write_suspend_on_breakpoint_exception(self, skip_suspend_on_breakpoint_exception=('all',), skip_print_breakpoint_exception=('all',)):
-        self.write("%s\t%s\t%s" % (CMD_SUSPEND_ON_BREAKPOINT_EXCEPTION, self.next_seq(), 
-            json.dumps(dict(
-                skip_suspend_on_breakpoint_exception=skip_suspend_on_breakpoint_exception,
-                skip_print_breakpoint_exception=skip_print_breakpoint_exception
-            ))
+    def write_multi_threads_single_notification(self, multi_threads_single_notification):
+        self.write_json_config(dict(
+            multi_threads_single_notification=multi_threads_single_notification,
+        ))
+
+    def write_suspend_on_breakpoint_exception(self, skip_suspend_on_breakpoint_exception, skip_print_breakpoint_exception):
+        self.write_json_config(dict(
+            skip_suspend_on_breakpoint_exception=skip_suspend_on_breakpoint_exception,
+            skip_print_breakpoint_exception=skip_print_breakpoint_exception
+        ))
+
+    def write_json_config(self, config_dict):
+        self.write("%s\t%s\t%s" % (CMD_PYDEVD_JSON_CONFIG, self.next_seq(),
+            json.dumps(config_dict)
         ))
 
     def write_stop_on_start(self, stop=True):
@@ -886,17 +951,34 @@ class AbstractWriterThread(threading.Thread):
         return seq
 
     def wait_for_list_threads(self, seq):
-        return self.wait_for_message(lambda msg:msg.startswith('502\t%s' % (seq,)))
+        return self.wait_for_message('502')
 
     def wait_for_get_thread_stack_message(self):
-        return self.wait_for_message(lambda msg:msg.startswith('%s\t' % (CMD_GET_THREAD_STACK,)))
+        return self.wait_for_message(CMD_GET_THREAD_STACK)
 
-    def wait_for_message(self, accept_message, unquote_msg=True, expect_xml=True):
+    def wait_for_json_message(self, accept_message, unquote_msg=True, timeout=None):
+        last = self.wait_for_message(accept_message, unquote_msg, expect_xml=False, timeout=timeout)
+        json_msg = last.split('\t', 2)[-1]  # We have something as: CMD\tSEQ\tJSON
+        if isinstance(json_msg, bytes):
+            json_msg = json_msg.decode('utf-8')
+        try:
+            return json.loads(json_msg)
+        except:
+            traceback.print_exc()
+            raise AssertionError('Unable to parse:\n%s\njson:\n%s' % (last, json_msg))
+
+    def wait_for_message(self, accept_message, unquote_msg=True, expect_xml=True, timeout=None):
+        if isinstance(accept_message, (str, int)):
+            msg_starts_with = '%s\t' % (accept_message,)
+
+            def accept_message(msg):
+                return msg.startswith(msg_starts_with)
+
         import untangle
         from io import StringIO
         prev = None
         while True:
-            last = self.reader_thread.get_next_message('wait_for_message')
+            last = self.get_next_message('wait_for_message', timeout=timeout)
             if unquote_msg:
                 last = unquote_plus(unquote_plus(last))
             if accept_message(last):
@@ -919,6 +1001,27 @@ class AbstractWriterThread(threading.Thread):
                 print('Ignored message: %r' % (last,))
 
             prev = last
+
+    def get_frame_names(self, thread_id):
+        self.write_get_thread_stack(thread_id)
+        msg = self.wait_for_message(CMD_GET_THREAD_STACK)
+        if msg.thread.frame:
+            frame_names = [frame['name'] for frame in msg.thread.frame]
+            return frame_names
+        return [msg.thread.frame['name']]
+
+    def wait_for_thread_join(self, main_thread_id):
+
+        def condition():
+            return self.get_frame_names(main_thread_id) in (
+                ['wait', 'join', '<module>'],
+                ['_wait_for_tstate_lock', 'join', '<module>']
+            )
+
+        def msg():
+            return 'Found stack: %s' % (self.get_frame_names(main_thread_id),)
+
+        wait_for_condition(condition, msg, timeout=5, sleep=.5)
 
 
 def _get_debugger_test_file(filename):
