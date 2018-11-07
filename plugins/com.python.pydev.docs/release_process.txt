@@ -62,6 +62,8 @@ git archive -o "X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo
 
 "C:\Program Files\FileZilla FTP Client\filezilla.exe" sftp://fabioz,pydev@frs.sourceforge.net/home/pfs/project/p/py/pydev/pydev/ --local="X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable"
 
+-- stopped here
+
 Note: check pageant if it does not connect.
 
 Check if the main download button points to the proper place (not to the sources) --

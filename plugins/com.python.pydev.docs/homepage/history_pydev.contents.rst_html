@@ -4,8 +4,8 @@
 
 <div class="section" id="history-for-pydev">
 <h1>History For PyDev</h1>
-<div class="section" id="release-7-0-0-2018-11-07">
-<h2>Release 7.0.0 (2018-11-07)</h2>
+<div class="section" id="release-7-0-1-2018-11-07">
+<h2>Release 7.0.1 (2018-11-07)</h2>
 <ul>
 <li><p class="first"><strong>Mypy</strong></p>
 <blockquote>
