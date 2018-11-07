@@ -43,6 +43,8 @@ C:\bin\Miniconda\envs\tests_py27\python.exe X:\release_tools\pydev_uploader_bint
 
 		Create tab in cmdermini: X:\pydev\builders\org.python.pydev.build\build_cmd.bat
 
+-- stopped here
+
 		Copy features and plugins folders from X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository to X:\pydev_build\update_site_dir\updates
 
 copy X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository\features\*.jar X:\pydev_build\update_site_dir\updates\features /Y
