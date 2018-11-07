@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Pydev Online Help
 Bundle-SymbolicName: org.python.pydev.help; singleton:=true
-Bundle-Version: 7.0.0.qualifier
+Bundle-Version: 7.0.1.qualifier
 Bundle-Vendor: Brainwy Software Ltda
 Bundle-ActivationPolicy: lazy
 Eclipse-BundleShape: dir
