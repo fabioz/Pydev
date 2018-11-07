@@ -144,7 +144,7 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
             @Override
             public void addLink(IHyperlink link, int offset, int length) {
                 if (length <= 0) {
-                    Log.log("Trying to create link with invalid len: " + length);
+                    // Log.log("Trying to create link with invalid len: " + length);
                     return;
                 }
                 console.addLink(link, offset, length);
@@ -199,49 +199,54 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
                 return;
             }
 
-            Matcher m = regularPythonlinePattern.matcher(text);
-            if (m.matches()) {
-                regularPythonMatcher(lineOffset, lineLength, m);
-                return;
-            }
+            if (text.contains("/") || !text.contains("\\")) {
 
-            if (quotesPattern(lineOffset, text, insideQuotesMatcher1)) {
-                return;
-            }
+                Matcher m = regularPythonlinePattern.matcher(text);
+                if (m.matches()) {
+                    regularPythonMatcher(lineOffset, lineLength, m);
+                    return;
+                }
 
-            if (quotesPattern(lineOffset, text, insideQuotesMatcher2)) {
-                return;
+                if (quotesPattern(lineOffset, text, insideQuotesMatcher1)) {
+                    return;
+                }
+
+                if (quotesPattern(lineOffset, text, insideQuotesMatcher2)) {
+                    return;
+                }
             }
 
             // Ok, we did not have a direct match, let's try a different approach...
             String[] dottedValidSourceFiles = FileTypesPreferences.getDottedValidSourceFiles();
             for (String dottedExt : dottedValidSourceFiles) {
-                Pattern pattern = getRegexpForExtension(dottedExt);
-                m = pattern.matcher(text);
-                if (m.matches()) {
-                    int lineNumberInt = 0;
-                    String filename = m.group(1);
-                    int endCol = m.end(1);
-                    if (text.length() > endCol) {
-                        if (text.charAt(endCol) == ':') {
-                            int j = 1;
-                            while (endCol + j < text.length()) {
-                                char c = text.charAt(endCol + j);
-                                if (Character.isDigit(c)) {
-                                    j++;
-                                } else {
-                                    break;
+                if (text.contains(dottedExt)) {
+                    Pattern pattern = getRegexpForExtension(dottedExt);
+                    Matcher m = pattern.matcher(text);
+                    if (m.matches()) {
+                        int lineNumberInt = 0;
+                        String filename = m.group(1);
+                        int endCol = m.end(1);
+                        if (text.length() > endCol) {
+                            if (text.charAt(endCol) == ':') {
+                                int j = 1;
+                                while (endCol + j < text.length()) {
+                                    char c = text.charAt(endCol + j);
+                                    if (Character.isDigit(c)) {
+                                        j++;
+                                    } else {
+                                        break;
+                                    }
+                                }
+                                if (j > 1) {
+                                    String string = text.substring(endCol + 1, endCol + j);
+                                    lineNumberInt = Integer.parseInt(string);
+                                    endCol += j;
                                 }
                             }
-                            if (j > 1) {
-                                String string = text.substring(endCol + 1, endCol + j);
-                                lineNumberInt = Integer.parseInt(string);
-                                endCol += j;
-                            }
                         }
-                    }
-                    if (checkMapFilenameToHyperlink(lineOffset, 0, endCol, filename, lineNumberInt)) {
-                        return;
+                        if (checkMapFilenameToHyperlink(lineOffset, 0, endCol, filename, lineNumberInt)) {
+                            return;
+                        }
                     }
                 }
             }
