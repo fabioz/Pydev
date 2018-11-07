@@ -20,8 +20,8 @@
 	<tr align="center" bgcolor="#eeeeee" valign="top">
 		<td nowrap="nowrap" class="td_top">
 		<center>
-		<p class="header_text">Last Site Update: September 1st, 2018 |
-		Latest Version: 6.5.0</p>
+		<p class="header_text">Last Site Update: November 7th, 2018 |
+		Latest Version: 7.0.0</p>
 		</center>
 		</td>
 	</tr>
@@ -500,6 +500,57 @@ LiClipse you directly support the development of PyDev).</p>
 <h1>Supporting PyDev</h1>
 <p>Thank you to all PyDev supporters: <a class="reference external" href="https://www.brainwy.com/supporters/PyDev">https://www.brainwy.com/supporters/PyDev</a>.</p>
 <p>To show your appreciation for PyDev and to keep it going strong, help to crowdfund through <a class="reference external" href="https://www.patreon.com/fabioz">https://www.patreon.com/fabioz</a>.</p>
+</div>
+<div class="section" id="release-7-0-0-2018-11-07">
+<h1>Release 7.0.0 (2018-11-07)</h1>
+<ul>
+<li><p class="first"><strong>Mypy</strong></p>
+<blockquote>
+<ul class="simple">
+<li>PyDev can now use Mypy when doing code analysis.</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Black Formatter</strong></p>
+<blockquote>
+<ul class="simple">
+<li>PyDev can now use black as the code formatting engine.</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Virtual environments</strong></p>
+<blockquote>
+<ul>
+<li><p class="first">It's now possible to use pipenv for managing virtual environments.</p>
+</li>
+<li><p class="first">It's possible to manage virtual environments from the editor.</p>
+<blockquote>
+<ul class="simple">
+<li>Ctrl+2, pip &lt;command&gt;</li>
+<li>Ctrl+2, pipenv &lt;command&gt;</li>
+<li>Ctrl+2, conda &lt;command&gt;</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Debugger</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Should be <strong>much</strong> faster for those on Python 3.6 onwards with cython extensions (using frame evaluation).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first">The Python 3.7 grammar is now available as an option (even though it's the same as 3.6).</p>
+</li>
+<li><p class="first">Removed support for using the Python 2.4 grammar.</p>
+</li>
+<li><p class="first">The 2to3 integration shows a better dialog.</p>
+</li>
+<li><p class="first">It's possible to autogenerate docstring parameters using the Google Code format (patch by ghbcode).</p>
+</li>
+</ul>
 </div>
 <div class="section" id="release-6-5-0-2018-09-01">
 <h1>Release 6.5.0 (2018-09-01)</h1>

@@ -5,6 +5,40 @@ History For PyDev
 .. _`update sites page`: update_sites/index.html
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
+
+Release 7.0.0 (2018-11-07)
+=============================
+
+* **Mypy**
+
+	* PyDev can now use Mypy when doing code analysis.
+
+* **Black Formatter**
+
+	* PyDev can now use black as the code formatting engine.
+
+* **Virtual environments**
+
+	* It's now possible to use pipenv for managing virtual environments.
+	* It's possible to manage virtual environments from the editor.
+
+		* Ctrl+2, pip <command>
+		* Ctrl+2, pipenv <command>
+		* Ctrl+2, conda <command>
+
+* **Debugger**
+
+	* Should be **much** faster for those on Python 3.6 onwards with cython extensions (using frame evaluation).
+
+* The Python 3.7 grammar is now available as an option (even though it's the same as 3.6).
+
+* Removed support for using the Python 2.4 grammar.
+
+* The 2to3 integration shows a better dialog.
+
+* It's possible to autogenerate docstring parameters using the Google Code format (patch by ghbcode).
+
+
 Release 6.5.0 (2018-09-01)
 =============================
 

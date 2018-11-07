@@ -186,7 +186,7 @@ To show your appreciation for PyDev and to keep it going strong, help to crowdfu
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
-Release 7.0.0 (2018-10-XX)
+Release 7.0.0 (2018-11-07)
 =============================
 
 * **Mypy**
@@ -205,6 +205,10 @@ Release 7.0.0 (2018-10-XX)
 		* Ctrl+2, pip <command>
 		* Ctrl+2, pipenv <command>
 		* Ctrl+2, conda <command>
+
+* **Debugger**
+
+	* Should be **much** faster for those on Python 3.6 onwards with cython extensions (using frame evaluation).
 
 * The Python 3.7 grammar is now available as an option (even though it's the same as 3.6).
 
