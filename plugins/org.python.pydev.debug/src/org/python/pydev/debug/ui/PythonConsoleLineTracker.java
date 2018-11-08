@@ -199,7 +199,7 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
                 return;
             }
 
-            if (text.contains("/") || !text.contains("\\")) {
+            if (text.contains("/") || text.contains("\\")) {
 
                 Matcher m = regularPythonlinePattern.matcher(text);
                 if (m.matches()) {
