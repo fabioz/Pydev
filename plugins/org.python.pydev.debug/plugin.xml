@@ -836,7 +836,10 @@
          <factory class="org.python.pydev.debug.ui.PyEditRunToLineAdapterFactory" adaptableType="org.python.pydev.editor.PyEdit">
 			<adapter type="org.eclipse.debug.ui.actions.IRunToLineTarget"/>
          </factory>
-         <factory class="org.python.pydev.debug.ui.PyToggleTargetAdapter" adaptableType="org.eclipse.ui.texteditor.ITextEditor">
+         <factory class="org.python.pydev.debug.ui.PyToggleTargetAdapter" adaptableType="org.python.pydev.shared_ui.editor.BaseEditor">
+			<adapter type="org.eclipse.debug.ui.actions.IToggleBreakpointsTarget"/>
+         </factory>
+         <factory class="org.python.pydev.debug.ui.PyToggleTargetAdapter" adaptableType="org.brainwy.liclipsetext.editor.common.BaseLiClipseEditor">
 			<adapter type="org.eclipse.debug.ui.actions.IToggleBreakpointsTarget"/>
          </factory>
     </extension>
