@@ -52,9 +52,9 @@ copy X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\rep
 
 x:
 cd X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable
-"C:\Program Files\7-Zip\7z" a -tzip -r "PyDev 7.0.2.zip" features plugins
+"C:\Program Files\7-Zip\7z" a -tzip -r "PyDev 7.0.3.zip" features plugins
 cd X:\pydev_build\build_dir\pydev
-git archive -o "X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\PyDev 7.0.2-sources.zip" origin/master
+git archive -o "X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\PyDev 7.0.3-sources.zip" origin/master
 
         ** Submit feature and sources .zip in folder X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable to:
 
@@ -63,7 +63,7 @@ git archive -o "X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo
 Note: check pageant if it does not connect.
 
 Check if the main download button points to the proper place (not to the sources) --
-https://sourceforge.net/projects/pydev/files/pydev/PyDev 7.0.2/ -- choose file > file info > set default.
+https://sourceforge.net/projects/pydev/files/pydev/PyDev 7.0.3/ -- choose file > file info > set default.
 
 
 		** Add contents to the update site
@@ -71,19 +71,19 @@ https://sourceforge.net/projects/pydev/files/pydev/PyDev 7.0.2/ -- choose file >
 
 cd /D X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\
 
-mkdir org.python.pydev.p2-repo-7.0.2-SNAPSHOT
+mkdir org.python.pydev.p2-repo-7.0.3-SNAPSHOT
 
-cd org.python.pydev.p2-repo-7.0.2-SNAPSHOT
+cd org.python.pydev.p2-repo-7.0.3-SNAPSHOT
 
-"C:\Program Files\7-Zip\7z" x ..\org.python.pydev.p2-repo-7.0.2-SNAPSHOT.zip
+"C:\Program Files\7-Zip\7z" x ..\org.python.pydev.p2-repo-7.0.3-SNAPSHOT.zip
 
-C:\bin\Miniconda\envs\py27_tests\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-7.0.2-SNAPSHOT -d https://api.bintray.com/content/fabioz/pydev/nightly/
+C:\bin\Miniconda\envs\py27_tests\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-7.0.3-SNAPSHOT -d https://api.bintray.com/content/fabioz/pydev/nightly/
 Note: if unable to send: remove at https://bintray.com/fabioz/pydev/pydev/nightly/edit add back at https://bintray.com/fabioz/pydev/pydev/new/version
 
 
-Create "7.0.2" version in "https://bintray.com/fabioz/pydev/pydev/new/version"
-Add "7.0.2" in X:\release_tools\pydev_uploader_bintray.py
-C:\bin\Miniconda\envs\py27_tests\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-7.0.2-SNAPSHOT -d https://api.bintray.com/content/fabioz/pydev/7.0.2/
+Create "7.0.3" version in "https://bintray.com/fabioz/pydev/pydev/new/version"
+Add "7.0.3" in X:\release_tools\pydev_uploader_bintray.py
+C:\bin\Miniconda\envs\py27_tests\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-7.0.3-SNAPSHOT -d https://api.bintray.com/content/fabioz/pydev/7.0.3/
 
 		** Update homepage:
 
@@ -92,12 +92,12 @@ C:\bin\Miniconda\envs\py27_tests\python.exe X:\release_tools\pydev_uploader_bint
 robocopy X:\pydev\plugins\com.python.pydev.docs\homepage\final X:\pydevsite.github.io /xd .git /xd .openshift  /s
 cd /D X:\pydevsite.github.io
 mu st
-mu acp "Updated to 7.0.2"
+mu acp "Updated to 7.0.3"
 
 "C:\Program Files\FileZilla FTP Client\filezilla.exe" sftp://fabioz,pydev@frs.sourceforge.net/home/project-web/pydev/htdocs --local="x:\pydev\plugins\com.python.pydev.docs\homepage\final"
 
 		** Tag repository:
-		  git tag pydev_7_0_2 -a -m "PyDev 7.0.2"
+		  git tag pydev_7_0_2 -a -m "PyDev 7.0.3"
 		  git push --tags
 
 
@@ -116,5 +116,5 @@ mu acp "Updated to 7.0.2"
         ** Update the versions:
 x:
 cd x:\pydev
-python update_version.py 7.0.2
+python update_version.py 7.0.3
 

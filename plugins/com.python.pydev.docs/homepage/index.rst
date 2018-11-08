@@ -186,7 +186,7 @@ To show your appreciation for PyDev and to keep it going strong, help to crowdfu
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
-Release 7.0.2 (2018-11-08)
+Release 7.0.3 (2018-11-08)
 =============================
 
 * **Mypy**

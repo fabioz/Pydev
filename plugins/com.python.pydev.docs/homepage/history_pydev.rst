@@ -6,7 +6,7 @@ History For PyDev
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
-Release 7.0.1 (2018-11-07)
+Release 7.0.3 (2018-11-08)
 =============================
 
 * **Mypy**
