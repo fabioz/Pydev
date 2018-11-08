@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Jython Plug-in
 Bundle-SymbolicName: org.python.pydev.jython; singleton:=true
-Bundle-Version: 7.0.1.qualifier
+Bundle-Version: 7.0.2.qualifier
 Bundle-ClassPath: pydev-jython.jar,
  jython.jar
 Bundle-Activator: org.python.pydev.jython.JythonPlugin
@@ -10,12 +10,12 @@ Bundle-Vendor: Brainwy Software Ltda
 Eclipse-BundleShape: dir
 Eclipse-BuddyPolicy: global
 Require-Bundle: org.eclipse.core.runtime,
- org.python.pydev.core;bundle-version="[7.0.1,7.0.2)",
+ org.python.pydev.core;bundle-version="[7.0.2,7.0.3)",
  org.eclipse.ui,
  org.eclipse.ui.console,
  org.eclipse.jface.text,
  org.junit;bundle-version="4.0";resolution:=optional,
- org.python.pydev.shared_ui;bundle-version="[7.0.1,7.0.2)"
+ org.python.pydev.shared_ui;bundle-version="[7.0.2,7.0.3)"
 Bundle-ActivationPolicy: lazy
 Export-Package: org.python.core,
  org.python.pydev.jython,
