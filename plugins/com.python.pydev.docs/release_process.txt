@@ -27,10 +27,10 @@ C:\bin\Miniconda\envs\tests_py27\python.exe X:\release_tools\pydev_uploader_bint
 		Update the version of all plugins to the new version.
 
 		Run:
-		    - Update version at W:\pydev\plugins\com.python.pydev.docs\build_homepage.py
+		    - Update version at X:\pydev\plugins\com.python.pydev.docs\build_homepage.py
 		    - Add version to update sites:
 		    	- com.python.pydev.docs/homepage/update_sites/index.contents.rst_html
-		    - W:\pydev\plugins\com.python.pydev.docs\build_homepage.py
+		    - X:\pydev\plugins\com.python.pydev.docs\build_homepage.py
 
 		Commit everything
         Merge with master
