@@ -156,10 +156,10 @@ FStringsAST f_string(): {Token t; Token doubleRbrace=null;}
     {return new FStringsAST((SimpleNode)jjtree.popNode());}
 }
 
-void f_string_expr(): {Token start, end, bStart, bEnd;boolean empty=true;SimpleNode bText;}
+void f_string_expr(): {Token start, end, bStart;boolean empty=true;SimpleNode bText;}
 {
+    start = <LBRACE>
 	try{
-	    start = <LBRACE>
 	    (
 
 		        (
@@ -173,9 +173,7 @@ void f_string_expr(): {Token start, end, bStart, bEnd;boolean empty=true;SimpleN
 		            }
 		            bText=balanced_expression_text()
 		            {
-		                bEnd=token;
 		                empty=false;
-		                jjtree.markNodeStartEnd(bText, bStart, bEnd);
 		            }
 		        )?
 		        (type_conversion())?
@@ -196,7 +194,8 @@ void f_string_expr(): {Token start, end, bStart, bEnd;boolean empty=true;SimpleN
 		    }
 		)
 	}catch(DoubleLBraceFound e){
-		// Ok, ignore and keep on going.
+		// Found double brace (not really an expression).
+		jjtree.markNodeStartEnd(jjtThis, start, start);
 	}
 
 }
@@ -215,25 +214,92 @@ void type_conversion(): {Token t;boolean foundText=false;}
     {if(!foundText){errorTypeConversionEmpty(jjtThis);}}
 }
 
-void format_spec(): {}
+void format_spec(): {Token start, end, bStart;boolean empty=true;SimpleNode bText; Token t;}
 {
-    <COLON>(
-    	<TEXT>
+    <COLON>
+    (
+    	(<TEXT>)+
         |
-         balanced_expression_text()
+	    start = <LBRACE>
+		try{
+		    (
+
+			        (
+			            {
+			            	bStart=getToken(1);
+		                    if(bStart.kind==LBRACE && bStart.beginColumn==start.beginColumn+1) {
+		                        // If we found 2 consecutive {{ it's an escaped {.
+		                     	jj_consume_token(LBRACE);
+		                        throw DOUBLE_LBRACE_FOUND;
+		                     }
+			            }
+			            bText=balanced_expression_text()
+			            {
+			                empty=false;
+			            }
+			        )?
+			    try{
+			        end = <RBRACE>
+			    }catch(ParseException e){
+			        addParseError(e, "Unbalanced '{'");
+			        end = token;
+			    }
+
+			    {
+			        jjtree.markNodeStartEnd(jjtThis, start, end);
+			        if(empty){
+			            errorPyExprEmpty(jjtThis);
+			        }
+			    }
+			)
+		}catch(DoubleLBraceFound e){
+			// Found double brace (not really an expression).
+			jjtree.markNodeStartEnd(jjtThis, start, start);
+		}
+        |
+        string()
+        |
+        string2()
+        |
+        t = <BACKSLASH> {errorBackSlashInvalidInFStrings(t);}
     )*
 }
 
-SimpleNode balanced_expression_text(): {Token t;}
+SimpleNode balanced_expression_text(): {Token start; Token end; Token t;}
 {
+	{
+		start = getToken(1);
+	}
     (
         initial_balanced_expression_text()
+        |
+        string()
+        |
+        string2()
+        |
+        // The main difference from this one to inner_balanced_expression_text_with_exclamation_and_colon
+        // is that at this level an exclamation or colon shoud not be matched, whereas in the next one it
+        // can be matched (so, the user can do f"{{'c':20}}").
+        (<TEXT>)+
+        |
+        t = <BACKSLASH> {errorBackSlashInvalidInFStrings(t);}
     )+
+
+    {
+	    end = token;
+	    jjtree.markNodeStartEnd(jjtThis, start, end);
+
+    }
     {return (SimpleNode)jjtree.peekNode();}
 }
 
-SimpleNode initial_balanced_expression_text(): {Token t;}
+
+SimpleNode initial_balanced_expression_text(): {Token start; Token end;}
 {
+	{
+		start = getToken(1);
+	}
+
     (
         (
             <LPAREN>
@@ -264,23 +330,20 @@ SimpleNode initial_balanced_expression_text(): {Token t;}
                 addParseError(e, "Unbalanced '['");
             }
         )
-        |
-        string()
-        |
-        string2()
-        |
-        // The main difference from this one to inner_balanced_expression_text_with_exclamation_and_colon
-        // is that at this level an exclamation or colon shoud not be matched, whereas in the next one it
-        // can be matched (so, the user can do f"{{'c':20}}").
-        (<TEXT>)+
-        |
-        t = <BACKSLASH> {errorBackSlashInvalidInFStrings(t);}
     )
+    {
+	    end = token;
+	    jjtree.markNodeStartEnd(jjtThis, start, end);
+
+    }
     {return (SimpleNode)jjtree.peekNode();}
 }
 
-SimpleNode inner_balanced_expression_text_with_exclamation_and_colon(): {Token t;}
+SimpleNode inner_balanced_expression_text_with_exclamation_and_colon(): {Token start; Token end; Token t;}
 {
+	{
+		start = getToken(1);
+	}
     (
         (
             <LPAREN>
@@ -324,12 +387,21 @@ SimpleNode inner_balanced_expression_text_with_exclamation_and_colon(): {Token t
         |
         t = <BACKSLASH> {errorBackSlashInvalidInFStrings(t);}
     )
+    {
+	    end = token;
+	    jjtree.markNodeStartEnd(jjtThis, start, end);
+
+    }
     {return (SimpleNode)jjtree.peekNode();}
 }
 
 
-void string(): {Token t;}
+void string(): {Token start; Token end; Token t;}
 {
+	{
+		start = getToken(1);
+	}
+
     <QUOTE>
     (
         <TEXT>
@@ -349,10 +421,20 @@ void string(): {Token t;}
     }catch(ParseException e){
         addParseError(e, "Unbalanced \"'\"");
     }
+    {
+	    end = token;
+	    jjtree.markNodeStartEnd(jjtThis, start, end);
+
+    }
+
 }
 
-void string2(): {Token t;}
+void string2(): {Token start; Token end; Token t;}
 {
+	{
+		start = getToken(1);
+	}
+
     <QUOTE2>
     (
         <TEXT>
@@ -371,6 +453,11 @@ void string2(): {Token t;}
         <QUOTE2>
     }catch(ParseException e){
         addParseError(e, "Unbalanced '\"'");
+    }
+    {
+	    end = token;
+	    jjtree.markNodeStartEnd(jjtThis, start, end);
+
     }
 }
 

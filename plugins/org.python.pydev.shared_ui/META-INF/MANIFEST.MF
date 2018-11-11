@@ -2,11 +2,11 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Shared Ui Plug-in
 Bundle-SymbolicName: org.python.pydev.shared_ui;singleton:=true
-Bundle-Version: 6.4.2.qualifier
+Bundle-Version: 7.0.3.qualifier
 Bundle-ClassPath: shared_ui.jar
 Bundle-Activator: org.python.pydev.shared_ui.SharedUiPlugin
 Eclipse-BundleShape: dir
-Require-Bundle: org.python.pydev.shared_core;bundle-version="[6.4.2,6.4.3)",
+Require-Bundle: org.python.pydev.shared_core;bundle-version="[7.0.3,7.0.4)",
  org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.ui.workbench.texteditor,

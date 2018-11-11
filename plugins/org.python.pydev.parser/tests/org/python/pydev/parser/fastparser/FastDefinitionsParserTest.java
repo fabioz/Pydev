@@ -123,11 +123,11 @@ public class FastDefinitionsParserTest extends TestCase {
                     break;
                 case PARSE_GENERATION_FULL_PARSE:
                     PyParser.reparseDocumentInternal(new Document(fileContents), true,
-                            IGrammarVersionProvider.LATEST_GRAMMAR_VERSION);
+                            IGrammarVersionProvider.LATEST_GRAMMAR_PY2_VERSION);
                     break;
                 case PARSE_GENERATION_SYNTAX_PARSE:
                     PyParser.reparseDocumentInternal(new Document(fileContents), false,
-                            IGrammarVersionProvider.LATEST_GRAMMAR_VERSION);
+                            IGrammarVersionProvider.LATEST_GRAMMAR_PY2_VERSION);
                     break;
                 case PARSE_GENERATION_ONLY_LOAD:
                     //do nothing!

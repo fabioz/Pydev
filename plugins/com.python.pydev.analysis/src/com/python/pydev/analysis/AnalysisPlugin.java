@@ -34,6 +34,7 @@ import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.shared_core.structure.Location;
 
 import com.python.pydev.analysis.additionalinfo.ReferenceSearchesLucene;
+import com.python.pydev.analysis.mypy.MypyPrefInitializer;
 import com.python.pydev.analysis.pylint.PyLintPrefInitializer;
 
 /**
@@ -64,6 +65,7 @@ public class AnalysisPlugin extends Plugin {
         // As it starts things in the org.python.pydev node for backward-compatibility, we must
         // initialize it now.
         PyLintPrefInitializer.initializeDefaultPreferences();
+        MypyPrefInitializer.initializeDefaultPreferences();
         stateLocation = AnalysisPlugin.getDefault().getStateLocation();
 
         // Leaving code around to know when we get to the PyDev perspective in the active window (may be
@@ -143,7 +145,7 @@ public class AnalysisPlugin extends Plugin {
                 File f = new File(file);
                 int line = info.getLine();
                 int col = info.getCol();
-                if (line > 0 && col > 0) {  // 0 is invalid.
+                if (line > 0 && col > 0) { // 0 is invalid.
                     ItemPointer itemPointer = new ItemPointer(f, new Location(line - 1, col - 1),
                             new Location(line - 1, col - 1), null, null, f.toURI());
                     pointers.add(itemPointer);

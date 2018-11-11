@@ -8,7 +8,6 @@
             canFinishEarly="false"
             category="org.python.pydev.PythonCategory"
             class="org.python.pydev.customizations.app_engine.wizards.AppEngineWizard"
-            descriptionImage="icons/AppEngine-64.png"
             finalPerspective="org.python.pydev.ui.PythonPerspective"
             hasPages="true"
             icon="icons/AppEngine-16.png"
@@ -17,8 +16,8 @@
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"
             project="true"/>
     </extension>
-    
-    
+
+
     <extension point="org.eclipse.debug.core.launchConfigurationTypes">
         <launchConfigurationType
             delegate="org.python.pydev.customizations.app_engine.launching.AppEngineLaunchConfigurationDelegate"
@@ -28,7 +27,7 @@
             public="true">
         </launchConfigurationType>
     </extension>
-    
+
     <extension point="org.eclipse.debug.ui.launchConfigurationTypeImages">
         <launchConfigurationTypeImage
             icon="icons/AppEngine-16.png"
@@ -36,7 +35,7 @@
             id="org.python.pydev.customizations.app_engine.launching.AppEngineLaunchConfigurationTypeImage">
         </launchConfigurationTypeImage>
     </extension>
-    
+
    <extension point="org.eclipse.core.expressions.propertyTesters">
       <propertyTester
             namespace="org.python.pydev.customizations"
@@ -53,7 +52,7 @@
             id="org.python.pydev.navigator.elements.IWrappedResource.app_engine_container">
       </propertyTester>
    </extension>
-    
+
     <extension point="org.eclipse.debug.ui.launchShortcuts">
         <shortcut
             label="PyDev: Google App Run"
@@ -82,24 +81,24 @@
     </extension>
 
     <extension point="org.eclipse.debug.ui.launchConfigurationTabGroups">
-        <!-- Note that it's the same as the regular python launch! -->    
+        <!-- Note that it's the same as the regular python launch! -->
         <launchConfigurationTabGroup
             type="org.python.pydev.customizations.app_engine.launching.AppEngineLaunchConfigurationType"
             class="org.python.pydev.debug.ui.PythonTabGroup"
             id="org.python.pydev.customizations.app_engine.launching.AppEngineTabGroup">
         </launchConfigurationTabGroup>
     </extension>
-    
-    
-    <!-- 
-    Reference for creating the commands: 
-    http://xpomul.bloggles.info/2008/08/12/advanced-features-in-eclipse-popup-menus-take-2-the-new-api/ 
-    
-    I take it back. it doesn't work in eclipse 3.2, so, changed to use reference: 
+
+
+    <!--
+    Reference for creating the commands:
+    http://xpomul.bloggles.info/2008/08/12/advanced-features-in-eclipse-popup-menus-take-2-the-new-api/
+
+    I take it back. it doesn't work in eclipse 3.2, so, changed to use reference:
     http://xpomul.bloggles.info/2008/07/24/using-advanced-features-in-eclipse-popup-menus/
     -->
     <extension point="org.eclipse.ui.popupMenus">
-    
+
       <objectContribution
             adaptable="false"
             id="org.python.pydev.customizations.app_engine.actions.AppEngineUploadAction"
@@ -118,8 +117,8 @@
          </action>
          <visibility><objectState name="app_engine" value="true"></objectState></visibility>
       </objectContribution>
-    
-    
+
+
       <objectContribution
             adaptable="false"
             id="org.python.pydev.customizations.app_engine.actions.AppEngineManageAction"
@@ -136,15 +135,15 @@
       </objectContribution>
 
     </extension>
-    
-    
 
-    
-    <!-- 
+
+
+
+    <!--
     Commented out because eclipse 3.2 doesn't support it
     Maybe in the future, when support for eclipse 3.2 is removed, this could be re-added
     (and the hack for PythonSourceFolderActionFilter removed).
-    
+
     <extension point="org.eclipse.ui.commands">
       <command
             description="Manage project"
@@ -152,8 +151,8 @@
             name="Manage project">
       </command>
     </extension>
-    
-    
+
+
     <extension point="org.eclipse.ui.handlers">
       <handler
             class="org.python.pydev.customizations.app_engine.actions.AppEngineManage"
@@ -169,7 +168,7 @@
          </enabledWhen>
       </handler>
     </extension>
-    
+
     <extension point="org.eclipse.ui.commands">
       <command
             description="Upload project"
@@ -177,8 +176,8 @@
             name="Upload project">
       </command>
     </extension>
-    
-    
+
+
     <extension point="org.eclipse.ui.handlers">
       <handler
             class="org.python.pydev.customizations.app_engine.actions.AppEngineUpload"
@@ -194,16 +193,16 @@
          </enabledWhen>
       </handler>
     </extension>
-    
-    
+
+
     <extension point="org.eclipse.ui.menus">
         <menuContribution locationURI="popup:org.eclipse.ui.popup.any?after=additions">
             <menu
             icon="icons/AppEngine-16.png"
             id="org.python.pydev.customizations.app_engine"
             label="PyDev: Google App Engine">
-            
-            
+
+
                 <command
                     commandId="org.python.pydev.customizations.app_engine.actions.AppEngineManage"
                     style="push">
@@ -217,8 +216,8 @@
                         </with>
                     </visibleWhen>
                 </command>
-                
-            
+
+
                 <command
                     commandId="org.python.pydev.customizations.app_engine.actions.AppEngineUpload"
                     style="push">
@@ -232,11 +231,11 @@
                         </with>
                     </visibleWhen>
                 </command>
-                
-                
+
+
             </menu>
         </menuContribution>
     </extension>
     -->
-    
+
 </plugin>

@@ -12,48 +12,31 @@
 package com.python.pydev.analysis.pylint;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IRegion;
-import org.python.pydev.ast.runners.SimplePythonRunner;
-import org.python.pydev.ast.runners.SimpleRunner;
-import org.python.pydev.core.CheckAnalysisErrors;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
-import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
-import org.python.pydev.shared_core.io.FileUtils;
-import org.python.pydev.shared_core.io.ThreadStreamReader;
 import org.python.pydev.shared_core.markers.PyMarkerUtils;
-import org.python.pydev.shared_core.string.StringUtils;
-import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.progress.NullProgressMonitorWrapper;
+
+import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
 
 /**
  * Check lint.py for options.
  *
  * @author Fabio Zadrozny
  */
-/*default*/ final class PyLintVisitor extends OnlyRemoveMarkersPyLintVisitor {
+/*default*/ public final class PyLintVisitor extends OnlyRemoveMarkersPyLintVisitor {
 
-    private static Object lock = new Object();
     private IDocument document;
     private IProgressMonitor monitor;
 
@@ -62,317 +45,6 @@ import org.python.pydev.shared_core.structure.Tuple;
         super(resource);
         this.document = document;
         this.monitor = monitor;
-    }
-
-    /**
-     * Helper class which will start a process to collect PyLint information and process it.
-     */
-    private static final class PyLintAnalysis {
-
-        private IResource resource;
-        private IDocument document;
-        private IPath location;
-
-        List<PyMarkerUtils.MarkerInfo> markers = new ArrayList<PyMarkerUtils.MarkerInfo>();
-        private IProgressMonitor monitor;
-        private Process process;
-        private Thread processWatchDoc;
-        private File pyLintLocation;
-
-        public PyLintAnalysis(IResource resource, IDocument document, IPath location,
-                IProgressMonitor monitor, File pyLintLocation) {
-            this.resource = resource;
-            this.document = document;
-            this.location = location;
-            this.monitor = monitor;
-            this.pyLintLocation = pyLintLocation;
-        }
-
-        /**
-         * Creates the pylint process and starts getting its output.
-         */
-        private void createPyLintProcess(IPyLintStream out)
-                throws CoreException,
-                MisconfigurationException, PythonNatureWithoutProjectException {
-            String script = FileUtils.getFileAbsolutePath(pyLintLocation);
-            String target = FileUtils.getFileAbsolutePath(new File(location.toOSString()));
-
-            // check whether lint.py module or pylint executable has been specified
-            boolean isPyScript = script.endsWith(".py") || script.endsWith(".pyw");
-
-            ArrayList<String> cmdList = new ArrayList<String>();
-            // pylint executable
-            if (!isPyScript) {
-                cmdList.add(script);
-            }
-            //user args
-            String userArgs = StringUtils.replaceNewLines(
-                    PyLintPreferences.getPyLintArgs(), " ");
-            StringTokenizer tokenizer2 = new StringTokenizer(userArgs);
-            while (tokenizer2.hasMoreTokens()) {
-                String token = tokenizer2.nextToken();
-                if (token.equals("--output-format=parseable")) {
-                    continue;
-                }
-                if (token.startsWith("--msg-template=")) {
-                    continue;
-                }
-                if (token.startsWith("--output-format=")) {
-                    continue;
-                }
-                cmdList.add(token);
-            }
-            cmdList.add("--output-format=text");
-            cmdList.add("--msg-template='{C}:{line:3d},{column:2d}: {msg} ({symbol})'");
-            // target file to be linted
-            cmdList.add(target);
-            String[] args = cmdList.toArray(new String[0]);
-
-            // run pylint in project location
-            IProject project = resource.getProject();
-            File workingDir = project.getLocation().toFile();
-
-            if (isPyScript) {
-                // run Python script (lint.py) with the interpreter of current project
-                PythonNature nature = PythonNature.getPythonNature(project);
-                if (nature == null) {
-                    Throwable e = new RuntimeException("PyLint ERROR: Nature not configured for: " + project);
-                    Log.log(e);
-                    return;
-                }
-                String interpreter = nature.getProjectInterpreter().getExecutableOrJar();
-                write("PyLint: Executing command line:", out, script, args);
-                SimplePythonRunner runner = new SimplePythonRunner();
-                String[] parameters = SimplePythonRunner.preparePythonCallParameters(interpreter, script, args);
-
-                Tuple<Process, String> r = runner.run(parameters, workingDir, nature, monitor);
-                this.process = r.o1;
-            } else {
-                // run executable command (pylint or pylint.bat or pylint.exe)
-                write("PyLint: Executing command line:", out, (Object) args);
-                SimpleRunner simpleRunner = new SimpleRunner();
-                Tuple<Process, String> r = simpleRunner.run(args, workingDir, PythonNature.getPythonNature(project),
-                        null);
-                this.process = r.o1;
-            }
-            this.processWatchDoc = new Thread() {
-                @Override
-                public void run() {
-                    //No need to synchronize as we'll waitFor() the process before getting the contents.
-                    ThreadStreamReader std = new ThreadStreamReader(process.getInputStream(), false, null);
-                    ThreadStreamReader err = new ThreadStreamReader(process.getErrorStream(), false, null);
-
-                    std.start();
-                    err.start();
-
-                    while (process.isAlive()) {
-                        if (monitor.isCanceled()) {
-                            std.stopGettingOutput();
-                            err.stopGettingOutput();
-                            return;
-                        }
-                        synchronized (this) {
-                            try {
-                                this.wait(20);
-                            } catch (InterruptedException e) {
-                                // Just proceed to another check.
-                            }
-                        }
-                    }
-
-                    if (monitor.isCanceled()) {
-                        std.stopGettingOutput();
-                        err.stopGettingOutput();
-                        return;
-                    }
-
-                    // Wait for the other threads to finish getting the output
-                    try {
-                        std.join();
-                    } catch (InterruptedException e) {
-                    }
-                    try {
-                        err.join();
-                    } catch (InterruptedException e) {
-                    }
-
-                    if (monitor.isCanceled()) {
-                        std.stopGettingOutput();
-                        err.stopGettingOutput();
-                        return;
-                    }
-
-                    String output = std.getAndClearContents();
-                    String errors = err.getAndClearContents();
-                    afterRunProcess(output, errors, out);
-                }
-            };
-            this.processWatchDoc.start();
-        }
-
-        public void afterRunProcess(String output, String errors, IPyLintStream out) {
-            write("PyLint: The stdout of the command line is:", out, output);
-            write("PyLint: The stderr of the command line is:", out, errors);
-
-            StringTokenizer tokenizer = new StringTokenizer(output, "\r\n");
-
-            //Set up local values for severity
-            int wSeverity = PyLintPreferences.wSeverity();
-            int eSeverity = PyLintPreferences.eSeverity();
-            int fSeverity = PyLintPreferences.fSeverity();
-            int cSeverity = PyLintPreferences.cSeverity();
-            int rSeverity = PyLintPreferences.rSeverity();
-
-            if (monitor.isCanceled()) {
-                return;
-            }
-
-            if (output.indexOf("Traceback (most recent call last):") != -1) {
-                Throwable e = new RuntimeException("PyLint ERROR: \n" + output);
-                Log.log(e);
-                return;
-            }
-            if (errors.indexOf("Traceback (most recent call last):") != -1) {
-                Throwable e = new RuntimeException("PyLint ERROR: \n" + errors);
-                Log.log(e);
-                return;
-            }
-            while (tokenizer.hasMoreTokens()) {
-                String tok = tokenizer.nextToken();
-                if (monitor.isCanceled()) {
-                    return;
-                }
-
-                try {
-                    int priority = 0;
-
-                    int indexOfDoublePoints = tok.indexOf(":");
-                    if (indexOfDoublePoints != 1) {
-                        continue;
-                    }
-                    char c = tok.charAt(0);
-                    switch (c) {
-                        case 'C':
-                            priority = cSeverity;
-                            break;
-                        case 'R':
-                            priority = rSeverity;
-                            break;
-                        case 'W':
-                            priority = wSeverity;
-                            break;
-                        case 'E':
-                            priority = eSeverity;
-                            break;
-                        case 'F':
-                            priority = fSeverity;
-                            break;
-                    }
-
-                    if (priority > -1) { // priority == -1: ignore, 0=info, 1=warning, 2=error.
-                        try {
-                            int line = -1;
-                            int column = -1;
-                            String messageId = "";
-                            Matcher m = PYLINT_MATCH_PATTERN.matcher(tok);
-                            if (m.matches()) {
-                                line = Integer.parseInt(tok.substring(m.start(1), m.end(1)));
-                                column = Integer.parseInt(tok.substring(m.start(2), m.end(2)));
-                                messageId = tok.substring(m.start(4), m.end(4)).trim();
-                                tok = tok.substring(m.start(3), m.end(3)).trim();
-                            } else {
-                                continue;
-                            }
-                            IRegion region = null;
-                            try {
-                                region = document.getLineInformation(line - 1);
-                            } catch (Exception e) {
-                                region = document.getLineInformation(line);
-                            }
-                            String lineContents = document.get(region.getOffset(), region.getLength());
-
-                            if (CheckAnalysisErrors.isPyLintErrorHandledAtLine(lineContents, messageId)) {
-                                continue;
-                            }
-
-                            addToMarkers(tok, priority, messageId, line - 1, column, lineContents);
-                        } catch (RuntimeException e2) {
-                            Log.log(e2);
-                        }
-                    }
-                } catch (Exception e1) {
-                    Log.log(e1);
-                }
-            }
-        }
-
-        private static Pattern PYLINT_MATCH_PATTERN = Pattern
-                .compile("\\A[CRWEF]:\\s*(\\d+)\\s*,\\s*(\\d+)\\s*:(.*)\\((.*)\\)\\s*\\Z");
-
-        private void addToMarkers(String tok, int priority, String id, int line, int column, String lineContents) {
-            Map<String, Object> additionalInfo = new HashMap<>();
-            additionalInfo.put(PYLINT_MESSAGE_ID, id);
-            markers.add(new PyMarkerUtils.MarkerInfo(document, "PyLint: " + tok,
-                    PYLINT_PROBLEM_MARKER, priority, false, false, line, column, line, lineContents.length(),
-                    additionalInfo));
-        }
-
-        /**
-         * Waits for the PyLint processing to finish (note that canceling the monitor should also
-         * stop the analysis/kill the related process).
-         */
-        public void join() {
-            if (processWatchDoc != null) {
-                try {
-                    processWatchDoc.join();
-                } catch (InterruptedException e) {
-                    // If interrrupted, log and got through with it.
-                    Log.log(e);
-                }
-            }
-        }
-    }
-
-    private static void write(String cmdLineToExe, IPyLintStream out, Object... args) {
-        try {
-            if (out != null) {
-                synchronized (lock) {
-                    if (args != null) {
-                        for (Object arg : args) {
-                            if (arg instanceof String) {
-                                cmdLineToExe += " " + arg;
-                            } else if (arg instanceof String[]) {
-                                String[] strings = (String[]) arg;
-                                for (String string : strings) {
-                                    cmdLineToExe += " " + string;
-                                }
-                            }
-                        }
-                    }
-                    out.write(cmdLineToExe + "\n");
-                }
-            }
-        } catch (IOException e) {
-            Log.log(e);
-        }
-    }
-
-    /**
-     * Helper class to monitor the cancel state of another monitor.
-     */
-    private static class NullProgressMonitorWrapper extends NullProgressMonitor {
-
-        private IProgressMonitor wrap;
-
-        public NullProgressMonitorWrapper(IProgressMonitor monitor) {
-            this.wrap = monitor;
-        }
-
-        @Override
-        public boolean isCanceled() {
-            return super.isCanceled() || this.wrap.isCanceled();
-        }
-
     }
 
     private PyLintAnalysis pyLintRunnable;
@@ -418,7 +90,7 @@ import org.python.pydev.shared_core.structure.Tuple;
                         new NullProgressMonitorWrapper(monitor), pyLintLocation);
 
                 try {
-                    IPyLintStream out = PyLintPreferences.getConsoleOutputStream();
+                    IExternalCodeAnalysisStream out = PyLintPreferences.getConsoleOutputStream();
                     pyLintRunnable.createPyLintProcess(out);
                 } catch (final Exception e) {
                     Log.log(e);
@@ -440,6 +112,11 @@ import org.python.pydev.shared_core.structure.Tuple;
             return null;
         }
         return pyLintRunnable.markers;
+    }
+
+    @Override
+    public boolean getRequiresAnalysis() {
+        return true;
     }
 
 }

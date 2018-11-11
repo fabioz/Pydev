@@ -116,7 +116,7 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContextWith
             }
 
         }
-        return IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;
+        return IGrammarVersionProvider.LATEST_GRAMMAR_PY3_VERSION;
     }
 
     public String getModuleName() {

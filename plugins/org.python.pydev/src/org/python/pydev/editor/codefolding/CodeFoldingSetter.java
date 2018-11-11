@@ -19,6 +19,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListResourceBundle;
 import java.util.Map;
+import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
@@ -286,6 +289,9 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener, IPy
         }
     }
 
+    private static final Pattern regionStartPattern = Pattern.compile("#(\\s)*\\bregion\\b");
+    private static final Pattern regionEndPattern = Pattern.compile("#(\\s)*\\bendregion\\b");
+
     /**
      * To get the marks, we work a little with the ast and a little with the doc... the ast is good to give us all things but the comments,
      * and the doc will give us the comments.
@@ -361,18 +367,54 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener, IPy
         }
 
         //and at last, get the comments
-        if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_COMMENTS, PyDevCodeFoldingPrefPage.DEFAULT_FOLD_COMMENTS)) {
+        final boolean foldComments = prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_COMMENTS,
+                PyDevCodeFoldingPrefPage.DEFAULT_FOLD_COMMENTS);
+        final boolean foldRegions = prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_REGION,
+                PyDevCodeFoldingPrefPage.DEFAULT_FOLD_REGION);
+        if (foldComments || foldRegions) {
             boolean collapseComments = foldInitial
                     ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_COMMENTS,
                             PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_COMMENTS)
                     : false;
+
+            boolean collapseRegions = foldInitial
+                    ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_REGION,
+                            PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_REGION)
+                    : false;
+
             DocIterator it = new DocIterator(true, new PySelection(doc, 0));
+            Stack<Integer> stack = new Stack<Integer>(); // need stack to properly match nested #region tags
+            int l, l_start;
             while (it.hasNext()) {
                 String string = it.next();
-                if (string.trim().startsWith("#")) {
-                    int l = it.getCurrentLine() - 1;
+                Matcher regionStartMatcher = regionStartPattern.matcher(string);
+                Matcher regionEndMatcher = regionEndPattern.matcher(string);
+                final boolean isLookingAtRegionStart = regionStartMatcher.lookingAt();
+                final boolean isLookingAtRegionEnd = regionEndMatcher.lookingAt();
+                if (foldComments
+                        && string.trim().startsWith("#")
+                        && !isLookingAtRegionStart
+                        && !isLookingAtRegionEnd) {
+                    l = it.getCurrentLine() - 1;
                     addFoldingEntry(ret, new FoldingEntry(FoldingEntry.TYPE_COMMENT, l, l + 1, new ASTEntry(null,
                             new commentType(string)), collapseComments));
+                }
+                // ticket 694: Fold for #region ... #endregion
+                if (foldRegions) {
+                    if (isLookingAtRegionStart) {
+                        l = it.getCurrentLine() - 1;
+                        //add line number to stack
+                        stack.push(l);
+                    }
+                    if (isLookingAtRegionEnd) {
+                        l = it.getCurrentLine() - 1;
+                        // pop start of region line number from stack and call addFoldingEntry
+                        if (stack.size() > 0) {
+                            l_start = stack.pop();
+                            addFoldingEntry(ret, new FoldingEntry(FoldingEntry.TYPE_REGION, l_start, l + 1,
+                                    new ASTEntry(null, new commentType(string)), collapseRegions));
+                        }
+                    }
                 }
             }
         }

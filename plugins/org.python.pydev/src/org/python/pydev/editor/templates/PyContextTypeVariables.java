@@ -31,7 +31,7 @@ public class PyContextTypeVariables {
         if (context == null) {
             return false;
         }
-        return context.getGrammarVersion() >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0;
+        return context.getGrammarVersion() >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5;
     }
 
     public static void addResolvers(PyContextType pyContextType) {

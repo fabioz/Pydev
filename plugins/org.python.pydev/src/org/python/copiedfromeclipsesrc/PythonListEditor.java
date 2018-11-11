@@ -31,12 +31,14 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
+import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.image.UIConstants;
-import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.ui.pythonpathconf.InterpreterConfigHelpers;
+import org.python.pydev.ui.pythonpathconf.NameAndExecutable;
 
 /**
  * An abstract field editor that manages a list of input values. The editor displays a list containing the values, buttons for adding and
@@ -73,6 +75,11 @@ public abstract class PythonListEditor extends FieldEditor {
     protected Button autoConfigButton;
 
     /**
+     * The Pipenv config button (may be null as it's only available for cpython).
+     */
+    protected Button pipenvConfigButton;
+
+    /**
      * The Avanced Auto config button.
      */
     protected Button advAutoConfigButton;
@@ -102,6 +109,8 @@ public abstract class PythonListEditor extends FieldEditor {
      */
     private Image imageInterpreter;
 
+    protected abstract IInterpreterManager getInterpreterManager();
+
     /**
      * Creates a new list field editor
      */
@@ -130,7 +139,7 @@ public abstract class PythonListEditor extends FieldEditor {
      * @param configType the type of configuration to use when creating the new interpreter.
      */
     public void addPressed(int configType) {
-        Tuple<String, String> input = getNewInputObject(configType);
+        NameAndExecutable input = getNewInputObject(configType);
         if (input != null) {
             if (input.o1 != null && input.o2 != null) {
                 setPresentsDefaultValue(false);
@@ -175,11 +184,34 @@ public abstract class PythonListEditor extends FieldEditor {
      * @param box the box for the buttons
      */
     private void createButtons(Composite box) {
-        addButton = createPushButton(box, "ListEditor.add");//$NON-NLS-1$
+        final int interpreterType = getInterpreterManager().getInterpreterType();
+        String selectTitle = "";
+        switch (interpreterType) {
+            case IPythonNature.INTERPRETER_TYPE_PYTHON:
+                selectTitle = "Brows&e for python/pypy exe";
+                break;
+            case IPythonNature.INTERPRETER_TYPE_JYTHON:
+                selectTitle = "Brows&e for Jython jar";
+                break;
+            case IPythonNature.INTERPRETER_TYPE_IRONPYTHON:
+                selectTitle = "Brows&e for ipy exe";
+                break;
+
+            default:
+                Log.log("Unhandled type: " + interpreterType);
+                selectTitle = "Select executable";
+        }
+
+        addButton = createPushButton(box, selectTitle);
+
+        if (interpreterType == IPythonNature.INTERPRETER_TYPE_PYTHON) {
+            pipenvConfigButton = createPushButton(box,
+                    InterpreterConfigHelpers.CONFIG_PIPENV_NAME);
+        }
         autoConfigButton = createPushButton(box,
-                InterpreterConfigHelpers.CONFIG_NAMES[InterpreterConfigHelpers.CONFIG_AUTO]);
+                InterpreterConfigHelpers.CONFIG_AUTO_NAME);
         advAutoConfigButton = createPushButton(box,
-                InterpreterConfigHelpers.CONFIG_NAMES[InterpreterConfigHelpers.CONFIG_ADV_AUTO]);
+                InterpreterConfigHelpers.CONFIG_ADV_AUTO_NAME);
         removeButton = createPushButton(box, "ListEditor.remove");//$NON-NLS-1$
         upButton = createPushButton(box, "ListEditor.up");//$NON-NLS-1$
         downButton = createPushButton(box, "ListEditor.down");//$NON-NLS-1$
@@ -227,6 +259,8 @@ public abstract class PythonListEditor extends FieldEditor {
                     addPressed(InterpreterConfigHelpers.CONFIG_MANUAL);
                 } else if (widget == autoConfigButton) {
                     addPressed(InterpreterConfigHelpers.CONFIG_AUTO);
+                } else if (pipenvConfigButton != null && widget == pipenvConfigButton) {
+                    addPressed(InterpreterConfigHelpers.CONFIG_PIPENV);
                 } else if (widget == advAutoConfigButton) {
                     addPressed(InterpreterConfigHelpers.CONFIG_ADV_AUTO);
                 } else if (widget == removeButton) {
@@ -308,6 +342,7 @@ public abstract class PythonListEditor extends FieldEditor {
                 public void widgetDisposed(DisposeEvent event) {
                     addButton = null;
                     autoConfigButton = null;
+                    pipenvConfigButton = null;
                     removeButton = null;
                     upButton = null;
                     downButton = null;
@@ -363,7 +398,7 @@ public abstract class PythonListEditor extends FieldEditor {
      *
      * @return the name and executable of the new item
      */
-    protected abstract Tuple<String, String> getNewInputObject(int configType);
+    protected abstract NameAndExecutable getNewInputObject(int configType);
 
     /*
      * (non-Javadoc) Method declared on FieldEditor.
@@ -502,6 +537,9 @@ public abstract class PythonListEditor extends FieldEditor {
         getListControl(parent).setEnabled(enabled);
         addButton.setEnabled(enabled);
         autoConfigButton.setEnabled(enabled);
+        if (pipenvConfigButton != null) {
+            pipenvConfigButton.setEnabled(enabled);
+        }
         removeButton.setEnabled(enabled);
         upButton.setEnabled(enabled);
         downButton.setEnabled(enabled);

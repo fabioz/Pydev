@@ -5,6 +5,84 @@ History For PyDev
 .. _`update sites page`: update_sites/index.html
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
+
+Release 7.0.3 (2018-11-08)
+=============================
+
+* **Mypy**
+
+	* PyDev can now use Mypy when doing code analysis.
+
+* **Black Formatter**
+
+	* PyDev can now use black as the code formatting engine.
+
+* **Virtual environments**
+
+	* It's now possible to use pipenv for managing virtual environments.
+	* It's possible to manage virtual environments from the editor.
+
+		* Ctrl+2, pip <command>
+		* Ctrl+2, pipenv <command>
+		* Ctrl+2, conda <command>
+
+* **Debugger**
+
+	* Should be **much** faster for those on Python 3.6 onwards with cython extensions (using frame evaluation).
+
+* The Python 3.7 grammar is now available as an option (even though it's the same as 3.6).
+
+* Removed support for using the Python 2.4 grammar.
+
+* The 2to3 integration shows a better dialog.
+
+* It's possible to autogenerate docstring parameters using the Google Code format (patch by ghbcode).
+
+
+Release 6.5.0 (2018-09-01)
+=============================
+
+
+* **Debugger**
+
+	* Debugger is **much** more responsive (fixed bug in reader/writer on the PyDev side).
+	* **breakpoint()** builtin is now supported to add a programmatic breakpoint (on any Python version).
+	* Watch expression no longer giving error if evaluation is empty (patch by glhez).
+
+* **Editor**
+
+	* Code folding of **#region/#endregion** regions (patch by ghbcode).
+	* There's a new action which allows creating local imports from a global import (use **Ctrl+1** on top of global import name).
+
+
+* It's now possible to change the default interpreter through an action (default binding: **Ctrl+Shift+Alt+I**).
+* The interactive console now has scroll lock (patch by bongibong).
+
+Release 6.4.4 (2018-07-28)
+=============================
+
+* **Debugger**
+
+	* Fixed issue where a unicode could be used where a string was expected.
+	* Providing wheel for Python 3.7.
+	* Fixed issue running Jython.
+	* No longer showing **pydevd** internals in the stack.
+	* Fixed issue with interactive console and debugger integration.
+
+* **Editor**
+
+	* Fixed issue parsing and analyzing f-strings.
+
+Release 6.4.3 (2018-07-04)
+=============================
+
+* Fixed critical error on debugger (could deadlock when creating a new thread).
+
+Release 6.4.2 (2018-07-02)
+=============================
+
+* Fixed critical error parsing f-strings.
+
 Release 6.4.1 (2018-06-23)
 =============================
 

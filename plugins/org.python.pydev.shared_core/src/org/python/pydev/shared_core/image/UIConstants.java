@@ -141,6 +141,8 @@ public class UIConstants {
     public static final String ERROR_DECORATION = "icons/error_decoration.gif";
     public static final String WARNING_DECORATION = "icons/warning_decoration.gif";
 
+    public static final String MYPY_ICON = "icons/python_file.gif";
+
     // search
     public static final String LINE_MATCH = "icons/line_match.gif";
 }

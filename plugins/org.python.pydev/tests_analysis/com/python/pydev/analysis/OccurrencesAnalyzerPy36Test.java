@@ -193,4 +193,127 @@ public class OccurrencesAnalyzerPy36Test extends AnalysisTestsBase {
         checkNoError();
     }
 
+    public void testFStringNotOk3() throws Exception {
+        doc = new Document("def fn():\n" +
+                "    width = 11\n" +
+                "    print(f'{var:>{width}}')" +
+                "");
+        checkError("Undefined variable: var");
+    }
+
+    public void testFStringNotOk3a() throws Exception {
+        doc = new Document("def fn():\n" +
+                "    var = 11\n" +
+                "    print(f'{var:>{width}}')" +
+                "");
+        checkError("Undefined variable: width");
+    }
+
+    public void testFStringErr() throws Exception {
+        doc = new Document(
+                "def method():\n" +
+                        "    xxxx = 'foo'\n" +
+                        "    y = f'{{x}} is {x}'" +
+                        "");
+        checkError(
+                "Undefined variable: x",
+                "Unused variable: xxxx",
+                "Unused variable: y");
+    }
+
+    public void testFStringNoErr() throws Exception {
+        doc = new Document(
+                "def method():\n" +
+                        "    xxxx = 'foo'\n" +
+                        "    y = f'{{x}} is {xxxx}'" +
+                        "");
+        checkError("Unused variable: y");
+    }
+
+    public void testFStringNoErr2() throws Exception {
+        doc = new Document("" +
+                "def method():\n" +
+                "    val = 10\n" +
+                "    width = 10\n" +
+                "    precision = 10\n" +
+                "    f'{val:{width}.{precision}f}'" +
+                "");
+        checkNoError();
+    }
+
+    public void testFStringErr2() throws Exception {
+        doc = new Document("" +
+                "def method():\n" +
+                "    width = 10\n" +
+                "    precision = 10\n" +
+                "    f'{val:{width}.{precision}f}'" +
+                "");
+        checkError("Undefined variable: val");
+    }
+
+    public void testFStringNoErr3() throws Exception {
+        doc = new Document("" +
+                "def method():\n" +
+                "    a = 10\n" +
+                "    b = 10\n" +
+                "    call = 10\n" +
+                "    f'{call(a,b)}'" +
+                "");
+        checkNoError();
+    }
+
+    public void testFStringErr5() throws Exception {
+        doc = new Document("" +
+                "def method():\n" +
+                "    a = 10\n" +
+                "    call = 10\n" +
+                "    f'{call(a,b)}'" +
+                "");
+        checkError("Undefined variable: b");
+    }
+
+    public void testFStringErr6() throws Exception {
+        doc = new Document("" +
+                "def method():\n" +
+                "    call = 10\n" +
+                "    f'{call({a},b)}'" + // Actually creating a set(a)
+                "");
+        checkError(
+                "Undefined variable: a",
+                "Undefined variable: b");
+    }
+
+    public void testFStringErr7() throws Exception {
+        doc = new Document(
+                "def method():\n" +
+                        "    f'{val:{call(b,c)}}'" +
+                        "");
+        checkError(
+                "Undefined variable: val",
+                "Undefined variable: call",
+                "Undefined variable: b",
+                "Undefined variable: c");
+    }
+
+    public void testFStringErr8() throws Exception {
+        doc = new Document(
+                "def method():\n" +
+                        "    val=1\n" +
+                        "    width=1\n" +
+                        "    precision=1\n" +
+                        "    x=1\n" +
+                        "    f'{val:{width}.{precision}.{not_found}f}'" +
+                        "");
+        checkError("Unused variable: x", "Undefined variable: not_found");
+    }
+
+    public void testFStringErr9() throws Exception {
+        doc = new Document(
+                "def method():\n" +
+                        "    d = {0:'zero'}\n" +
+                        "    f'{d[\ny]}'" +
+                        "");
+        checkError("Undefined variable: y");
+    }
+
 }

@@ -102,6 +102,10 @@ public class AddTokenAndImportStatement {
         this.maxCols = maxCols;
     }
 
+    public LineStartingScope getPreviousLineThatStartsScope() {
+        return previousLineThatStartsScope;
+    }
+
     public void createTextEdit(ComputedInfo computedInfo) {
         try {
             int lineToAddImport = -1;

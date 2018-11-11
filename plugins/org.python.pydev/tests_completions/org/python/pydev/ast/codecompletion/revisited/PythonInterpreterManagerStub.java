@@ -63,7 +63,7 @@ public class PythonInterpreterManagerStub extends AbstractInterpreterManager imp
 
     @Override
     public String getPreferencesPageId() {
-        return "org.python.pydev.ast.interpreter_managers.interpreterPreferencesPagePython";
+        return "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPagePython";
     }
 
     /**

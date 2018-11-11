@@ -62,21 +62,8 @@ else:
 class PyDBAdditionalThreadInfo(object):
 # ENDIF
 
+    # Note: the params in cython are declared in pydevd_cython.pxd.
     # IFDEF CYTHON
-    # cdef public int pydev_state;
-    # cdef public object pydev_step_stop; # Actually, it's a frame or None
-    # cdef public int pydev_step_cmd;
-    # cdef public bint pydev_notify_kill;
-    # cdef public object pydev_smart_step_stop; # Actually, it's a frame or None
-    # cdef public bint pydev_django_resolve_frame;
-    # cdef public object pydev_call_from_jinja2;
-    # cdef public object pydev_call_inside_jinja2;
-    # cdef public bint is_tracing;
-    # cdef public tuple conditional_breakpoint_exception;
-    # cdef public str pydev_message;
-    # cdef public int suspend_type;
-    # cdef public int pydev_next_line;
-    # cdef public str pydev_func_name;
     # ELSE
     __slots__ = [
         'pydev_state',
@@ -93,11 +80,13 @@ class PyDBAdditionalThreadInfo(object):
         'suspend_type',
         'pydev_next_line',
         'pydev_func_name',
+        'suspended_at_unhandled',
+        'trace_suspend_type',
     ]
     # ENDIF
 
     def __init__(self):
-        self.pydev_state = STATE_RUN
+        self.pydev_state = STATE_RUN  # STATE_RUN or STATE_SUSPEND
         self.pydev_step_stop = None
         self.pydev_step_cmd = -1  # Something as CMD_STEP_INTO, CMD_STEP_OVER, etc.
         self.pydev_notify_kill = False
@@ -111,14 +100,18 @@ class PyDBAdditionalThreadInfo(object):
         self.suspend_type = PYTHON_SUSPEND
         self.pydev_next_line = -1
         self.pydev_func_name = '.invalid.'  # Must match the type in cython
+        self.suspended_at_unhandled = False
+        self.trace_suspend_type = 'trace'  # 'trace' or 'frame_eval'
 
-    def iter_frames(self, t):
+    def get_topmost_frame(self, thread):
+        '''
+        Gets the topmost frame for the given thread. Note that it may be None
+        and callers should remove the reference to the frame as soon as possible
+        to avoid disturbing user code.
+        '''
         # sys._current_frames(): dictionary with thread id -> topmost frame
         current_frames = _current_frames()
-        v = current_frames.get(t.ident)
-        if v is not None:
-            return [v]
-        return []
+        return current_frames.get(thread.ident)
 
     def __str__(self):
         return 'State:%s Stop:%s Cmd: %s Kill:%s' % (
@@ -128,6 +121,7 @@ class PyDBAdditionalThreadInfo(object):
 from _pydev_imps._pydev_saved_modules import threading
 _set_additional_thread_info_lock = threading.Lock()
 
+_thread_ident_to_additional_info = {}
 
 def set_additional_thread_info(thread):
     try:
@@ -138,8 +132,13 @@ def set_additional_thread_info(thread):
         with _set_additional_thread_info_lock:
             # If it's not there, set it within a lock to avoid any racing
             # conditions.
-            additional_info = getattr(thread, 'additional_info', None)
+            thread_ident = thread.ident
+            if thread_ident is None:
+                sys.stderr.write('thread.ident *must* be set at this point (set_additional_thread_info).')
+                raise AssertionError('thread.ident *must* be set at this point (set_additional_thread_info).')
+            additional_info = _thread_ident_to_additional_info.get(thread_ident)
             if additional_info is None:
-                additional_info = thread.additional_info = PyDBAdditionalThreadInfo()
+                additional_info = _thread_ident_to_additional_info[thread_ident] = PyDBAdditionalThreadInfo()
+            thread.additional_info = additional_info
 
     return additional_info

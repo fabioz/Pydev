@@ -55,6 +55,9 @@ public class PyFStringScanner implements ITokenScanner {
             throw new RuntimeException(e);
         }
         FStringInfo fstringInfo = extractFStringInfo(str);
+        if (fstringInfo == null) {
+            return;
+        }
         String buf = fstringInfo.buf;
         int startInternalStrOffset = fstringInfo.startInternalStrOffset;
         int endInternalStrOffet = fstringInfo.endInternalStrOffet;
@@ -83,7 +86,13 @@ public class PyFStringScanner implements ITokenScanner {
                         offset, startInternalStrOffset));
             }
 
-            for (SimpleNode node : ast.getFStringExpressions()) {
+            Iterable<SimpleNode> fStringExpressions = ast.getFStringExpressions();
+            for (SimpleNode node : fStringExpressions) {
+                if (!(node.endLine > node.beginLine
+                        || (node.endLine == node.beginLine && node.endColumn > node.beginColumn))) {
+                    // Skip empty expressions when scanning.
+                    continue;
+                }
                 int startRelOffset = TextSelectionUtils.getAbsoluteCursorOffset(doc, node.beginLine - 1,
                         node.beginColumn - 1);
                 int endRelOffset = TextSelectionUtils.getAbsoluteCursorOffset(doc, node.endLine - 1, node.endColumn);

@@ -34,8 +34,8 @@ public class PyToggleTargetAdapter implements IAdapterFactory {
     }
 
     public static boolean canToggleFor(ITextEditor iTextEditor) {
-        if (iTextEditor instanceof BaseEditor) {
-            IEditorInput editorInput = iTextEditor.getEditorInput();
+        IEditorInput editorInput = iTextEditor.getEditorInput();
+        if (editorInput != null) {
             String name = editorInput.getName();
             if (name != null) {
                 if (name.endsWith(".html") || name.endsWith(".htm") || name.endsWith(".djhtml")) {
@@ -63,8 +63,8 @@ class PyDjangoToggleBreakpointsTarget implements IToggleBreakpointsTarget, ITogg
     // --------------- All others point to this 2 methods!
     @Override
     public void toggleBreakpoints(IWorkbenchPart part, ISelection selection) throws CoreException {
-        if (part instanceof BaseEditor && selection instanceof TextSelection
-                && PyToggleTargetAdapter.canToggleFor((BaseEditor) part)) {
+        if (part instanceof ITextEditor && selection instanceof TextSelection
+                && PyToggleTargetAdapter.canToggleFor((ITextEditor) part)) {
             TextSelection textSelection = (TextSelection) selection;
             BaseEditor pyEdit = (BaseEditor) part;
             int startLine = textSelection.getStartLine();

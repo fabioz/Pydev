@@ -1,13 +1,14 @@
 package org.python.pydev.core.formatter;
 
 import org.eclipse.core.runtime.IAdaptable;
+import org.python.pydev.core.formatter.FormatStd.FormatterEnum;
 import org.python.pydev.core.preferences.PyScopedPreferences;
 
 public class PyFormatterPreferences {
 
-    public static final String FORMAT_WITH_AUTOPEP8 = "FORMAT_WITH_AUTOPEP8";
-    public static final boolean DEFAULT_FORMAT_WITH_AUTOPEP8 = false;
+    public static final String FORMATTER_STYLE = "FORMATTER_STYLE";
 
+    public static final String BLACK_PARAMETERS = "BLACK_PARAMETERS";
     public static final String AUTOPEP8_PARAMETERS = "AUTOPEP8_PARAMETERS";
 
     public static final String FORMAT_ONLY_CHANGED_LINES = "FORMAT_ONLY_CHANGED_LINES";
@@ -56,8 +57,12 @@ public class PyFormatterPreferences {
     public static final String BLANK_LINES_INNER = "BLANK_LINES_INNER";
     public static final int DEFAULT_BLANK_LINES_INNER = 1;
 
-    public static boolean getFormatWithAutopep8(IAdaptable projectAdaptable) {
-        return getBoolean(FORMAT_WITH_AUTOPEP8, projectAdaptable);
+    public static FormatterEnum getFormatterStyle(IAdaptable projectAdaptable) {
+        String string = getString(FORMATTER_STYLE, projectAdaptable);
+        if (string == null || string.isEmpty()) {
+            return FormatterEnum.PYDEVF;
+        }
+        return FormatStd.getFormatterEnumFromStr(string);
     }
 
     public static boolean getBoolean(String setting, IAdaptable projectAdaptable) {
@@ -72,9 +77,13 @@ public class PyFormatterPreferences {
         return getString(AUTOPEP8_PARAMETERS, projectAdaptable);
     }
 
+    public static String getBlackParameters(IAdaptable projectAdaptable) {
+        return getString(BLACK_PARAMETERS, projectAdaptable);
+    }
+
     public static boolean getFormatOnlyChangedLines(IAdaptable projectAdaptable) {
-        if (getFormatWithAutopep8(projectAdaptable)) {
-            return false; //i.e.: not available with autopep8.
+        if (getFormatterStyle(projectAdaptable) != FormatterEnum.PYDEVF) {
+            return false; //i.e.: not available with autopep8 nor black.
         }
         return getBoolean(FORMAT_ONLY_CHANGED_LINES, projectAdaptable);
     }
@@ -141,12 +150,13 @@ public class PyFormatterPreferences {
         formatStd.trimMultilineLiterals = getTrimMultilineLiterals(projectAdaptable);
         formatStd.spacesBeforeComment = getSpacesBeforeComment(projectAdaptable);
         formatStd.spacesInStartComment = getSpacesInStartComment(projectAdaptable);
-        formatStd.formatWithAutopep8 = getFormatWithAutopep8(projectAdaptable);
+        formatStd.formatterStyle = getFormatterStyle(projectAdaptable);
         formatStd.autopep8Parameters = getAutopep8Parameters(projectAdaptable);
+        formatStd.blackParameters = getBlackParameters(projectAdaptable);
         formatStd.manageBlankLines = getManageBlankLines(projectAdaptable);
         formatStd.blankLinesTopLevel = getBlankLinesTopLevel(projectAdaptable);
         formatStd.blankLinesInner = getBlankLinesInner(projectAdaptable);
-        formatStd.updateAutopep8();
+        formatStd.updateFormatterStyle();
         return formatStd;
     }
 

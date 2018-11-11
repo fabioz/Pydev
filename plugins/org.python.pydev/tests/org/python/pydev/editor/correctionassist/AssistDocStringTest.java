@@ -7,6 +7,7 @@
 package org.python.pydev.editor.correctionassist;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
@@ -413,5 +414,18 @@ public class AssistDocStringTest extends TestCase {
                         + "    :param b: var b\n"
                         + "    :param test:\n"
                         + "'''", Arrays.asList("a", "b"), "\n", "    ", ":"));
+    }
+
+    public void testUpdateDocstringGoogle() {
+        assertEquals("'''\n"
+                + "    a:\n"
+                + "    b:\n"
+                + "    c:\n"
+                + "    '''",
+                AssistDocString.updatedDocstring("'''\n"
+                        + "    a:\n"
+                        + "    b:\n"
+                        + "    c:\n"
+                        + "'''", Collections.emptyList(), "\n", "    ", "G"));
     }
 }

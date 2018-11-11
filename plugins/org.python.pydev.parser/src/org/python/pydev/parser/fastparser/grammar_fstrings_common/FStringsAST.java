@@ -21,6 +21,10 @@ public class FStringsAST {
         this.rootNode.dump("");
     }
 
+    public void dump(IDocument doc) {
+        this.rootNode.dump("", doc);
+    }
+
     public boolean hasChildren() {
         return this.rootNode != null && this.rootNode.jjtGetNumChildren() > 0;
     }
@@ -46,14 +50,9 @@ public class FStringsAST {
         return childNodesOfId(FStringsGrammarTreeConstants.JJTF_STRING_EXPR);
     }
 
-    public Iterable<SimpleNode> getBalancedExpressions() {
-        List<SimpleNode> ret = new ArrayList<>(this.rootNode.jjtGetNumChildren());
-        for (SimpleNode n : childNodesOfId(FStringsGrammarTreeConstants.JJTF_STRING_EXPR)) {
-            for (SimpleNode n2 : childNodesOfId(n, FStringsGrammarTreeConstants.JJTBALANCED_EXPRESSION_TEXT)) {
-                ret.add(n2);
-            }
-        }
-        return ret;
+    public Iterable<SimpleNode> getBalancedExpressionsToBeEvaluatedInRegularGrammar() {
+        return rootNode
+                .collectChildren(FStringsGrammarTreeConstants.JJTBALANCED_EXPRESSION_TEXT);
     }
 
     public static class FStringExpressionContent {
@@ -87,18 +86,24 @@ public class FStringsAST {
     }
 
     public Iterable<FStringExpressionContent> getFStringExpressionsContent(IDocument doc) {
-        Iterable<SimpleNode> fStringExpressions = this.getBalancedExpressions();
+        Iterable<SimpleNode> fStringExpressions = this.getBalancedExpressionsToBeEvaluatedInRegularGrammar();
         ArrayList<FStringExpressionContent> lst = new ArrayList<>(this.rootNode.jjtGetNumChildren());
         for (SimpleNode simpleNode : fStringExpressions) {
-            int startOffset = TextSelectionUtils.getAbsoluteCursorOffset(doc, simpleNode.beginLine - 1,
-                    simpleNode.beginColumn - 1);
-            int endOffset = TextSelectionUtils.getAbsoluteCursorOffset(doc, simpleNode.endLine - 1,
-                    simpleNode.endColumn);
             try {
-                lst.add(new FStringExpressionContent(doc.get(startOffset, endOffset - startOffset), startOffset,
-                        endOffset, simpleNode.beginLine, simpleNode.beginColumn, simpleNode.endLine,
+                int startOffset = TextSelectionUtils.getAbsoluteCursorOffset(doc, simpleNode.beginLine - 1,
+                        simpleNode.beginColumn - 1);
+                int endOffset = TextSelectionUtils.getAbsoluteCursorOffset(doc, simpleNode.endLine - 1,
+                        simpleNode.endColumn);
+                String string = doc.get(startOffset, endOffset - startOffset);
+                lst.add(new FStringExpressionContent(
+                        string,
+                        startOffset,
+                        endOffset,
+                        simpleNode.beginLine,
+                        simpleNode.beginColumn,
+                        simpleNode.endLine,
                         simpleNode.endColumn));
-            } catch (BadLocationException e) {
+            } catch (BadLocationException | RuntimeException e) {
                 Log.log(e);
             }
         }

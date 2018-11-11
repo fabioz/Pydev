@@ -35,6 +35,10 @@ public class ScriptConsoleMessages extends NLS {
 
     public static String WordWrapConsoleTooltip;
 
+    public static String ScrollLockConsoleAction;
+
+    public static String ScrollLockConsoleTooltip;
+
     static {
         NLS.initializeMessages(BUNDLE_NAME, ScriptConsoleMessages.class);
     }

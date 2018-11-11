@@ -7,15 +7,39 @@ package org.python.pydev.core.formatter;
  */
 public class FormatStd {
 
+    public enum FormatterEnum {
+        PYDEVF, AUTOPEP8, BLACK,
+    }
+
+    public static final String PYDEFV = "PYDEFV";
+    public static final String AUTOPEP8 = "AUTOPEP8";
+    public static final String BLACK = "BLACK";
+
+    public static FormatterEnum getFormatterEnumFromStr(String formatterStyleStr) {
+        switch (formatterStyleStr) {
+            case AUTOPEP8:
+                return FormatterEnum.AUTOPEP8;
+            case BLACK:
+                return FormatterEnum.BLACK;
+            default:
+                return FormatterEnum.PYDEVF;
+        }
+    }
+
     /**
-     * Format with autopep8.py?
+     * Format with pydevf,autopep8,black?
      */
-    public boolean formatWithAutopep8;
+    public FormatterEnum formatterStyle;
 
     /**
      * Parameters for autopep8.
      */
     public String autopep8Parameters;
+
+    /**
+     * Parameters for black.
+     */
+    public String blackParameters;
 
     /**
      * Defines whether spaces should be added after a comma
@@ -71,8 +95,9 @@ public class FormatStd {
     /**
      * This method should be called after all related attributes are set when autopep8 is set to true.
      */
-    public void updateAutopep8() {
-        if (formatWithAutopep8) {
+    public void updateFormatterStyle() {
+        if (formatterStyle != FormatterEnum.PYDEVF) {
+            // Other formatters are not configurable.
             spaceAfterComma = true;
             parametersWithSpace = false;
             assignWithSpaceInsideParens = false;
@@ -87,4 +112,5 @@ public class FormatStd {
             blankLinesInner = 1;
         }
     }
+
 }

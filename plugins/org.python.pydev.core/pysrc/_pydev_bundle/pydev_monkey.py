@@ -3,6 +3,8 @@ import os
 import sys
 import traceback
 from _pydev_imps._pydev_saved_modules import threading
+from _pydevd_bundle.pydevd_constants import get_global_debugger, IS_WINDOWS, IS_JYTHON, get_current_thread_id
+from _pydev_bundle import pydev_log
 
 try:
     xrange
@@ -14,12 +16,10 @@ except:
 # Things that are dependent on having the pydevd debugger
 #===============================================================================
 def log_debug(msg):
-    from _pydev_bundle import pydev_log
     pydev_log.debug(msg)
 
 
 def log_error_once(msg):
-    from _pydev_bundle import pydev_log
     pydev_log.error_once(msg)
 
 pydev_src_dir = os.path.dirname(os.path.dirname(__file__))
@@ -58,7 +58,7 @@ def _on_forked_process():
 
 def _on_set_trace_for_new_thread(global_debugger):
     if global_debugger is not None:
-        global_debugger.SetTrace(global_debugger.trace_dispatch, global_debugger.frame_eval_func, global_debugger.dummy_trace_dispatch)
+        global_debugger.enable_tracing()
 
 
 #===============================================================================
@@ -128,7 +128,6 @@ def patch_args(args):
         args = remove_quotes_from_args(args)
 
         from pydevd import SetupHolder
-        import sys
         new_args = []
         if len(args) == 0:
             return args
@@ -314,10 +313,11 @@ def monkey_patch_os(funcname, create_func):
 
 
 def warn_multiproc():
-    log_error_once(
-        "pydev debugger: New process is launching (breakpoints won't work in the new process).\n"
-        "pydev debugger: To debug that process please enable 'Attach to subprocess automatically while debugging?' option in the debugger settings.\n")
-
+    pass  # TODO: Provide logging as messages to the IDE.
+    # log_error_once(
+    #     "pydev debugger: New process is launching (breakpoints won't work in the new process).\n"
+    #     "pydev debugger: To debug that process please enable 'Attach to subprocess automatically while debugging?' option in the debugger settings.\n")
+    # 
 
 def create_warn_multiproc(original_name):
 
@@ -494,7 +494,6 @@ def create_fork(original_name):
 
 
 def send_process_created_message():
-    from _pydevd_bundle.pydevd_comm import get_global_debugger
     debugger = get_global_debugger()
     if debugger is not None:
         debugger.send_process_created_message()
@@ -536,20 +535,21 @@ def patch_new_process_functions():
     monkey_patch_os('spawnvp', create_spawnv)
     monkey_patch_os('spawnvpe', create_spawnve)
 
-    if sys.platform != 'win32':
-        monkey_patch_os('fork', create_fork)
-        try:
-            import _posixsubprocess
-            monkey_patch_module(_posixsubprocess, 'fork_exec', create_fork_exec)
-        except ImportError:
-            pass
-    else:
-        # Windows
-        try:
-            import _subprocess
-        except ImportError:
-            import _winapi as _subprocess
-        monkey_patch_module(_subprocess, 'CreateProcess', create_CreateProcess)
+    if not IS_JYTHON:
+        if not IS_WINDOWS:
+            monkey_patch_os('fork', create_fork)
+            try:
+                import _posixsubprocess
+                monkey_patch_module(_posixsubprocess, 'fork_exec', create_fork_exec)
+            except ImportError:
+                pass
+        else:
+            # Windows
+            try:
+                import _subprocess
+            except ImportError:
+                import _winapi as _subprocess
+            monkey_patch_module(_subprocess, 'CreateProcess', create_CreateProcess)
 
 
 def patch_new_process_functions_with_warning():
@@ -570,20 +570,21 @@ def patch_new_process_functions_with_warning():
     monkey_patch_os('spawnvp', create_warn_multiproc)
     monkey_patch_os('spawnvpe', create_warn_multiproc)
 
-    if sys.platform != 'win32':
-        monkey_patch_os('fork', create_warn_multiproc)
-        try:
-            import _posixsubprocess
-            monkey_patch_module(_posixsubprocess, 'fork_exec', create_warn_fork_exec)
-        except ImportError:
-            pass
-    else:
-        # Windows
-        try:
-            import _subprocess
-        except ImportError:
-            import _winapi as _subprocess
-        monkey_patch_module(_subprocess, 'CreateProcess', create_CreateProcessWarnMultiproc)
+    if not IS_JYTHON:
+        if not IS_WINDOWS:
+            monkey_patch_os('fork', create_warn_multiproc)
+            try:
+                import _posixsubprocess
+                monkey_patch_module(_posixsubprocess, 'fork_exec', create_warn_fork_exec)
+            except ImportError:
+                pass
+        else:
+            # Windows
+            try:
+                import _subprocess
+            except ImportError:
+                import _winapi as _subprocess
+            monkey_patch_module(_subprocess, 'CreateProcess', create_CreateProcessWarnMultiproc)
 
 
 class _NewThreadStartupWithTrace:
@@ -596,8 +597,6 @@ class _NewThreadStartupWithTrace:
     def __call__(self):
         # We monkey-patch the thread creation so that this function is called in the new thread. At this point
         # we notify of its creation and start tracing it.
-        from _pydevd_bundle.pydevd_constants import get_thread_id
-        from _pydevd_bundle.pydevd_comm import get_global_debugger
         global_debugger = get_global_debugger()
 
         thread_id = None
@@ -612,8 +611,11 @@ class _NewThreadStartupWithTrace:
                 # currentThread).
                 t = threading.currentThread()
                 
+            if t.ident is None:
+                t._set_ident()
+
             if not getattr(t, 'is_pydev_daemon_thread', False):
-                thread_id = get_thread_id(t)
+                thread_id = get_current_thread_id(t)
                 global_debugger.notify_thread_created(thread_id, t)
                 _on_set_trace_for_new_thread(global_debugger)
             
@@ -664,6 +666,8 @@ def patch_thread_module(thread_module):
 
     if getattr(thread_module, '_original_start_new_thread', None) is None:
         if thread_module is threading:
+            if not hasattr(thread_module, '_start_new_thread'):
+                return  # Jython doesn't have it.
             _original_start_new_thread = thread_module._original_start_new_thread = thread_module._start_new_thread
         else:
             _original_start_new_thread = thread_module._original_start_new_thread = thread_module.start_new_thread

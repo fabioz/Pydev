@@ -6,8 +6,6 @@
  */
 package org.python.pydev.ui.dialogs;
 
-import java.util.Arrays;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.Dialog;
@@ -29,6 +27,7 @@ import org.python.pydev.ast.interpreter_managers.AbstractInterpreterManager;
 import org.python.pydev.core.IInterpreterInfo.UnableToFindExecutableException;
 import org.python.pydev.core.preferences.InterpreterGeneralPreferences;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.utils.ArrayUtils;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.dialogs.DialogHelpers;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
@@ -100,6 +99,16 @@ public class PyDialogHelpers {
         return dialog.open();
     }
 
+    /**
+     * @return the index chosen or -1 if it was canceled.
+     */
+    public static int openQuestionWithChoices(String title, String message, String... choices) {
+        Shell shell = EditorUtils.getShell();
+        MessageDialog dialog = new MessageDialog(shell, title, null, message, MessageDialog.QUESTION_WITH_CANCEL,
+                choices, 0);
+        return dialog.open();
+    }
+
     public final static int INTERPRETER_CANCEL_CONFIG = -1;
 
     private static MessageDialog dialog = null;
@@ -131,9 +140,8 @@ public class PyDialogHelpers {
                     + " interpreter is not currently configured.\n\nHow do you want to proceed?";
             Shell shell = EditorUtils.getShell();
 
-            String[] dialogButtonLabels = Arrays.copyOf(InterpreterConfigHelpers.CONFIG_NAMES,
-                    InterpreterConfigHelpers.NUM_CONFIG_TYPES + 1);
-            dialogButtonLabels[dialogButtonLabels.length - 1] = "Don't ask again";
+            String[] dialogButtonLabels = ArrayUtils.concatArrays(InterpreterConfigHelpers.CONFIG_NAMES_FOR_FIRST_INTERPRETER,
+                    new String[] { "Don't ask again" });
 
             dialog = new MessageDialog(shell, title, null, message, MessageDialog.QUESTION,
                     dialogButtonLabels, 0);

@@ -137,7 +137,7 @@ public class SimpleRunner {
      */
     public static Map<String, String> getDefaultSystemEnv(IPythonNature nature) throws CoreException {
         if (SharedCorePlugin.inTestMode()) {
-            return null;
+            return new HashMap<String, String>();
         }
 
         DebugPlugin defaultPlugin = DebugPlugin.getDefault();

@@ -6,23 +6,27 @@ from _pydev_bundle import pydev_log
 from _pydevd_bundle import pydevd_traceproperty, pydevd_dont_trace, pydevd_utils
 import pydevd_tracing
 import pydevd_file_utils
-from _pydevd_bundle.pydevd_breakpoints import LineBreakpoint
-from _pydevd_bundle.pydevd_comm import CMD_RUN, CMD_VERSION, CMD_LIST_THREADS, CMD_THREAD_KILL, InternalTerminateThread, \
-    CMD_THREAD_SUSPEND, pydevd_find_thread_by_id, CMD_THREAD_RUN, InternalRunThread, CMD_STEP_INTO, CMD_STEP_OVER, \
-    CMD_STEP_RETURN, CMD_STEP_INTO_MY_CODE, InternalStepThread, CMD_RUN_TO_LINE, CMD_SET_NEXT_STATEMENT, \
-    CMD_SMART_STEP_INTO, InternalSetNextStatementThread, CMD_RELOAD_CODE, ReloadCodeCommand, CMD_CHANGE_VARIABLE, \
-    InternalChangeVariable, CMD_GET_VARIABLE, InternalGetVariable, CMD_GET_ARRAY, InternalGetArray, CMD_GET_COMPLETIONS, \
-    InternalGetCompletions, CMD_GET_FRAME, InternalGetFrame, CMD_SET_BREAK, file_system_encoding, CMD_REMOVE_BREAK, \
-    CMD_EVALUATE_EXPRESSION, CMD_EXEC_EXPRESSION, InternalEvaluateExpression, CMD_CONSOLE_EXEC, InternalConsoleExec, \
-    CMD_SET_PY_EXCEPTION, CMD_GET_FILE_CONTENTS, CMD_SET_PROPERTY_TRACE, CMD_ADD_EXCEPTION_BREAK, \
-    CMD_REMOVE_EXCEPTION_BREAK, CMD_LOAD_SOURCE, CMD_ADD_DJANGO_EXCEPTION_BREAK, CMD_REMOVE_DJANGO_EXCEPTION_BREAK, \
-    CMD_EVALUATE_CONSOLE_EXPRESSION, InternalEvaluateConsoleExpression, InternalConsoleGetCompletions, \
-    CMD_RUN_CUSTOM_OPERATION, InternalRunCustomOperation, CMD_IGNORE_THROWN_EXCEPTION_AT, CMD_ENABLE_DONT_TRACE, \
-    CMD_SHOW_RETURN_VALUES, ID_TO_MEANING, CMD_GET_DESCRIPTION, InternalGetDescription, InternalLoadFullValue, \
-    CMD_LOAD_FULL_VALUE, CMD_REDIRECT_OUTPUT, CMD_GET_NEXT_STATEMENT_TARGETS, InternalGetNextStatementTargets, CMD_SET_PROJECT_ROOTS
-from _pydevd_bundle.pydevd_constants import get_thread_id, IS_PY3K, DebugInfoHolder, dict_keys, STATE_RUN, \
-    NEXT_VALUE_SEPARATOR
+from _pydevd_bundle.pydevd_breakpoints import LineBreakpoint, get_exception_class
+from _pydevd_bundle.pydevd_comm import (CMD_RUN, CMD_VERSION, CMD_LIST_THREADS, CMD_THREAD_KILL,
+    CMD_THREAD_SUSPEND, pydevd_find_thread_by_id, CMD_THREAD_RUN, InternalRunThread, CMD_STEP_INTO, CMD_STEP_OVER,
+    CMD_STEP_RETURN, CMD_STEP_INTO_MY_CODE, InternalStepThread, CMD_RUN_TO_LINE, CMD_SET_NEXT_STATEMENT,
+    CMD_SMART_STEP_INTO, InternalSetNextStatementThread, CMD_RELOAD_CODE, ReloadCodeCommand, CMD_CHANGE_VARIABLE,
+    InternalChangeVariable, CMD_GET_VARIABLE, InternalGetVariable, CMD_GET_ARRAY, InternalGetArray, CMD_GET_COMPLETIONS,
+    InternalGetCompletions, CMD_GET_FRAME, InternalGetFrame, CMD_SET_BREAK, file_system_encoding, CMD_REMOVE_BREAK,
+    CMD_EVALUATE_EXPRESSION, CMD_EXEC_EXPRESSION, InternalEvaluateExpression, CMD_CONSOLE_EXEC, InternalConsoleExec,
+    CMD_SET_PY_EXCEPTION, CMD_GET_FILE_CONTENTS, CMD_SET_PROPERTY_TRACE, CMD_ADD_EXCEPTION_BREAK,
+    CMD_REMOVE_EXCEPTION_BREAK, CMD_LOAD_SOURCE, CMD_ADD_DJANGO_EXCEPTION_BREAK, CMD_REMOVE_DJANGO_EXCEPTION_BREAK,
+    CMD_EVALUATE_CONSOLE_EXPRESSION, InternalEvaluateConsoleExpression, InternalConsoleGetCompletions,
+    CMD_RUN_CUSTOM_OPERATION, InternalRunCustomOperation, CMD_IGNORE_THROWN_EXCEPTION_AT, CMD_ENABLE_DONT_TRACE,
+    CMD_SHOW_RETURN_VALUES, ID_TO_MEANING, CMD_GET_DESCRIPTION, InternalGetDescription, InternalLoadFullValue,
+    CMD_LOAD_FULL_VALUE, CMD_REDIRECT_OUTPUT, CMD_GET_NEXT_STATEMENT_TARGETS, InternalGetNextStatementTargets, CMD_SET_PROJECT_ROOTS,
+    CMD_GET_THREAD_STACK, CMD_THREAD_DUMP_TO_STDERR, CMD_STOP_ON_START, CMD_GET_EXCEPTION_DETAILS, NetCommand,
+    CMD_SET_PROTOCOL, CMD_PYDEVD_JSON_CONFIG, InternalGetThreadStack)
+from _pydevd_bundle.pydevd_constants import (get_thread_id, IS_PY3K, DebugInfoHolder, dict_keys, STATE_RUN,
+    NEXT_VALUE_SEPARATOR, IS_WINDOWS, get_current_thread_id)
 from _pydevd_bundle.pydevd_additional_thread_info import set_additional_thread_info
+from _pydev_imps._pydev_saved_modules import threading
+import json
 
 def process_net_command(py_db, cmd_id, seq, text):
     '''Processes a command received from the Java side
@@ -48,10 +52,25 @@ def process_net_command(py_db, cmd_id, seq, text):
             if cmd_id == CMD_RUN:
                 py_db.ready_to_run = True
 
+            elif cmd_id == CMD_SET_PROTOCOL:
+                expected = (NetCommand.HTTP_PROTOCOL, NetCommand.QUOTED_LINE_PROTOCOL)
+                text = text.strip()
+                assert text.strip() in expected, 'Protocol (%s) should be one of: %s' % (
+                    text, expected)
+
+                NetCommand.protocol = text
+                cmd = py_db.cmd_factory.make_protocol_set_message(seq)
+
             elif cmd_id == CMD_VERSION:
                 # response is version number
                 # ide_os should be 'WINDOWS' or 'UNIX'.
-                ide_os = 'WINDOWS'
+
+                # Default based on server process (although ideally the IDE should
+                # provide it).
+                if IS_WINDOWS:
+                    ide_os = 'WINDOWS'
+                else:
+                    ide_os = 'UNIX'
 
                 # Breakpoints can be grouped by 'LINE' or by 'ID'.
                 breakpoints_by = 'LINE'
@@ -79,33 +98,67 @@ def process_net_command(py_db, cmd_id, seq, text):
                 # response is a list of threads
                 cmd = py_db.cmd_factory.make_list_threads_message(seq)
 
-            elif cmd_id == CMD_THREAD_KILL:
-                int_cmd = InternalTerminateThread(text)
-                py_db.post_internal_command(int_cmd, text)
+            elif cmd_id == CMD_GET_THREAD_STACK:
+                # Receives a thread_id and a given timeout, which is the time we should
+                # wait to the provide the stack if a given thread is still not suspended.
+                if '\t' in text:
+                    thread_id, timeout = text.split('\t')
+                    timeout = float(timeout)
+                else:
+                    thread_id = text
+                    timeout = .5  # Default timeout is .5 seconds
+
+                # If it's already suspended, get it right away.
+                internal_get_thread_stack = InternalGetThreadStack(seq, thread_id, py_db, timeout=timeout)
+                if internal_get_thread_stack.can_be_executed_by(get_current_thread_id(threading.current_thread())):
+                    internal_get_thread_stack.do_it(py_db)
+                else:
+                    py_db.post_internal_command(internal_get_thread_stack, '*')
 
             elif cmd_id == CMD_THREAD_SUSPEND:
-                # Yes, thread suspend is still done at this point, not through an internal command!
-                t = pydevd_find_thread_by_id(text)
-                if t and not getattr(t, 'pydev_do_not_trace', None):
-                    additional_info = set_additional_thread_info(t)
-                    for frame in additional_info.iter_frames(t):
-                        py_db.set_trace_for_frame_and_parents(frame, overwrite_prev_trace=True)
-                        del frame
-
-                    py_db.set_suspend(t, CMD_THREAD_SUSPEND)
+                # Yes, thread suspend is done at this point, not through an internal command.
+                threads = []
+                suspend_all = text.strip() == '*'
+                if suspend_all:
+                    threads = pydevd_utils.get_non_pydevd_threads()
+                
                 elif text.startswith('__frame__:'):
                     sys.stderr.write("Can't suspend tasklet: %s\n" % (text,))
+                    
+                else:
+                    threads = [pydevd_find_thread_by_id(text)]
+                    
+                for t in threads:
+                    if t is None:
+                        continue
+                    py_db.set_suspend(
+                        t,
+                        CMD_THREAD_SUSPEND,
+                        suspend_other_threads=suspend_all,
+                        is_pause=True,
+                    )
+                    # Break here (even if it's suspend all) as py_db.set_suspend will
+                    # take care of suspending other threads.
+                    break
 
             elif cmd_id == CMD_THREAD_RUN:
-                t = pydevd_find_thread_by_id(text)
-                if t:
-                    t.additional_info.pydev_step_cmd = -1
-                    t.additional_info.pydev_step_stop = None
-                    t.additional_info.pydev_state = STATE_RUN
-
+                threads = []
+                if text.strip() == '*':
+                    threads = pydevd_utils.get_non_pydevd_threads()
+                
                 elif text.startswith('__frame__:'):
                     sys.stderr.write("Can't make tasklet run: %s\n" % (text,))
+                    
+                else:
+                    threads = [pydevd_find_thread_by_id(text)]
 
+                for t in threads:
+                    if t is None:
+                        continue
+                    additional_info = set_additional_thread_info(t)
+                    additional_info.pydev_step_cmd = -1
+                    additional_info.pydev_step_stop = None
+                    additional_info.pydev_state = STATE_RUN
 
             elif cmd_id == CMD_STEP_INTO or cmd_id == CMD_STEP_OVER or cmd_id == CMD_STEP_RETURN or \
                     cmd_id == CMD_STEP_INTO_MY_CODE:
@@ -136,17 +189,8 @@ def process_net_command(py_db, cmd_id, seq, text):
                 module_name = text.strip()
 
                 thread_id = '*'  # Any thread
-
                 # Note: not going for the main thread because in this case it'd only do the load
                 # when we stopped on a breakpoint.
-                # for tid, t in py_db._running_thread_ids.items(): #Iterate in copy
-                #    thread_name = t.getName()
-                #
-                #    print thread_name, get_thread_id(t)
-                #    #Note: if possible, try to reload on the main thread
-                #    if thread_name == 'MainThread':
-                #        thread_id = tid
-
                 int_cmd = ReloadCodeCommand(module_name, thread_id)
                 py_db.post_internal_command(int_cmd, thread_id)
 
@@ -253,14 +297,18 @@ def process_net_command(py_db, cmd_id, seq, text):
                 # func name: 'None': match anything. Empty: match global, specified: only method context.
                 # command to add some breakpoint.
                 # text is file\tline. Add to breakpoints dictionary
-                suspend_policy = "NONE"
+                suspend_policy = "NONE" # Can be 'NONE' or 'ALL'
                 is_logpoint = False
                 hit_condition = None
                 if py_db._set_breakpoints_with_id:
                     try:
-                        breakpoint_id, type, file, line, func_name, condition, expression, hit_condition, is_logpoint = text.split('\t', 8)
+                        try:
+                            breakpoint_id, type, file, line, func_name, condition, expression, hit_condition, is_logpoint, suspend_policy = text.split('\t', 9)
+                        except ValueError: # not enough values to unpack
+                            # No suspend_policy passed (use default).
+                            breakpoint_id, type, file, line, func_name, condition, expression, hit_condition, is_logpoint = text.split('\t', 8)
                         is_logpoint = is_logpoint == 'True'
-                    except Exception:
+                    except ValueError: # not enough values to unpack
                         breakpoint_id, type, file, line, func_name, condition, expression = text.split('\t', 6)
 
                     breakpoint_id = int(breakpoint_id)
@@ -274,8 +322,8 @@ def process_net_command(py_db, cmd_id, seq, text):
                     expression = expression.replace("@_@NEW_LINE_CHAR@_@", '\n').\
                         replace("@_@TAB_CHAR@_@", '\t').strip()
                 else:
-                    #Note: this else should be removed after PyCharm migrates to setting
-                    #breakpoints by id (and ideally also provides func_name).
+                    # Note: this else should be removed after PyCharm migrates to setting
+                    # breakpoints by id (and ideally also provides func_name).
                     type, file, line, func_name, suspend_policy, condition, expression = text.split('\t', 6)
                     # If we don't have an id given for each breakpoint, consider
                     # the id to be the line.
@@ -341,8 +389,7 @@ def process_net_command(py_db, cmd_id, seq, text):
                 if py_db.plugin is not None:
                     py_db.has_plugin_line_breaks = py_db.plugin.has_line_breaks()
 
-                py_db.set_tracing_for_untraced_contexts_if_not_frame_eval(overwrite_prev_trace=True)
-                py_db.enable_tracing_in_frames_while_running_if_frame_eval()
+                py_db.on_breakpoints_changed()
 
             elif cmd_id == CMD_REMOVE_BREAK:
                 #command to remove some breakpoint
@@ -389,6 +436,7 @@ def process_net_command(py_db, cmd_id, seq, text):
                             pydev_log.error("Error removing breakpoint: Breakpoint id not found: %s id: %s. Available ids: %s\n" % (
                                 file, breakpoint_id, dict_keys(id_to_pybreakpoint)))
 
+                py_db.on_breakpoints_changed(removed=True)
 
             elif cmd_id == CMD_EVALUATE_EXPRESSION or cmd_id == CMD_EXEC_EXPRESSION:
                 #command to evaluate the given expression
@@ -413,11 +461,11 @@ def process_net_command(py_db, cmd_id, seq, text):
 
             elif cmd_id == CMD_SET_PY_EXCEPTION:
                 # Command which receives set of exceptions on which user wants to break the debugger
-                # text is: 
+                # text is:
                 #
                 # break_on_uncaught;
                 # break_on_caught;
-                # break_on_exceptions_thrown_in_same_context;
+                # skip_on_exceptions_thrown_in_same_context;
                 # ignore_exceptions_thrown_in_lines_with_ignore_exception;
                 # ignore_libraries;
                 # TypeError;ImportError;zipimport.ZipImportError;
@@ -430,7 +478,6 @@ def process_net_command(py_db, cmd_id, seq, text):
                 splitted = text.split(';')
                 py_db.break_on_uncaught_exceptions = {}
                 py_db.break_on_caught_exceptions = {}
-                added = []
                 if len(splitted) >= 5:
                     if splitted[0] == 'true':
                         break_on_uncaught = True
@@ -443,9 +490,9 @@ def process_net_command(py_db, cmd_id, seq, text):
                         break_on_caught = False
 
                     if splitted[2] == 'true':
-                        py_db.break_on_exceptions_thrown_in_same_context = True
+                        py_db.skip_on_exceptions_thrown_in_same_context = True
                     else:
-                        py_db.break_on_exceptions_thrown_in_same_context = False
+                        py_db.skip_on_exceptions_thrown_in_same_context = False
 
                     if splitted[3] == 'true':
                         py_db.ignore_exceptions_thrown_in_lines_with_ignore_exception = True
@@ -471,12 +518,8 @@ def process_net_command(py_db, cmd_id, seq, text):
                             notify_on_first_raise_only=True,
                             ignore_libraries=ignore_libraries,
                         )
-                        if exception_breakpoint is None:
-                            continue
-                        added.append(exception_breakpoint)
 
-                    py_db.enable_tracing_in_frames_while_running_if_frame_eval()
-                    py_db.set_tracing_for_untraced_contexts_if_not_frame_eval()
+                    py_db.on_breakpoints_changed()
 
                 else:
                     sys.stderr.write("Error when setting exception list. Received: %s\n" % (text,))
@@ -529,7 +572,7 @@ def process_net_command(py_db, cmd_id, seq, text):
                 # notify_on_handled_exceptions can be 0, 1 or 2
                 # 0 means we should not stop on handled exceptions.
                 # 1 means we should stop on handled exceptions showing it on all frames where the exception passes.
-                # 2 means we should stop on handled exceptions but we should only notify about it once. 
+                # 2 means we should stop on handled exceptions but we should only notify about it once.
                 #
                 # To ignore_libraries properly, besides setting ignore_libraries to 1, the IDE_PROJECT_ROOTS environment
                 # variable must be set (so, we'll ignore anything not below IDE_PROJECT_ROOTS) -- this is not ideal as
@@ -538,7 +581,7 @@ def process_net_command(py_db, cmd_id, seq, text):
                 #
                 # There are 2 global settings which can only be set in CMD_SET_PY_EXCEPTION. Namely:
                 #
-                # py_db.break_on_exceptions_thrown_in_same_context
+                # py_db.skip_on_exceptions_thrown_in_same_context
                 # - If True, we should only show the exception in a caller, not where it was first raised.
                 #
                 # py_db.ignore_exceptions_thrown_in_lines_with_ignore_exception
@@ -581,8 +624,7 @@ def process_net_command(py_db, cmd_id, seq, text):
                     )
 
                     if exception_breakpoint is not None:
-                        py_db.enable_tracing_in_frames_while_running_if_frame_eval()
-                        py_db.set_tracing_for_untraced_contexts_if_not_frame_eval()
+                        py_db.on_breakpoints_changed()
                 else:
                     supported_type = False
                     plugin = py_db.get_plugin_lazy_init()
@@ -591,7 +633,7 @@ def process_net_command(py_db, cmd_id, seq, text):
 
                     if supported_type:
                         py_db.has_plugin_exception_breaks = py_db.plugin.has_exception_breaks()
-                        py_db.enable_tracing_in_frames_while_running_if_frame_eval()
+                        py_db.on_breakpoints_changed()
                     else:
                         raise NameError(breakpoint_type)
 
@@ -615,7 +657,6 @@ def process_net_command(py_db, cmd_id, seq, text):
                         py_db.break_on_caught_exceptions = cp
                     except:
                         pydev_log.debug("Error while removing exception %s"%sys.exc_info()[0])
-                    py_db.set_tracing_for_untraced_contexts_if_not_frame_eval()
                 else:
                     supported_type = False
 
@@ -629,17 +670,21 @@ def process_net_command(py_db, cmd_id, seq, text):
                         py_db.has_plugin_exception_breaks = py_db.plugin.has_exception_breaks()
                     else:
                         raise NameError(exception_type)
-                if len(py_db.break_on_caught_exceptions) == 0 and not py_db.has_plugin_exception_breaks:
-                    py_db.disable_tracing_while_running_if_frame_eval()
+
+                py_db.on_breakpoints_changed(remove=True)
 
             elif cmd_id == CMD_LOAD_SOURCE:
                 path = text
                 try:
+                    if not IS_PY3K:  # In Python 3, the frame object will have unicode for the file, whereas on python 2 it has a byte-array encoded with the filesystem encoding.
+                        path = path.encode(file_system_encoding)
+
+                    path = pydevd_file_utils.norm_file_to_server(path)
                     f = open(path, 'r')
                     source = f.read()
-                    py_db.cmd_factory.make_load_source_message(seq, source, py_db)
+                    cmd = py_db.cmd_factory.make_load_source_message(seq, source)
                 except:
-                    return py_db.cmd_factory.make_error_message(seq, pydevd_tracing.get_exception_traceback_str())
+                    cmd = py_db.cmd_factory.make_error_message(seq, pydevd_tracing.get_exception_traceback_str())
 
             elif cmd_id == CMD_ADD_DJANGO_EXCEPTION_BREAK:
                 exception = text
@@ -647,7 +692,7 @@ def process_net_command(py_db, cmd_id, seq, text):
                 if plugin is not None:
                     plugin.add_breakpoint('add_exception_breakpoint', py_db, 'django', exception)
                     py_db.has_plugin_exception_breaks = py_db.plugin.has_exception_breaks()
-                    py_db.enable_tracing_in_frames_while_running_if_frame_eval()
+                    py_db.on_breakpoints_changed()
 
             elif cmd_id == CMD_REMOVE_DJANGO_EXCEPTION_BREAK:
                 exception = text
@@ -658,8 +703,7 @@ def process_net_command(py_db, cmd_id, seq, text):
                 if plugin is not None:
                     plugin.remove_exception_breakpoint(py_db, 'django', exception)
                     py_db.has_plugin_exception_breaks = py_db.plugin.has_exception_breaks()
-                if len(py_db.break_on_caught_exceptions) == 0 and not py_db.has_plugin_exception_breaks:
-                    py_db.disable_tracing_while_running_if_frame_eval()
+                py_db.on_breakpoints_changed(removed=True)
 
             elif cmd_id == CMD_EVALUATE_CONSOLE_EXPRESSION:
                 # Command which takes care for the debug console communication
@@ -752,9 +796,47 @@ def process_net_command(py_db, cmd_id, seq, text):
 
                 int_cmd = InternalGetNextStatementTargets(seq, thread_id, frame_id)
                 py_db.post_internal_command(int_cmd, thread_id)
-                
+
             elif cmd_id == CMD_SET_PROJECT_ROOTS:
                 pydevd_utils.set_project_roots(text.split(u'\t'))
+
+            elif cmd_id == CMD_THREAD_DUMP_TO_STDERR:
+                pydevd_utils.dump_threads()
+
+            elif cmd_id == CMD_STOP_ON_START:
+                py_db.stop_on_start = text.strip() in ('True', 'true', '1')
+                
+            elif cmd_id == CMD_PYDEVD_JSON_CONFIG:
+                # Expected to receive a json string as:
+                # {
+                #     'skip_suspend_on_breakpoint_exception': [<exception names where we should suspend>],
+                #     'skip_print_breakpoint_exception': [<exception names where we should print>],
+                #     'multi_threads_single_notification': bool,
+                # }
+                msg = json.loads(text.strip())
+                if 'skip_suspend_on_breakpoint_exception' in msg:
+                    py_db.skip_suspend_on_breakpoint_exception = tuple(
+                        get_exception_class(x) for x in msg['skip_suspend_on_breakpoint_exception'])
+                
+                if 'skip_print_breakpoint_exception' in msg:
+                    py_db.skip_print_breakpoint_exception = tuple(
+                        get_exception_class(x) for x in msg['skip_print_breakpoint_exception'])
+                    
+                if 'multi_threads_single_notification' in msg:
+                    py_db.multi_threads_single_notification = msg['multi_threads_single_notification']
+
+            elif cmd_id == CMD_GET_EXCEPTION_DETAILS:
+                thread_id = text
+                t = pydevd_find_thread_by_id(thread_id)
+                frame = None
+                if t and not getattr(t, 'pydev_do_not_trace', None):
+                    additional_info = set_additional_thread_info(t)
+                    frame = additional_info.get_topmost_frame(t)
+                try:
+                    cmd = py_db.cmd_factory.make_get_exception_details_message(seq, thread_id, frame)
+                finally:
+                    frame = None
+                    t = None
 
             else:
                 #I have no idea what this is all about

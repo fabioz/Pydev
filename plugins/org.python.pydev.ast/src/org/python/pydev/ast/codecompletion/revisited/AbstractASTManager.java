@@ -360,7 +360,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     private boolean isAbsoluteImportEnabled(IModule module, IPythonNature nature) throws MisconfigurationException {
         boolean isAbsoluteImportEnabled = false;
         try {
-            isAbsoluteImportEnabled = nature.getGrammarVersion() >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0;
+            isAbsoluteImportEnabled = nature.getGrammarVersion() >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5;
         } catch (MisconfigurationException e) {
             Log.log(e);
         }
@@ -377,7 +377,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             throws MisconfigurationException {
         boolean isAbsoluteImportEnabled = false;
         try {
-            isAbsoluteImportEnabled = nature.getGrammarVersion() >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0;
+            isAbsoluteImportEnabled = nature.getGrammarVersion() >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5;
         } catch (MisconfigurationException e) {
             Log.log(e);
         }

@@ -725,21 +725,23 @@ public final class FastStringBuffer implements CharSequence {
         return new BackwardCharIterator(this);
     }
 
-    public void rightTrim() {
+    public FastStringBuffer rightTrim() {
         char c;
         while (this.count > 0 && ((c = this.value[this.count - 1]) == ' ' || Character.isWhitespace(c))) {
             this.count--;
         }
+        return this;
     }
 
-    public void rightTrimWhitespacesAndTabs() {
+    public FastStringBuffer rightTrimWhitespacesAndTabs() {
         char c;
         while (this.count > 0 && ((c = this.value[this.count - 1]) == ' ' || c == '\t')) {
             this.count--;
         }
+        return this;
     }
 
-    public void leftTrim() {
+    public FastStringBuffer leftTrim() {
         char c;
         int i = 0;
         while (i < this.count) {
@@ -754,6 +756,7 @@ public final class FastStringBuffer implements CharSequence {
             System.arraycopy(value, i, value, 0, count - i);
             count -= i;
         }
+        return this;
     }
 
     public char deleteFirst() {
@@ -990,6 +993,10 @@ public final class FastStringBuffer implements CharSequence {
     @Override
     public CharSequence subSequence(int start, int end) {
         return new BufCharSequence(this.value, start, end);
+    }
+
+    public FastStringBuffer trim() {
+        return leftTrim().rightTrim();
     }
 
 }

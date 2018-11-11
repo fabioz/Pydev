@@ -13,7 +13,6 @@ package org.python.pydev.plugin.preferences;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.IntegerFieldEditor;
-import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
@@ -29,6 +28,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.python.pydev.core.formatter.FormatStd;
+import org.python.pydev.core.formatter.FormatStd.FormatterEnum;
 import org.python.pydev.core.formatter.PyFormatterPreferences;
 import org.python.pydev.editor.StyledTextForShowingCodeFactory;
 import org.python.pydev.plugin.PyDevUiPrefs;
@@ -37,6 +37,7 @@ import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.field_editors.BooleanFieldEditorCustom;
 import org.python.pydev.shared_ui.field_editors.ComboFieldEditor;
+import org.python.pydev.shared_ui.field_editors.CustomStringFieldEditor;
 import org.python.pydev.shared_ui.field_editors.LinkFieldEditor;
 import org.python.pydev.shared_ui.field_editors.ScopedFieldEditorPreferencePage;
 import org.python.pydev.shared_ui.field_editors.ScopedPreferencesFieldEditor;
@@ -47,7 +48,7 @@ import org.python.pydev.shared_ui.field_editors.ScopedPreferencesFieldEditor;
 public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
     private StyledText labelExample;
-    private BooleanFieldEditorCustom formatWithAutoPep8;
+    // private BooleanFieldEditorCustom formatWithAutoPep8; deprecated
     private BooleanFieldEditorCustom spaceAfterComma;
     private BooleanFieldEditorCustom onlyChangedLines;
     private BooleanFieldEditorCustom spaceForParentesis;
@@ -59,9 +60,11 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
     private StyledTextForShowingCodeFactory formatAndStyleRangeHelper;
     private ComboFieldEditor spacesBeforeComment;
     private ComboFieldEditor spacesInStartComment;
+    private ComboFieldEditor formatterStyle;
     private Composite fieldParent;
-    private StringFieldEditor autopep8Parameters;
-    private LinkFieldEditor autopep8Link;
+    private CustomStringFieldEditor autopep8Parameters;
+    private CustomStringFieldEditor blackParameters;
+    private LinkFieldEditor interpreterLink;
     private boolean disposed = false;
     private TabFolder tabFolder;
 
@@ -85,6 +88,12 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
             { "At least 2 spaces", "2" },
             { "At least 3 spaces", "3" },
             { "At least 4 spaces", "4" },
+    };
+
+    private static final String[][] ENTRIES_AND_VALUES_FOR_FORMATTER = new String[][] {
+            { "PyDev.Formatter", FormatterEnum.PYDEVF.toString() },
+            { "autopep8", FormatterEnum.AUTOPEP8.toString() },
+            { "Black", FormatterEnum.BLACK.toString() },
     };
     private TabItem tabItemSpacing;
     private TabItem tabItemBlankLines;
@@ -119,12 +128,17 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
                     }
                 }));
 
-        formatWithAutoPep8 = createBooleanFieldEditorCustom(PyFormatterPreferences.FORMAT_WITH_AUTOPEP8,
-                "Use autopep8.py for code formatting?", p);
-        addField(formatWithAutoPep8);
+        formatterStyle = new ComboFieldEditor(PyFormatterPreferences.FORMATTER_STYLE, "Formatter style?",
+                ENTRIES_AND_VALUES_FOR_FORMATTER, p);
+        addField(formatterStyle);
 
-        autopep8Link = new LinkFieldEditor("link_autopep8_interpreter",
-                "Note: the default configured <a>Python Interpreter</a> will be used to execute autopep8.py", p,
+        // deprecated
+        // formatWithAutoPep8 = createBooleanFieldEditorCustom(PyFormatterPreferences.FORMAT_WITH_AUTOPEP8,
+        //         "Use autopep8.py for code formatting?", p);
+        // addField(formatWithAutoPep8);
+
+        interpreterLink = new LinkFieldEditor("link_autopep8_interpreter",
+                "Note: the default configured <a>Python Interpreter</a> will be used to execute autopep8.py/black", p,
                 new SelectionListener() {
 
                     @Override
@@ -138,11 +152,15 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
                     public void widgetDefaultSelected(SelectionEvent e) {
                     }
                 });
-        addField(autopep8Link);
+        addField(interpreterLink);
 
-        autopep8Parameters = new StringFieldEditor(PyFormatterPreferences.AUTOPEP8_PARAMETERS,
+        autopep8Parameters = new CustomStringFieldEditor(PyFormatterPreferences.AUTOPEP8_PARAMETERS,
                 "Parameters for autopep8 (i.e.: -a for aggressive, --ignore E24)", p);
         addField(autopep8Parameters);
+
+        blackParameters = new CustomStringFieldEditor(PyFormatterPreferences.BLACK_PARAMETERS,
+                "Parameters for black (i.e.: -S don't convert single to double quotes)", p);
+        addField(blackParameters);
 
         onlyChangedLines = createBooleanFieldEditorCustom(PyFormatterPreferences.FORMAT_ONLY_CHANGED_LINES,
                 "On save, only apply formatting in changed lines?", p);
@@ -253,7 +271,7 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
         };
 
         //After initializing, let's check the proper state based on pep8.
-        formatWithAutoPep8.getCheckBox(fieldParent).addSelectionListener(listener);
+        formatterStyle.getCombo().addSelectionListener(listener);
         manageBlankLines.getCheckBox(blankLinesParent).addSelectionListener(listener);
 
         updateState();
@@ -262,53 +280,64 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
         updateLabelExampleNow(this.getFormatFromEditorContents());
     }
 
+    private FormatterEnum getComboFormatterStyle() {
+        String comboValue = formatterStyle.getComboValue();
+        return FormatStd.getFormatterEnumFromStr(comboValue);
+    }
+
     private void updateState() {
-        if (formatWithAutoPep8.getBooleanValue()) {
-            assignWithSpaceInsideParentesis.setEnabled(false, spacingParent);
-            operatorsWithSpace.setEnabled(false, spacingParent);
-            spaceForParentesis.setEnabled(false, spacingParent);
-            spaceAfterComma.setEnabled(false, spacingParent);
-            rightTrimLines.setEnabled(false, spacingParent);
-            rightTrimMultilineLiterals.setEnabled(false, spacingParent);
+        FormatterEnum currFormatterStyle = getComboFormatterStyle();
+        interpreterLink.setEnabled(
+                currFormatterStyle == FormatterEnum.AUTOPEP8 || currFormatterStyle == FormatterEnum.BLACK, fieldParent);
+        autopep8Parameters.setEnabled(currFormatterStyle == FormatterEnum.AUTOPEP8, fieldParent);
+        blackParameters.setEnabled(currFormatterStyle == FormatterEnum.BLACK, fieldParent);
 
-            addNewLineAtEndOfFile.setEnabled(false, blankLinesParent);
-            manageBlankLines.setEnabled(false, blankLinesParent);
-            blankLinesTopLevel.setEnabled(false, blankLinesParent);
-            blankLinesInner.setEnabled(false, blankLinesParent);
+        switch (currFormatterStyle) {
+            case AUTOPEP8:
+            case BLACK:
+                assignWithSpaceInsideParentesis.setEnabled(false, spacingParent);
+                operatorsWithSpace.setEnabled(false, spacingParent);
+                spaceForParentesis.setEnabled(false, spacingParent);
+                spaceAfterComma.setEnabled(false, spacingParent);
+                rightTrimLines.setEnabled(false, spacingParent);
+                rightTrimMultilineLiterals.setEnabled(false, spacingParent);
 
-            spacesBeforeComment.setEnabled(false, commentsParent);
-            spacesInStartComment.setEnabled(false, commentsParent);
-
-            onlyChangedLines.setEnabled(false, fieldParent);
-            autopep8Parameters.setEnabled(true, fieldParent);
-            autopep8Link.setEnabled(true, fieldParent);
-        } else {
-            assignWithSpaceInsideParentesis.setEnabled(true, spacingParent);
-            operatorsWithSpace.setEnabled(true, spacingParent);
-            spaceForParentesis.setEnabled(true, spacingParent);
-            spaceAfterComma.setEnabled(true, spacingParent);
-            rightTrimLines.setEnabled(true, spacingParent);
-            rightTrimMultilineLiterals.setEnabled(true, spacingParent);
-
-            addNewLineAtEndOfFile.setEnabled(true, blankLinesParent);
-            manageBlankLines.setEnabled(true, blankLinesParent);
-            if (manageBlankLines.getBooleanValue()) {
-                blankLinesTopLevel.setEnabled(true, blankLinesParent);
-                blankLinesInner.setEnabled(true, blankLinesParent);
-
-            } else {
+                addNewLineAtEndOfFile.setEnabled(false, blankLinesParent);
+                manageBlankLines.setEnabled(false, blankLinesParent);
                 blankLinesTopLevel.setEnabled(false, blankLinesParent);
                 blankLinesInner.setEnabled(false, blankLinesParent);
-            }
 
-            spacesBeforeComment.setEnabled(true, commentsParent);
-            spacesInStartComment.setEnabled(true, commentsParent);
+                spacesBeforeComment.setEnabled(false, commentsParent);
+                spacesInStartComment.setEnabled(false, commentsParent);
 
-            onlyChangedLines.setEnabled(true, fieldParent);
-            autopep8Parameters.setEnabled(false, fieldParent);
-            autopep8Link.setEnabled(false, fieldParent);
+                onlyChangedLines.setEnabled(false, fieldParent);
+                break;
+
+            default:
+                assignWithSpaceInsideParentesis.setEnabled(true, spacingParent);
+                operatorsWithSpace.setEnabled(true, spacingParent);
+                spaceForParentesis.setEnabled(true, spacingParent);
+                spaceAfterComma.setEnabled(true, spacingParent);
+                rightTrimLines.setEnabled(true, spacingParent);
+                rightTrimMultilineLiterals.setEnabled(true, spacingParent);
+
+                addNewLineAtEndOfFile.setEnabled(true, blankLinesParent);
+                manageBlankLines.setEnabled(true, blankLinesParent);
+                if (manageBlankLines.getBooleanValue()) {
+                    blankLinesTopLevel.setEnabled(true, blankLinesParent);
+                    blankLinesInner.setEnabled(true, blankLinesParent);
+
+                } else {
+                    blankLinesTopLevel.setEnabled(false, blankLinesParent);
+                    blankLinesInner.setEnabled(false, blankLinesParent);
+                }
+
+                spacesBeforeComment.setEnabled(true, commentsParent);
+                spacesInStartComment.setEnabled(true, commentsParent);
+
+                onlyChangedLines.setEnabled(true, fieldParent);
         }
-
+        fieldParent.layout(true);
     }
 
     private BooleanFieldEditorCustom createBooleanFieldEditorCustom(String name, String label, Composite parent) {
@@ -402,9 +431,10 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
         formatStd.trimMultilineLiterals = rightTrimMultilineLiterals.getBooleanValue();
         formatStd.spacesBeforeComment = Integer.parseInt(spacesBeforeComment.getComboValue());
         formatStd.spacesInStartComment = Integer.parseInt(spacesInStartComment.getComboValue());
-        formatStd.formatWithAutopep8 = this.formatWithAutoPep8.getBooleanValue();
+        formatStd.formatterStyle = getComboFormatterStyle();
         formatStd.autopep8Parameters = this.autopep8Parameters.getStringValue();
-        formatStd.updateAutopep8();
+        formatStd.blackParameters = this.blackParameters.getStringValue();
+        formatStd.updateFormatterStyle();
         return formatStd;
     }
 
@@ -419,7 +449,9 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
     public void dispose() {
         disposed = true;
         super.dispose();
-        formatAndStyleRangeHelper.dispose();
+        if (formatAndStyleRangeHelper != null) {
+            formatAndStyleRangeHelper.dispose();
+        }
     }
 
 }

@@ -851,7 +851,7 @@ public class FileUtils {
      * if the line is too big (this prevents loading too much in memory if we open a binary file that doesn't really
      * have a line break there).
      *
-     * See: #PyDev-125: OutOfMemoryError with large binary file (https://sw-brainwy.rhcloud.com/tracker/PyDev/125)
+     * See: #PyDev-125: OutOfMemoryError with large binary file (https://www.brainwy.com/tracker/PyDev/125)
      *
      * @return a list of strings with the lines that were read.
      */
@@ -1171,4 +1171,24 @@ public class FileUtils {
 
     }
 
+    // Reads up to a \n (adds it to the output).
+    public static void readLine(InputStream in, FastStringBuffer contents) throws IOException {
+        char c;
+        while (true) {
+            c = readChar(in);
+            contents.append(c);
+
+            if (c == '\n') {
+                return;
+            }
+        }
+    }
+
+    private static char readChar(InputStream in) throws IOException {
+        int i = in.read();
+        if (i == -1) {
+            throw new IOException("Done");
+        }
+        return (char) i;
+    }
 }

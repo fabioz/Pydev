@@ -60,6 +60,10 @@ import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.dialogs.ListDialog;
+import org.eclipse.ui.dialogs.SelectionDialog;
 import org.python.copiedfromeclipsesrc.PythonListEditor;
 import org.python.pydev.ast.interpreter_managers.IInterpreterProviderFactory;
 import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
@@ -134,7 +138,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
 
     private Map<String, IInterpreterInfo> nameToInfo = new HashMap<String, IInterpreterInfo>();
 
-    private PackageTab packageTab = new PackageTab();
+    private PackageTab packageTab = new PackageTab(this);
 
     public Map<String, IInterpreterInfo> getNameToInfo() {
         return nameToInfo;
@@ -222,6 +226,11 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
         }
         createControl(parent);
         updateTree();
+    }
+
+    @Override
+    protected IInterpreterManager getInterpreterManager() {
+        return interpreterManager;
     }
 
     /**
@@ -379,6 +388,8 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
 
     private AbstractListWithNewRemoveControl predefinedCompletions;
 
+    private String defaultProjectLocation;
+
     /**
      * @see org.eclipse.jface.preference.ListEditor#doFillIntoGrid(org.eclipse.swt.widgets.Composite, int)
      */
@@ -397,7 +408,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
 
         try {
             if (this.getShowPackageTab()) {
-                packageTab.createPackageControlTab(tabFolder, exeOrJarOfInterpretersToRestore);
+                packageTab.createPackageControlTab(tabFolder, exeOrJarOfInterpretersToRestore, interpreterManager);
             }
         } catch (Exception e1) {
             Log.log(e1); // Not really expected, just new code, so, let's protect until it matures.
@@ -967,13 +978,23 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
      */
     public abstract IInterpreterProviderFactory.InterpreterType getInterpreterType();
 
+    public void setDefaultProjectLocation(String defaultProjectLocation) {
+        this.defaultProjectLocation = defaultProjectLocation;
+    }
+
     @Override
-    protected Tuple<String, String> getNewInputObject(int configType) {
+    protected NameAndExecutable getNewInputObject(int configType) {
         CharArrayWriter charWriter = new CharArrayWriter();
         PrintWriter logger = new PrintWriter(charWriter);
         try {
             ObtainInterpreterInfoOperation operation = null;
-            if (configType != InterpreterConfigHelpers.CONFIG_MANUAL) {
+            if (configType == InterpreterConfigHelpers.CONFIG_PIPENV) {
+                IInterpreterInfo[] interpreterInfos = getExesList();
+                operation = InterpreterConfigHelpers.createPipenvInterpreter(interpreterInfos, getShell(), logger,
+                        nameToInfo,
+                        defaultProjectLocation, interpreterManager);
+
+            } else if (configType != InterpreterConfigHelpers.CONFIG_MANUAL) {
                 //Auto-config
                 AutoConfigMaker a = new AutoConfigMaker(getInterpreterType(),
                         configType == InterpreterConfigHelpers.CONFIG_ADV_AUTO, logger,
@@ -982,15 +1003,13 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
             } else {
                 //Manual config
                 logger.println("Information about process of adding new interpreter:");
-                Tuple<String, String> interpreterNameAndExecutable = newConfig(logger);
+                NameAndExecutable interpreterNameAndExecutable = newConfig(logger);
                 if (interpreterNameAndExecutable == null) {
                     return null;
                 }
-                interpreterNameAndExecutable.o1 = InterpreterConfigHelpers.getUniqueInterpreterName(
-                        interpreterNameAndExecutable.o1, nameToInfo);
-                boolean foundError = InterpreterConfigHelpers.checkInterpreterNameAndExecutable(
-                        interpreterNameAndExecutable, logger, "Error getting info on interpreter",
-                        nameToInfo, this.getShell());
+                boolean foundError = InterpreterConfigHelpers.canAddNameAndExecutable(logger,
+                        interpreterNameAndExecutable, nameToInfo,
+                        getShell());
 
                 if (foundError) {
                     return null;
@@ -1011,7 +1030,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
                 this.nameToInfo.put(newName, operation.result.makeCopy());
                 exeOrJarOfInterpretersToRestore.add(operation.result.executableOrJar);
 
-                return new Tuple<String, String>(operation.result.getName(),
+                return new NameAndExecutable(operation.result.getName(),
                         operation.result.executableOrJar);
             }
 
@@ -1028,15 +1047,17 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
         return null;
     }
 
-    private Tuple<String, String> newConfig(PrintWriter logger) {
+    private NameAndExecutable newConfig(PrintWriter logger) {
         InterpreterInputDialog dialog = new InterpreterInputDialog(getShell(), "Select interpreter",
                 "Enter the name and executable of your interpreter", this);
 
         logger.println("- Opening dialog to request executable (or jar).");
+        dialog.setAutoPressBrowse(true);
         int result = dialog.open();
 
         if (result == Window.OK) {
-            return dialog.getKeyAndValueEntered();
+            Tuple<String, String> tup = dialog.getKeyAndValueEntered();
+            return new NameAndExecutable(tup.o1, tup.o2);
         }
         return null;
 
@@ -1121,4 +1142,57 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
         }
     }
 
+    public void restoreInterpreterInfos(boolean editorChanged,
+            Shell shell, IInterpreterManager iInterpreterManager) {
+        final Set<String> interpreterNamesToRestore = this.getInterpreterExeOrJarToRestoreAndClear();
+        final IInterpreterInfo[] exesList = this.getExesList();
+
+        if (!editorChanged && interpreterNamesToRestore.size() == 0) {
+            IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+            SelectionDialog listDialog = AbstractInterpreterPreferencesPage.createChooseIntepreterInfoDialog(
+                    workbenchWindow, exesList,
+                    "Select interpreters to be restored", true);
+
+            int open = listDialog.open();
+            if (open != ListDialog.OK) {
+                return;
+            }
+            Object[] result = listDialog.getResult();
+            if (result == null || result.length == 0) {
+                return;
+
+            }
+            for (Object o : result) {
+                interpreterNamesToRestore.add(((IInterpreterInfo) o).getExecutableOrJar());
+            }
+
+        }
+
+        //this is the default interpreter
+        ProgressMonitorDialog monitorDialog = new AsynchronousProgressMonitorDialog(shell);
+        monitorDialog.setBlockOnOpen(false);
+
+        try {
+            IRunnableWithProgress operation = new IRunnableWithProgress() {
+
+                @Override
+                public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+                    monitor.beginTask("Restoring PYTHONPATH", IProgressMonitor.UNKNOWN);
+                    try {
+                        pushExpectedSetInfos();
+                        //clear all but the ones that appear
+                        iInterpreterManager.setInfos(exesList, interpreterNamesToRestore, monitor);
+                    } finally {
+                        popExpectedSetInfos();
+                        monitor.done();
+                    }
+                }
+            };
+
+            monitorDialog.run(true, true, operation);
+
+        } catch (Exception e) {
+            Log.log(e);
+        }
+    }
 }

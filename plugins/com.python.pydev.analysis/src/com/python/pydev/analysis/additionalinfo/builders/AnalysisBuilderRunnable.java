@@ -33,7 +33,6 @@ import org.python.pydev.core.editor.OpenEditors;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.logging.DebugSettings;
 import org.python.pydev.parser.preferences.PyDevBuilderPreferences;
-import org.python.pydev.shared_core.IMiscConstants;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.markers.PyMarkerUtils;
 import org.python.pydev.shared_core.markers.PyMarkerUtils.MarkerInfo;
@@ -43,7 +42,8 @@ import com.python.pydev.analysis.AnalysisPreferences;
 import com.python.pydev.analysis.OccurrencesAnalyzer;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
-import com.python.pydev.analysis.pylint.IPyLintVisitor;
+import com.python.pydev.analysis.external.IExternalCodeAnalysisVisitor;
+import com.python.pydev.analysis.mypy.MypyVisitorFactory;
 import com.python.pydev.analysis.pylint.PyLintVisitorFactory;
 
 /**
@@ -65,9 +65,12 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
     private IResource resource;
     private ICallback<IModule, Integer> module;
     private int moduleRequest;
-    private IPyLintVisitor pyLintVisitor;
+    private IExternalCodeAnalysisVisitor pyLintVisitor;
+    private IExternalCodeAnalysisVisitor mypyVisitor;
 
     private boolean onlyRecreateCtxInsensitiveInfo;
+
+    private IExternalCodeAnalysisVisitor[] allVisitors;
 
     // ---------------------------------------------------------------------------------------- END ATTRIBUTES
 
@@ -121,6 +124,8 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
         this.resource = resource;
         this.module = module;
         this.pyLintVisitor = PyLintVisitorFactory.create(resource, document, module, internalCancelMonitor);
+        this.mypyVisitor = MypyVisitorFactory.create(resource, document, module, internalCancelMonitor);
+        this.allVisitors = new IExternalCodeAnalysisVisitor[] { this.pyLintVisitor, this.mypyVisitor };
 
         // Important: we can only update the index if it was a builder... if it was the parser,
         // we can't update it otherwise we could end up with data that's not saved in the index.
@@ -213,17 +218,28 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
             boolean makeAnalysis = runner.canDoAnalysis(document) && PyDevBuilderVisitor.isInPythonPath(r) && //just get problems in resources that are in the pythonpath
                     analysisPreferences.makeCodeAnalysis();
 
+            boolean anotherVisitorRequiresAnalysis = false;
+            for (IExternalCodeAnalysisVisitor visitor : allVisitors) {
+                anotherVisitorRequiresAnalysis |= visitor.getRequiresAnalysis();
+            }
+
             if (!makeAnalysis) {
                 //let's see if we should do code analysis
-                AnalysisRunner.deleteMarkers(r);
                 if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
                     org.python.pydev.shared_core.log.ToLogFile.toLogFile(this,
                             "Skipping: !makeAnalysis -- " + moduleName);
                 }
-                return;
+                if (!anotherVisitorRequiresAnalysis) {
+                    AnalysisRunner.deleteMarkers(r);
+                    return;
+                } else {
+                    // Only delete pydev markers (others will be deleted by the respective visitors later on).
+                    boolean onlyPydevAnalysisMarkers = true;
+                    AnalysisRunner.deleteMarkers(r, onlyPydevAnalysisMarkers);
+                }
             }
 
-            if (onlyRecreateCtxInsensitiveInfo) {
+            if (makeAnalysis && onlyRecreateCtxInsensitiveInfo) {
                 if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
                     org.python.pydev.shared_core.log.ToLogFile.toLogFile(this,
                             "Skipping: !forceAnalysis && analysisCause == ANALYSIS_CAUSE_BUILDER && "
@@ -243,7 +259,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
                 return;
             }
 
-            if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
+            if (makeAnalysis && DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
                 org.python.pydev.shared_core.log.ToLogFile.toLogFile(this,
                         "makeAnalysis:" + makeAnalysis + " " + "analysisCause: " + getAnalysisCauseStr()
                                 + " -- " + moduleName);
@@ -259,57 +275,66 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
                 //We don't want to check derived resources (but we want to remove any analysis messages that
                 //might be already there)
                 if (r != null) {
-                    runner.setMarkers(r, document, new IMessage[0], this.internalCancelMonitor);
-                    pyLintVisitor.deleteMarkers();
+                    AnalysisRunner.deleteMarkers(r);
                 }
                 return;
             }
 
-            // Currently, the PyLint visitor can only analyze the contents saved, so, if the contents on the doc
-            // changed in the meanwhile, skip doing this visit for PyLint.
+            // Currently, the PyLint/Mypy visitor can only analyze the contents saved, so, if the contents on the doc
+            // changed in the meanwhile, skip doing this visit.
             // Maybe we can improve that when https://github.com/PyCQA/pylint/pull/1189 is done.
             if (!DocumentChanged.hasDocumentChanged(resource, document)) {
-                pyLintVisitor.startVisit();
+                for (IExternalCodeAnalysisVisitor visitor : allVisitors) {
+                    visitor.startVisit();
+                }
             } else {
-                pyLintVisitor.deleteMarkers();
-            }
-            OccurrencesAnalyzer analyzer = new OccurrencesAnalyzer();
-            checkStop();
-            SourceModule module = (SourceModule) this.module.call(moduleRequest);
-            IMessage[] messages = analyzer.analyzeDocument(nature, module, analysisPreferences, document,
-                    this.internalCancelMonitor, DefaultIndentPrefs.get(this.resource));
-
-            checkStop();
-            if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                org.python.pydev.shared_core.log.ToLogFile.toLogFile(this, "Adding markers for module: " + moduleName);
-                //for (IMessage message : messages) {
-                //    Log.toLogFile(this, message.toString());
-                //}
-            }
-
-            //last chance to stop...
-            checkStop();
-
-            List<MarkerInfo> markersFromCodeAnalysis = null;
-
-            //don't stop after setting to add / remove the markers
-            if (r != null) {
-                boolean analyzeOnlyActiveEditor = PyDevBuilderPreferences.getAnalyzeOnlyActiveEditor();
-                if (forceAnalysis
-                        || !analyzeOnlyActiveEditor
-                        || (analyzeOnlyActiveEditor
-                                && (!PyDevBuilderPreferences.getRemoveErrorsWhenEditorIsClosed() || OpenEditors
-                                        .isEditorOpenForResource(r)))) {
-                    markersFromCodeAnalysis = runner.setMarkers(r, document, messages, this.internalCancelMonitor);
-                } else {
-                    if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
-                        org.python.pydev.shared_core.log.ToLogFile.toLogFile(this,
-                                "Skipped adding markers for module: " + moduleName
-                                        + " (editor not opened).");
-                    }
+                for (IExternalCodeAnalysisVisitor visitor : allVisitors) {
+                    visitor.deleteMarkers();
+                }
+                if (!makeAnalysis) {
+                    return;
                 }
             }
 
+            List<MarkerInfo> markersFromCodeAnalysis = null;
+            if (makeAnalysis) {
+                OccurrencesAnalyzer analyzer = new OccurrencesAnalyzer();
+                checkStop();
+                SourceModule module = (SourceModule) this.module.call(moduleRequest);
+                IMessage[] messages = analyzer.analyzeDocument(nature, module, analysisPreferences, document,
+                        this.internalCancelMonitor, DefaultIndentPrefs.get(this.resource));
+
+                checkStop();
+                if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
+                    org.python.pydev.shared_core.log.ToLogFile.toLogFile(this,
+                            "Adding markers for module: " + moduleName);
+                    //for (IMessage message : messages) {
+                    //    Log.toLogFile(this, message.toString());
+                    //}
+                }
+
+                //last chance to stop...
+                checkStop();
+
+                //don't stop after setting to add / remove the markers
+                if (r != null) {
+                    boolean analyzeOnlyActiveEditor = PyDevBuilderPreferences.getAnalyzeOnlyActiveEditor();
+                    if (forceAnalysis
+                            || !analyzeOnlyActiveEditor
+                            || (analyzeOnlyActiveEditor
+                                    && (!PyDevBuilderPreferences.getRemoveErrorsWhenEditorIsClosed() || OpenEditors
+                                            .isEditorOpenForResource(r)))) {
+                        markersFromCodeAnalysis = runner.setMarkers(r, document, messages, this.internalCancelMonitor);
+                    } else {
+                        if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
+                            org.python.pydev.shared_core.log.ToLogFile.toLogFile(this,
+                                    "Skipped adding markers for module: " + moduleName
+                                            + " (editor not opened).");
+                        }
+                    }
+                }
+
+            }
             //if there are callbacks registered, call them if we still didn't return (mostly for tests)
             for (ICallback<Object, IResource> callback : analysisBuilderListeners) {
                 try {
@@ -320,59 +345,69 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
             }
 
             checkStop();
-            pyLintVisitor.join();
+            for (IExternalCodeAnalysisVisitor visitor : allVisitors) {
+                visitor.join();
+            }
 
             checkStop();
             if (r != null) {
-                List<MarkerInfo> markersFromPyLint = pyLintVisitor.getMarkers();
-                if (markersFromPyLint != null && markersFromPyLint.size() > 0) {
+                for (IExternalCodeAnalysisVisitor visitor : allVisitors) {
+                    String problemMarker = visitor.getProblemMarkerId();
+                    String messageId = visitor.getMessageId();
 
-                    Map<Integer, List<MarkerInfo>> lineToMarkerInfo = new HashMap<>();
-                    if (markersFromCodeAnalysis != null) {
-                        for (MarkerInfo codeAnalysisMarkerInfo : markersFromCodeAnalysis) {
-                            List<MarkerInfo> list = lineToMarkerInfo.get(codeAnalysisMarkerInfo.lineStart);
-                            if (list == null) {
-                                list = new ArrayList<>(2);
-                                lineToMarkerInfo.put(codeAnalysisMarkerInfo.lineStart, list);
-                            }
-                            list.add(codeAnalysisMarkerInfo);
-                        }
-                    }
+                    List<MarkerInfo> markersFromVisitor = visitor.getMarkers();
+                    if (markersFromVisitor != null && markersFromVisitor.size() > 0) {
 
-                    // I.e.: if the error is already generated in the PyDev code-analysis, skip the same error on PyLint
-                    // (there's no real point in putting an error twice).
-                    for (Iterator<MarkerInfo> pyLintMarkerInfoIterator = markersFromPyLint
-                            .iterator(); pyLintMarkerInfoIterator
-                                    .hasNext();) {
-                        MarkerInfo pyLintMarkerInfo = pyLintMarkerInfoIterator.next();
-                        List<MarkerInfo> codeAnalysisMarkers = lineToMarkerInfo.get(pyLintMarkerInfo.lineStart);
-                        if (codeAnalysisMarkers != null && codeAnalysisMarkers.size() > 0) {
-                            for (MarkerInfo codeAnalysisMarker : codeAnalysisMarkers) {
-                                if (codeAnalysisMarker.severity < IMarker.SEVERITY_INFO) {
-                                    // Don't consider if it shouldn't be shown.
-                                    continue;
+                        Map<Integer, List<MarkerInfo>> lineToMarkerInfo = new HashMap<>();
+                        if (markersFromCodeAnalysis != null) {
+                            for (MarkerInfo codeAnalysisMarkerInfo : markersFromCodeAnalysis) {
+                                List<MarkerInfo> list = lineToMarkerInfo.get(codeAnalysisMarkerInfo.lineStart);
+                                if (list == null) {
+                                    list = new ArrayList<>(2);
+                                    lineToMarkerInfo.put(codeAnalysisMarkerInfo.lineStart, list);
                                 }
-                                Map<String, Object> additionalInfo = codeAnalysisMarker.additionalInfo;
-                                if (additionalInfo != null) {
-                                    Object analysisType = additionalInfo.get(AnalysisRunner.PYDEV_ANALYSIS_TYPE);
-                                    if (analysisType != null && analysisType instanceof Integer) {
-                                        String pyLintMessageId = CheckAnalysisErrors
-                                                .getPyLintMessageIdForPyDevAnalysisType((int) analysisType);
-                                        if (pyLintMessageId != null
-                                                && pyLintMessageId.equals(pyLintMarkerInfo.additionalInfo
-                                                        .get(IMiscConstants.PYLINT_MESSAGE_ID))) {
-                                            pyLintMarkerInfoIterator.remove();
-                                            break; // Stop the for (we've already removed it).
+                                list.add(codeAnalysisMarkerInfo);
+                            }
+                        }
+
+                        if (visitor == pyLintVisitor) {
+                            // I.e.: if the error is already generated in the PyDev code-analysis, skip the same error on PyLint
+                            // (there's no real point in putting an error twice).
+                            for (Iterator<MarkerInfo> visitorMarkerInfoIterator = markersFromVisitor
+                                    .iterator(); visitorMarkerInfoIterator.hasNext();) {
+                                MarkerInfo visitorMarkerInfo = visitorMarkerInfoIterator.next();
+                                List<MarkerInfo> codeAnalysisMarkers = lineToMarkerInfo
+                                        .get(visitorMarkerInfo.lineStart);
+                                if (codeAnalysisMarkers != null && codeAnalysisMarkers.size() > 0) {
+                                    for (MarkerInfo codeAnalysisMarker : codeAnalysisMarkers) {
+                                        if (codeAnalysisMarker.severity < IMarker.SEVERITY_INFO) {
+                                            // Don't consider if it shouldn't be shown.
+                                            continue;
+                                        }
+                                        Map<String, Object> additionalInfo = codeAnalysisMarker.additionalInfo;
+                                        if (additionalInfo != null) {
+                                            Object analysisType = additionalInfo
+                                                    .get(AnalysisRunner.PYDEV_ANALYSIS_TYPE);
+                                            if (analysisType != null && analysisType instanceof Integer) {
+                                                String pyLintMessageId = CheckAnalysisErrors
+                                                        .getPyLintMessageIdForPyDevAnalysisType((int) analysisType);
+                                                if (pyLintMessageId != null
+                                                        && pyLintMessageId.equals(visitorMarkerInfo.additionalInfo
+                                                                .get(messageId))) {
+                                                    visitorMarkerInfoIterator.remove();
+                                                    break; // Stop the for (we've already removed it).
+                                                }
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
+                        PyMarkerUtils.replaceMarkers(markersFromVisitor, resource, problemMarker,
+                                true, this.internalCancelMonitor);
+                    } else {
+                        visitor.deleteMarkers();
                     }
-                    PyMarkerUtils.replaceMarkers(markersFromPyLint, resource, IMiscConstants.PYLINT_PROBLEM_MARKER,
-                            true, this.internalCancelMonitor);
-                } else {
-                    pyLintVisitor.deleteMarkers();
                 }
             }
 

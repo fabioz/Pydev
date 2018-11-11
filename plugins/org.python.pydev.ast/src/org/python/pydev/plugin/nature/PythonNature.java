@@ -19,8 +19,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.internal.resources.Project;
 import org.eclipse.core.internal.resources.ProjectInfo;
@@ -44,9 +46,9 @@ import org.python.pydev.ast.codecompletion.revisited.ModulesManager;
 import org.python.pydev.ast.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
+import org.python.pydev.ast.runners.SimpleRunner;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICodeCompletionASTManager;
-import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
@@ -68,6 +70,7 @@ import org.python.pydev.shared_core.progress.JobProgressComunicator;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.utils.PlatformUtils;
 
 /**
  * PythonNature is currently used as a marker class.
@@ -966,14 +969,14 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             FastStringBuffer buf = new FastStringBuffer(additionalGrammarValidation.length());
             for (String version : StringUtils.split(additionalGrammarValidation, ',')) {
                 version = version.trim();
-                if (!IGrammarVersionProvider.grammarRepToVersion.containsKey(version)) {
+                if (!Versions.supportsVersion(version)) {
                     Log.log("Grammar version not handled: " + version + " project: " + this.project);
                     continue;
                 }
                 if (buf.length() > 0) {
                     buf.append(", ");
                 }
-                additionalValidations.add(IGrammarVersionProvider.grammarRepToVersion.get(version));
+                additionalValidations.add(Versions.getInternalVersion(version));
                 buf.append(version);
             }
 
@@ -1215,8 +1218,8 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         try {
             String version = getVersion(true);
             if (version == null) {
-                Log.log("Found null version. Returning default.");
-                return LATEST_GRAMMAR_VERSION;
+                Log.log("Found null version. Returning default (latest python 3 grammar).");
+                return LATEST_GRAMMAR_PY3_VERSION;
             }
 
             List<String> splitted = StringUtils.split(version, ' ');
@@ -1231,7 +1234,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 Log.log("Found invalid version: " +
                         version +
                         "\n" +
-                        "Returning default\n" +
+                        "Returning default (latest python 3)\n" +
                         "Project: " +
                         this.project +
                         "\n" +
@@ -1241,7 +1244,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                         "storeVersion:" +
                         storeVersion);
 
-                return LATEST_GRAMMAR_VERSION;
+                return LATEST_GRAMMAR_PY3_VERSION;
             }
 
             String grammarVersion = splitted.get(1);
@@ -1259,32 +1262,36 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     public static int getGrammarVersionFromStr(String grammarVersion) {
         //Note that we don't have the grammar for all versions, so, we use the one closer to it (which is
         //fine as they're backward compatible).
-        if ("2.1".equals(grammarVersion)) {
-            return GRAMMAR_PYTHON_VERSION_2_4;
+        switch (grammarVersion) {
+            case "2.0":
+            case "2.1":
+            case "2.2":
+            case "2.3":
+            case "2.4":
+            case "2.5":
+                return GRAMMAR_PYTHON_VERSION_2_5;
 
-        } else if ("2.2".equals(grammarVersion)) {
-            return GRAMMAR_PYTHON_VERSION_2_4;
+            case "2.6":
+                return GRAMMAR_PYTHON_VERSION_2_6;
 
-        } else if ("2.3".equals(grammarVersion)) {
-            return GRAMMAR_PYTHON_VERSION_2_4;
+            case "2.7":
+                return GRAMMAR_PYTHON_VERSION_2_7;
 
-        } else if ("2.4".equals(grammarVersion)) {
-            return GRAMMAR_PYTHON_VERSION_2_4;
+            case "3.0":
+            case "3.1":
+            case "3.2":
+            case "3.3":
+            case "3.4":
+            case "3.5":
+                return GRAMMAR_PYTHON_VERSION_3_5;
 
-        } else if ("2.5".equals(grammarVersion)) {
-            return GRAMMAR_PYTHON_VERSION_2_5;
+            case "3.6":
+                return GRAMMAR_PYTHON_VERSION_3_6;
+            case "3.7":
+                return GRAMMAR_PYTHON_VERSION_3_7;
 
-        } else if ("2.6".equals(grammarVersion)) {
-            return GRAMMAR_PYTHON_VERSION_2_6;
-
-        } else if ("2.7".equals(grammarVersion)) {
-            return GRAMMAR_PYTHON_VERSION_2_7;
-
-        } else if ("3.0".equals(grammarVersion)) {
-            return GRAMMAR_PYTHON_VERSION_3_0;
-
-        } else if ("3.6".equals(grammarVersion)) {
-            return GRAMMAR_PYTHON_VERSION_3_6;
+            default:
+                break;
         }
 
         if (grammarVersion != null) {
@@ -1293,12 +1300,12 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
             } else if (grammarVersion.startsWith("2")) {
                 //latest in the 2.x series
-                return LATEST_GRAMMAR_VERSION;
+                return LATEST_GRAMMAR_PY2_VERSION;
             }
         }
 
         Log.log("Unable to recognize version: " + grammarVersion + " returning default.");
-        return LATEST_GRAMMAR_VERSION;
+        return LATEST_GRAMMAR_PY3_VERSION; // Default to python 3 now.
     }
 
     protected IPythonNatureStore getStore() {
@@ -1325,7 +1332,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
         try {
             String projectInterpreterName = getProjectInterpreterName();
-            IInterpreterInfo ret;
+            IInterpreterInfo ret = null;
             IInterpreterManager relatedInterpreterManager = getRelatedInterpreterManager();
             if (relatedInterpreterManager == null) {
                 if (IN_TESTS) {
@@ -1335,8 +1342,19 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             }
 
             if (IPythonNature.DEFAULT_INTERPRETER.equals(projectInterpreterName)) {
-                //if it's the default, let's translate it to the outside world
-                ret = relatedInterpreterManager.getDefaultInterpreterInfo(true);
+                if (relatedInterpreterManager.getInterpreterType() == IPythonNature.INTERPRETER_TYPE_PYTHON) {
+                    IPath location = this.project.getLocation();
+                    if (location != null) {
+                        File projectLocation = location.toFile();
+                        ret = PipenvHelper.getPipenvInterpreterInfoForProjectLocation(
+                                relatedInterpreterManager.getInterpreterInfos(),
+                                projectLocation, relatedInterpreterManager);
+                    }
+                }
+                if (ret == null) {
+                    //if it's the default, let's translate it to the outside world
+                    ret = relatedInterpreterManager.getDefaultInterpreterInfo(true);
+                }
             } else {
                 ret = relatedInterpreterManager.getInterpreterInfo(projectInterpreterName, null);
             }
@@ -1396,6 +1414,37 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             return (T) this.project;
         }
         return null;
+    }
+
+    public static Set<String> getPathsToSearch() {
+        Set<String> pathsToSearch = new LinkedHashSet<String>();
+        try {
+            Map<String, String> env = SimpleRunner.getDefaultSystemEnv(null);
+            if (env.containsKey("PYTHON_HOME")) {
+                pathsToSearch.add(env.get("PYTHON_HOME"));
+            }
+            if (env.containsKey("PYTHONHOME")) {
+                pathsToSearch.add(env.get("PYTHONHOME"));
+            }
+            if (env.containsKey("PATH")) {
+                String path = env.get("PATH");
+                String separator = SimpleRunner.getPythonPathSeparator();
+                final List<String> split = StringUtils.split(path, separator);
+                pathsToSearch.addAll(split);
+            }
+        } catch (CoreException e) {
+            Log.log(e);
+        }
+        if (!PlatformUtils.isWindowsPlatform()) {
+            // Paths to search on linux/mac
+            pathsToSearch.add("/usr/bin");
+            pathsToSearch.add("/usr/local/bin");
+        }
+        if (PlatformUtils.isMacOsPlatform()) {
+            // Path to search on mac
+            pathsToSearch.add("/Library/Frameworks/Python.framework/Versions/Current/bin");
+        }
+        return pathsToSearch;
     }
 
 }

@@ -30,6 +30,16 @@ a pull request on github so that the code can be merged back). Later, if
 you want to provide some other feature/bugfix, a new branch should be
 created again.
 
+For those that haven't used github or are relatively new to it, below are 
+resources that show how to make a contribution to a project in the manner described 
+above (i.e. clone a project, create a branch, edit and send pull a request):
+
+-  `Make a contribution using github <https://codeburst.io/a-step-by-step-guide-to-making-your-first-github-contribution-5302260a2940>`_
+
+-  `Make a contribution using github (using github desktop) <https://github.com/Roshanjossey/first-contributions/blob/master/github-desktop-tutorial.md>`_
+
+-  `Lean git guide <http://rogerdudler.github.io/git-guide/>`_
+
 Then, in Eclipse, go to: **File > Import > Existing projects into
 workspace** and point it to the root of the repository you just
 downloaded (after importing, you may want to close the 2 mylyn-related

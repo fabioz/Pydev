@@ -45,7 +45,7 @@ public class PythonInterpreterManager extends AbstractInterpreterManager {
 
     @Override
     public String getPreferencesPageId() {
-        return "org.python.pydev.ast.interpreter_managers.interpreterPreferencesPagePython";
+        return "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPagePython";
     }
 
     /**

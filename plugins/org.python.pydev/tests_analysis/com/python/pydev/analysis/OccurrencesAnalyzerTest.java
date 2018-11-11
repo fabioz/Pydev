@@ -2338,7 +2338,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
                 "a, b");
 
         int original = GRAMMAR_TO_USE_FOR_PARSING;
-        GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+        GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
         try {
             analyzer = new OccurrencesAnalyzer();
             msgs = analyzeDoc();
@@ -2480,7 +2480,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testPython30() {
         int initial = GRAMMAR_TO_USE_FOR_PARSING;
         try {
-            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
             doc = new Document("def func(arg, *, arg2=None):\n" +
                     "    arg, arg2");
             analyzer = new OccurrencesAnalyzer();
@@ -2496,7 +2496,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testPython30UnusedParameter() {
         int initial = GRAMMAR_TO_USE_FOR_PARSING;
         try {
-            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
             doc = new Document("class Class1:         \n" +
                     "    def met1(self, *, a=2):\n" +
                     "        self.x = 20");
@@ -2513,7 +2513,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testDictComprehension() {
         int initial = GRAMMAR_TO_USE_FOR_PARSING;
         try {
-            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
             doc = new Document("class Bar(object):\n" +
                     "    def __init__(self, row):\n"
                     +
@@ -2531,7 +2531,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testSetComprehension() {
         int initial = GRAMMAR_TO_USE_FOR_PARSING;
         try {
-            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
             doc = new Document("class Bar(object):\n" +
                     "    def __init__(self, row):\n"
                     +
@@ -2554,7 +2554,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testElipsis() {
         int initial = GRAMMAR_TO_USE_FOR_PARSING;
         try {
-            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
             doc = new Document("class Bar:\n" +
                     "    ...\n" +
                     "");
@@ -2570,7 +2570,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testBoolInClassConstructor() {
         int initial = GRAMMAR_TO_USE_FOR_PARSING;
         try {
-            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
             doc = new Document("class Bar(A or B):\n" +
                     "    ...\n" +
                     "");
@@ -2609,7 +2609,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testBuiltInAssignment() {
         int initial = GRAMMAR_TO_USE_FOR_PARSING;
         try {
-            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
             doc = new Document("import os as list \n" +
                     "def Foo():\n" +
                     "	id = 10 \n" +
@@ -2656,7 +2656,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testBuiltInAssignment4() {
         int initial = GRAMMAR_TO_USE_FOR_PARSING;
         try {
-            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
             doc = new Document("def Method(a:lambda list:None) -> lambda list:None:\n" +
                     "    pass\n" +
                     "");
@@ -2704,7 +2704,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testRelativeOnPy3() throws IOException, MisconfigurationException {
         int initial = GRAMMAR_TO_USE_FOR_PARSING;
         try {
-            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
             analyzer = new OccurrencesAnalyzer();
             File file = new File(TestDependent.TEST_PYSRC_TESTING_LOC +
                     "extendable/grammar3/sub1.py");

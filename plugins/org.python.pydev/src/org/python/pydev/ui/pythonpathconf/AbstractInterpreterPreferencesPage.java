@@ -11,12 +11,7 @@
  */
 package org.python.pydev.ui.pythonpathconf;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.Set;
-
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
-import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -27,19 +22,16 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ListDialog;
 import org.eclipse.ui.dialogs.ListSelectionDialog;
 import org.eclipse.ui.dialogs.SelectionDialog;
 import org.python.pydev.ast.interpreter_managers.AbstractInterpreterManager;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
-import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorDialog;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
 
 /**
@@ -66,6 +58,11 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
     }
 
     protected abstract AbstractInterpreterEditor getInterpreterEditor(Composite p);
+
+    public void setDefaultProjectLocation(String defaultProjectLocation) {
+        Assert.isNotNull(this.pathEditor, "This method may only be called after the pathEditor is already created.");
+        this.pathEditor.setDefaultProjectLocation(defaultProjectLocation);
+    }
 
     /**
      * Creates a dialog that'll choose from a list of interpreter infos.
@@ -245,55 +242,7 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
      * @return true if the info was restored and false otherwise.
      */
     protected void restoreInterpreterInfos(boolean editorChanged) {
-        final Set<String> interpreterNamesToRestore = pathEditor.getInterpreterExeOrJarToRestoreAndClear();
-        final IInterpreterInfo[] exesList = pathEditor.getExesList();
-
-        if (!editorChanged && interpreterNamesToRestore.size() == 0) {
-            IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-            SelectionDialog listDialog = createChooseIntepreterInfoDialog(workbenchWindow, exesList,
-                    "Select interpreters to be restored", true);
-
-            int open = listDialog.open();
-            if (open != ListDialog.OK) {
-                return;
-            }
-            Object[] result = listDialog.getResult();
-            if (result == null || result.length == 0) {
-                return;
-
-            }
-            for (Object o : result) {
-                interpreterNamesToRestore.add(((IInterpreterInfo) o).getExecutableOrJar());
-            }
-
-        }
-
-        //this is the default interpreter
-        ProgressMonitorDialog monitorDialog = new AsynchronousProgressMonitorDialog(this.getShell());
-        monitorDialog.setBlockOnOpen(false);
-
-        try {
-            IRunnableWithProgress operation = new IRunnableWithProgress() {
-
-                @Override
-                public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-                    monitor.beginTask("Restoring PYTHONPATH", IProgressMonitor.UNKNOWN);
-                    try {
-                        pathEditor.pushExpectedSetInfos();
-                        //clear all but the ones that appear
-                        getInterpreterManager().setInfos(exesList, interpreterNamesToRestore, monitor);
-                    } finally {
-                        pathEditor.popExpectedSetInfos();
-                        monitor.done();
-                    }
-                }
-            };
-
-            monitorDialog.run(true, true, operation);
-
-        } catch (Exception e) {
-            Log.log(e);
-        }
+        pathEditor.restoreInterpreterInfos(editorChanged, getShell(), getInterpreterManager());
     }
 
 }

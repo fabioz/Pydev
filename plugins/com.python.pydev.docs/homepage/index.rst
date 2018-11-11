@@ -22,47 +22,40 @@
 		<div class="section" id="silver-sponsors">
 		<h1>Silver Sponsors</h1>
 
-        <!--Added 2017-09-26 -->
         <a href="https://makeawebsitehub.com" border=0><img class="sponsors" src="images/sponsors/websitehub.png" style="width:150px;height:60px;" alt="makeawebsitehub.com" title="https://makeawebsitehub.com" /></a>
 
         <!--Added 2017-09-02 -- patreon -->
         <a href="https://www.voucher365.co.uk" border=0><img class="sponsors" src="images/sponsors/voucher_365.png" style="width:150px;height:60px;" alt="Voucher 365" title="https://www.voucher365.co.uk" /></a>
 
-        <!--Added 2017-08-24-->
         <a href="https://protoolzone.com/" border=0><img class="sponsors" src="images/sponsors/protoolzone_2.png" style="width:150px;height:60px;" alt="Best tool reviews" title="https://protoolzone.com" /></a>
 
         <div class="section" id="bronze-sponsors">
         <h1>Bronze Sponsors</h1>
 
-        <!-- Added 2018-06-04 -->
+        <a href="https://www.exporthub.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/exporthub.jpg" alt="ExportHub" title="https://www.exporthub.com/" /></a>
+
         <a href="http://smålånutensikkerhet.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/skazani_logo.png" alt="http://smålånutensikkerhet.com/" title="http://smålånutensikkerhet.com/" /></a>
 
-        <!-- Added 2018-05-16 -->
+        <a href="https://www.redfin.com/city/16163/WA/Seattle" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/redfin.png" alt="Redfin" title="https://www.redfin.com/city/16163/WA/Seattle" /></a>
+
         <a href="https://www.websitehostingrating.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/webhostingrating.png" alt="websitehostingrating" title="https://www.websitehostingrating.com/" /></a>
-
-        <!-- Added 2018-05-09 -->
-        <a href="https://www.parcelabc.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/parcelabc-logo.jpg" alt="ParcelABC" title="ParcelABC" /></a>
-
-        <!-- Added 2018-04-10 -->
-        <a href="https://allesrefurbished.nl" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/alles_refurbished.png" alt="Alles Refurbished - overview of refurbished tablets, telephones and more (in Dutch)" title="Alles Refurbished - overview of refurbished tablets, telephones and more (in Dutch)" /></a>
-
-        <!-- Added 2018-03-07 -->
-        <a href="https://www.immigrationlawofmt.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/immigrationlawofmt.png" alt="immigrationlawofmt" title="https://www.immigrationlawofmt.com" /></a>
-
 		<br/>
 
-        <!-- Added 2017-10-27 -->
-        <a href="https://superbwebsitebuilders.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/superbwebsitebuilders.png" alt="superbwebsitebuilders" title="https://superbwebsitebuilders.com/" /></a>
-
-        <!-- Added 2016-12-21 -->
         <a href="https://www.vpsserver.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/vpsserver50-50.png" alt="vpsserver" title="https://www.vpsserver.com" /></a>
 
+        <a href="https://allesrefurbished.nl" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/alles_refurbished.png" alt="Alles Refurbished - overview of refurbished tablets, telephones and more (in Dutch)" title="Alles Refurbished - overview of refurbished tablets, telephones and more (in Dutch)" /></a>
 
-        <!-- Added 2016-10-06 -->
-        <a href="https://acemypaper.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/ace_my_paper_50_50.png" alt="Ace My Paper" title="https://acemypaper.com/" /></a>
+        <a href="https://www.immigrationlawofmt.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/immigrationlawofmt.png" alt="immigrationlawofmt" title="https://www.immigrationlawofmt.com" /></a>
 
-        <!-- Added 2018-01-12 -->
+
+        <a href="https://superbwebsitebuilders.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/superbwebsitebuilders.png" alt="superbwebsitebuilders" title="https://superbwebsitebuilders.com/" /></a>
+		<br/>
+
+        <a href="https://www.parcelabc.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/parcelabc-logo.jpg" alt="ParcelABC" title="ParcelABC" /></a>
+
         <a href="https://netotraffic.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/netotraffic.png" alt="Netotraffic" title="https://netotraffic.com/" /></a>
+
+        <a href="https://acemypaper.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/ace_my_paper_50_50.png" alt="Ace My Paper" title="https://acemypaper.com/" /></a>
         </div>
 
 
@@ -193,55 +186,72 @@ To show your appreciation for PyDev and to keep it going strong, help to crowdfu
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
-Release 6.4.1 (2018-06-23)
+Release 7.0.3 (2018-11-08)
+=============================
+
+* **Mypy**
+
+	* PyDev can now use Mypy when doing code analysis.
+
+* **Black Formatter**
+
+	* PyDev can now use black as the code formatting engine.
+
+* **Virtual environments**
+
+	* It's now possible to use pipenv for managing virtual environments.
+	* It's possible to manage virtual environments from the editor.
+
+		* Ctrl+2, pip <command>
+		* Ctrl+2, pipenv <command>
+		* Ctrl+2, conda <command>
+
+* **Debugger**
+
+	* Should be **much** faster for those on Python 3.6 onwards with cython extensions (using frame evaluation).
+
+* The Python 3.7 grammar is now available as an option (even though it's the same as 3.6).
+
+* Removed support for using the Python 2.4 grammar.
+
+* The 2to3 integration shows a better dialog.
+
+* It's possible to autogenerate docstring parameters using the Google Code format (patch by ghbcode).
+
+
+Release 6.5.0 (2018-09-01)
 =============================
 
 * **Debugger**
 
-	* Fixed issue tracing lamda functions.
-	* pydevd.settrace() could end up not stopping the debugger properly.
+	* Debugger is **much** more responsive (fixed bug in reader/writer on the PyDev side).
+	* **breakpoint()** builtin is now supported to add a programmatic breakpoint (on any Python version).
+	* Watch expression no longer giving error if evaluation is empty (patch by glhez).
 
-* Grammar: fixed issue parsing f-strings.
+* **Editor**
 
-Release 6.4.0 (2018-06-18)
+	* Code folding of **#region/#endregion** regions (patch by ghbcode).
+	* There's a new action which allows creating local imports from a global import (use **Ctrl+1** on top of global import name).
+
+
+* It's now possible to change the default interpreter through an action (default binding: **Ctrl+Shift+Alt+I**).
+* The interactive console now has scroll lock (patch by bongibong).
+
+
+Release 6.4.4 (2018-07-28)
 =============================
 
 * **Debugger**
 
-	* Notification of threads is done as they're created instead of synchronized afterwards.
-	* Support for using frame evaluation disabled by default as it made the debugger much slower on some cases.
-	* Fixed case where breakpoint was missed if an exception was raised in a given line.
-	* Properly break on unhandled exceptions on threads.
-	* Add missing import which affected repl with IPython.
-	* Fix for case where breakpoints could be missed.
+	* Fixed issue where a unicode could be used where a string was expected.
+	* Providing wheel for Python 3.7.
+	* Fixed issue running Jython.
+	* No longer showing **pydevd** internals in the stack.
+	* Fixed issue with interactive console and debugger integration.
 
-* **Code Formatter**
+* **Editor**
 
-	* It's now possible to use the PyDev code formatter using the command line.
-		* Install with: **pip install pydevf**
-		* Fixes many common formatter errors.
-		* Tries to keep code close to the original formatting.
-		* see: https://github.com/fabioz/PyDev.Formatter for more details.
-
-	* Fixed issue where blank line was being put in the wrong place in the PyDev code formatter.
-
-* Fixed issue sending current line to interactive console (F2).
-
-Release 6.3.3 (2018-05-05)
-=============================
-
-* **Debugger**
-
-	* Command which evaluates selected text in debugger is now properly categorized.
-	* Warning is no longer shown when a breakpoint is disabled and later removed.
-	* Fixed issue evaluating conditional breakpoints.
-
-* Fixed racing condition when executing scripts which could make some scripts not be executed properly (which could break sending contents to the interactive console).
-* Autocomplete disabled when renaming symbols (**#PyDev-766**).
-* Interactive console exits properly when Eclipse is not properly closed (**#PyDev-860**).
-* Code-formatter properly dealing with matrix multiplication operator **@=** (**#PyDev-904**).
-* Fixed issue where the **default preferences** window had no focus (**#PyDev-702**).
-* Translations fixed for the interactive console view (patch by Mat Booth).
+	* Fixed issue parsing and analyzing f-strings.
 
 
 `View release notes for previous releases`_

@@ -1590,4 +1590,33 @@ public final class PySelection extends TextSelectionUtils {
         return line; // can be -1 if not found (expected)
     }
 
+    /**
+     * @return the line where the current import starts or -1 if not within an import statement.
+     */
+    public int getStartOfImportLine() {
+        int currLine = this.getLineOfOffset();
+        String line = this.getLine(currLine);
+        if (isImportLine(line)) {
+            return currLine;
+        }
+        while (currLine > 0) {
+            currLine--;
+            line = this.getLine(currLine);
+            line = PySelection.getLineWithoutCommentsOrLiterals(line).trim();
+            if (line.length() == 0) {
+                continue;
+            }
+            if (line.endsWith(",") || line.endsWith("\\") || line.endsWith("(")) {
+                if (isImportLine(line)) {
+                    return currLine;
+                }
+                // If it had a continuation, keep on going even if this was not an import line.
+            } else {
+                // Not a continuation of the prev line...
+                return -1;
+            }
+        }
+        return -1;
+    }
+
 }

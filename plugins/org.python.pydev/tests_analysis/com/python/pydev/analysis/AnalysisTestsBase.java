@@ -152,8 +152,6 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
         analyzer = new OccurrencesAnalyzer();
         msgs = analyze();
 
-        printMessages(msgs, errors.length);
-
         HashSet<String> found = new HashSet<String>();
         for (IMessage msg : msgs) {
             found.add(msg.getMessage().trim());
@@ -166,6 +164,8 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
                         + ">>" + StringUtils.join("<<\n>>", found) + "<<");
             }
         }
+
+        printMessages(msgs, errors.length);
 
         return msgs;
     }

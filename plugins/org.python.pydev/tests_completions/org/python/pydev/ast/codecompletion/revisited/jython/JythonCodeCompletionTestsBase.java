@@ -84,7 +84,7 @@ public class JythonCodeCompletionTestsBase extends CodeCompletionTestsBase {
 
             @Override
             public int getGrammarVersion() {
-                return IPythonNature.GRAMMAR_PYTHON_VERSION_2_4;
+                return IPythonNature.GRAMMAR_PYTHON_VERSION_2_7;
             }
         };
     }

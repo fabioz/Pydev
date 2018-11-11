@@ -67,7 +67,7 @@ class TestMod(unittest.TestCase):
     def test_imports1(self):
         f, tip = _pydev_jy_imports_tipper.generate_tip('junit.framework.TestCase')
         assert f.endswith('junit.jar')
-        ret = self.assert_in('assertEqual', tip)
+        ret = self.assert_in('assertEquals', tip)
 #        self.assertEqual('', ret[2])
 
     def test_imports2(self):
@@ -129,11 +129,11 @@ class TestMod(unittest.TestCase):
         assert 'byte[]' in tup[1]
 
         f, tip = _pydev_jy_imports_tipper.generate_tip('__builtin__.str')
-        assert f.endswith('jython.jar')
+        assert f is None or f.endswith('jython.jar')  # Depends on jython version
         self.assert_in('find'          , tip)
 
         f, tip = _pydev_jy_imports_tipper.generate_tip('__builtin__.dict')
-        assert f.endswith('jython.jar')
+        assert f is None or f.endswith('jython.jar')  # Depends on jython version
         self.assert_in('get'          , tip)
 
 

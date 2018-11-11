@@ -839,6 +839,9 @@
          <factory class="org.python.pydev.debug.ui.PyToggleTargetAdapter" adaptableType="org.python.pydev.shared_ui.editor.BaseEditor">
 			<adapter type="org.eclipse.debug.ui.actions.IToggleBreakpointsTarget"/>
          </factory>
+         <factory class="org.python.pydev.debug.ui.PyToggleTargetAdapter" adaptableType="org.brainwy.liclipsetext.editor.common.BaseLiClipseEditor">
+			<adapter type="org.eclipse.debug.ui.actions.IToggleBreakpointsTarget"/>
+         </factory>
     </extension>
 
    <extension

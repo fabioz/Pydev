@@ -452,6 +452,9 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
                             "\npayload:" + payload, null);
                 }
 
+            } else if (cmdCode == AbstractDebuggerCommand.CMD_SET_PROTOCOL) {
+                // Just ignore
+
             } else if (cmdCode == AbstractDebuggerCommand.CMD_PROCESS_CREATED) {
                 // We don't really need to handle process created for now.
 

@@ -60,12 +60,17 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
     private ILinkContainer linkContainer; // console we are attached to
     private boolean onlyCreateLinksForExistingFiles = true;
     private IProject project;
+    private boolean updatedProjectAndWorkingDir = false;
 
     private void updateProjectAndWorkingDir() {
+        if (updatedProjectAndWorkingDir) {
+            return;
+        }
         IProcess process = DebugUITools.getCurrentProcess();
         if (process != null) {
             ILaunch launch = process.getLaunch();
             if (launch != null) {
+                updatedProjectAndWorkingDir = true;
                 ILaunchConfiguration lc = launch.getLaunchConfiguration();
                 initLaunchConfiguration(lc);
             }
@@ -82,6 +87,9 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
 
     private IPath workingDirectory;
 
+    /**
+     * @return may be null.
+     */
     public IPath getWorkingDirectory() {
         if (workingDirectory == null) {
             updateProjectAndWorkingDir();
@@ -135,6 +143,10 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
 
             @Override
             public void addLink(IHyperlink link, int offset, int length) {
+                if (length <= 0) {
+                    // Log.log("Trying to create link with invalid len: " + length);
+                    return;
+                }
                 console.addLink(link, offset, length);
             }
 
@@ -157,8 +169,11 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
                 mappedResources = launchConfiguration.getMappedResources();
                 if (mappedResources != null && mappedResources.length > 0) {
                     this.project = mappedResources[0].getProject();
-                    this.workingDirectory = PythonRunnerConfig.getWorkingDirectory(launchConfiguration,
-                            PythonNature.getPythonNature(project));
+                    final PythonNature nature = PythonNature.getPythonNature(project);
+                    if (nature != null) {
+                        this.workingDirectory = PythonRunnerConfig.getWorkingDirectory(launchConfiguration,
+                                nature);
+                    }
                 }
             } catch (Exception e) {
                 Log.log(e);
@@ -184,49 +199,54 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
                 return;
             }
 
-            Matcher m = regularPythonlinePattern.matcher(text);
-            if (m.matches()) {
-                regularPythonMatcher(lineOffset, lineLength, m);
-                return;
-            }
+            if (text.contains("/") || text.contains("\\")) {
 
-            if (quotesPattern(lineOffset, text, insideQuotesMatcher1)) {
-                return;
-            }
+                Matcher m = regularPythonlinePattern.matcher(text);
+                if (m.matches()) {
+                    regularPythonMatcher(lineOffset, lineLength, m);
+                    return;
+                }
 
-            if (quotesPattern(lineOffset, text, insideQuotesMatcher2)) {
-                return;
+                if (quotesPattern(lineOffset, text, insideQuotesMatcher1)) {
+                    return;
+                }
+
+                if (quotesPattern(lineOffset, text, insideQuotesMatcher2)) {
+                    return;
+                }
             }
 
             // Ok, we did not have a direct match, let's try a different approach...
             String[] dottedValidSourceFiles = FileTypesPreferences.getDottedValidSourceFiles();
             for (String dottedExt : dottedValidSourceFiles) {
-                Pattern pattern = getRegexpForExtension(dottedExt);
-                m = pattern.matcher(text);
-                if (m.matches()) {
-                    int lineNumberInt = 0;
-                    String filename = m.group(1);
-                    int endCol = m.end(1);
-                    if (text.length() > endCol) {
-                        if (text.charAt(endCol) == ':') {
-                            int j = 1;
-                            while (endCol + j < text.length()) {
-                                char c = text.charAt(endCol + j);
-                                if (Character.isDigit(c)) {
-                                    j++;
-                                } else {
-                                    break;
+                if (text.contains(dottedExt)) {
+                    Pattern pattern = getRegexpForExtension(dottedExt);
+                    Matcher m = pattern.matcher(text);
+                    if (m.matches()) {
+                        int lineNumberInt = 0;
+                        String filename = m.group(1);
+                        int endCol = m.end(1);
+                        if (text.length() > endCol) {
+                            if (text.charAt(endCol) == ':') {
+                                int j = 1;
+                                while (endCol + j < text.length()) {
+                                    char c = text.charAt(endCol + j);
+                                    if (Character.isDigit(c)) {
+                                        j++;
+                                    } else {
+                                        break;
+                                    }
+                                }
+                                if (j > 1) {
+                                    String string = text.substring(endCol + 1, endCol + j);
+                                    lineNumberInt = Integer.parseInt(string);
+                                    endCol += j;
                                 }
                             }
-                            if (j > 1) {
-                                String string = text.substring(endCol + 1, endCol + j);
-                                lineNumberInt = Integer.parseInt(string);
-                                endCol += j;
-                            }
                         }
-                    }
-                    if (checkMapFilenameToHyperlink(lineOffset, 0, endCol, filename, lineNumberInt)) {
-                        return;
+                        if (checkMapFilenameToHyperlink(lineOffset, 0, endCol, filename, lineNumberInt)) {
+                            return;
+                        }
                     }
                 }
             }
@@ -269,7 +289,6 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
 
     private boolean checkMapFilenameToHyperlink(int lineOffset, int matchStartCol, int endCol, String filename,
             int lineNumberInt) {
-        final String initialFilename = filename;
         if (new File(filename).exists()) {
             if (createHyperlink(lineOffset, matchStartCol, endCol, filename, lineNumberInt)) {
                 return true;
@@ -346,23 +365,30 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
                 lst.add(getProject().getLocation());
             }
 
-            for (IPath workingDirectory : lst) {
-                if (workingDirectory != null) {
-                    IPath pathCopy = (IPath) path.clone();
-                    while (pathCopy.segmentCount() > 0) {
-                        IPath appended = workingDirectory.append(pathCopy);
-                        File checkFile = appended.toFile();
-                        if (checkFile.exists()) {
-                            if (createHyperlink(lineOffset,
-                                    matchStartCol + (initialFilename.length() - pathCopy.toString().length()),
-                                    endCol, checkFile.getAbsolutePath(), lineNumberInt)) {
-                                return true;
+            if (path.getDevice() == null) {
+                for (IPath workingDirectory : lst) {
+                    if (workingDirectory != null) {
+                        IPath pathCopy = (IPath) path.clone();
+                        while (pathCopy.segmentCount() > 0) {
+                            IPath appended = workingDirectory.append(pathCopy);
+                            File checkFile = appended.toFile();
+                            if (checkFile.exists()) {
+                                int startCol = matchStartCol;
+                                if (endCol > startCol) {
+                                    if (createHyperlink(lineOffset,
+                                            startCol, endCol,
+                                            checkFile.getAbsolutePath(),
+                                            lineNumberInt)) {
+                                        return true;
+                                    }
+                                }
                             }
+                            pathCopy = pathCopy.removeFirstSegments(1);
                         }
-                        pathCopy = pathCopy.removeFirstSegments(1);
                     }
                 }
             }
+
         } catch (Exception e) {
             Log.log(e);
         }

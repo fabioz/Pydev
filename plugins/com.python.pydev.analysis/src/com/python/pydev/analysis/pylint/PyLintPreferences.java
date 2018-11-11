@@ -10,6 +10,8 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.core.preferences.PydevPrefs;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 
+import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
+
 public class PyLintPreferences {
 
     public static final String PYLINT_FILE_LOCATION = "PYLINT_FILE_LOCATION";
@@ -102,11 +104,11 @@ public class PyLintPreferences {
         return PydevPrefs.getEclipsePreferences().getInt(SEVERITY_REFACTOR, DEFAULT_SEVERITY_REFACTOR);
     }
 
-    public static ICallback0<IPyLintStream> createPyLintStream = (() -> {
+    public static ICallback0<IExternalCodeAnalysisStream> createPyLintStream = (() -> {
         return null;
     });
 
-    public static IPyLintStream getConsoleOutputStream() throws MalformedURLException {
+    public static IExternalCodeAnalysisStream getConsoleOutputStream() throws MalformedURLException {
         return createPyLintStream.call();
     }
 

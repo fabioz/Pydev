@@ -253,7 +253,7 @@ public class CodeCompletionTestsBase extends TestCase {
         return InterpreterManagersAPI.getPythonInterpreterManager();
     }
 
-    protected static int GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.LATEST_GRAMMAR_VERSION;
+    protected static int GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.LATEST_GRAMMAR_PY2_VERSION;
 
     /**
      * @return a PythonNature that is regarded as a python nature with the latest grammar.

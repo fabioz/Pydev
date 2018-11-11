@@ -332,7 +332,7 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
         if (info != null) {
             return info.getGrammarVersion();
         } else {
-            return IPythonNature.LATEST_GRAMMAR_VERSION;
+            return IPythonNature.LATEST_GRAMMAR_PY3_VERSION;
         }
     }
 

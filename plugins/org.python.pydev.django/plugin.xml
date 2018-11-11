@@ -6,16 +6,15 @@
             canFinishEarly="false"
             category="org.python.pydev.PythonCategory"
             class="org.python.pydev.django.ui.wizards.project.DjangoProjectWizard"
-            descriptionImage="icons/django_logo.png"
             finalPerspective="org.python.pydev.ui.PythonPerspective"
             hasPages="true"
             icon="icons/django_16x16.png"
             id="org.python.pydev.django.ui.wizards.project.DjangoProjectWizard"
             name="PyDev Django Project"
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"
-            project="true"/>         
+            project="true"/>
     </extension>
-    
+
     <!-- nature: currently only used to know if actions should appear or not -->
     <extension
          id="djangoNature"
@@ -24,8 +23,8 @@
         <runtime>
             <run class="org.python.pydev.django.nature.DjangoNature"/>
         </runtime>
-    </extension>  
-    
+    </extension>
+
     <!-- django config -->
    <extension point="org.eclipse.ui.propertyPages">
       <page name="PyDev - Django"
@@ -38,7 +37,7 @@
          </enabledWhen>
       </page>
    </extension>
-    
+
     <!-- launch for django -->
     <extension point="org.eclipse.debug.core.launchConfigurationTypes">
         <launchConfigurationType
@@ -49,7 +48,7 @@
             public="true">
         </launchConfigurationType>
     </extension>
-    
+
     <extension point="org.eclipse.debug.ui.launchConfigurationTypeImages">
         <launchConfigurationTypeImage
             icon="icons/django_16x16.png"
@@ -103,9 +102,9 @@
             <configurationType id="org.python.pydev.django.launching.DjangoLaunchConfigurationType"/>
         </shortcut>
     </extension>
-    
+
     <extension point="org.eclipse.debug.ui.launchConfigurationTabGroups">
-        <!-- Note that it's the same as the regular python launch! -->    
+        <!-- Note that it's the same as the regular python launch! -->
         <launchConfigurationTabGroup
             type="org.python.pydev.django.launching.DjangoLaunchConfigurationType"
             class="org.python.pydev.debug.ui.ProjectDependentTabGroup"
@@ -113,19 +112,19 @@
         </launchConfigurationTabGroup>
     </extension>
 
-	
+
     <extension point="org.eclipse.ui.popupMenus">
          <objectContribution
              adaptable="true"
              id="org.python.pydev.django.ui.actions.project"
              objectClass="org.eclipse.core.resources.IProject">
-			 <menu id="org.python.pydev.django.ui.django.menu" label="D&amp;jango" icon="icons/django_16x16.png">        
+			 <menu id="org.python.pydev.django.ui.django.menu" label="D&amp;jango" icon="icons/django_16x16.png">
                  <separator name="common"/>
                  <separator name="db"/>
                  <separator name="misc"/>
                  <separator name="nature"/>
-             </menu>			  
-             
+             </menu>
+
 	         <!-- misc -->
 	         <action
 	                class="org.python.pydev.django.debug.ui.actions.DjangoCreateApp"
@@ -139,11 +138,11 @@
 	               class="org.python.pydev.django.debug.ui.actions.DjangoWar"
 	               enablesFor="+"
 	               id="org.python.pydev.django.ui.actions.project.djangoWar"
-	               label="Build WAR Package"               
+	               label="Build WAR Package"
 	               menubarPath="org.python.pydev.django.ui.django.menu/misc"
 	               tooltip="Create deployable WAR package for Django project">
 	         </action>
-	         
+
 	         <!-- common -->
 	         <action
 	               class="org.python.pydev.django.debug.ui.actions.DjangoShell"
@@ -157,7 +156,7 @@
 	               class="org.python.pydev.django.debug.ui.actions.DjangoTestAction"
 	               enablesFor="+"
 	               id="org.python.pydev.django.debug.ui.actions.project.djangoTest"
-	               label="Run Django Tests (manage.py test)" 
+	               label="Run Django Tests (manage.py test)"
 	               menubarPath="org.python.pydev.django.ui.django.menu/common"
 	               tooltip="Run Django Tests">
 	         </action>
@@ -165,37 +164,37 @@
 	               class="org.python.pydev.django.debug.ui.actions.DjangoSyncDB"
 	               enablesFor="+"
 	               id="org.python.pydev.django.debug.ui.actions.project.djangoSyncDB"
-	               label="SyncDB (Django &#60; 1.7) (manage.py syncdb)" 
+	               label="SyncDB (Django &#60; 1.7) (manage.py syncdb)"
 	               menubarPath="org.python.pydev.django.ui.django.menu/common"
 	               tooltip="Migrate database Django &#60; 1.7">
-	         </action>	   
+	         </action>
 	         <action
 	               class="org.python.pydev.django.debug.ui.actions.DjangoMigrate"
 	               enablesFor="+"
 	               id="org.python.pydev.django.debug.ui.actions.project.djangoMigrate"
-	               label="Migrate (Django &#62;= 1.7) (manage.py migrate)" 
+	               label="Migrate (Django &#62;= 1.7) (manage.py migrate)"
 	               menubarPath="org.python.pydev.django.ui.django.menu/common"
 	               tooltip="Migrate database Django &#62;= 1.7">
-	         </action>	   
+	         </action>
 	         <action
 	               class="org.python.pydev.django.debug.ui.actions.DjangoMakeMigrations"
 	               enablesFor="+"
 	               id="org.python.pydev.django.debug.ui.actions.project.djangoMakeMigrations"
-	               label="Make Migrations (Django &#62;= 1.7) (manage.py makemigrations)" 
+	               label="Make Migrations (Django &#62;= 1.7) (manage.py makemigrations)"
 	               menubarPath="org.python.pydev.django.ui.django.menu/common"
 	               tooltip="Make database migrations Django &#62;= 1.7">
-	         </action>	   
+	         </action>
 	         <action
 	               class="org.python.pydev.django.debug.ui.actions.DjangoCustomCommand"
 	               enablesFor="+"
 	               id="org.python.pydev.django.debug.ui.actions.djangoCustomCommand"
-	               label="Custom command (manage.py ${custom_command})" 
+	               label="Custom command (manage.py ${custom_command})"
 	               menubarPath="org.python.pydev.django.ui.django.menu/common"
 	               tooltip="Create a custom command to pass to manage.py">
-	         </action>	   
-	         
-	         
-	         
+	         </action>
+
+
+
               <!-- remove nature -->
              <action
                    class="org.python.pydev.django.nature.DjangoRemoveNatureAction"
@@ -208,7 +207,7 @@
              </action>
 	         <visibility><objectState name="projectNature" value="org.python.pydev.django.djangoNature"/></visibility>
           </objectContribution>
-      
+
           <!-- add nature -->
           <objectContribution
                 adaptable="true"
@@ -227,15 +226,15 @@
              </action>
              <visibility><not><objectState name="projectNature" value="org.python.pydev.django.djangoNature"/></not></visibility>
           </objectContribution>
-      
-          
+
+
     </extension>
-    
-    
+
+
 <!-- Create the needed actions -->
    <extension point="org.python.pydev.pydev_pyedit_listener">
         <pyedit_listener_participant class="org.python.pydev.django.debug.ui.actions.DjangoActionCreatorPyEditListener"/>
    </extension>
-       
+
 
 </plugin>

@@ -1,15 +1,22 @@
-PyDev 6.3.2 Released
+PyDev 6.5.0 Released
 
-PyDev 6.3.2 Release Highlights
+PyDev 6.5.0 Release Highlights
 -------------------------------
 
-PyDev changes:
+* **Debugger**
 
-* Type inference
+	* Debugger is **much** more responsive (fixed bug in reader/writer on the PyDev side).
+	* **breakpoint()** builtin is now supported to add a programmatic breakpoint (on any Python version).
+	* Watch expression no longer giving error if evaluation is empty (patch by glhez).
 
-	* PyDev can now uses information on .pyi (when along the typed .py file) for type inference.
+* **Editor**
 
-* Fixed issue opening code completion preferences page.
+	* Code folding of **#region/#endregion** regions (patch by ghbcode).
+	* There's a new action which allows creating local imports from a global import (use **Ctrl+1** on top of global import name).
+
+
+* It's now possible to change the default interpreter through an action (default binding: **Ctrl+Shift+Alt+I**).
+* The interactive console now has scroll lock (patch by bongibong).
 
 
 About PyDev

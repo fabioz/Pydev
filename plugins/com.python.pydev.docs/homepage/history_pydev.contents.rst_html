@@ -4,6 +4,118 @@
 
 <div class="section" id="history-for-pydev">
 <h1>History For PyDev</h1>
+<div class="section" id="release-7-0-3-2018-11-08">
+<h2>Release 7.0.3 (2018-11-08)</h2>
+<ul>
+<li><p class="first"><strong>Mypy</strong></p>
+<blockquote>
+<ul class="simple">
+<li>PyDev can now use Mypy when doing code analysis.</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Black Formatter</strong></p>
+<blockquote>
+<ul class="simple">
+<li>PyDev can now use black as the code formatting engine.</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Virtual environments</strong></p>
+<blockquote>
+<ul>
+<li><p class="first">It's now possible to use pipenv for managing virtual environments.</p>
+</li>
+<li><p class="first">It's possible to manage virtual environments from the editor.</p>
+<blockquote>
+<ul class="simple">
+<li>Ctrl+2, pip &lt;command&gt;</li>
+<li>Ctrl+2, pipenv &lt;command&gt;</li>
+<li>Ctrl+2, conda &lt;command&gt;</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Debugger</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Should be <strong>much</strong> faster for those on Python 3.6 onwards with cython extensions (using frame evaluation).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first">The Python 3.7 grammar is now available as an option (even though it's the same as 3.6).</p>
+</li>
+<li><p class="first">Removed support for using the Python 2.4 grammar.</p>
+</li>
+<li><p class="first">The 2to3 integration shows a better dialog.</p>
+</li>
+<li><p class="first">It's possible to autogenerate docstring parameters using the Google Code format (patch by ghbcode).</p>
+</li>
+</ul>
+</div>
+<div class="section" id="release-6-5-0-2018-09-01">
+<h2>Release 6.5.0 (2018-09-01)</h2>
+<ul>
+<li><p class="first"><strong>Debugger</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Debugger is <strong>much</strong> more responsive (fixed bug in reader/writer on the PyDev side).</li>
+<li><strong>breakpoint()</strong> builtin is now supported to add a programmatic breakpoint (on any Python version).</li>
+<li>Watch expression no longer giving error if evaluation is empty (patch by glhez).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Editor</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Code folding of <strong>#region/#endregion</strong> regions (patch by ghbcode).</li>
+<li>There's a new action which allows creating local imports from a global import (use <strong>Ctrl+1</strong> on top of global import name).</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first">It's now possible to change the default interpreter through an action (default binding: <strong>Ctrl+Shift+Alt+I</strong>).</p>
+</li>
+<li><p class="first">The interactive console now has scroll lock (patch by bongibong).</p>
+</li>
+</ul>
+</div>
+<div class="section" id="release-6-4-4-2018-07-28">
+<h2>Release 6.4.4 (2018-07-28)</h2>
+<ul>
+<li><p class="first"><strong>Debugger</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Fixed issue where a unicode could be used where a string was expected.</li>
+<li>Providing wheel for Python 3.7.</li>
+<li>Fixed issue running Jython.</li>
+<li>No longer showing <strong>pydevd</strong> internals in the stack.</li>
+<li>Fixed issue with interactive console and debugger integration.</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Editor</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Fixed issue parsing and analyzing f-strings.</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</div>
+<div class="section" id="release-6-4-3-2018-07-04">
+<h2>Release 6.4.3 (2018-07-04)</h2>
+<ul class="simple">
+<li>Fixed critical error on debugger (could deadlock when creating a new thread).</li>
+</ul>
+</div>
+<div class="section" id="release-6-4-2-2018-07-02">
+<h2>Release 6.4.2 (2018-07-02)</h2>
+<ul class="simple">
+<li>Fixed critical error parsing f-strings.</li>
+</ul>
+</div>
 <div class="section" id="release-6-4-1-2018-06-23">
 <h2>Release 6.4.1 (2018-06-23)</h2>
 <ul>

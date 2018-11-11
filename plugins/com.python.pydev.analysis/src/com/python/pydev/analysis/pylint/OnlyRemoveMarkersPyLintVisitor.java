@@ -6,51 +6,29 @@
  */
 package com.python.pydev.analysis.pylint;
 
-import java.util.List;
-
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
-import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.IMiscConstants;
-import org.python.pydev.shared_core.markers.PyMarkerUtils;
 
-public class OnlyRemoveMarkersPyLintVisitor implements IPyLintVisitor {
+import com.python.pydev.analysis.external.AbstractExternalCodeAnalysisOnlyRemoveMarkersVisitor;
+
+public class OnlyRemoveMarkersPyLintVisitor extends AbstractExternalCodeAnalysisOnlyRemoveMarkersVisitor {
+
+    public OnlyRemoveMarkersPyLintVisitor(IResource resource) {
+        super(resource);
+    }
 
     public static final String PYLINT_PROBLEM_MARKER = IMiscConstants.PYLINT_PROBLEM_MARKER;
 
     public static final String PYLINT_MESSAGE_ID = IMiscConstants.PYLINT_MESSAGE_ID;
 
-    protected IResource resource;
-
-    /*default*/ public OnlyRemoveMarkersPyLintVisitor(IResource resource) {
-        this.resource = resource;
+    @Override
+    public String getProblemMarkerId() {
+        return PYLINT_PROBLEM_MARKER;
     }
 
     @Override
-    public void deleteMarkers() {
-        //Whenever PyLint is passed, the markers will be deleted.
-        try {
-            if (resource != null) {
-                resource.deleteMarkers(PYLINT_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
-            }
-        } catch (CoreException e3) {
-            Log.log(e3);
-        }
-    }
-
-    @Override
-    public void startVisit() {
-        deleteMarkers();
-    }
-
-    @Override
-    public void join() {
-        //no-op
-    }
-
-    @Override
-    public List<PyMarkerUtils.MarkerInfo> getMarkers() {
-        return null;
+    public String getMessageId() {
+        return PYLINT_MESSAGE_ID;
     }
 
 }

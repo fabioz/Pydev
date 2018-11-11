@@ -6,7 +6,7 @@ from  _pydev_bundle._pydev_calltip_util import get_description
 from _pydev_imps._pydev_saved_modules import thread
 from _pydevd_bundle import pydevd_vars
 from _pydevd_bundle import pydevd_xml
-from _pydevd_bundle.pydevd_constants import IS_JYTHON, dict_iter_items, NEXT_VALUE_SEPARATOR
+from _pydevd_bundle.pydevd_constants import IS_JYTHON, dict_iter_items, NEXT_VALUE_SEPARATOR, Null
 
 try:
     import cStringIO as StringIO #may not always be available @UnusedImport
@@ -15,51 +15,6 @@ except:
         import StringIO #@Reimport
     except:
         import io as StringIO
-
-# =======================================================================================================================
-# Null
-# =======================================================================================================================
-class Null:
-    """
-    Gotten from: http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/68205
-    """
-
-    def __init__(self, *args, **kwargs):
-        return None
-
-    def __call__(self, *args, **kwargs):
-        return self
-
-    def __getattr__(self, mname):
-        return self
-
-    def __setattr__(self, name, value):
-        return self
-
-    def __delattr__(self, name):
-        return self
-
-    def __repr__(self):
-        return "<Null>"
-
-    def __str__(self):
-        return "Null"
-
-    def __len__(self):
-        return 0
-
-    def __getitem__(self):
-        return self
-
-    def __setitem__(self, *args, **kwargs):
-        pass
-
-    def write(self, *args, **kwargs):
-        pass
-
-    def __nonzero__(self):
-        return 0
-
 
 # =======================================================================================================================
 # BaseStdIn
@@ -297,14 +252,12 @@ class BaseInterpreterInterface:
                     try:
                         self.start_exec()
                         if hasattr(self, 'debugger'):
-                            import pydevd_tracing
-                            pydevd_tracing.SetTrace(self.debugger.trace_dispatch)
+                            self.debugger.enable_tracing()
 
                         more = self.do_add_exec(code_fragment)
 
                         if hasattr(self, 'debugger'):
-                            import pydevd_tracing
-                            pydevd_tracing.SetTrace(None)
+                            self.debugger.disable_tracing()
 
                         self.finish_exec(more)
                     finally:
@@ -614,8 +567,9 @@ class BaseInterpreterInterface:
                 traceback.print_exc()
                 sys.stderr.write('pydevd is not available, cannot connect\n', )
 
+            from _pydevd_bundle.pydevd_constants import set_thread_id
             from _pydev_bundle import pydev_localhost
-            threading.currentThread().__pydevd_id__ = "console_main"
+            set_thread_id(threading.currentThread(), "console_main")
 
             self.orig_find_frame = pydevd_vars.find_frame
             pydevd_vars.find_frame = self._findFrame
@@ -625,8 +579,7 @@ class BaseInterpreterInterface:
                 pydevd.apply_debugger_options(debugger_options)
                 self.debugger.connect(pydev_localhost.get_localhost(), debuggerPort)
                 self.debugger.prepare_to_run()
-                import pydevd_tracing
-                pydevd_tracing.SetTrace(None)
+                self.debugger.disable_tracing()
             except:
                 traceback.print_exc()
                 sys.stderr.write('Failed to connect to target debugger.\n')

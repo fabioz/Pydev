@@ -30,7 +30,6 @@ import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.formatter.FormatStd;
 import org.python.pydev.core.partition.PyPartitionScanner;
-import org.python.pydev.editor.actions.PyFormatAction;
 import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.shared_core.partitioner.FastPartitioner;
 import org.python.pydev.shared_core.partitioner.IToken;
@@ -134,7 +133,6 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener 
         //cleared because the colors are gotten from the rgb and not from the names).
         this.colorCache.setPreferences(prefs);
 
-        PyFormatAction formatter = new PyFormatAction();
         try {
             Document doc = new Document(str);
             PyFormatter.formatAll(doc, null, false, formatStd, false, true);

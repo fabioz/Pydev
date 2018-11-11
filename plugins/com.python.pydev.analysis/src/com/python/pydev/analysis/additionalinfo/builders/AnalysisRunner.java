@@ -46,6 +46,7 @@ public class AnalysisRunner {
     public static final String PYDEV_ANALYSIS_PROBLEM_MARKER = IMiscConstants.PYDEV_ANALYSIS_PROBLEM_MARKER;
 
     public static final String PYLINT_PROBLEM_MARKER = IMiscConstants.PYLINT_PROBLEM_MARKER;
+    public static final String MYPY_PROBLEM_MARKER = IMiscConstants.MYPY_PROBLEM_MARKER;
 
     /**
      * do we want to debug this class?
@@ -74,10 +75,14 @@ public class AnalysisRunner {
         return true;
     }
 
+    public static void deleteMarkers(IResource resource) {
+        deleteMarkers(resource, false);
+    }
+
     /**
      * @param resource the resource that should have the markers deleted
      */
-    public static void deleteMarkers(IResource resource) {
+    public static void deleteMarkers(IResource resource, boolean onlyPydevAnalysisMarkers) {
         if (resource == null) {
             return;
         }
@@ -93,11 +98,23 @@ public class AnalysisRunner {
         } catch (Exception e) {
             Log.log(e);
         }
+        if (onlyPydevAnalysisMarkers) {
+            return;
+        }
 
         // Also delete PyLint markers (as they're computed along problem markers now).
         try {
             if (resource != null) {
                 resource.deleteMarkers(PYLINT_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
+            }
+        } catch (CoreException e3) {
+            Log.log(e3);
+        }
+
+        // Also delete Mypy markers (as they're computed along problem markers now).
+        try {
+            if (resource != null) {
+                resource.deleteMarkers(MYPY_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
             }
         } catch (CoreException e3) {
             Log.log(e3);

@@ -1070,7 +1070,7 @@ public class PyFormatStdTest extends TestCase {
             formatStr = doc.get();
             assertEquals(expected, formatStr);
 
-            formatStr = PyFormatter.formatStrAutopep8OrPyDev(new Document(s2), std, "\r", false, true);
+            formatStr = PyFormatter.formatStrAutopep8OrPyDev(null, new Document(s2), std, "\r", false, true, null);
             if (expected2.endsWith("\r") && !formatStr.endsWith("\r")) {
                 expected2 = expected2.substring(0, expected2.length() - 1);
             }
@@ -1080,7 +1080,7 @@ public class PyFormatStdTest extends TestCase {
             String s3 = StringUtils.replaceAll(s, "\n", "\r\n");
             String expected3 = StringUtils.replaceAll(expected, "\n", "\r\n");
 
-            formatStr = PyFormatter.formatStrAutopep8OrPyDev(new Document(s3), std, "\r\n", false, true);
+            formatStr = PyFormatter.formatStrAutopep8OrPyDev(null, new Document(s3), std, "\r\n", false, true, null);
             if (expected3.endsWith("\r\n") && !formatStr.endsWith("\r\n")) {
                 expected3 = expected3.substring(0, expected3.length() - 2);
             }
@@ -2170,7 +2170,7 @@ public class PyFormatStdTest extends TestCase {
                 "\n"
                 + "";
 
-        std.updateAutopep8();
+        std.updateFormatterStyle();
         std.manageBlankLines = true;
         checkFormatResults(input);
     }

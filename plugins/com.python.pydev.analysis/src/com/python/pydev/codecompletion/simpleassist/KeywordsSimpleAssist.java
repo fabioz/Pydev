@@ -77,7 +77,7 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant, ISimpleAs
             try {
                 IPythonNature nature = edit.getPythonNature();
                 if (nature != null) {
-                    isPy3Syntax = nature.getGrammarVersion() >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0;
+                    isPy3Syntax = nature.getGrammarVersion() >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5;
                 }
             } catch (MisconfigurationException e) {
             }

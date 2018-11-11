@@ -84,6 +84,29 @@ class TestInsertCode(unittest.TestCase):
                 else:
                     self.assertEquals(arg1, arg2, "Different arguments at offset {}".format(of))
 
+    def test_line(self):
+
+        def foo():
+            global global_loaded
+            global_loaded()
+
+        def method():
+            a = 10
+            b = 20
+            c = 20
+
+        success, result = insert_code(method.__code__, foo.__code__, method.__code__.co_firstlineno + 1)
+        assert success
+        assert list(result.co_lnotab) == [10, 1, 4, 1, 4, 1]
+
+        success, result = insert_code(method.__code__, foo.__code__, method.__code__.co_firstlineno + 2)
+        assert success
+        assert list(result.co_lnotab) == [0, 1, 14, 1, 4, 1]
+
+        success, result = insert_code(method.__code__, foo.__code__, method.__code__.co_firstlineno + 3)
+        assert success
+        assert list(result.co_lnotab) == [0, 1, 4, 1, 14, 1]
+
     def test_assignment(self):
         self.original_stdout = sys.stdout
         sys.stdout = StringIO()
@@ -437,7 +460,7 @@ class TestInsertCode(unittest.TestCase):
         sys.stdout = StringIO()
 
         try:
-            from tests_python._bytecode_many_names_example import foo
+            from tests_python.resources._bytecode_many_names_example import foo
             self.check_insert_to_line_with_exec(foo, tracing, foo.__code__.co_firstlineno + 2)
 
         finally:
@@ -445,7 +468,7 @@ class TestInsertCode(unittest.TestCase):
 
     def test_extended_arg_overflow(self):
 
-        from tests_python._bytecode_overflow_example import Dummy, DummyTracing
+        from tests_python.resources._bytecode_overflow_example import Dummy, DummyTracing
         self.check_insert_to_line_by_symbols(Dummy.fun, call_tracing, Dummy.fun.__code__.co_firstlineno + 3,
                                              DummyTracing.fun.__code__)
 

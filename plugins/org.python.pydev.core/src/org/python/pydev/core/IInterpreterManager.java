@@ -96,8 +96,9 @@ public interface IInterpreterManager {
     public IInterpreterInfo[] getInterpretersFromPersistedString(String persisted);
 
     /**
-     * All the information cached should be cleared but the information related to the passed interpreters
-     * @param interpreterNamesToRestore
+     * Sets the persisted information to match the passed infos (i.e.: order and interpreters available).
+     *
+     * Restores the in-memory PYTHONPATH information of the interpreterNamesToRestore.
      */
     public void setInfos(IInterpreterInfo[] infos, Set<String> interpreterNamesToRestore, IProgressMonitor monitor);
 

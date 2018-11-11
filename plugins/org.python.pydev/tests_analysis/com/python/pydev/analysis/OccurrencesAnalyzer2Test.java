@@ -410,7 +410,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
 
     public void testParameterAnalysis15() throws IOException {
         int original = GRAMMAR_TO_USE_FOR_PARSING;
-        GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+        GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
         try {
             doc = new Document("def w(a=10, *, b):\n" +
                     "    pass\n" +
@@ -424,7 +424,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
 
     public void testParameterAnalysis16() throws IOException {
         int original = GRAMMAR_TO_USE_FOR_PARSING;
-        GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+        GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
         try {
             doc = new Document("def w(a=10, *, b):\n" +
                     "    pass\n" +
@@ -824,7 +824,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
     }
 
     public void testUsedVariable() throws Exception {
-        try (Closeable x = setGrammar(IPythonNature.GRAMMAR_PYTHON_VERSION_3_0)) {
+        try (Closeable x = setGrammar(IPythonNature.GRAMMAR_PYTHON_VERSION_3_5)) {
             doc = new Document("def foo():\n" +
                     "    a = []\n" +
                     "    my = [*a]\n" +

@@ -50,8 +50,6 @@ public class PyDevCorePreferencesInitializer {
                 PyFormatterPreferences.DEFAULT_USE_SPACE_AFTER_COMMA);
         node.putBoolean(PyFormatterPreferences.ADD_NEW_LINE_AT_END_OF_FILE,
                 PyFormatterPreferences.DEFAULT_ADD_NEW_LINE_AT_END_OF_FILE);
-        node.putBoolean(PyFormatterPreferences.FORMAT_WITH_AUTOPEP8,
-                PyFormatterPreferences.DEFAULT_FORMAT_WITH_AUTOPEP8);
         node.putBoolean(PyFormatterPreferences.FORMAT_ONLY_CHANGED_LINES,
                 PyFormatterPreferences.DEFAULT_FORMAT_ONLY_CHANGED_LINES);
         node.putBoolean(PyFormatterPreferences.TRIM_LINES, PyFormatterPreferences.DEFAULT_TRIM_LINES);

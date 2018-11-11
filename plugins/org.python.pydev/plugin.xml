@@ -462,6 +462,11 @@
             name="PyLint"
             id="org.python.pydev.prefs.pylint"/>
       <page
+            class="org.python.pydev.builder.mypy.MypyPrefPage"
+            category="org.python.pydev.prefs.extensions.analysis"
+            name="Mypy"
+            id="org.python.pydev.prefs.mypy"/>
+      <page
             class="org.python.pydev.builder.todo.PyTodoPrefPage"
             category="org.python.pydev.prefs"
             name="Task Tags"
@@ -631,6 +636,12 @@
                class="org.python.pydev.editor.actions.PyShowOutline"
                menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
                id="org.python.pydev.editor.actions.navigation.pyShowOutline">
+         </action>
+         <action
+               definitionId="org.python.pydev.editor.actions.pySelectInterpreter"
+               label="Select default interpreter"
+               class="org.python.pydev.editor.actions.PySelectInterpreter"
+               id="org.python.pydev.editor.actions.pySelectInterpreter">
          </action>
          <action
                definitionId="org.python.pydev.editor.actions.pyShowBrowser"
@@ -858,6 +869,13 @@
             categoryId="org.python.pydev.ui.category.source"
             id="org.python.pydev.editor.actions.pyShowOutline">
       </command>
+<!-- command: Select default interpreter-->
+      <command
+            name="PyDev: Select default interpreter"
+            description="Select the default interpreter to be used."
+            categoryId="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.pySelectInterpreter">
+      </command>
 <!-- command: Show browser-->
       <command
             name="Python Show Global Tokens (Editor)"
@@ -1057,6 +1075,12 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
+            sequence="M1+M2+M3+I"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="org.python.pydev.editor.actions.pySelectInterpreter"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
             sequence="M1+M2+T"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.pyShowBrowser"
@@ -1181,6 +1205,14 @@
        <super type="org.eclipse.core.resources.problemmarker"/>
        <persistent value="true"/>
     </extension>
+<!-- Communicate mypy problems as markers -->
+    <extension
+        point="org.eclipse.core.resources.markers"
+        name="Mypy Problem"
+        id="mypyproblemmarker">
+       <super type="org.eclipse.core.resources.problemmarker"/>
+       <persistent value="true"/>
+    </extension>
 <!-- Communicate 'invalid' file issues-->
     <extension
         point="org.eclipse.core.resources.markers"
@@ -1233,7 +1265,6 @@
             canFinishEarly="false"
             category="org.python.pydev.PythonCategory"
             class="org.python.pydev.ui.wizards.project.PythonProjectWizard"
-            descriptionImage="platform:/plugin/org.python.pydev.shared_ui/icons/python_logo.png"
             finalPerspective="org.python.pydev.ui.PythonPerspective"
             hasPages="true"
             icon="platform:/plugin/org.python.pydev.shared_ui/icons/python_16x16.png"
@@ -1247,7 +1278,6 @@
             canFinishEarly="false"
             category="org.python.pydev.PythonCategory"
             class="org.python.pydev.ui.wizards.gettingstarted.PythonGettingStartedWizard"
-            descriptionImage="platform:/plugin/org.python.pydev.shared_ui/icons/python_logo.png"
             finalPerspective="org.python.pydev.ui.PythonPerspective"
             hasPages="true"
             icon="platform:/plugin/org.python.pydev.shared_ui/icons/mainfunction.gif"
@@ -1260,48 +1290,44 @@
             canFinishEarly="false"
             category="org.python.pydev.PythonCategory"
             class="org.python.pydev.ui.wizards.files.PythonSourceFolderWizard"
-            descriptionImage="platform:/plugin/org.python.pydev.shared_ui/icons/python_logo.png"
             finalPerspective="org.python.pydev.ui.PythonPerspective"
             hasPages="true"
             icon="platform:/plugin/org.python.pydev.shared_ui/icons/packagefolder_obj.gif"
             id="org.python.pydev.ui.wizards.files.PythonSourceFolderWizard"
-            name="&amp;Source Folder"
+            name="Source Folder"
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"
             project="false"/>
       <wizard
             canFinishEarly="false"
             category="org.python.pydev.PythonCategory"
             class="org.python.pydev.ui.wizards.files.PythonExistingSourceFolderWizard"
-            descriptionImage="platform:/plugin/org.python.pydev.shared_ui/icons/python_logo.png"
             finalPerspective="org.python.pydev.ui.PythonPerspective"
             hasPages="true"
             icon="platform:/plugin/org.python.pydev.shared_ui/icons/packagefolder_obj.gif"
             id="org.python.pydev.ui.wizards.files.PythonExistingSourceFolderWizard"
-            name="&amp;Link to Existing Source"
+            name="Link to Existing Source"
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"
             project="false"/>
       <wizard
             canFinishEarly="false"
             category="org.python.pydev.PythonCategory"
             class="org.python.pydev.ui.wizards.files.PythonPackageWizard"
-            descriptionImage="platform:/plugin/org.python.pydev.shared_ui/icons/python_logo.png"
             finalPerspective="org.python.pydev.ui.PythonPerspective"
             hasPages="true"
             icon="platform:/plugin/org.python.pydev.shared_ui/icons/package_obj.gif"
             id="org.python.pydev.ui.wizards.files.PythonPackageWizard"
-            name="PyDev P&amp;ackage"
+            name="PyDev Package"
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"
             project="false"/>
       <wizard
             canFinishEarly="false"
             category="org.python.pydev.PythonCategory"
             class="org.python.pydev.ui.wizards.files.PythonModuleWizard"
-            descriptionImage="platform:/plugin/org.python.pydev.shared_ui/icons/python_logo.png"
             finalPerspective="org.python.pydev.ui.PythonPerspective"
             hasPages="true"
             icon="platform:/plugin/org.python.pydev.shared_ui/icons/python_file.gif"
             id="org.python.pydev.ui.wizards.files.PythonModuleWizard"
-            name="PyDev &amp;Module"
+            name="PyDev Module"
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"
             project="false"/>
    </extension>

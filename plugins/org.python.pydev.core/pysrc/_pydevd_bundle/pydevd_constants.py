@@ -12,30 +12,34 @@ JINJA2_SUSPEND = 3
 
 
 class DebugInfoHolder:
-    #we have to put it here because it can be set through the command line (so, the
-    #already imported references would not have it).
+    # we have to put it here because it can be set through the command line (so, the
+    # already imported references would not have it).
     DEBUG_RECORD_SOCKET_READS = False
     DEBUG_TRACE_LEVEL = -1
     DEBUG_TRACE_BREAKPOINTS = -1
 
-#Hold a reference to the original _getframe (because psyco will change that as soon as it's imported)
-import sys #Note: the sys import must be here anyways (others depend on it)
+
+# Hold a reference to the original _getframe (because psyco will change that as soon as it's imported)
+import sys  # Note: the sys import must be here anyways (others depend on it)
 IS_IRONPYTHON = sys.platform == 'cli'
 try:
     get_frame = sys._getframe
     if IS_IRONPYTHON:
+
         def get_frame():
             try:
                 return sys._getframe()
             except ValueError:
                 pass
+
 except AttributeError:
+
     def get_frame():
         raise AssertionError('sys._getframe not available (possible causes: enable -X:Frames on IronPython?)')
 
-#Used to determine the maximum size of each variable passed to eclipse -- having a big value here may make
-#the communication slower -- as the variables are being gathered lazily in the latest version of eclipse,
-#this value was raised from 200 to 1000.
+# Used to determine the maximum size of each variable passed to eclipse -- having a big value here may make
+# the communication slower -- as the variables are being gathered lazily in the latest version of eclipse,
+# this value was raised from 200 to 1000.
 MAXIMUM_VARIABLE_REPRESENTATION_SIZE = 1000
 # Prefix for saving functions return values in locals
 RETURN_VALUES_DICT = '__pydevd_ret_val_dict'
@@ -44,9 +48,15 @@ import os
 
 from _pydevd_bundle import pydevd_vm_type
 
+# Constant detects when running on Jython/windows properly later on.
+IS_WINDOWS = sys.platform == 'win32'
+
 IS_JYTHON = pydevd_vm_type.get_vm_type() == pydevd_vm_type.PydevdVmType.JYTHON
 IS_JYTH_LESS25 = False
+
 if IS_JYTHON:
+    import java.lang.System  # @UnresolvedImport
+    IS_WINDOWS = java.lang.System.getProperty("os.name").lower().startswith("windows")
     if sys.version_info[0] == 2 and sys.version_info[1] < 5:
         IS_JYTH_LESS25 = True
 
@@ -69,7 +79,6 @@ else:
             # Supported in 2.6,2.7 or 3.3 onwards (32 or 64)
             CYTHON_SUPPORTED = True
 
-
 #=======================================================================================================================
 # Python 3?
 #=======================================================================================================================
@@ -90,7 +99,7 @@ try:
     elif sys.version_info[0] == 2 and sys.version_info[1] == 4:
         IS_PY24 = True
 except AttributeError:
-    pass  #Not all versions have sys.version_info
+    pass  # Not all versions have sys.version_info
 
 try:
     SUPPORT_GEVENT = os.getenv('GEVENT_SUPPORT', 'False') == 'True'
@@ -103,7 +112,6 @@ USE_LIB_COPY = SUPPORT_GEVENT and \
                ((not IS_PY3K and sys.version_info[1] >= 6) or
                 (IS_PY3K and sys.version_info[1] >= 3))
 
-
 INTERACTIVE_MODE_AVAILABLE = sys.platform in ('darwin', 'win32') or os.getenv('DISPLAY') is not None
 IS_PYCHARM = False
 
@@ -113,7 +121,6 @@ ASYNC_EVAL_TIMEOUT_SEC = 60
 NEXT_VALUE_SEPARATOR = "__pydev_val__"
 BUILTINS_MODULE_NAME = '__builtin__' if IS_PY2 else 'builtins'
 SHOW_DEBUG_INFO_ENV = os.getenv('PYCHARM_DEBUG') == 'True' or os.getenv('PYDEV_DEBUG') == 'True'
-
 
 if SHOW_DEBUG_INFO_ENV:
     # show debug info before the debugger start
@@ -154,11 +161,12 @@ def protect_libraries_from_patching():
 if USE_LIB_COPY:
     protect_libraries_from_patching()
 
-
 from _pydev_imps._pydev_saved_modules import thread
-_nextThreadIdLock = thread.allocate_lock()
+_thread_id_lock = thread.allocate_lock()
+thread_get_ident = thread.get_ident
 
 if IS_PY3K:
+
     def dict_keys(d):
         return list(d.keys())
 
@@ -181,6 +189,7 @@ else:
         pass
 
     if IS_JYTHON or not dict_keys:
+
         def dict_keys(d):
             return d.keys()
 
@@ -188,14 +197,16 @@ else:
         dict_iter_values = dict.itervalues
     except:
         try:
-            dict_iter_values = dict.values #Older versions don't have the itervalues
+            dict_iter_values = dict.values  # Older versions don't have the itervalues
         except:
+
             def dict_iter_values(d):
                 return d.values()
 
     try:
         dict_values = dict.values
     except:
+
         def dict_values(d):
             return d.values()
 
@@ -208,11 +219,10 @@ else:
     def dict_items(d):
         return d.items()
 
-
 try:
     xrange = xrange
 except:
-    #Python 3k does not have it
+    # Python 3k does not have it
     xrange = range
 
 try:
@@ -221,14 +231,20 @@ try:
 except:
     izip = zip
 
-
-#=======================================================================================================================
-# StringIO
-#=======================================================================================================================
 try:
     from StringIO import StringIO
 except:
     from io import StringIO
+
+NO_FTRACE = None
+
+if sys.version_info[:2] in ((2, 6), (3, 3), (3, 4)):
+
+    def NO_FTRACE(frame, event, arg):
+        # In Python <= 2.6 and <= 3.4, if we're tracing a method, frame.f_trace may not be set
+        # to None, it must always be set to a tracing function.
+        # See: tests_python.test_tracing_gotchas.test_tracing_gotchas
+        return None
 
 
 #=======================================================================================================================
@@ -239,26 +255,71 @@ def get_pid():
         return os.getpid()
     except AttributeError:
         try:
-            #Jython does not have it!
-            import java.lang.management.ManagementFactory  #@UnresolvedImport -- just for jython
+            # Jython does not have it!
+            import java.lang.management.ManagementFactory  # @UnresolvedImport -- just for jython
             pid = java.lang.management.ManagementFactory.getRuntimeMXBean().getName()
             return pid.replace('@', '_')
         except:
-            #ok, no pid available (will be unable to debug multiple processes)
+            # ok, no pid available (will be unable to debug multiple processes)
             return '000001'
 
+
 def clear_cached_thread_id(thread):
-    try:
-        del thread.__pydevd_id__
-    except AttributeError:
-        pass
+    with _thread_id_lock:
+        try:
+            if thread.__pydevd_id__ != 'console_main':
+                # The console_main is a special thread id used in the console and its id should never be reset
+                # (otherwise we may no longer be able to get its variables -- see: https://www.brainwy.com/tracker/PyDev/776).
+                del thread.__pydevd_id__
+        except AttributeError:
+            pass
 
 
-#=======================================================================================================================
-# get_thread_id
-#=======================================================================================================================
-def get_thread_id(thread):
+# Besides the cache in the thread, we create a cache from the thread ident -> thread id so that
+# if we have a Thread and later a DummyThread for the same ident we can obtain the same id.
+_thread_ident_to_thread_id = {}
+
+
+def _get_or_compute_thread_id_with_lock(thread, is_current_thread):
+    with _thread_id_lock:
+        # We do a new check with the lock in place just to be sure that nothing changed
+        tid = getattr(thread, '__pydevd_id__', None)
+        if tid is not None:
+            return tid
+
+        try:
+            thread_ident = thread.ident
+            if thread_ident is None:
+                raise AttributeError()
+        except AttributeError:
+            if not is_current_thread:
+                # When getting from another thread (i.e.: not current), the thread.ident *must* be
+                # there (when it's made visible in the threading module the ident is already set).
+                raise AssertionError('Did not expect thread.ident to be None when gotten from another thread.')
+
+            # If we're too early in the thread bootstrap process,
+            # the thread ident could be still unset in the Thread.
+            thread_ident = thread_get_ident()
+        try:
+            tid = _thread_ident_to_thread_id[thread_ident]
+        except KeyError:
+            pid = get_pid()
+            tid = 'pid_%s_id_%s' % (pid, id(thread))
+
+        _thread_ident_to_thread_id[thread_ident] = tid
+        thread.__pydevd_id__ = tid
+
+    return tid
+
+
+def get_current_thread_id(thread):
+    '''
+    Note: the difference from get_current_thread_id to get_thread_id is that
+    for the current thread we can get the thread id while the thread.ident
+    is still not set in the Thread instance.
+    '''
     try:
+        # Fast path without getting lock.
         tid = thread.__pydevd_id__
         if tid is None:
             # Fix for https://www.brainwy.com/tracker/PyDev/645
@@ -266,23 +327,34 @@ def get_thread_id(thread):
             # that gives us always the same id for the thread (using thread.ident or id(thread)).
             raise AttributeError()
     except AttributeError:
-        _nextThreadIdLock.acquire()
-        try:
-            # We do a new check with the lock in place just to be sure that nothing changed
-            tid = getattr(thread, '__pydevd_id__', None)
-            if tid is None:
-                pid = get_pid()
-                # Note: don't use the thread ident because if we're too early in the
-                # thread bootstrap process, the thread id could be still unset.
-                tid = thread.__pydevd_id__ = 'pid_%s_id_%s' % (pid, id(thread))
-        finally:
-            _nextThreadIdLock.release()
+        tid = _get_or_compute_thread_id_with_lock(thread, is_current_thread=True)
 
     return tid
 
-#===============================================================================
+
+def get_thread_id(thread):
+    try:
+        # Fast path without getting lock.
+        tid = thread.__pydevd_id__
+        if tid is None:
+            # Fix for https://www.brainwy.com/tracker/PyDev/645
+            # if __pydevd_id__ is None, recalculate it... also, use an heuristic
+            # that gives us always the same id for the thread (using thread.ident or id(thread)).
+            raise AttributeError()
+    except AttributeError:
+        tid = _get_or_compute_thread_id_with_lock(thread, is_current_thread=False)
+
+    return tid
+
+
+def set_thread_id(thread, thread_id):
+    with _thread_id_lock:
+        thread.__pydevd_id__ = thread_id
+
+
+#=======================================================================================================================
 # Null
-#===============================================================================
+#=======================================================================================================================
 class Null:
     """
     Gotten from: http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/68205
@@ -292,6 +364,12 @@ class Null:
         return None
 
     def __call__(self, *args, **kwargs):
+        return self
+
+    def __enter__(self, *args, **kwargs):
+        return self
+
+    def __exit__(self, *args, **kwargs):
         return self
 
     def __getattr__(self, mname):
@@ -331,6 +409,10 @@ class Null:
         return iter(())
 
 
+# Default instance
+NULL = Null()
+
+
 def call_only_once(func):
     '''
     To be used as a decorator
@@ -343,6 +425,7 @@ def call_only_once(func):
 
     func = call_only_once(func) to support older versions of Python.
     '''
+
     def new_func(*args, **kwargs):
         if not new_func._called:
             new_func._called = True
@@ -350,6 +433,34 @@ def call_only_once(func):
 
     new_func._called = False
     return new_func
+
+
+#=======================================================================================================================
+# GlobalDebuggerHolder
+#=======================================================================================================================
+class GlobalDebuggerHolder:
+    '''
+        Holder for the global debugger.
+    '''
+    global_dbg = None  # Note: don't rename (the name is used in our attach to process)
+
+
+#=======================================================================================================================
+# get_global_debugger
+#=======================================================================================================================
+def get_global_debugger():
+    return GlobalDebuggerHolder.global_dbg
+
+
+GetGlobalDebugger = get_global_debugger  # Backward-compatibility
+
+
+#=======================================================================================================================
+# set_global_debugger
+#=======================================================================================================================
+def set_global_debugger(dbg):
+    GlobalDebuggerHolder.global_dbg = dbg
+
 
 if __name__ == '__main__':
     if Null():
