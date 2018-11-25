@@ -289,8 +289,8 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener, IPy
         }
     }
 
-    private static final Pattern regionStartPattern = Pattern.compile("#(\\s)*\\bregion\\b");
-    private static final Pattern regionEndPattern = Pattern.compile("#(\\s)*\\bendregion\\b");
+    private static final Pattern regionStartPattern = Pattern.compile("(\\s)*#(\\s)*\\bregion\\b");
+    private static final Pattern regionEndPattern = Pattern.compile("(\\s)*#(\\s)*\\bendregion\\b");
 
     /**
      * To get the marks, we work a little with the ast and a little with the doc... the ast is good to give us all things but the comments,
