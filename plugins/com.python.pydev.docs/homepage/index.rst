@@ -56,6 +56,8 @@
         <a href="https://netotraffic.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/netotraffic.png" alt="Netotraffic" title="https://netotraffic.com/" /></a>
 
         <a href="https://acemypaper.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/ace_my_paper_50_50.png" alt="Ace My Paper" title="https://acemypaper.com/" /></a>
+
+        <a href="https://smslåndirektutbetalning.se/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/smslan.png" alt="SmsLånDirektUtbetalning.se" title="https://smslåndirektutbetalning.se/" /></a>
         </div>
 
 
