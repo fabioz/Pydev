@@ -621,7 +621,7 @@ Release 5.2.0 (2016-08-17)
 
     * The (fast) parser which detects the outline of a Python module now handles mixed indentation (and additional fixes which could result in log entries such as "Did not expect to find item below node: Assign...").
     * Support for unpacking generalizations (PEP 448) which could still result in a syntax error for the Python 3 grammar (#PyDev-701).
-    * Fixed error in code analysis when the code is connected to an RTC source control (#PyDev-184, patch by Wesley Barroso Lopes)
+    * Fixed error in code analysis when the code is connected to an RTC source control (#PyDev-622, patch by Wesley Barroso Lopes)
 
 Release 5.1.2 (2016-06-23)
 ===========================

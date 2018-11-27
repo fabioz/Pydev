@@ -894,7 +894,7 @@
 <ul class="simple">
 <li>The (fast) parser which detects the outline of a Python module now handles mixed indentation (and additional fixes which could result in log entries such as &quot;Did not expect to find item below node: Assign...&quot;).</li>
 <li>Support for unpacking generalizations (PEP 448) which could still result in a syntax error for the Python 3 grammar (#PyDev-701).</li>
-<li>Fixed error in code analysis when the code is connected to an RTC source control (#PyDev-184, patch by Wesley Barroso Lopes)</li>
+<li>Fixed error in code analysis when the code is connected to an RTC source control (#PyDev-622, patch by Wesley Barroso Lopes)</li>
 </ul>
 </blockquote>
 </li>
