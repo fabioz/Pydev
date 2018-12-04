@@ -1626,6 +1626,8 @@ def _locked_settrace(
 
 def stoptrace():
     global connected
+    sys.stderr.flush()
+    sys.stdout.flush()
     if connected:
         pydevd_tracing.restore_sys_set_trace_func()
         sys.settrace(None)
@@ -1913,43 +1915,51 @@ def main():
     is_module = setup['module']
     patch_stdin(debugger)
 
-    if fix_app_engine_debug:
-        sys.stderr.write("pydev debugger: google app engine integration enabled\n")
-        curr_dir = os.path.dirname(__file__)
-        app_engine_startup_file = os.path.join(curr_dir, 'pydev_app_engine_debug_startup.py')
+    try:
+        if fix_app_engine_debug:
+            sys.stderr.write("pydev debugger: google app engine integration enabled\n")
+            curr_dir = os.path.dirname(__file__)
+            app_engine_startup_file = os.path.join(curr_dir, 'pydev_app_engine_debug_startup.py')
 
-        sys.argv.insert(1, '--python_startup_script=' + app_engine_startup_file)
-        import json
-        setup['pydevd'] = __file__
-        sys.argv.insert(2, '--python_startup_args=%s' % json.dumps(setup),)
-        sys.argv.insert(3, '--automatic_restart=no')
-        sys.argv.insert(4, '--max_module_instances=1')
+            sys.argv.insert(1, '--python_startup_script=' + app_engine_startup_file)
+            import json
+            setup['pydevd'] = __file__
+            sys.argv.insert(2, '--python_startup_args=%s' % json.dumps(setup),)
+            sys.argv.insert(3, '--automatic_restart=no')
+            sys.argv.insert(4, '--max_module_instances=1')
 
-        # Run the dev_appserver
-        debugger.run(setup['file'], None, None, is_module, set_trace=False)
-    else:
-        if setup['save-threading']:
-            debugger.thread_analyser = ThreadingLogger()
-        if setup['save-asyncio']:
-            if IS_PY34_OR_GREATER:
-                debugger.asyncio_analyser = AsyncioLogger()
+            # Run the dev_appserver
+            debugger.run(setup['file'], None, None, is_module, set_trace=False)
+        else:
+            if setup['save-threading']:
+                debugger.thread_analyser = ThreadingLogger()
+            if setup['save-asyncio']:
+                if IS_PY34_OR_GREATER:
+                    debugger.asyncio_analyser = AsyncioLogger()
 
-        apply_debugger_options(setup)
+            apply_debugger_options(setup)
 
-        try:
-            debugger.connect(host, port)
-        except:
-            sys.stderr.write("Could not connect to %s: %s\n" % (host, port))
-            traceback.print_exc()
-            sys.exit(1)
+            try:
+                debugger.connect(host, port)
+            except:
+                sys.stderr.write("Could not connect to %s: %s\n" % (host, port))
+                traceback.print_exc()
+                sys.exit(1)
 
-        global connected
-        connected = True  # Mark that we're connected when started from inside ide.
+            global connected
+            connected = True  # Mark that we're connected when started from inside ide.
 
-        globals = debugger.run(setup['file'], None, None, is_module)
+            globals = debugger.run(setup['file'], None, None, is_module)
 
-        if setup['cmd-line']:
-            debugger.wait_for_commands(globals)
+            if setup['cmd-line']:
+                debugger.wait_for_commands(globals)
+    finally:
+        pydevd_tracing.SetTrace(None)
+        frame = sys._getframe()
+        while frame is not None:
+            frame.f_trace = None
+            frame = frame.f_back
+
 
 if __name__ == '__main__':
     main()
