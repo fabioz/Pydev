@@ -1131,6 +1131,9 @@ def trace_dispatch(py_db, frame, str event, arg):
 # ELSE
 # def trace_dispatch(py_db, frame, event, arg):
 # ENDIF
+    if fix_top_level_trace_and_get_trace_func is None:
+        if event != 'call': frame.f_trace = NO_FTRACE
+        return None
     thread_trace_func, apply_to_settrace = fix_top_level_trace_and_get_trace_func(py_db, frame)
     if thread_trace_func is None:
         if event != 'call': frame.f_trace = NO_FTRACE
