@@ -3,7 +3,8 @@ import os
 import sys
 import traceback
 from _pydev_imps._pydev_saved_modules import threading
-from _pydevd_bundle.pydevd_constants import get_global_debugger, IS_WINDOWS, IS_JYTHON, get_current_thread_id
+from _pydevd_bundle.pydevd_constants import get_global_debugger, IS_WINDOWS, IS_JYTHON, get_current_thread_id, \
+    NO_FTRACE
 from _pydev_bundle import pydev_log
 import pydevd_tracing
 
@@ -639,11 +640,12 @@ class _NewThreadStartupWithTrace:
             else:
                 if thread_id is not None and global_debugger is not None:
                     global_debugger.notify_thread_not_alive(thread_id)
-                pydevd_tracing.SetTrace(None)
                 frame = sys._getframe()
                 while frame is not None:
-                    frame.f_trace = None
+                    if frame.f_trace is not None:
+                        frame.f_trace = NO_FTRACE
                     frame = frame.f_back
+                pydevd_tracing.SetTrace(None)
         
         return ret
 

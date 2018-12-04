@@ -1954,11 +1954,13 @@ def main():
             if setup['cmd-line']:
                 debugger.wait_for_commands(globals)
     finally:
-        pydevd_tracing.SetTrace(None)
         frame = sys._getframe()
         while frame is not None:
-            frame.f_trace = None
+            if frame.f_trace is not None:
+                frame.f_trace = NO_FTRACE
             frame = frame.f_back
+
+        pydevd_tracing.SetTrace(None)
 
 
 if __name__ == '__main__':
