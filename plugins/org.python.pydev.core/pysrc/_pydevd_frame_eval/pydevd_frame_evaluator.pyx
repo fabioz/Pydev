@@ -8,7 +8,7 @@ from _pydevd_frame_eval.pydevd_modify_bytecode import insert_code
 from pydevd_file_utils import get_abs_path_real_path_and_base_from_file, NORM_PATHS_AND_BASE_CONTAINER
 from _pydevd_bundle.pydevd_trace_dispatch import fix_top_level_trace_and_get_trace_func
 
-from _pydevd_bundle.pydevd_additional_thread_info import _set_additional_thread_info_lock, _thread_ident_to_additional_info
+from _pydevd_bundle.pydevd_additional_thread_info import _set_additional_thread_info_lock
 from _pydevd_bundle.pydevd_cython cimport PyDBAdditionalThreadInfo
 
 get_file_type = DONT_TRACE.get
@@ -55,9 +55,9 @@ cdef class ThreadInfo:
                     with _set_additional_thread_info_lock:
                         # If it's not there, set it within a lock to avoid any racing
                         # conditions.
-                        additional_info = _thread_ident_to_additional_info.get(thread_ident)
+                        additional_info = getattr(thread, 'additional_info', None)
                         if additional_info is None:
-                            additional_info = _thread_ident_to_additional_info[thread_ident] = PyDBAdditionalThreadInfo()
+                            additional_info = PyDBAdditionalThreadInfo()
                         t.additional_info = additional_info
                 self.additional_info = additional_info
                 self.fully_initialized = True
@@ -253,7 +253,9 @@ cdef PyObject * get_bytecode_while_frame_eval(PyFrameObject * frame_obj, int exc
     cdef ThreadInfo thread_info
     cdef int STATE_SUSPEND = 2
     cdef int CMD_STEP_INTO = 107
+    cdef int CMD_STEP_OVER = 108
     cdef int CMD_STEP_INTO_MY_CODE = 144
+    cdef bint can_skip = True
     try:
         thread_info = _thread_local_info.thread_info
     except:
@@ -284,18 +286,19 @@ cdef PyObject * get_bytecode_while_frame_eval(PyFrameObject * frame_obj, int exc
     additional_info.is_tracing = True
     try:
         main_debugger: object = GlobalDebuggerHolder.global_dbg
+        frame = <object> frame_obj
         
         if thread_info.thread_trace_func is None:
-            frame = <object> frame_obj
             trace_func, apply_to_global = fix_top_level_trace_and_get_trace_func(main_debugger, frame)
             if apply_to_global:
                 thread_info.thread_trace_func = trace_func
                 
         if additional_info.pydev_step_cmd in (CMD_STEP_INTO, CMD_STEP_INTO_MY_CODE) or \
-                main_debugger.break_on_caught_exceptions or main_debugger.has_plugin_exception_breaks or \
-                main_debugger.signature_factory:
+                main_debugger.break_on_caught_exceptions or \
+                main_debugger.has_plugin_exception_breaks or \
+                main_debugger.signature_factory or \
+                additional_info.pydev_step_cmd == CMD_STEP_OVER and main_debugger.show_return_values and frame.f_back is additional_info.pydev_step_stop:
             
-            frame = <object> frame_obj
             if thread_info.thread_trace_func is not None:
                 frame.f_trace = thread_info.thread_trace_func
             else:
@@ -305,20 +308,18 @@ cdef PyObject * get_bytecode_while_frame_eval(PyFrameObject * frame_obj, int exc
             if not func_code_info.always_skip_code:
     
                 if main_debugger.has_plugin_line_breaks:
-                    can_not_skip = main_debugger.plugin.can_not_skip(main_debugger, None, <object> frame_obj)
-                    if can_not_skip:
-                        frame = <object> frame_obj
+                    can_skip = not main_debugger.plugin.can_not_skip(main_debugger, None, <object> frame_obj)
+                    if not can_skip:
                         if thread_info.thread_trace_func is not None:
                             frame.f_trace = thread_info.thread_trace_func
                         else:
                             frame.f_trace = <object> main_debugger.trace_dispatch
                             
-                elif func_code_info.breakpoint_found:
+                if can_skip and func_code_info.breakpoint_found:
                     # If breakpoints are found but new_code is None,
                     # this means we weren't able to actually add the code
                     # where needed, so, fallback to tracing.
                     if func_code_info.new_code is None:
-                        frame = <object> frame_obj
                         if thread_info.thread_trace_func is not None:
                             frame.f_trace = thread_info.thread_trace_func
                         else:

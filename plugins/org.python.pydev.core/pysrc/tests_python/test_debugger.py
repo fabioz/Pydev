@@ -37,10 +37,17 @@ except:
     xrange = range
 
 TEST_DJANGO = False
+TEST_FLASK = False
 
 try:
     import django
     TEST_DJANGO = True
+except:
+    pass
+
+try:
+    import flask
+    TEST_FLASK = True
 except:
     pass
 
@@ -852,6 +859,41 @@ def test_case_20(case_setup):
         writer.finished_ok = True
 
 
+@pytest.mark.skipif(not TEST_FLASK, reason='No flask available')
+def test_case_flask(case_setup_flask):
+    with case_setup_flask.test_file(EXPECTED_RETURNCODE='any') as writer:
+        writer.write_multi_threads_single_notification(True)
+        writer.write_add_breakpoint_jinja2(5, None, 'hello.html')
+        writer.write_add_breakpoint_jinja2(8, None, 'hello.html')
+        writer.write_make_initial_run()
+
+        t = writer.create_request_thread()
+        time.sleep(2)  # Give flask some time to get to startup before requesting the page
+        t.start()
+
+        hit = writer.wait_for_single_notification_as_hit(line=5)
+        writer.write_get_frame(hit.thread_id, hit.frame_id)
+        writer.wait_for_vars(['<var name="content" type="str"'])
+        writer.write_run_thread(hit.thread_id)
+
+        hit = writer.wait_for_single_notification_as_hit(line=8)
+        writer.write_get_frame(hit.thread_id, hit.frame_id)
+        writer.wait_for_vars(['<var name="content" type="str"'])
+        writer.write_run_thread(hit.thread_id)
+
+        for _ in xrange(10):
+            if hasattr(t, 'contents'):
+                break
+            time.sleep(.3)
+        else:
+            raise AssertionError('Flask did not return contents properly!')
+
+        assert '<title>Hello</title>' in t.contents
+        assert 'Flask-Jinja-Test' in t.contents
+
+        writer.finished_ok = True
+
+
 @pytest.mark.skipif(not TEST_DJANGO, reason='No django available')
 def test_case_django_a(case_setup_django):
     with case_setup_django.test_file(EXPECTED_RETURNCODE='any') as writer:
@@ -1281,13 +1323,18 @@ def test_case_set_next_statement(case_setup):
         breakpoint_id = writer.write_add_breakpoint(6, None)
         writer.write_make_initial_run()
 
-        hit = writer.wait_for_breakpoint_hit(REASON_STOP_ON_BREAKPOINT, line=6)
+        hit = writer.wait_for_breakpoint_hit(REASON_STOP_ON_BREAKPOINT, line=6)  # Stop in line a=3 (before setting it)
 
         writer.write_evaluate_expression('%s\t%s\t%s' % (hit.thread_id, hit.frame_id, 'LOCAL'), 'a')
         writer.wait_for_evaluation('<var name="a" type="int" qualifier="{0}" value="int: 2"'.format(builtin_qualifier))
         writer.write_set_next_statement(hit.thread_id, 2, 'method')
         hit = writer.wait_for_breakpoint_hit('127', line=2)
 
+        # Check that it's still unchanged
+        writer.write_evaluate_expression('%s\t%s\t%s' % (hit.thread_id, hit.frame_id, 'LOCAL'), 'a')
+        writer.wait_for_evaluation('<var name="a" type="int" qualifier="{0}" value="int: 2"'.format(builtin_qualifier))
+
+        # After a step over it should become 1 as we executed line which sets a = 1
         writer.write_step_over(hit.thread_id)
         hit = writer.wait_for_breakpoint_hit('108')
 
@@ -2230,6 +2277,52 @@ def test_trace_dispatch_correct(case_setup):
         writer.finished_ok = True
 
 
+@pytest.mark.skipif(IS_PY26, reason='Failing on Python 2.6 on travis (needs investigation).')
+def test_case_single_notification_on_step(case_setup):
+    from tests_python.debugger_unittest import REASON_STEP_INTO
+    with case_setup.test_file('_debugger_case_import_main.py') as writer:
+        writer.write_multi_threads_single_notification(True)
+        writer.write_add_breakpoint(writer.get_line_index_with_content('break here'), '')
+        writer.write_make_initial_run()
+
+        hit = writer.wait_for_single_notification_as_hit()
+
+        writer.write_step_in(hit.thread_id)
+        hit = writer.wait_for_single_notification_as_hit(reason=REASON_STEP_INTO)
+
+        writer.write_step_in(hit.thread_id)
+        hit = writer.wait_for_single_notification_as_hit(reason=REASON_STEP_INTO)
+
+        writer.write_step_in(hit.thread_id)
+        hit = writer.wait_for_single_notification_as_hit(reason=REASON_STEP_INTO)
+
+        writer.write_run_thread(hit.thread_id)
+
+        writer.finished_ok = True
+
+
+def test_return_value(case_setup):
+    with case_setup.test_file('_debugger_case_return_value.py') as writer:
+        writer.write_add_breakpoint(writer.get_line_index_with_content('break here'), '')
+        writer.write_show_return_vars()
+        writer.write_make_initial_run()
+
+        hit = writer.wait_for_breakpoint_hit()
+        writer.write_step_over(hit.thread_id)
+
+        hit = writer.wait_for_breakpoint_hit(REASON_STEP_OVER)
+        writer.write_get_frame(hit.thread_id, hit.frame_id)
+
+        writer.wait_for_vars([
+            [
+                '<var name="method1" type="int" qualifier="%s" value="int: 1" isRetVal="True"' % (builtin_qualifier,),
+                '<var name="method1" type="int"  value="int%253A 1" isRetVal="True"',
+            ],
+        ])
+        writer.write_run_thread(hit.thread_id)
+        writer.finished_ok = True
+
+
 @pytest.mark.skipif(IS_JYTHON, reason='Jython can only have one thread stopped at each time.')
 @pytest.mark.parametrize('check_single_notification', [True, False])
 def test_run_pause_all_threads_single_notification(case_setup, check_single_notification):
@@ -2269,10 +2362,10 @@ def test_run_pause_all_threads_single_notification(case_setup, check_single_noti
         writer.write_step_over(thread_id1)
 
         if check_single_notification:
-            dct = writer.wait_for_json_message(CMD_THREAD_RESUME_SINGLE_NOTIFICATION)
+            dct = writer.wait_for_json_message(CMD_THREAD_RESUME_SINGLE_NOTIFICATION)  # Note: prefer wait_for_single_notification_as_hit
             assert dct['thread_id'] == thread_id1
 
-            dct = writer.wait_for_json_message(CMD_THREAD_SUSPEND_SINGLE_NOTIFICATION)
+            dct = writer.wait_for_json_message(CMD_THREAD_SUSPEND_SINGLE_NOTIFICATION)  # Note: prefer wait_for_single_notification_as_hit
             assert dct['thread_id'] == thread_id1
             assert dct['stop_reason'] == REASON_STEP_OVER
 

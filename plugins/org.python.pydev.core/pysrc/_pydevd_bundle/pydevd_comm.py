@@ -1060,23 +1060,26 @@ class InternalGetThreadStack(InternalThreadCommand):
     stopped in a breakpoint).
     '''
 
-    def __init__(self, seq, thread_id, py_db, timeout=.5):
+    def __init__(self, seq, thread_id, py_db, set_additional_thread_info, timeout=.5):
         InternalThreadCommand.__init__(self, thread_id)
         self._py_db = weakref.ref(py_db)
         self._timeout = time.time() + timeout
         self.seq = seq
         self._cmd = None
 
+        # Note: receives set_additional_thread_info to avoid a circular import
+        # in this module.
+        self._set_additional_thread_info = set_additional_thread_info
+
     @overrides(InternalThreadCommand.can_be_executed_by)
     def can_be_executed_by(self, _thread_id):
-        from _pydevd_bundle.pydevd_additional_thread_info import set_additional_thread_info
         timed_out = time.time() >= self._timeout
         
         py_db = self._py_db()
         t = pydevd_find_thread_by_id(self.thread_id)
         frame = None
         if t and not getattr(t, 'pydev_do_not_trace', None):
-            additional_info = set_additional_thread_info(t)
+            additional_info = self._set_additional_thread_info(t)
             frame = additional_info.get_topmost_frame(t)
         try:
             self._cmd = py_db.cmd_factory.make_get_thread_stack_message(

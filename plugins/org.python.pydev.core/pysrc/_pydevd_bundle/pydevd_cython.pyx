@@ -45,10 +45,10 @@ if not hasattr(sys, '_current_frames'):
 
                 ret[thread.getId()] = frame
             return ret
-        
-    elif IS_IRONPYTHON: 
+
+    elif IS_IRONPYTHON:
         _tid_to_last_frame = {}
-        
+
         # IronPython doesn't have it. Let's use our workaround...
         def _current_frames():
             return _tid_to_last_frame
@@ -127,7 +127,6 @@ cdef class PyDBAdditionalThreadInfo:
 from _pydev_imps._pydev_saved_modules import threading
 _set_additional_thread_info_lock = threading.Lock()
 
-_thread_ident_to_additional_info = {}
 
 def set_additional_thread_info(thread):
     try:
@@ -138,13 +137,9 @@ def set_additional_thread_info(thread):
         with _set_additional_thread_info_lock:
             # If it's not there, set it within a lock to avoid any racing
             # conditions.
-            thread_ident = thread.ident
-            if thread_ident is None:
-                sys.stderr.write('thread.ident *must* be set at this point (set_additional_thread_info).')
-                raise AssertionError('thread.ident *must* be set at this point (set_additional_thread_info).')
-            additional_info = _thread_ident_to_additional_info.get(thread_ident)
+            additional_info = getattr(thread, 'additional_info', None)
             if additional_info is None:
-                additional_info = _thread_ident_to_additional_info[thread_ident] = PyDBAdditionalThreadInfo()
+                additional_info = PyDBAdditionalThreadInfo()
             thread.additional_info = additional_info
 
     return additional_info
@@ -285,7 +280,7 @@ cdef class PyDBFrame:
 
     # IFDEF CYTHON -- DONT EDIT THIS FILE (it is automatically generated)
     def trace_exception(self, frame, str event, arg):
-        cdef bint flag;
+        cdef bint should_stop;
     # ELSE
 #     def trace_exception(self, frame, event, arg):
     # ENDIF
@@ -571,7 +566,7 @@ cdef class PyDBFrame:
     # ENDIF
 
         main_debugger, filename, info, thread, frame_skips_cache, frame_cache_key = self._args
-        # print('frame trace_dispatch', frame.f_lineno, frame.f_code.co_name, frame.f_code.co_filename, event, info.pydev_step_cmd)
+        # print('frame trace_dispatch %s %s %s %s %s' % (frame.f_lineno, frame.f_code.co_name, frame.f_code.co_filename, event, info.pydev_step_cmd))
         try:
             info.is_tracing = True
             line = frame.f_lineno
@@ -605,10 +600,10 @@ cdef class PyDBFrame:
                     # No need to reset frame.f_trace to keep the same trace function.
                     return self.trace_dispatch
 
-            need_trace_return = False
+            need_signature_trace_return = False
             if main_debugger.signature_factory is not None:
                 if is_call:
-                    need_trace_return = send_signature_call_trace(main_debugger, frame, filename)
+                    need_signature_trace_return = send_signature_call_trace(main_debugger, frame, filename)
                 elif is_return:
                     send_signature_return_trace(main_debugger, frame, filename, arg)
 
@@ -651,7 +646,7 @@ cdef class PyDBFrame:
                             can_skip = not plugin_manager.can_not_skip(main_debugger, self, frame)
 
                         # CMD_STEP_OVER = 108
-                        if can_skip and is_return and main_debugger.show_return_values and info.pydev_step_cmd == 108 and frame.f_back is info.pydev_step_stop:
+                        if can_skip and main_debugger.show_return_values and info.pydev_step_cmd == 108 and frame.f_back is info.pydev_step_stop:
                             # trace function for showing return values after step over
                             can_skip = False
 
@@ -665,7 +660,7 @@ cdef class PyDBFrame:
                             frame.f_trace = self.trace_exception
                             return self.trace_exception
                         else:
-                            if need_trace_return:
+                            if need_signature_trace_return:
                                 frame.f_trace = self.trace_return
                                 return self.trace_return
                             else:
@@ -711,7 +706,7 @@ cdef class PyDBFrame:
                             frame.f_trace = self.trace_exception
                             return self.trace_exception
                         else:
-                            if need_trace_return:
+                            if need_signature_trace_return:
                                 frame.f_trace = self.trace_return
                                 return self.trace_return
                             else:
@@ -719,7 +714,7 @@ cdef class PyDBFrame:
                                 return None
 
             # We may have hit a breakpoint or we are already in step mode. Either way, let's check what we should do in this frame
-            # print('NOT skipped', frame.f_lineno, frame.f_code.co_name, event)
+            # print('NOT skipped: %s %s %s %s' % (frame.f_lineno, frame.f_code.co_name, event, frame.__class__.__name__))
 
             try:
                 flag = False
@@ -747,19 +742,19 @@ cdef class PyDBFrame:
                     # ok, hit breakpoint, now, we have to discover if it is a conditional breakpoint
                     # lets do the conditional stuff here
                     if stop or exist_result:
+                        eval_result = False
                         if breakpoint.has_condition:
                             eval_result = handle_breakpoint_condition(main_debugger, info, breakpoint, new_frame)
-                            if not eval_result:
-                                # No need to reset frame.f_trace to keep the same trace function.
-                                return self.trace_dispatch
 
                         if breakpoint.expression is not None:
                             handle_breakpoint_expression(breakpoint, info, new_frame)
                             if breakpoint.is_logpoint and info.pydev_message is not None and len(info.pydev_message) > 0:
                                 cmd = main_debugger.cmd_factory.make_io_message(info.pydev_message + os.linesep, '1')
                                 main_debugger.writer.add_command(cmd)
-                                # No need to reset frame.f_trace to keep the same trace function.
-                                return self.trace_dispatch
+
+                        if breakpoint.has_condition and not eval_result:
+                            # No need to reset frame.f_trace to keep the same trace function.
+                            return self.trace_dispatch
 
                     if is_call and frame.f_code.co_name in ('<module>', '<lambda>'):
                         # If we find a call for a module, it means that the module is being imported/executed for the
@@ -883,12 +878,6 @@ cdef class PyDBFrame:
 
                 elif step_cmd == CMD_STEP_RETURN:
                     stop = is_return and stop_frame is frame
-
-                elif step_cmd == CMD_RUN_TO_LINE or step_cmd == CMD_SET_NEXT_STATEMENT:
-                    try:
-                        stop, _, response_msg = main_debugger.set_next_statement(frame, event, info.pydev_func_name, info.pydev_next_line)
-                    except ValueError:
-                        pass
 
                 else:
                     stop = False
@@ -1137,7 +1126,11 @@ def fix_top_level_trace_and_get_trace_func(py_db, frame):
     return thread_tracer, True
 
 
-def trace_dispatch(py_db, frame, event, arg):
+# IFDEF CYTHON -- DONT EDIT THIS FILE (it is automatically generated)
+def trace_dispatch(py_db, frame, str event, arg):
+# ELSE
+# def trace_dispatch(py_db, frame, event, arg):
+# ENDIF
     thread_trace_func, apply_to_settrace = fix_top_level_trace_and_get_trace_func(py_db, frame)
     if thread_trace_func is None:
         if event != 'call': frame.f_trace = NO_FTRACE
@@ -1183,14 +1176,12 @@ cdef class TopLevelThreadTracerOnlyUnhandledExceptions:
 
 # IFDEF CYTHON -- DONT EDIT THIS FILE (it is automatically generated)
 cdef class TopLevelThreadTracerNoBackFrame:
-#
     cdef public object _frame_trace_dispatch;
     cdef public tuple _args;
     cdef public object _try_except_info;
     cdef public object _last_exc_arg;
     cdef public set _raise_lines;
     cdef public int _last_raise_line;
-#
     def __init__(self, frame_trace_dispatch, tuple args):
         self._frame_trace_dispatch = frame_trace_dispatch
         self._args = args
