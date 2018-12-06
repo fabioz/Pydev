@@ -24,7 +24,6 @@ import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.QualifiedName;
 import org.osgi.framework.BundleContext;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.preferences.PyDevCorePreferencesInitializer;
 import org.python.pydev.shared_core.io.FileUtils;
 
 /**
@@ -54,10 +53,6 @@ public class CorePlugin extends Plugin {
      */
     public CorePlugin() {
         super();
-
-        // As it starts things in the org.python.pydev node for backward-compatibility, we must
-        // initialize it now.
-        PyDevCorePreferencesInitializer.initializeDefaultPreferences();
 
         plugin = this;
         try {

@@ -11,7 +11,6 @@ import java.util.ResourceBundle;
 
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
-import org.python.pydev.ast.codecompletion.PyCodeCompletionInitializer;
 
 /**
  * The main plugin class to be used in the desktop.
@@ -41,9 +40,6 @@ public class AstPlugin extends Plugin {
     @Override
     public void start(BundleContext context) throws Exception {
         super.start(context);
-        // Just called to initialize org.python.pydev.ast.codecompletion.PyCodeCompletionInitializer
-        // because we're actually initializing things in the "org.python.pydev" node.
-        new PyCodeCompletionInitializer().initializeDefaultPreferences();
     }
 
     /**

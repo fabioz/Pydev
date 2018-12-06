@@ -6,13 +6,15 @@
  */
 package com.python.pydev.analysis.mypy;
 
+import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.osgi.service.prefs.Preferences;
 import org.python.pydev.shared_core.SharedCorePlugin;
 
-public class MypyPrefInitializer {
+public class MypyPrefInitializer extends AbstractPreferenceInitializer {
 
-    public static void initializeDefaultPreferences() {
+    @Override
+    public void initializeDefaultPreferences() {
         Preferences node = DefaultScope.INSTANCE.getNode(SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_QUALIFIER);
 
         node.put(MypyPreferences.MYPY_FILE_LOCATION, "");

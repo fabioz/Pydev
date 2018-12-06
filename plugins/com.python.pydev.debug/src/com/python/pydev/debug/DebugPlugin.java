@@ -31,7 +31,6 @@ public class DebugPlugin extends AbstractUIPlugin {
     @Override
     public void start(BundleContext context) throws Exception {
         super.start(context);
-        new DebugPluginPrefsInitializer().initializeDefaultPreferences();
     }
 
     /**
