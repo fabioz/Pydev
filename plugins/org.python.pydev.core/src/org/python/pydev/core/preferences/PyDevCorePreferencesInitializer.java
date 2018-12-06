@@ -9,7 +9,7 @@ import org.python.pydev.shared_core.SharedCorePlugin;
 public class PyDevCorePreferencesInitializer {
 
     public static void initializeDefaultPreferences() {
-        Preferences node = DefaultScope.INSTANCE.getNode(SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_SCOPE);
+        Preferences node = DefaultScope.INSTANCE.getNode(SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_QUALIFIER);
 
         //ironpython
         node.put(IInterpreterManager.IRONPYTHON_INTERNAL_SHELL_VM_ARGS,

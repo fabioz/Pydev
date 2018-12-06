@@ -13,7 +13,7 @@ import org.python.pydev.shared_core.SharedCorePlugin;
 public class MypyPrefInitializer {
 
     public static void initializeDefaultPreferences() {
-        Preferences node = DefaultScope.INSTANCE.getNode(SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_SCOPE);
+        Preferences node = DefaultScope.INSTANCE.getNode(SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_QUALIFIER);
 
         node.put(MypyPreferences.MYPY_FILE_LOCATION, "");
         node.putBoolean(MypyPreferences.USE_MYPY, MypyPreferences.DEFAULT_USE_MYPY);

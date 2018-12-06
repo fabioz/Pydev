@@ -302,7 +302,7 @@ public class PyUnitPrefsPage2 extends ScopedFieldEditorPreferencePage implements
         layoutTestRunnerOptions(stackLayout, getTestRunner(null), contentPanel);
 
         addField(
-                new ScopedPreferencesFieldEditor(parentAll, SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_SCOPE, this));
+                new ScopedPreferencesFieldEditor(parentAll, SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_QUALIFIER, this));
     }
 
     private void add(String linkText, String flag, String tooltip, Composite p) {

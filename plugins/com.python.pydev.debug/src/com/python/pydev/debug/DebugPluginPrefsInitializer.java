@@ -33,7 +33,7 @@ public class DebugPluginPrefsInitializer extends AbstractPreferenceInitializer {
 
     @Override
     public void initializeDefaultPreferences() {
-        Preferences node = DefaultScope.INSTANCE.getNode(SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_SCOPE);
+        Preferences node = DefaultScope.INSTANCE.getNode(SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_QUALIFIER);
         node.putInt(PYDEV_REMOTE_DEBUGGER_PORT, DEFAULT_REMOTE_DEBUGGER_PORT);
 
         node.putInt(DEBUG_SERVER_STARTUP, DEFAULT_DEBUG_SERVER_ALWAYS_ON);

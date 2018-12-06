@@ -16,7 +16,7 @@ import org.python.pydev.shared_core.SharedCorePlugin;
 public class PyLintPrefInitializer {
 
     public static void initializeDefaultPreferences() {
-        Preferences node = DefaultScope.INSTANCE.getNode(SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_SCOPE);
+        Preferences node = DefaultScope.INSTANCE.getNode(SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_QUALIFIER);
 
         node.put(PyLintPreferences.PYLINT_FILE_LOCATION, "");
         node.putBoolean(PyLintPreferences.USE_PYLINT, PyLintPreferences.DEFAULT_USE_PYLINT);
