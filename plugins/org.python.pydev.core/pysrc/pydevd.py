@@ -54,6 +54,10 @@ from pydevd_concurrency_analyser.pydevd_concurrency_logger import ThreadingLogge
 from pydevd_concurrency_analyser.pydevd_thread_wrappers import wrap_threads
 from pydevd_file_utils import get_fullname, rPath, get_package_dir
 import pydev_ipython  # @UnusedImport
+from _pydevd_bundle.pydevd_dont_trace_files import DONT_TRACE
+from pydevd_file_utils import get_abs_path_real_path_and_base_from_frame, NORM_PATHS_AND_BASE_CONTAINER
+
+get_file_type = DONT_TRACE.get
 
 __version_info__ = (1, 4, 0)
 __version_info_str__ = []
@@ -482,7 +486,7 @@ class PyDB(object):
         threads = threadingEnumerate()
         try:
             for t in threads:
-                if getattr(t, 'is_pydev_daemon_thread', False) or t is ignore_thread:
+                if getattr(t, 'is_pydev_daemon_thread', False) or t is ignore_thread or getattr(t, 'pydev_do_not_trace', False):
                     continue
 
                 additional_info = set_additional_thread_info(t)
@@ -1133,12 +1137,25 @@ class PyDB(object):
     def set_trace_for_frame_and_parents(self, frame, **kwargs):
         disable = kwargs.pop('disable', False)
         assert not kwargs
-        if disable:
-            dispatch_func = NO_FTRACE
-        else:
-            dispatch_func = self.trace_dispatch
+
         while frame is not None:
-            frame.f_trace = dispatch_func
+            try:
+                # Make fast path faster!
+                abs_path_real_path_and_base = NORM_PATHS_AND_BASE_CONTAINER[frame.f_code.co_filename]
+            except:
+                abs_path_real_path_and_base = get_abs_path_real_path_and_base_from_frame(frame)
+
+            # Don't change the tracing on debugger-related files
+            file_type = get_file_type(abs_path_real_path_and_base[-1])
+
+            if file_type is None:
+                if disable:
+                    if frame.f_trace is not None and frame.f_trace is not NO_FTRACE:
+                        frame.f_trace = NO_FTRACE
+                    
+                elif frame.f_trace is not self.trace_dispatch:
+                    frame.f_trace = self.trace_dispatch
+
             frame = frame.f_back
 
         del frame
@@ -1565,6 +1582,14 @@ def _locked_settrace(
             init_stderr_redirect()
 
         patch_stdin(debugger)
+
+        t = threadingCurrentThread()
+        additional_info = set_additional_thread_info(t)
+
+        while not debugger.ready_to_run:
+            time.sleep(0.1)  # busy wait until we receive run command
+
+        # Set the tracing only
         debugger.set_trace_for_frame_and_parents(get_frame().f_back)
 
         CustomFramesContainer.custom_frames_lock.acquire()  # @UndefinedVariable
@@ -1574,12 +1599,7 @@ def _locked_settrace(
         finally:
             CustomFramesContainer.custom_frames_lock.release()  # @UndefinedVariable
 
-
-        t = threadingCurrentThread()
-        additional_info = set_additional_thread_info(t)
-
-        while not debugger.ready_to_run:
-            time.sleep(0.1)  # busy wait until we receive run command
+        debugger.start_auxiliary_daemon_threads()
 
         debugger.enable_tracing()
 
@@ -1592,8 +1612,6 @@ def _locked_settrace(
 
         # Stop the tracing as the last thing before the actual shutdown for a clean exit.
         atexit.register(stoptrace)
-
-        debugger.start_auxiliary_daemon_threads()
 
     else:
         # ok, we're already in debug mode, with all set, so, let's just set the break
@@ -1626,8 +1644,6 @@ def _locked_settrace(
 
 def stoptrace():
     global connected
-    sys.stderr.flush()
-    sys.stdout.flush()
     if connected:
         pydevd_tracing.restore_sys_set_trace_func()
         sys.settrace(None)
@@ -1915,53 +1931,43 @@ def main():
     is_module = setup['module']
     patch_stdin(debugger)
 
-    try:
-        if fix_app_engine_debug:
-            sys.stderr.write("pydev debugger: google app engine integration enabled\n")
-            curr_dir = os.path.dirname(__file__)
-            app_engine_startup_file = os.path.join(curr_dir, 'pydev_app_engine_debug_startup.py')
+    if fix_app_engine_debug:
+        sys.stderr.write("pydev debugger: google app engine integration enabled\n")
+        curr_dir = os.path.dirname(__file__)
+        app_engine_startup_file = os.path.join(curr_dir, 'pydev_app_engine_debug_startup.py')
 
-            sys.argv.insert(1, '--python_startup_script=' + app_engine_startup_file)
-            import json
-            setup['pydevd'] = __file__
-            sys.argv.insert(2, '--python_startup_args=%s' % json.dumps(setup),)
-            sys.argv.insert(3, '--automatic_restart=no')
-            sys.argv.insert(4, '--max_module_instances=1')
+        sys.argv.insert(1, '--python_startup_script=' + app_engine_startup_file)
+        import json
+        setup['pydevd'] = __file__
+        sys.argv.insert(2, '--python_startup_args=%s' % json.dumps(setup),)
+        sys.argv.insert(3, '--automatic_restart=no')
+        sys.argv.insert(4, '--max_module_instances=1')
 
-            # Run the dev_appserver
-            debugger.run(setup['file'], None, None, is_module, set_trace=False)
-        else:
-            if setup['save-threading']:
-                debugger.thread_analyser = ThreadingLogger()
-            if setup['save-asyncio']:
-                if IS_PY34_OR_GREATER:
-                    debugger.asyncio_analyser = AsyncioLogger()
+        # Run the dev_appserver
+        debugger.run(setup['file'], None, None, is_module, set_trace=False)
+    else:
+        if setup['save-threading']:
+            debugger.thread_analyser = ThreadingLogger()
+        if setup['save-asyncio']:
+            if IS_PY34_OR_GREATER:
+                debugger.asyncio_analyser = AsyncioLogger()
 
-            apply_debugger_options(setup)
+        apply_debugger_options(setup)
 
-            try:
-                debugger.connect(host, port)
-            except:
-                sys.stderr.write("Could not connect to %s: %s\n" % (host, port))
-                traceback.print_exc()
-                sys.exit(1)
+        try:
+            debugger.connect(host, port)
+        except:
+            sys.stderr.write("Could not connect to %s: %s\n" % (host, port))
+            traceback.print_exc()
+            sys.exit(1)
 
-            global connected
-            connected = True  # Mark that we're connected when started from inside ide.
+        global connected
+        connected = True  # Mark that we're connected when started from inside ide.
 
-            globals = debugger.run(setup['file'], None, None, is_module)
+        globals = debugger.run(setup['file'], None, None, is_module)
 
-            if setup['cmd-line']:
-                debugger.wait_for_commands(globals)
-    finally:
-        frame = sys._getframe()
-        while frame is not None:
-            if frame.f_trace is not None:
-                frame.f_trace = NO_FTRACE
-            frame = frame.f_back
-
-        pydevd_tracing.SetTrace(None)
-
+        if setup['cmd-line']:
+            debugger.wait_for_commands(globals)
 
 if __name__ == '__main__':
     main()

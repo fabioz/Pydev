@@ -238,7 +238,7 @@ except:
 
 NO_FTRACE = None
 
-if sys.version_info[:2] in ((2, 6), (3, 3), (3, 4)) or IS_JYTHON:
+if sys.version_info[:2] in ((2, 6), (3, 3), (3, 4)):
 
     def NO_FTRACE(frame, event, arg):
         # In Python <= 2.6 and <= 3.4, if we're tracing a method, frame.f_trace may not be set

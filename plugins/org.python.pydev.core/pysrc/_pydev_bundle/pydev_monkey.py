@@ -3,10 +3,8 @@ import os
 import sys
 import traceback
 from _pydev_imps._pydev_saved_modules import threading
-from _pydevd_bundle.pydevd_constants import get_global_debugger, IS_WINDOWS, IS_JYTHON, get_current_thread_id, \
-    NO_FTRACE
+from _pydevd_bundle.pydevd_constants import get_global_debugger, IS_WINDOWS, IS_JYTHON, get_current_thread_id
 from _pydev_bundle import pydev_log
-import pydevd_tracing
 
 try:
     xrange
@@ -625,27 +623,10 @@ class _NewThreadStartupWithTrace:
                 except:
                     sys.stderr.write("Failed to detect new thread for visualization")
         try:
-            try:
-                ret = self.original_func(*self.args, **self.kwargs)
-            except:
-                # If threads die with the debugger alive, it's possible that we
-                # have exceptions during teardown (Python goes through each module
-                # and sets their attributes to None). In this situation, don't
-                # report spurious exceptions because of that.
-                if sys is None or pydevd_tracing is None:
-                    return
+            ret = self.original_func(*self.args, **self.kwargs)
         finally:
-            if sys is None or pydevd_tracing is None:
-                return
-            else:
-                if thread_id is not None and global_debugger is not None:
-                    global_debugger.notify_thread_not_alive(thread_id)
-                frame = sys._getframe()
-                while frame is not None:
-                    if frame.f_trace is not None:
-                        frame.f_trace = NO_FTRACE
-                    frame = frame.f_back
-                pydevd_tracing.SetTrace(None)
+            if thread_id is not None:
+                global_debugger.notify_thread_not_alive(thread_id)
         
         return ret
 
