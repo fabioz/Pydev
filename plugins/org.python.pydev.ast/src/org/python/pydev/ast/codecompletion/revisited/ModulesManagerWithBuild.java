@@ -15,6 +15,9 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.ast.codecompletion.revisited.modules.IModulesKeyForJava;
@@ -160,15 +163,25 @@ public abstract class ModulesManagerWithBuild extends ModulesManager implements 
         }
     }
 
+    private final Job checkDeltaSizeJob = new Job("Check delta size job") {
+
+        @Override
+        protected IStatus run(IProgressMonitor monitor) {
+            DeltaSaver<ModulesKey> d = deltaSaver;
+            if (d != null && d.availableDeltas() > MAXIMUN_NUMBER_OF_DELTAS) {
+                endProcessing();
+                d.clearAll();
+            }
+
+            return Status.OK_STATUS;
+        }
+    };
+
     /**
      * If the delta size is big enough, save the current state and discard the deltas.
      */
     private void checkDeltaSize() {
-        DeltaSaver<ModulesKey> d = deltaSaver;
-        if (d != null && d.availableDeltas() > MAXIMUN_NUMBER_OF_DELTAS) {
-            endProcessing();
-            d.clearAll();
-        }
+        checkDeltaSizeJob.schedule(100);
     }
 
     //end delta processing
