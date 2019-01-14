@@ -75,6 +75,9 @@ CMD_PYDEVD_JSON_CONFIG = 156
 CMD_THREAD_SUSPEND_SINGLE_NOTIFICATION = 157
 CMD_THREAD_RESUME_SINGLE_NOTIFICATION = 158
 
+CMD_STEP_OVER_MY_CODE = 159
+CMD_STEP_RETURN_MY_CODE = 160
+
 CMD_REDIRECT_OUTPUT = 200
 CMD_GET_NEXT_STATEMENT_TARGETS = 201
 CMD_SET_PROJECT_ROOTS = 202
@@ -83,6 +86,15 @@ CMD_VERSION = 501
 CMD_RETURN = 502
 CMD_SET_PROTOCOL = 503
 CMD_ERROR = 901
+
+# this number can be changed if there's need to do so
+MAX_IO_MSG_SIZE = 1000  # if the io is too big, we'll not send all (could make the debugger too non-responsive)
+
+VERSION_STRING = "@@BUILD_NUMBER@@"
+
+from _pydev_bundle._pydev_filesystem_encoding import getfilesystemencoding
+file_system_encoding = getfilesystemencoding()
+filesystem_encoding_is_utf8 = file_system_encoding.lower() in ('utf-8', 'utf_8', 'utf8')
 
 ID_TO_MEANING = {
     '101': 'CMD_RUN',
@@ -145,6 +157,9 @@ ID_TO_MEANING = {
     '156': 'CMD_PYDEVD_JSON_CONFIG',
     '157': 'CMD_THREAD_SUSPEND_SINGLE_NOTIFICATION',
     '158': 'CMD_THREAD_RESUME_SINGLE_NOTIFICATION',
+
+    '159': 'CMD_STEP_OVER_MY_CODE',
+    '160': 'CMD_STEP_RETURN_MY_CODE',
 
     '200': 'CMD_REDIRECT_OUTPUT',
     '201': 'CMD_GET_NEXT_STATEMENT_TARGETS',

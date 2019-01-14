@@ -16,8 +16,6 @@ from tests_python.debug_constants import *
 
 from _pydev_bundle import pydev_localhost
 
-
-
 # Note: copied (don't import because we want it to be independent on the actual code because of backward compatibility).
 CMD_RUN = 101
 CMD_LIST_THREADS = 102
@@ -80,12 +78,16 @@ CMD_PYDEVD_JSON_CONFIG = 156
 CMD_THREAD_SUSPEND_SINGLE_NOTIFICATION = 157
 CMD_THREAD_RESUME_SINGLE_NOTIFICATION = 158
 
+CMD_STEP_OVER_MY_CODE = 159
+CMD_STEP_RETURN_MY_CODE = 160
+
 CMD_REDIRECT_OUTPUT = 200
 CMD_GET_NEXT_STATEMENT_TARGETS = 201
 CMD_SET_PROJECT_ROOTS = 202
 
 CMD_VERSION = 501
 CMD_RETURN = 502
+CMD_SET_PROTOCOL = 503
 CMD_ERROR = 901
 
 REASON_CAUGHT_EXCEPTION = CMD_STEP_CAUGHT_EXCEPTION
@@ -94,7 +96,10 @@ REASON_STOP_ON_BREAKPOINT = CMD_SET_BREAK
 REASON_THREAD_SUSPEND = CMD_THREAD_SUSPEND
 REASON_STEP_INTO = CMD_STEP_INTO
 REASON_STEP_INTO_MY_CODE = CMD_STEP_INTO_MY_CODE
+REASON_STEP_RETURN = CMD_STEP_RETURN
+REASON_STEP_RETURN_MY_CODE = CMD_STEP_RETURN_MY_CODE
 REASON_STEP_OVER = CMD_STEP_OVER
+REASON_STEP_OVER_MY_CODE = CMD_STEP_OVER_MY_CODE
 
 # Always True (because otherwise when we do have an error, it's hard to diagnose).
 SHOW_WRITES_AND_READS = True
@@ -182,7 +187,6 @@ class ReaderThread(threading.Thread):
         self.setDaemon(True)
         self.sock = sock
         self._queue = Queue()
-        self.all_received = []
         self._kill = False
 
     def set_messages_timeout(self, timeout):
@@ -217,28 +221,40 @@ class ReaderThread(threading.Thread):
 
     def run(self):
         try:
-            buf = ''
+            content_len = -1
+
+            stream = self.sock.makefile('rb')
             while not self._kill:
-                l = self.sock.recv(1024)
-                if IS_PY3K:
-                    l = l.decode('utf-8')
-                self.all_received.append(l)
-                buf += l
+                line = stream.readline()
+                if not line:
+                    break
 
-                while '\n' in buf:
-                    # Print each part...
-                    i = buf.index('\n') + 1
-                    last_received = buf[:i]
-                    buf = buf[i:]
+                if SHOW_WRITES_AND_READS:
+                    show_line = line
+                    if IS_PY3K:
+                        show_line = line.decode('utf-8')
 
-                    if SHOW_WRITES_AND_READS:
-                        print('Test Reader Thread Received %s' % (last_received,))
+                    print('Test Reader Thread Received %s' % (show_line,))
 
-                    self._queue.put(last_received)
+                if line.startswith(b'Content-Length:'):
+                    content_len = int(line.strip().split(b':', 1)[1])
+
+                elif content_len != -1:
+                    if line == b'\r\n':
+                        msg = stream.read(content_len)
+                        if IS_PY3K:
+                            msg = msg.decode('utf-8')
+                        print('Test Reader Thread Received %s' % (msg,))
+                        self._queue.put(msg)
+
+                else:
+                    msg = line
+                    if IS_PY3K:
+                        msg = msg.decode('utf-8')
+                    self._queue.put(msg)
+
         except:
             pass  # ok, finished it
-        finally:
-            del self.all_received[:]
 
     def do_kill(self):
         self._kill = True
@@ -484,6 +500,13 @@ class AbstractWriterThread(threading.Thread):
             )):
             return True
 
+        for expected in (
+            'PyDev console: using IPython',
+            'Attempting to work in a virtualenv. If you encounter problems, please',
+            ):
+            if expected in line:
+                return True
+
         if re.match(r'^(\d+)\t(\d)+', line):
             return True
 
@@ -499,6 +522,8 @@ class AbstractWriterThread(threading.Thread):
                 'from _pydevd_bundle.pydevd_additional_thread_info_regular import _current_frames',
                 'import org.python.core as PyCore #@UnresolvedImport',
                 'from _pydevd_bundle.pydevd_additional_thread_info import set_additional_thread_info',
+                "RuntimeWarning: Parent module '_pydevd_bundle._debug_adapter' not found while handling absolute import",
+                'import json',
                 ):
                 if expected in line:
                     return True
@@ -562,6 +587,22 @@ class AbstractWriterThread(threading.Thread):
             self.reader_thread.do_kill()
         if hasattr(self, 'sock'):
             self.sock.close()
+
+    def write_with_content_len(self, msg):
+        self.log.append('write: %s' % (msg,))
+
+        if SHOW_WRITES_AND_READS:
+            print('Test Writer Thread Written %s' % (msg,))
+
+        if not hasattr(self, 'sock'):
+            print('%s.sock not available when sending: %s' % (self, msg))
+            return
+
+        if not isinstance(msg, bytes):
+            msg = msg.encode('utf-8')
+
+        self.sock.sendall((u'Content-Length: %s\r\n\r\n' % len(msg)).encode('ascii'))
+        self.sock.sendall(msg)
 
     def write(self, s):
         from _pydevd_bundle.pydevd_comm import ID_TO_MEANING
@@ -680,6 +721,7 @@ class AbstractWriterThread(threading.Thread):
         # note: those must be passed in kwargs.
         line = kwargs.get('line')
         file = kwargs.get('file')
+        name = kwargs.get('name')
 
         self.log.append('Start: wait_for_breakpoint_hit')
         # wait for hit breakpoint
@@ -690,12 +732,13 @@ class AbstractWriterThread(threading.Thread):
             for r in reason:
                 if ('stop_reason="%s"' % (r,)) in last:
                     return True
+
             return False
 
         msg = self.wait_for_message(accept_message, timeout=timeout)
-        return self._get_stack_as_hit(msg, file, line)
+        return self._get_stack_as_hit(msg, file, line, name)
 
-    def _get_stack_as_hit(self, msg, file=None, line=None):
+    def _get_stack_as_hit(self, msg, file=None, line=None, name=None):
         # we have something like <xml><thread id="12152656" stop_reason="111"><frame id="12453120" name="encode" ...
         if len(msg.thread.frame) == 0:
             frame = msg.thread.frame
@@ -704,7 +747,7 @@ class AbstractWriterThread(threading.Thread):
         thread_id = msg.thread['id']
         frame_id = frame['id']
         suspend_type = msg.thread['suspend_type']
-        name = frame['name']
+        hit_name = frame['name']
         frame_line = int(frame['line'])
         frame_file = frame['file']
 
@@ -714,10 +757,13 @@ class AbstractWriterThread(threading.Thread):
         if line is not None:
             assert line == frame_line, 'Expected hit to be in line %s, was: %s' % (line, frame_line)
 
+        if name is not None:
+            assert name == hit_name
+
         self.log.append('End(1): wait_for_breakpoint_hit: %s' % (msg.original_xml,))
 
         return Hit(
-            thread_id=thread_id, frame_id=frame_id, line=frame_line, suspend_type=suspend_type, name=name, file=frame_file)
+            thread_id=thread_id, frame_id=frame_id, line=frame_line, suspend_type=suspend_type, name=hit_name, file=frame_file)
 
     def wait_for_get_next_statement_targets(self):
         last = ''
@@ -810,6 +856,9 @@ class AbstractWriterThread(threading.Thread):
     def write_make_initial_run(self):
         self.write("101\t%s\t" % self.next_seq())
         self.log.append('write_make_initial_run')
+
+    def write_set_protocol(self, protocol):
+        self.write("%s\t%s\t%s" % (CMD_SET_PROTOCOL, self.next_seq(), protocol))
 
     def write_version(self):
         from _pydevd_bundle.pydevd_constants import IS_WINDOWS
@@ -922,11 +971,24 @@ class AbstractWriterThread(threading.Thread):
     def write_step_in(self, thread_id):
         self.write("%s\t%s\t%s" % (CMD_STEP_INTO, self.next_seq(), thread_id,))
 
+    def write_step_in_my_code(self, thread_id):
+        self.write("%s\t%s\t%s" % (CMD_STEP_INTO_MY_CODE, self.next_seq(), thread_id,))
+
     def write_step_return(self, thread_id):
         self.write("%s\t%s\t%s" % (CMD_STEP_RETURN, self.next_seq(), thread_id,))
 
+    def write_step_return_my_code(self, thread_id):
+        self.write("%s\t%s\t%s" % (CMD_STEP_RETURN_MY_CODE, self.next_seq(), thread_id,))
+
+    def write_step_over_my_code(self, thread_id):
+        self.write("%s\t%s\t%s" % (CMD_STEP_OVER_MY_CODE, self.next_seq(), thread_id,))
+
     def write_suspend_thread(self, thread_id):
         self.write("%s\t%s\t%s" % (CMD_THREAD_SUSPEND, self.next_seq(), thread_id,))
+
+    def write_reload(self, module_name):
+        self.log.append('write_reload')
+        self.write("%s\t%s\t%s" % (CMD_RELOAD_CODE, self.next_seq(), module_name,))
 
     def write_run_thread(self, thread_id):
         self.log.append('write_run_thread')
@@ -1056,7 +1118,7 @@ def _get_debugger_test_file(filename):
 
     ret = os.path.normcase(rPath(os.path.join(os.path.dirname(__file__), filename)))
     if not os.path.exists(ret):
-        ret = os.path.join(os.path.dirname(ret), 'resources', os.path.basename(ret))
+        ret = os.path.join(os.path.dirname(__file__), 'resources', filename)
     if not os.path.exists(ret):
         raise AssertionError('Expected: %s to exist.' % (ret,))
     return ret

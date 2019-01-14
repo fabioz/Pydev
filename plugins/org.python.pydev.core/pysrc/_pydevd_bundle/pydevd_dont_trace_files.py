@@ -21,6 +21,7 @@ DONT_TRACE = {
 
     #things from pydev that we don't want to trace
     '_pydev_execfile.py':PYDEV_FILE,
+    '__main__pydevd_gen_debug_adapter_protocol.py': PYDEV_FILE,
     '_pydev_BaseHTTPServer.py': PYDEV_FILE,
     '_pydev_SimpleXMLRPCServer.py': PYDEV_FILE,
     '_pydev_SocketServer.py': PYDEV_FILE,
@@ -63,6 +64,7 @@ DONT_TRACE = {
     'pydevd.py': PYDEV_FILE,
     'pydevd_additional_thread_info.py': PYDEV_FILE,
     'pydevd_additional_thread_info_regular.py': PYDEV_FILE,
+    'pydevd_base_schema.py': PYDEV_FILE,
     'pydevd_breakpoints.py': PYDEV_FILE,
     'pydevd_collect_try_except_info.py': PYDEV_FILE,
     'pydevd_comm.py': PYDEV_FILE,
@@ -90,14 +92,20 @@ DONT_TRACE = {
     'pydevd_io.py': PYDEV_FILE,
     'pydevd_kill_all_pydevd_threads.py': PYDEV_FILE,
     'pydevd_modify_bytecode.py': PYDEV_FILE,
+    'pydevd_net_command.py': PYDEV_FILE,
+    'pydevd_net_command_factory_json.py': PYDEV_FILE,
+    'pydevd_net_command_factory_xml.py': PYDEV_FILE,
     'pydevd_plugin_numpy_types.py': PYDEV_FILE,
     'pydevd_plugin_utils.py': PYDEV_FILE,
     'pydevd_plugins_django_form_str.py': PYDEV_FILE,
     'pydevd_process_net_command.py': PYDEV_FILE,
+    'pydevd_process_net_command_json.py': PYDEV_FILE,
     'pydevd_referrers.py': PYDEV_FILE,
     'pydevd_reload.py': PYDEV_FILE,
     'pydevd_resolver.py': PYDEV_FILE,
     'pydevd_save_locals.py': PYDEV_FILE,
+    'pydevd_schema.py': PYDEV_FILE,
+    'pydevd_schema_log.py': PYDEV_FILE,
     'pydevd_signature.py': PYDEV_FILE,
     'pydevd_stackless.py': PYDEV_FILE,
     'pydevd_thread_wrappers.py': PYDEV_FILE,
@@ -119,3 +127,4 @@ if IS_PY3K:
     # Don't trace common encodings too
     DONT_TRACE['cp1252.py'] = LIB_FILE
     DONT_TRACE['utf_8.py'] = LIB_FILE
+    DONT_TRACE['codecs.py'] = LIB_FILE

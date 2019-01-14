@@ -7,15 +7,14 @@ import traceback  # @Reimport
 from _pydev_bundle import pydev_log
 from _pydevd_bundle import pydevd_dont_trace
 from _pydevd_bundle import pydevd_vars
-from _pydevd_bundle.pydevd_breakpoints import get_exception_breakpoint
 from _pydevd_bundle.pydevd_comm_constants import (CMD_STEP_CAUGHT_EXCEPTION, CMD_STEP_RETURN, CMD_STEP_OVER, CMD_SET_BREAK, \
-    CMD_STEP_INTO, CMD_SMART_STEP_INTO, CMD_RUN_TO_LINE, CMD_SET_NEXT_STATEMENT, CMD_STEP_INTO_MY_CODE)
+    CMD_STEP_INTO, CMD_SMART_STEP_INTO, CMD_RUN_TO_LINE, CMD_SET_NEXT_STATEMENT, CMD_STEP_INTO_MY_CODE,
+    CMD_STEP_RETURN_MY_CODE, CMD_STEP_OVER_MY_CODE)
 from _pydevd_bundle.pydevd_constants import STATE_SUSPEND, get_current_thread_id, STATE_RUN, dict_iter_values, IS_PY3K, \
     dict_keys, RETURN_VALUES_DICT, NO_FTRACE
-from _pydevd_bundle.pydevd_dont_trace_files import DONT_TRACE, PYDEV_FILE
 from _pydevd_bundle.pydevd_frame_utils import add_exception_to_frame, just_raised, remove_exception_from_frame, ignore_exception_trace
 from _pydevd_bundle.pydevd_utils import get_clsname_for_code
-from pydevd_file_utils import get_abs_path_real_path_and_base_from_frame
+from pydevd_file_utils import get_abs_path_real_path_and_base_from_frame, get_abs_path_real_path_and_base_from_file
 try:
     from inspect import CO_GENERATOR
 except:
@@ -35,61 +34,6 @@ IGNORE_EXCEPTION_TAG = re.compile('[^#]*#.*@IgnoreException')
 DEBUG_START = ('pydevd.py', 'run')
 DEBUG_START_PY3K = ('_pydev_execfile.py', 'execfile')
 TRACE_PROPERTY = 'pydevd_traceproperty.py'
-get_file_type = DONT_TRACE.get
-
-
-def handle_breakpoint_condition(py_db, info, breakpoint, new_frame):
-    condition = breakpoint.condition
-    try:
-        if breakpoint.handle_hit_condition(new_frame):
-            return True
-
-        if condition is None:
-            return False
-
-        return eval(condition, new_frame.f_globals, new_frame.f_locals)
-    except Exception as e:
-        if IS_PY2:
-            # Must be bytes on py2.
-            if isinstance(condition, unicode):
-                condition = condition.encode('utf-8')
-
-        if not isinstance(e, py_db.skip_print_breakpoint_exception):
-            sys.stderr.write('Error while evaluating expression: %s\n' % (condition,))
-
-            etype, value, tb = sys.exc_info()
-            traceback.print_exception(etype, value, tb.tb_next)
-
-        if not isinstance(e, py_db.skip_suspend_on_breakpoint_exception):
-            try:
-                # add exception_type and stacktrace into thread additional info
-                etype, value, tb = sys.exc_info()
-                error = ''.join(traceback.format_exception_only(etype, value))
-                stack = traceback.extract_stack(f=tb.tb_frame.f_back)
-
-                # On self.set_suspend(thread, CMD_SET_BREAK) this info will be
-                # sent to the client.
-                info.conditional_breakpoint_exception = \
-                    ('Condition:\n' + condition + '\n\nError:\n' + error, stack)
-            except:
-                traceback.print_exc()
-            return True
-        
-        return False
-
-    finally:
-        etype, value, tb = None, None, None
-
-
-def handle_breakpoint_expression(breakpoint, info, new_frame):
-    try:
-        try:
-            val = eval(breakpoint.expression, new_frame.f_globals, new_frame.f_locals)
-        except:
-            val = sys.exc_info()[1]
-    finally:
-        if val is not None:
-            info.pydev_message = str(val)
 
 
 #=======================================================================================================================
@@ -174,12 +118,12 @@ class PyDBFrame:
             if trace is not None and hasattr(trace, 'tb_next'):
                 # on jython trace is None on the first event and it may not have a tb_next.
 
-                exception_breakpoint = get_exception_breakpoint(
+                exception_breakpoint = main_debugger.get_exception_breakpoint(
                     exception, main_debugger.break_on_caught_exceptions)
 
                 if exception_breakpoint is not None:
                     if exception_breakpoint.condition is not None:
-                        eval_result = handle_breakpoint_condition(main_debugger, info, exception_breakpoint, frame)
+                        eval_result = main_debugger.handle_breakpoint_condition(info, exception_breakpoint, frame)
                         if not eval_result:
                             return False, frame
 
@@ -231,7 +175,7 @@ class PyDBFrame:
 
                 if should_stop:
                     if exception_breakpoint is not None and exception_breakpoint.expression is not None:
-                        handle_breakpoint_expression(exception_breakpoint, info, frame)
+                        main_debugger.handle_breakpoint_expression(exception_breakpoint, info, frame)
 
         return should_stop, frame
 
@@ -419,17 +363,16 @@ class PyDBFrame:
     # ELSE
     def trace_dispatch(self, frame, event, arg):
     # ENDIF
-
+        # DEBUG = 'code_to_debug' in frame.f_code.co_filename
         main_debugger, filename, info, thread, frame_skips_cache, frame_cache_key = self._args
-        # print('frame trace_dispatch %s %s %s %s %s' % (frame.f_lineno, frame.f_code.co_name, frame.f_code.co_filename, event, info.pydev_step_cmd))
+        # if DEBUG: print('frame trace_dispatch %s %s %s %s %s' % (frame.f_lineno, frame.f_code.co_name, frame.f_code.co_filename, event, info.pydev_step_cmd))
         try:
             info.is_tracing = True
             line = frame.f_lineno
             line_cache_key = (frame_cache_key, line)
 
             if main_debugger._finish_debugging_session:
-                if event != 'call': frame.f_trace = NO_FTRACE
-                return None
+                return None if event == 'call' else NO_FTRACE
 
             plugin_manager = main_debugger.plugin
 
@@ -441,7 +384,6 @@ class PyDBFrame:
                     should_stop, frame = self.should_stop_on_exception(frame, event, arg)
                     if should_stop:
                         self.handle_exception(frame, event, arg)
-                        # No need to reset frame.f_trace to keep the same trace function.
                         return self.trace_dispatch
                 is_line = False
                 is_return = False
@@ -452,7 +394,6 @@ class PyDBFrame:
                 is_call = event == 'call'
                 if not is_line and not is_return and not is_call:
                     # Unexpected: just keep the same trace func.
-                    # No need to reset frame.f_trace to keep the same trace function.
                     return self.trace_dispatch
 
             need_signature_trace_return = False
@@ -467,10 +408,13 @@ class PyDBFrame:
 
             if is_exception_event:
                 breakpoints_for_file = None
-                # CMD_STEP_OVER = 108
-                if stop_frame and stop_frame is not frame and step_cmd == 108 and \
+                # CMD_STEP_OVER = 108, CMD_STEP_OVER_MY_CODE = 159
+                if stop_frame and stop_frame is not frame and step_cmd in (108, 159) and \
                                 arg[0] in (StopIteration, GeneratorExit) and arg[2] is None:
-                    info.pydev_step_cmd = 107  # CMD_STEP_INTO = 107
+                    if step_cmd == CMD_STEP_OVER:
+                        info.pydev_step_cmd = CMD_STEP_INTO
+                    else:
+                        info.pydev_step_cmd = CMD_STEP_INTO_MY_CODE
                     info.pydev_step_stop = None
             else:
                 # If we are in single step mode and something causes us to exit the current frame, we need to make sure we break
@@ -479,9 +423,14 @@ class PyDBFrame:
                 # to make a step in or step over at that location).
                 # Note: this is especially troublesome when we're skipping code with the
                 # @DontTrace comment.
-                if stop_frame is frame and is_return and step_cmd in (109, 108):  # CMD_STEP_RETURN = 109, CMD_STEP_OVER = 108
+                if stop_frame is frame and is_return and step_cmd in (108, 109, 159, 160):
+                    # CMD_STEP_OVER = 108, CMD_STEP_RETURN = 109, CMD_STEP_OVER_MY_CODE = 159, CMD_STEP_RETURN_MY_CODE = 160
+
                     if not frame.f_code.co_flags & 0x20:  # CO_GENERATOR = 0x20 (inspect.CO_GENERATOR)
-                        info.pydev_step_cmd = 107  # CMD_STEP_INTO = 107
+                        if step_cmd in (108, 109):
+                            info.pydev_step_cmd = CMD_STEP_INTO
+                        else:
+                            info.pydev_step_cmd = CMD_STEP_INTO_MY_CODE
                         info.pydev_step_stop = None
 
                 breakpoints_for_file = main_debugger.breakpoints.get(filename)
@@ -492,16 +441,16 @@ class PyDBFrame:
                     # we can skip if:
                     # - we have no stop marked
                     # - we should make a step return/step over and we're not in the current frame
-                    # CMD_STEP_RETURN = 109, CMD_STEP_OVER = 108
+                    # CMD_STEP_OVER = 108, CMD_STEP_RETURN = 109, CMD_STEP_OVER_MY_CODE = 159, CMD_STEP_RETURN_MY_CODE = 160
                     can_skip = (step_cmd == -1 and stop_frame is None) \
-                        or (step_cmd in (109, 108) and stop_frame is not frame)
+                        or (step_cmd in (108, 109, 159, 160) and stop_frame is not frame)
 
                     if can_skip:
                         if plugin_manager is not None and main_debugger.has_plugin_line_breaks:
                             can_skip = not plugin_manager.can_not_skip(main_debugger, self, frame)
 
-                        # CMD_STEP_OVER = 108
-                        if can_skip and main_debugger.show_return_values and info.pydev_step_cmd == 108 and frame.f_back is info.pydev_step_stop:
+                        # CMD_STEP_OVER = 108, CMD_STEP_OVER_MY_CODE = 159
+                        if can_skip and main_debugger.show_return_values and info.pydev_step_cmd in (108, 159) and frame.f_back is info.pydev_step_stop:
                             # trace function for showing return values after step over
                             can_skip = False
 
@@ -512,22 +461,18 @@ class PyDBFrame:
                 if not breakpoints_for_file:
                     if can_skip:
                         if has_exception_breakpoints:
-                            frame.f_trace = self.trace_exception
                             return self.trace_exception
                         else:
                             if need_signature_trace_return:
-                                frame.f_trace = self.trace_return
                                 return self.trace_return
                             else:
-                                if not is_call: frame.f_trace = NO_FTRACE
-                                return None
+                                return None if is_call else NO_FTRACE
 
                 else:
                     # When cached, 0 means we don't have a breakpoint and 1 means we have.
                     if can_skip:
                         breakpoints_in_line_cache = frame_skips_cache.get(line_cache_key, -1)
                         if breakpoints_in_line_cache == 0:
-                            # No need to reset frame.f_trace to keep the same trace function.
                             return self.trace_dispatch
 
                     breakpoints_in_frame_cache = frame_skips_cache.get(frame_cache_key, -1)
@@ -558,18 +503,15 @@ class PyDBFrame:
 
                     if can_skip and not has_breakpoint_in_frame:
                         if has_exception_breakpoints:
-                            frame.f_trace = self.trace_exception
                             return self.trace_exception
                         else:
                             if need_signature_trace_return:
-                                frame.f_trace = self.trace_return
                                 return self.trace_return
                             else:
-                                if not is_call: frame.f_trace = NO_FTRACE
-                                return None
+                                return None if is_call else NO_FTRACE
 
             # We may have hit a breakpoint or we are already in step mode. Either way, let's check what we should do in this frame
-            # print('NOT skipped: %s %s %s %s' % (frame.f_lineno, frame.f_code.co_name, event, frame.__class__.__name__))
+            # if DEBUG: print('NOT skipped: %s %s %s %s' % (frame.f_lineno, frame.f_code.co_name, event, frame.__class__.__name__))
 
             try:
                 flag = False
@@ -585,7 +527,7 @@ class PyDBFrame:
                     breakpoint = breakpoints_for_file[line]
                     new_frame = frame
                     stop = True
-                    if step_cmd == CMD_STEP_OVER and stop_frame is frame and (is_line or is_return):
+                    if step_cmd in (CMD_STEP_OVER, CMD_STEP_OVER_MY_CODE) and (stop_frame is frame and is_line):
                         stop = False  # we don't stop on breakpoint if we have to stop by step-over (it will be processed later)
                 elif plugin_manager is not None and main_debugger.has_plugin_line_breaks:
                     result = plugin_manager.get_breakpoint(main_debugger, self, frame, event, self._args)
@@ -599,16 +541,15 @@ class PyDBFrame:
                     if stop or exist_result:
                         eval_result = False
                         if breakpoint.has_condition:
-                            eval_result = handle_breakpoint_condition(main_debugger, info, breakpoint, new_frame)
+                            eval_result = main_debugger.handle_breakpoint_condition(info, breakpoint, new_frame)
 
                         if breakpoint.expression is not None:
-                            handle_breakpoint_expression(breakpoint, info, new_frame)
+                            main_debugger.handle_breakpoint_expression(breakpoint, info, new_frame)
                             if breakpoint.is_logpoint and info.pydev_message is not None and len(info.pydev_message) > 0:
                                 cmd = main_debugger.cmd_factory.make_io_message(info.pydev_message + os.linesep, '1')
                                 main_debugger.writer.add_command(cmd)
 
                         if breakpoint.has_condition and not eval_result:
-                            # No need to reset frame.f_trace to keep the same trace function.
                             return self.trace_dispatch
 
                     if is_call and frame.f_code.co_name in ('<module>', '<lambda>'):
@@ -620,7 +561,6 @@ class PyDBFrame:
                         # As for lambda, as it only has a single statement, it's not interesting to trace
                         # its call and later its line event as they're usually in the same line.
 
-                        # No need to reset frame.f_trace to keep the same trace function.
                         return self.trace_dispatch
 
                 else:
@@ -629,15 +569,13 @@ class PyDBFrame:
                     if step_cmd != -1:
                         if main_debugger.is_filter_enabled and main_debugger.is_ignored_by_filters(filename):
                             # ignore files matching stepping filters
-                            # No need to reset frame.f_trace to keep the same trace function.
                             return self.trace_dispatch
                         if main_debugger.is_filter_libraries and not main_debugger.in_project_scope(filename):
                             # ignore library files while stepping
-                            # No need to reset frame.f_trace to keep the same trace function.
                             return self.trace_dispatch
 
                 if main_debugger.show_return_values:
-                    if is_return and info.pydev_step_cmd == CMD_STEP_OVER and frame.f_back == info.pydev_step_stop:
+                    if is_return and info.pydev_step_cmd in (CMD_STEP_OVER, CMD_STEP_OVER_MY_CODE) and frame.f_back == info.pydev_step_stop:
                         self.show_return_values(frame, arg)
 
                 elif main_debugger.remove_return_values_flag:
@@ -648,11 +586,11 @@ class PyDBFrame:
 
                 if stop:
                     self.set_suspend(
-                        thread, 
-                        CMD_SET_BREAK, 
+                        thread,
+                        CMD_SET_BREAK,
                         suspend_other_threads=breakpoint and breakpoint.suspend_policy == "ALL",
                     )
-                        
+
                 elif flag and plugin_manager is not None:
                     result = plugin_manager.suspend(main_debugger, thread, frame, bp_type)
                     if result:
@@ -661,7 +599,6 @@ class PyDBFrame:
                 # if thread has a suspend flag, we suspend with a busy wait
                 if info.pydev_state == STATE_SUSPEND:
                     self.do_wait_suspend(thread, frame, event, arg)
-                    # No need to reset frame.f_trace to keep the same trace function.
                     return self.trace_dispatch
                 else:
                     if not breakpoint and is_line:
@@ -693,18 +630,42 @@ class PyDBFrame:
                     stop = False
 
                 elif step_cmd == CMD_STEP_INTO:
-                    stop = is_line or is_return
+                    if is_line:
+                        stop = True
+                    elif is_return:
+                        if frame.f_back is not None:
+                            if main_debugger.get_file_type(
+                                    get_abs_path_real_path_and_base_from_frame(frame.f_back)) == main_debugger.PYDEV_FILE:
+                                stop = False
+                            else:
+                                stop = True
                     if plugin_manager is not None:
                         result = plugin_manager.cmd_step_into(main_debugger, frame, event, self._args, stop_info, stop)
                         if result:
                             stop, plugin_stop = result
 
                 elif step_cmd == CMD_STEP_INTO_MY_CODE:
-                    if main_debugger.in_project_scope(frame.f_code.co_filename):
-                        stop = is_line
+                    if is_line:
+                        if main_debugger.in_project_scope(frame.f_code.co_filename):
+                            stop = True
+                    elif is_return and frame.f_back is not None:
+                        if main_debugger.in_project_scope(frame.f_back.f_code.co_filename):
+                            stop = True
+                    else:
+                        stop = False
 
-                elif step_cmd == CMD_STEP_OVER:
-                    stop = stop_frame is frame and (is_line or is_return)
+                    if plugin_manager is not None:
+                        result = plugin_manager.cmd_step_into(main_debugger, frame, event, self._args, stop_info, stop)
+                        if result:
+                            stop, plugin_stop = result
+
+                elif step_cmd in (CMD_STEP_OVER, CMD_STEP_OVER_MY_CODE):
+                    # Note: when dealing with a step over my code it's the same as a step over (the
+                    # difference is that when we return from a frame in one we go to regular step
+                    # into and in the other we go to a step into my code).
+                    stop = stop_frame is frame and is_line
+                    # Note: don't stop on a return for step over, only for line events
+                    # i.e.: don't stop in: (stop_frame is frame.f_back and is_return) as we'd stop twice in that line.
 
                     if frame.f_code.co_flags & CO_GENERATOR:
                         if is_return:
@@ -731,7 +692,7 @@ class PyDBFrame:
                         if curr_func_name == info.pydev_func_name:
                             stop = True
 
-                elif step_cmd == CMD_STEP_RETURN:
+                elif step_cmd in (CMD_STEP_RETURN, CMD_STEP_RETURN_MY_CODE):
                     stop = is_return and stop_frame is frame
 
                 else:
@@ -740,9 +701,8 @@ class PyDBFrame:
                 if stop and step_cmd != -1 and is_return and IS_PY3K and hasattr(frame, "f_back"):
                     f_code = getattr(frame.f_back, 'f_code', None)
                     if f_code is not None:
-                        back_filename = os.path.basename(f_code.co_filename)
-                        file_type = get_file_type(back_filename)
-                        if file_type == PYDEV_FILE:
+                        if main_debugger.get_file_type(
+                                get_abs_path_real_path_and_base_from_file(f_code.co_filename)) == main_debugger.PYDEV_FILE:
                             stop = False
 
                 if plugin_stop:
@@ -764,8 +724,7 @@ class PyDBFrame:
                             elif base == TRACE_PROPERTY:
                                 # We dont want to trace the return event of pydevd_traceproperty (custom property for debugging)
                                 # if we're in a return, we want it to appear to the user in the previous frame!
-                                if not is_call: frame.f_trace = NO_FTRACE
-                                return None
+                                return None if is_call else NO_FTRACE
 
                             elif pydevd_dont_trace.should_trace_hook is not None:
                                 if not pydevd_dont_trace.should_trace_hook(back, back_filename):
@@ -775,8 +734,7 @@ class PyDBFrame:
                                     # we should anymore (so, a step in/over/return may not stop anywhere if no parent is traced).
                                     # Related test: _debugger_case17a.py
                                     main_debugger.set_trace_for_frame_and_parents(back)
-                                    if not is_call: frame.f_trace = NO_FTRACE
-                                    return None
+                                    return None if is_call else NO_FTRACE
 
                         if back is not None:
                             # if we're in a return, we want it to appear to the user in the previous frame!
@@ -795,16 +753,13 @@ class PyDBFrame:
                     traceback.print_exc()
                     info.pydev_step_cmd = -1
                 except:
-                    if not is_call: frame.f_trace = NO_FTRACE
-                    return None
+                    return None if is_call else NO_FTRACE
 
             # if we are quitting, let's stop the tracing
             if not main_debugger.quitting:
-                # No need to reset frame.f_trace to keep the same trace function.
                 return self.trace_dispatch
             else:
-                if not is_call: frame.f_trace = NO_FTRACE
-                return None
+                return None if is_call else NO_FTRACE
         finally:
             info.is_tracing = False
 
