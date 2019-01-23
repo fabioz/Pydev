@@ -59,6 +59,21 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
         }
 
         public String tagReplaced;
+
+        @Override
+        public boolean similarTo(StyleRange style) {
+            if (!super.similarTo(style)) {
+                return false;
+            }
+            if (style instanceof PyStyleRange) {
+                String otherTagReplaced = ((PyStyleRange) style).tagReplaced;
+                if (tagReplaced == null) {
+                    return otherTagReplaced == null;
+                }
+                return tagReplaced.equals(otherTagReplaced);
+            }
+            return true;
+        }
     }
 
     private int fCounter;
