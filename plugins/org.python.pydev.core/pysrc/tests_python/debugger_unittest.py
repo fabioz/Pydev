@@ -179,12 +179,14 @@ class ReaderThread(threading.Thread):
 
     def __init__(self, sock):
         threading.Thread.__init__(self)
+        self.name = 'Test Reader Thread'
         try:
             from queue import Queue
         except ImportError:
             from Queue import Queue
 
         self.setDaemon(True)
+        self._buffer = b''
         self.sock = sock
         self._queue = Queue()
         self._kill = False
@@ -219,13 +221,45 @@ class ReaderThread(threading.Thread):
             sys.stdout.write('Message returned in get_next_message(): %s --  ctx: %s, asked at:\n%s\n' % (unquote_plus(unquote_plus(msg)), context_message, frame_info))
         return msg
 
+    def _read(self, size):
+        while True:
+            buffer_len = len(self._buffer)
+            if buffer_len == size:
+                ret = self._buffer
+                self._buffer = b''
+                return ret
+
+            if buffer_len > size:
+                ret = self._buffer[:size]
+                self._buffer = self._buffer[size:]
+                return ret
+
+            r = self.sock.recv(max(size - buffer_len, 1024))
+            if not r:
+                return b''
+            self._buffer += r
+
+    def _read_line(self):
+        while True:
+            i = self._buffer.find(b'\n')
+            if i != -1:
+                i += 1  # Add the newline to the return
+                ret = self._buffer[:i]
+                self._buffer = self._buffer[i:]
+                return ret
+            else:
+                r = self.sock.recv(1024)
+                if not r:
+                    return b''
+                self._buffer += r
+
     def run(self):
         try:
             content_len = -1
 
-            stream = self.sock.makefile('rb')
             while not self._kill:
-                line = stream.readline()
+                line = self._read_line()
+
                 if not line:
                     break
 
@@ -234,23 +268,44 @@ class ReaderThread(threading.Thread):
                     if IS_PY3K:
                         show_line = line.decode('utf-8')
 
-                    print('Test Reader Thread Received %s' % (show_line,))
+                    print('%s Received %s' % (self.name, show_line,))
 
                 if line.startswith(b'Content-Length:'):
                     content_len = int(line.strip().split(b':', 1)[1])
+                    continue
 
-                elif content_len != -1:
+                if content_len != -1:
+                    # If we previously received a content length, read until a '\r\n'.
                     if line == b'\r\n':
-                        msg = stream.read(content_len)
+                        json_contents = self._read(content_len)
+                        content_len = -1
+
+                        if len(json_contents) == 0:
+                            self.handle_except()
+                            return  # Finished communication.
+
+                        msg = json_contents
                         if IS_PY3K:
                             msg = msg.decode('utf-8')
                         print('Test Reader Thread Received %s' % (msg,))
                         self._queue.put(msg)
 
+                    continue
                 else:
+                    # No content len, regular line-based protocol message (remove trailing new-line).
+                    if line.endswith(b'\n\n'):
+                        line = line[:-2]
+
+                    elif line.endswith(b'\n'):
+                        line = line[:-1]
+
+                    elif line.endswith(b'\r'):
+                        line = line[:-1]
+
                     msg = line
                     if IS_PY3K:
                         msg = msg.decode('utf-8')
+                        print('Test Reader Thread Received %s' % (msg,))
                     self._queue.put(msg)
 
         except:
@@ -331,7 +386,7 @@ class DebuggerRunner(object):
             args = self.add_command_line_args(args)
 
             if SHOW_OTHER_DEBUG_INFO:
-                print('executing', ' '.join(args))
+                print('executing: %s' % (' '.join(args),))
 
             with self.run_process(args, writer) as dct_with_stdout_stder:
                 try:
@@ -561,6 +616,11 @@ class AbstractWriterThread(threading.Thread):
         dirname = os.path.dirname(__file__)
         dirname = os.path.dirname(dirname)
         return os.path.abspath(os.path.join(dirname, 'pydevd.py'))
+
+    def get_pydevconsole_file(self):
+        dirname = os.path.dirname(__file__)
+        dirname = os.path.dirname(dirname)
+        return os.path.abspath(os.path.join(dirname, 'pydevconsole.py'))
 
     def get_line_index_with_content(self, line_content):
         '''
@@ -949,6 +1009,9 @@ class AbstractWriterThread(threading.Thread):
         self.write("%s\t%s\t%s" % (CMD_ADD_EXCEPTION_BREAK, self.next_seq(), '\t'.join(str(x) for x in [
             exception, notify_on_handled_exceptions, notify_on_unhandled_exceptions, ignore_libraries])))
         self.log.append('write_add_exception_breakpoint: %s' % (exception,))
+
+    def write_remove_exception_breakpoint(self, exception):
+        self.write('%s\t%s\t%s' % (CMD_REMOVE_EXCEPTION_BREAK, self.next_seq(), exception))
 
     def write_remove_breakpoint(self, breakpoint_id):
         self.write("%s\t%s\t%s\t%s\t%s" % (

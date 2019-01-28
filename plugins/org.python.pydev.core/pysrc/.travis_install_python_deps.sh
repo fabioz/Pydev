@@ -16,7 +16,7 @@ else
 fi
 
 if [ "$PYDEVD_PYTHON_VERSION" = "2.7" ]; then
-    conda install --yes pyqt=4
+    conda install --yes pyqt=4 gevent
     pip install "django>=1.7,<1.8"
     pip install pathlib2
 
@@ -28,12 +28,12 @@ if [ "$PYDEVD_PYTHON_VERSION" = "3.5" ]; then
 fi
 
 if [ "$PYDEVD_PYTHON_VERSION" = "3.6" ]; then
-    conda install --yes pyqt=5
+    conda install --yes pyqt=5 gevent
     pip install "django>=2.1,<2.2"
 fi
 
 if [ "$PYDEVD_PYTHON_VERSION" = "3.7" ]; then
-    conda install --yes pyqt=5
+    conda install --yes pyqt=5 matplotlib
     # Note: track the latest django
     pip install "django"
 fi

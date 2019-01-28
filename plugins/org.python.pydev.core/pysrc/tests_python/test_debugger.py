@@ -17,9 +17,10 @@ from tests_python.debugger_unittest import (CMD_SET_PROPERTY_TRACE, REASON_CAUGH
     IS_APPVEYOR, wait_for_condition, CMD_GET_FRAME, CMD_GET_BREAKPOINT_EXCEPTION,
     CMD_THREAD_SUSPEND, CMD_STEP_OVER, REASON_STEP_OVER, CMD_THREAD_SUSPEND_SINGLE_NOTIFICATION,
     CMD_THREAD_RESUME_SINGLE_NOTIFICATION, REASON_STEP_RETURN, REASON_STEP_RETURN_MY_CODE,
-    REASON_STEP_OVER_MY_CODE, REASON_STEP_INTO)
+    REASON_STEP_OVER_MY_CODE, REASON_STEP_INTO, CMD_THREAD_KILL)
 from _pydevd_bundle.pydevd_constants import IS_WINDOWS
 from _pydevd_bundle.pydevd_comm_constants import CMD_RELOAD_CODE
+import json
 try:
     from urllib import unquote
 except ImportError:
@@ -899,7 +900,15 @@ def test_case_flask(case_setup_flask):
 
 @pytest.mark.skipif(not TEST_DJANGO, reason='No django available')
 def test_case_django_a(case_setup_django):
-    with case_setup_django.test_file(EXPECTED_RETURNCODE='any') as writer:
+
+    def get_environ(writer):
+        env = os.environ.copy()
+        env.update({
+            'PYDEVD_FILTER_LIBRARIES': '1',  # Global setting for in project or not
+        })
+        return env
+
+    with case_setup_django.test_file(EXPECTED_RETURNCODE='any', get_environ=get_environ) as writer:
         writer.write_add_breakpoint_django(5, None, 'index.html')
         writer.write_make_initial_run()
 
@@ -943,6 +952,8 @@ def test_case_django_a(case_setup_django):
 def test_case_django_b(case_setup_django):
     with case_setup_django.test_file(EXPECTED_RETURNCODE='any') as writer:
         writer.write_add_breakpoint_django(4, None, 'name.html')
+        writer.write_add_exception_breakpoint_django()
+        writer.write_remove_exception_breakpoint_django()
         writer.write_make_initial_run()
 
         t = writer.create_request_thread('my_app/name')
@@ -2094,7 +2105,7 @@ def test_debug_zip_files(case_setup, tmpdir):
 
 
 @pytest.mark.skipif(not IS_CPYTHON, reason='CPython only test.')
-def test_multiprocessing(case_setup_multiprocessing):
+def test_multiprocessing_simple(case_setup_multiprocessing):
     import threading
     from tests_python.debugger_unittest import AbstractWriterThread
     with case_setup_multiprocessing.test_file('_debugger_case_multiprocessing.py') as writer:
@@ -2120,6 +2131,7 @@ def test_multiprocessing(case_setup_multiprocessing):
                 new_sock, addr = server_socket.accept()
 
                 reader_thread = ReaderThread(new_sock)
+                reader_thread.name = '  *** Multiprocess Reader Thread'
                 reader_thread.start()
 
                 writer2 = SecondaryProcessWriterThread()
@@ -2142,6 +2154,76 @@ def test_multiprocessing(case_setup_multiprocessing):
         if secondary_process_thread_communication.isAlive():
             raise AssertionError('The SecondaryProcessThreadCommunication did not finish')
         writer.write_run_thread(hit2.thread_id)
+        writer.finished_ok = True
+
+
+@pytest.mark.skipif(not IS_CPYTHON, reason='CPython only test.')
+def test_multiprocessing_with_stopped_breakpoints(case_setup_multiprocessing):
+    import threading
+    from tests_python.debugger_unittest import AbstractWriterThread
+    with case_setup_multiprocessing.test_file('_debugger_case_multiprocessing_stopped_threads.py') as writer:
+        break_main_line = writer.get_line_index_with_content('break in main here')
+        break_thread_line = writer.get_line_index_with_content('break in thread here')
+        break_process_line = writer.get_line_index_with_content('break in process here')
+
+        writer.write_add_breakpoint(break_main_line)
+        writer.write_add_breakpoint(break_thread_line)
+        writer.write_add_breakpoint(break_process_line)
+
+        server_socket = writer.server_socket
+
+        class SecondaryProcessWriterThread(AbstractWriterThread):
+
+            TEST_FILE = writer.get_main_filename()
+            _sequence = -1
+
+        class SecondaryProcessThreadCommunication(threading.Thread):
+
+            def run(self):
+                from tests_python.debugger_unittest import ReaderThread
+                server_socket.listen(1)
+                self.server_socket = server_socket
+                new_sock, addr = server_socket.accept()
+
+                reader_thread = ReaderThread(new_sock)
+                reader_thread.name = '  *** Multiprocess Reader Thread'
+                reader_thread.start()
+
+                writer2 = SecondaryProcessWriterThread()
+
+                writer2.reader_thread = reader_thread
+                writer2.sock = new_sock
+
+                writer2.write_version()
+                writer2.write_add_breakpoint(break_main_line)
+                writer2.write_add_breakpoint(break_thread_line)
+                writer2.write_add_breakpoint(break_process_line)
+                writer2.write_make_initial_run()
+                hit = writer2.wait_for_breakpoint_hit()
+                writer2.write_run_thread(hit.thread_id)
+
+        secondary_process_thread_communication = SecondaryProcessThreadCommunication()
+        secondary_process_thread_communication.start()
+        writer.write_make_initial_run()
+        hit2 = writer.wait_for_breakpoint_hit()  # Breaks in thread.
+        writer.write_step_over(hit2.thread_id)
+
+        hit2 = writer.wait_for_breakpoint_hit(REASON_STEP_OVER)  # line == event.set()
+
+        # paused on breakpoint, will start process and pause on main thread
+        # in the main process too.
+        writer.write_step_over(hit2.thread_id)
+
+        # Note: ignore the step over hit (go only for the breakpoint hit).
+        main_hit = writer.wait_for_breakpoint_hit(REASON_STOP_ON_BREAKPOINT)
+
+        secondary_process_thread_communication.join(10)
+        if secondary_process_thread_communication.isAlive():
+            raise AssertionError('The SecondaryProcessThreadCommunication did not finish')
+
+        writer.write_run_thread(hit2.thread_id)
+        writer.write_run_thread(main_hit.thread_id)
+
         writer.finished_ok = True
 
 
@@ -2305,8 +2387,9 @@ def test_remote_debugger_multi_proc(case_setup_remote):
         writer.finished_ok = True
 
 
+@pytest.mark.parametrize('handle', [True, False])
 @pytest.mark.skipif(not IS_CPYTHON, reason='CPython only test.')
-def test_remote_unhandled_exceptions(case_setup_remote):
+def test_remote_unhandled_exceptions(case_setup_remote, handle):
 
     def check_test_suceeded_msg(writer, stdout, stderr):
         return 'TEST SUCEEDED' in ''.join(stderr)
@@ -2327,14 +2410,21 @@ def test_remote_unhandled_exceptions(case_setup_remote):
         writer.log.append('waiting for breakpoint hit')
         hit = writer.wait_for_breakpoint_hit()
 
+        # Add, remove and add back
         writer.write_add_exception_breakpoint_with_policy('Exception', '0', '1', '0')
+        writer.write_remove_exception_breakpoint('Exception')
+        writer.write_add_exception_breakpoint_with_policy('Exception', '0', '1', '0')
+
+        if not handle:
+            writer.write_remove_exception_breakpoint('Exception')
 
         writer.log.append('run thread')
         writer.write_run_thread(hit.thread_id)
 
-        writer.log.append('waiting for uncaught exception')
-        hit = writer.wait_for_breakpoint_hit(REASON_UNCAUGHT_EXCEPTION)
-        writer.write_run_thread(hit.thread_id)
+        if handle:
+            writer.log.append('waiting for uncaught exception')
+            hit = writer.wait_for_breakpoint_hit(REASON_UNCAUGHT_EXCEPTION)
+            writer.write_run_thread(hit.thread_id)
 
         writer.log.append('finished ok')
         writer.finished_ok = True
@@ -2402,7 +2492,7 @@ a = 10 # break here
 assert my_temp2.call() == 2
 print('TEST SUCEEDED!')
 ''')
-    
+
     path2 = tmpdir.join('my_temp2.py')
     path2.write('''
 def call():
@@ -2413,7 +2503,7 @@ def call():
         writer.write_add_breakpoint(break_line, '')
         writer.write_make_initial_run()
         hit = writer.wait_for_breakpoint_hit()
-        
+
         path2 = tmpdir.join('my_temp2.py')
         path2.write('''
 def call():
@@ -2423,6 +2513,56 @@ def call():
         writer.write_reload('my_temp2')
         writer.wait_for_message(CMD_RELOAD_CODE)
         writer.write_run_thread(hit.thread_id)
+        writer.finished_ok = True
+
+
+@pytest.mark.skipif(IS_JYTHON, reason='Not working with Jython on ci (needs investigation).')
+def test_custom_frames(case_setup):
+    with case_setup.test_file('_debugger_case_custom_frames.py') as writer:
+        writer.write_add_breakpoint(writer.get_line_index_with_content('break here'))
+        writer.write_make_initial_run()
+
+        hit = writer.wait_for_breakpoint_hit()
+
+        for i in range(3):
+            writer.write_step_over(hit.thread_id)
+
+            # Check that the frame-related threads have been killed.
+            for _ in range(i):
+                writer.wait_for_message(CMD_THREAD_KILL, expect_xml=False)
+
+            # Main thread stopped
+            writer.wait_for_breakpoint_hit(REASON_STEP_OVER)
+
+            # At each time we have an additional custom frame (which is shown as if it
+            # was a thread which is created and then suspended).
+            for _ in range(i):
+                writer.wait_for_message(CMD_THREAD_CREATE)
+                writer.wait_for_breakpoint_hit(REASON_THREAD_SUSPEND)
+
+        writer.write_run_thread(hit.thread_id)
+
+        # Check that the frame-related threads have been killed.
+        for _ in range(i):
+            writer.wait_for_message(CMD_THREAD_KILL, expect_xml=False)
+
+        writer.finished_ok = True
+
+
+@pytest.mark.skipif((not (IS_PY36 or IS_PY27)) or IS_JYTHON, reason='Gevent only installed on Py36/Py27 for tests.')
+def test_gevent(case_setup):
+
+    def get_environ(writer):
+        env = os.environ.copy()
+        env['GEVENT_SUPPORT'] = 'True'
+        return env
+
+    with case_setup.test_file('_debugger_case_gevent.py', get_environ=get_environ) as writer:
+        writer.write_add_breakpoint(writer.get_line_index_with_content('break here'))
+        writer.write_make_initial_run()
+        for _i in range(10):
+            hit = writer.wait_for_breakpoint_hit(name='run')
+            writer.write_run_thread(hit.thread_id)
         writer.finished_ok = True
 
 
@@ -2692,6 +2832,126 @@ def test_step_over_my_code(case_setup):
         assert hit.name == '<module>'
 
         writer.write_step_over_my_code(hit.thread_id)
+        writer.finished_ok = True
+
+
+@pytest.fixture(
+    params=[
+        'step_over',
+        'step_return',
+        'step_in',
+    ]
+)
+def step_method(request):
+    return request.param
+
+
+@pytest.mark.parametrize("environ", [
+    {'PYDEVD_FILTER_LIBRARIES': '1'},  # Global setting for step over
+    {'PYDEVD_FILTERS': json.dumps({'**/other.py': True})},  # specify as json
+    {'PYDEVD_FILTERS': '**/other.py'},  # specify ';' separated list
+])
+def test_step_over_my_code_global_settings(case_setup, environ, step_method):
+
+    def get_environ(writer):
+        env = os.environ.copy()
+        env.update(environ)
+        return env
+
+    def do_step():
+        if step_method == 'step_over':
+            writer.write_step_over(hit.thread_id)
+            return REASON_STEP_INTO  # Note: goes from step over to step into
+        elif step_method == 'step_return':
+            writer.write_step_return(hit.thread_id)
+            return REASON_STEP_RETURN
+        else:
+            assert step_method == 'step_in'
+            writer.write_step_in(hit.thread_id)
+            return REASON_STEP_INTO
+
+    with case_setup.test_file('my_code/my_code.py', get_environ=get_environ) as writer:
+        writer.write_set_project_roots([debugger_unittest._get_debugger_test_file('my_code')])
+        writer.write_add_breakpoint(writer.get_line_index_with_content('break here'))
+        writer.write_make_initial_run()
+        hit = writer.wait_for_breakpoint_hit()
+
+        writer.write_step_in(hit.thread_id)
+        hit = writer.wait_for_breakpoint_hit(reason=REASON_STEP_INTO)
+        assert hit.name == 'callback1'
+
+        writer.write_step_in(hit.thread_id)
+        hit = writer.wait_for_breakpoint_hit(reason=REASON_STEP_INTO)
+        assert hit.name == 'callback2'
+
+        stop_reason = do_step()
+        hit = writer.wait_for_breakpoint_hit(reason=stop_reason)
+        assert hit.name == 'callback1'
+
+        stop_reason = do_step()
+        hit = writer.wait_for_breakpoint_hit(reason=stop_reason)
+        assert hit.name == '<module>'
+
+        if IS_JYTHON:
+            # Jython may get to exit functions, so, just resume the thread.
+            writer.write_run_thread(hit.thread_id)
+
+        else:
+            stop_reason = do_step()
+
+            if step_method != 'step_return':
+                stop_reason = do_step()
+                if step_method == 'step_over':
+                    stop_reason = REASON_STEP_OVER
+
+                hit = writer.wait_for_breakpoint_hit(reason=stop_reason)
+                assert hit.name == '<module>'
+
+                writer.write_step_over(hit.thread_id)
+
+        writer.finished_ok = True
+
+
+def test_step_over_my_code_global_setting_and_explicit_include(case_setup):
+
+    def get_environ(writer):
+        env = os.environ.copy()
+        env.update({
+            'PYDEVD_FILTER_LIBRARIES': '1',  # Global setting for in project or not
+            # specify as json (force include).
+            'PYDEVD_FILTERS': json.dumps({'**/other.py': False})
+        })
+        return env
+
+    with case_setup.test_file('my_code/my_code.py', get_environ=get_environ) as writer:
+        writer.write_set_project_roots([debugger_unittest._get_debugger_test_file('my_code')])
+        writer.write_add_breakpoint(writer.get_line_index_with_content('break here'))
+        writer.write_make_initial_run()
+        hit = writer.wait_for_breakpoint_hit()
+
+        writer.write_step_in(hit.thread_id)
+        hit = writer.wait_for_breakpoint_hit(reason=REASON_STEP_INTO)
+
+        # Although we filtered out non-project files, other.py is explicitly included.
+        assert hit.name == 'call_me_back1'
+
+        writer.write_run_thread(hit.thread_id)
+        writer.finished_ok = True
+
+
+def test_matplotlib_activation(case_setup):
+    try:
+        import matplotlib
+    except ImportError:
+        return
+
+    with case_setup.test_file('_debugger_case_matplotlib.py') as writer:
+        writer.write_add_breakpoint(writer.get_line_index_with_content('break here'))
+        writer.write_make_initial_run()
+        for _ in range(3):
+            hit = writer.wait_for_breakpoint_hit()
+            writer.write_run_thread(hit.thread_id)
+
         writer.finished_ok = True
 
 # Jython needs some vars to be set locally.
