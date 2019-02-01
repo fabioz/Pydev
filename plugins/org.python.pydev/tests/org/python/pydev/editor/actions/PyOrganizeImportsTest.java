@@ -46,7 +46,7 @@ public class PyOrganizeImportsTest extends TestCase {
 
         @Override
         public IPythonNature getPythonNature() throws MisconfigurationException {
-            throw new RuntimeException("Not implemented");
+            return null;
         }
 
         @Override
@@ -79,6 +79,7 @@ public class PyOrganizeImportsTest extends TestCase {
         ImportsPreferencesPage.groupImportsForTests = false;
         ImportsPreferencesPage.sortNamesGroupedForTests = false; //default
         formatStd.spaceAfterComma = true;
+        formatStd.trimLines = true;
     }
 
     /*
