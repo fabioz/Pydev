@@ -29,7 +29,7 @@ public class FormatStd {
     /**
      * Format with pydevf,autopep8,black?
      */
-    public FormatterEnum formatterStyle;
+    public FormatterEnum formatterStyle = FormatterEnum.PYDEVF;
 
     /**
      * Parameters for autopep8.
