@@ -25,6 +25,7 @@ import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.ISynchronizable;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.log.Log;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.utils.diff_match_patch.Patch;
 
@@ -82,8 +83,41 @@ public class DocUtils {
 
             @Override
             public void replace(int offset, int length, String text) throws BadLocationException {
-                doc.replace(offset, length, text);
+                // When doing a replace, sometimes the patch will try to make something as '\r\nsomething\r\n'
+                // and replace just from just starting after the '\r' to something with '\nfoo\r\n'.
+                // This breaks the editor line counts (seems a bug in SWT itself), but let's fix this
+                // here to minimize the area replaced and prevent that from happening.
+                if (length > 0) {
+                    FastStringBuffer tempBuf = new FastStringBuffer(text.length());
+                    tempBuf.append(text);
 
+                    String curr = doc.get(offset, length);
+
+                    for (int i = 0; i < length && tempBuf.length() > 0; i++) {
+                        if (curr.charAt(i) == tempBuf.charAt(0)) {
+                            tempBuf.deleteFirst();
+                            offset++;
+                            length--;
+                        } else {
+                            break;
+                        }
+                    }
+
+                    curr = doc.get(offset, length);
+
+                    if (tempBuf.length() > 0) {
+                        for (int i = curr.length() - 1; i >= 0 && tempBuf.length() > 0; i--) {
+                            if (tempBuf.lastChar() == curr.charAt(i)) {
+                                tempBuf.deleteLast();
+                                length--;
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+                    text = tempBuf.toString();
+                }
+                doc.replace(offset, length, text);
             }
         }, doc, docContents, newDocContents, endLineDelimiter);
     }

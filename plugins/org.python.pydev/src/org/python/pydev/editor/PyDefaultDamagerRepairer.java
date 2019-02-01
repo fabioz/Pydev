@@ -37,25 +37,6 @@ public class PyDefaultDamagerRepairer implements IPresentationDamager, IPresenta
     protected TextAttribute fDefaultTextAttribute;
 
     /**
-     * Creates a damager/repairer that uses the given scanner and returns the given default
-     * text attribute if the current token does not carry a text attribute.
-     *
-     * @param scanner the token scanner to be used
-     * @param defaultTextAttribute the text attribute to be returned if non is specified by the current token,
-     * 			may not be <code>null</code>
-     *
-     * @deprecated use PyDefaultDamagerRepairer(ITokenScanner) instead
-     */
-    @Deprecated
-    public PyDefaultDamagerRepairer(ITokenScanner scanner, TextAttribute defaultTextAttribute) {
-
-        Assert.isNotNull(defaultTextAttribute);
-
-        fScanner = scanner;
-        fDefaultTextAttribute = defaultTextAttribute;
-    }
-
-    /**
      * Creates a damager/repairer that uses the given scanner. The scanner may not be <code>null</code>
      * and is assumed to return only token that carry text attributes.
      *
