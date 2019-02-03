@@ -6,6 +6,20 @@ History For PyDev
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
+Release 7.1.0 (2019-02-03)
+=============================
+
+* Accept **#region** / **#endregion** (for code folding) at any level.
+
+* Fixed deadlock during race-condition (**#PyDev-961**).
+
+* Fixed hover links when different pydev_link pointers are used (patch by Daniel).
+
+* Fixed issue where the auto-formatter changed only the **\\n** in a **\\r\\n** and the editor presentation became wrong.
+
+* Many debugger improvements (updated to pydevd 1.5.0).
+
+
 Release 7.0.3 (2018-11-08)
 =============================
 

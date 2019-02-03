@@ -4,6 +4,16 @@
 
 <div class="section" id="history-for-pydev">
 <h1>History For PyDev</h1>
+<div class="section" id="release-7-1-0-2019-02-03">
+<h2>Release 7.1.0 (2019-02-03)</h2>
+<ul class="simple">
+<li>Accept <strong>#region</strong> / <strong>#endregion</strong> (for code folding) at any level.</li>
+<li>Fixed deadlock during race-condition (<strong>#PyDev-961</strong>).</li>
+<li>Fixed hover links when different pydev_link pointers are used (patch by Daniel).</li>
+<li>Fixed issue where the auto-formatter changed only the <strong>\n</strong> in a <strong>\r\n</strong> and the editor presentation became wrong.</li>
+<li>Many debugger improvements (updated to pydevd 1.5.0).</li>
+</ul>
+</div>
 <div class="section" id="release-7-0-3-2018-11-08">
 <h2>Release 7.0.3 (2018-11-08)</h2>
 <ul>
