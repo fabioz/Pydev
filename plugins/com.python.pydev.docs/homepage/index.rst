@@ -26,18 +26,16 @@
 
         <a href="https://makeawebsitehub.com" border=0><img class="sponsors" src="images/sponsors/websitehub.png" style="width:150px;height:60px;" alt="makeawebsitehub.com" title="https://makeawebsitehub.com" /></a>
 
-        <a href="https://protoolzone.com/" border=0><img class="sponsors" src="images/sponsors/protoolzone_2.png" style="width:150px;height:60px;" alt="Best tool reviews" title="https://protoolzone.com" /></a>
-
         <div class="section" id="bronze-sponsors">
         <h1>Bronze Sponsors</h1>
+
+        <a href="https://lejonfinans.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/lejofinans.png" alt="CodeFirst" title="https://lejonfinans.com/" /></a>
 
         <a href="https://www.codefirst.co.uk/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/codefirst.png" alt="CodeFirst" title="https://www.codefirst.co.uk/" /></a>
 
         <a href="https://talentplot.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/talentplot.png" alt="TalentPlot" title="https://talentplot.com/" /></a>
 
         <a href="http://smålånutensikkerhet.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/skazani_logo.png" alt="http://smålånutensikkerhet.com/" title="http://smålånutensikkerhet.com/" /></a>
-        
-        <a href="https://www.exporthub.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/exporthub.jpg" alt="ExportHub" title="https://www.exporthub.com/" /></a>
 
 		<br/>
 
@@ -45,9 +43,9 @@
 
         <a href="https://www.redfin.com/city/16163/WA/Seattle" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/redfin.png" alt="Redfin" title="https://www.redfin.com/city/16163/WA/Seattle" /></a>
 
-        <a href="https://www.scams.info/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/scams-info.png" alt="scams.info" title="https://www.scams.info/" /></a>
-
         <a href="https://www.immigrationlawofmt.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/immigrationlawofmt.png" alt="immigrationlawofmt" title="https://www.immigrationlawofmt.com" /></a>
+
+        <a href="https://www.scams.info/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/scams-info.png" alt="scams.info" title="https://www.scams.info/" /></a>
 		<br/>
 
         <a href="https://allesrefurbished.nl" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/alles_refurbished.png" alt="Alles Refurbished - overview of refurbished tablets, telephones and more (in Dutch)" title="Alles Refurbished - overview of refurbished tablets, telephones and more (in Dutch)" /></a>
@@ -64,6 +62,8 @@
         <a href="https://smslåndirektutbetalning.se/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/smslan.png" alt="SmsLånDirektUtbetalning.se" title="https://smslåndirektutbetalning.se/" /></a>
 
         <a href="https://www.vpsserver.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/vpsserver50-50.png" alt="vpsserver" title="https://www.vpsserver.com" /></a>
+
+        <a href="https://www.exporthub.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/exporthub.jpg" alt="ExportHub" title="https://www.exporthub.com/" /></a>
         </div>
 
 
@@ -179,8 +179,6 @@ Gold Sponsors
    <a href="http://www.squishlist.com/" border=0><img class="sponsors" src="images/sponsors/squishlist.png" alt="Squishlist" title="http://www.squishlist.com/" /></a>
    <!--Added 2014-07-16-->
    <a href="http://www.pyvmmonitor.com/" border=0><img class="sponsors" src="images/sponsors/pyvmmonitor.png" alt="PyVmMonitor" title="http://www.pyvmmonitor.com/" /></a>
-   <!--Added 2017-12-01-->
-   <a href="http://www.plato.de/" border=0><img class="sponsors" src="images/sponsors/logo_plato.png" alt="PLATO AG" title="http://www.plato.de/" /></a>
 
 Supporting PyDev
 =================

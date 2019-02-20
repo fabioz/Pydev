@@ -97,7 +97,7 @@ mu acp "Updated to 7.1.0"
 "C:\Program Files\FileZilla FTP Client\filezilla.exe" sftp://fabioz,pydev@frs.sourceforge.net/home/project-web/pydev/htdocs --local="x:\pydev\plugins\com.python.pydev.docs\homepage\final"
 
 		** Tag repository:
-		  git tag pydev_7_0_3 -a -m "PyDev 7.1.0"
+		  git tag pydev_7_1_0 -a -m "PyDev 7.1.0"
 		  git push --tags
 
 
