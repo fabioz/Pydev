@@ -205,6 +205,8 @@ Release 7.1.0 (2019-02-03)
 
 * Many debugger improvements (updated to pydevd 1.5.0).
 
+* To use the interactive console in IPython mode, the following environment variable must be set: **IPYTHONENABLE=True** (previously it was enabled whenever IPython was available).
+
 Release 7.0.3 (2018-11-08)
 =============================
 

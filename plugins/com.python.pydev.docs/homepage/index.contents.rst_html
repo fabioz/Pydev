@@ -168,6 +168,7 @@ LiClipse you directly support the development of PyDev).</p>
 <li>Fixed hover links when different pydev_link pointers are used (patch by Daniel).</li>
 <li>Fixed issue where the auto-formatter changed only the <strong>\n</strong> in a <strong>\r\n</strong> and the editor presentation became wrong.</li>
 <li>Many debugger improvements (updated to pydevd 1.5.0).</li>
+<li>To use the interactive console in IPython mode, the following environment variable must be set: <strong>IPYTHONENABLE=True</strong> (previously it was enabled whenever IPython was available).</li>
 </ul>
 </div>
 <div class="section" id="release-7-0-3-2018-11-08">
