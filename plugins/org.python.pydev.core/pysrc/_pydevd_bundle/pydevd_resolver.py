@@ -5,16 +5,16 @@ except:
 import traceback
 from os.path import basename
 
-from _pydevd_bundle import pydevd_constants
+from functools import partial
 from _pydevd_bundle.pydevd_constants import dict_iter_items, dict_keys, xrange
-
 
 # Note: 300 is already a lot to see in the outline (after that the user should really use the shell to get things)
 # and this also means we'll pass less information to the client side (which makes debugging faster).
-MAX_ITEMS_TO_HANDLE = 300 
+MAX_ITEMS_TO_HANDLE = 300
 
 TOO_LARGE_MSG = 'Too large to show contents. Max items to show: ' + str(MAX_ITEMS_TO_HANDLE)
 TOO_LARGE_ATTR = 'Unable to handle:'
+
 
 #=======================================================================================================================
 # UnableToResolveVariableException
@@ -27,10 +27,13 @@ class UnableToResolveVariableException(Exception):
 # InspectStub
 #=======================================================================================================================
 class InspectStub:
+
     def isbuiltin(self, _args):
         return False
+
     def isroutine(self, object):
         return False
+
 
 try:
     import inspect
@@ -43,20 +46,35 @@ except:
     OrderedDict = dict
 
 try:
-    import java.lang #@UnresolvedImport
+    import java.lang  # @UnresolvedImport
 except:
     pass
 
-#types does not include a MethodWrapperType
+# types does not include a MethodWrapperType
 try:
     MethodWrapperType = type([].__str__)
 except:
     MethodWrapperType = None
 
-
 #=======================================================================================================================
 # See: pydevd_extension_api module for resolver interface
 #=======================================================================================================================
+
+
+def sorted_attributes_key(attr_name):
+    if attr_name.startswith('__'):
+        if attr_name.endswith('__'):
+            # __ double under before and after __
+            return (3, attr_name)
+        else:
+            # __ double under before
+            return (2, attr_name)
+    elif attr_name.startswith('_'):
+        # _ single under
+        return (1, attr_name)
+    else:
+        # Regular (Before anything)
+        return (0, attr_name)
 
 
 #=======================================================================================================================
@@ -70,20 +88,32 @@ class DefaultResolver:
     def resolve(self, var, attribute):
         return getattr(var, attribute)
 
-    def get_dictionary(self, var, names=None):
+    def get_contents_debug_adapter_protocol(self, obj):
         if MethodWrapperType:
-            return self._getPyDictionary(var, names)
+            dct, used___dict__ = self._get_py_dictionary(obj)
         else:
-            return self._getJyDictionary(var)
+            dct = self._get_jy_dictionary(obj)[0]
 
-    def _getJyDictionary(self, obj):
+        lst = sorted(dict_iter_items(dct), key=lambda tup: sorted_attributes_key(tup[0]))
+        if used___dict__:
+            return [(attr_name, attr_value, '.__dict__[%s]' % attr_name) for (attr_name, attr_value) in lst]
+        else:
+            return [(attr_name, attr_value, '.%s' % attr_name) for (attr_name, attr_value) in lst]
+
+    def get_dictionary(self, var, names=None, used___dict__=False):
+        if MethodWrapperType:
+            return self._get_py_dictionary(var, names, used___dict__=used___dict__)[0]
+        else:
+            return self._get_jy_dictionary(var)[0]
+
+    def _get_jy_dictionary(self, obj):
         ret = {}
         found = java.util.HashMap()
 
         original = obj
         if hasattr(obj, '__class__') and obj.__class__ == java.lang.Class:
 
-            #get info about superclasses
+            # get info about superclasses
             classes = []
             classes.append(obj)
             c = obj.getSuperclass()
@@ -91,13 +121,13 @@ class DefaultResolver:
                 classes.append(c)
                 c = c.getSuperclass()
 
-            #get info about interfaces
+            # get info about interfaces
             interfs = []
             for obj in classes:
                 interfs.extend(obj.getInterfaces())
             classes.extend(interfs)
 
-            #now is the time when we actually get info on the declared methods and fields
+            # now is the time when we actually get info on the declared methods and fields
             for obj in classes:
 
                 declaredMethods = obj.getDeclaredMethods()
@@ -110,79 +140,97 @@ class DefaultResolver:
                 for i in xrange(len(declaredFields)):
                     name = declaredFields[i].getName()
                     found.put(name, 1)
-                    #if declaredFields[i].isAccessible():
+                    # if declaredFields[i].isAccessible():
                     declaredFields[i].setAccessible(True)
-                    #ret[name] = declaredFields[i].get( declaredFields[i] )
+                    # ret[name] = declaredFields[i].get( declaredFields[i] )
                     try:
                         ret[name] = declaredFields[i].get(original)
                     except:
                         ret[name] = declaredFields[i].toString()
 
-        #this simple dir does not always get all the info, that's why we have the part before
-        #(e.g.: if we do a dir on String, some methods that are from other interfaces such as
-        #charAt don't appear)
+        # this simple dir does not always get all the info, that's why we have the part before
+        # (e.g.: if we do a dir on String, some methods that are from other interfaces such as
+        # charAt don't appear)
         try:
             d = dir(original)
             for name in d:
                 if found.get(name) is not 1:
                     ret[name] = getattr(original, name)
         except:
-            #sometimes we're unable to do a dir
+            # sometimes we're unable to do a dir
             pass
 
         return ret
 
     def get_names(self, var):
-        names = dir(var)
-        if not names and hasattr(var, '__members__'):
-            names = var.__members__
-        return names
+        used___dict__ = False
+        try:
+            names = dir(var)
+        except TypeError:
+            names = []
+        if not names:
+            if hasattr(var, '__dict__'):
+                names = dict_keys(var.__dict__)
+                used___dict__ = True
+        return names, used___dict__
 
-    def _getPyDictionary(self, var, names=None):
-        filterPrivate = False
-        filterSpecial = True
-        filterFunction = True
-        filterBuiltIn = True
+    def _get_py_dictionary(self, var, names=None, used___dict__=False):
+        '''
+        :return tuple(names, used___dict__), where used___dict__ means we have to access
+        using obj.__dict__[name] instead of getattr(obj, name)
+        '''
+
+        # TODO: Those should be options (would fix https://github.com/Microsoft/ptvsd/issues/66).
+        filter_private = False
+        filter_special = True
+        filter_function = True
+        filter_builtin = True
 
         if not names:
-            names = self.get_names(var)
+            names, used___dict__ = self.get_names(var)
         d = {}
 
-        #Be aware that the order in which the filters are applied attempts to
-        #optimize the operation by removing as many items as possible in the
-        #first filters, leaving fewer items for later filters
+        # Be aware that the order in which the filters are applied attempts to
+        # optimize the operation by removing as many items as possible in the
+        # first filters, leaving fewer items for later filters
 
-        if filterBuiltIn or filterFunction:
-            for n in names:
-                if filterSpecial:
-                    if n.startswith('__') and n.endswith('__'):
-                        continue
-
-                if filterPrivate:
-                    if n.startswith('_') or n.endswith('__'):
-                        continue
-
+        if filter_builtin or filter_function:
+            for name in names:
                 try:
-                    attr = getattr(var, n)
+                    name_as_str = name
+                    if name_as_str.__class__ != str:
+                        name_as_str = '%r' % (name_as_str,)
 
-                    #filter builtins?
-                    if filterBuiltIn:
+                    if filter_special:
+                        if name_as_str.startswith('__') and name_as_str.endswith('__'):
+                            continue
+
+                    if filter_private:
+                        if name_as_str.startswith('_') or name_as_str.endswith('__'):
+                            continue
+                    if not used___dict__:
+                        attr = getattr(var, name)
+                    else:
+                        attr = var.__dict__[name]
+
+                    # filter builtins?
+                    if filter_builtin:
                         if inspect.isbuiltin(attr):
                             continue
 
-                    #filter functions?
-                    if filterFunction:
+                    # filter functions?
+                    if filter_function:
                         if inspect.isroutine(attr) or isinstance(attr, MethodWrapperType):
                             continue
                 except:
-                    #if some error occurs getting it, let's put it to the user.
+                    # if some error occurs getting it, let's put it to the user.
                     strIO = StringIO.StringIO()
                     traceback.print_exc(file=strIO)
                     attr = strIO.getvalue()
 
-                d[ n ] = attr
+                d[name_as_str] = attr
 
-        return d
+        return d, used___dict__
 
 
 #=======================================================================================================================
@@ -195,15 +243,15 @@ class DictResolver:
             return None
 
         if '(' not in key:
-            #we have to treat that because the dict resolver is also used to directly resolve the global and local
-            #scopes (which already have the items directly)
+            # we have to treat that because the dict resolver is also used to directly resolve the global and local
+            # scopes (which already have the items directly)
             try:
                 return dict[key]
             except:
                 return getattr(dict, key)
 
-        #ok, we have to iterate over the items to find the one that matches the id, because that's the only way
-        #to actually find the reference from the string we have before.
+        # ok, we have to iterate over the items to find the one that matches the id, because that's the only way
+        # to actually find the reference from the string we have before.
         expected_id = int(key.split('(')[-1][:-1])
         for key, val in dict_iter_items(dict):
             if id(key) == expected_id:
@@ -212,16 +260,40 @@ class DictResolver:
         raise UnableToResolveVariableException()
 
     def key_to_str(self, key):
-        if isinstance(key, str):
-            return '%r' % key
-        else:
-            if not pydevd_constants.IS_PY3K:
-                if isinstance(key, unicode):
-                    return "u'%s'" % key
-            return key
+        return '%r' % (key,)
 
     def init_dict(self):
         return {}
+
+    def get_contents_debug_adapter_protocol(self, dct):
+        '''
+        This method is to be used in the case where the variables are all saved by its id (and as
+        such don't need to have the `resolve` method called later on, so, keys don't need to
+        embed the reference in the key).
+
+        Note that the return should be ordered.
+
+        :return list(tuple(name:str, value:object, evaluateName:str))
+        '''
+        ret = []
+
+        i = 0
+        for key, val in dict_iter_items(dct):
+            i += 1
+            key_as_str = self.key_to_str(key)
+            ret.append((key_as_str, val, '[%s]' % (key_as_str,)))
+            if i > MAX_ITEMS_TO_HANDLE:
+                ret.append((TOO_LARGE_ATTR, TOO_LARGE_MSG))
+                break
+
+        ret.append(('__len__', len(dct), partial(_apply_evaluate_name, evaluate_name='len(%s)')))
+        # in case the class extends built-in type and has some additional fields
+        from_default_resolver = defaultResolver.get_contents_debug_adapter_protocol(dct)
+
+        if from_default_resolver:
+            ret = from_default_resolver + ret
+
+        return sorted(ret, key=lambda tup: sorted_attributes_key(tup[0]))
 
     def get_dictionary(self, dict):
         ret = self.init_dict()
@@ -229,7 +301,7 @@ class DictResolver:
         i = 0
         for key, val in dict_iter_items(dict):
             i += 1
-            #we need to add the id because otherwise we cannot find the real object to get its contents later on.
+            # we need to add the id because otherwise we cannot find the real object to get its contents later on.
             key = '%s (%s)' % (self.key_to_str(key), id(key))
             ret[key] = val
             if i > MAX_ITEMS_TO_HANDLE:
@@ -243,10 +315,14 @@ class DictResolver:
         return ret
 
 
+def _apply_evaluate_name(parent_name, evaluate_name):
+    return evaluate_name % (parent_name,)
+
+
 #=======================================================================================================================
 # TupleResolver
 #=======================================================================================================================
-class TupleResolver: #to enumerate tuples and lists
+class TupleResolver:  # to enumerate tuples and lists
 
     def resolve(self, var, attribute):
         '''
@@ -260,27 +336,53 @@ class TupleResolver: #to enumerate tuples and lists
         except:
             return getattr(var, attribute)
 
+    def get_contents_debug_adapter_protocol(self, lst):
+        '''
+        This method is to be used in the case where the variables are all saved by its id (and as
+        such don't need to have the `resolve` method called later on, so, keys don't need to
+        embed the reference in the key).
+
+        Note that the return should be ordered.
+
+        :return list(tuple(name:str, value:object, evaluateName:str))
+        '''
+        l = len(lst)
+        ret = []
+
+        format_str = '%0' + str(int(len(str(l - 1)))) + 'd'
+
+        for i, item in enumerate(lst):
+            ret.append((format_str % i, item, '[%s]' % i))
+
+            if i > MAX_ITEMS_TO_HANDLE:
+                ret.append((TOO_LARGE_ATTR, TOO_LARGE_MSG, None))
+                break
+
+        ret.append(('__len__', len(lst), partial(_apply_evaluate_name, evaluate_name='len(%s)')))
+        # Needed in case the class extends the built-in type and has some additional fields.
+        from_default_resolver = defaultResolver.get_dictionary(lst)
+        if from_default_resolver:
+            ret = from_default_resolver + ret
+        return ret
+
     def get_dictionary(self, var):
         l = len(var)
         d = {}
 
-        format_str = '%0' + str(int(len(str(l)))) + 'd'
+        format_str = '%0' + str(int(len(str(l - 1)))) + 'd'
 
-        i = 0
-        for item in var:
+        for i, item in enumerate(var):
             d[format_str % i] = item
-            i += 1
-            
+
             if i > MAX_ITEMS_TO_HANDLE:
                 d[TOO_LARGE_ATTR] = TOO_LARGE_MSG
                 break
-                
+
         d['__len__'] = len(var)
         # in case if the class extends built-in type and has some additional fields
         additional_fields = defaultResolver.get_dictionary(var)
         d.update(additional_fields)
         return d
-
 
 
 #=======================================================================================================================
@@ -312,12 +414,11 @@ class SetResolver:
         for item in var:
             i += 1
             d[str(id(item))] = item
-            
+
             if i > MAX_ITEMS_TO_HANDLE:
                 d[TOO_LARGE_ATTR] = TOO_LARGE_MSG
                 break
 
-            
         d['__len__'] = len(var)
         # in case if the class extends built-in type and has some additional fields
         additional_fields = defaultResolver.get_dictionary(var)
@@ -373,8 +474,6 @@ class JyArrayResolver:
         return ret
 
 
-
-
 #=======================================================================================================================
 # MultiValueDictResolver
 #=======================================================================================================================
@@ -384,8 +483,8 @@ class MultiValueDictResolver(DictResolver):
         if key in ('__len__', TOO_LARGE_ATTR):
             return None
 
-        #ok, we have to iterate over the items to find the one that matches the id, because that's the only way
-        #to actually find the reference from the string we have before.
+        # ok, we have to iterate over the items to find the one that matches the id, because that's the only way
+        # to actually find the reference from the string we have before.
         expected_id = int(key.split('(')[-1][:-1])
         for key in dict_keys(dict):
             val = dict.getlist(key)
@@ -395,27 +494,22 @@ class MultiValueDictResolver(DictResolver):
         raise UnableToResolveVariableException()
 
 
-
 #=======================================================================================================================
 # DjangoFormResolver
 #=======================================================================================================================
 class DjangoFormResolver(DefaultResolver):
-    has_errors_attr = False
-
-    def get_names(self, var):
-        names = dir(var)
-        if not names and hasattr(var, '__members__'):
-            names = var.__members__
-
-        if "errors" in names:
-            self.has_errors_attr = True
-            names.remove("errors")
-        return names
 
     def get_dictionary(self, var, names=None):
-        # Do not call self.errors because it is property and has side effects
-        d = defaultResolver.get_dictionary(var, self.get_names(var))
-        if self.has_errors_attr:
+        # Do not call self.errors because it is a property and has side effects.
+        names, used___dict__ = self.get_names(var)
+
+        has_errors_attr = False
+        if "errors" in names:
+            has_errors_attr = True
+            names.remove("errors")
+
+        d = defaultResolver.get_dictionary(var, names=names, used___dict__=used___dict__)
+        if has_errors_attr:
             try:
                 errors_attr = getattr(var, "_errors")
             except:
@@ -428,6 +522,7 @@ class DjangoFormResolver(DefaultResolver):
 # DequeResolver
 #=======================================================================================================================
 class DequeResolver(TupleResolver):
+
     def get_dictionary(self, var):
         d = TupleResolver.get_dictionary(self, var)
         d['maxlen'] = getattr(var, 'maxlen', None)
@@ -438,6 +533,7 @@ class DequeResolver(TupleResolver):
 # OrderedDictResolver
 #=======================================================================================================================
 class OrderedDictResolver(DictResolver):
+
     def init_dict(self):
         return OrderedDict()
 
@@ -462,14 +558,12 @@ class FrameResolver:
 
         return None
 
-
     def get_dictionary(self, obj):
         ret = {}
         ret['__internals__'] = defaultResolver.get_dictionary(obj)
         ret['stack'] = self.get_frame_stack(obj)
         ret['f_locals'] = obj.f_locals
         return ret
-
 
     def get_frame_stack(self, frame):
         ret = []

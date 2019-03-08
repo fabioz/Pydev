@@ -37,7 +37,7 @@ from _pydevd_bundle.pydevd_comm_constants import (CMD_THREAD_SUSPEND, CMD_STEP_I
 from _pydevd_bundle.pydevd_constants import (IS_JYTH_LESS25, IS_PYCHARM, get_thread_id, get_current_thread_id,
     dict_keys, dict_iter_items, DebugInfoHolder, PYTHON_SUSPEND, STATE_SUSPEND, STATE_RUN, get_frame,
     clear_cached_thread_id, INTERACTIVE_MODE_AVAILABLE, SHOW_DEBUG_INFO_ENV, IS_PY34_OR_GREATER, IS_PY2, NULL,
-    NO_FTRACE)
+    NO_FTRACE, GOTO_HAS_RESPONSE)
 from _pydevd_bundle.pydevd_custom_frames import CustomFramesContainer, custom_frames_container_init
 from _pydevd_bundle.pydevd_dont_trace_files import DONT_TRACE, PYDEV_FILE
 from _pydevd_bundle.pydevd_extension_api import DebuggerEventHandler
@@ -66,7 +66,7 @@ from _pydevd_bundle.pydevd_breakpoints import stop_on_unhandled_exception
 from _pydevd_bundle.pydevd_collect_try_except_info import collect_try_except_info
 from _pydevd_bundle.pydevd_suspended_frames import SuspendedFramesManager
 
-__version_info__ = (1, 5, 0)
+__version_info__ = (1, 5, 1)
 __version_info_str__ = []
 for v in __version_info__:
     __version_info_str__.append(str(v))
@@ -166,7 +166,13 @@ class PyDBCommandThread(PyDBDaemonThread):
                 self._py_db_command_thread_event.clear()
                 self._py_db_command_thread_event.wait(0.3)
         except:
-            pydev_log.debug(sys.exc_info()[0])
+            try:
+                pydev_log.debug(sys.exc_info()[0])
+            except:
+                # In interpreter shutdown many things can go wrong (any module variables may
+                # be None, streams can be closed, etc).
+                pass
+
             # only got this error in interpreter shutdown
             # pydevd_log(0, 'Finishing debug communication...(3)')
 
@@ -757,6 +763,9 @@ class PyDB(object):
         self._clear_skip_caches()
         self._clear_filters_caches()
 
+    def get_use_libraries_filter(self):
+        return self._files_filtering.use_libraries_filter()
+
     def has_threads_alive(self):
         for t in pydevd_utils.get_non_pydevd_threads():
             if isinstance(t, PyDBDaemonThread):
@@ -1181,7 +1190,7 @@ class PyDB(object):
             if curr_func_name in ('?', '<module>'):
                 curr_func_name = ''
 
-            if curr_func_name == func_name:
+            if func_name == '*' or curr_func_name == func_name:
                 line = next_line
                 frame.f_trace = self.trace_dispatch
                 frame.f_lineno = line
@@ -1302,7 +1311,7 @@ class PyDB(object):
             except ValueError as e:
                 response_msg = "%s" % e
             finally:
-                if IS_PYCHARM:
+                if GOTO_HAS_RESPONSE:
                     seq = info.pydev_message
                     cmd = self.cmd_factory.make_set_next_stmnt_status_message(seq, stop, response_msg)
                     self.writer.add_command(cmd)
