@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
@@ -109,7 +110,7 @@ public class PipenvHelper {
     }
 
     private static Object projectLocationToPipenvPythonLocationChacheLock = new Object();
-    private static Map<File, File> projectLocationToPipenvPythonLocationChache = new HashMap<>();
+    private static Map<File, Optional<File>> projectLocationToPipenvPythonLocationChache = new HashMap<>();
 
     /**
      * @param pipenvLocation the pipenv executable (full path to pipenv.exe).
@@ -119,9 +120,14 @@ public class PipenvHelper {
     public static File getPythonExecutableFromProjectLocationWithPipenv(final String pipenvLocation,
             final File projectlocation) {
         synchronized (PipenvHelper.projectLocationToPipenvPythonLocationChacheLock) {
-            File pipenvPythonLocation = PipenvHelper.projectLocationToPipenvPythonLocationChache.get(projectlocation);
+            Optional<File> pipenvPythonLocation = PipenvHelper.projectLocationToPipenvPythonLocationChache
+                    .get(projectlocation);
             if (pipenvPythonLocation != null) {
-                return pipenvPythonLocation;
+                if (pipenvPythonLocation.isPresent()) {
+                    return pipenvPythonLocation.get();
+                } else {
+                    return null;
+                }
             }
         }
 
@@ -137,10 +143,17 @@ public class PipenvHelper {
                 File pythonExecutable = InterpreterInfo.searchExecutableInContainer("python", venvLocation,
                         searchedDirectories);
                 if (pythonExecutable != null && pythonExecutable.exists()) {
-                    PipenvHelper.projectLocationToPipenvPythonLocationChache.put(projectlocation, pythonExecutable);
+                    synchronized (PipenvHelper.projectLocationToPipenvPythonLocationChacheLock) {
+                        PipenvHelper.projectLocationToPipenvPythonLocationChache.put(projectlocation,
+                                Optional.of(pythonExecutable));
+                    }
                     return pythonExecutable;
                 }
             }
+        }
+        // Cache that we didn't find it!
+        synchronized (PipenvHelper.projectLocationToPipenvPythonLocationChacheLock) {
+            PipenvHelper.projectLocationToPipenvPythonLocationChache.put(projectlocation, Optional.empty());
         }
         return null;
 
