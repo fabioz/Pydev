@@ -1,13 +1,16 @@
 from functools import partial
 import itertools
 import json
+import linecache
 import os
 
 from _pydevd_bundle._debug_adapter import pydevd_base_schema
 from _pydevd_bundle._debug_adapter.pydevd_schema import (SourceBreakpoint, ScopesResponseBody, Scope,
     VariablesResponseBody, SetVariableResponseBody, ModulesResponseBody, SourceResponseBody)
 from _pydevd_bundle.pydevd_api import PyDevdAPI
-from _pydevd_bundle.pydevd_comm_constants import CMD_RETURN
+from _pydevd_bundle.pydevd_comm_constants import (
+    CMD_RETURN, CMD_STEP_OVER_MY_CODE, CMD_STEP_OVER, CMD_STEP_INTO_MY_CODE,
+    CMD_STEP_INTO, CMD_STEP_RETURN_MY_CODE, CMD_STEP_RETURN)
 from _pydevd_bundle.pydevd_filtering import ExcludeFilter
 from _pydevd_bundle.pydevd_json_debug_options import _extract_debug_options
 from _pydevd_bundle.pydevd_net_command import NetCommand
@@ -181,6 +184,82 @@ class _PyDevJsonCommandProcessor(object):
         :param AttachRequest request:
         '''
         self._set_debug_options(py_db, request.arguments.kwargs)
+        response = pydevd_base_schema.build_response(request)
+        return NetCommand(CMD_RETURN, 0, response.to_dict(), is_json=True)
+
+    def on_pause_request(self, py_db, request):
+        '''
+        :param PauseRequest request:
+        '''
+        arguments = request.arguments  # : :type arguments: PauseArguments
+        thread_id = arguments.threadId
+
+        self.api.request_suspend_thread(py_db, thread_id=thread_id)
+
+        response = pydevd_base_schema.build_response(request)
+        return NetCommand(CMD_RETURN, 0, response.to_dict(), is_json=True)
+
+    def on_continue_request(self, py_db, request):
+        '''
+        :param ContinueRequest request:
+        '''
+        arguments = request.arguments  # : :type arguments: ContinueArguments
+        thread_id = arguments.threadId
+
+        self.api.request_resume_thread(thread_id)
+
+        body = {'allThreadsContinued': thread_id == '*'}
+        response = pydevd_base_schema.build_response(request, kwargs={'body': body})
+        return NetCommand(CMD_RETURN, 0, response.to_dict(), is_json=True)
+
+    def on_next_request(self, py_db, request):
+        '''
+        :param NextRequest request:
+        '''
+        arguments = request.arguments  # : :type arguments: NextArguments
+        thread_id = arguments.threadId
+
+        if py_db.get_use_libraries_filter():
+            step_cmd_id = CMD_STEP_OVER_MY_CODE
+        else:
+            step_cmd_id = CMD_STEP_OVER
+
+        self.api.request_step(py_db, thread_id, step_cmd_id)
+
+        response = pydevd_base_schema.build_response(request)
+        return NetCommand(CMD_RETURN, 0, response.to_dict(), is_json=True)
+
+    def on_stepin_request(self, py_db, request):
+        '''
+        :param StepInRequest request:
+        '''
+        arguments = request.arguments  # : :type arguments: StepInArguments
+        thread_id = arguments.threadId
+
+        if py_db.get_use_libraries_filter():
+            step_cmd_id = CMD_STEP_INTO_MY_CODE
+        else:
+            step_cmd_id = CMD_STEP_INTO
+
+        self.api.request_step(py_db, thread_id, step_cmd_id)
+
+        response = pydevd_base_schema.build_response(request)
+        return NetCommand(CMD_RETURN, 0, response.to_dict(), is_json=True)
+
+    def on_stepout_request(self, py_db, request):
+        '''
+        :param StepOutRequest request:
+        '''
+        arguments = request.arguments  # : :type arguments: StepOutArguments
+        thread_id = arguments.threadId
+
+        if py_db.get_use_libraries_filter():
+            step_cmd_id = CMD_STEP_RETURN_MY_CODE
+        else:
+            step_cmd_id = CMD_STEP_RETURN
+
+        self.api.request_step(py_db, thread_id, step_cmd_id)
+
         response = pydevd_base_schema.build_response(request)
         return NetCommand(CMD_RETURN, 0, response.to_dict(), is_json=True)
 
@@ -382,15 +461,41 @@ class _PyDevJsonCommandProcessor(object):
         :param SourceRequest request:
         '''
         source_reference = request.arguments.sourceReference
-        content = ''
+        server_filename = None
+        content = None
+
         if source_reference != 0:
             server_filename = pydevd_file_utils.get_server_filename_from_source_reference(source_reference)
-            if os.path.exists(server_filename):
-                with open(server_filename, 'r') as stream:
-                    content = stream.read()
+            if server_filename:
+                # Try direct file access first - it's much faster when available.
+                try:
+                    with open(server_filename, 'r') as stream:
+                        content = stream.read()
+                except:
+                    pass
 
-        body = SourceResponseBody(content)
-        response = pydevd_base_schema.build_response(request, kwargs={'body':body})
+                if content is None:
+                    # File might not exist at all, or we might not have a permission to read it,
+                    # but it might also be inside a zipfile, or an IPython cell. In this case,
+                    # linecache might still be able to retrieve the source.
+                    lines = (linecache.getline(server_filename, i) for i in itertools.count(1))
+                    lines = itertools.takewhile(bool, lines)  # empty lines are '\n', EOF is ''
+
+                    # If we didn't get at least one line back, reset it to None so that it's
+                    # reported as error below, and not as an empty file.
+                    content = ''.join(lines) or None
+
+        body = SourceResponseBody(content or '')
+        response_args = {'body': body}
+
+        if content is None:
+            if server_filename:
+                message = 'Unable to retrieve source for %s' % (server_filename,)
+            else:
+                message = 'Invalid sourceReference %d' % (source_reference,)
+            response_args.update({'success': False, 'message': message})
+
+        response = pydevd_base_schema.build_response(request, kwargs=response_args)
         return NetCommand(CMD_RETURN, 0, response.to_dict(), is_json=True)
 
 

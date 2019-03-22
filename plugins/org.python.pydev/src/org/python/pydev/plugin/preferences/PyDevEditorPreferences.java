@@ -113,6 +113,9 @@ public class PyDevEditorPreferences {
     public static final String TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS = "TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS";
     public static final boolean DEFAULT_TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS = false;
 
+    public static final String TRACE_JINJA2_TEMPLATE_RENDER_EXCEPTIONS = "TRACE_JINJA2_TEMPLATE_RENDER_EXCEPTIONS";
+    public static final boolean DEFAULT_TRACE_JINJA2_TEMPLATE_RENDER_EXCEPTIONS = false;
+
     public static final String DEBUG_MULTIPROCESSING_ENABLED = "DEBUG_MULTIPROCESSING_ENABLED";
     public static final boolean DEFAULT_DEBUG_MULTIPROCESSING_ENABLED = true;
 

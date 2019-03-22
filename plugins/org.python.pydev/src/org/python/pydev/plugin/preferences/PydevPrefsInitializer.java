@@ -129,6 +129,8 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.putBoolean(PyDevEditorPreferences.GEVENT_DEBUGGING, PyDevEditorPreferences.DEFAULT_GEVENT_DEBUGGING);
         node.putBoolean(PyDevEditorPreferences.TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS,
                 PyDevEditorPreferences.DEFAULT_TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS);
+        node.putBoolean(PyDevEditorPreferences.TRACE_JINJA2_TEMPLATE_RENDER_EXCEPTIONS,
+                PyDevEditorPreferences.DEFAULT_TRACE_JINJA2_TEMPLATE_RENDER_EXCEPTIONS);
         node.put(PyDevEditorPreferences.QT_THREADS_DEBUG_MODE, PyDevEditorPreferences.DEFAULT_QT_THREADS_DEBUG_MODE);
 
         //pydev todo tasks

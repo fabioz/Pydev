@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.internal.ui.DebugUIPlugin;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
 import org.eclipse.jface.viewers.ICheckStateListener;
@@ -91,7 +92,7 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
     private boolean ignoreExceptionsThrownInLinesWithIgnoreException;
 
     private Button breakOnDjangoTemplateExceptionsCheck;
-    private boolean handleBreakOnDjangoTemplateExceptions;
+    private Button breakOnJinja2TemplateExceptionsCheck;
 
     protected static String SELECT_ALL_TITLE = WorkbenchMessages.SelectionDialog_selectLabel;
     protected static String DESELECT_ALL_TITLE = WorkbenchMessages.SelectionDialog_deselectLabel;
@@ -342,9 +343,14 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
         label.setText("* Will make debugging ~ 2x slower");
 
         breakOnDjangoTemplateExceptionsCheck = new Button(composite, SWT.CHECK);
-        breakOnDjangoTemplateExceptionsCheck.setText("Suspend on django template render exceptions");
+        breakOnDjangoTemplateExceptionsCheck.setText("Suspend on Django template render exceptions");
         breakOnDjangoTemplateExceptionsCheck.setSelection(PydevPlugin.getDefault().getPreferenceStore()
                 .getBoolean(PyDevEditorPreferences.TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS));
+
+        breakOnJinja2TemplateExceptionsCheck = new Button(composite, SWT.CHECK);
+        breakOnJinja2TemplateExceptionsCheck.setText("Suspend on Jinja2 template render exceptions");
+        breakOnJinja2TemplateExceptionsCheck.setSelection(PydevPlugin.getDefault().getPreferenceStore()
+                .getBoolean(PyDevEditorPreferences.TRACE_JINJA2_TEMPLATE_RENDER_EXCEPTIONS));
     }
 
     private void updateStates() {
@@ -426,9 +432,14 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
         ignoreExceptionsThrownInLinesWithIgnoreException = ignoreExceptionsThrownInLinesWithIgnoreExceptionCheck
                 .getSelection();
 
-        PydevPlugin.getDefault().getPreferenceStore().setValue(
+        IPreferenceStore preferenceStore = PydevPlugin.getDefault().getPreferenceStore();
+        preferenceStore.setValue(
                 PyDevEditorPreferences.TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS,
                 breakOnDjangoTemplateExceptionsCheck.getSelection());
+
+        preferenceStore.setValue(
+                PyDevEditorPreferences.TRACE_JINJA2_TEMPLATE_RENDER_EXCEPTIONS,
+                breakOnJinja2TemplateExceptionsCheck.getSelection());
 
         super.okPressed();
     }

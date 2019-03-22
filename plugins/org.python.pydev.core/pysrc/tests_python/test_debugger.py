@@ -954,14 +954,28 @@ def test_case_django_b(case_setup_django):
 
 
 @pytest.mark.skipif(not TEST_DJANGO, reason='No django available')
-def test_case_django_no_attribute_exception_breakpoint(case_setup_django):
+@pytest.mark.parametrize("jmc", [False, True])
+def test_case_django_no_attribute_exception_breakpoint(case_setup_django, jmc):
     django_version = [int(x) for x in django.get_version().split('.')][:2]
 
     if django_version < [2, 1]:
         pytest.skip('Template exceptions only supporting Django 2.1 onwards.')
 
-    with case_setup_django.test_file(EXPECTED_RETURNCODE='any') as writer:
+    kwargs = {}
+    if jmc:
+
+        def get_environ(writer):
+            env = os.environ.copy()
+            env.update({
+                'PYDEVD_FILTER_LIBRARIES': '1',  # Global setting for in project or not
+            })
+            return env
+
+        kwargs['get_environ'] = get_environ
+
+    with case_setup_django.test_file(EXPECTED_RETURNCODE='any', **kwargs) as writer:
         writer.write_add_exception_breakpoint_django()
+
         writer.write_make_initial_run()
 
         t = writer.create_request_thread('my_app/template_error')
@@ -1010,13 +1024,26 @@ def test_case_django_no_attribute_exception_breakpoint_and_regular_exceptions(ca
 
 
 @pytest.mark.skipif(not TEST_DJANGO, reason='No django available')
-def test_case_django_invalid_template_exception_breakpoint(case_setup_django):
+@pytest.mark.parametrize("jmc", [False, True])
+def test_case_django_invalid_template_exception_breakpoint(case_setup_django, jmc):
     django_version = [int(x) for x in django.get_version().split('.')][:2]
 
     if django_version < [2, 1]:
         pytest.skip('Template exceptions only supporting Django 2.1 onwards.')
 
-    with case_setup_django.test_file(EXPECTED_RETURNCODE='any') as writer:
+    kwargs = {}
+    if jmc:
+
+        def get_environ(writer):
+            env = os.environ.copy()
+            env.update({
+                'PYDEVD_FILTER_LIBRARIES': '1',  # Global setting for in project or not
+            })
+            return env
+
+        kwargs['get_environ'] = get_environ
+
+    with case_setup_django.test_file(EXPECTED_RETURNCODE='any', **kwargs) as writer:
         writer.write_add_exception_breakpoint_django()
         writer.write_make_initial_run()
 
@@ -1836,7 +1863,8 @@ def test_path_translation(case_setup):
 
         file_in_client = get_file_in_client(writer)
         assert 'tests_python' not in file_in_client
-        writer.write_add_breakpoint(2, 'main', filename=file_in_client)
+        writer.write_add_breakpoint(
+            writer.get_line_index_with_content('break here'), 'call_this', filename=file_in_client)
         writer.write_make_initial_run()
 
         xml = writer.wait_for_message(lambda msg:'stop_reason="111"' in msg)
@@ -3010,7 +3038,14 @@ def test_matplotlib_activation(case_setup):
     except ImportError:
         return
 
-    with case_setup.test_file('_debugger_case_matplotlib.py') as writer:
+    def get_environ(writer):
+        env = os.environ.copy()
+        env.update({
+            'IPYTHONENABLE': 'True',
+        })
+        return env
+
+    with case_setup.test_file('_debugger_case_matplotlib.py', get_environ=get_environ) as writer:
         writer.write_add_breakpoint(writer.get_line_index_with_content('break here'))
         writer.write_make_initial_run()
         for _ in range(3):

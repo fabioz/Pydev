@@ -1,6 +1,8 @@
+
 import sys
 import traceback
 from types import ModuleType
+from _pydevd_bundle.pydevd_constants import DebugInfoHolder
 
 if sys.version_info[0] >= 3:
     import builtins  # py3
@@ -9,6 +11,7 @@ else:
 
 
 class ImportHookManager(ModuleType):
+
     def __init__(self, name, system_import):
         ModuleType.__init__(self, name)
         self._system_import = system_import
@@ -19,14 +22,13 @@ class ImportHookManager(ModuleType):
 
     def do_import(self, name, *args, **kwargs):
         module = self._system_import(name, *args, **kwargs)
-
         try:
-            activate_func = self._modules_to_patch.get(name)
+            activate_func = self._modules_to_patch.pop(name, None)
             if activate_func:
                 activate_func()  # call activate function
-                del self._modules_to_patch[name]
         except:
-            pass
+            if DebugInfoHolder.DEBUG_TRACE_LEVEL >= 2:
+                traceback.print_exc()
 
         # Restore normal system importer to reduce performance impact
         # of calling this method every time an import statement is invoked
@@ -34,6 +36,7 @@ class ImportHookManager(ModuleType):
             builtins.__import__ = self._system_import
 
         return module
+
 
 import_hook_manager = ImportHookManager(__name__ + '.import_hook', builtins.__import__)
 builtins.__import__ = import_hook_manager.do_import

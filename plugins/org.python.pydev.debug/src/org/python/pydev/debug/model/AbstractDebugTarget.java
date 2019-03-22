@@ -61,6 +61,7 @@ import org.python.pydev.debug.model.remote.SendPyExceptionCommand;
 import org.python.pydev.debug.model.remote.SetBreakpointCommand;
 import org.python.pydev.debug.model.remote.SetDjangoExceptionBreakpointCommand;
 import org.python.pydev.debug.model.remote.SetDontTraceEnabledCommand;
+import org.python.pydev.debug.model.remote.SetJinja2ExceptionBreakpointCommand;
 import org.python.pydev.debug.model.remote.SetPropertyTraceCommand;
 import org.python.pydev.debug.model.remote.SetShowReturnValuesEnabledCommand;
 import org.python.pydev.debug.model.remote.ThreadListCommand;
@@ -789,6 +790,9 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
 
             } else if (property.equals(PyDevEditorPreferences.TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS)) {
                 sendSetDjangoExceptionBreakpointCommand();
+
+            } else if (property.equals(PyDevEditorPreferences.TRACE_JINJA2_TEMPLATE_RENDER_EXCEPTIONS)) {
+                sendSetJinja2ExceptionBreakpointCommand();
             }
         }
     };
@@ -812,6 +816,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         this.onSetPropertyTraceConfiguration();
         this.onUpdateIgnoreThrownExceptions();
         this.sendSetDjangoExceptionBreakpointCommand();
+        this.sendSetJinja2ExceptionBreakpointCommand();
         this.sendDontTraceEnabledCommand();
         this.sendShowReturnValuesEnabledCommand();
 
@@ -841,6 +846,13 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         IPreferenceStore pyPrefsStore = PydevPlugin.getDefault().getPreferenceStore();
         SetDjangoExceptionBreakpointCommand cmd = new SetDjangoExceptionBreakpointCommand(
                 this, pyPrefsStore.getBoolean(PyDevEditorPreferences.TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS));
+        this.postCommand(cmd);
+    }
+
+    private void sendSetJinja2ExceptionBreakpointCommand() {
+        IPreferenceStore pyPrefsStore = PydevPlugin.getDefault().getPreferenceStore();
+        SetJinja2ExceptionBreakpointCommand cmd = new SetJinja2ExceptionBreakpointCommand(
+                this, pyPrefsStore.getBoolean(PyDevEditorPreferences.TRACE_JINJA2_TEMPLATE_RENDER_EXCEPTIONS));
         this.postCommand(cmd);
     }
 
