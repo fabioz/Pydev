@@ -6,6 +6,19 @@ History For PyDev
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
+
+Release 7.2.0 (2019-03-25)
+=============================
+
+* Debugger improvements (updated to pydevd 1.6.0).
+
+	* Fixed issue quoting/unquoting parameters for subprocess.
+	* Fixed exception breakpoints for Django and Jinja2.
+	* Console hook import compatibility with matplotlib and pylab fixed.
+
+* Fixed issue where pipenv executable search was being executed over and over when it was not found.
+
+
 Release 7.1.0 (2019-02-03)
 =============================
 

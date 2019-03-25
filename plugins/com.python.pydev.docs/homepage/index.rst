@@ -34,13 +34,13 @@
         <a href="https://slotcatalog.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/slotcatalog.png" alt="slotcatalog.com" title="https://slotcatalog.com" /></a>
 
         <a href="https://lejonfinans.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/lejofinans.png" alt="CodeFirst" title="https://lejonfinans.com/" /></a>
-        
+
         <a href="https://www.privatkreditsofort.ch/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/privatkredit-sofort.png" alt="PrivatkreditSofort.ch" title="https://www.privatkreditsofort.ch/" /></a>
 
         <a href="https://www.codefirst.co.uk/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/codefirst.png" alt="CodeFirst" title="https://www.codefirst.co.uk/" /></a>
 
 		<br/>
-		
+
         <a href="http://smålånutensikkerhet.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/skazani_logo.png" alt="http://smålånutensikkerhet.com/" title="http://smålånutensikkerhet.com/" /></a>
 
         <a href="https://talentplot.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/talentplot.png" alt="TalentPlot" title="https://talentplot.com/" /></a>
@@ -55,16 +55,16 @@
         <a href="https://www.scams.info/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/scams-info.png" alt="scams.info" title="https://www.scams.info/" /></a>
 
         <a href="https://superbwebsitebuilders.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/superbwebsitebuilders.png" alt="superbwebsitebuilders" title="https://superbwebsitebuilders.com/" /></a>
-        
+
         <a href="https://allesrefurbished.nl" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/alles_refurbished.png" alt="Alles Refurbished - overview of refurbished tablets, telephones and more (in Dutch)" title="Alles Refurbished - overview of refurbished tablets, telephones and more (in Dutch)" /></a>
 
         <a href="https://netotraffic.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/netotraffic.png" alt="Netotraffic" title="https://netotraffic.com/" /></a>
-        
+
         <a href="https://www.parcelabc.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/parcelabc-logo.jpg" alt="ParcelABC" title="ParcelABC" /></a>
 
 		<br/>
         <a href="https://www.vpsserver.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/vpsserver50-50.png" alt="vpsserver" title="https://www.vpsserver.com" /></a>
-        
+
         <a href="https://smslåndirektutbetalning.se/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/smslan.png" alt="SmsLånDirektUtbetalning.se" title="https://smslåndirektutbetalning.se/" /></a>
 
         </div>
@@ -195,6 +195,18 @@ To show your appreciation for PyDev and to keep it going strong, help to crowdfu
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
+Release 7.2.0 (2019-03-25)
+=============================
+
+* Debugger improvements (updated to pydevd 1.6.0).
+
+	* Fixed issue quoting/unquoting parameters for subprocess.
+	* Fixed exception breakpoints for Django and Jinja2.
+	* Console hook import compatibility with matplotlib and pylab fixed.
+
+* Fixed issue where pipenv executable search was being executed over and over when it was not found.
+
+
 Release 7.1.0 (2019-02-03)
 =============================
 
@@ -241,41 +253,6 @@ Release 7.0.3 (2018-11-08)
 * The 2to3 integration shows a better dialog.
 
 * It's possible to autogenerate docstring parameters using the Google Code format (patch by ghbcode).
-
-
-Release 6.5.0 (2018-09-01)
-=============================
-
-* **Debugger**
-
-	* Debugger is **much** more responsive (fixed bug in reader/writer on the PyDev side).
-	* **breakpoint()** builtin is now supported to add a programmatic breakpoint (on any Python version).
-	* Watch expression no longer giving error if evaluation is empty (patch by glhez).
-
-* **Editor**
-
-	* Code folding of **#region/#endregion** regions (patch by ghbcode).
-	* There's a new action which allows creating local imports from a global import (use **Ctrl+1** on top of global import name).
-
-
-* It's now possible to change the default interpreter through an action (default binding: **Ctrl+Shift+Alt+I**).
-* The interactive console now has scroll lock (patch by bongibong).
-
-
-Release 6.4.4 (2018-07-28)
-=============================
-
-* **Debugger**
-
-	* Fixed issue where a unicode could be used where a string was expected.
-	* Providing wheel for Python 3.7.
-	* Fixed issue running Jython.
-	* No longer showing **pydevd** internals in the stack.
-	* Fixed issue with interactive console and debugger integration.
-
-* **Editor**
-
-	* Fixed issue parsing and analyzing f-strings.
 
 
 `View release notes for previous releases`_
