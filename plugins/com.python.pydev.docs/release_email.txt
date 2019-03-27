@@ -1,22 +1,18 @@
-PyDev 6.5.0 Released
+PyDev 7.2.0 Released
 
-PyDev 6.5.0 Release Highlights
+PyDev 7.2.0 Release Highlights
 -------------------------------
 
-* **Debugger**
-
-	* Debugger is **much** more responsive (fixed bug in reader/writer on the PyDev side).
-	* **breakpoint()** builtin is now supported to add a programmatic breakpoint (on any Python version).
-	* Watch expression no longer giving error if evaluation is empty (patch by glhez).
-
-* **Editor**
-
-	* Code folding of **#region/#endregion** regions (patch by ghbcode).
-	* There's a new action which allows creating local imports from a global import (use **Ctrl+1** on top of global import name).
 
 
-* It's now possible to change the default interpreter through an action (default binding: **Ctrl+Shift+Alt+I**).
-* The interactive console now has scroll lock (patch by bongibong).
+* Debugger improvements (updated to pydevd 1.6.0).
+
+    * Fixed issue quoting/unquoting parameters for subprocess.
+    * Fixed exception breakpoints for Django and Jinja2.
+    * Console hook import compatibility with matplotlib and pylab fixed.
+
+* Fixed issue where pipenv executable search was being executed over and over when it was not found.
+
 
 
 About PyDev
