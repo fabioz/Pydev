@@ -6,11 +6,12 @@ import os
 
 from _pydevd_bundle._debug_adapter import pydevd_base_schema
 from _pydevd_bundle._debug_adapter.pydevd_schema import (SourceBreakpoint, ScopesResponseBody, Scope,
-    VariablesResponseBody, SetVariableResponseBody, ModulesResponseBody, SourceResponseBody)
+    VariablesResponseBody, SetVariableResponseBody, ModulesResponseBody, SourceResponseBody,
+    GotoTargetsResponseBody, ExceptionOptions)
 from _pydevd_bundle.pydevd_api import PyDevdAPI
 from _pydevd_bundle.pydevd_comm_constants import (
     CMD_RETURN, CMD_STEP_OVER_MY_CODE, CMD_STEP_OVER, CMD_STEP_INTO_MY_CODE,
-    CMD_STEP_INTO, CMD_STEP_RETURN_MY_CODE, CMD_STEP_RETURN)
+    CMD_STEP_INTO, CMD_STEP_RETURN_MY_CODE, CMD_STEP_RETURN, CMD_SET_NEXT_STATEMENT)
 from _pydevd_bundle.pydevd_filtering import ExcludeFilter
 from _pydevd_bundle.pydevd_json_debug_options import _extract_debug_options
 from _pydevd_bundle.pydevd_net_command import NetCommand
@@ -78,6 +79,26 @@ def _convert_rules_to_exclude_filters(rules, filename_to_server, on_error):
     return exclude_filters
 
 
+class IDMap(object):
+
+    def __init__(self):
+        self._value_to_key = {}
+        self._key_to_value = {}
+        self._next_id = partial(next, itertools.count(0))
+
+    def obtain_value(self, key):
+        return self._key_to_value[key]
+
+    def obtain_key(self, value):
+        try:
+            key = self._value_to_key[value]
+        except KeyError:
+            key = self._next_id()
+            self._key_to_value[key] = value
+            self._value_to_key[value] = key
+        return key
+
+
 class _PyDevJsonCommandProcessor(object):
 
     def __init__(self, from_json):
@@ -85,6 +106,7 @@ class _PyDevJsonCommandProcessor(object):
         self.api = PyDevdAPI()
         self._debug_options = {}
         self._next_breakpoint_id = partial(next, itertools.count(0))
+        self._goto_targets_map = IDMap()
 
     def process_net_command_json(self, py_db, json_contents):
         '''
@@ -168,6 +190,8 @@ class _PyDevJsonCommandProcessor(object):
             args.get('options'),
             args.get('debugOptions'),
         )
+        self._debug_options['args'] = args
+
         debug_stdlib = self._debug_options.get('DEBUG_STDLIB', False)
         self.api.set_use_libraries_filter(py_db, not debug_stdlib)
 
@@ -304,6 +328,7 @@ class _PyDevJsonCommandProcessor(object):
         :param DisconnectRequest request:
         '''
         self.api.remove_all_breakpoints(py_db, filename='*')
+        self.api.remove_all_exception_breakpoints(py_db)
         self.api.request_resume_thread(thread_id='*')
 
         response = pydevd_base_schema.build_response(request)
@@ -358,6 +383,97 @@ class _PyDevJsonCommandProcessor(object):
         set_breakpoints_response = pydevd_base_schema.build_response(request, kwargs={'body':body})
         return NetCommand(CMD_RETURN, 0, set_breakpoints_response, is_json=True)
 
+    def on_setexceptionbreakpoints_request(self, py_db, request):
+        '''
+        :param SetExceptionBreakpointsRequest request:
+        '''
+        # : :type arguments: SetExceptionBreakpointsArguments
+        arguments = request.arguments
+        filters = arguments.filters
+        exception_options = arguments.exceptionOptions
+        self.api.remove_all_exception_breakpoints(py_db)
+
+        # Can't set these in the DAP.
+        condition = None
+        expression = None
+        notify_on_first_raise_only = False
+
+        ignore_libraries = 1 if py_db.get_use_libraries_filter() else 0
+
+        if exception_options:
+            break_raised = True
+            break_uncaught = True
+
+            for option in exception_options:
+                option = ExceptionOptions(**option)
+                if not option.path:
+                    continue
+
+                notify_on_handled_exceptions = 1 if option.breakMode == 'always' else 0
+                notify_on_unhandled_exceptions = 1 if option.breakMode in ('unhandled', 'userUnhandled') else 0
+                exception_paths = option.path
+
+                exception_names = []
+                if len(exception_paths) == 0:
+                    continue
+
+                elif len(exception_paths) == 1:
+                    if 'Python Exceptions' in exception_paths[0]['names']:
+                        exception_names = ['BaseException']
+
+                else:
+                    path_iterator = iter(exception_paths)
+                    if 'Python Exceptions' in next(path_iterator)['names']:
+                        for path in path_iterator:
+                            for ex_name in path['names']:
+                                exception_names.append(ex_name)
+
+                for exception_name in exception_names:
+                    self.api.add_python_exception_breakpoint(
+                        py_db,
+                        exception_name,
+                        condition,
+                        expression,
+                        notify_on_handled_exceptions,
+                        notify_on_unhandled_exceptions,
+                        notify_on_first_raise_only,
+                        ignore_libraries
+                    )
+
+        else:
+            break_raised = 'raised' in filters
+            break_uncaught = 'uncaught' in filters
+            if break_raised or break_uncaught:
+                notify_on_handled_exceptions = 1 if break_raised else 0
+                notify_on_unhandled_exceptions = 1 if break_uncaught else 0
+                exception = 'BaseException'
+
+                self.api.add_python_exception_breakpoint(
+                    py_db,
+                    exception,
+                    condition,
+                    expression,
+                    notify_on_handled_exceptions,
+                    notify_on_unhandled_exceptions,
+                    notify_on_first_raise_only,
+                    ignore_libraries
+                )
+
+        if break_raised or break_uncaught:
+            btype = None
+            if self._debug_options.get('DJANGO_DEBUG', False):
+                btype = 'django'
+            elif self._debug_options.get('FLASK_DEBUG', False):
+                btype = 'jinja2'
+
+            if btype:
+                self.api.add_plugins_exception_breakpoint(
+                    py_db, btype, 'BaseException')  # Note: Exception name could be anything here.
+
+        # Note: no body required on success.
+        set_breakpoints_response = pydevd_base_schema.build_response(request)
+        return NetCommand(CMD_RETURN, 0, set_breakpoints_response, is_json=True)
+
     def on_stacktrace_request(self, py_db, request):
         '''
         :param StackTraceRequest request:
@@ -370,6 +486,16 @@ class _PyDevJsonCommandProcessor(object):
         if hasattr(fmt, 'to_dict'):
             fmt = fmt.to_dict()
         self.api.request_stack(py_db, request.seq, thread_id, fmt)
+
+    def on_exceptioninfo_request(self, py_db, request):
+        '''
+        :param ExceptionInfoRequest request:
+        '''
+        # : :type exception_into_arguments: ExceptionInfoArguments
+        exception_into_arguments = request.arguments
+        thread_id = exception_into_arguments.threadId            
+        max_frames = int(self._debug_options['args'].get('maxExceptionStackFrames', 0))
+        self.api.request_exception_info_json(py_db, request, thread_id, max_frames)
 
     def on_scopes_request(self, py_db, request):
         '''
@@ -503,6 +629,38 @@ class _PyDevJsonCommandProcessor(object):
             response_args.update({'success': False, 'message': message})
 
         response = pydevd_base_schema.build_response(request, kwargs=response_args)
+        return NetCommand(CMD_RETURN, 0, response, is_json=True)
+
+    def on_gototargets_request(self, py_db, request):
+        path = request.arguments.source.path
+        line = request.arguments.line
+        target_id = self._goto_targets_map.obtain_key((path, line))
+        target = {
+            'id': target_id,
+            'label': '%s:%s' % (path, line),
+            'line': line
+        }
+        body = GotoTargetsResponseBody(targets=[target])
+        response_args = {'body': body}
+        response = pydevd_base_schema.build_response(request, kwargs=response_args)
+        return NetCommand(CMD_RETURN, 0, response, is_json=True)
+
+    def on_goto_request(self, py_db, request):
+        target_id = int(request.arguments.targetId)
+        thread_id = request.arguments.threadId
+        try:
+            _, line = self._goto_targets_map.obtain_value(target_id)
+        except KeyError:
+            response = pydevd_base_schema.build_response(request,
+                kwargs={
+                    'body': {},
+                    'success': False,
+                    'message': 'Unknown goto target id: %d' % (target_id,),
+                })
+            return NetCommand(CMD_RETURN, 0, response, is_json=True)
+
+        self.api.request_set_next(py_db, thread_id, CMD_SET_NEXT_STATEMENT, line, '*')
+        response = pydevd_base_schema.build_response(request, kwargs={'body': {}})
         return NetCommand(CMD_RETURN, 0, response, is_json=True)
 
 

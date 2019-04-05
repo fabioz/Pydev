@@ -290,7 +290,7 @@ class DictResolver:
             eval_key_str = self.key_to_str(key)  # do not format the key
             ret.append((key_as_str, val, '[%s]' % (eval_key_str,)))
             if i > MAX_ITEMS_TO_HANDLE:
-                ret.append((TOO_LARGE_ATTR, TOO_LARGE_MSG))
+                ret.append((TOO_LARGE_ATTR, TOO_LARGE_MSG, None))
                 break
 
         ret.append(('__len__', len(dct), partial(_apply_evaluate_name, evaluate_name='len(%s)')))
@@ -369,7 +369,7 @@ class TupleResolver:  # to enumerate tuples and lists
 
         ret.append(('__len__', len(lst), partial(_apply_evaluate_name, evaluate_name='len(%s)')))
         # Needed in case the class extends the built-in type and has some additional fields.
-        from_default_resolver = defaultResolver.get_dictionary(lst)
+        from_default_resolver = defaultResolver.get_contents_debug_adapter_protocol(lst, fmt=fmt)
         if from_default_resolver:
             ret = from_default_resolver + ret
         return ret

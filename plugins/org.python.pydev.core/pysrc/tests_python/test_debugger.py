@@ -870,15 +870,10 @@ def test_case_flask(case_setup_flask):
         writer.wait_for_vars(['<var name="content" type="str"'])
         writer.write_run_thread(hit.thread_id)
 
-        for _ in xrange(10):
-            if hasattr(t, 'contents'):
-                break
-            time.sleep(.3)
-        else:
-            raise AssertionError('Flask did not return contents properly!')
+        contents = t.wait_for_contents()
 
-        assert '<title>Hello</title>' in t.contents
-        assert 'Flask-Jinja-Test' in t.contents
+        assert '<title>Hello</title>' in contents
+        assert 'Flask-Jinja-Test' in contents
 
         writer.finished_ok = True
 
@@ -919,14 +914,9 @@ def test_case_django_a(case_setup_django):
 
         writer.write_run_thread(hit.thread_id)
 
-        for _ in xrange(10):
-            if hasattr(t, 'contents'):
-                break
-            time.sleep(.3)
-        else:
-            raise AssertionError('Django did not return contents properly!')
+        contents = t.wait_for_contents()
 
-        contents = t.contents.replace(' ', '').replace('\r', '').replace('\n', '')
+        contents = contents.replace(' ', '').replace('\r', '').replace('\n', '')
         if contents != '<ul><li>v1:v1</li><li>v2:v2</li></ul>':
             raise AssertionError('%s != <ul><li>v1:v1</li><li>v2:v2</li></ul>' % (contents,))
 
@@ -954,13 +944,48 @@ def test_case_django_b(case_setup_django):
 
 
 @pytest.mark.skipif(not TEST_DJANGO, reason='No django available')
+def test_case_django_template_inherits_no_exception(case_setup_django):
+    with case_setup_django.test_file(EXPECTED_RETURNCODE='any') as writer:
+
+        # Check that it doesn't have issues with inherits + django exception breakpoints.
+        writer.write_add_exception_breakpoint_django()
+
+        writer.write_make_initial_run()
+
+        t = writer.create_request_thread('my_app/inherits')
+        time.sleep(5)  # Give django some time to get to startup before requesting the page
+        t.start()
+        contents = t.wait_for_contents()
+
+        contents = contents.replace(' ', '').replace('\r', '').replace('\n', '')
+        assert contents == '''"chat_mode=True""chat_mode=False"'''
+
+        writer.finished_ok = True
+
+
+@pytest.mark.skipif(not TEST_DJANGO, reason='No django available')
+def test_case_django_no_var_error(case_setup_django):
+    with case_setup_django.test_file(EXPECTED_RETURNCODE='any') as writer:
+
+        # Check that it doesn't have issues with inherits + django exception breakpoints.
+        writer.write_add_exception_breakpoint_django()
+
+        writer.write_make_initial_run()
+
+        t = writer.create_request_thread('my_app/no_var_error')
+        time.sleep(5)  # Give django some time to get to startup before requesting the page
+        t.start()
+        contents = t.wait_for_contents()
+
+        contents = contents.replace(' ', '').replace('\r', '').replace('\n', '')
+        assert contents == '''no_pat_name'''
+
+        writer.finished_ok = True
+
+
+@pytest.mark.skipif(not TEST_DJANGO, reason='No django available')
 @pytest.mark.parametrize("jmc", [False, True])
 def test_case_django_no_attribute_exception_breakpoint(case_setup_django, jmc):
-    django_version = [int(x) for x in django.get_version().split('.')][:2]
-
-    if django_version < [2, 1]:
-        pytest.skip('Template exceptions only supporting Django 2.1 onwards.')
-
     kwargs = {}
     if jmc:
 
@@ -993,11 +1018,6 @@ def test_case_django_no_attribute_exception_breakpoint(case_setup_django, jmc):
 
 @pytest.mark.skipif(not TEST_DJANGO, reason='No django available')
 def test_case_django_no_attribute_exception_breakpoint_and_regular_exceptions(case_setup_django):
-    django_version = [int(x) for x in django.get_version().split('.')][:2]
-
-    if django_version < [2, 1]:
-        pytest.skip('Template exceptions only supporting Django 2.1 onwards.')
-
     with case_setup_django.test_file(EXPECTED_RETURNCODE='any') as writer:
         writer.write_add_exception_breakpoint_django()
 
@@ -1026,11 +1046,6 @@ def test_case_django_no_attribute_exception_breakpoint_and_regular_exceptions(ca
 @pytest.mark.skipif(not TEST_DJANGO, reason='No django available')
 @pytest.mark.parametrize("jmc", [False, True])
 def test_case_django_invalid_template_exception_breakpoint(case_setup_django, jmc):
-    django_version = [int(x) for x in django.get_version().split('.')][:2]
-
-    if django_version < [2, 1]:
-        pytest.skip('Template exceptions only supporting Django 2.1 onwards.')
-
     kwargs = {}
     if jmc:
 
@@ -1607,7 +1622,11 @@ def test_case_handled_exceptions0(case_setup):
         )
         writer.write_make_initial_run()
 
-        hit = writer.wait_for_breakpoint_hit(REASON_CAUGHT_EXCEPTION, line=3)
+        hit = writer.wait_for_breakpoint_hit(
+            REASON_CAUGHT_EXCEPTION,
+            line=writer.get_line_index_with_content('raise indexerror line')
+        )
+
         writer.write_run_thread(hit.thread_id)
 
         writer.finished_ok = True
@@ -1646,13 +1665,16 @@ def test_case_handled_exceptions1(case_setup):
             assert unquote(unquote(msg.thread.frame[0]['file'])).endswith('_debugger_case_exceptions.py')
             writer.write_run_thread(hit.thread_id)
 
-        hit = writer.wait_for_breakpoint_hit(REASON_CAUGHT_EXCEPTION, line=3)
+        hit = writer.wait_for_breakpoint_hit(
+            REASON_CAUGHT_EXCEPTION, line=writer.get_line_index_with_content('raise indexerror line'))
         check(hit)
 
-        hit = writer.wait_for_breakpoint_hit(REASON_CAUGHT_EXCEPTION, line=6)
+        hit = writer.wait_for_breakpoint_hit(
+            REASON_CAUGHT_EXCEPTION, line=writer.get_line_index_with_content('reraise on method2'))
         check(hit)
 
-        hit = writer.wait_for_breakpoint_hit(REASON_CAUGHT_EXCEPTION, line=10)
+        hit = writer.wait_for_breakpoint_hit(
+            REASON_CAUGHT_EXCEPTION, line=writer.get_line_index_with_content('handle on method1'))
         check(hit)
 
         writer.finished_ok = True
@@ -1702,7 +1724,8 @@ def test_case_handled_exceptions3(case_setup):
         )
 
         writer.write_make_initial_run()
-        hit = writer.wait_for_breakpoint_hit(REASON_CAUGHT_EXCEPTION, line=3)
+        hit = writer.wait_for_breakpoint_hit(
+            REASON_CAUGHT_EXCEPTION, line=writer.get_line_index_with_content('raise indexerror line'))
         writer.write_run_thread(hit.thread_id)
 
         writer.finished_ok = True
@@ -1729,7 +1752,8 @@ def test_case_handled_exceptions4(case_setup):
         )
 
         writer.write_make_initial_run()
-        hit = writer.wait_for_breakpoint_hit(REASON_CAUGHT_EXCEPTION, line=6)
+        hit = writer.wait_for_breakpoint_hit(
+            REASON_CAUGHT_EXCEPTION, line=writer.get_line_index_with_content('reraise on method2'))
         writer.write_run_thread(hit.thread_id)
 
         writer.finished_ok = True
@@ -2998,6 +3022,116 @@ def test_step_over_my_code(case_setup):
 )
 def step_method(request):
     return request.param
+
+
+def test_sysexit_on_filtered_file(case_setup):
+
+    def get_environ(writer):
+        env = os.environ.copy()
+        env.update({'PYDEVD_FILTERS': json.dumps({'**/_debugger_case_sysexit.py': True})})
+        return env
+
+    with case_setup.test_file('_debugger_case_sysexit.py', get_environ=get_environ, EXPECTED_RETURNCODE=1) as writer:
+        writer.write_add_exception_breakpoint_with_policy(
+            'SystemExit',
+            notify_on_handled_exceptions=1,  # Notify multiple times
+            notify_on_unhandled_exceptions=1,
+            ignore_libraries=0
+        )
+
+        writer.write_make_initial_run()
+        writer.finished_ok = True
+
+
+@pytest.mark.parametrize("scenario", [
+    'handled_once',
+    'handled_multiple',
+    'unhandled',
+])
+def test_exception_not_on_filtered_file(case_setup, scenario):
+
+    def get_environ(writer):
+        env = os.environ.copy()
+        env.update({'PYDEVD_FILTERS': json.dumps({'**/other.py': True})})
+        return env
+
+    def check_test_suceeded_msg(writer, stdout, stderr):
+        return 'TEST SUCEEDED' in ''.join(stderr)
+
+    def additional_output_checks(writer, stdout, stderr):
+        if 'raise RuntimeError' not in stderr:
+            raise AssertionError('Expected test to have an unhandled exception.\nstdout:\n%s\n\nstderr:\n%s' % (
+                stdout, stderr))
+
+    with case_setup.test_file(
+            'my_code/my_code_exception.py',
+            get_environ=get_environ,
+            EXPECTED_RETURNCODE='any',
+            check_test_suceeded_msg=check_test_suceeded_msg,
+            additional_output_checks=additional_output_checks,
+        ) as writer:
+
+        if scenario == 'handled_once':
+            writer.write_add_exception_breakpoint_with_policy(
+                'RuntimeError',
+                notify_on_handled_exceptions=2,  # Notify only once
+                notify_on_unhandled_exceptions=0,
+                ignore_libraries=0
+            )
+        elif scenario == 'handled_multiple':
+            writer.write_add_exception_breakpoint_with_policy(
+                'RuntimeError',
+                notify_on_handled_exceptions=1,  # Notify multiple times
+                notify_on_unhandled_exceptions=0,
+                ignore_libraries=0
+            )
+        elif scenario == 'unhandled':
+            writer.write_add_exception_breakpoint_with_policy(
+                'RuntimeError',
+                notify_on_handled_exceptions=0,
+                notify_on_unhandled_exceptions=1,
+                ignore_libraries=0
+            )
+
+        writer.write_make_initial_run()
+        for _i in range(3 if scenario == 'handled_multiple' else 1):
+            hit = writer.wait_for_breakpoint_hit(
+                REASON_UNCAUGHT_EXCEPTION if scenario == 'unhandled' else REASON_CAUGHT_EXCEPTION)
+            writer.write_run_thread(hit.thread_id)
+        writer.finished_ok = True
+
+
+def test_exception_on_filtered_file(case_setup):
+
+    def get_environ(writer):
+        env = os.environ.copy()
+        env.update({'PYDEVD_FILTERS': json.dumps({'**/other.py': True})})
+        return env
+
+    def check_test_suceeded_msg(writer, stdout, stderr):
+        return 'TEST SUCEEDED' in ''.join(stderr)
+
+    def additional_output_checks(writer, stdout, stderr):
+        if 'raise RuntimeError' not in stderr:
+            raise AssertionError('Expected test to have an unhandled exception.\nstdout:\n%s\n\nstderr:\n%s' % (
+                stdout, stderr))
+
+    with case_setup.test_file(
+            'my_code/my_code_exception_on_other.py',
+            get_environ=get_environ,
+            EXPECTED_RETURNCODE='any',
+            check_test_suceeded_msg=check_test_suceeded_msg,
+            additional_output_checks=additional_output_checks,
+        ) as writer:
+        writer.write_add_exception_breakpoint_with_policy(
+            'RuntimeError',
+            notify_on_handled_exceptions=2,  # Notify only once
+            notify_on_unhandled_exceptions=1,
+            ignore_libraries=0
+        )
+
+        writer.write_make_initial_run()
+        writer.finished_ok = True
 
 
 @pytest.mark.parametrize("environ", [
