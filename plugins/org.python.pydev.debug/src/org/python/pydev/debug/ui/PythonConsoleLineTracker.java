@@ -205,7 +205,11 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
 
             Matcher m = regularPythonlinePattern.matcher(text);
             if (m.matches()) {
-                regularPythonMatcher(lineOffset, lineLength, m);
+                try {
+                    regularPythonMatcher(lineOffset, lineLength, m);
+                } catch (Exception e) {
+                    Log.log(e);
+                }
                 return;
             }
 
@@ -466,38 +470,35 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
      */
     private boolean createHyperlink(int lineOffset, int startCol, int endCol, final String fileName,
             int lineNumberInt) {
-        // hyperlink if we found something
         if (fileName != null) {
-            IHyperlink link = null;
-            IFile file;
-            if (SharedCorePlugin.inTestMode()) {
-                file = null;
-            } else {
-                file = getFileForLocation(fileName);
+            IFile file = null;
+
+            if (!SharedCorePlugin.inTestMode()) {
+                try {
+                    file = FindWorkspaceFiles.getFileForLocation(Path.fromOSString(fileName), getProject());
+                } catch (Exception e) {
+                    // Related project could be closed (go forward with external file).
+                    Log.log(e);
+                }
             }
+
             if (file != null && fileExists(file)) {
-                link = new FileLink(file, null, -1, -1, lineNumberInt);
+                IHyperlink link = new FileLink(file, null, -1, -1, lineNumberInt);
+                linkContainer.addLink(link, lineOffset + startCol, endCol - startCol);
+                return true;
+
             } else {
-                // files outside of the workspace
+                // File outside of the workspace.
                 File realFile = new File(fileName);
                 if (!onlyCreateLinksForExistingFiles || fileExists(realFile)) {
                     ItemPointer p = new ItemPointer(realFile, new Location(lineNumberInt - 1, 0), null);
-                    link = new ConsoleLink(p);
+                    IHyperlink link = new ConsoleLink(p);
+                    linkContainer.addLink(link, lineOffset + startCol, endCol - startCol);
+                    return true;
                 }
-            }
-            if (link != null) {
-                linkContainer.addLink(link, lineOffset + startCol, endCol - startCol);
-                return true;
             }
         }
         return false;
-    }
-
-    private IFile getFileForLocation(String fileName) {
-        IFile file;
-        IProject project = getProject();
-        file = FindWorkspaceFiles.getFileForLocation(Path.fromOSString(fileName), project);
-        return file;
     }
 
     /**
