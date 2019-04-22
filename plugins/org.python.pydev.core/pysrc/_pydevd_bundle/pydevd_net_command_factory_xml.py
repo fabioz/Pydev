@@ -87,7 +87,7 @@ class NetCommandFactory(object):
         except:
             return self.make_error_message(seq, get_exception_traceback_str())
 
-    def make_get_thread_stack_message(self, py_db, seq, thread_id, topmost_frame, fmt, must_be_suspended=False):
+    def make_get_thread_stack_message(self, py_db, seq, thread_id, topmost_frame, fmt, must_be_suspended=False, start_frame=0, levels=0):
         """
         Returns thread stack as XML.
 
@@ -172,7 +172,7 @@ class NetCommandFactory(object):
             frame_id = id(frame)
             lineno = frame_id_to_lineno.get(frame_id, frame.f_lineno)
 
-            yield frame_id, frame, method_name, filename_in_utf8, lineno
+            yield frame_id, frame, method_name, abs_path_real_path_and_base[0], filename_in_utf8, lineno
 
             frame = frame.f_back
 
@@ -193,7 +193,7 @@ class NetCommandFactory(object):
         frame = None  # Clear frame reference
         try:
             py_db = get_global_debugger()
-            for frame_id, frame, method_name, filename_in_utf8, lineno in self._iter_visible_frames_info(
+            for frame_id, frame, method_name, _original_filename, filename_in_utf8, lineno in self._iter_visible_frames_info(
                     py_db, curr_frame, frame_id_to_lineno
                 ):
 
@@ -273,7 +273,7 @@ class NetCommandFactory(object):
         except:
             return self.make_error_message(0, get_exception_traceback_str())
 
-    def make_thread_suspend_single_notification(self, thread_id, stop_reason):
+    def make_thread_suspend_single_notification(self, py_db, thread_id, stop_reason):
         try:
             return NetCommand(CMD_THREAD_SUSPEND_SINGLE_NOTIFICATION, 0, json.dumps(
                 {'thread_id': thread_id, 'stop_reason':stop_reason}))

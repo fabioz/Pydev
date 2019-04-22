@@ -44,18 +44,25 @@ r'''
 from _pydevd_bundle.pydevd_constants import IS_PY2, IS_PY3K, DebugInfoHolder, IS_WINDOWS, IS_JYTHON
 from _pydev_bundle._pydev_filesystem_encoding import getfilesystemencoding
 from _pydevd_bundle.pydevd_comm_constants import file_system_encoding, filesystem_encoding_is_utf8
+from _pydev_bundle.pydev_log import error_once
 
 import json
 import os.path
 import sys
 import traceback
 import itertools
+import ntpath
 from functools import partial
 
-_os_normcase = os.path.normcase
+_nt_os_normcase = ntpath.normcase
 basename = os.path.basename
 exists = os.path.exists
 join = os.path.join
+
+try:
+    FileNotFoundError
+except NameError:
+    FileNotFoundError = IOError  # noqa
 
 try:
     rPath = os.path.realpath  # @UndefinedVariable
@@ -96,11 +103,11 @@ if sys.platform == 'win32':
         import ctypes
         from ctypes.wintypes import MAX_PATH, LPCWSTR, LPWSTR, DWORD
 
-        GetLongPathName = ctypes.windll.kernel32.GetLongPathNameW
+        GetLongPathName = ctypes.windll.kernel32.GetLongPathNameW  # noqa
         GetLongPathName.argtypes = [LPCWSTR, LPWSTR, DWORD]
         GetLongPathName.restype = DWORD
 
-        GetShortPathName = ctypes.windll.kernel32.GetShortPathNameW
+        GetShortPathName = ctypes.windll.kernel32.GetShortPathNameW  # noqa
         GetShortPathName.argtypes = [LPCWSTR, LPWSTR, DWORD]
         GetShortPathName.restype = DWORD
 
@@ -130,13 +137,78 @@ if sys.platform == 'win32':
                 filename = filename.encode(getfilesystemencoding())
             return filename
 
+        # Note that we have a cache for previous list dirs... the only case where this may be an
+        # issue is if the user actually changes the case of an existing file on windows while
+        # the debugger is executing (as this seems very unlikely and the cache can save a
+        # reasonable time -- especially on mapped drives -- it seems nice to have it).
+        _listdir_cache = {}
+
+        def _resolve_listing(resolved, iter_parts, cache=_listdir_cache):
+            while True:  # Note: while True to make iterative and not recursive
+                try:
+                    resolve_lowercase = next(iter_parts)  # must be lowercase already
+                except StopIteration:
+                    return resolved
+
+                resolved_lower = resolved.lower()
+
+                resolved_joined = cache.get((resolved_lower, resolve_lowercase))
+                if resolved_joined is None:
+                    dir_contents = cache.get(resolved_lower)
+                    if dir_contents is None:
+                        dir_contents = cache[resolved_lower] = os.listdir(resolved)
+
+                    for filename in dir_contents:
+                        if filename.lower() == resolve_lowercase:
+                            resolved_joined = os.path.join(resolved, filename)
+                            cache[(resolved_lower, resolve_lowercase)] = resolved_joined
+                            break
+                    else:
+                        raise FileNotFoundError('Unable to find: %s in %s' % (
+                            resolve_lowercase, resolved))
+
+                resolved = resolved_joined
+
         def _get_path_with_real_case(filename):
-            ret = convert_to_long_pathname(convert_to_short_pathname(filename))
-            # This doesn't handle the drive letter properly (it'll be unchanged).
-            # Make sure the drive letter is always uppercase.
-            if len(ret) > 1 and ret[1] == ':' and ret[0].islower():
-                return ret[0].upper() + ret[1:]
-            return ret
+            # Note: this previously made:
+            # convert_to_long_pathname(convert_to_short_pathname(filename))
+            # but this is no longer done because we can't rely on getting the shortname
+            # consistently (there are settings to disable it on Windows).
+            # So, using approach which resolves by listing the dir.
+
+            if IS_PY2 and isinstance(filename, unicode):  # noqa
+                filename = filename.encode(getfilesystemencoding())
+
+            if '~' in filename:
+                filename = convert_to_long_pathname(filename)
+
+            if filename.startswith('<') or not os.path.exists(filename):
+                return filename  # Not much we can do.
+
+            drive, parts = os.path.splitdrive(os.path.normpath(filename))
+            drive = drive.upper()
+            while parts.startswith(os.path.sep):
+                parts = parts[1:]
+                drive += os.path.sep
+            parts = parts.lower().split(os.path.sep)
+
+            try:
+                return _resolve_listing(drive, iter(parts))
+            except FileNotFoundError:
+                _listdir_cache.clear()
+                # Retry once after clearing the cache we have.
+                try:
+                    return _resolve_listing(drive, iter(parts))
+                except FileNotFoundError:
+                    if os.path.exists(filename):
+                        # This is really strange, ask the user to report as error.
+                        sys.stderr.write('\npydev debugger: critical: unable to get real case for file. Details:\n'
+                                         'filename: %s\ndrive: %s\nparts: %s\n'
+                                         '(please create a ticket in the tracker to address this).\n\n' % (
+                                             filename, drive, parts))
+                        traceback.print_exc()
+                    # Don't fail, just return the original file passed.
+                    return filename
 
         # Check that it actually works
         _get_path_with_real_case(__file__)
@@ -152,37 +224,44 @@ if sys.platform == 'win32':
 elif IS_JYTHON and IS_WINDOWS:
 
     def get_path_with_real_case(filename):
-        from java.io import File
+        from java.io import File  # noqa
         f = File(filename)
         ret = f.getCanonicalPath()
         if IS_PY2 and not isinstance(ret, str):
             return ret.encode(getfilesystemencoding())
         return ret
 
-if IS_WINDOWS:
+if IS_JYTHON:
 
-    if IS_JYTHON:
-
-        def normcase(filename):
-            return filename.lower()
-
-    else:
-
-        def normcase(filename):
-            # `normcase` doesn't lower case on Python 2 for non-English locale, but Java
-            # side does it, so we should do it manually.
-            if '~' in filename:
-                filename = convert_to_long_pathname(filename)
-
-            filename = _os_normcase(filename)
-            return filename.lower()
+    def _normcase_windows(filename):
+        return filename.lower()
 
 else:
 
-    def normcase(filename):
-        return filename  # no-op
+    def _normcase_windows(filename):
+        # `normcase` doesn't lower case on Python 2 for non-English locale, so we should do it manually.
+        if '~' in filename:
+            filename = convert_to_long_pathname(filename)
+
+        filename = _nt_os_normcase(filename)
+        return filename.lower()
+
+
+def _normcase_linux(filename):
+    return filename  # no-op
+
+
+if IS_WINDOWS:
+    normcase = _normcase_windows
+
+else:
+    normcase = _normcase_linux
 
 _ide_os = 'WINDOWS' if IS_WINDOWS else 'UNIX'
+
+_normcase_from_client = normcase
+
+DEBUG_CLIENT_SERVER_TRANSLATION = os.environ.get('DEBUG_PYDEVD_PATHS_TRANSLATION', 'False').lower() in ('1', 'true')
 
 
 def set_ide_os(os):
@@ -195,11 +274,27 @@ def set_ide_os(os):
         'UNIX' or 'WINDOWS'
     '''
     global _ide_os
+    global _normcase_from_client
     prev = _ide_os
     if os == 'WIN':  # Apparently PyCharm uses 'WIN' (https://github.com/fabioz/PyDev.Debugger/issues/116)
         os = 'WINDOWS'
 
     assert os in ('WINDOWS', 'UNIX')
+
+    if DEBUG_CLIENT_SERVER_TRANSLATION:
+        print('pydev debugger: client OS: %s' % (os,))
+
+    _normcase_from_client = normcase
+    if os == 'WINDOWS':
+
+        # Client in Windows and server in Unix, we need to normalize the case.
+        if not IS_WINDOWS:
+            _normcase_from_client = _normcase_windows
+
+    else:
+        # Client in Unix and server in Windows, we can't normalize the case.
+        if IS_WINDOWS:
+            _normcase_from_client = _normcase_linux
 
     if prev != os:
         _ide_os = os
@@ -207,20 +302,18 @@ def set_ide_os(os):
         setup_client_server_paths(_last_client_server_paths_set)
 
 
-DEBUG_CLIENT_SERVER_TRANSLATION = os.environ.get('DEBUG_PYDEVD_PATHS_TRANSLATION', 'False').lower() in ('1', 'true')
-
 # Caches filled as requested during the debug session.
 NORM_PATHS_CONTAINER = {}
 NORM_PATHS_AND_BASE_CONTAINER = {}
 
 
 def _NormFile(filename):
-    abs_path, real_path = _NormPaths(filename)
+    _abs_path, real_path = _NormPaths(filename)
     return real_path
 
 
 def _AbsFile(filename):
-    abs_path, real_path = _NormPaths(filename)
+    abs_path, _real_path = _NormPaths(filename)
     return abs_path
 
 
@@ -455,16 +548,16 @@ def setup_client_server_paths(paths):
 
     for i, (path0, path1) in enumerate(paths_from_eclipse_to_python[:]):
         if IS_PY2:
-            if isinstance(path0, unicode):
+            if isinstance(path0, unicode):  # noqa
                 path0 = path0.encode(sys.getfilesystemencoding())
-            if isinstance(path1, unicode):
+            if isinstance(path1, unicode):  # noqa
                 path1 = path1.encode(sys.getfilesystemencoding())
 
         path0 = _fix_path(path0, eclipse_sep)
         path1 = _fix_path(path1, python_sep)
         initial_paths[i] = (path0, path1)
 
-        paths_from_eclipse_to_python[i] = (normcase(path0), normcase(path1))
+        paths_from_eclipse_to_python[i] = (_normcase_from_client(path0), normcase(path1))
 
     if not paths_from_eclipse_to_python:
         # no translation step needed (just inline the calls)
@@ -484,24 +577,37 @@ def setup_client_server_paths(paths):
                 filename = filename.replace(python_sep, eclipse_sep)
 
             # used to translate a path from the client to the debug server
-            translated = normcase(filename)
+            translated = filename
+            translated_normalized = _normcase_from_client(filename)
             for eclipse_prefix, server_prefix in paths_from_eclipse_to_python:
-                if translated.startswith(eclipse_prefix):
+                if translated_normalized.startswith(eclipse_prefix):
+                    found_translation = True
                     if DEBUG_CLIENT_SERVER_TRANSLATION:
-                        sys.stderr.write('pydev debugger: replacing to server: %s\n' % (translated,))
-                    translated = translated.replace(eclipse_prefix, server_prefix)
+                        sys.stderr.write('pydev debugger: replacing to server: %s\n' % (filename,))
+                    translated = server_prefix + filename[len(eclipse_prefix):]
                     if DEBUG_CLIENT_SERVER_TRANSLATION:
                         sys.stderr.write('pydev debugger: sent to server: %s\n' % (translated,))
                     break
             else:
-                if DEBUG_CLIENT_SERVER_TRANSLATION:
-                    sys.stderr.write('pydev debugger: to server: unable to find matching prefix for: %s in %s\n' % \
-                        (translated, [x[0] for x in paths_from_eclipse_to_python]))
+                found_translation = False
 
             # Note that when going to the server, we do the replace first and only later do the norm file.
             if eclipse_sep != python_sep:
                 translated = translated.replace(eclipse_sep, python_sep)
-            translated = _NormFile(translated)
+
+            if found_translation:
+                translated = _NormFile(translated)
+            else:
+                if not os.path.exists(translated):
+                    if not translated.startswith('<'):
+                        # This is a configuration error, so, write it always so
+                        # that the user can fix it.
+                        error_once('pydev debugger: unable to find translation for: "%s" in [%s] (please revise your path mappings).\n' %
+                            (filename, ', '.join(['"%s"' % (x[0],) for x in paths_from_eclipse_to_python])))
+                else:
+                    # It's possible that we had some round trip (say, we sent /usr/lib and received
+                    # it back, so, having no translation is ok too).
+                    translated = _NormFile(translated)
 
             cache[filename] = translated
             return translated

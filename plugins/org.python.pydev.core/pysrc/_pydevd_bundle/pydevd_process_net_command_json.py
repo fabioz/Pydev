@@ -1,14 +1,17 @@
 from functools import partial
+import bisect
 import itertools
 import json
 import linecache
 import os
+import types
 
 from _pydevd_bundle._debug_adapter import pydevd_base_schema
 from _pydevd_bundle._debug_adapter.pydevd_schema import (SourceBreakpoint, ScopesResponseBody, Scope,
     VariablesResponseBody, SetVariableResponseBody, ModulesResponseBody, SourceResponseBody,
     GotoTargetsResponseBody, ExceptionOptions)
 from _pydevd_bundle.pydevd_api import PyDevdAPI
+from _pydevd_bundle.pydevd_comm import pydevd_log
 from _pydevd_bundle.pydevd_comm_constants import (
     CMD_RETURN, CMD_STEP_OVER_MY_CODE, CMD_STEP_OVER, CMD_STEP_INTO_MY_CODE,
     CMD_STEP_INTO, CMD_STEP_RETURN_MY_CODE, CMD_STEP_RETURN, CMD_SET_NEXT_STATEMENT)
@@ -17,7 +20,38 @@ from _pydevd_bundle.pydevd_json_debug_options import _extract_debug_options
 from _pydevd_bundle.pydevd_net_command import NetCommand
 from _pydevd_bundle.pydevd_utils import convert_dap_log_message_to_expression
 import pydevd_file_utils
+from _pydevd_bundle._debug_adapter.pydevd_schema import CompletionsResponseBody
 
+
+try:
+    import dis
+except ImportError:
+    def _get_code_lines(code):
+        raise NotImplementedError
+else:
+    def _get_code_lines(code):
+        if not isinstance(code, types.CodeType):
+            path = code
+            with open(path) as f:
+                src = f.read()
+            code = compile(src, path, 'exec', 0, dont_inherit=True)
+            return _get_code_lines(code)
+
+        def iterate():
+            # First, get all line starts for this code object. This does not include
+            # bodies of nested class and function definitions, as they have their
+            # own objects.
+            for _, lineno in dis.findlinestarts(code):
+                yield lineno
+
+            # For nested class and function definitions, their respective code objects
+            # are constants referenced by this object.
+            for const in code.co_consts:
+                if isinstance(const, types.CodeType) and const.co_filename == code.co_filename:
+                    for lineno in _get_code_lines(const):
+                        yield lineno
+
+        return iterate()
 
 def _convert_rules_to_exclude_filters(rules, filename_to_server, on_error):
     exclude_filters = []
@@ -115,21 +149,39 @@ class _PyDevJsonCommandProcessor(object):
 
         DEBUG = False
 
-        request = self.from_json(json_contents, update_ids_from_dap=True)
+        try:
+            request = self.from_json(json_contents, update_ids_from_dap=True)
+        except KeyError as e:
+            request = self.from_json(json_contents, update_ids_from_dap=False)
+            error_msg = str(e)
+            if error_msg.startswith("'") and error_msg.endswith("'"):
+                error_msg = error_msg[1:-1]
 
-        if DEBUG:
-            print('Process %s: %s\n' % (
-                request.__class__.__name__, json.dumps(request.to_dict(), indent=4, sort_keys=True),))
+            # This means a failure updating ids from the DAP (the client sent a key we didn't send).
+            def on_request(py_db, request):
+                error_response = {
+                    'type': 'response',
+                    'request_seq': request.seq,
+                    'success': False,
+                    'command': request.command,
+                    'message': error_msg,
+                }
+                return NetCommand(CMD_RETURN, 0, error_response, is_json=True)
 
-        assert request.type == 'request'
-        method_name = 'on_%s_request' % (request.command.lower(),)
-        on_request = getattr(self, method_name, None)
-        if on_request is None:
-            print('Unhandled: %s not available in _PyDevJsonCommandProcessor.\n' % (method_name,))
-            return
+        else:
+            if DEBUG:
+                print('Process %s: %s\n' % (
+                    request.__class__.__name__, json.dumps(request.to_dict(), indent=4, sort_keys=True),))
 
-        if DEBUG:
-            print('Handled in pydevd: %s (in _PyDevJsonCommandProcessor).\n' % (method_name,))
+            assert request.type == 'request'
+            method_name = 'on_%s_request' % (request.command.lower(),)
+            on_request = getattr(self, method_name, None)
+            if on_request is None:
+                print('Unhandled: %s not available in _PyDevJsonCommandProcessor.\n' % (method_name,))
+                return
+
+            if DEBUG:
+                print('Handled in pydevd: %s (in _PyDevJsonCommandProcessor).\n' % (method_name,))
 
         py_db._main_lock.acquire()
         try:
@@ -164,6 +216,17 @@ class _PyDevJsonCommandProcessor(object):
         frame_id = arguments.frameId
         thread_id = py_db.suspended_frames_manager.get_thread_id_for_variable_reference(
             frame_id)
+
+        if thread_id is None:
+            body = CompletionsResponseBody([])
+            variables_response = pydevd_base_schema.build_response(
+                request,
+                kwargs={
+                    'body': body,
+                    'success': False,
+                    'message': 'Thread to get completions seems to have resumed already.'
+            })
+            return NetCommand(CMD_RETURN, 0, variables_response, is_json=True)
 
         # Note: line and column are 1-based (convert to 0-based for pydevd).
         column = arguments.column - 1
@@ -339,11 +402,26 @@ class _PyDevJsonCommandProcessor(object):
         :param SetBreakpointsRequest request:
         '''
         arguments = request.arguments  # : :type arguments: SetBreakpointsArguments
+        # TODO: Path is optional here it could be source reference.
         filename = arguments.source.path
         filename = self.api.filename_to_server(filename)
         func_name = 'None'
 
         self.api.remove_all_breakpoints(py_db, filename)
+
+        # Validate breakpoints and adjust their positions.
+        try:
+            lines = sorted(_get_code_lines(filename))
+        except Exception:
+            pass
+        else:
+            for bp in arguments.breakpoints:
+                line = bp['line']
+                if line not in lines:
+                    # Adjust to the first preceding valid line.
+                    idx = bisect.bisect_left(lines, line)
+                    if idx > 0:
+                        bp['line'] = lines[idx - 1]
 
         btype = 'python-line'
         suspend_policy = 'ALL'
@@ -377,10 +455,10 @@ class _PyDevJsonCommandProcessor(object):
             # Note that the id is made up (the id for pydevd is unique only within a file, so, the
             # line is used for it).
             # Also, the id is currently not used afterwards, so, we don't even keep a mapping.
-            breakpoints_set.append({'id':self._next_breakpoint_id(), 'verified': True, 'line': line})
+            breakpoints_set.append({'id': self._next_breakpoint_id(), 'verified': True, 'line': line})
 
         body = {'breakpoints': breakpoints_set}
-        set_breakpoints_response = pydevd_base_schema.build_response(request, kwargs={'body':body})
+        set_breakpoints_response = pydevd_base_schema.build_response(request, kwargs={'body': body})
         return NetCommand(CMD_RETURN, 0, set_breakpoints_response, is_json=True)
 
     def on_setexceptionbreakpoints_request(self, py_db, request):
@@ -481,11 +559,13 @@ class _PyDevJsonCommandProcessor(object):
         # : :type stack_trace_arguments: StackTraceArguments
         stack_trace_arguments = request.arguments
         thread_id = stack_trace_arguments.threadId
+        start_frame = stack_trace_arguments.startFrame
+        levels = stack_trace_arguments.levels
 
         fmt = stack_trace_arguments.format
         if hasattr(fmt, 'to_dict'):
             fmt = fmt.to_dict()
-        self.api.request_stack(py_db, request.seq, thread_id, fmt)
+        self.api.request_stack(py_db, request.seq, thread_id, fmt=fmt, start_frame=start_frame, levels=levels)
 
     def on_exceptioninfo_request(self, py_db, request):
         '''
@@ -493,7 +573,7 @@ class _PyDevJsonCommandProcessor(object):
         '''
         # : :type exception_into_arguments: ExceptionInfoArguments
         exception_into_arguments = request.arguments
-        thread_id = exception_into_arguments.threadId            
+        thread_id = exception_into_arguments.threadId
         max_frames = int(self._debug_options['args'].get('maxExceptionStackFrames', 0))
         self.api.request_exception_info_json(py_db, request, thread_id, max_frames)
 
@@ -660,6 +740,53 @@ class _PyDevJsonCommandProcessor(object):
             return NetCommand(CMD_RETURN, 0, response, is_json=True)
 
         self.api.request_set_next(py_db, thread_id, CMD_SET_NEXT_STATEMENT, line, '*')
+        response = pydevd_base_schema.build_response(request, kwargs={'body': {}})
+        return NetCommand(CMD_RETURN, 0, response, is_json=True)
+
+    def _can_set_dont_trace_pattern(self, py_db, start_patterns, end_patterns):
+        if py_db.is_cache_file_type_empty():
+            return True
+
+        if py_db.dont_trace_external_files.__name__ == 'dont_trace_files_property_request':
+            return py_db.dont_trace_external_files.start_patterns == start_patterns and \
+                py_db.dont_trace_external_files.end_patterns == end_patterns
+
+        return False
+
+    def on_setdebuggerproperty_request(self, py_db, request):
+        args = request.arguments.kwargs
+        if 'dontTraceStartPatterns' in args and 'dontTraceEndPatterns' in args:
+            start_patterns = tuple(args['dontTraceStartPatterns'])
+            end_patterns = tuple(args['dontTraceEndPatterns'])
+            if self._can_set_dont_trace_pattern(py_db, start_patterns, end_patterns):
+
+                def dont_trace_files_property_request(abs_path):
+                    result = abs_path.startswith(start_patterns) or \
+                            abs_path.endswith(end_patterns)
+                    return result
+
+                dont_trace_files_property_request.start_patterns = start_patterns
+                dont_trace_files_property_request.end_patterns = end_patterns
+                py_db.dont_trace_external_files = dont_trace_files_property_request
+            else:
+                # Don't trace pattern cannot be changed after it is set once. There are caches
+                # throughout the debugger which rely on always having the same file type.
+                message = ("Calls to set or change don't trace patterns (via setDebuggerProperty) are not "
+                           "allowed since debugging has already started or don't trace patterns are already set.")
+                pydevd_log(0, message)
+                response_args = {'success':False, 'body': {}, 'message': message}
+                response = pydevd_base_schema.build_response(request, kwargs=response_args)
+                return NetCommand(CMD_RETURN, 0, response, is_json=True)
+
+        # TODO: Support other common settings. Note that not all of these might be relevant to python.
+        # JustMyCodeStepping: 0 or 1
+        # AllowOutOfProcessSymbols: 0 or 1
+        # DisableJITOptimization: 0 or 1
+        # InterpreterOptions: 0 or 1
+        # StopOnExceptionCrossingManagedBoundary: 0 or 1
+        # WarnIfNoUserCodeOnLaunch: 0 or 1
+        # EnableStepFiltering: true of false
+
         response = pydevd_base_schema.build_response(request, kwargs={'body': {}})
         return NetCommand(CMD_RETURN, 0, response, is_json=True)
 
