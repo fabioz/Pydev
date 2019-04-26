@@ -1103,6 +1103,9 @@ public class NodeUtils {
 
     public static String getStringToPrint(Str node) {
         StringBuffer buffer = new StringBuffer();
+        if (node.fstring) {
+            buffer.append("f");
+        }
         if (node.unicode) {
             buffer.append("u");
         }
