@@ -7,6 +7,22 @@ import org.python.pydev.parser.jython.ParseException;
 
 public class OccurrencesAnalyzerPy36Test extends AnalysisTestsBase {
 
+    public static void main(String[] args) {
+        try {
+            OccurrencesAnalyzerPy36Test analyzer2 = new OccurrencesAnalyzerPy36Test();
+            analyzer2.setUp();
+            analyzer2.testNoDuplicateOnTypingOverride();
+            analyzer2.tearDown();
+            System.out.println("finished");
+
+            junit.textui.TestRunner.run(OccurrencesAnalyzerPy36Test.class);
+            System.out.println("finished all");
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+        System.exit(0);
+    }
+
     private int initialGrammar;
 
     @Override
@@ -314,6 +330,28 @@ public class OccurrencesAnalyzerPy36Test extends AnalysisTestsBase {
                         "    f'{d[\ny]}'" +
                         "");
         checkError("Undefined variable: y");
+    }
+
+    public void testNoDuplicateOnTypingOverride() {
+        doc = new Document(""
+                + "import typing\n"
+                + "\n"
+                + "class A:\n" +
+                "    @typing.overload\n" +
+                "    def spam(self, n:int):\n" +
+                "        pass\n" +
+                "\n" +
+                "    @typing.overload\n" +
+                "    def spam(self, n:str):\n" +
+                "        pass\n" +
+                "\n" +
+                "    def spam(self, n):\n" +
+                "        pass\n" +
+                "");
+        analyzer = new OccurrencesAnalyzer();
+        // Seems like we aren't getting it from the library (but that's ok, just check that
+        // Duplicated signature: spam does not appear).
+        checkError("Unresolved import: typing");
     }
 
 }

@@ -37,7 +37,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testBuiltInAssignment7();
+            // analyzer2.testNoDuplicateOnTypingOverride();
             analyzer2.tearDown();
             System.out.println("finished");
 
