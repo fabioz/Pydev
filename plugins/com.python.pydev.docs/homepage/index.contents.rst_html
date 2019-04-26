@@ -163,6 +163,24 @@ LiClipse you directly support the development of PyDev).</p>
 <p>Thank you to all PyDev supporters: <a class="reference external" href="https://www.brainwy.com/supporters/PyDev">https://www.brainwy.com/supporters/PyDev</a>.</p>
 <p>To show your appreciation for PyDev and to keep it going strong, help to crowdfund through <a class="reference external" href="https://www.patreon.com/fabioz">https://www.patreon.com/fabioz</a>.</p>
 </div>
+<div class="section" id="release-7-2-1-2019-04-26">
+<h1>Release 7.2.1 (2019-04-26)</h1>
+<ul>
+<li><p class="first">Debugger improvements (updated to pydevd 1.6.1).</p>
+<blockquote>
+<ul class="simple">
+<li>IronPython is debuggable again.</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first">Improved performance of code which checked if some text was a link in the console (which was the cause for some delays when too much text was printed in the console).</p>
+</li>
+<li><p class="first">Duplicate signature is no longer reported with typing.orverload (<strong>#PyDev-970</strong>).</p>
+</li>
+<li><p class="first">Fixed highlighting variables in f-strings (<strong>#PyDev-973</strong>).</p>
+</li>
+</ul>
+</div>
 <div class="section" id="release-7-2-0-2019-03-25">
 <h1>Release 7.2.0 (2019-03-25)</h1>
 <ul>
@@ -188,57 +206,6 @@ LiClipse you directly support the development of PyDev).</p>
 <li>Fixed issue where the auto-formatter changed only the <strong>\n</strong> in a <strong>\r\n</strong> and the editor presentation became wrong.</li>
 <li>Many debugger improvements (updated to pydevd 1.5.0).</li>
 <li>To use the interactive console in IPython mode, the following environment variable must be set: <strong>IPYTHONENABLE=True</strong> (previously it was enabled whenever IPython was available).</li>
-</ul>
-</div>
-<div class="section" id="release-7-0-3-2018-11-08">
-<h1>Release 7.0.3 (2018-11-08)</h1>
-<ul>
-<li><p class="first"><strong>Mypy</strong></p>
-<blockquote>
-<ul class="simple">
-<li>PyDev can now use Mypy when doing code analysis.</li>
-</ul>
-</blockquote>
-</li>
-<li><p class="first"><strong>Black Formatter</strong></p>
-<blockquote>
-<ul class="simple">
-<li>PyDev can now use black as the code formatting engine.</li>
-</ul>
-</blockquote>
-</li>
-<li><p class="first"><strong>Virtual environments</strong></p>
-<blockquote>
-<ul>
-<li><p class="first">It's now possible to use pipenv for managing virtual environments.</p>
-</li>
-<li><p class="first">It's possible to manage virtual environments from the editor.</p>
-<blockquote>
-<ul class="simple">
-<li>Ctrl+2, pip &lt;command&gt;</li>
-<li>Ctrl+2, pipenv &lt;command&gt;</li>
-<li>Ctrl+2, conda &lt;command&gt;</li>
-</ul>
-</blockquote>
-</li>
-</ul>
-</blockquote>
-</li>
-<li><p class="first"><strong>Debugger</strong></p>
-<blockquote>
-<ul class="simple">
-<li>Should be <strong>much</strong> faster for those on Python 3.6 onwards with cython extensions (using frame evaluation).</li>
-</ul>
-</blockquote>
-</li>
-<li><p class="first">The Python 3.7 grammar is now available as an option (even though it's the same as 3.6).</p>
-</li>
-<li><p class="first">Removed support for using the Python 2.4 grammar.</p>
-</li>
-<li><p class="first">The 2to3 integration shows a better dialog.</p>
-</li>
-<li><p class="first">It's possible to autogenerate docstring parameters using the Google Code format (patch by ghbcode).</p>
-</li>
 </ul>
 <p><a class="reference external" href="history_pydev.html">View release notes for previous releases</a></p>
 </div>

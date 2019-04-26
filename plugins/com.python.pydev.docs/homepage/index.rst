@@ -195,6 +195,17 @@ To show your appreciation for PyDev and to keep it going strong, help to crowdfu
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
+Release 7.2.1 (2019-04-26)
+=============================
+
+* Debugger improvements (updated to pydevd 1.6.1).
+
+	* IronPython is debuggable again.
+
+* Improved performance of code which checked if some text was a link in the console (which was the cause for some delays when too much text was printed in the console).
+* Duplicate signature is no longer reported with typing.orverload (**#PyDev-970**).
+* Fixed highlighting variables in f-strings (**#PyDev-973**).
+
 Release 7.2.0 (2019-03-25)
 =============================
 
@@ -222,37 +233,6 @@ Release 7.1.0 (2019-02-03)
 
 * To use the interactive console in IPython mode, the following environment variable must be set: **IPYTHONENABLE=True** (previously it was enabled whenever IPython was available).
 
-Release 7.0.3 (2018-11-08)
-=============================
-
-* **Mypy**
-
-	* PyDev can now use Mypy when doing code analysis.
-
-* **Black Formatter**
-
-	* PyDev can now use black as the code formatting engine.
-
-* **Virtual environments**
-
-	* It's now possible to use pipenv for managing virtual environments.
-	* It's possible to manage virtual environments from the editor.
-
-		* Ctrl+2, pip <command>
-		* Ctrl+2, pipenv <command>
-		* Ctrl+2, conda <command>
-
-* **Debugger**
-
-	* Should be **much** faster for those on Python 3.6 onwards with cython extensions (using frame evaluation).
-
-* The Python 3.7 grammar is now available as an option (even though it's the same as 3.6).
-
-* Removed support for using the Python 2.4 grammar.
-
-* The 2to3 integration shows a better dialog.
-
-* It's possible to autogenerate docstring parameters using the Google Code format (patch by ghbcode).
 
 
 `View release notes for previous releases`_

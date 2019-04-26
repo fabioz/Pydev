@@ -5,6 +5,17 @@ History For PyDev
 .. _`update sites page`: update_sites/index.html
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
+Release 7.2.1 (2019-04-26)
+=============================
+
+* Debugger improvements (updated to pydevd 1.6.1).
+
+	* IronPython is debuggable again.
+
+* Improved performance of code which checked if some text was a link in the console (which was the cause for some delays when too much text was printed in the console).
+* Duplicate signature is no longer reported with typing.orverload (**#PyDev-970**).
+* Fixed highlighting variables in f-strings (**#PyDev-973**).
+
 
 
 Release 7.2.0 (2019-03-25)

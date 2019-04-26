@@ -4,6 +4,24 @@
 
 <div class="section" id="history-for-pydev">
 <h1>History For PyDev</h1>
+<div class="section" id="release-7-2-1-2019-04-26">
+<h2>Release 7.2.1 (2019-04-26)</h2>
+<ul>
+<li><p class="first">Debugger improvements (updated to pydevd 1.6.1).</p>
+<blockquote>
+<ul class="simple">
+<li>IronPython is debuggable again.</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first">Improved performance of code which checked if some text was a link in the console (which was the cause for some delays when too much text was printed in the console).</p>
+</li>
+<li><p class="first">Duplicate signature is no longer reported with typing.orverload (<strong>#PyDev-970</strong>).</p>
+</li>
+<li><p class="first">Fixed highlighting variables in f-strings (<strong>#PyDev-973</strong>).</p>
+</li>
+</ul>
+</div>
 <div class="section" id="release-7-2-0-2019-03-25">
 <h2>Release 7.2.0 (2019-03-25)</h2>
 <ul>
