@@ -2234,10 +2234,11 @@ def test_debug_zip_files(case_setup, tmpdir):
 
 
 @pytest.mark.skipif(not IS_CPYTHON, reason='CPython only test.')
-def test_multiprocessing_simple(case_setup_multiprocessing):
+@pytest.mark.parametrize('file_to_check', ['_debugger_case_multiprocessing.py', '_debugger_case_python_c.py', '_debugger_case_multiprocessing_pool.py'])
+def test_multiprocessing_simple(case_setup_multiprocessing, file_to_check):
     import threading
     from tests_python.debugger_unittest import AbstractWriterThread
-    with case_setup_multiprocessing.test_file('_debugger_case_multiprocessing.py') as writer:
+    with case_setup_multiprocessing.test_file(file_to_check) as writer:
         break1_line = writer.get_line_index_with_content('break 1 here')
         break2_line = writer.get_line_index_with_content('break 2 here')
 
