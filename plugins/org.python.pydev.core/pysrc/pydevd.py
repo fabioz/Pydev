@@ -34,10 +34,10 @@ from _pydevd_bundle.pydevd_comm_constants import (CMD_THREAD_SUSPEND, CMD_STEP_I
     CMD_STEP_INTO_MY_CODE, CMD_STEP_OVER, CMD_SMART_STEP_INTO, CMD_RUN_TO_LINE,
     CMD_SET_NEXT_STATEMENT, CMD_STEP_RETURN, CMD_ADD_EXCEPTION_BREAK, CMD_STEP_RETURN_MY_CODE,
     CMD_STEP_OVER_MY_CODE)
-from _pydevd_bundle.pydevd_constants import (IS_JYTH_LESS25, IS_PYCHARM, get_thread_id, get_current_thread_id,
+from _pydevd_bundle.pydevd_constants import (IS_JYTH_LESS25, get_thread_id, get_current_thread_id,
     dict_keys, dict_iter_items, DebugInfoHolder, PYTHON_SUSPEND, STATE_SUSPEND, STATE_RUN, get_frame,
     clear_cached_thread_id, INTERACTIVE_MODE_AVAILABLE, SHOW_DEBUG_INFO_ENV, IS_PY34_OR_GREATER, IS_PY2, NULL,
-    NO_FTRACE, GOTO_HAS_RESPONSE, IS_IRONPYTHON)
+    NO_FTRACE, IS_IRONPYTHON)
 from _pydevd_bundle.pydevd_custom_frames import CustomFramesContainer, custom_frames_container_init
 from _pydevd_bundle.pydevd_dont_trace_files import DONT_TRACE, PYDEV_FILE
 from _pydevd_bundle.pydevd_extension_api import DebuggerEventHandler
@@ -58,7 +58,7 @@ import pydevd_tracing
 from _pydevd_bundle.pydevd_comm import InternalThreadCommand, InternalThreadCommandForAnyThread
 from _pydevd_bundle.pydevd_comm import(InternalConsoleExec,
     PyDBDaemonThread, _queue, ReaderThread, GetGlobalDebugger, get_global_debugger,
-    set_global_debugger, WriterThread, pydevd_log,
+    set_global_debugger, WriterThread,
     start_client, start_server, InternalGetBreakpointException, InternalSendCurrExceptionTrace,
     InternalSendCurrExceptionTraceProceeded, run_as_pydevd_daemon_thread)
 
@@ -164,7 +164,7 @@ class PyDBCommandThread(PyDBDaemonThread):
                 try:
                     self.py_db.process_internal_commands()
                 except:
-                    pydevd_log(0, 'Finishing debug communication...(2)')
+                    pydev_log.info('Finishing debug communication...(2)')
                 self._py_db_command_thread_event.clear()
                 self._py_db_command_thread_event.wait(0.3)
         except:
@@ -176,7 +176,7 @@ class PyDBCommandThread(PyDBDaemonThread):
                 pass
 
             # only got this error in interpreter shutdown
-            # pydevd_log(0, 'Finishing debug communication...(3)')
+            # pydev_log.info('Finishing debug communication...(3)')
 
 
 #=======================================================================================================================
@@ -201,7 +201,7 @@ class CheckOutputThread(PyDBDaemonThread):
                     self.py_db.finish_debugging_session()
                     kill_all_pydev_threads()
                 except:
-                    traceback.print_exc()
+                    pydev_log.exception()
 
                 self.killReceived = True
 
@@ -426,6 +426,9 @@ class PyDB(object):
         # find that thread alive anymore, we must remove it from this list and make the java side know that the thread
         # was killed.
         self._running_thread_ids = {}
+        # Note: also access '_enable_thread_notifications' with '_lock_running_thread_ids'
+        self._enable_thread_notifications = False
+
         self._set_breakpoints_with_id = False
 
         # This attribute holds the file-> lines which have an @IgnoreException.
@@ -538,7 +541,7 @@ class PyDB(object):
                     info.conditional_breakpoint_exception = \
                         ('Condition:\n' + condition + '\n\nError:\n' + error, stack)
                 except:
-                    traceback.print_exc()
+                    pydev_log.exception()
                 return True
 
             return False
@@ -698,6 +701,10 @@ class PyDB(object):
         return self.plugin
 
     def in_project_scope(self, filename):
+        '''
+        Note: in general this method should not be used (apply_files_filter should be used
+        in most cases as it also handles the project scope check).
+        '''
         try:
             return self._in_project_scope_cache[filename]
         except KeyError:
@@ -966,6 +973,9 @@ class PyDB(object):
             return
 
         with self._lock_running_thread_ids if use_lock else NULL:
+            if not self._enable_thread_notifications:
+                return
+
             if thread_id in self._running_thread_ids:
                 return
 
@@ -985,6 +995,9 @@ class PyDB(object):
             return
 
         with self._lock_running_thread_ids if use_lock else NULL:
+            if not self._enable_thread_notifications:
+                return
+
             thread = self._running_thread_ids.pop(thread_id, None)
             if thread is None:
                 return
@@ -994,6 +1007,16 @@ class PyDB(object):
                 thread.additional_info.pydev_notify_kill = True
 
         self.writer.add_command(self.cmd_factory.make_thread_killed_message(thread_id))
+
+    def set_enable_thread_notifications(self, enable):
+        with self._lock_running_thread_ids:
+            if self._enable_thread_notifications != enable:
+                self._enable_thread_notifications = enable
+
+                if enable:
+                    # As it was previously disabled, we have to notify about existing threads again
+                    # (so, clear the cache related to that).
+                    self._running_thread_ids = {}
 
     def process_internal_commands(self):
         '''This function processes internal commands
@@ -1011,7 +1034,7 @@ class PyDB(object):
                     if getattr(t, 'is_pydev_daemon_thread', False):
                         pass  # I.e.: skip the DummyThreads created from pydev daemon threads
                     elif isinstance(t, PyDBDaemonThread):
-                        pydev_log.error_once('Error in debugger: Found PyDBDaemonThread not marked with is_pydev_daemon_thread=True.\n')
+                        pydev_log.error_once('Error in debugger: Found PyDBDaemonThread not marked with is_pydev_daemon_thread=True.')
 
                     elif is_thread_alive(t):
                         if reset_cache:
@@ -1065,14 +1088,14 @@ class PyDB(object):
                                     self.init_matplotlib_in_debug_console()
                                     self.mpl_in_use = True
                                 except:
-                                    pydevd_log(2, "Matplotlib support in debug console failed", traceback.format_exc())
+                                    pydev_log.debug("Matplotlib support in debug console failed", traceback.format_exc())
                                 self.mpl_hooks_in_debug_console = True
 
                             if int_cmd.can_be_executed_by(curr_thread_id):
-                                pydevd_log(2, "processing internal command ", str(int_cmd))
+                                pydev_log.verbose("processing internal command ", int_cmd)
                                 int_cmd.do_it(self)
                             else:
-                                pydevd_log(2, "NOT processing internal command ", str(int_cmd))
+                                pydev_log.verbose("NOT processing internal command ", int_cmd)
                                 cmds_to_add_back.append(int_cmd)
 
                     except _queue.Empty:  # @UndefinedVariable
@@ -1113,21 +1136,21 @@ class PyDB(object):
                 ignore_libraries
             )
         except ImportError:
-            pydev_log.error("Error unable to add break on exception for: %s (exception could not be imported)\n" % (exception,))
+            pydev_log.critical("Error unable to add break on exception for: %s (exception could not be imported).", exception)
             return None
 
         if eb.notify_on_unhandled_exceptions:
             cp = self.break_on_uncaught_exceptions.copy()
             cp[exception] = eb
             if DebugInfoHolder.DEBUG_TRACE_BREAKPOINTS > 0:
-                pydev_log.error("Exceptions to hook on terminate: %s\n" % (cp,))
+                pydev_log.critical("Exceptions to hook on terminate: %s.", cp)
             self.break_on_uncaught_exceptions = cp
 
         if eb.notify_on_handled_exceptions:
             cp = self.break_on_caught_exceptions.copy()
             cp[exception] = eb
             if DebugInfoHolder.DEBUG_TRACE_BREAKPOINTS > 0:
-                pydev_log.error("Exceptions to hook always: %s\n" % (cp,))
+                pydev_log.critical("Exceptions to hook always: %s.", cp)
             self.break_on_caught_exceptions = cp
 
         return eb
@@ -1274,7 +1297,7 @@ class PyDB(object):
                         t.frame_id == frame_id:
                     t.cancel_event.set()
         except:
-            traceback.print_exc()
+            pydev_log.exception()
         finally:
             self._main_lock.release()
 
@@ -1383,11 +1406,10 @@ class PyDB(object):
             except ValueError as e:
                 response_msg = "%s" % e
             finally:
-                if GOTO_HAS_RESPONSE:
-                    seq = info.pydev_message
-                    cmd = self.cmd_factory.make_set_next_stmnt_status_message(seq, stop, response_msg)
-                    self.writer.add_command(cmd)
-                    info.pydev_message = ''
+                seq = info.pydev_message
+                cmd = self.cmd_factory.make_set_next_stmnt_status_message(seq, stop, response_msg)
+                self.writer.add_command(cmd)
+                info.pydev_message = ''
 
             if stop:
                 # Uninstall the current frames tracker before running it.
@@ -1444,13 +1466,13 @@ class PyDB(object):
         return keep_suspended
 
     def do_stop_on_unhandled_exception(self, thread, frame, frames_byid, arg):
-        pydev_log.debug("We are stopping in post-mortem\n")
+        pydev_log.debug("We are stopping in unhandled exception.")
         try:
             add_exception_to_frame(frame, arg)
             self.set_suspend(thread, CMD_ADD_EXCEPTION_BREAK)
             self.do_wait_suspend(thread, frame, 'exception', arg, is_unhandled_exception=True)
         except:
-            pydev_log.error("We've got an error while stopping in post-mortem: %s\n" % (arg[0],))
+            pydev_log.exception("We've got an error while stopping in unhandled exception: %s.", arg[0])
         finally:
             remove_exception_from_frame(frame)
             frame = None
@@ -1622,7 +1644,7 @@ class PyDB(object):
                 self.init_matplotlib_support()
         except:
             sys.stderr.write("Matplotlib support in debugger failed\n")
-            traceback.print_exc()
+            pydev_log.exception()
 
         if hasattr(sys, 'exc_clear'):
             # we should clean exception information in Python 2, before user's code execution
@@ -2148,7 +2170,7 @@ def main():
         setup = process_command_line(sys.argv)
         SetupHolder.setup = setup
     except ValueError:
-        traceback.print_exc()
+        pydev_log.exception()
         usage(1)
 
     if setup['print-in-debugger-startup']:
@@ -2205,18 +2227,16 @@ def main():
                     try:
                         pydev_monkey.patch_new_process_functions()
                     except:
-                        pydev_log.error("Error patching process functions\n")
-                        traceback.print_exc()
+                        pydev_log.exception("Error patching process functions.")
                 else:
-                    pydev_log.error("pydev debugger: couldn't get port for new debug process\n")
+                    pydev_log.critical("pydev debugger: couldn't get port for new debug process.")
             finally:
                 dispatcher.close()
         else:
             try:
                 pydev_monkey.patch_new_process_functions_with_warning()
             except:
-                pydev_log.error("Error patching process functions\n")
-                traceback.print_exc()
+                pydev_log.exception("Error patching process functions.")
 
             # Only do this patching if we're not running with multiprocess turned on.
             if f.find('dev_appserver.py') != -1:
@@ -2244,7 +2264,7 @@ def main():
                             finally:
                                 stream.close()
                         except:
-                            traceback.print_exc()
+                            pydev_log.exception()
 
     try:
         # In the default run (i.e.: run directly on debug mode), we try to patch stackless as soon as possible
@@ -2300,7 +2320,7 @@ def main():
             debugger.connect(host, port)
         except:
             sys.stderr.write("Could not connect to %s: %s\n" % (host, port))
-            traceback.print_exc()
+            pydev_log.exception()
             sys.exit(1)
 
         global connected

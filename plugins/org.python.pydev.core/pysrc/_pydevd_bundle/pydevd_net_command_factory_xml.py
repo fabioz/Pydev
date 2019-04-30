@@ -1,6 +1,5 @@
 import json
 import sys
-import traceback
 
 from _pydev_bundle.pydev_is_thread_alive import is_thread_alive
 from _pydev_imps._pydev_saved_modules import thread
@@ -27,6 +26,7 @@ from pydevd_file_utils import get_abs_path_real_path_and_base_from_frame
 import pydevd_file_utils
 from pydevd_tracing import get_exception_traceback_str
 from _pydev_bundle._pydev_completer import completions_to_xml
+from _pydev_bundle import pydev_log
 
 if IS_IRONPYTHON:
 
@@ -73,7 +73,7 @@ class NetCommandFactory(object):
         frame_description = pydevd_xml.make_valid_xml_value(frame_description)
         return NetCommand(CMD_THREAD_CREATE, 0, '<xml><thread name="%s" id="%s"/></xml>' % (frame_description, frame_id))
 
-    def make_list_threads_message(self, seq):
+    def make_list_threads_message(self, py_db, seq):
         """ returns thread listing as XML """
         try:
             threads = get_non_pydevd_threads()
@@ -146,9 +146,9 @@ class NetCommandFactory(object):
         except:
             return self.make_error_message(seq, get_exception_traceback_str())
 
-    def make_thread_killed_message(self, id):
+    def make_thread_killed_message(self, tid):
         try:
-            return NetCommand(CMD_THREAD_KILL, 0, str(id))
+            return NetCommand(CMD_THREAD_KILL, 0, str(tid))
         except:
             return self.make_error_message(0, get_exception_traceback_str())
 
@@ -205,7 +205,7 @@ class NetCommandFactory(object):
                 append('file="%s" line="%s">' % (quote(make_valid_xml_value(filename_in_utf8), '/>_= \t'), lineno))
                 append("</frame>")
         except:
-            traceback.print_exc()
+            pydev_log.exception()
 
         curr_frame = None  # Clear frame reference
         return ''.join(cmd_text_list)

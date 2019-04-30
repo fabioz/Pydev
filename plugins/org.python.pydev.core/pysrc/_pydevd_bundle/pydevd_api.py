@@ -62,11 +62,11 @@ class PyDevdAPI(object):
                 # We should remove saved return values
                 py_db.remove_return_values_flag = True
             py_db.show_return_values = False
-        pydev_log.debug("Show return values: %s\n" % py_db.show_return_values)
+        pydev_log.debug("Show return values: %s", py_db.show_return_values)
 
     def list_threads(self, py_db, seq):
         # Response is the command with the list of threads to be added to the writer thread.
-        return py_db.cmd_factory.make_list_threads_message(seq)
+        return py_db.cmd_factory.make_list_threads_message(py_db, seq)
 
     def request_suspend_thread(self, py_db, thread_id='*'):
         # Yes, thread suspend is done at this point, not through an internal command.
@@ -93,6 +93,17 @@ class PyDevdAPI(object):
             # Break here (even if it's suspend all) as py_db.set_suspend will
             # take care of suspending other threads.
             break
+
+    def set_enable_thread_notifications(self, py_db, enable):
+        '''
+        When disabled, no thread notifications (for creation/removal) will be
+        issued until it's re-enabled.
+
+        Note that when it's re-enabled, a creation notification will be sent for
+        all existing threads even if it was previously sent (this is meant to
+        be used on disconnect/reconnect).
+        '''
+        py_db.set_enable_thread_notifications(enable)
 
     def request_resume_thread(self, thread_id):
         threads = []
@@ -145,10 +156,10 @@ class PyDevdAPI(object):
         elif thread_id.startswith('__frame__:'):
             sys.stderr.write("Can't make tasklet step command: %s\n" % (thread_id,))
 
-    def request_set_next(self, py_db, thread_id, set_next_cmd_id, line, func_name):
+    def request_set_next(self, py_db, seq, thread_id, set_next_cmd_id, line, func_name):
         t = pydevd_find_thread_by_id(thread_id)
         if t:
-            int_cmd = InternalSetNextStatementThread(thread_id, set_next_cmd_id, line, func_name)
+            int_cmd = InternalSetNextStatementThread(thread_id, set_next_cmd_id, line, func_name, seq=seq)
             py_db.post_internal_command(int_cmd, thread_id)
         elif thread_id.startswith('__frame__:'):
             sys.stderr.write("Can't set next statement in tasklet: %s\n" % (thread_id,))
@@ -258,9 +269,8 @@ class PyDevdAPI(object):
         assert func_name.__class__ == str  # i.e.: bytes on py2 and str on py3
 
         if not pydevd_file_utils.exists(filename):
-            sys.stderr.write('pydev debugger: warning: trying to add breakpoint'\
+            pydev_log.critical('pydev debugger: warning: trying to add breakpoint'\
                 ' to file that does not exist: %s (will have no effect)\n' % (filename,))
-            sys.stderr.flush()
             return
 
         if breakpoint_type == 'python-line':
@@ -285,8 +295,7 @@ class PyDevdAPI(object):
             raise NameError(breakpoint_type)
 
         if DebugInfoHolder.DEBUG_TRACE_BREAKPOINTS > 0:
-            pydev_log.debug('Added breakpoint:%s - line:%s - func_name:%s\n' % (filename, line, func_name))
-            sys.stderr.flush()
+            pydev_log.debug('Added breakpoint:%s - line:%s - func_name:%s\n', filename, line, func_name)
 
         if filename in file_to_id_to_breakpoint:
             id_to_pybreakpoint = file_to_id_to_breakpoint[filename]
@@ -352,14 +361,14 @@ class PyDevdAPI(object):
                 breakpoints = result
 
         if file_to_id_to_breakpoint is None:
-            pydev_log.error('Error removing breakpoint. Cant handle breakpoint of type %s' % breakpoint_type)
+            pydev_log.critical('Error removing breakpoint. Cannot handle breakpoint of type %s', breakpoint_type)
 
         else:
             try:
                 id_to_pybreakpoint = file_to_id_to_breakpoint.get(filename, {})
                 if DebugInfoHolder.DEBUG_TRACE_BREAKPOINTS > 0:
                     existing = id_to_pybreakpoint[breakpoint_id]
-                    sys.stderr.write('Removed breakpoint:%s - line:%s - func_name:%s (id: %s)\n' % (
+                    pydev_log.info('Removed breakpoint:%s - line:%s - func_name:%s (id: %s)\n' % (
                         filename, existing.line, existing.func_name.encode('utf-8'), breakpoint_id))
 
                 del id_to_pybreakpoint[breakpoint_id]
@@ -368,8 +377,8 @@ class PyDevdAPI(object):
                     py_db.has_plugin_line_breaks = py_db.plugin.has_line_breaks()
 
             except KeyError:
-                pydev_log.error("Error removing breakpoint: Breakpoint id not found: %s id: %s. Available ids: %s\n" % (
-                    filename, breakpoint_id, dict_keys(id_to_pybreakpoint)))
+                pydev_log.info("Error removing breakpoint: Breakpoint id not found: %s id: %s. Available ids: %s\n",
+                    filename, breakpoint_id, dict_keys(id_to_pybreakpoint))
 
         py_db.on_breakpoints_changed(removed=True)
 
@@ -454,7 +463,7 @@ class PyDevdAPI(object):
             cp.pop(exception, None)
             py_db.break_on_caught_exceptions = cp
         except:
-            pydev_log.debug("Error while removing exception %s" % sys.exc_info()[0])
+            pydev_log.exception("Error while removing exception %s", sys.exc_info()[0])
 
         py_db.on_breakpoints_changed(removed=True)
 

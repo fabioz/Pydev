@@ -1,5 +1,5 @@
-from functools import partial
 import bisect
+from functools import partial
 import itertools
 import json
 import linecache
@@ -9,9 +9,9 @@ import types
 from _pydevd_bundle._debug_adapter import pydevd_base_schema
 from _pydevd_bundle._debug_adapter.pydevd_schema import (SourceBreakpoint, ScopesResponseBody, Scope,
     VariablesResponseBody, SetVariableResponseBody, ModulesResponseBody, SourceResponseBody,
-    GotoTargetsResponseBody, ExceptionOptions)
+    GotoTargetsResponseBody, ExceptionOptions, SetExpressionResponseBody)
+from _pydevd_bundle._debug_adapter.pydevd_schema import CompletionsResponseBody
 from _pydevd_bundle.pydevd_api import PyDevdAPI
-from _pydevd_bundle.pydevd_comm import pydevd_log
 from _pydevd_bundle.pydevd_comm_constants import (
     CMD_RETURN, CMD_STEP_OVER_MY_CODE, CMD_STEP_OVER, CMD_STEP_INTO_MY_CODE,
     CMD_STEP_INTO, CMD_STEP_RETURN_MY_CODE, CMD_STEP_RETURN, CMD_SET_NEXT_STATEMENT)
@@ -20,15 +20,18 @@ from _pydevd_bundle.pydevd_json_debug_options import _extract_debug_options
 from _pydevd_bundle.pydevd_net_command import NetCommand
 from _pydevd_bundle.pydevd_utils import convert_dap_log_message_to_expression
 import pydevd_file_utils
-from _pydevd_bundle._debug_adapter.pydevd_schema import CompletionsResponseBody
-
+from _pydev_bundle import pydev_log
+from _pydevd_bundle.pydevd_constants import DebugInfoHolder
 
 try:
     import dis
 except ImportError:
+
     def _get_code_lines(code):
         raise NotImplementedError
+
 else:
+
     def _get_code_lines(code):
         if not isinstance(code, types.CodeType):
             path = code
@@ -52,6 +55,7 @@ else:
                         yield lineno
 
         return iterate()
+
 
 def _convert_rules_to_exclude_filters(rules, filename_to_server, on_error):
     exclude_filters = []
@@ -169,8 +173,8 @@ class _PyDevJsonCommandProcessor(object):
                 return NetCommand(CMD_RETURN, 0, error_response, is_json=True)
 
         else:
-            if DEBUG:
-                print('Process %s: %s\n' % (
+            if DebugInfoHolder.DEBUG_RECORD_SOCKET_READS and DebugInfoHolder.DEBUG_TRACE_LEVEL >= 1:
+                pydev_log.info('Process %s: %s\n' % (
                     request.__class__.__name__, json.dumps(request.to_dict(), indent=4, sort_keys=True),))
 
             assert request.type == 'request'
@@ -239,6 +243,13 @@ class _PyDevJsonCommandProcessor(object):
 
         self.api.request_completions(py_db, seq, thread_id, frame_id, text, line=line, column=column)
 
+    def _resolve_remote_root(self, local_root, remote_root):
+        if remote_root == '.':
+            cwd = os.getcwd()
+            append_pathsep = local_root.endswith('\\') or local_root.endswith('/')
+            return cwd + (os.path.sep if append_pathsep else '')
+        return remote_root
+
     def _set_debug_options(self, py_db, args):
         rules = args.get('rules')
         exclude_filters = []
@@ -258,10 +269,22 @@ class _PyDevJsonCommandProcessor(object):
         debug_stdlib = self._debug_options.get('DEBUG_STDLIB', False)
         self.api.set_use_libraries_filter(py_db, not debug_stdlib)
 
+        path_mappings = []
+        for pathMapping in args.get('pathMappings', []):
+            localRoot = pathMapping.get('localRoot', '')
+            remoteRoot = pathMapping.get('remoteRoot', '')
+            remoteRoot = self._resolve_remote_root(localRoot, remoteRoot)
+            if (localRoot != '') and (remoteRoot != ''):
+                path_mappings.append((localRoot, remoteRoot))
+
+        if bool(path_mappings):
+            pydevd_file_utils.setup_client_server_paths(path_mappings)
+
     def on_launch_request(self, py_db, request):
         '''
         :param LaunchRequest request:
         '''
+        self.api.set_enable_thread_notifications(py_db, True)
         self._set_debug_options(py_db, request.arguments.kwargs)
         response = pydevd_base_schema.build_response(request)
         return NetCommand(CMD_RETURN, 0, response, is_json=True)
@@ -270,6 +293,7 @@ class _PyDevJsonCommandProcessor(object):
         '''
         :param AttachRequest request:
         '''
+        self.api.set_enable_thread_notifications(py_db, True)
         self._set_debug_options(py_db, request.arguments.kwargs)
         response = pydevd_base_schema.build_response(request)
         return NetCommand(CMD_RETURN, 0, response, is_json=True)
@@ -390,6 +414,7 @@ class _PyDevJsonCommandProcessor(object):
         '''
         :param DisconnectRequest request:
         '''
+        self.api.set_enable_thread_notifications(py_db, False)
         self.api.remove_all_breakpoints(py_db, filename='*')
         self.api.remove_all_exception_breakpoints(py_db)
         self.api.request_resume_thread(thread_id='*')
@@ -612,8 +637,18 @@ class _PyDevJsonCommandProcessor(object):
         thread_id = py_db.suspended_frames_manager.get_thread_id_for_variable_reference(
             arguments.frameId)
 
-        self.api.request_set_expression_json(
-            py_db, request, thread_id)
+        if thread_id is not None:
+            self.api.request_set_expression_json(py_db, request, thread_id)
+        else:
+            body = SetExpressionResponseBody('')
+            response = pydevd_base_schema.build_response(
+                request,
+                kwargs={
+                    'body':body,
+                    'success': False,
+                    'message': 'Unable to find thread to set expression.'
+            })
+            return NetCommand(CMD_RETURN, 0, response, is_json=True)
 
     def on_variables_request(self, py_db, request):
         '''
@@ -640,7 +675,11 @@ class _PyDevJsonCommandProcessor(object):
         else:
             variables = []
             body = VariablesResponseBody(variables)
-            variables_response = pydevd_base_schema.build_response(request, kwargs={'body':body})
+            variables_response = pydevd_base_schema.build_response(request, kwargs={
+                'body':body,
+                'success': False,
+                'message': 'Unable to find thread to evaluate variable reference.'
+            })
             return NetCommand(CMD_RETURN, 0, variables_response, is_json=True)
 
     def on_setvariable_request(self, py_db, request):
@@ -702,7 +741,9 @@ class _PyDevJsonCommandProcessor(object):
         response_args = {'body': body}
 
         if content is None:
-            if server_filename:
+            if source_reference == 0:
+                message = 'Source unavailable'
+            elif server_filename:
                 message = 'Unable to retrieve source for %s' % (server_filename,)
             else:
                 message = 'Invalid sourceReference %d' % (source_reference,)
@@ -739,9 +780,9 @@ class _PyDevJsonCommandProcessor(object):
                 })
             return NetCommand(CMD_RETURN, 0, response, is_json=True)
 
-        self.api.request_set_next(py_db, thread_id, CMD_SET_NEXT_STATEMENT, line, '*')
-        response = pydevd_base_schema.build_response(request, kwargs={'body': {}})
-        return NetCommand(CMD_RETURN, 0, response, is_json=True)
+        self.api.request_set_next(py_db, request.seq, thread_id, CMD_SET_NEXT_STATEMENT, line, '*')
+        # See 'NetCommandFactoryJson.make_set_next_stmnt_status_message' for response
+        return None
 
     def _can_set_dont_trace_pattern(self, py_db, start_patterns, end_patterns):
         if py_db.is_cache_file_type_empty():
@@ -773,7 +814,7 @@ class _PyDevJsonCommandProcessor(object):
                 # throughout the debugger which rely on always having the same file type.
                 message = ("Calls to set or change don't trace patterns (via setDebuggerProperty) are not "
                            "allowed since debugging has already started or don't trace patterns are already set.")
-                pydevd_log(0, message)
+                pydev_log.critical(message)
                 response_args = {'success':False, 'body': {}, 'message': message}
                 response = pydevd_base_schema.build_response(request, kwargs=response_args)
                 return NetCommand(CMD_RETURN, 0, response, is_json=True)

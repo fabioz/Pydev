@@ -4,6 +4,7 @@ import sys
 import traceback
 
 from _pydev_bundle import pydev_log
+from _pydev_bundle.pydev_log import exception as pydev_log_exception
 from _pydevd_bundle import pydevd_traceproperty, pydevd_dont_trace, pydevd_utils
 from _pydevd_bundle.pydevd_additional_thread_info import set_additional_thread_info
 from _pydevd_bundle.pydevd_breakpoints import get_exception_class
@@ -47,8 +48,8 @@ class _PyDevCommandProcessor(object):
             if cmd is not None:
                 py_db.writer.add_command(cmd)
         except:
-            if traceback is not None and sys is not None:
-                traceback.print_exc()
+            if traceback is not None and sys is not None and pydev_log_exception is not None:
+                pydev_log_exception()
 
                 stream = StringIO()
                 traceback.print_exc(file=stream)
@@ -116,7 +117,12 @@ class _PyDevCommandProcessor(object):
         elif len(splitted) == 3:
             _local_version, ide_os, breakpoints_by = splitted
 
-        return self.api.set_ide_os_and_breakpoints_by(py_db, seq, ide_os, breakpoints_by)
+        version_msg = self.api.set_ide_os_and_breakpoints_by(py_db, seq, ide_os, breakpoints_by)
+
+        # Enable thread notifications after the version command is completed.
+        self.api.set_enable_thread_notifications(py_db, True)
+
+        return version_msg
 
     def cmd_thread_run(self, py_db, cmd_id, seq, text):
         return self.api.request_resume_thread(text.strip())
@@ -133,7 +139,7 @@ class _PyDevCommandProcessor(object):
 
     def _cmd_set_next(self, py_db, cmd_id, seq, text):
         thread_id, line, func_name = text.split('\t', 2)
-        return self.api.request_set_next(py_db, thread_id, cmd_id, line, func_name)
+        return self.api.request_set_next(py_db, seq, thread_id, cmd_id, line, func_name)
 
     cmd_run_to_line = _cmd_set_next
     cmd_set_next_statement = _cmd_set_next
@@ -264,7 +270,7 @@ class _PyDevCommandProcessor(object):
         try:
             breakpoint_id = int(breakpoint_id)
         except ValueError:
-            pydev_log.error('Error removing breakpoint. Expected breakpoint_id to be an int. Found: %s' % (breakpoint_id,))
+            pydev_log.critical('Error removing breakpoint. Expected breakpoint_id to be an int. Found: %s', breakpoint_id)
 
         else:
             self.api.remove_breakpoint(py_db, filename, breakpoint_type, breakpoint_id)
