@@ -17,5 +17,5 @@ if __name__ == '__main__':
         env=env,
     )
     stdout, stderr = p.communicate()
-    assert b'called' in stdout
+    assert b'called' in stdout, 'Did not find b"called" in: %s' % (stdout,)
     print('TEST SUCEEDED!')  # break 2 here

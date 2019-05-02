@@ -2234,7 +2234,11 @@ def test_debug_zip_files(case_setup, tmpdir):
 
 
 @pytest.mark.skipif(not IS_CPYTHON, reason='CPython only test.')
-@pytest.mark.parametrize('file_to_check', ['_debugger_case_multiprocessing.py', '_debugger_case_python_c.py', '_debugger_case_multiprocessing_pool.py'])
+@pytest.mark.parametrize('file_to_check', [
+    '_debugger_case_multiprocessing.py',
+    '_debugger_case_python_c.py',
+    '_debugger_case_multiprocessing_pool.py'
+])
 def test_multiprocessing_simple(case_setup_multiprocessing, file_to_check):
     import threading
     from tests_python.debugger_unittest import AbstractWriterThread
@@ -2255,24 +2259,35 @@ def test_multiprocessing_simple(case_setup_multiprocessing, file_to_check):
         class SecondaryProcessThreadCommunication(threading.Thread):
 
             def run(self):
+                # Note: on linux on Python 2 because on Python 2 CPython subprocess.call will actually
+                # create a fork first (at which point it'll connect) and then, later on it'll
+                # call the main (as if it was a clean process as if PyDB wasn't created
+                # the first time -- the debugger will still work, but it'll do an additional
+                # connection.
                 from tests_python.debugger_unittest import ReaderThread
-                server_socket.listen(1)
-                self.server_socket = server_socket
-                new_sock, addr = server_socket.accept()
+                expected_connections = 1
+                if sys.platform != 'win32' and IS_PY2 and file_to_check == '_debugger_case_python_c.py':
+                    expected_connections = 2
 
-                reader_thread = ReaderThread(new_sock)
-                reader_thread.name = '  *** Multiprocess Reader Thread'
-                reader_thread.start()
+                for _ in range(expected_connections):
+                    server_socket.listen(1)
+                    self.server_socket = server_socket
+                    new_sock, addr = server_socket.accept()
 
-                writer2 = SecondaryProcessWriterThread()
+                    reader_thread = ReaderThread(new_sock)
+                    reader_thread.name = '  *** Multiprocess Reader Thread'
+                    reader_thread.start()
 
-                writer2.reader_thread = reader_thread
-                writer2.sock = new_sock
+                    writer2 = SecondaryProcessWriterThread()
 
-                writer2.write_version()
-                writer2.write_add_breakpoint(break1_line)
-                writer2.write_add_breakpoint(break2_line)
-                writer2.write_make_initial_run()
+                    writer2.reader_thread = reader_thread
+                    writer2.sock = new_sock
+
+                    writer2.write_version()
+                    writer2.write_add_breakpoint(break1_line)
+                    writer2.write_add_breakpoint(break2_line)
+                    writer2.write_make_initial_run()
+
                 hit = writer2.wait_for_breakpoint_hit()
                 writer2.write_run_thread(hit.thread_id)
 
