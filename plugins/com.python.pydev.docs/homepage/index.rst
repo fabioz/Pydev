@@ -29,18 +29,19 @@
         <div class="section" id="bronze-sponsors">
         <h1>Bronze Sponsors</h1>
 
-        <a href="https://edubirdie.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/edubirdie.png" alt="EduBirdie/" title="https://edubirdie.com/" /></a>
+        <a href="https://bestwebhostingaustralia.org" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/aussie_hosting.png" alt="BestWebHostingAustralia" title="https://bestwebhostingaustralia.org" /></a>
+
+        <a href="https://edubirdie.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/edubirdie.png" alt="EduBirdie" title="https://edubirdie.com/" /></a>
 
         <a href="https://lainaa-helposti.fi/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/lainaa_helposti.png" alt="laina-helposti.fi" title="https://lainaa-helposti.fi/" /></a>
-        
+
         <a href="https://esportbetting.eu/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/esport_betting.png" alt="eSportBetting" title="https://esportbetting.eu/" /></a>
 
         <a href="https://www.privatkreditsofort.ch/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/privatkredit-sofort.png" alt="PrivatkreditSofort.ch" title="https://www.privatkreditsofort.ch/" /></a>
 
-        <a href="https://lejonfinans.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/lejofinans.png" alt="LejonFinans" title="https://lejonfinans.com/" /></a>
-
 
 		<br/>
+        <a href="https://lejonfinans.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/lejofinans.png" alt="LejonFinans" title="https://lejonfinans.com/" /></a>
 
         <a href="https://www.codefirst.co.uk/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/codefirst.png" alt="CodeFirst" title="https://www.codefirst.co.uk/" /></a>
 
@@ -50,10 +51,11 @@
 
         <a href="https://www.redfin.com/city/16163/WA/Seattle" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/redfin.png" alt="Redfin" title="https://www.redfin.com/city/16163/WA/Seattle" /></a>
 
-        <a href="https://slotcatalog.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/slotcatalog.png" alt="slotcatalog.com" title="https://slotcatalog.com" /></a>
 
 
 		<br/>
+        <a href="https://slotcatalog.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/slotcatalog.png" alt="slotcatalog.com" title="https://slotcatalog.com" /></a>
+
         <a href="https://www.immigrationlawofmt.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/immigrationlawofmt.png" alt="immigrationlawofmt" title="https://www.immigrationlawofmt.com" /></a>
 
         <a href="https://www.scams.info/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/scams-info.png" alt="scams.info" title="https://www.scams.info/" /></a>
@@ -62,10 +64,10 @@
 
         <a href="https://netotraffic.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/netotraffic.png" alt="Netotraffic" title="https://netotraffic.com/" /></a>
 
-        <a href="https://allesrefurbished.nl" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/alles_refurbished.png" alt="Alles Refurbished - overview of refurbished tablets, telephones and more (in Dutch)" title="Alles Refurbished - overview of refurbished tablets, telephones and more (in Dutch)" /></a>
 
 
 		<br/>
+        <a href="https://allesrefurbished.nl" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/alles_refurbished.png" alt="Alles Refurbished - overview of refurbished tablets, telephones and more (in Dutch)" title="Alles Refurbished - overview of refurbished tablets, telephones and more (in Dutch)" /></a>
 
         <a href="https://www.parcelabc.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/parcelabc-logo.jpg" alt="ParcelABC" title="ParcelABC" /></a>
 
@@ -188,6 +190,8 @@ Gold Sponsors
    <a href="http://www.squishlist.com/" border=0><img class="sponsors" src="images/sponsors/squishlist.png" alt="Squishlist" title="http://www.squishlist.com/" /></a>
    <!--Added 2014-07-16-->
    <a href="http://www.pyvmmonitor.com/" border=0><img class="sponsors" src="images/sponsors/pyvmmonitor.png" alt="PyVmMonitor" title="http://www.pyvmmonitor.com/" /></a>
+   <!--Added 2019-06-03-->
+   <a href="https://software.intel.com/distribution-for-python" border=0><img class="sponsors" src="images/sponsors/intel.png" alt="Intel" title="https://software.intel.com/distribution-for-python" /></a>
 
 Supporting PyDev
 =================
