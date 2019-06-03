@@ -42,7 +42,7 @@ public final class PydevConsoleConstants {
     public static final String DEBUG_CONSOLE_TYPE = "org.python.pydev.debug.newconsole.PydevDebugConsole";
 
     public static final String INTERACTIVE_CONSOLE_VM_ARGS = "INTERACTIVE_CONSOLE_VM_ARGS";
-    public static final String DEFAULT_INTERACTIVE_CONSOLE_VM_ARGS = "-Xmx64m";
+    public static final String DEFAULT_INTERACTIVE_CONSOLE_VM_ARGS = "-Xmx512m";
 
     public static final String INTERACTIVE_CONSOLE_ENCODING = "INTERACTIVE_CONSOLE_ENCODING";
     public static final String DEFAULT_INTERACTIVE_CONSOLE_ENCODING = "UTF-8";

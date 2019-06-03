@@ -257,8 +257,19 @@ class _PyDevCommandProcessor(object):
         filename = self.api.filename_to_server(filename)
         func_name = self.api.to_str(func_name)
 
-        self.api.add_breakpoint(
+        error_code = self.api.add_breakpoint(
             py_db, filename, btype, breakpoint_id, line, condition, func_name, expression, suspend_policy, hit_condition, is_logpoint)
+
+        if error_code:
+            if error_code == self.api.ADD_BREAKPOINT_FILE_NOT_FOUND:
+                pydev_log.critical('pydev debugger: warning: Trying to add breakpoint to file that does not exist: %s (will have no effect).' % (filename,))
+
+            elif error_code == self.api.ADD_BREAKPOINT_FILE_EXCLUDED_BY_FILTERS:
+                pydev_log.critical('pydev debugger: warning: Trying to add breakpoint to file that is excluded by filters: %s (will have no effect).' % (filename,))
+
+            else:
+                # Shouldn't get here.
+                pydev_log.critical('pydev debugger: warning: Breakpoint not validated (reason unknown -- please report as error): %s.' % (filename,))
 
     def cmd_remove_break(self, py_db, cmd_id, seq, text):
         # command to remove some breakpoint
@@ -569,7 +580,8 @@ class _PyDevCommandProcessor(object):
         pydevd_utils.dump_threads()
 
     def cmd_stop_on_start(self, py_db, cmd_id, seq, text):
-        py_db.stop_on_start = text.strip() in ('True', 'true', '1')
+        if text.strip() in ('True', 'true', '1'):
+            self.api.stop_on_entry()
 
     def cmd_pydevd_json_config(self, py_db, cmd_id, seq, text):
         # Expected to receive a json string as:
@@ -598,7 +610,7 @@ class _PyDevCommandProcessor(object):
             additional_info = set_additional_thread_info(t)
             frame = additional_info.get_topmost_frame(t)
         try:
-            return py_db.cmd_factory.make_get_exception_details_message(seq, thread_id, frame)
+            return py_db.cmd_factory.make_get_exception_details_message(py_db, seq, thread_id, frame)
         finally:
             frame = None
             t = None

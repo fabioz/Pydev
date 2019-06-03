@@ -187,10 +187,12 @@ def run_as_pydevd_daemon_thread(func, *args, **kwargs):
 class ReaderThread(PyDBDaemonThread):
     ''' reader thread reads and dispatches commands in an infinite loop '''
 
-    def __init__(self, sock):
+    def __init__(self, sock, terminate_on_socket_close=True):
+        assert sock is not None
         from _pydevd_bundle.pydevd_process_net_command_json import process_net_command_json
         from _pydevd_bundle.pydevd_process_net_command import process_net_command
         PyDBDaemonThread.__init__(self)
+        self._terminate_on_socket_close = terminate_on_socket_close
 
         self.sock = sock
         self._buffer = b''
@@ -199,13 +201,17 @@ class ReaderThread(PyDBDaemonThread):
         self.process_net_command_json = process_net_command_json
         self.global_debugger_holder = GlobalDebuggerHolder
 
+    @overrides(PyDBDaemonThread.do_kill_pydev_thread)
     def do_kill_pydev_thread(self):
+        PyDBDaemonThread.do_kill_pydev_thread(self)
         # We must close the socket so that it doesn't stay halted there.
-        self.killReceived = True
         try:
             self.sock.shutdown(SHUT_RD)  # shutdown the socket for read
         except:
-            # just ignore that
+            pass
+        try:
+            self.sock.close()
+        except:
             pass
 
     def _read(self, size):
@@ -221,7 +227,10 @@ class ReaderThread(PyDBDaemonThread):
                 self._buffer = self._buffer[size:]
                 return ret
 
-            r = self.sock.recv(max(size - buffer_len, 1024))
+            try:
+                r = self.sock.recv(max(size - buffer_len, 1024))
+            except OSError:
+                return b''
             if not r:
                 return b''
             self._buffer += r
@@ -235,7 +244,10 @@ class ReaderThread(PyDBDaemonThread):
                 self._buffer = self._buffer[i:]
                 return ret
             else:
-                r = self.sock.recv(1024)
+                try:
+                    r = self.sock.recv(1024)
+                except OSError:
+                    return b''
                 if not r:
                     return b''
                 self._buffer += r
@@ -313,7 +325,8 @@ class ReaderThread(PyDBDaemonThread):
             self.handle_except()
 
     def handle_except(self):
-        self.global_debugger_holder.global_dbg.finish_debugging_session()
+        if self._terminate_on_socket_close:
+            self.global_debugger_holder.global_dbg.finish_debugging_session()
 
     def process_command(self, cmd_id, seq, text):
         self.process_net_command(self.global_debugger_holder.global_dbg, cmd_id, seq, text)
@@ -322,9 +335,10 @@ class ReaderThread(PyDBDaemonThread):
 class WriterThread(PyDBDaemonThread):
     ''' writer thread writes out the commands in an infinite loop '''
 
-    def __init__(self, sock):
+    def __init__(self, sock, terminate_on_socket_close=True):
         PyDBDaemonThread.__init__(self)
         self.sock = sock
+        self._terminate_on_socket_close = terminate_on_socket_close
         self.setName("pydevd.Writer")
         self.cmdQueue = _queue.Queue()
         if pydevd_vm_type.get_vm_type() == 'python':
@@ -350,6 +364,9 @@ class WriterThread(PyDBDaemonThread):
                         if self.killReceived:
                             try:
                                 self.sock.shutdown(SHUT_WR)
+                            except:
+                                pass
+                            try:
                                 self.sock.close()
                             except:
                                 pass
@@ -370,16 +387,29 @@ class WriterThread(PyDBDaemonThread):
                     break  # interpreter shutdown
                 time.sleep(self.timeout)
         except Exception:
-            GlobalDebuggerHolder.global_dbg.finish_debugging_session()
-            if DebugInfoHolder.DEBUG_TRACE_LEVEL >= 0:
-                pydev_log_exception()
+            if self._terminate_on_socket_close:
+                GlobalDebuggerHolder.global_dbg.finish_debugging_session()
+                if DebugInfoHolder.DEBUG_TRACE_LEVEL > 0:
+                    pydev_log_exception()
 
     def empty(self):
         return self.cmdQueue.empty()
 
+    @overrides(PyDBDaemonThread.do_kill_pydev_thread)
+    def do_kill_pydev_thread(self):
+        PyDBDaemonThread.do_kill_pydev_thread(self)
+        # We must close the socket so that it doesn't stay halted there.
+        try:
+            self.sock.shutdown(SHUT_WR)  # shutdown the socket for write
+        except:
+            pass
+        try:
+            self.sock.close()
+        except:
+            pass
 
-def start_server(port):
-    ''' binds to a port, waits for the debugger to connect '''
+
+def create_server_socket(host, port):
     s = socket(AF_INET, SOCK_STREAM)
     s.settimeout(None)
 
@@ -389,20 +419,26 @@ def start_server(port):
     except ImportError:
         s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
 
-    s.bind(('', port))
+    s.bind((host, port))
     pydev_log.info("Bound to port :%s", port)
+    return s
+
+
+def start_server(port):
+    ''' binds to a port, waits for the debugger to connect '''
+    s = create_server_socket(host='', port=port)
 
     try:
         s.listen(1)
-        newSock, _addr = s.accept()
+        new_socket, _addr = s.accept()
         pydev_log.info("Connection accepted")
         # closing server socket is not necessary but we don't need it
         s.shutdown(SHUT_RDWR)
         s.close()
-        return newSock
-
+        return new_socket
     except:
         pydev_log.exception("Could not bind to port: %s\n", port)
+        raise
 
 
 def start_client(host, port):
@@ -576,6 +612,7 @@ class InternalRunThread(InternalThreadCommand):
     def do_it(self, dbg):
         t = pydevd_find_thread_by_id(self.thread_id)
         if t:
+            t.additional_info.pydev_original_step_cmd = -1
             t.additional_info.pydev_step_cmd = -1
             t.additional_info.pydev_step_stop = None
             t.additional_info.pydev_state = STATE_RUN
@@ -590,6 +627,7 @@ class InternalStepThread(InternalThreadCommand):
     def do_it(self, dbg):
         t = pydevd_find_thread_by_id(self.thread_id)
         if t:
+            t.additional_info.pydev_original_step_cmd = self.cmd_id
             t.additional_info.pydev_step_cmd = self.cmd_id
             t.additional_info.pydev_state = STATE_RUN
 
@@ -612,6 +650,7 @@ class InternalSetNextStatementThread(InternalThreadCommand):
     def do_it(self, dbg):
         t = pydevd_find_thread_by_id(self.thread_id)
         if t:
+            t.additional_info.pydev_original_step_cmd = self.cmd_id
             t.additional_info.pydev_step_cmd = self.cmd_id
             t.additional_info.pydev_next_line = int(self.line)
             t.additional_info.pydev_func_name = self.func_name
@@ -1224,7 +1263,7 @@ class InternalSendCurrExceptionTrace(InternalThreadCommand):
 
     def do_it(self, dbg):
         try:
-            cmd = dbg.cmd_factory.make_send_curr_exception_trace_message(self.sequence, self.thread_id, self.curr_frame_id, *self.arg)
+            cmd = dbg.cmd_factory.make_send_curr_exception_trace_message(dbg, self.sequence, self.thread_id, self.curr_frame_id, *self.arg)
             del self.arg
             dbg.writer.add_command(cmd)
         except:

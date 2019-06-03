@@ -19,7 +19,7 @@ DONT_TRACE = {
     'threading.py':LIB_FILE,
     'dis.py':LIB_FILE,
 
-    #things from pydev that we don't want to trace
+    # things from pydev that we don't want to trace
     '_pydev_execfile.py':PYDEV_FILE,
     '__main__pydevd_gen_debug_adapter_protocol.py': PYDEV_FILE,
     '_pydev_BaseHTTPServer.py': PYDEV_FILE,
@@ -41,7 +41,6 @@ DONT_TRACE = {
     '_pydev_uuid_old.py': PYDEV_FILE,
     '_pydev_xmlrpclib.py': PYDEV_FILE,
     'django_debug.py': PYDEV_FILE,
-    'fix_getpass.py': PYDEV_FILE,
     'jinja2_debug.py': PYDEV_FILE,
     'pycompletionserver.py': PYDEV_FILE,
     'pydev_app_engine_debug_startup.py': PYDEV_FILE,
@@ -76,6 +75,7 @@ DONT_TRACE = {
     'pydevd_constants.py': PYDEV_FILE,
     'pydevd_custom_frames.py': PYDEV_FILE,
     'pydevd_cython_wrapper.py': PYDEV_FILE,
+    'pydevd_defaults.py': PYDEV_FILE,
     'pydevd_dont_trace.py': PYDEV_FILE,
     'pydevd_dont_trace_files.py': PYDEV_FILE,
     'pydevd_exec.py': PYDEV_FILE,

@@ -9,7 +9,8 @@ from _pydevd_bundle.pydevd_comm import (InternalGetThreadStack, internal_get_com
     internal_get_description, internal_get_frame, internal_evaluate_expression, InternalConsoleExec,
     internal_get_variable_json, internal_change_variable, internal_change_variable_json,
     internal_evaluate_expression_json, internal_set_expression_json, internal_get_exception_details_json)
-from _pydevd_bundle.pydevd_comm_constants import CMD_THREAD_SUSPEND, file_system_encoding
+from _pydevd_bundle.pydevd_comm_constants import (CMD_THREAD_SUSPEND, file_system_encoding,
+    CMD_STEP_INTO_MY_CODE, CMD_STOP_ON_START)
 from _pydevd_bundle.pydevd_constants import (get_current_thread_id, set_protocol, get_protocol,
     HTTP_JSON_PROTOCOL, JSON_PROTOCOL, STATE_RUN, IS_PY3K, DebugInfoHolder, dict_keys)
 from _pydevd_bundle.pydevd_net_command_factory_json import NetCommandFactoryJson
@@ -24,6 +25,12 @@ class PyDevdAPI(object):
 
     def run(self, py_db):
         py_db.ready_to_run = True
+
+    def notify_configuration_done(self, py_db):
+        py_db.on_configuration_done()
+
+    def notify_disconnect(self, py_db):
+        py_db.on_disconnect()
 
     def set_protocol(self, py_db, seq, protocol):
         set_protocol(protocol.strip())
@@ -47,9 +54,15 @@ class PyDevdAPI(object):
         else:
             py_db._set_breakpoints_with_id = False
 
-        pydevd_file_utils.set_ide_os(ide_os)
+        self.set_ide_os(ide_os)
 
         return py_db.cmd_factory.make_version_message(seq)
+
+    def set_ide_os(self, ide_os):
+        '''
+        :param ide_os: 'WINDOWS' or 'UNIX'
+        '''
+        pydevd_file_utils.set_ide_os(ide_os)
 
     def send_error_message(self, py_db, msg):
         sys.stderr.write('pydevd: %s\n' % (msg,))
@@ -105,6 +118,14 @@ class PyDevdAPI(object):
         '''
         py_db.set_enable_thread_notifications(enable)
 
+    def request_disconnect(self, py_db, resume_threads):
+        self.set_enable_thread_notifications(py_db, False)
+        self.remove_all_breakpoints(py_db, filename='*')
+        self.remove_all_exception_breakpoints(py_db)
+        self.notify_disconnect(py_db)
+        if resume_threads:
+            self.request_resume_thread(thread_id='*')
+
     def request_resume_thread(self, thread_id):
         threads = []
         if thread_id == '*':
@@ -120,6 +141,7 @@ class PyDevdAPI(object):
             if t is None:
                 continue
             additional_info = set_additional_thread_info(t)
+            additional_info.pydev_original_step_cmd = -1
             additional_info.pydev_step_cmd = -1
             additional_info.pydev_step_stop = None
             additional_info.pydev_state = STATE_RUN
@@ -229,6 +251,27 @@ class PyDevdAPI(object):
         filename = self.filename_to_str(filename)
         return pydevd_file_utils.norm_file_to_server(filename)
 
+    class _DummyFrame(object):
+        '''
+        Dummy frame to be used with PyDB.apply_files_filter (as we don't really have the
+        related frame as breakpoints are added before execution).
+        '''
+
+        class _DummyCode(object):
+
+            def __init__(self, filename):
+                self.co_firstlineno = 1
+                self.co_filename = filename
+                self.co_name = 'invalid func name '
+
+        def __init__(self, filename):
+            self.f_code = self._DummyCode(filename)
+            self.f_globals = {}
+
+    ADD_BREAKPOINT_NO_ERROR = 0
+    ADD_BREAKPOINT_FILE_NOT_FOUND = 1
+    ADD_BREAKPOINT_FILE_EXCLUDED_BY_FILTERS = 2
+
     def add_breakpoint(
             self, py_db, filename, breakpoint_type, breakpoint_id, line, condition, func_name, expression, suspend_policy, hit_condition, is_logpoint):
         '''
@@ -264,14 +307,34 @@ class PyDevdAPI(object):
         :param bool is_logpoint:
             If True and an expression is passed, pydevd will create an io message command with the
             result of the evaluation.
+
+        :return int:
+            :see: ADD_BREAKPOINT_NO_ERROR = 0
+            :see: ADD_BREAKPOINT_FILE_NOT_FOUND = 1
+            :see: ADD_BREAKPOINT_FILE_EXCLUDED_BY_FILTERS = 2
         '''
         assert filename.__class__ == str  # i.e.: bytes on py2 and str on py3
         assert func_name.__class__ == str  # i.e.: bytes on py2 and str on py3
 
         if not pydevd_file_utils.exists(filename):
-            pydev_log.critical('pydev debugger: warning: trying to add breakpoint'\
-                ' to file that does not exist: %s (will have no effect)\n' % (filename,))
-            return
+            return self.ADD_BREAKPOINT_FILE_NOT_FOUND
+
+        error_code = self.ADD_BREAKPOINT_NO_ERROR
+        if (
+                py_db.is_files_filter_enabled and
+                not py_db.get_require_module_for_filters() and
+                py_db.apply_files_filter(self._DummyFrame(filename), filename, False)
+            ):
+            # Note that if `get_require_module_for_filters()` returns False, we don't do this check.
+            # This is because we don't have the module name given a file at this point (in
+            # runtime it's gotten from the frame.f_globals).
+            # An option could be calculate it based on the filename and current sys.path,
+            # but on some occasions that may be wrong (for instance with `__main__` or if
+            # the user dynamically changes the PYTHONPATH).
+
+            # Note: depending on the use-case, filters may be changed, so, keep on going and add the
+            # breakpoint even with the error code.
+            error_code = self.ADD_BREAKPOINT_FILE_EXCLUDED_BY_FILTERS
 
         if breakpoint_type == 'python-line':
             added_breakpoint = LineBreakpoint(line, condition, func_name, expression, suspend_policy, hit_condition=hit_condition, is_logpoint=is_logpoint)
@@ -308,6 +371,7 @@ class PyDevdAPI(object):
             py_db.has_plugin_line_breaks = py_db.plugin.has_line_breaks()
 
         py_db.on_breakpoints_changed()
+        return error_code
 
     def remove_all_breakpoints(self, py_db, filename):
         '''
@@ -523,3 +587,42 @@ class PyDevdAPI(object):
         '''
         py_db.post_method_as_internal_command(
             thread_id, internal_change_variable_json, request)
+
+    def set_dont_trace_start_end_patterns(self, py_db, start_patterns, end_patterns):
+        # After it's set the first time, we can still change it, but we need to reset the
+        # related caches.
+        reset_caches = False
+        dont_trace_start_end_patterns_previously_set = \
+            py_db.dont_trace_external_files.__name__ == 'custom_dont_trace_external_files'
+
+        if not dont_trace_start_end_patterns_previously_set and not start_patterns and not end_patterns:
+            # If it wasn't set previously and start and end patterns are empty we don't need to do anything.
+            return
+
+        if not py_db.is_cache_file_type_empty():
+            # i.e.: custom function set in set_dont_trace_start_end_patterns.
+            if dont_trace_start_end_patterns_previously_set:
+                reset_caches = py_db.dont_trace_external_files.start_patterns != start_patterns or \
+                    py_db.dont_trace_external_files.end_patterns != end_patterns
+
+            else:
+                reset_caches = True
+
+        def custom_dont_trace_external_files(abs_path):
+            return abs_path.startswith(start_patterns) or abs_path.endswith(end_patterns)
+
+        custom_dont_trace_external_files.start_patterns = start_patterns
+        custom_dont_trace_external_files.end_patterns = end_patterns
+        py_db.dont_trace_external_files = custom_dont_trace_external_files
+
+        if reset_caches:
+            py_db.clear_dont_trace_start_end_patterns_caches()
+
+    def stop_on_entry(self):
+        main_thread = pydevd_utils.get_main_thread()
+        if main_thread is None:
+            pydev_log.critical('Could not find main thread while setting Stop on Entry.')
+        else:
+            info = set_additional_thread_info(main_thread)
+            info.pydev_original_step_cmd = CMD_STOP_ON_START
+            info.pydev_step_cmd = CMD_STEP_INTO_MY_CODE

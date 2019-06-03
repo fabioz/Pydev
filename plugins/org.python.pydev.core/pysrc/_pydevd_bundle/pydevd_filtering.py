@@ -7,6 +7,7 @@ from _pydev_bundle import pydev_log
 import pydevd_file_utils
 import json
 from collections import namedtuple
+from _pydev_imps._pydev_saved_modules import threading
 
 try:
     xrange  # noqa
@@ -126,32 +127,43 @@ class FilesFiltering(object):
 
         # Stepping filters.
         pydevd_filters = os.getenv('PYDEVD_FILTERS', '')
-        if pydevd_filters.startswith('{'):
-            # dict(glob_pattern (str) -> exclude(True or False))
-            exclude_filters = []
-            for key, val in json.loads(pydevd_filters).items():
-                exclude_filters.append(ExcludeFilter(key, val, True))
-            self._exclude_filters = exclude_filters
-        else:
-            # A ';' separated list of strings with globs for the
-            # list of excludes.
-            filters = pydevd_filters.split(';')
-            pydev_log.debug("PYDEVD_FILTERS %s\n" % filters)
-            new_filters = []
-            for new_filter in filters:
-                if new_filter.strip():
-                    new_filters.append(ExcludeFilter(new_filter.strip(), True, True))
-            self._exclude_filters = new_filters
+        if pydevd_filters:
+            pydev_log.debug("PYDEVD_FILTERS %s", (pydevd_filters,))
+            if pydevd_filters.startswith('{'):
+                # dict(glob_pattern (str) -> exclude(True or False))
+                exclude_filters = []
+                for key, val in json.loads(pydevd_filters).items():
+                    exclude_filters.append(ExcludeFilter(key, val, True))
+                self._exclude_filters = exclude_filters
+            else:
+                # A ';' separated list of strings with globs for the
+                # list of excludes.
+                filters = pydevd_filters.split(';')
+                new_filters = []
+                for new_filter in filters:
+                    if new_filter.strip():
+                        new_filters.append(ExcludeFilter(new_filter.strip(), True, True))
+                self._exclude_filters = new_filters
 
     @classmethod
     def _get_default_library_roots(cls):
         # Provide sensible defaults if not in env vars.
         import site
-        roots = [sys.prefix]
-        if hasattr(sys, 'base_prefix'):
-            roots.append(sys.base_prefix)
-        if hasattr(sys, 'real_prefix'):
-            roots.append(sys.real_prefix)
+
+        roots = []
+
+        try:
+            import sysconfig  # Python 2.7 onwards only.
+        except ImportError:
+            pass
+        else:
+            for path_name in set(('stdlib', 'platstdlib', 'purelib', 'platlib')) & set(sysconfig.get_path_names()):
+                roots.append(sysconfig.get_path(path_name))
+
+        # Make sure we always get at least the standard library location (based on the `os` and
+        # `threading` modules -- it's a bit weird that it may be different on the ci, but it happens).
+        roots.append(os.path.dirname(os.__file__))
+        roots.append(os.path.dirname(threading.__file__))
 
         if hasattr(site, 'getusersitepackages'):
             site_paths = site.getusersitepackages()
@@ -172,6 +184,8 @@ class FilesFiltering(object):
         for path in sys.path:
             if os.path.exists(path) and os.path.basename(path) == 'site-packages':
                 roots.append(path)
+
+        roots.extend([os.path.realpath(path) for path in roots])
 
         return sorted(set(roots))
 
@@ -263,8 +277,6 @@ class FilesFiltering(object):
         for exclude_filter in self._exclude_filters:  # : :type exclude_filter: ExcludeFilter
             if exclude_filter.is_path:
                 if glob_matches_path(filename, exclude_filter.name):
-                    if exclude_filter.exclude:
-                        pydev_log.debug("File %s ignored by filter %s" % (filename, exclude_filter.name))
                     return exclude_filter.exclude
             else:
                 # Module filter.
