@@ -29,6 +29,8 @@
         <div class="section" id="bronze-sponsors">
         <h1>Bronze Sponsors</h1>
 
+        <a href="https://essayshark.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/essay_shark.png" alt="EssayShark" title="https://essayshark.com/" /></a>
+
         <a href="https://bestwebhostingaustralia.org" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/aussie_hosting.png" alt="BestWebHostingAustralia" title="https://bestwebhostingaustralia.org" /></a>
 
         <a href="https://edubirdie.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/edubirdie.png" alt="EduBirdie" title="https://edubirdie.com/" /></a>
@@ -37,10 +39,11 @@
 
         <a href="https://esportbetting.eu/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/esport_betting.png" alt="eSportBetting" title="https://esportbetting.eu/" /></a>
 
-        <a href="https://www.privatkreditsofort.ch/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/privatkredit-sofort.png" alt="PrivatkreditSofort.ch" title="https://www.privatkreditsofort.ch/" /></a>
 
 
 		<br/>
+        <a href="https://www.privatkreditsofort.ch/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/privatkredit-sofort.png" alt="PrivatkreditSofort.ch" title="https://www.privatkreditsofort.ch/" /></a>
+
         <a href="https://lejonfinans.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/lejofinans.png" alt="LejonFinans" title="https://lejonfinans.com/" /></a>
 
         <a href="https://www.codefirst.co.uk/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/codefirst.png" alt="CodeFirst" title="https://www.codefirst.co.uk/" /></a>
@@ -49,11 +52,12 @@
 
         <a href="https://www.websitehostingrating.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/webhostingrating.png" alt="websitehostingrating" title="https://www.websitehostingrating.com/" /></a>
 
-        <a href="https://www.redfin.com/city/16163/WA/Seattle" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/redfin.png" alt="Redfin" title="https://www.redfin.com/city/16163/WA/Seattle" /></a>
 
 
 
 		<br/>
+        <a href="https://www.redfin.com/city/16163/WA/Seattle" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/redfin.png" alt="Redfin" title="https://www.redfin.com/city/16163/WA/Seattle" /></a>
+
         <a href="https://slotcatalog.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/slotcatalog.png" alt="slotcatalog.com" title="https://slotcatalog.com" /></a>
 
         <a href="https://www.immigrationlawofmt.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/immigrationlawofmt.png" alt="immigrationlawofmt" title="https://www.immigrationlawofmt.com" /></a>
@@ -62,11 +66,12 @@
 
         <a href="https://superbwebsitebuilders.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/superbwebsitebuilders.png" alt="superbwebsitebuilders" title="https://superbwebsitebuilders.com/" /></a>
 
-        <a href="https://netotraffic.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/netotraffic.png" alt="Netotraffic" title="https://netotraffic.com/" /></a>
 
 
 
 		<br/>
+        <a href="https://netotraffic.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/netotraffic.png" alt="Netotraffic" title="https://netotraffic.com/" /></a>
+
         <a href="https://allesrefurbished.nl" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/alles_refurbished.png" alt="Alles Refurbished - overview of refurbished tablets, telephones and more (in Dutch)" title="Alles Refurbished - overview of refurbished tablets, telephones and more (in Dutch)" /></a>
 
         <a href="https://www.parcelabc.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/parcelabc-logo.jpg" alt="ParcelABC" title="ParcelABC" /></a>
