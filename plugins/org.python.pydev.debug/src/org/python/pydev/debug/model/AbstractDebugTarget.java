@@ -462,6 +462,9 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
             } else if (cmdCode == AbstractDebuggerCommand.CMD_SET_NEXT_STATEMENT) {
                 // This is just an acknowledgement.
 
+            } else if (cmdCode == AbstractDebuggerCommand.CMD_RETURN) {
+                // This is just an acknowledgement.
+
             } else {
                 PydevDebugPlugin.log(IStatus.WARNING, "Unexpected debugger command:" + sCmdCode +
                         "\nseq:" + sSeqCode
