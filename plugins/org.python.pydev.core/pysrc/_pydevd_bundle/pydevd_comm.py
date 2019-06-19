@@ -89,7 +89,7 @@ except:
     from urllib.parse import quote_plus, unquote_plus  # @Reimport @UnresolvedImport
 
 import pydevconsole
-from _pydevd_bundle import pydevd_vars
+from _pydevd_bundle import pydevd_vars, pydevd_utils
 import pydevd_tracing
 from _pydevd_bundle import pydevd_xml
 from _pydevd_bundle import pydevd_vm_type
@@ -607,29 +607,27 @@ class InternalGetThreadStack(InternalThreadCommand):
             self._cmd = None
 
 
-class InternalRunThread(InternalThreadCommand):
-
-    def do_it(self, dbg):
-        t = pydevd_find_thread_by_id(self.thread_id)
-        if t:
-            t.additional_info.pydev_original_step_cmd = -1
-            t.additional_info.pydev_step_cmd = -1
-            t.additional_info.pydev_step_stop = None
-            t.additional_info.pydev_state = STATE_RUN
+def internal_run_thread(thread, set_additional_thread_info):
+    info = set_additional_thread_info(thread)
+    info.pydev_original_step_cmd = -1
+    info.pydev_step_cmd = -1
+    info.pydev_step_stop = None
+    info.pydev_state = STATE_RUN
 
 
-class InternalStepThread(InternalThreadCommand):
+def internal_step_in_thread(py_db, thread_id, cmd_id, set_additional_thread_info):
+    thread_to_step = pydevd_find_thread_by_id(thread_id)
+    if thread_to_step:
+        info = set_additional_thread_info(thread_to_step)
+        info.pydev_original_step_cmd = cmd_id
+        info.pydev_step_cmd = cmd_id
+        info.pydev_state = STATE_RUN
 
-    def __init__(self, thread_id, cmd_id):
-        self.thread_id = thread_id
-        self.cmd_id = cmd_id
-
-    def do_it(self, dbg):
-        t = pydevd_find_thread_by_id(self.thread_id)
-        if t:
-            t.additional_info.pydev_original_step_cmd = self.cmd_id
-            t.additional_info.pydev_step_cmd = self.cmd_id
-            t.additional_info.pydev_state = STATE_RUN
+    if py_db.stepping_resumes_all_threads:
+        threads = pydevd_utils.get_non_pydevd_threads()
+        for t in threads:
+            if t is not thread_to_step:
+                internal_run_thread(t, set_additional_thread_info)
 
 
 class InternalSetNextStatementThread(InternalThreadCommand):
@@ -887,7 +885,7 @@ def _evaluate_response(py_db, request, result, error_message=''):
         variables_response = pydevd_base_schema.build_response(request, kwargs={'body':body})
         py_db.writer.add_command(NetCommand(CMD_RETURN, 0, variables_response, is_json=True))
     else:
-        body = pydevd_schema.EvaluateResponseBody(result='', variablesReference=0)
+        body = pydevd_schema.EvaluateResponseBody(result=result, variablesReference=0)
         variables_response = pydevd_base_schema.build_response(request, kwargs={
             'body':body, 'success':False, 'message': error_message})
         py_db.writer.add_command(NetCommand(CMD_RETURN, 0, variables_response, is_json=True))
@@ -928,7 +926,10 @@ def internal_evaluate_expression_json(py_db, request, thread_id):
                 pydevd_vars.evaluate_expression(py_db, frame, expression, is_exec=True)
             except Exception as ex:
                 err = ''.join(traceback.format_exception_only(type(ex), ex))
-                _evaluate_response(py_db, request, result='', error_message=err)
+                # Currently there is an issue in VSC where returning success=false for an
+                # eval request, in repl context, VSC does not show the error response in
+                # the debug console. So return the error message in result as well.
+                _evaluate_response(py_db, request, result=err, error_message=err)
                 return
             # No result on exec.
             _evaluate_response(py_db, request, result='')
@@ -938,7 +939,7 @@ def internal_evaluate_expression_json(py_db, request, thread_id):
     frame_tracker = py_db.suspended_frames_manager.get_frame_tracker(thread_id)
     if frame_tracker is None:
         # This is not really expected.
-        _evaluate_response(py_db, request, result, error_message='Thread id: %s is not current thread id.' % (thread_id,))
+        _evaluate_response(py_db, request, result='', error_message='Thread id: %s is not current thread id.' % (thread_id,))
         return
 
     variable = frame_tracker.obtain_as_variable(expression, result, frame=frame)
