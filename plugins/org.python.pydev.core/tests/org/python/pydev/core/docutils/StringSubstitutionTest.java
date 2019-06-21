@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2019 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -33,7 +33,6 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourceAttributes;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IPluginDescriptor;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.QualifiedName;
@@ -552,6 +551,7 @@ public class StringSubstitutionTest extends TestCase {
                         throw new RuntimeException("Not implemented");
                     }
 
+                    @Override
                     public void clearCachedDynamicReferences() {
 
                     }
@@ -972,11 +972,6 @@ public class StringSubstitutionTest extends TestCase {
 
                     @Override
                     public IProjectNature getNature(String natureId) throws CoreException {
-                        throw new RuntimeException("Not implemented");
-                    }
-
-                    @Override
-                    public IPath getPluginWorkingLocation(IPluginDescriptor plugin) {
                         throw new RuntimeException("Not implemented");
                     }
 

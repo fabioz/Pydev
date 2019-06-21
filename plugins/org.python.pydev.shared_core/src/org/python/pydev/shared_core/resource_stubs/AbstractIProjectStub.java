@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2019 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -18,7 +18,6 @@ import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IPluginDescriptor;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.content.IContentTypeMatcher;
 
@@ -78,11 +77,6 @@ public class AbstractIProjectStub extends AbstractIContainerStub implements IPro
     @Override
     public IProjectNature getNature(String natureId) throws CoreException {
         return null;
-    }
-
-    @Override
-    public IPath getPluginWorkingLocation(IPluginDescriptor plugin) {
-        throw new RuntimeException("Not implemented");
     }
 
     @Override
@@ -193,6 +187,7 @@ public class AbstractIProjectStub extends AbstractIContainerStub implements IPro
         return IResource.PROJECT;
     }
 
+    @Override
     public void clearCachedDynamicReferences() {
     }
 
