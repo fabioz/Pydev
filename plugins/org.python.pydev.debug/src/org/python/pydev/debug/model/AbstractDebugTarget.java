@@ -929,7 +929,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
                                 if (p.getType().equals(IOConsolePartition.INPUT_PARTITION_TYPE)) {
                                     if (event.fText.length() <= 2) {
                                         //the user typed something
-                                        final String inputFound = p.getString();
+                                        final String inputFound = event.getDocument().get(p.getOffset(), p.getLength());
                                         for (IConsoleInputListener listener : participants) {
                                             listener.newLineReceived(inputFound, target);
                                         }
